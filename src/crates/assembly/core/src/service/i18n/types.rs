@@ -16,6 +16,8 @@ pub enum LocaleId {
     ZhTW,
     #[serde(rename = "en-US")]
     EnUS,
+    #[serde(rename = "fr-FR")]
+    FrFR,
 }
 
 impl LocaleId {
