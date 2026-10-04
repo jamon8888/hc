@@ -6,13 +6,13 @@
       "maxTotal": 0
     },
     "sharedTermDuplicates": {
-      "maxTotal": 154,
+      "maxTotal": 219,
       "bySurface": {
-        "core": 15,
+        "core": 20,
         "installer": 0,
         "mobile-web": 0,
         "relay-static-homepage": 0,
-        "web-ui": 139
+        "web-ui": 199
       },
       "bySharedKey": {
         "agents.claw": 0,
@@ -27,20 +27,21 @@
         "features.settings": 0,
         "features.workspace": 2,
         "modes.assistant": 1,
-        "modes.expert": 2,
+        "modes.expert": 3,
         "modes.review": 0,
         "product.name": 0,
-        "statuses.cancelled": 24,
-        "statuses.done": 20,
-        "statuses.failed": 32,
-        "statuses.loading": 5,
-        "statuses.running": 6,
-        "tools.edit": 33,
+        "statuses.cancelled": 31,
+        "statuses.done": 34,
+        "statuses.failed": 39,
+        "statuses.loading": 8,
+        "statuses.running": 11,
+        "tools.edit": 40,
         "tools.explore": 2,
-        "tools.search": 10,
-        "tools.shell": 7,
-        "agents.Minimal": 3,
-        "agents.Standard": 6
+        "tools.search": 14,
+        "tools.shell": 17,
+        "agents.Minimal": 6,
+        "agents.Standard": 8,
+        "tools.todo": 2
       }
     },
     "l10nQualityCandidates": {

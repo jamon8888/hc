@@ -112,7 +112,8 @@ mod tests {
         assert_eq!(LocaleId::from_str("zh-Hant-TW"), Some(LocaleId::ZhTW));
         assert_eq!(LocaleId::from_str("  ZH-hans-CN  "), Some(LocaleId::ZhCN));
         assert_eq!(LocaleId::from_str("en"), Some(LocaleId::EnUS));
-        assert_eq!(LocaleId::from_str("fr-FR"), None);
+        assert_eq!(LocaleId::from_str("fr-FR"), Some(LocaleId::FrFR));
+        assert_eq!(LocaleId::from_str("de-DE"), None);
     }
 
     #[test]
