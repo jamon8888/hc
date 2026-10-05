@@ -8,7 +8,7 @@
     "closeAll": "Tout fermer",
     "undo": "Annuler",
     "redo": "Rétablir",
-    "find": "Rechercher",
+    "find": "$t(shared:tools.search)",
     "replace": "Remplacer",
     "findInFiles": "Rechercher dans les fichiers",
     "goToLine": "Aller à la ligne",
@@ -38,7 +38,7 @@
       "saveFailedWithMessage": "Échec de l'enregistrement du fichier : {{message}}",
       "save": "Enregistrer",
       "cancel": "Annuler",
-      "edit": "Éditer",
+      "edit": "$t(shared:tools.edit)",
       "add": "Ajouter",
       "delete": "Supprimer"
     },
@@ -221,7 +221,7 @@
     }
   },
   "terminal": {
-    "title": "Terminal",
+    "title": "$t(shared:tools.shell)",
     "new": "Nouveau terminal",
     "split": "Diviser le terminal",
     "kill": "Terminer",
@@ -237,7 +237,7 @@
       "cancel": "Annuler"
     },
     "selectAll": "Tout sélectionner",
-    "find": "Rechercher",
+    "find": "$t(shared:tools.search)",
     "shell": "Shell",
     "workingDirectory": "Répertoire de travail",
     "runCommand": "Exécuter la commande",

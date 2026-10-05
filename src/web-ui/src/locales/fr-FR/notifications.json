@@ -61,7 +61,7 @@
       "close": "Fermer",
       "prev": "Précédent",
       "next": "Page suivante",
-      "done": "Terminé",
+      "done": "$t(shared:statuses.done)",
       "never_show_again": "Ne plus afficher",
       "page": "Page"
     }

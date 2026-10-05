@@ -231,7 +231,7 @@
       "status": {
         "running": "$t(shared:statuses.running)",
         "saved": "Sauvegardé",
-        "exited": "Terminé",
+        "exited": "$t(shared:statuses.done)",
         "unknown": "Inconnu",
         "starting": "Démarrage",
         "stopping": "Arrêt",
@@ -460,7 +460,7 @@
       "open": "Tâches planifiées",
       "shortLabel": "Planification",
       "badgeTooltip": "{{count}} tâche(s) planifiée(s)",
-      "listTitle": "Tâches",
+      "listTitle": "$t(shared:tools.todo)",
       "assistantFallback": "Assistant actuel",
       "loading": "Chargement des tâches planifiées...",
       "never": "Non planifié",
@@ -514,10 +514,10 @@
         "idle": "Inactif",
         "disabled": "Désactivé",
         "queued": "En file d'attente",
-        "running": "En cours",
+        "running": "$t(shared:statuses.running)",
         "ok": "OK",
         "error": "Erreur",
-        "cancelled": "Annulé"
+        "cancelled": "$t(shared:statuses.cancelled)"
       },
       "actions": {
         "refresh": "Actualiser les tâches",
@@ -1237,7 +1237,7 @@
     "redo": "Rétablir",
     "refresh": "Actualiser",
     "reload": "Recharger",
-    "search": "Rechercher",
+    "search": "$t(shared:tools.search)",
     "filter": "Filtrer",
     "sort": "Trier",
     "export": "Exporter",
@@ -1331,7 +1331,7 @@
     }
   },
   "status": {
-    "loading": "Chargement",
+    "loading": "$t(shared:statuses.loading)",
     "saving": "Enregistrement",
     "saved": "Enregistré",
     "unsaved": "Non enregistré",
@@ -1341,9 +1341,9 @@
     "info": "Info",
     "pending": "En attente",
     "processing": "En cours de traitement",
-    "completed": "Terminé",
-    "failed": "Échec",
-    "cancelled": "Annulé",
+    "completed": "$t(shared:statuses.done)",
+    "failed": "$t(shared:statuses.failed)",
+    "cancelled": "$t(shared:statuses.cancelled)",
     "active": "Actif",
     "inactive": "Inactif",
     "enabled": "Activé",
@@ -1537,7 +1537,7 @@
   },
   "scenes": {
     "aiAgent": "Session",
-    "terminal": "Terminal",
+    "terminal": "$t(shared:tools.shell)",
     "git": "Git",
     "fileViewer": "Visionneuse de fichiers",
     "agents": "Agents",

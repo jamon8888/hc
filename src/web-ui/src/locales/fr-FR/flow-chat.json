@@ -439,8 +439,8 @@
       "working": "Travail en cours",
       "needsInput": "Saisie requise",
       "needsApproval": "Approbation requise",
-      "completed": "Terminé",
-      "failed": "Échec",
+      "completed": "$t(shared:statuses.done)",
+      "failed": "$t(shared:statuses.failed)",
       "interrupted": "Interrompu"
     },
     "menu": {
@@ -817,9 +817,9 @@
     "reasoningStatus": {
       "levels": {
         "none": "Désactivé",
-        "minimal": "Minimal",
+        "minimal": "$t(shared:agents.Minimal)",
         "low": "Faible",
-        "medium": "Standard",
+        "medium": "$t(shared:agents.Standard)",
         "high": "Élevé",
         "xhigh": "Très élevé",
         "max": "Maximum"
@@ -967,9 +967,9 @@
       "chooseSource": "Choisir la source"
     },
     "computerUseDisabled": "Computer Use est désactivé dans Paramètres → Autorisations de session",
-    "professionalMode": "Mode expert",
+    "professionalMode": "$t(shared:modes.expert)",
     "designMode": "Mode design",
-    "wip": "En cours",
+    "wip": "$t(shared:statuses.running)",
     "sendTarget": "Envoyer à",
     "conversationTarget": "Cible de la conversation",
     "targetMain": "Principale",
@@ -1008,7 +1008,7 @@
     "title": "Planification des tâches",
     "completed": "Terminées",
     "completedCount": "{{count}} terminées",
-    "inProgress": "En cours",
+    "inProgress": "$t(shared:statuses.running)",
     "inProgressCount": "{{count}} en cours",
     "pending": "En attente",
     "pendingCount": "{{count}} en attente",
@@ -1105,7 +1105,7 @@
     "backToParent": "Retour à la session parente",
     "empty": "Veuillez saisir une question après /btw",
     "nestedDisabled": "Une question annexe ne peut pas en démarrer une autre",
-    "error": "Échec",
+    "error": "$t(shared:statuses.failed)",
     "close": "Fermer",
     "noSession": "Aucune session active pour /btw"
   },
@@ -1373,7 +1373,7 @@
     "runStrategy": "Stratégie d'exécution : {{strategy}}",
     "strategyLabels": {
       "quick": "Rapide",
-      "normal": "Standard",
+      "normal": "$t(shared:agents.Standard)",
       "deep": "Approfondie"
     },
     "strategySummaries": {
@@ -1668,7 +1668,7 @@
     },
     "meta": {
       "label": "Métadonnées de la réponse",
-      "completed": "Terminé",
+      "completed": "$t(shared:statuses.done)",
       "stopped": "Arrêté",
       "duration": "Durée",
       "tokens": "Tokens",
@@ -1710,7 +1710,7 @@
       "edit": "Modifier un fichier",
       "delete": "Supprimer un fichier",
       "deletedLabel": "Supprimé",
-      "failed": "Échec",
+      "failed": "$t(shared:statuses.failed)",
       "parsingPath": "Analyse du chemin du fichier...",
       "receivingContent": "Réception du contenu du fichier...",
       "unknownFile": "Fichier inconnu",
@@ -1755,7 +1755,7 @@
       "skeletonReady": "Prête",
       "creatingShort": "…",
       "untitled": "(sans nom)",
-      "failed": "Échec",
+      "failed": "$t(shared:statuses.failed)",
       "createFailed": "Impossible de créer la Mini App",
       "openInMiniApp": "Ouvrir dans Mini App",
       "openInMiniAppTitle": "Ouvrir dans Mini App",
@@ -1901,7 +1901,7 @@
       "cancel": "Annuler",
       "loading": "Chargement...",
       "success": "Succès",
-      "failed": "Échec",
+      "failed": "$t(shared:statuses.failed)",
       "error": "Erreur",
       "copy": "Copier",
       "copied": "Copié",
@@ -1918,7 +1918,7 @@
     },
     "askUser": {
       "interactionFailed": "Impossible d'arrêter le délai de la question sur l'appareil d'exécution. Envoyez votre réponse rapidement ou mettez à jour cet appareil.",
-      "completed": "Terminé",
+      "completed": "$t(shared:statuses.done)",
       "submittedWaiting": "Envoyé, en attente de traitement",
       "submitting": "Envoi...",
       "submitFailed": "Impossible d'envoyer la réponse. Vérifiez la connexion et réessayez.",
@@ -2017,7 +2017,7 @@
       "tasksCount": "{{count}} tâches",
       "progress": "({{completed}}/{{total}} terminées)",
       "allCompleted": "Toutes les tâches sont terminées",
-      "tasks": "Tâches",
+      "tasks": "$t(shared:tools.todo)",
       "collapseList": "Réduire la liste",
       "expandList": "Développer la liste"
     },
@@ -2082,7 +2082,7 @@
       "status": {
         "pending": "En attente",
         "running": "$t(shared:statuses.running)",
-        "completed": "Terminé",
+        "completed": "$t(shared:statuses.done)",
         "failed": "$t(shared:statuses.failed)"
       },
       "loadingMore": "Chargement de la suite de la sortie...",
@@ -2128,8 +2128,8 @@
       "queued": "En file d'attente",
       "waiting": "En attente",
       "executing": "Exécution...",
-      "completed": "Terminé",
-      "cancelled": "Annulé",
+      "completed": "$t(shared:statuses.done)",
+      "cancelled": "$t(shared:statuses.cancelled)",
       "rejected": "Rejeté",
       "failed": "Échec de l'exécution",
       "preparing": "Préparation"
@@ -2139,7 +2139,7 @@
       "unknown": "Inconnu",
       "loadSkillFailed": "Échec du chargement du skill",
       "skillAction": "Skill :",
-      "loadingSkill": "Chargement",
+      "loadingSkill": "$t(shared:statuses.loading)",
       "preparingSkill": "Préparation du chargement"
     },
     "readFile": {
@@ -2338,7 +2338,7 @@
       "paramsReceiving": "Réception des paramètres",
       "preparing": "Préparation",
       "running": "$t(shared:statuses.running)",
-      "completed": "Terminé",
+      "completed": "$t(shared:statuses.done)",
       "error": "$t(shared:statuses.failed)",
       "cancelled": "$t(shared:statuses.cancelled)"
     },
@@ -2709,7 +2709,7 @@
       "off": "Désactivé",
       "on": "Activé",
       "none": "Désactivé",
-      "minimal": "Minimal",
+      "minimal": "$t(shared:agents.Minimal)",
       "low": "Faible",
       "medium": "Moyen",
       "high": "Élevé",

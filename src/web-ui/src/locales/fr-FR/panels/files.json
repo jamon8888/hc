@@ -76,10 +76,10 @@
       },
       "taskState": {
         "queued": "En file d'attente",
-        "running": "En cours",
-        "completed": "Terminé",
+        "running": "$t(shared:statuses.running)",
+        "completed": "$t(shared:statuses.done)",
         "failed": "Échoué",
-        "cancelled": "Annulé"
+        "cancelled": "$t(shared:statuses.cancelled)"
       }
     }
   },
