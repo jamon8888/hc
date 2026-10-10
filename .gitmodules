@@ -1,0 +1,3 @@
+[submodule "submodules/basemind"]
+	path = submodules/basemind
+	url = /home/jamin/Documents/hc/submodules/basemind
