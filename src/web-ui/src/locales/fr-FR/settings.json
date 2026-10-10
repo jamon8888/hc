@@ -33,7 +33,7 @@
         "description": "Parcourir, personnaliser et réinitialiser les raccourcis clavier."
       },
       "terminal": {
-        "label": "Terminal",
+        "label": "$t(shared:tools.shell)",
         "description": "Shell par défaut."
       },
       "editor": {
@@ -201,7 +201,7 @@
     }
   },
   "terminal": {
-    "title": "Terminal",
+    "title": "$t(shared:tools.shell)",
     "shell": {
       "title": "Shell",
       "default": "Shell par Défaut",
@@ -263,7 +263,7 @@
       "canvas": "Canevas Éditeur",
       "editor": "Éditeur de code (focus texte)",
       "chat": "Session Agent",
-      "terminal": "Terminal",
+      "terminal": "$t(shared:tools.shell)",
       "filetree": "Arborescence Fichiers",
       "git": "Git"
     },
@@ -388,7 +388,7 @@
     "newConfig": "Nouvelle Configuration",
     "save": "Sauvegarder",
     "cancel": "Annuler",
-    "edit": "Éditer",
+    "edit": "$t(shared:tools.edit)",
     "delete": "Supprimer",
     "description": "Description",
     "descriptionPlaceholder": "Description de la configuration (optionnel)",
@@ -562,7 +562,7 @@
     "lineNumbers": "Afficher les Numéros de Ligne"
   },
   "terminalConfig": {
-    "title": "Terminal",
+    "title": "$t(shared:tools.shell)",
     "subtitle": "Configurer le terminal intégré",
     "shell": "Shell par Défaut",
     "fontSize": "Taille de Police",

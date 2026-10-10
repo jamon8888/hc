@@ -67,6 +67,7 @@ pub use api::*;
 use api::acp_client_api::*;
 use api::clipboard_file_api::*;
 use api::commands::*;
+#[cfg(feature = "basemind")]
 use api::commands::basemind_commands;
 use api::computer_use_api::*;
 use api::config_api::*;

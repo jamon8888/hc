@@ -108,7 +108,7 @@
     "remoteOAuthExchangingToken": "Échange du code d'autorisation",
     "remoteOAuthAuthorized": "Autorisé",
     "remoteOAuthFailed": "Échoué",
-    "remoteOAuthCancelled": "Annulé",
+    "remoteOAuthCancelled": "$t(shared:statuses.cancelled)",
     "runtime": {
       "source": "Source",
       "path": "Chemin Résolu",
@@ -146,7 +146,7 @@
     "enableAndStart": "Activer et démarrer",
     "add": "Ajouter un Serveur",
     "addFirst": "Ajouter le Premier Serveur",
-    "edit": "Éditer",
+    "edit": "$t(shared:tools.edit)",
     "editServer": "Éditer le Serveur",
     "addServer": "Ajouter un Serveur",
     "delete": "Supprimer",

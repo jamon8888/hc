@@ -69,6 +69,13 @@ impl CodeReviewTool {
                 "Validation or triage note (optional, in Traditional Chinese)",
                 "Concrete remediation / follow-up plan items (in Traditional Chinese)",
             ),
+            "fr-FR" => (
+                "Human-readable review scope (optional, in French)",
+                "Reviewer summary (in French)",
+                "Reviewer source / role (optional, in French)",
+                "Validation or triage note (optional, in French)",
+                "Concrete remediation / follow-up plan items (in French)",
+            ),
             _ => (
                 "Human-readable review scope (optional, in Simplified Chinese)",
                 "Reviewer summary (in Simplified Chinese)",

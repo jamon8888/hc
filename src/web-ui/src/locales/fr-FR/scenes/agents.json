@@ -153,7 +153,7 @@
     "skillsSave": "Sauvegarder",
     "skillsEdit": "Gérer les compétences",
     "subagentsEdit": "Gérer les Sous-Agents",
-    "subagentsDone": "Terminé",
+    "subagentsDone": "$t(shared:statuses.done)",
     "noSubagents": "Aucun Sous-Agent gérable disponible",
     "enableGroup": "Activer le groupe",
     "disableGroup": "Désactiver le groupe",
@@ -269,7 +269,7 @@
       }
     },
     "customActions": "Agent personnalisé",
-    "editAgent": "Éditer",
+    "editAgent": "$t(shared:tools.edit)",
     "deleteAgent": "Supprimer",
     "externalActions": "Agent externe",
     "manageExternalAgent": "Gérer dans la Compatibilité Écosystème",

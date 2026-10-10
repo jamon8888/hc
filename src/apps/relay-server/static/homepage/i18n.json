@@ -55,5 +55,24 @@
     "flowMobileSub": {
       "$shared": "features.remoteControl"
     }
+  },
+  "fr-FR": {
+    "languageToggle": "Langue : FR",
+    "status": "Service en cours d'exécution",
+    "desc": "Service de relais entre le bureau et le mobile, assurant l'appairage et la transmission des messages.",
+    "f1t": "Connexion",
+    "f1d": "Traite les demandes d'appairage et crée des sessions distantes.",
+    "f2t": "Relais",
+    "f2d": "Fait le pont entre WebSocket et HTTP dans les deux sens.",
+    "f3t": "Auto-hébergement",
+    "f3d": "Déploiement privé, domaines personnalisés et proxy inverse.",
+    "flowDesktop": "Bureau",
+    "flowDesktopSub": "Agent OpenBitFun",
+    "flowRelay": "Serveur de relais",
+    "flowRelaySub": "Appairer et transmettre",
+    "flowMobile": "Mobile",
+    "flowMobileSub": {
+      "$shared": "features.remoteControl"
+    }
   }
 }

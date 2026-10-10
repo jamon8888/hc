@@ -607,7 +607,7 @@ mod tests {
             Some(LocaleId::EnUS)
         );
         assert_eq!(
-            generated_locale_entry_from_code("fr-FR").map(|entry| entry.id),
+            generated_locale_entry_from_code("de-DE").map(|entry| entry.id),
             None
         );
     }
