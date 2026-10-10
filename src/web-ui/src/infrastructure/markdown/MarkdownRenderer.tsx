@@ -40,6 +40,8 @@ import { useStreamingTextReveal } from './useStreamingTextReveal';
 import { SessionMarkdownImage, type SessionImageReader } from './SessionMarkdownImage';
 import { ImageLightbox, type ImageLightboxState } from '@/shared/ui/ImageLightbox';
 import { rehypeSourceRange, type MarkdownSourceRange } from './rehypeSourceRange';
+import RevealableEntityBadge from './RevealableEntityBadge';
+import './RevealableEntityBadge.scss';
 
 const log = createLogger('Markdown');
 const COMPUTER_LINK_PREFIX = 'computer://';
@@ -270,6 +272,7 @@ const sanitizeSchema = {
     p: [...(defaultSchema.attributes?.p || []), 'align'],
     pre: [...(defaultSchema.attributes?.pre || []), 'className'],
     summary: [...(defaultSchema.attributes?.summary || [])],
+    span: [...(defaultSchema.attributes?.span || []), 'className', 'data-entity-type', 'data-entity-id'],
   },
   protocols: {
     ...defaultSchema.protocols,
@@ -1728,6 +1731,25 @@ const MarkdownSurface = React.memo<MarkdownRendererProps & { thinking?: boolean 
 
     td({ node: _node, children, className, ...props }: any) {
       return <td {...props} className={['markdown-data-cell', className].filter(Boolean).join(' ')}>{children}</td>;
+    },
+    
+    td({ node: _node, children, className, ...props }: any) {
+      return <td {...props} className={['markdown-data-cell', className].filter(Boolean).join(' ')}>{children}</td>;
+    },
+    
+    span({ node, className, children, ...props }: any) {
+      const entityType = props['data-entity-type'] as string | undefined;
+      const entityId = props['data-entity-id'] as string | undefined;
+      if (entityType && entityId) {
+        return (
+          <RevealableEntityBadge
+            entityType={entityType}
+            entityId={entityId}
+            maskedLabel={children}
+          />
+        );
+      }
+      return <span className={className} {...props}>{children}</span>;
     },
     
     p({ node: _node, children, align, style, className, ...props }: any) {

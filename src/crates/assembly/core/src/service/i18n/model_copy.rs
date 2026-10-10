@@ -45,10 +45,21 @@ const CODE_REVIEW_EN_US: CodeReviewCopy = CodeReviewCopy {
     positive_points: "Code strengths (1-2 items, in English)",
 };
 
+const CODE_REVIEW_FR_FR: CodeReviewCopy = CodeReviewCopy {
+    description: "Soumettre les résultats de révision de code. Après avoir terminé l'analyse de révision, vous devez appeler cet outil pour soumettre un rapport de révision structuré. Tous les champs texte visibles doivent être en français (paramètres de langue de l'application).",
+    overall_assessment: "Évaluation globale (2-3 phrases, en français)",
+    confidence_note: "Note de limitation de contexte (optionnelle, en français)",
+    issue_title: "Titre du problème (en français)",
+    issue_description: "Description du problème (en français)",
+    issue_suggestion: "Suggestion de correction (optionnel, en français)",
+    positive_points: "Points forts du code (1-2 éléments, en français)",
+};
+
 pub fn code_review_copy_for_language(lang_code: &str) -> &'static CodeReviewCopy {
     match LocaleId::from_str(lang_code).unwrap_or_default() {
         LocaleId::ZhCN => &CODE_REVIEW_ZH_CN,
         LocaleId::ZhTW => &CODE_REVIEW_ZH_TW,
         LocaleId::EnUS => &CODE_REVIEW_EN_US,
+        LocaleId::FrFR => &CODE_REVIEW_FR_FR,
     }
 }
