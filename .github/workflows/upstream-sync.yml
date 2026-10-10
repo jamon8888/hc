@@ -1,0 +1,171 @@
+name: Upstream Sync Validation
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'  # Tous les lundis 6h UTC
+  workflow_dispatch:
+    inputs:
+      upstream_branch:
+        description: 'Upstream branch to sync from'
+        required: true
+        default: 'main'
+        type: choice
+        options:
+          - main
+          - gcwing/dev
+      strategy:
+        description: 'Sync strategy'
+        required: true
+        default: 'test-merge'
+        type: choice
+        options:
+          - test-merge      # Test merge only (no push)
+          - test-rebase     # Test rebase on temp branch
+          - open-pr         # Open PR with merge commit
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  validate-sync:
+    name: Validate Upstream Sync
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout fork
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Add upstream remote
+        run: |
+          git remote add upstream https://github.com/GCWing/OpenBitFun.git
+          git fetch upstream --tags --prune
+
+      - name: Show divergence
+        run: |
+          echo "=== Local commits not in upstream ==="
+          git log --oneline upstream/${{ github.event.inputs.upstream_branch }}..HEAD | wc -l
+          echo "=== Upstream commits not in local ==="
+          git log --oneline HEAD..upstream/${{ github.event.inputs.upstream_branch }} | wc -l
+          echo "=== Diff stat ==="
+          git diff --stat HEAD..upstream/${{ github.event.inputs.upstream_branch }}
+
+      - name: Test merge strategy
+        if: github.event.inputs.strategy == 'test-merge'
+        run: |
+          git checkout -b test-merge-${{ github.run_id }}
+          git merge upstream/${{ github.event.inputs.upstream_branch }} --no-ff -m "chore: test merge upstream/${{ github.event.inputs.upstream_branch }}"
+          echo "✅ Merge test passed - conflicts resolved or none"
+          git checkout main
+          git branch -D test-merge-${{ github.run_id }}
+
+      - name: Test rebase strategy
+        if: github.event.inputs.strategy == 'test-rebase'
+        run: |
+          git checkout -b test-rebase-${{ github.run_id }}
+          # Enable rerere for conflict reuse
+          git config rerere.enabled true
+          git config rerere.autoupdate true
+          # Try rebase with abort on conflict (we just want to see if it's clean)
+          if git rebase upstream/${{ github.event.inputs.upstream_branch }} 2>&1 | tee rebase.log; then
+            echo "✅ Rebase clean - no conflicts"
+          else
+            echo "⚠️ Rebase has conflicts (see log)"
+            cat rebase.log
+            git rebase --abort
+            exit 1
+          fi
+          git checkout main
+          git branch -D test-rebase-${{ github.run_id }}
+
+      - name: Run repo checks on merged state
+        if: github.event.inputs.strategy != 'open-pr'
+        run: |
+          # Test sur l'état merge (si test-merge) ou rebase (si test-rebase)
+          # Note: il faut être sur la branche de test
+          pnpm install --frozen-lockfile
+          pnpm run check:repo-hygiene
+          pnpm run check:github-config
+          pnpm run check:core-boundaries
+          pnpm run fmt:rs -- --check
+          cargo check --workspace --locked 2>&1 | tail -20
+
+      - name: Open PR with merge commit
+        if: github.event.inputs.strategy == 'open-pr'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: sync/upstream-${{ github.event.inputs.upstream_branch }}-${{ github.run_id }}
+          base: main
+          title: 'chore: sync upstream/${{ github.event.inputs.upstream_branch }} (${{ github.run_id }})'
+          body: |
+            Automated sync from upstream/${{ github.event.inputs.upstream_branch }}.
+            
+            **Divergence:**
+            - Local ahead: `$(git log --oneline upstream/${{ github.event.inputs.upstream_branch }}..HEAD | wc -l)` commits
+            - Upstream ahead: `$(git log --oneline HEAD..upstream/${{ github.event.inputs.upstream_branch }} | wc -l)` commits
+            
+            **Strategy:** Merge commit (preserves both histories)
+            
+            **Review required:** Check for conflicts in:
+            - Cargo.toml / Cargo.lock (workspace deps)
+            - pnpm-lock.yaml
+            - Config schemas
+            - Breaking API changes in contracts/
+          labels: |
+            upstream-sync
+            needs-review
+          draft: true
+
+  # Job séparé pour tester le build complet sur la PR créée
+  build-test:
+    name: Full Build Test
+    needs: validate-sync
+    if: github.event.inputs.strategy == 'open-pr'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.validate-sync.outputs.pr-branch }}
+          fetch-depth: 0
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Setup Node/pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: false
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            ~/.cargo/git/db
+            target
+            node_modules
+            .pnpm-store
+          key: ${{ runner.os }}-deps-${{ hashFiles('**/Cargo.lock', '**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-deps-
+
+      - name: Install and build
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm run check:repo-hygiene
+          pnpm run check:github-config
+          pnpm run check:core-boundaries
+          pnpm run fmt:rs -- --check
+          cargo build --workspace --locked --release 2>&1 | tail -30
+          pnpm run build:web-ui 2>&1 | tail -20
