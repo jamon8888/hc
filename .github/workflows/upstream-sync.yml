@@ -56,15 +56,25 @@ jobs:
       - name: Test merge strategy
         if: github.event.inputs.strategy == 'test-merge'
         run: |
+          git config user.email "github-actions@users.noreply.github.com"
+          git config user.name "github-actions"
           git checkout -b test-merge-${{ github.run_id }}
-          git merge upstream/${{ github.event.inputs.upstream_branch }} --no-ff -m "chore: test merge upstream/${{ github.event.inputs.upstream_branch }}"
-          echo "✅ Merge test passed - conflicts resolved or none"
+          if git merge upstream/${{ github.event.inputs.upstream_branch }} --no-ff -m "chore: test merge upstream/${{ github.event.inputs.upstream_branch }}"; then
+            echo "✅ Merge test passed - no conflicts"
+          else
+            echo "⚠️ Merge has conflicts:"
+            git status
+            git diff --name-only
+            exit 1
+          fi
           git checkout main
           git branch -D test-merge-${{ github.run_id }}
 
       - name: Test rebase strategy
         if: github.event.inputs.strategy == 'test-rebase'
         run: |
+          git config user.email "github-actions@users.noreply.github.com"
+          git config user.name "github-actions"
           git checkout -b test-rebase-${{ github.run_id }}
           # Enable rerere for conflict reuse
           git config rerere.enabled true
