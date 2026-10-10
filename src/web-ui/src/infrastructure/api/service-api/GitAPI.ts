@@ -4,6 +4,7 @@ import { api } from './ApiClient';
 import { createTauriCommandError } from '../errors/TauriCommandError';
 import { createLogger } from '@/shared/utils/logger';
 import { getActiveSurfaceScope } from '@/infrastructure/peer-device/deviceSurface';
+import { invokePrepared } from './invokePrepared';
 import { workspaceIdRequest } from './legacyWorkspaceCompatibility';
 import { startupTrace } from '@/shared/utils/startupTrace';
 
@@ -239,21 +240,25 @@ export class GitAPI {
 
   async isGitRepository(workspace: GitWorkspaceScope): Promise<boolean> {
     // Host and workspace identity isolate probes even when repository paths match.
+    const surface = getActiveSurfaceScope();
     const key = gitWorkspaceKey(workspace);
+    const inFlightKey = surface.key(surface.epoch, workspace.workspaceId);
     const now = Date.now();
     const cached = this.repositoryProbeCache.get(key);
     if (cached && cached.expiresAt > now) {
       return cached.value;
     }
 
-    const inFlight = this.repositoryProbeInFlight.get(key);
+    const inFlight = this.repositoryProbeInFlight.get(inFlightKey);
     if (inFlight) {
       return inFlight;
     }
 
-    const probe = gitWorkspaceRequest(workspace)
-      .then(request => api.invoke<boolean>('git_is_repository', { request }))
+    const probe = invokePrepared<boolean>('git_is_repository', async () => ({
+      request: await gitWorkspaceRequest(workspace),
+    }))
       .then((value) => {
+        surface.assertCurrent('cache repository probe');
         this.repositoryProbeCache.set(key, {
           value,
           expiresAt: Date.now() + REPOSITORY_PROBE_CACHE_TTL_MS,
@@ -264,19 +269,23 @@ export class GitAPI {
         throw createTauriCommandError('git_is_repository', error, { workspace });
       })
       .finally(() => {
-        this.repositoryProbeInFlight.delete(key);
+        if (this.repositoryProbeInFlight.get(inFlightKey) === probe) {
+          this.repositoryProbeInFlight.delete(inFlightKey);
+        }
       });
 
-    this.repositoryProbeInFlight.set(key, probe);
+    this.repositoryProbeInFlight.set(inFlightKey, probe);
     return probe;
   }
 
   /** Reads whether Git trusts the repository's ownership. Never writes. */
   async getRepositoryTrust(workspace: GitWorkspaceScope): Promise<GitTrustReport> {
+    const surface = getActiveSurfaceScope();
     try {
-      const report: GitTrustReport = await api.invoke('git_get_repository_trust', {
+      const report: GitTrustReport = await invokePrepared('git_get_repository_trust', async () => ({
         request: { ...await gitWorkspaceRequest(workspace) },
-      });
+      }));
+      surface.assertCurrent('update repository trust cache');
       // Trust can be granted outside this product — the user runs the manual
       // command in a terminal, or the repository's owner fixes it. Whoever
       // learns that first has to drop the `false` the probe cached while the
@@ -306,10 +315,12 @@ export class GitAPI {
    * is introduced here.
    */
   async trustRepository(workspace: GitWorkspaceScope): Promise<GitTrustOutcome> {
+    const surface = getActiveSurfaceScope();
     try {
-      const outcome = await api.invoke<GitTrustOutcome>('git_trust_repository', {
+      const outcome = await invokePrepared<GitTrustOutcome>('git_trust_repository', async () => ({
         request: { ...await gitWorkspaceRequest(workspace) },
-      });
+      }));
+      surface.assertCurrent('update repository trust cache');
       // The probe cache may hold the `false` this repository returned while it
       // was still refused; a granted decision must not wait it out.
       if (outcome.state === 'trusted') {
@@ -324,9 +335,9 @@ export class GitAPI {
 
   async getRepository(workspace: GitWorkspaceScope): Promise<GitRepository> {
     try {
-      return await api.invoke('git_get_repository', { 
+      return await invokePrepared('git_get_repository', async () => ({
         request: { ...await gitWorkspaceRequest(workspace) }
-      });
+      }));
     } catch (error) {
       throw createTauriCommandError('git_get_repository', error, { workspace });
     }
@@ -335,9 +346,9 @@ export class GitAPI {
 
   async getRepositoryBasic(workspace: GitWorkspaceScope): Promise<GitRepository> {
     try {
-      return await api.invoke('git_get_repository_basic', {
+      return await invokePrepared('git_get_repository_basic', async () => ({
         request: { ...await gitWorkspaceRequest(workspace) }
-      });
+      }));
     } catch (error) {
       throw createTauriCommandError('git_get_repository_basic', error, { workspace });
     }
