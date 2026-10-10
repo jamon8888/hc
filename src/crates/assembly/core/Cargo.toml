@@ -125,6 +125,9 @@ openbitfun-claude-code-adapter = { path = "../../adapters/claude-code-adapter", 
 openbitfun-codex-adapter = { path = "../../adapters/codex-adapter", optional = true }
 openbitfun-plugin-runtime-client = { path = "../../execution/plugin-runtime-client", optional = true }
 
+# Basemind integration for document redaction, RAG, and prompt pseudonymization
+openbitfun_basemind_integration = { path = "../../integrations/basemind-integration", optional = true, features = ["basemind"] }
+
 [features]
 # Full product runtime compatibility set. Product entrypoints with a narrower
 # construction path select stable owner features instead of inheriting this
@@ -466,6 +469,11 @@ tauri-support = []
 ssh-remote = [
     "remote-workspace",
     "openbitfun-services-integrations/remote-ssh-concrete",
+]
+# Basemind integration for document redaction, RAG, and prompt pseudonymization
+basemind = [
+    "openbitfun_basemind_integration/basemind",
+    "tool-runtime/document-read",
 ]
 
 [dev-dependencies]

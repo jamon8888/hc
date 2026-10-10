@@ -102,7 +102,7 @@ export function getPrismLanguageFromAlias(alias: string): string {
 }
 
  
-export function getEditorType(filePathOrName: string): 'code-editor' | 'markdown-editor' | 'image-viewer' | 'pdf-viewer' | 'plan-viewer' | 'html-preview' {
+export function getEditorType(filePathOrName: string): 'code-editor' | 'markdown-editor' | 'image-viewer' | 'pdf-viewer' | 'plan-viewer' | 'html-preview' | 'redacted-document-viewer' {
   const result = detectLanguage(filePathOrName);
   const iconType = result.language.iconType;
   
@@ -113,11 +113,17 @@ export function getEditorType(filePathOrName: string): 'code-editor' | 'markdown
   }
 
   if (fileName.endsWith('.pdf')) {
-    return 'pdf-viewer';
+    return 'redacted-document-viewer';
   }
 
   if (fileName.endsWith('.html') || fileName.endsWith('.htm')) {
     return 'html-preview';
+  }
+
+  // Document formats that should open with redacted-document-viewer
+  const documentExtensions = ['.doc', '.docx', '.docm', '.odt', '.pptx', '.pptm', '.ppsx', '.ppsm', '.ppt', '.pps', '.pot', '.rtf', '.epub', '.xlsx', '.xlsm', '.xlsb', '.xls', '.ods', '.odp', '.csv'];
+  if (documentExtensions.some(ext => fileName.endsWith(ext))) {
+    return 'redacted-document-viewer';
   }
   
   

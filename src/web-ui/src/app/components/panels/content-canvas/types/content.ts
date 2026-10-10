@@ -33,6 +33,7 @@ export const FILE_VIEWER_TYPES: PanelContentType[] = [
   'html-preview',
   'diff-code-editor',
   'plan-viewer',
+  'redacted-document-viewer',
 ];
 
 /**

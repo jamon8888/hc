@@ -6309,6 +6309,7 @@ dependencies = [
  "openbitfun-services-core",
  "openbitfun-services-integrations",
  "openbitfun-tool-packs",
+ "openbitfun_basemind_integration",
  "regex",
  "reqwest",
  "rusqlite",
