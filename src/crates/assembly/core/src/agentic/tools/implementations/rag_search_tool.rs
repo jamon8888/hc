@@ -29,9 +29,12 @@ impl crate::agentic::tools::framework::Tool for RagSearchTool {
     }
 
     async fn description(&self) -> crate::util::errors::OpenBitFunResult<String> {
-        Ok(r#"Performs a semantic search (RAG) over the workspace documents using Basemind.
+        Ok(
+            r#"Performs a semantic search (RAG) over the workspace documents using Basemind.
 Returns relevant document chunks with their sources and relevance scores.
-The search is performed on redacted content only, ensuring no PII is exposed."#.to_string())
+The search is performed on redacted content only, ensuring no PII is exposed."#
+                .to_string(),
+        )
     }
 
     fn short_description(&self) -> String {
@@ -47,7 +50,7 @@ The search is performed on redacted content only, ensuring no PII is exposed."#.
                     "description": "Natural language query to search for"
                 },
                 "top_k": {
-                    "type": "number",
+                    "type": "integer",
                     "description": "Maximum number of results to return (default: 8)",
                     "minimum": 1,
                     "maximum": 50
@@ -61,17 +64,42 @@ The search is performed on redacted content only, ensuring no PII is exposed."#.
         true
     }
 
-    async fn execute(&self, input: serde_json::Value, _context: &crate::agentic::tools::framework::ToolUseContext) -> crate::agentic::tools::framework::ToolResult {
+    async fn execute(
+        &self,
+        input: serde_json::Value,
+        _context: &crate::agentic::tools::framework::ToolUseContext,
+    ) -> crate::agentic::tools::framework::ToolResult {
         let query = match input["query"].as_str() {
             Some(q) if !q.trim().is_empty() => q.trim(),
-            _ => return crate::agentic::tools::framework::ToolResult::error("query parameter is required and cannot be empty"),
+            _ => {
+                return crate::agentic::tools::framework::ToolResult::error(
+                    "query parameter is required and cannot be empty",
+                )
+            }
         };
 
-        let top_k = input["top_k"].as_u64().unwrap_or(8) as usize;
+        // Bound rather than fall back silently: an out-of-range or fractional
+        // `top_k` must not become an arbitrary default upstream.
+        let top_k = match &input["top_k"] {
+            Value::Null => 8usize,
+            value => match value.as_u64() {
+                Some(count) if (1..=50).contains(&count) => count as usize,
+                _ => {
+                    return crate::agentic::tools::framework::ToolResult::error(
+                        "top_k must be an integer between 1 and 50",
+                    );
+                }
+            },
+        };
 
         let hits = match self.basemind.query_rag(query, top_k).await {
             Ok(h) => h,
-            Err(e) => return crate::agentic::tools::framework::ToolResult::error(format!("RAG search failed: {}", e)),
+            Err(e) => {
+                return crate::agentic::tools::framework::ToolResult::error(format!(
+                    "RAG search failed: {}",
+                    e
+                ))
+            }
         };
 
         crate::agentic::tools::framework::ToolResult::json(hits)

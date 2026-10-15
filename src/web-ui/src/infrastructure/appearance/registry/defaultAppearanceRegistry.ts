@@ -116,6 +116,7 @@ import { userMessageEditComposerAppearanceDescriptor } from '@/flow_chat/compone
 import { monacoAppearanceAdapter } from '../adapters/MonacoAppearanceAdapter';
 import { xtermAppearanceAdapter } from '../adapters/XtermAppearanceAdapter';
 import { mermaidAppearanceAdapter } from '../adapters/MermaidAppearanceAdapter';
+import { redactedDocumentTabsAppearanceDescriptor } from '@/app/components/panels/content-canvas/RedactedDocumentTabs.appearance';
 import { widgetAppearanceAdapter } from '../adapters/WidgetAppearanceAdapter';
 import { canvasAppearanceAdapter } from '../adapters/CanvasAppearanceAdapter';
 import { themeTokenAppearanceAdapter } from '../adapters/ThemeTokenAppearanceAdapter';
@@ -363,6 +364,8 @@ export function createDefaultAppearanceRegistry(): AppearanceRegistry {
     .registerComponent(localizedDateTimeFieldAppearanceDescriptor)
     .registerComponent(dateTimePickerAppearanceDescriptor)
     .registerComponent(flexiblePanelAppearanceDescriptor)
+    .registerComponent(markdownAppearanceDescriptor)
+    .registerComponent(redactedDocumentTabsAppearanceDescriptor)
     .registerComponent(btwSessionPanelAppearanceDescriptor)
     .registerComponent(conversationExcerptAppearanceDescriptor)
     .registerComponent(modernFlowChatAppearanceDescriptor)

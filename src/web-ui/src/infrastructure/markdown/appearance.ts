@@ -12,6 +12,7 @@ export const markdownAppearanceDescriptor: AppearanceSurfaceDescriptor = {
     { id: 'codeContent', propertyProfile: 'paint', visualRole: 'content' },
     { id: 'fileLink' }, { id: 'visualizationLink' }, { id: 'tabLink' }, { id: 'canvasLink' },
     { id: 'table' }, { id: 'blockquote' }, { id: 'math' },
+    { id: 'entity-badge' },
   ],
   states: [
     { id: 'fallback', selector: { kind: 'self', suffix: '[data-openbitfun-state~="fallback"]' } },

@@ -48,6 +48,13 @@ export { workspaceAPI, configAPI, aiApi, toolAPI, agentAPI, systemAPI, productCo
 export { TokenUsageStatisticsUnavailableError } from './tokenUsageStatisticsApi';
 export * from './service-api/ReviewPlatformAPI';
 export type {
+  RedactedEntity,
+  RedactedDocumentResponse,
+  RevealEntityRequest,
+  RagSearchHit,
+  RagSearchRequest,
+} from './service-api/BasemindAPI';
+export type {
   TokenUsageStatisticsRequest,
   UsageAttributionStatus,
   UsageGranularity,

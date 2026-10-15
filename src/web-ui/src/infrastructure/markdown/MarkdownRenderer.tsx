@@ -1732,12 +1732,8 @@ const MarkdownSurface = React.memo<MarkdownRendererProps & { thinking?: boolean 
     td({ node: _node, children, className, ...props }: any) {
       return <td {...props} className={['markdown-data-cell', className].filter(Boolean).join(' ')}>{children}</td>;
     },
-    
-    td({ node: _node, children, className, ...props }: any) {
-      return <td {...props} className={['markdown-data-cell', className].filter(Boolean).join(' ')}>{children}</td>;
-    },
-    
-    span({ node, className, children, ...props }: any) {
+
+    span({ node: _node, className, children, ...props }: any) {
       const entityType = props['data-entity-type'] as string | undefined;
       const entityId = props['data-entity-id'] as string | undefined;
       if (entityType && entityId) {
@@ -1745,6 +1741,7 @@ const MarkdownSurface = React.memo<MarkdownRendererProps & { thinking?: boolean 
           <RevealableEntityBadge
             entityType={entityType}
             entityId={entityId}
+            workspaceId={workspaceIdRef.current}
             maskedLabel={children}
           />
         );

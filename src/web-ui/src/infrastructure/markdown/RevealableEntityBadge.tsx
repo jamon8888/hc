@@ -6,6 +6,7 @@ import './RevealableEntityBadge.scss';
 interface RevealableEntityBadgeProps {
   entityType: string;
   entityId: string;
+  workspaceId?: string;
   maskedLabel: React.ReactNode;
 }
 
@@ -40,7 +41,6 @@ const ENTITY_TYPE_COLORS: Record<string, string> = {
   MAC_ADDRESS: '#6b7280', // gray
   COOKIE_ID: '#6b7280', // gray
   ORGANIZATION: '#22c55e', // green
-  LOCATION: '#06b6d4', // cyan
 };
 
 const ENTITY_TYPE_LABELS: Record<string, string> = {
@@ -74,39 +74,48 @@ const ENTITY_TYPE_LABELS: Record<string, string> = {
   MAC_ADDRESS: 'MAC Address',
   COOKIE_ID: 'Cookie ID',
   ORGANIZATION: 'Organization',
-  LOCATION: 'Location',
 };
 
 export const RevealableEntityBadge: React.FC<RevealableEntityBadgeProps> = ({
   entityType,
   entityId,
+  workspaceId,
   maskedLabel,
 }) => {
-  const [isRevealed, setIsRevealed] = useState(false);
-  const [revealedValue, setRevealedValue] = useState<string | null>(null);
+  // The revealed plaintext is bound to the identity it was fetched for. React
+  // can reuse this instance across a re-render with a different entity, and a
+  // stale `revealedValue` would otherwise show one entity's secret under
+  // another entity's masked label.
+  const [revealed, setRevealed] = useState<{ key: string; value: string } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  const entityKey = `${workspaceId ?? ''}::${entityId}`;
 
   const color = ENTITY_TYPE_COLORS[entityType] || '#6b7280';
   const label = ENTITY_TYPE_LABELS[entityType] || entityType;
 
+  const revealedValue = revealed?.key === entityKey ? revealed.value : null;
+  const isRevealed = revealedValue !== null;
+
   const handleClick = useCallback(async () => {
-    if (isRevealed) {
-      setIsRevealed(false);
-      setRevealedValue(null);
+    if (revealedValue !== null) {
+      setRevealed(null);
       return;
     }
 
+    const requestedKey = `${workspaceId ?? ''}::${entityId}`;
     setIsLoading(true);
     try {
-      const value = await basemindAPI.revealEntity(entityId);
-      setRevealedValue(value);
-      setIsRevealed(true);
+      const value = await basemindAPI.revealEntity(entityId, workspaceId);
+      // Only commit when the entity the user asked about is still the one on
+      // screen; otherwise this would reveal the previous entity's value.
+      setRevealed((current) => (current && current.key !== requestedKey ? current : { key: requestedKey, value }));
     } catch (error) {
       console.error('Failed to reveal entity:', error);
     } finally {
       setIsLoading(false);
     }
-  }, [entityId, isRevealed]);
+  }, [entityId, workspaceId, revealedValue]);
 
   const displayText = isRevealed && revealedValue ? revealedValue : maskedLabel;
 
@@ -118,6 +127,8 @@ export const RevealableEntityBadge: React.FC<RevealableEntityBadgeProps> = ({
     >
       <span
         className="pii-entity-badge"
+        data-openbitfun-component="markdown"
+        data-openbitfun-part="entity-badge"
         style={{
           backgroundColor: color + '20',
           borderColor: color,
@@ -138,7 +149,8 @@ export const RevealableEntityBadge: React.FC<RevealableEntityBadgeProps> = ({
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
             handleClick();
-          }}
+          }
+        }}
         tabIndex={0}
         role="button"
         aria-label={`${label}: ${isRevealed ? 'Click to hide' : 'Click to reveal'}`}
@@ -152,8 +164,9 @@ export const RevealableEntityBadge: React.FC<RevealableEntityBadgeProps> = ({
         {!isLoading && (
           <span style={{ fontSize: '0.7em', opacity: 0.7 }}>
             {isRevealed ? '🔓' : '🔒'}
-          </span>}
-        </span>
+          </span>
+        )}
+      </span>
     </Tooltip>
   );
 };

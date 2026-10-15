@@ -52,20 +52,12 @@ class BasemindAPI {
   /**
    * Perform a RAG search on the workspace.
    */
-  async ragSearch(request: { query: string; topK?: number }): Promise<Array<{
-    chunk: string;
-    sourceDoc: string;
-    score: number;
-    entityIds: string[];
-  }>> {
-    return api.invoke<Array<{
-      chunk: string;
-      sourceDoc: string;
-      score: number;
-      entityIds: string[];
-    }>>('rag_search', {
-      query: 'query',
-      top_k: 8,
+  async ragSearch(request: { query: string; topK?: number }): Promise<RagSearchHit[]> {
+    return api.invoke<RagSearchHit[]>('rag_search', {
+      request: {
+        query: request.query,
+        topK: request.topK ?? 8,
+      },
     });
   }
 }

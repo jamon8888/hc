@@ -609,6 +609,27 @@
   }
 }
 
+// ==================== Redacted Document Container ====================
+
+.openbitfun-flexible-panel__redacted-document-container {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  height: 100%;
+  min-width: 0;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  background: var(--openbitfun-color-surface-tertiary);
+
+  .redacted-document-tabs {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+}
+
 .openbitfun-html-preview__loading,
 .openbitfun-html-preview__error {
   display: flex;

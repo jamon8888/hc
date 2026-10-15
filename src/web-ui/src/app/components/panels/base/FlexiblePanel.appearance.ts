@@ -25,6 +25,7 @@ export const flexiblePanelAppearanceDescriptor: AppearanceSurfaceDescriptor = {
     { id: 'operation' },
     { id: 'terminal' },
     { id: 'unknown' },
+    { id: 'redacted-document' },
   ],
   states: [
     { id: 'needsFix', selector: { kind: 'self', suffix: '[data-openbitfun-state~="needsFix"]' } },

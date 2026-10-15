@@ -99,6 +99,14 @@ export const PANEL_CONTENT_CONFIGS: Record<PanelContentType, PanelContentConfig>
     supportsDownload: false,
     showHeader: false
   },
+  'redacted-document-viewer': {
+    type: 'redacted-document-viewer',
+    displayName: 'Document',
+    icon: { glyph: FileText },
+    supportsCopy: false,
+    supportsDownload: false,
+    showHeader: false
+  },
   'html-preview': {
     type: 'html-preview',
     displayName: 'HTML Preview',

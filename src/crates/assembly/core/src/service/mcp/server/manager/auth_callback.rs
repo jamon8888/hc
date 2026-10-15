@@ -54,7 +54,7 @@ impl OAuthCallbackLocale {
         match LocaleId::from_str(value)? {
             LocaleId::ZhCN => Some(Self::ZhCN),
             LocaleId::ZhTW => Some(Self::ZhTW),
-            LocaleId::EnUS => Some(Self::EnUS),
+            LocaleId::EnUS | LocaleId::FrFR => Some(Self::EnUS),
         }
     }
 
