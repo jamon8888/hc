@@ -49,3 +49,7 @@
 - [x] ~~Settle SPEC §14 open question "Index alias ingestion (D6 end-to-end)"~~ — settled 2026-10-16: **raw index** (D6 amended); prove it end-to-end (index carries no aliases/salt; hits leave tokenized)
 
 **Feature flag:** `tools-rag` in `assembly/core/Cargo.toml` (gates tool *registration*; the concrete port arrives by injection, not by a basemind dependency).
+
+## Comments
+
+- 2026-10-16 (code session): D11 seam **delivered** in commit `95d2f37d5` — `RagSearchPort` + `RagSearchRequest`/`Response`/`Error` DTOs in `contracts/runtime-ports` (feature `rag-search`, also aggregated by `tool-runtime-handles`), `ToolRuntimeHandles::with_rag_search_port` injection slot, basemind-side `RagSearchPortAdapter` (Mutex over `RagSearchTool::search`), and `tools-rag = ["openbitfun-runtime-ports/rag-search"]` in `assembly/core/Cargo.toml`. Boundary rules and fixtures updated; `pnpm run check:core-boundaries` green. Still open for this ticket: the `rag_search_tool.rs` wrapper, `registry.rs` registration, ProductToolPlan row, composition-root injection, and the agent-loop verification above. Note for the wrapper: `RagSearchRequest` carries `session_id` (resolve from `ToolUseContext`), and the port hard-fails D7 with `RagSearchErrorKind::SessionUnavailable`/`Failed`.
