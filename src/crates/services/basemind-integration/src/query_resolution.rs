@@ -8,6 +8,8 @@ use anyhow::Result;
 #[cfg(feature = "basemind")]
 use serde::{Deserialize, Serialize};
 #[cfg(feature = "basemind")]
+use std::cmp::Reverse;
+#[cfg(feature = "basemind")]
 use std::collections::BTreeMap;
 
 #[cfg(feature = "basemind")]
@@ -52,7 +54,7 @@ impl QueryResolver {
         // Tokens are fixed-shape so none can contain another; longest-first
         // keeps replacement order irrelevant anyway.
         let mut tokens: Vec<(&String, &String)> = session.map.iter().collect();
-        tokens.sort_by(|a, b| b.0.len().cmp(&a.0.len()));
+        tokens.sort_by_key(|(token, _)| Reverse(token.len()));
 
         let mut rewritten = raw_query.to_string();
         for (token, value) in tokens {
@@ -123,7 +125,7 @@ impl QueryResolver {
             let mut candidates: Vec<(String, String)> = candidates.into_iter().collect();
             // Longest first: a value nested inside another (email inside a URL)
             // is replaced outermost-first so later matches still line up.
-            candidates.sort_by(|a, b| b.0.len().cmp(&a.0.len()));
+            candidates.sort_by_key(|(value, _)| Reverse(value.len()));
 
             let mut hit_text = hit.text.clone();
             let mut hit_entities = Vec::new();
