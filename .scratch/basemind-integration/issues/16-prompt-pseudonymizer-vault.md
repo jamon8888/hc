@@ -53,9 +53,13 @@
 - [x] `identity_registry.rs`: per-workspace encrypted `value_hash → alias` store (D9/D10)
 - [x] `keychain.rs`: platform keychain feature actually active (target-gated deps forwarded by `basemind`)
 - [x] Pseudonymization is model-agnostic — local models are pseudonymized too (D2)
-- [ ] **Swap the token construction to the D3 HMAC:** replace every `format!("{alias}_{salt}")` with `[CAT_<H16>]`, `H16 = HMAC-SHA256(salt, alias)` (16 hex) — in `prompt_pseudonym.rs` **and** in `query_resolution.rs` (`retokenize_hits`); rehydration/query-resolution go through the vault map only, never through stripping a suffix
+- [x] **Swap the token construction to the D3 HMAC:** replace every `format!("{alias}_{salt}")` with `[CAT_<H16>]`, `H16 = HMAC-SHA256(salt, alias)` (16 hex) — in `prompt_pseudonym.rs` **and** in `query_resolution.rs` (`retokenize_hits`); rehydration/query-resolution go through the vault map only, never through stripping a suffix
 - [ ] `rehydrate(text, session_id)` on `PromptPseudonymizer` — the single UI render chokepoint (D4): load session payload, replace `token → value`, longest-token-first
 - [ ] Auto-cleanup on session delete (`delete_session` call sites)
 - [ ] Unit tests: same entity → same token within a session, different token across sessions; no raw value in pseudonymized output; no alias or salt readable off a token (try stripping a suffix — must fail); history rehydration after later prompts
 
 **Feature flags:** `basemind`, `tools-rag`, `pseudonymization` in `basemind-integration/Cargo.toml`.
+
+## Comments
+
+- 2026-10-16 (code session): D3 HMAC swap **delivered** in commit `95d2f37d5` — `src/token.rs::mint_session_token` mints `[CAT_<HMAC16(salt, alias)>]` (workspace `hmac = "0.12"`), used by both `prompt_pseudonym.rs` and `query_resolution.rs`. Query resolution goes through the vault map only (no suffix stripping); `retokenize_hits` runs a per-chunk `redact_text` safety pass unioned with scan-time entities (longest-first) and its payload carries `{category, token}` only — the alias never leaves the crate. Crate relocated to `src/crates/services/basemind-integration/`. Still open on this ticket: `rehydrate(text, session_id)`, session-delete auto-cleanup, and the unit-test list above.
