@@ -325,6 +325,11 @@ const REQWEST_PACKAGE_PROFILES = new Map([
     ]),
     tlsProviderDependency: 'openbitfun-services-core',
   }],
+  // Loopback MCP JSON-RPC over plain HTTP; model downloads stay sidecar-owned.
+  ['openbitfun-basemind-integration', {
+    dependencyFeatures: ['json'],
+    optional: true,
+  }],
   ['openbitfun-cli', {
     dependencyFeatures: ['http2', 'rustls-no-provider', 'stream'],
     optional: false,

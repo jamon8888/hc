@@ -1,6 +1,6 @@
 # 01: Create `basemind-integration` crate skeleton
 
-**What to build:** A new Cargo workspace member `src/crates/integrations/basemind-integration/` with the crate structure, feature flags, and empty module stubs. This is the foundation crate that isolates all Basemind logic from upstream code.
+**What to build:** A new Cargo workspace member `src/crates/services/basemind-integration/` with the crate structure, feature flags, and empty module stubs. This is the foundation crate that isolates all Basemind logic from upstream code.
 
 **Blocked by:** None (can start immediately)
 

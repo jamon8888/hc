@@ -104,6 +104,47 @@ design and must change (this map's session does not touch code):
 8. **Metadata:** never write the rehydration map into request metadata (old ticket 17
    sketch) — the vault is its only home.
 
+### Code-alignment status (code session, uncommitted)
+
+- **1–4, 7 — done.** New `src/token.rs` mints `[<CATEGORY>_<H16>]` via
+  `hmac = "0.12"` (workspace dep, `dep:hmac` under `basemind`);
+  `prompt_pseudonym.rs` and `query_resolution.rs` both mint through it.
+  `rewrite_query` is now a sync vault-map reversal (salt-strip and `redact_text`
+  alias passes deleted); `retokenize_hits` is async with a per-chunk
+  `redact_text` safety pass unioned with `hit.entities[]` (longest-first);
+  `RetokenizedEntity` is `{category, token}` — alias stays internal.
+  `local_model_detection.rs` git-removed (no TS twin existed). Session-token
+  terminology replaced "salted token" in docs/comments; `identity_registry.rs`,
+  `session_vault.rs`, and `ipc.rs` already matched the spec — untouched.
+- **6 — done (seam only).** `contracts/runtime-ports` gains feature `rag-search`
+  with `RagSearchPort` + `RagSearchRequest`/`Response`/`Error` DTOs, a
+  `ToolRuntimeHandles::with_rag_search_port` cfg'd slot (Debug contract test
+  updated), and the `tool-runtime-handles` aggregate now includes `rag-search`.
+  `openbitfun-basemind-integration` implements the port as
+  `RagSearchPortAdapter` (Mutex over `RagSearchTool::search`); `openbitfun-core`
+  gets only `tools-rag = ["openbitfun-runtime-ports/rag-search"]`. Boundary
+  rules: runtime-ports `featureProfiles`, basemind consumer edge
+  `['workspace-ports', 'rag-search']`, core forwarder
+  `capabilityForwarder('tools-rag', 'rag-search')`, plus the
+  `check-core-boundaries.test.mjs` fixtures. Wrapper tool + ProductToolPlan +
+  desktop injection remain ticket 06.
+- **5 — spec constraint, no code home yet.** The sidecar owns
+  `basemind.toml`; no config-emission caller exists in this repo, so the
+  `[documents].redaction.enabled = false` requirement stays documented in the
+  SPEC/tickets until an emission path lands.
+- **8 — no-op.** Nothing writes the rehydration map into request metadata
+  today; the vault is already its only home.
+- **Verification:** `cargo check -p openbitfun-basemind-integration` and
+  `cargo check -p openbitfun-runtime-ports --no-default-features` green;
+  `cargo test -p openbitfun-runtime-ports --features rag-search --lib` (9 pass)
+  and the `tool-runtime-handles,web-search-port` Debug contract test pass;
+  `pnpm run check:core-boundaries` passes; `check:core-boundaries:test`
+  148/148; `check:repo-hygiene` passes; `cargo fmt --check` clean on both
+  crates. **Known pre-existing failure unrelated to this work:**
+  `cargo check -p openbitfun-core --no-default-features` fails with 38
+  `LocaleId::FrFR` errors from commit `25a66fded` (i18n fr-FR generated-code
+  drift) — reproducible without these changes.
+
 ## Out of scope
 
 - The other 21 `basemind-integration` tickets — they live in the sibling triage-dialect effort `.scratch/basemind-integration/`; this map only corrects the PII spine (06, 16) and adds the identity layer.
