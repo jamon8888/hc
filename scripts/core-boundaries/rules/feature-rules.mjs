@@ -403,12 +403,13 @@ export const capabilityContractDependencyRules = [
       permission: ['dep:openbitfun-product-domains'],
       'plugin-runtime': [],
       'product-search': ['dep:openbitfun-product-domains'],
+      'rag-search': [],
       'remote-exec-port': ['dep:tokio'],
       'remote-workspace-ports': [],
       'runtime-event-port': [],
       'script-tool-runtime': [],
       'terminal-port': ['dep:tokio'],
-      'tool-runtime-handles': ['workspace-ports', 'terminal-port', 'remote-exec-port'],
+      'tool-runtime-handles': ['workspace-ports', 'terminal-port', 'remote-exec-port', 'rag-search'],
       'web-search-port': [],
       ts: [
         'dep:ts-rs',
@@ -443,13 +444,11 @@ export const capabilityContractDependencyRules = [
         [capabilityEdge(['agent-api', 'git-port'])],
         [capabilityForwarder('ts', 'ts')],
       )],
-      // basemind-integration stays dependency-minimal on main: an optional,
-      // featureless runtime-ports edge activated only by the basemind feature.
-      ['openbitfun_basemind_integration', capabilityConsumer(
-        [capabilityEdge([], { optional: true })],
+      ['openbitfun-basemind-integration', capabilityConsumer(
+        [capabilityEdge(['workspace-ports', 'rag-search'], { optional: true })],
         [],
         ['basemind'],
-        ['tools-rag', 'document-read'],
+        ['default', 'tools-rag', 'document-read', 'pseudonymization'],
       )],
       ['openbitfun-cli', capabilityConsumer([
         capabilityEdge(['agent-api', 'git-port', 'permission', 'plugin-runtime', 'workspace-ports']),
@@ -469,6 +468,7 @@ export const capabilityContractDependencyRules = [
           capabilityForwarder('plugin-runtime', 'plugin-runtime'),
           capabilityForwarder('product-search', 'product-search'),
           capabilityForwarder('script-tool-runtime', 'script-tool-runtime'),
+          capabilityForwarder('tools-rag', 'rag-search'),
           capabilityForwarder('ts', 'ts'),
           capabilityForwarder('web-tools', 'web-search-port'),
         ],

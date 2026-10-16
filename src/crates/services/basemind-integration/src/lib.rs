@@ -1,56 +1,58 @@
-//! Basemind integration for OpenBitFun
+//! Basemind integration crate.
 //!
-//! Provides document extraction/redaction, RAG search, and prompt pseudonymization
-//! via the Basemind engine (jamon8888/basemind fork).
+//! Isolates all Basemind sidecar logic (PII detection, redaction, RAG, identity registry,
+//! vault, prompt pseudonymization) from upstream OpenBitFun code. Communicates with the
+//! Basemind sidecar via MCP over HTTP; the sidecar is a separate process (`basemind comms daemon`).
 
+#![cfg_attr(feature = "basemind", allow(unused_imports))]
+
+#[cfg(feature = "basemind")]
+pub mod document_convert;
+#[cfg(feature = "basemind")]
+pub mod identity_registry;
+#[cfg(feature = "basemind")]
+pub mod ipc;
+#[cfg(feature = "basemind")]
+pub mod keychain;
+#[cfg(feature = "basemind")]
+pub mod models;
+#[cfg(feature = "basemind")]
+pub mod prompt_pseudonym;
+#[cfg(feature = "basemind")]
+pub mod query_resolution;
+#[cfg(feature = "basemind")]
+pub mod rag_search;
+#[cfg(feature = "basemind")]
+pub mod session_vault;
+#[cfg(feature = "basemind")]
+pub mod token;
+#[cfg(feature = "basemind")]
+pub mod vault;
 #[cfg(feature = "basemind")]
 pub mod workspace_fs;
 
 #[cfg(feature = "basemind")]
-pub mod document_convert;
-
+pub use self::document_convert::basemind_extract_and_redact;
 #[cfg(feature = "basemind")]
-pub mod prompt_pseudonym;
-
+pub use self::identity_registry::IdentityRegistry;
 #[cfg(feature = "basemind")]
-pub mod session_vault;
-
+pub use self::ipc::{BasemindClient, DocEntity, DocumentSearchHit};
 #[cfg(feature = "basemind")]
-pub mod local_model_detection;
-
+pub use self::keychain::{get_vault_passphrase, set_vault_passphrase, KeychainError};
 #[cfg(feature = "basemind")]
-pub mod ipc;
-
+pub use self::models::{ModelConfig, ModelManager};
 #[cfg(feature = "basemind")]
-pub mod models;
-
+pub use self::prompt_pseudonym::{PromptPseudonymizer, PseudonymizedPrompt};
 #[cfg(feature = "basemind")]
-pub mod vault;
-
-// Re-exports for convenience
+pub use self::query_resolution::{QueryResolver, RetokenizedEntity, RetokenizedHit};
 #[cfg(feature = "basemind")]
-pub use workspace_fs::BasemindWorkspaceFs;
-
+pub use self::rag_search::{RagSearchInput, RagSearchOutput, RagSearchPortAdapter, RagSearchTool};
 #[cfg(feature = "basemind")]
-pub use document_convert::basemind_extract_and_redact;
-
+pub use self::session_vault::SessionVault;
 #[cfg(feature = "basemind")]
-pub use models::{ExtractResult, RedactedEntity};
-
+pub use self::token::mint_session_token;
 #[cfg(feature = "basemind")]
-pub use prompt_pseudonym::{PromptPseudonymizer, PseudonymError};
-
+pub use self::vault::{vault_decrypt, vault_encrypt, VaultError};
+/// Re-exports for consumers when the `basemind` feature is enabled.
 #[cfg(feature = "basemind")]
-pub use session_vault::{SessionVault, VaultError};
-
-#[cfg(feature = "basemind")]
-pub use local_model_detection::is_local_model_base_url;
-
-#[cfg(feature = "basemind")]
-pub use ipc::{BasemindClient, BasemindTransport, BasemindError};
-
-#[cfg(feature = "basemind")]
-pub use models::{ModelSpec, ModelProfile};
-
-#[cfg(feature = "basemind")]
-pub use vault::{vault_encrypt, vault_decrypt};
+pub use self::workspace_fs::BasemindWorkspaceFs;

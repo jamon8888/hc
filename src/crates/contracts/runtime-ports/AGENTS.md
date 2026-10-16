@@ -43,8 +43,8 @@ facts. It is an interface crate, not a runtime implementation crate.
 - Preserve serialization compatibility for persisted or cross-process DTOs.
 - Keep `default = []`. Select `agent-api`, `workspace-ports`,
   `terminal-port`, `remote-exec-port`, `remote-workspace-ports`, `git-port`,
-  `runtime-event-port`, `plugin-runtime`, or `script-tool-runtime` only from
-  the capability owner that consumes that surface.
+  `runtime-event-port`, `plugin-runtime`, `script-tool-runtime`, or
+  `rag-search` only from the capability owner that consumes that surface.
 - `tool-runtime-handles` is the only reviewed aggregate: it is the stable
   handle bundle shared by the tool-runtime owners. Do not add a general
   `service-ports`, `full`, or compatibility umbrella.
@@ -56,6 +56,7 @@ cargo check --locked -p openbitfun-runtime-ports --no-default-features
 cargo test --locked -p openbitfun-runtime-ports --no-default-features --features agent-api --lib
 cargo test --locked -p openbitfun-runtime-ports --no-default-features --features workspace-ports --test session_store_contracts
 cargo test --locked -p openbitfun-runtime-ports --no-default-features --features plugin-runtime --test plugin_runtime_contracts
+cargo test --locked -p openbitfun-runtime-ports --no-default-features --features rag-search --lib
 node scripts/check-core-boundaries.mjs
 ```
 

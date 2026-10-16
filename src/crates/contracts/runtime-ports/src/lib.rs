@@ -23,6 +23,8 @@ mod permission;
 mod plugin;
 #[cfg(feature = "product-search")]
 mod product_search;
+#[cfg(feature = "rag-search")]
+mod rag_search;
 #[cfg(feature = "script-tool-runtime")]
 mod script_tool;
 #[cfg(feature = "web-search-port")]
@@ -74,6 +76,8 @@ pub use plugin::{
 };
 #[cfg(feature = "product-search")]
 pub use product_search::ProductSearchPort;
+#[cfg(feature = "rag-search")]
+pub use rag_search::*;
 #[cfg(feature = "script-tool-runtime")]
 pub use script_tool::{
     ScriptToolDescriptor, ScriptToolExpectedExport, ScriptToolInvokeRequest,
