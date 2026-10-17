@@ -26,7 +26,8 @@
     "createFolderFailed": "Échec de la création du dossier",
     "renameFailed": "Échec du renommage",
     "openInBrowserFailed": "Échec de l'ouverture du fichier dans le navigateur",
-    "revealFailed": "Échec de l'ouverture du gestionnaire de fichiers"
+    "revealFailed": "Échec de l'ouverture du gestionnaire de fichiers",
+    "wordcraftOpenFailed": "Échec de l'ouverture dans WordCraft"
   },
   "workspace": {
     "notFound": "Espace de travail introuvable",

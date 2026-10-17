@@ -174,6 +174,7 @@ const SERVICES_CORE_TOKIO_FEATURES = new Map([
   ['permission', ['rt']],
   ['process-runtime', ['io-util', 'process', 'rt', 'time']],
   ['session-search', ['rt']],
+  ['wordcraft', ['io-util', 'process', 'rt', 'time']],
   ['workspace-instructions', ['fs', 'io-util', 'rt']],
   ['workspace-text-runtime', ['rt']],
   ['workspace-runtime', ['fs', 'io-util', 'process', 'rt', 'sync', 'time']],

@@ -53,6 +53,19 @@ libc = { workspace = true, optional = true }
 
 [features]
 asar = []
+wordcraft = [
+    "process-runtime",
+    "dep:libc",
+    "dep:sha2",
+    "dep:tokio",
+    "dep:which",
+    "dep:win32job",
+    "dep:windows",
+    "windows/Win32_Foundation",
+    "windows/Win32_System_Diagnostics_ToolHelp",
+    "windows/Win32_System_JobObjects",
+    "windows/Win32_System_Threading",
+]
 installed-apps = ["dep:windows", "windows/Win32_Foundation", "windows/Win32_System_Registry"]
 default = []
 pet-packages = ["dep:image", "image/png", "image/webp", "image/jpeg", "image/gif", "dep:zip", "dep:uuid", "dep:sha2", "dep:base64", "dep:dunce", "dep:fs2"]

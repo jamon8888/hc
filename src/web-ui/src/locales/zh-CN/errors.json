@@ -26,7 +26,8 @@
     "createFolderFailed": "Failed to create folder",
     "renameFailed": "Rename failed",
     "openInBrowserFailed": "在浏览器中打开文件失败",
-    "revealFailed": "Failed to open file manager"
+    "revealFailed": "Failed to open file manager",
+    "wordcraftOpenFailed": "在 WordCraft 中打开失败"
   },
   "workspace": {
     "notFound": "工作区未找到",
