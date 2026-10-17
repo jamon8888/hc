@@ -1429,8 +1429,6 @@ pub async fn run() {
             create_directory,
             compress_path,
             decompress_path,
-            wordcraft_status_command,
-            wordcraft_open_document_command,
             list_directory_files,
             start_file_watch,
             stop_file_watch,
