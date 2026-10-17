@@ -69,6 +69,9 @@ fn tray_strings(locale: &LocaleId) -> &'static TrayStrings {
         LocaleId::ZhCN => &STRINGS_ZH_CN,
         LocaleId::ZhTW => &STRINGS_ZH_TW,
         LocaleId::EnUS => &STRINGS_EN_US,
+        // fr-FR tray strings have not landed yet; serve English until the
+        // fr-FR surface effort adds STRINGS_FR_FR.
+        LocaleId::FrFR => &STRINGS_EN_US,
     }
 }
 
