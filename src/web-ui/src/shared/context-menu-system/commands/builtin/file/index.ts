@@ -8,6 +8,7 @@ export * from './CopyPathCommand';
 export * from './CopyRelativePathCommand';
 export * from './RevealInExplorerCommand';
 export * from './OpenHtmlInBrowserCommand';
+export * from './WordcraftDocumentCommands';
 
 import { NewFileCommand } from './NewFileCommand';
 import { NewFolderCommand } from './NewFolderCommand';
@@ -17,6 +18,7 @@ import { CopyPathCommand } from './CopyPathCommand';
 import { CopyRelativePathCommand } from './CopyRelativePathCommand';
 import { RevealInExplorerCommand } from './RevealInExplorerCommand';
 import { OpenHtmlInBrowserCommand } from './OpenHtmlInBrowserCommand';
+import { OpenInWordcraftCommand, NewWordcraftDocumentCommand } from './WordcraftDocumentCommands';
 
  
 export function getFileCommands() {
@@ -28,7 +30,9 @@ export function getFileCommands() {
     new CopyPathCommand(),
     new CopyRelativePathCommand(),
     new RevealInExplorerCommand(),
-    new OpenHtmlInBrowserCommand()
+    new OpenHtmlInBrowserCommand(),
+    new OpenInWordcraftCommand(),
+    new NewWordcraftDocumentCommand()
   ];
 }
 
