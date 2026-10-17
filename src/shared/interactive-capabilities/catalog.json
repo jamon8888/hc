@@ -255,6 +255,10 @@
       "account_subscribe_session",
       "account_unsubscribe_session",
       "get_session_interaction_mailbox"
+    ],
+    "basemindRedaction": [
+      "basemind_read_redacted_document",
+      "basemind_reveal_entity"
     ]
   },
   "capabilities": [
