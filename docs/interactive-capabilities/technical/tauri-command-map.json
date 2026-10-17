@@ -1,13 +1,13 @@
 {
   "schemaVersion": 2,
   "generatedFrom": "src/shared/interactive-capabilities/catalog.json",
-  "catalogDigest": "d2710a9488e6f021e11ece435e8d067a9285903c26f20f5bc0b586ac46d67e6d",
-  "commandCount": 668,
+  "catalogDigest": "a80775d371a13b54dc2a9cd34afd1612b74aeb901219fbd056d18f1ab52751bb",
+  "commandCount": 670,
   "coverage": {
-    "commandCount": 668,
+    "commandCount": 670,
     "documentedCommandCount": 620,
-    "implementationCommandCount": 48,
-    "implementationDigest": "f6d38a24a70708988cb47ada81d07eccf0668684e8734c9ee5155b9ffa7e3db8"
+    "implementationCommandCount": 50,
+    "implementationDigest": "f90e6c1f92af74e104facacd41c2ee72ec0ec5a3988c38b7656ad18811d0aec7"
   },
   "commands": [
     {
@@ -663,6 +663,34 @@
       "sourceFile": "src/apps/desktop/src/api/session_api.rs",
       "signature": "fn archive_session( request: ArchiveSessionRequest, runtime: State<'_, DesktopRuntimeContext>, ) -> Result<(), String>",
       "remoteWorkspacePolicy": "LegacyUnaudited"
+    },
+    {
+      "id": "basemind_read_redacted_document",
+      "moduleId": "commands",
+      "capabilityId": "feature.projects",
+      "capabilityIds": [
+        "feature.projects"
+      ],
+      "documentedItemIds": [],
+      "visibility": "implementation",
+      "rustPath": "basemind_commands::basemind_read_redacted_document",
+      "sourceFile": "src/apps/desktop/src/api/commands.rs",
+      "signature": "fn basemind_read_redacted_document( state: State<'_, AppState>, request: ReadRedactedDocumentRequest, ) -> Result<RedactedDocumentResponse, String>",
+      "remoteWorkspacePolicy": "LocalOnly"
+    },
+    {
+      "id": "basemind_reveal_entity",
+      "moduleId": "commands",
+      "capabilityId": "feature.projects",
+      "capabilityIds": [
+        "feature.projects"
+      ],
+      "documentedItemIds": [],
+      "visibility": "implementation",
+      "rustPath": "basemind_commands::basemind_reveal_entity",
+      "sourceFile": "src/apps/desktop/src/api/commands.rs",
+      "signature": "fn basemind_reveal_entity( state: State<'_, AppState>, request: RevealEntityRequest, ) -> Result<String, String>",
+      "remoteWorkspacePolicy": "LocalOnly"
     },
     {
       "id": "browser_control_disconnect",
