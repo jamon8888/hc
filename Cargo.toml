@@ -51,7 +51,7 @@ members = [
     "src/crates/contracts/config-contracts",
     "src/crates/contracts/events",
     "src/crates/contracts/runtime-ports",
-    "src/crates/integrations/basemind-integration",
+    "src/crates/services/basemind-integration",
 ]
 
 exclude = [

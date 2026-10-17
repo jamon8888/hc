@@ -55,6 +55,9 @@ impl OAuthCallbackLocale {
             LocaleId::ZhCN => Some(Self::ZhCN),
             LocaleId::ZhTW => Some(Self::ZhTW),
             LocaleId::EnUS => Some(Self::EnUS),
+            // fr-FR callback copy has not landed yet; serve English until
+            // the fr-FR surface effort adds localized OAuth page copy.
+            LocaleId::FrFR => Some(Self::EnUS),
         }
     }
 

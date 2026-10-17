@@ -56,7 +56,7 @@ Switch themes and languages, tune typography, and install or import appearance p
 | 选项 / Option | 可用值 / Values | 中文说明 | English description |
 | --- | --- | --- | --- |
 | 主题 / Theme | `system` / `openbitfun-light` / `openbitfun-monochrome` / `openbitfun-slate` / `openbitfun-dark` / `openbitfun-midnight` / `openbitfun-china-style` / `openbitfun-china-night` / `openbitfun-cyber` / `openbitfun-tokyo-night` | 使用系统、OpenBitFun 深色或 OpenBitFun 浅色外观。 | Use the system, OpenBitFun dark, or OpenBitFun light appearance. |
-| 界面语言 / Interface language | `zh-CN` / `en-US` / `zh-TW` | 设置 OpenBitFun 的界面语言。 | Set the OpenBitFun interface language. |
+| 界面语言 / Interface language | `zh-CN` / `en-US` / `fr-FR` / `zh-TW` | 设置 OpenBitFun 的界面语言。 | Set the OpenBitFun interface language. |
 
 ## 可以直接对智能体说 / Try saying
 

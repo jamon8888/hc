@@ -80,9 +80,12 @@ function stripRustComments(source) {
 export function parseRegisteredCommands(source) {
   const match = source.match(/\.invoke_handler\(tauri::generate_handler!\[([\s\S]*?)\]\)/u);
   if (!match) throw new Error('Desktop invoke_handler registration block was not found');
+  // cfg-gated entries carry their attributes in the same comma-separated
+  // chunk (`#[cfg(...)]\n  path::cmd` after splitting); strip leading
+  // attribute tokens so only the command path remains, per entry.
   const entries = stripRustComments(match[1])
     .split(',')
-    .map((entry) => entry.trim())
+    .map((entry) => entry.replace(/(^|\n)\s*#\[[^\]]*\]\s*/gu, '').trim())
     .filter(Boolean);
   const invalid = entries.filter((entry) => !/^[A-Za-z0-9_:]+$/u.test(entry));
   if (invalid.length) throw new Error(`Unsupported invoke_handler entries: ${invalid.join(', ')}`);

@@ -14,6 +14,24 @@ import {
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (relativePath) => readFile(path.join(repositoryRoot, relativePath), 'utf8');
 
+test('parseRegisteredCommands tolerates cfg-gated entries and drops their attributes', () => {
+  const source = [
+    '.invoke_handler(tauri::generate_handler![',
+    '  create_file,',
+    '  // a comment',
+    '  #[cfg(feature = "basemind")]',
+    '  basemind_commands::basemind_reveal_entity,',
+    '  #[cfg(feature = "basemind")] basemind_commands::basemind_read_redacted_document,',
+    '])',
+  ].join('\n');
+  const entries = parseRegisteredCommands(source).map(({ id }) => id);
+  assert.deepEqual(entries, [
+    'create_file',
+    'basemind_reveal_entity',
+    'basemind_read_redacted_document',
+  ]);
+});
+
 test('the public contract is a compact feature-and-settings manual', () => {
   const { publicCatalog, runtimeCatalog } = buildCapabilityCatalog();
   const featureCount = publicCatalog.capabilities.filter(({ kind }) => kind === 'feature').length;

@@ -893,7 +893,7 @@ mod tests {
         );
         assert_eq!(
             generated_locale_entry_from_code("fr-FR").map(|entry| entry.id),
-            None
+            Some(LocaleId::FrFR)
         );
     }
 

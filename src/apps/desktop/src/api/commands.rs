@@ -5833,7 +5833,10 @@ pub mod basemind_commands {
         request: RevealEntityRequest,
     ) -> Result<String, String> {
         let client = state.get_basemind_client().await?;
-        client.reveal_entity(&request.entity_id).await.map_err(|e| e.to_string())
+        client
+            .reveal_entity(&request.entity_id)
+            .await
+            .map_err(|e| e.to_string())
     }
 
     #[tauri::command]
