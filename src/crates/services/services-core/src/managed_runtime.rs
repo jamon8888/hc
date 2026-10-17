@@ -12,7 +12,7 @@ use std::path::{Path, PathBuf};
 const DEFAULT_RUNTIME_COMMANDS: &[&str] = &[
     "node", "npm", "npx", "python", "python3", "pandoc", "soffice", "pdftoppm",
 ];
-const MANAGED_COMPONENTS: &[&str] = &["node", "python", "pandoc", "office", "poppler"];
+const MANAGED_COMPONENTS: &[&str] = &["node", "python", "pandoc", "office", "poppler", "wordcraft"];
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -21,7 +21,7 @@ pub enum RuntimeSource {
     Managed,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ResolvedCommand {
     pub command: String,
@@ -248,6 +248,8 @@ fn normalize_command_alias(command: &str) -> String {
         "python3.exe" => "python3".to_string(),
         "soffice.exe" => "soffice".to_string(),
         "pdftoppm.exe" => "pdftoppm".to_string(),
+        "wordcraft.exe" => "wordcraft".to_string(),
+        "wordcraft-cli.exe" => "wordcraft-cli".to_string(),
         other => other.to_string(),
     }
 }
@@ -315,6 +317,25 @@ fn managed_command_spec(command: &str) -> Option<ManagedCommandSpec> {
                 "Library/bin/pdftoppm.exe",
             ],
         }),
+        "wordcraft" => Some(ManagedCommandSpec {
+            component: "wordcraft",
+            candidates: &[
+                "wordcraft",
+                "wordcraft.exe",
+                "bin/wordcraft",
+                "bin/wordcraft.exe",
+            ],
+        }),
+        "wordcraft-cli" => Some(ManagedCommandSpec {
+            component: "wordcraft",
+            candidates: &[
+                "wordcraft-cli",
+                "wordcraft-cli.exe",
+                "bin/wordcraft-cli",
+                "bin/wordcraft-cli.exe",
+                "wordcraft-cli/wordcraft-cli",
+            ],
+        }),
         _ => None,
     }
 }
@@ -326,6 +347,7 @@ fn managed_component_path_entries(component: &str) -> &'static [&'static str] {
         "pandoc" => &["", "bin"],
         "office" => &["", "program", "bin"],
         "poppler" => &["", "bin", "Library/bin"],
+        "wordcraft" => &[""],
         _ => &[""],
     }
 }

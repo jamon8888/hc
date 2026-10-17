@@ -1123,5 +1123,13 @@
     "companion": "Chargement du compagnon...",
     "scenes": "Chargement de la scène",
     "workspace": "Chargement de l'espace de travail..."
+  },
+  "file": {
+    "openInWordcraft": "Ouvrir dans WordCraft",
+    "openInWordcraftDescription": "Ouvrir ce document dans la fenêtre de l'éditeur WordCraft",
+    "openInWordcraftOpening": "Ouverture dans WordCraft",
+    "newWordcraftDocument": "Nouveau document WordCraft",
+    "newWordcraftDocumentDescription": "Démarrer un nouveau document à partir des modèles de WordCraft",
+    "newWordcraftDocumentOpening": "Création du document WordCraft"
   }
 }
