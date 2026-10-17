@@ -259,6 +259,10 @@
     "basemindRedaction": [
       "basemind_read_redacted_document",
       "basemind_reveal_entity"
+    ],
+    "wordcraftEditorSurfaces": [
+      "wordcraft_open_document_command",
+      "wordcraft_status_command"
     ]
   },
   "capabilities": [
@@ -9586,6 +9590,9 @@
       "capabilityId": "feature.miniapps"
     },
     "openbitfun_control_host": {
+      "capabilityId": null
+    },
+    "wordcraft": {
       "capabilityId": null
     },
     "context_upload": {

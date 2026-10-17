@@ -2,12 +2,12 @@
   "schemaVersion": 2,
   "generatedFrom": "src/shared/interactive-capabilities/catalog.json",
   "catalogDigest": "a80775d371a13b54dc2a9cd34afd1612b74aeb901219fbd056d18f1ab52751bb",
-  "commandCount": 670,
+  "commandCount": 672,
   "coverage": {
-    "commandCount": 670,
+    "commandCount": 672,
     "documentedCommandCount": 620,
-    "implementationCommandCount": 50,
-    "implementationDigest": "f90e6c1f92af74e104facacd41c2ee72ec0ec5a3988c38b7656ad18811d0aec7"
+    "implementationCommandCount": 52,
+    "implementationDigest": "52880dcf80e6220c8ad428315f5f04528d1dce802e1de3592d2426fce12d75b1"
   },
   "commands": [
     {
@@ -10558,6 +10558,30 @@
       "sourceFile": "src/apps/desktop/src/lib.rs",
       "signature": "fn webdriver_bridge_result(request: WebdriverBridgeResultRequest) -> Result<(), String>",
       "remoteWorkspacePolicy": "LegacyUnaudited"
+    },
+    {
+      "id": "wordcraft_open_document_command",
+      "moduleId": "wordcraft",
+      "capabilityId": null,
+      "capabilityIds": [],
+      "documentedItemIds": [],
+      "visibility": "internal",
+      "rustPath": "wordcraft_open_document_command",
+      "sourceFile": "src/apps/desktop/src/api/wordcraft_api.rs",
+      "signature": "fn wordcraft_open_document_command( state: State<'_, AppState>, request: WordcraftOpenDocumentRequest, ) -> Result<WordcraftOpenDocumentResponse, String>",
+      "remoteWorkspacePolicy": "LocalOnly"
+    },
+    {
+      "id": "wordcraft_status_command",
+      "moduleId": "wordcraft",
+      "capabilityId": null,
+      "capabilityIds": [],
+      "documentedItemIds": [],
+      "visibility": "internal",
+      "rustPath": "wordcraft_status_command",
+      "sourceFile": "src/apps/desktop/src/api/wordcraft_api.rs",
+      "signature": "fn wordcraft_status_command(recheck: bool) -> Result<WordcraftCapability, String>",
+      "remoteWorkspacePolicy": "LocalOnly"
     },
     {
       "id": "workspace_file_upload",
