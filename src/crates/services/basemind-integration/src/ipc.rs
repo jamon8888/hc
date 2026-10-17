@@ -11,6 +11,8 @@ use serde_json::Value;
 #[cfg(feature = "basemind")]
 use std::time::Duration;
 
+use crate::models::ExtractResult;
+
 #[cfg(feature = "basemind")]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DocEntity {
@@ -108,6 +110,62 @@ impl BasemindClient {
             }),
         )
         .await
+    }
+
+    /// Extract a document and return redacted markdown with entity ids.
+    ///
+    /// Restored for the desktop redaction surface (`basemind_read_redacted_document`);
+    /// the sidecar is now reached through MCP over HTTP instead of the legacy
+    /// JSON-RPC transport. The payload is read from the MCP `content[0].json`
+    /// envelope with a flat-response fallback.
+    pub async fn extract_and_redact_path(&self, path: &str) -> Result<ExtractResult> {
+        let response = self
+            .call_tool(
+                "extract_and_redact_path",
+                serde_json::json!({ "path": path }),
+            )
+            .await?;
+        let payload = response
+            .get("content")
+            .and_then(|content| content.get(0))
+            .and_then(|item| item.get("json"))
+            .cloned()
+            .unwrap_or(response);
+        Ok(ExtractResult {
+            markdown: payload["markdown"].as_str().unwrap_or("").to_string(),
+            source_format: payload["source_format"]
+                .as_str()
+                .unwrap_or("unknown")
+                .to_string(),
+            entities: payload["entities"]
+                .as_array()
+                .map(|arr| {
+                    arr.iter()
+                        .filter_map(|value| serde_json::from_value(value.clone()).ok())
+                        .collect()
+                })
+                .unwrap_or_default(),
+        })
+    }
+
+    /// Reveal the original value of a redacted entity.
+    ///
+    /// Restored for the desktop reveal surface (`basemind_reveal_entity`); see
+    /// `extract_and_redact_path` for the transport note.
+    pub async fn reveal_entity(&self, entity_id: &str) -> Result<String> {
+        let response = self
+            .call_tool(
+                "reveal_entity",
+                serde_json::json!({ "entity_id": entity_id }),
+            )
+            .await?;
+        let payload = response
+            .get("content")
+            .and_then(|content| content.get(0))
+            .and_then(|item| item.get("json"))
+            .cloned()
+            .unwrap_or(response);
+        Ok(payload["value"].as_str().unwrap_or("").to_string())
     }
 
     /// Convenience: memory search documents

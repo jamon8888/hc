@@ -40,7 +40,7 @@ pub use self::ipc::{BasemindClient, DocEntity, DocumentSearchHit};
 #[cfg(feature = "basemind")]
 pub use self::keychain::{get_vault_passphrase, set_vault_passphrase, KeychainError};
 #[cfg(feature = "basemind")]
-pub use self::models::{ModelConfig, ModelManager};
+pub use self::models::{ExtractResult, ModelConfig, ModelManager, RedactedEntity};
 #[cfg(feature = "basemind")]
 pub use self::prompt_pseudonym::{PromptPseudonymizer, PseudonymizedPrompt};
 #[cfg(feature = "basemind")]

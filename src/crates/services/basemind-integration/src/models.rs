@@ -53,3 +53,27 @@ impl ModelManager {
         );
     }
 }
+
+/// Extract result from the Basemind sidecar.
+///
+/// Compatibility shape restored for the desktop redaction surface
+/// (`basemind_read_redacted_document`), which predates the identity spine.
+#[cfg(feature = "basemind")]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ExtractResult {
+    pub markdown: String,
+    pub source_format: String,
+    pub entities: Vec<RedactedEntity>,
+}
+
+/// PII entity found during extraction, referenced by id.
+///
+/// Compatibility shape restored for the desktop redaction surface
+/// (`basemind_reveal_entity` / `basemind_read_redacted_document`).
+#[cfg(feature = "basemind")]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RedactedEntity {
+    pub entity_id: String,
+    pub entity_type: String,
+    pub occurrence_count: u32,
+}
