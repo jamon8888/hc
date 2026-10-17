@@ -34,7 +34,7 @@ jobs:
     timeout-minutes: 60
     steps:
       - name: Checkout fork
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -141,7 +141,7 @@ jobs:
     timeout-minutes: 90
     steps:
       - name: Checkout PR
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ needs.validate-sync.outputs.pr-branch }}
           fetch-depth: 0
@@ -152,7 +152,7 @@ jobs:
           components: rustfmt, clippy
 
       - name: Setup Node/pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
         with:
           run_install: false
 
