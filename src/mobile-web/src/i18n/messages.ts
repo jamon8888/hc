@@ -6,7 +6,11 @@ export type { MobileLanguage };
 type MessageLeaf = string;
 type MessageTree = { readonly [key: string]: MessageLeaf | MessageTree };
 
-export const messages: Record<MobileLanguage, MessageTree> = {
+// The shared i18n contract gives fr-FR contentFallbacks (en-US), and
+// translate() walks that fallback chain via getByPath, which tolerates a
+// missing tree — so fr-FR stays optional until the mobile bundle ships its
+// own French copy.
+export const messages: { readonly [K in MobileLanguage]?: MessageTree } = {
   'en-US': {
     queue: {
       "title": "Queued messages",
