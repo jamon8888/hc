@@ -162,6 +162,7 @@
     --openbitfun-control-tool-card-header-padding-inline-end: 0.625rem;
     --openbitfun-focus-offset: 2px;
     --openbitfun-focus-width: 2px;
+    --openbitfun-font-family-ai-response: 'OpenBitFun Source Serif 4', 'OpenBitFun Source Serif 4 VF', var(--openbitfun-font-family-sans);
     --openbitfun-font-family-control: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI Variable Text', 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei UI', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     --openbitfun-font-family-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Monaco, 'Cascadia Mono', 'Cascadia Code', Consolas, 'Liberation Mono', 'Courier New', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei UI', 'Microsoft YaHei', monospace;
     --openbitfun-font-family-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei UI', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -498,6 +499,11 @@
     --openbitfun-type-display-xxl-letter-spacing: var(--openbitfun-letter-spacing-tight);
     --openbitfun-type-display-xxl-line-height: var(--openbitfun-line-height-display);
     --openbitfun-type-field-helper-line-height: 1.4545454545454546;
+    --openbitfun-type-flow-ai-response-font-family: var(--openbitfun-font-family-ai-response);
+    --openbitfun-type-flow-ai-response-font-size: var(--openbitfun-font-size-base);
+    --openbitfun-type-flow-ai-response-font-weight: var(--openbitfun-font-weight-regular);
+    --openbitfun-type-flow-ai-response-letter-spacing: var(--openbitfun-letter-spacing-normal);
+    --openbitfun-type-flow-ai-response-line-height: var(--openbitfun-line-height-reading);
     --openbitfun-type-flow-body-font-family: var(--openbitfun-font-family-sans);
     --openbitfun-type-flow-body-font-size: var(--openbitfun-font-size-base);
     --openbitfun-type-flow-body-font-weight: var(--openbitfun-font-weight-regular);
