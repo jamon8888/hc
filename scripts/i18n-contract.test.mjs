@@ -118,7 +118,7 @@ test('i18n contract generated files are in sync with the canonical contract', ()
   const contract = readJson('src/shared/i18n/contract/locales.json');
   assert.deepEqual(
     contract.locales.map((locale) => locale.id),
-    ['zh-CN', 'en-US', 'zh-TW'],
+    ['zh-CN', 'en-US', 'fr-FR', 'zh-TW'],
   );
 
   for (const relativePath of expectedGeneratedFiles) {
