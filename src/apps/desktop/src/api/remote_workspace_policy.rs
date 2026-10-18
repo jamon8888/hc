@@ -31,7 +31,10 @@ mod tests {
 
     /// Extracts the command names registered in `tauri::generate_handler!`.
     pub(crate) fn registered_commands() -> BTreeSet<String> {
-        let source = include_str!("../lib.rs");
+        parse_command_block(include_str!("../lib.rs"))
+    }
+
+    fn parse_command_block(source: &str) -> BTreeSet<String> {
         let start = source
             .find("generate_handler![")
             .expect("lib.rs must register commands via tauri::generate_handler!")
@@ -45,6 +48,17 @@ mod tests {
             .map(str::trim)
             .filter(|line| !line.is_empty() && !line.starts_with("//"))
             .map(|line| {
+                // cfg-gated entries carry `#[cfg(feature = "x")]` either on
+                // its own line or inline before the command path; strip the
+                // attribute exactly as the capability generator does so it can
+                // never be parsed as a command name.
+                let mut line = line;
+                while let Some(rest) = line.strip_prefix("#[") {
+                    line = match rest.split_once(']') {
+                        Some((_, tail)) => tail.trim(),
+                        None => "",
+                    };
+                }
                 let entry = line.trim_end_matches(',');
                 entry
                     .rsplit("::")
@@ -52,7 +66,32 @@ mod tests {
                     .expect("command path segments are non-empty")
                     .to_string()
             })
+            .filter(|entry| !entry.is_empty())
             .collect()
+    }
+
+    #[test]
+    fn cfg_gated_handler_entries_do_not_register_their_attribute() {
+        let parsed = parse_command_block(
+            "fn x() {\n\
+             \x20 tauri::generate_handler![\n\
+             \x20   create_file,\n\
+             \x20   // a comment\n\
+             \x20   #[cfg(feature = \"basemind\")]\n\
+             \x20   basemind_commands::basemind_reveal_entity,\n\
+             \x20   #[cfg(feature = \"basemind\")] basemind_commands::basemind_read_redacted_document,\n\
+             \x20 ])\n\
+             }\n",
+        );
+        assert_eq!(
+            parsed,
+            BTreeSet::from([
+                "create_file".to_string(),
+                "basemind_reveal_entity".to_string(),
+                "basemind_read_redacted_document".to_string(),
+            ]),
+            "attributes must never parse as command names"
+        );
     }
 
     #[test]
