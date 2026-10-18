@@ -12,7 +12,6 @@ const SOURCE_PATH = path.join(REPO_ROOT, 'src/shared/interactive-capabilities/ca
 const LOCALE_CONTRACT_PATH = path.join(REPO_ROOT, 'src/shared/i18n/contract/locales.json');
 const DESKTOP_ROOT = path.join(REPO_ROOT, 'src/apps/desktop/src');
 const DESKTOP_LIB = path.join(DESKTOP_ROOT, 'lib.rs');
-const DESKTOP_CARGO = path.join(REPO_ROOT, 'src/apps/desktop/Cargo.toml');
 const APPEARANCE_BOOTSTRAP_PATH = path.join(
   DESKTOP_ROOT,
   'generated/startup_appearance_bootstrap.json',
@@ -78,43 +77,22 @@ function stripRustComments(source) {
   return source.replace(/\/\*[\s\S]*?\*\//gu, '').replace(/\/\/.*$/gmu, '');
 }
 
-/**
- * Default features of the desktop crate. The capability catalog describes the
- * build we actually ship, so a command gated behind a non-default feature is
- * not part of it.
- */
-let cachedDesktopDefaultFeatures;
-function desktopDefaultFeatures() {
-  if (cachedDesktopDefaultFeatures) return cachedDesktopDefaultFeatures;
-  const manifest = readFileSync(DESKTOP_CARGO, 'utf8');
-  const start = manifest.indexOf('[features]');
-  if (start < 0) throw new Error(`${toPosix(path.relative(REPO_ROOT, DESKTOP_CARGO))} has no [features] section`);
-  const nextSection = manifest.indexOf('\n[', start + 1);
-  const section = manifest.slice(start, nextSection < 0 ? undefined : nextSection);
-  const declaration = section.match(/^\s*default\s*=\s*\[([^\]]*)\]/mu);
-  const features = declaration
-    ? [...declaration[1].matchAll(/"([^"]+)"/gu)].map((found) => found[1])
-    : [];
-  cachedDesktopDefaultFeatures = new Set(features);
-  return cachedDesktopDefaultFeatures;
-}
-
 const FEATURE_GATE_PATTERN = /^\s*cfg\s*\(\s*feature\s*=\s*"([^"]+)"\s*\)\s*$/u;
 
 /**
  * Parse `tauri::generate_handler![...]` registrations.
  *
  * An entry may be preceded by attributes, most commonly
- * `#[cfg(feature = "basemind")]`. Entries gated behind a feature the desktop
- * crate does not enable by default are left out: they are not registered in the
- * build this catalog audits, and the Product Operation Registry has no row for
- * them. Any other `cfg(...)` predicate is rejected rather than guessed at, so a
- * future platform- or state-gated command forces an explicit decision here.
+ * `#[cfg(feature = "basemind")]`. Feature-gated entries stay part of the set:
+ * the Product Operation Registry owns exactly one row for every desktop
+ * Tauri command regardless of the feature gates guarding its registration, and
+ * the catalog must agree with those rows. Any other `cfg(...)` predicate is
+ * rejected rather than guessed at, so a future platform- or state-gated
+ * command forces an explicit decision here.
  */
 export function parseRegisteredCommands(source) {
   const match = source.match(/\.invoke_handler\(tauri::generate_handler!\[([\s\S]*?)\]\)/u);
   if (!match) throw new Error('Desktop invoke_handler registration block was not found');
-  const defaultFeatures = desktopDefaultFeatures();
 
   const found = [];
   let gates = [];
@@ -146,19 +124,14 @@ export function parseRegisteredCommands(source) {
 
   const entries = [];
   for (const { entry, gates: entryGates } of found) {
-    let registered = true;
     for (const gate of entryGates) {
-      const feature = gate.match(FEATURE_GATE_PATTERN);
-      if (feature) {
-        registered = registered && defaultFeatures.has(feature[1]);
-        continue;
-      }
+      if (FEATURE_GATE_PATTERN.test(gate)) continue;
       throw new Error(
         `Unsupported invoke_handler attribute \`#[${gate}]\` on ${entry}: `
         + 'only feature gates are understood; extend parseRegisteredCommands for other cfg predicates.',
       );
     }
-    if (registered) entries.push({ id: entry.split('::').at(-1), rustPath: entry });
+    entries.push({ id: entry.split('::').at(-1), rustPath: entry });
   }
   return entries;
 }
