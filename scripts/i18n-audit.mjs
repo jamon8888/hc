@@ -989,10 +989,26 @@ function flattenRelayHomepageEntries(value, locale, prefix = '') {
     .sort(([left], [right]) => left.localeCompare(right));
 }
 
-function collectRelayHomepageDataKeys() {
+function readRelayHomepageHtml() {
   const htmlPath = path.join(relayHomepageDir, 'index.html');
-  const html = fs.readFileSync(htmlPath, 'utf8');
+  return fs.readFileSync(htmlPath, 'utf8');
+}
+
+function collectRelayHomepageDataKeys() {
+  const html = readRelayHomepageHtml();
   return sortedUnique(Array.from(html.matchAll(/\bdata-i18n="([^"]+)"/g), (match) => match[1]));
+}
+
+// The homepage resolves its runtime locale list and auto-detect mapping from an inline
+// script, so i18n.json can carry a locale that index.html can never select. Report the
+// wiring so callers can compare it against the contract's locales.
+function collectRelayHomepageLocaleWiring() {
+  const html = readRelayHomepageHtml();
+  const localesMatch = html.match(/\bvar LOCALES=\[([^\]]*)\]/);
+  const locales = localesMatch
+    ? Array.from(localesMatch[1].matchAll(/'([^']*)'/g), (match) => match[1])
+    : null;
+  return { locales };
 }
 
 function auditRelayStaticHomepageResources() {
@@ -1008,6 +1024,17 @@ function auditRelayStaticHomepageResources() {
   }
   for (const locale of diffSets(localeIds, expectedLocaleIds)) {
     reportError(`relay static homepage i18n.json has non-canonical locale "${locale}"`);
+  }
+  const { locales: selectableLocales } = collectRelayHomepageLocaleWiring();
+  if (selectableLocales == null) {
+    reportError('relay static homepage index.html is missing the inline LOCALES array');
+  } else {
+    for (const locale of diffSets(localeIds, selectableLocales)) {
+      reportError(`relay static homepage index.html LOCALES cannot select "${locale}"`);
+    }
+    for (const locale of diffSets(selectableLocales, localeIds)) {
+      reportError(`relay static homepage index.html LOCALES lists "${locale}" with no i18n.json entry`);
+    }
   }
   for (const key of diffSets(dataKeys, baselineKeys)) {
     reportError(`relay static homepage index.html references missing i18n key "${key}"`);
