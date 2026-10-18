@@ -443,6 +443,14 @@ export const capabilityContractDependencyRules = [
         [capabilityEdge(['agent-api', 'git-port'])],
         [capabilityForwarder('ts', 'ts')],
       )],
+      // basemind-integration stays dependency-minimal on main: an optional,
+      // featureless runtime-ports edge activated only by the basemind feature.
+      ['openbitfun_basemind_integration', capabilityConsumer(
+        [capabilityEdge([], { optional: true })],
+        [],
+        ['basemind'],
+        ['tools-rag', 'document-read'],
+      )],
       ['openbitfun-cli', capabilityConsumer([
         capabilityEdge(['agent-api', 'git-port', 'permission', 'plugin-runtime', 'workspace-ports']),
       ])],

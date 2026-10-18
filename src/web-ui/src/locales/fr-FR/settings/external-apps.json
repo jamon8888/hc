@@ -417,6 +417,7 @@
     "pending": "Choisir quel agent utiliser pour les futures tâches. Choisir un agent externe confirme aussi le modèle, les outils et où il s'exécute comme montré ci-dessous.",
     "currentSelection": "Le choix actuel est utilisé pour les nouvelles tâches. Choisissez une autre option ci-dessus pour le changer.",
     "currentSelectionUnavailable": "Cette source est encore sélectionnée, mais elle est actuellement désactivée ou indisponible pour les nouvelles tâches. Activez-la ou réparez-la, choisissez une autre option, ou gardez ce nom indisponible.",
+    "keptUnavailable": "Ce nom d'agent est conservé comme indisponible. Choisissez une option ci-dessus lorsque vous souhaitez en utiliser un.",
     "selectionApproves": "Ce choix confirme le modèle, les outils, l'emplacement d'exécution et les sources de configuration montrés ci-dessous."
   },
   "mcp": {

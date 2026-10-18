@@ -31,10 +31,10 @@ All agent tools (`file_read_tool`, `ls_tool`, `grep_tool`, `file_write_tool`) go
 
 ### 2.1 New Decorator: `BasemindWorkspaceFs`
 
-**Create new crate:** `src/crates/integrations/basemind-integration/`
+**Create new crate:** `src/crates/services/basemind-integration/`
 
 ```
-src/crates/integrations/basemind-integration/
+src/crates/services/basemind-integration/
 ├── Cargo.toml
 ├── src/
 │   ├── lib.rs                    # BasemindClient, extract_and_redact, reveal_entity, query_rag
@@ -957,7 +957,7 @@ interface BasemindSettings {
 
 | File | Action | Section |
 |------|--------|---------|
-| `src/crates/integrations/basemind-integration/` | **New crate** (Cargo.toml, lib.rs, workspace_fs.rs, document_convert.rs, models.rs, ipc.rs, prompt_pseudonym.rs, session_vault.rs, local_model_detection.rs) | §2, §3, §8, §11 |
+| `src/crates/services/basemind-integration/` | **New crate** (Cargo.toml, lib.rs, workspace_fs.rs, document_convert.rs, models.rs, ipc.rs, prompt_pseudonym.rs, session_vault.rs, local_model_detection.rs) | §2, §3, §8, §11 |
 | `services-core/src/workspace.rs` | Add `basemind_workspace_services()`, feature flag | §2.2 |
 | `tool-execution/src/fs/document.rs` | Add `RedactedEntity` to `ConvertedDocument` | §3.1 |
 | `assembly/core/src/agentic/tools/implementations/file_read_tool.rs` | Branch conversion call (feature-gated) | §3.3 |

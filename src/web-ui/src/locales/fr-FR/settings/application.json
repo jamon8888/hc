@@ -199,7 +199,7 @@
   },
   "terminal": {
     "sections": {
-      "terminal": "Terminal",
+      "terminal": "$t(shared:tools.shell)",
       "terminalHint": "Shell par défaut",
       "defaultTerminal": "Terminal par Défaut"
     },

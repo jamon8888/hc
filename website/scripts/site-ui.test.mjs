@@ -39,7 +39,7 @@ function cssBlock(selector) {
 }
 
 test('theme contract defaults to system and exposes all three choices', () => {
-  assert.match(templateSource, /localStorage\.getItem\('openbitfun-playbook-theme'\)/u);
+  assert.match(templateSource, /localStorage\.getItem\('hacienda-work-playbook-theme'\)/u);
   assert.match(templateSource, /let theme = 'system'/u);
   assert.match(templateSource, /prefers-color-scheme: dark/u);
   assert.match(appSource, /const THEME_CHOICES = \['system', 'light', 'dark'\]/u);

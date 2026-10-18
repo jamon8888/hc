@@ -30,7 +30,7 @@ tools-rag = ["basemind"]
 document-read = ["basemind", "tool-runtime/document-read"]
 
 [dependencies]
-tokio = { version = "1", features = ["full"], optional = true }
+tokio = { workspace = true, features = ["fs", "io-util", "process", "sync"], optional = true }
 serde = { version = "1", features = ["derive"], optional = true }
 serde_json = { version = "1", optional = true }
 anyhow = { version = "1", optional = true }

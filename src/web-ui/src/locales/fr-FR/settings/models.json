@@ -457,7 +457,7 @@
   "actions": {
     "save": "Sauvegarder",
     "cancel": "Annuler",
-    "edit": "Éditer",
+    "edit": "$t(shared:tools.edit)",
     "delete": "Supprimer",
     "deleteProvider": "Supprimer le fournisseur",
     "test": "Tester la Connexion",

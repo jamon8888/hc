@@ -1,7 +1,10 @@
 {
-  "title": "Terminal",
+  "title": "$t(shared:tools.shell)",
   "emptyState": "Aucun terminal n'est ouvert",
-  "actions": { "closeView": "Fermer la vue du terminal", "stopTerminal": "Arrêter le terminal" },
+  "actions": {
+    "closeView": "Fermer la vue du terminal",
+    "stopTerminal": "Arrêter le terminal"
+  },
   "dialog": {
     "editTerminal": {
       "title": "Éditer le terminal",

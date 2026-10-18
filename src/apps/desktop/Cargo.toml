@@ -33,7 +33,7 @@ openbitfun-transport = { path = "../../crates/adapters/transport", features = ["
 openbitfun-events = { path = "../../crates/contracts/events" }
 openbitfun-webdriver = { path = "../../crates/adapters/webdriver" }
 openbitfun-acp = { path = "../../crates/interfaces/acp", default-features = false, features = ["client"] }
-openbitfun_basemind_integration = { path = "../../crates/integrations/basemind-integration", optional = true, features = ["basemind"] }
+openbitfun_basemind_integration = { path = "../../crates/services/basemind-integration", optional = true, features = ["basemind"] }
 
 # Tauri
 tauri = { workspace = true, features = ["unstable", "macos-private-api", "tray-icon"] }

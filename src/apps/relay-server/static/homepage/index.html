@@ -238,8 +238,8 @@
   <script>
     var I={'en-US':{languageToggle:'Language: EN',status:'Service Running',desc:'Relay service between desktop and mobile, enabling pairing and message forwarding.',f1t:'Connect',f1d:'Handle pairing requests, create remote sessions.',f2t:'Relay',f2d:'Bridge WebSocket and HTTP bidirectionally.',f3t:'Self-Host',f3d:'Private deploy, custom domains and reverse proxy.',flowDesktop:'Desktop',flowDesktopSub:'OpenBitFun Agent',flowRelay:'Relay Server',flowRelaySub:'Pair and Forward',flowMobile:'Mobile',flowMobileSub:{$shared:'features.remoteControl'}}};
     var S={'en-US':{features:{remoteControl:'Remote Control'}}};
-    var LOCALES=['en-US','zh-CN','zh-TW'];
-    function resolveLocale(){var l=(navigator.language||'').toLowerCase();if(l==='zh-tw'||l.startsWith('zh-hant'))return'zh-TW';if(l.startsWith('zh'))return'zh-CN';return'en-US'}
+    var LOCALES=['en-US','zh-CN','zh-TW','fr-FR'];
+    function resolveLocale(){var l=(navigator.language||'').toLowerCase();if(l==='zh-tw'||l.startsWith('zh-hant'))return'zh-TW';if(l.startsWith('zh'))return'zh-CN';if(l.startsWith('fr'))return'fr-FR';return'en-US'}
     function nextLocale(l){var i=LOCALES.indexOf(l);return LOCALES[(i+1)%LOCALES.length]||'en-US'}
     var L=resolveLocale();
     function pathValue(o,p){return p.split('.').reduce(function(v,k){return v&&v[k]},o)}

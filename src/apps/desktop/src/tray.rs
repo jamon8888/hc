@@ -64,11 +64,19 @@ const STRINGS_EN_US: TrayStrings = TrayStrings {
     mark_all_read: "Mark all as read",
 };
 
+const STRINGS_FR_FR: TrayStrings = TrayStrings {
+    show_app: "Afficher OpenBitFun",
+    quit_app: "Quitter OpenBitFun",
+    desktop_pet: "Afficher la mascotte",
+    mark_all_read: "Tout marquer comme lu",
+};
+
 fn tray_strings(locale: &LocaleId) -> &'static TrayStrings {
     match locale {
         LocaleId::ZhCN => &STRINGS_ZH_CN,
         LocaleId::ZhTW => &STRINGS_ZH_TW,
         LocaleId::EnUS => &STRINGS_EN_US,
+        LocaleId::FrFR => &STRINGS_FR_FR,
     }
 }
 
