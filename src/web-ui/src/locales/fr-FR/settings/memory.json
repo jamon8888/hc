@@ -1,7 +1,7 @@
 {
   "title": "Mémoire",
   "subtitle": "Contrôler la génération automatique de mémoire, l'utilisation, et le périmètre de consolidation.",
-  "scopeNotice": "Ces paramètres, candidats de session, et fichiers de mémoire appartiennent à l'hôte exécutant actuellement OpenBitFun. Un autre appareil ou hôte pair peut avoir des données et paramètres de mémoire différents.",
+  "scopeNotice": "Ces paramètres, candidats de session, et fichiers de mémoire appartiennent à l'hôte exécutant actuellement Alex. Un autre appareil ou hôte pair peut avoir des données et paramètres de mémoire différents.",
   "sections": {
     "basic": {
       "title": "Bases",

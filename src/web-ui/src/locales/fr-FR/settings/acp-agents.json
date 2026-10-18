@@ -42,11 +42,21 @@
     "confirm": "Installer sur l'hôte cible"
   },
   "presets": {
-    "opencode": { "description": "Support ACP natif." },
-    "dsh": { "description": "Utilise le pont ACP intégré de Hacienda Work et les paramètres de modèle de dsh." },
-    "omp": { "description": "Support ACP natif." },
-    "claudeCode": { "description": "Se connecte via l'adaptateur ACP officiel." },
-    "codex": { "description": "Se connecte via l'adaptateur ACP officiel." }
+    "opencode": {
+      "description": "Support ACP natif."
+    },
+    "dsh": {
+      "description": "Utilise le pont ACP intégré de Hacienda Work et les paramètres de modèle de dsh."
+    },
+    "omp": {
+      "description": "Support ACP natif."
+    },
+    "claudeCode": {
+      "description": "Se connecte via l'adaptateur ACP officiel."
+    },
+    "codex": {
+      "description": "Se connecte via l'adaptateur ACP officiel."
+    }
   },
   "registry": {
     "title": "Agents",

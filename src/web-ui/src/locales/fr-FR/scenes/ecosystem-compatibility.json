@@ -67,7 +67,7 @@
   },
   "import": {
     "title": "Importer et réutiliser",
-    "description": "Voyez quel contenu de {{name}} fonctionne avec OpenBitFun. Importez les éléments disponibles directement ; les autres éléments montrent leur statut de support actuel.",
+    "description": "Voyez quel contenu de {{name}} fonctionne avec Alex. Importez les éléments disponibles directement ; les autres éléments montrent leur statut de support actuel.",
     "columns": {
       "item": "Élément",
       "type": "Type",
@@ -106,14 +106,14 @@
     "undetectedDescription": "Aucun contenu disponible n'a été trouvé",
     "ownerAdaptedDescription": "Ouvrez la page de gestion pour découvrir, examiner et configurer {{type}}.",
     "notifications": {
-      "success": "{{name}} importé dans OpenBitFun",
+      "success": "{{name}} importé dans Alex",
       "stale": "La source a changé. Examinez l'état le plus récent et réessayez.",
       "failed": "Échec de l'importation de {{name}}"
     },
     "discoveryUnsupportedDescription": "Vous ne pouvez pas encore voir {{type}} de {{name}} ici."
   },
   "run": {
-    "title": "Utiliser dans OpenBitFun",
+    "title": "Utiliser dans Alex",
     "description": "Démarrez une session {{name}} dédiée, ou configurez-la comme sous-agent pour que l'Agent principal l'appelle sur les tâches appropriées.",
     "session": {
       "title": "Créer une session autonome",
@@ -184,7 +184,7 @@
     "reviewedPackage": "Package examiné : {{count}} fichiers. Si la source change, examinez-le à nouveau avant d'importer.",
     "manageCopy": "Gérer la copie",
     "skillNameConflict": "Une Skill avec ce nom a déjà un contenu ou une provenance différents. Changez le nom d'import ci-dessus et réessayez ; la copie existante ne sera pas écrasée.",
-    "batchUndoWarning": "Supprimer ces {{count}} copies OpenBitFun, y compris les modifications qui leur ont été faites. Les sources externes sont préservées et peuvent être réimportées.",
+    "batchUndoWarning": "Supprimer ces {{count}} copies Alex, y compris les modifications qui leur ont été faites. Les sources externes sont préservées et peuvent être réimportées.",
     "batchUndoSummary": "{{removed}} supprimés · {{pending}} mises à jour runtime en attente · {{failed}} échoués",
     "batchPending": "En attente",
     "batchResultSummary": "{{imported}} importés · Nécessitent révision {{unresolved}} · Ignorés {{skipped}}",
@@ -206,17 +206,17 @@
     "validationFailed": "La Skill source n'a pas pu être validée. Rien n'a été importé.",
     "previewFailed": "Impossible de préparer l'aperçu d'import. Actualisez et réessayez.",
     "importFailed": "Import échoué.",
-    "importSuccess": "{{name}} importé. Sa copie est maintenant disponible dans la page de gestion OpenBitFun.",
+    "importSuccess": "{{name}} importé. Sa copie est maintenant disponible dans la page de gestion Alex.",
     "stale": "La source ou la destination a changé. Examinez l'aperçu mis à jour et confirmez à nouveau.",
     "noMatches": "Aucun contenu correspondant.",
-    "confirmTitle": "Confirmer l'import dans OpenBitFun",
-    "copyWarning": "Cela crée une copie OpenBitFun indépendante. Les fichiers de l'agent externe ne sont pas modifiés, et les futures modifications ne sont pas synchronisées automatiquement.",
-    "mcpTarget": "Cible : MCP OpenBitFun / {{name}}. La copie commence désactivée. OpenBitFun gère l'activation, la connexion, la reconnexion et les permissions d'outils ; les politiques de l'hôte externe ne sont pas copiées.",
+    "confirmTitle": "Confirmer l'import dans Alex",
+    "copyWarning": "Cela crée une copie Alex indépendante. Les fichiers de l'agent externe ne sont pas modifiés, et les futures modifications ne sont pas synchronisées automatiquement.",
+    "mcpTarget": "Cible : MCP Alex / {{name}}. La copie commence désactivée. Alex gère l'activation, la connexion, la reconnexion et les permissions d'outils ; les politiques de l'hôte externe ne sont pas copiées.",
     "targetScope": "Copier vers",
-    "userTarget": "OpenBitFun · Skills utilisateur",
-    "projectTarget": "OpenBitFun · Skills du projet actuel",
+    "userTarget": "Alex · Skills utilisateur",
+    "projectTarget": "Alex · Skills du projet actuel",
     "targetExists": "Un répertoire Skill avec le même nom existe déjà à la cible. Il ne sera pas écrasé. Choisissez un autre périmètre ou résolvez le conflit d'abord.",
-    "hookWarning": "Examinez les commandes exactes et les dépendances ci-dessous. Les Hooks importés s'exécutent sous les paramètres Hook d'OpenBitFun et peuvent s'exécuter quand leurs événements surviennent.",
+    "hookWarning": "Examinez les commandes exactes et les dépendances ci-dessous. Les Hooks importés s'exécutent sous les paramètres Hook d'Alex et peuvent s'exécuter quand leurs événements surviennent.",
     "skipped": "Non importé : {{reason}} ({{count}})",
     "cancel": "Annuler",
     "confirm": "Confirmer l'import",
@@ -226,14 +226,14 @@
     "headerNames": "Noms d'en-têtes",
     "groupSummary": "{{count}} éléments trouvés",
     "undo": "Annuler l'import",
-    "undoTitle": "Annuler l'import dans OpenBitFun",
-    "undoWarning": "Ceci supprime la copie OpenBitFun, y compris les modifications faites après l'import. Le contenu original de l'agent externe est préservé et peut être réimporté.",
+    "undoTitle": "Annuler l'import dans Alex",
+    "undoWarning": "Ceci supprime la copie Alex, y compris les modifications faites après l'import. Le contenu original de l'agent externe est préservé et peut être réimporté.",
     "undoTarget": "Copie à supprimer : {{target}}",
     "confirmUndo": "Confirmer la suppression",
     "undoSuccess": "Import de {{name}} annulé.",
-    "undoRuntimePending": "Configuration pour {{name}} supprimée, mais son runtime n'a pas été mis à jour. Vérifiez le gestionnaire MCP OpenBitFun.",
+    "undoRuntimePending": "Configuration pour {{name}} supprimée, mais son runtime n'a pas été mis à jour. Vérifiez le gestionnaire MCP Alex.",
     "undoFailed": "La suppression n'est pas complète. La copie ou la configuration a peut-être changé. Actualisez, examinez, et confirmez à nouveau.",
-    "undoUnavailable": "La copie importée de cette Skill n'a pas pu être identifiée. Examinez et supprimez-la dans le gestionnaire de Skills OpenBitFun.",
+    "undoUnavailable": "La copie importée de cette Skill n'a pas pu être identifiée. Examinez et supprimez-la dans le gestionnaire de Skills Alex.",
     "viewCategory": "Voir {{type}}",
     "importAll": "Tout importer",
     "importCategory": "Tout importer",
@@ -252,7 +252,7 @@
       "stale": "Configuration modifiée ; réexaminez"
     },
     "repairSource": "Réparer l'étiquette de source",
-    "nativeUserTarget": "OpenBitFun · Configuration utilisateur",
+    "nativeUserTarget": "Alex · Configuration utilisateur",
     "undoAll": "Tout annuler",
     "importSelected": "Importer la sélection",
     "undoSelected": "Annuler la sélection",
@@ -298,7 +298,7 @@
     "lastKnownResult": "Affichage du dernier contenu lu avec succès.",
     "mcpReviewDescription": "Examinez les paramètres source et les copies existantes avant d'importer.",
     "instructions": {
-      "description": "Sources d'instructions lues par OpenBitFun. Les documents de démarrage et règles de chemins correspondants sont appliqués par le lecteur d'instructions ; cet inventaire n'indique pas ce qu'une session particulière a déjà chargé.",
+      "description": "Sources d'instructions lues par Alex. Les documents de démarrage et règles de chemins correspondants sont appliqués par le lecteur d'instructions ; cet inventaire n'indique pas ce qu'une session particulière a déjà chargé.",
       "shared": "Instructions d'espace de travail partagées",
       "scope": "Périmètre",
       "user": "Configuration utilisateur",
@@ -312,7 +312,7 @@
       "readOnly": "Lu par le lecteur d'instructions"
     },
     "accounts": {
-      "description": "Voir les comptes d'abonnement connectés dans OpenBitFun.",
+      "description": "Voir les comptes d'abonnement connectés dans Alex.",
       "providers": {
         "codex": "Codex / ChatGPT",
         "opencode": "OpenCode Console (Zen)"
@@ -328,8 +328,8 @@
         "unavailable": "Cet hôte n'offre pas cette connexion de compte",
         "vaultUnavailable": "Le stockage d'identifiants est indisponible",
         "reauthenticationRequired": "Se reconnecter",
-        "connected": "Connecté dans OpenBitFun",
-        "notConnected": "Non connecté dans OpenBitFun"
+        "connected": "Connecté dans Alex",
+        "notConnected": "Non connecté dans Alex"
       },
       "manage": "Gérer le compte et les modèles",
       "connect": "Se connecter via les paramètres de modèle",
@@ -347,10 +347,10 @@
     "pets": {
       "builtinSource": "Codex intégré",
       "customSource": "Codex personnalisé",
-      "description": "Parcourez les mascottes intégrées et personnalisées de Codex, puis importez-les pour les utiliser dans OpenBitFun.",
+      "description": "Parcourez les mascottes intégrées et personnalisées de Codex, puis importez-les pour les utiliser dans Alex.",
       "partial": "Certaines mascottes n'ont pas pu être lues. Vérifiez les diagnostics de source ci-dessous.",
       "reviewTitle": "Importer la mascotte",
-      "reviewDescription": "Copier le package de mascotte examiné dans OpenBitFun. Vous pouvez la sélectionner après l'import ; votre mascotte actuelle reste sélectionnée.",
+      "reviewDescription": "Copier le package de mascotte examiné dans Alex. Vous pouvez la sélectionner après l'import ; votre mascotte actuelle reste sélectionnée.",
       "operationFailed": "L'opération ne s'est pas terminée. La source ou la copie a peut-être changé. Actualisez et réexaminez.",
       "use": "Utiliser cette mascotte",
       "states": {

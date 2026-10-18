@@ -205,7 +205,7 @@
       },
       "valueYes": "Oui",
       "valueNo": "Non",
-      "officialSource": "OpenBitFun officiel",
+      "officialSource": "Alex officiel",
       "executableTool": "Peut exécuter",
       "readonlyToolHint": "Cet outil lit des informations sans modifier l'état du projet ou du système.",
       "executableToolHint": "Cet outil peut effectuer des actions. Les exigences d'approbation réelles suivent les règles de permission actuelles.",

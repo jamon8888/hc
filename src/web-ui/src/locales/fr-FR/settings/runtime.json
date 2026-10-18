@@ -83,7 +83,11 @@
     "removeGlobalRule": "Supprimer la règle",
     "discardGlobalRules": "Ignorer les modifications",
     "saveGlobalRules": "Sauvegarder les règles",
-    "globalRulesEffects": { "allow": "Autoriser", "ask": "Demander", "deny": "Refuser" },
+    "globalRulesEffects": {
+      "allow": "Autoriser",
+      "ask": "Demander",
+      "deny": "Refuser"
+    },
     "modeDescription": "Utilisé pour les nouvelles sessions et peut être changé temporairement depuis la saisie de chat."
   },
   "projectPermissions": {
@@ -120,7 +124,11 @@
     "rulesSaveFailed": "Échec de la sauvegarde des règles de projet statiques",
     "rulesConflict": "Le fichier de règles a changé en dehors de Hacienda Work. Réouvrez les permissions du projet avant de sauvegarder.",
     "cancel": "Annuler",
-    "effects": { "allow": "Autoriser", "ask": "Demander", "deny": "Refuser" }
+    "effects": {
+      "allow": "Autoriser",
+      "ask": "Demander",
+      "deny": "Refuser"
+    }
   },
   "deferredToolLoading": {
     "sectionTitle": "Charger les outils selon les besoins",

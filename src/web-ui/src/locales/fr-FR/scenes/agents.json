@@ -39,7 +39,7 @@
       },
       "Creative": {
         "name": "$t(shared:agents.Creative)",
-        "purpose": "Personnaliser et construire sur OpenBitFun"
+        "purpose": "Personnaliser et construire sur Alex"
       }
     }
   },
@@ -379,6 +379,6 @@
     "Standard": "Exécution de tâches générales avec planification, outils et travail délégué.",
     "Ultimate": "Décomposer les tâches complexes, coordonner des Sous-Agents parallèles, et revoir leurs résultats.",
     "Minimal": "Une boucle d'exécution compacte avec un ensemble d'outils petit et fixe.",
-    "Creative": "Créer et personnaliser les expériences et capacités OpenBitFun."
+    "Creative": "Créer et personnaliser les expériences et capacités Alex."
   }
 }
