@@ -1,8 +1,11 @@
 name: CI
 
 on:
+  # Every pull request runs CI, regardless of its base branch. The repository
+  # stacks feature PRs on other feature branches, so restricting this filter
+  # to main left stacked PRs with no checks at all. Cost stays bounded because
+  # build-impact gates the 14-19 minute Rust/CLI jobs per changed path.
   pull_request:
-    branches: [main, 1.0.0-explore]
     paths-ignore:
       - 'png/**'
   push:
