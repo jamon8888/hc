@@ -31,7 +31,7 @@ describe('startup preload shell', () => {
     ['zh-HK', 'en-US', 'zh-TW'],
     ['en-GB', 'zh-CN', 'en-US'],
     [undefined, 'zh-Hant', 'zh-TW'],
-    ['fr-FR', 'en-US', 'zh-CN'],
+    ['fr-FR', 'en-US', 'fr-FR'],
   ])('localizes first-paint text for saved locale %s and system language %s', (saved, system, expected) => {
     const dom = new JSDOM(readIndexHtml(), {
       url: 'http://localhost:1422/',

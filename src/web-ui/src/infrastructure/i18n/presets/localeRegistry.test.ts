@@ -35,7 +35,7 @@ describe('localeRegistry', () => {
     expect(getSupportedLocaleIds()).toEqual([...LOCALE_IDS]);
     expect(isLocaleSupported(DEFAULT_LOCALE)).toBe(true);
     expect(isLocaleSupported(DEFAULT_FALLBACK_LOCALE)).toBe(true);
-    expect(isLocaleSupported('fr-FR')).toBe(false);
+    expect(isLocaleSupported('fr-FR')).toBe(true);
   });
 
   it('resolves locale aliases and content fallback chains from the registry', () => {

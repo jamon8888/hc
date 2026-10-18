@@ -72,7 +72,10 @@ describe('FlowChat semantic typography roles', () => {
     expect(stylesheets).not.toContain('flow-type.$');
     expect(stylesheets).not.toContain('--openbitfun-appearance-token-flowchat-font');
     // typography-audit: negative-test-end
-    for (const role of ['body', 'control', 'support', 'meta', 'micro']) {
+    // 'body' was retired from FlowChat when the AI response surface moved to
+    // the dedicated 'ai-response' role (8c46e741c); audit the roles this
+    // surface actually consumes.
+    for (const role of ['ai-response', 'control', 'support', 'meta', 'micro']) {
       expect(stylesheets).toContain(`--openbitfun-type-flow-${role}-font-size`);
     }
   });
