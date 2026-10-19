@@ -5,6 +5,7 @@ import { MenuItem } from '../types/menu.types';
 import { MenuContext, ContextType, FileNodeContext } from '../types/context.types';
 import { commandExecutor } from '../commands/CommandExecutor';
 import { canRevealInExplorer } from '../commands/builtin/file/RevealInExplorerCommand';
+import { isWordcraftDocumentPath } from '../commands/builtin/file/WordcraftDocumentCommands';
 import { globalEventBus } from '../../../infrastructure/event-bus';
 import { i18nService } from '../../../infrastructure/i18n';
 import { workspaceManager } from '../../../infrastructure/services/business/workspaceManager';
@@ -173,6 +174,19 @@ export class FileExplorerMenuProvider implements IMenuProvider {
         });
       }
 
+      if (isWordcraftDocumentPath(fileContext.filePath)) {
+        items.push({
+          id: 'file-open-in-wordcraft',
+          label: i18nService.t('common:file.openInWordcraft'),
+          icon: 'FileText',
+          command: 'file.open-in-wordcraft',
+          disabled: localFileActionsDisabled,
+          onClick: async (ctx) => {
+            await commandExecutor.execute('file.open-in-wordcraft', ctx);
+          }
+        });
+      }
+
     }
 
     // Download (available for both files and directories)
@@ -244,6 +258,16 @@ export class FileExplorerMenuProvider implements IMenuProvider {
               command: 'file.new-folder',
               onClick: async (ctx) => {
                 await commandExecutor.execute('file.new-folder', ctx);
+              }
+            },
+            {
+              id: 'file-new-wordcraft-document',
+              label: i18nService.t('common:file.newWordcraftDocument'),
+              icon: 'FilePlus',
+              disabled: localFileActionsDisabled,
+              command: 'file.new-wordcraft-document',
+              onClick: async (ctx) => {
+                await commandExecutor.execute('file.new-wordcraft-document', ctx);
               }
             }
           ]

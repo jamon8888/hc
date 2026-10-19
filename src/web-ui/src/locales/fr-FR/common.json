@@ -1433,7 +1433,13 @@
     "renameStarted": "Renommage démarré",
     "openInBrowserOpening": "Ouverture dans le navigateur",
     "revealOpening": "Ouverture du gestionnaire de fichiers",
-    "compressedPathTooltip": "Chemin compressé : {{compressed}}\nChemin complet : {{full}}"
+    "compressedPathTooltip": "Chemin compressé : {{compressed}}\nChemin complet : {{full}}",
+    "openInWordcraft": "Ouvrir dans WordCraft",
+    "openInWordcraftDescription": "Ouvrir ce document dans la fenêtre de l'éditeur WordCraft",
+    "openInWordcraftOpening": "Ouverture dans WordCraft",
+    "newWordcraftDocument": "Nouveau document WordCraft",
+    "newWordcraftDocumentDescription": "Démarrer un nouveau document à partir des modèles de WordCraft",
+    "newWordcraftDocumentOpening": "Création du document WordCraft"
   },
   "editor": {
     "formatDocument": "Formater le document",
