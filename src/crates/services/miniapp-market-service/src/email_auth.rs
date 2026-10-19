@@ -79,7 +79,7 @@ impl Mailer {
             .parse::<u16>()
             .map_err(|_| MarketError::internal("Invalid SMTP_PORT"))?;
         let from = Mailbox::new(
-            Some(get("SMTP_FROM_NAME").unwrap_or_else(|| "OpenBitFun".into())),
+            Some(get("SMTP_FROM_NAME").unwrap_or_else(|| "Alex".into())),
             username
                 .parse()
                 .map_err(|_| MarketError::internal("Invalid SMTP_USERNAME"))?,
@@ -1050,7 +1050,7 @@ mod tests {
     #[test]
     fn verification_email_has_html_and_plain_text_without_attachments() {
         let message = verification_message(
-            "OpenBitFun <hello@example.com>".parse().unwrap(),
+            "Alex <hello@example.com>".parse().unwrap(),
             "alice@example.com",
             "123456",
             "en-US",
@@ -1161,10 +1161,7 @@ mod tests {
         .unwrap();
         assert!(String::from_utf8(unknown.formatted())
             .unwrap()
-            .contains(&format!(
-                "Subject: {}",
-                translations["en-US"]["subject"].as_str().unwrap()
-            )));
+            .contains("Subject: Alex sign-in code"));
     }
 
     #[test]

@@ -109,7 +109,7 @@ function silentPcm16Base64(sampleRate: number): string {
  * tools together with the usual permission policy.
  *
  * Extension rule for future agents:
- * - Add direct OpenBitFun client operations here and in the Rust Voice schema.
+ * - Add direct Alex client operations here and in the Rust Voice schema.
  * - Add workspace execution abilities to the normal Agent tool registry; do
  *   not mirror individual Agent tools into Voice.
  * - Keep the parser, dispatcher, provider schema, and focused tests in sync.
@@ -313,7 +313,7 @@ export function useRealtimeVoiceCallController(disabled = false): RealtimeVoiceC
       try {
         await speechAPI.speakRealtimeText(sessionId, spokenText);
       } catch (firstError) {
-        log.warn('Failed to enqueue OpenBitFun task speech; retrying once', {
+        log.warn('Failed to enqueue Alex task speech; retrying once', {
           sessionId,
           firstError,
         });
@@ -333,7 +333,7 @@ export function useRealtimeVoiceCallController(disabled = false): RealtimeVoiceC
       .catch(() => undefined)
       .then(send);
     spokenProgressQueueRef.current = queued.catch(error => {
-      log.warn('Failed to speak OpenBitFun task update after retry', { sessionId, error });
+      log.warn('Failed to speak Alex task update after retry', { sessionId, error });
       setStatus(t('voiceCall.call.status.audioPlaybackFailed'));
       setNotice(t('voiceCall.call.status.audioPlaybackFailed'));
     });
@@ -690,7 +690,7 @@ export function useRealtimeVoiceCallController(disabled = false): RealtimeVoiceC
             outcome_spoken: outcomeSpoken,
           }),
         ).catch(sendError => {
-          log.warn('Failed to return OpenBitFun task cancellation to realtime voice session', {
+          log.warn('Failed to return Alex task cancellation to realtime voice session', {
             sendError,
           });
         });
@@ -712,7 +712,7 @@ export function useRealtimeVoiceCallController(disabled = false): RealtimeVoiceC
         setTaskProgressText('');
         setStatus(t('voiceCall.call.status.error'));
       }
-      log.error('OpenBitFun client voice tool failed', { callId: call.callId, tool: call.name, error });
+      log.error('Alex client voice tool failed', { callId: call.callId, tool: call.name, error });
       await speechAPI.sendRealtimeToolResult(
         callSessionId,
         call.callId,
@@ -722,7 +722,7 @@ export function useRealtimeVoiceCallController(disabled = false): RealtimeVoiceC
           ...(outcomeSpoken === undefined ? {} : { outcome_spoken: outcomeSpoken }),
         }),
       ).catch(sendError => {
-        log.warn('Failed to return OpenBitFun task error to realtime voice session', { sendError });
+        log.warn('Failed to return Alex task error to realtime voice session', { sendError });
       });
     } finally {
       if (activeTaskRef.current?.callId === call.callId) {

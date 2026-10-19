@@ -4,7 +4,7 @@
 # ==================== 通用 ====================
 app-version = 版本 { $version }
 loading = 加载中...
-welcome = 欢迎使用 OpenBitFun
+welcome = 欢迎使用 Alex
 
 # ==================== 操作 ====================
 action-confirm = 确认
