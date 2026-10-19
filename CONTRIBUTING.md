@@ -264,7 +264,7 @@ The change sets the tier, not the author. Declare it in the PR template.
   reviewers, exactly as if they had written it.
 - An approval covers one commit. New commits — especially an agent's push or a
   hand-resolved merge — need a fresh approval.
-- Branch protection and `CODEOWNERS` are how tiers 3 and 4 are enforced
+- Branch protection and `CODEOWNERS` are how layers 3 and 4 are enforced
   server-side. Until they are configured, tiers are a review norm the author
   and reviewers hold to.
 
