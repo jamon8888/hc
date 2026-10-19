@@ -147,7 +147,7 @@
     "keepEditing": "Continuer l'édition",
     "errors": {
       "invalidConfig": "Les données du groupe sauvegardé n'ont pas pu être lues. Elles ont été conservées inchangées.",
-      "unsupportedVersion": "Ces groupes utilisent un format plus récent. Mettez à jour OpenBitFun pour les éditer.",
+      "unsupportedVersion": "Ces groupes utilisent un format plus récent. Mettez à jour Alex pour les éditer.",
       "nameRequired": "Entrez un nom de groupe.",
       "nameDuplicate": "Un groupe avec ce nom existe déjà.",
       "conflict": "Ce groupe a changé ailleurs. Fermez l'éditeur et actualisez avant de l'éditer à nouveau.",

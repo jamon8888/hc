@@ -1785,7 +1785,7 @@ const SessionListPage: React.FC<SessionListPageProps> = ({
     <div className="session-list">
       <div className="session-list__header">
         <div className="session-list__header-brand">
-          <img src={logoMark} alt="OpenBitFun" className="session-list__logo" />
+          <img src={logoMark} alt="Alex" className="session-list__logo" />
           <div className="session-list__header-copy">
             <h1>OpenBitFun</h1>
             {authenticatedUserLabel && (

@@ -2283,7 +2283,7 @@ export const ReviewPlatformPanel: React.FC<ReviewPlatformPanelProps> = ({
                       </div>
                     )}
                     {(latestCurrentReview || latestStaleReview || latestUnknownReview) && (
-                      <CardHeader title="OpenBitFun Review" description={reviewStatusText} actions={
+                      <CardHeader title="Alex Review" description={reviewStatusText} actions={
                         <Button size="sm" variant="text" onClick={handleOpenLatestReview}>Open Review</Button>
                       } />
                     )}

@@ -423,7 +423,7 @@ Second paragraph.
       expect(useAgentCanvasStore.getState().primaryGroup.tabs).toHaveLength(1);
       expect(useAgentCanvasStore.getState().primaryGroup.tabs[0].content).toMatchObject({
         type: 'openbitfun-canvas',
-        title: 'OpenBitFun Canvas',
+        title: 'Alex Canvas',
         data: {
           artifactReference: 'openbitfun-canvas://session/session_1/canvas/canvas_1',
           workspaceId: SESSION_WORKSPACE.id,

@@ -1,7 +1,7 @@
 {
   "product": {
-    "name": "OpenBitFun",
-    "remote": "OpenBitFun Remote"
+    "name": "Alex",
+    "remote": "Alex Remote"
   },
   "features": {
     "remoteControl": "Contrôle à distance",
@@ -37,7 +37,7 @@
   },
   "connectionMethods": {
     "lan": "Réseau local",
-    "openbitfunServer": "Serveur OpenBitFun",
+    "openbitfunServer": "Serveur Alex",
     "customServer": "Serveur personnalisé",
     "botFeishu": "Bot Feishu",
     "botTelegram": "Bot Telegram",

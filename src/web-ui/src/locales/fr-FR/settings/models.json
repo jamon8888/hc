@@ -48,7 +48,7 @@
     "refreshFailed": "Échec de l'actualisation : {{error}}",
     "loginSuccess": "Connecté",
     "loginFailed": "Échec de la connexion : {{error}}",
-    "peerLoginRequiresLocalDevice": "La connexion Antigravity doit être complétée sur l'appareil exécutant OpenBitFun. Basculez sur cet appareil et connectez-vous là-bas.",
+    "peerLoginRequiresLocalDevice": "La connexion Antigravity doit être complétée sur l'appareil exécutant Alex. Basculez sur cet appareil et connectez-vous là-bas.",
     "logoutSuccess": "Déconnecté",
     "logoutCleanupPending": "Déconnecté. Le nettoyage des identifiants est en attente et réessaiera automatiquement.",
     "logoutFailed": "Échec de la déconnexion : {{error}}",
@@ -75,7 +75,7 @@
     "vaultUnavailable": "Le stockage d'identifiants est temporairement indisponible. Réessayez ; votre connexion n'a pas été supprimée.",
     "retryVault": "Réessayer le coffre",
     "loginPending": "L'autorisation de connexion est en cours",
-    "browserInstructions": "Terminez la connexion dans le navigateur qu'OpenBitFun a ouvert. Gardez cette page ouverte ; OpenBitFun terminera automatiquement.",
+    "browserInstructions": "Terminez la connexion dans le navigateur qu'Alex a ouvert. Gardez cette page ouverte ; Alex terminera automatiquement.",
     "deviceInstructions": "Ouvrez la page d'autorisation sur n'importe quel appareil, entrez le code de vérification, puis revenez ici.",
     "loginCancelling": "Annulation de la connexion et fermeture de la session d'autorisation",
     "loginCompletedBeforeCancel": "L'autorisation était déjà terminée, donc ce compte reste connecté.",
@@ -145,8 +145,8 @@
       "description": "Un plan d'abonnement de modèle d'OpenCode."
     },
     "openbitfun": {
-      "name": "OpenBitFun Service",
-      "description": "Plateforme de modèles OpenBitFun",
+      "name": "Alex Service",
+      "description": "Plateforme de modèles Alex",
       "urlOptions": {
         "default": "Format Anthropic - Défaut",
         "openai": "Format OpenAI Compatible"
@@ -404,7 +404,7 @@
   },
   "proxy": {
     "enable": "Activer le Proxy",
-    "enableHint": "Quand activé, toutes les requêtes IA sont envoyées via le proxy (nécessite un redémarrage d'OpenBitFun)",
+    "enableHint": "Quand activé, toutes les requêtes IA sont envoyées via le proxy (nécessite un redémarrage d'Alex)",
     "url": "URL du Proxy",
     "urlPlaceholder": "http://127.0.0.1:7890 ou socks5://127.0.0.1:1080",
     "urlHint": "Supporte les proxies HTTP/HTTPS/SOCKS5, format : protocol://adresse:port",
@@ -413,7 +413,7 @@
     "password": "Mot de passe (optionnel)",
     "passwordPlaceholder": "Mot de passe d'authentification proxy",
     "save": "Sauvegarder la Configuration Proxy",
-    "saveSuccess": "Configuration proxy sauvegardée. Redémarrez OpenBitFun pour l'appliquer"
+    "saveSuccess": "Configuration proxy sauvegardée. Redémarrez Alex pour l'appliquer"
   },
   "streamIdleTimeout": {
     "title": "Délai d'attente du Streaming",
@@ -519,8 +519,8 @@
     "deleteSuccess": "Configuration de modèle supprimée",
     "providerDeleteFailed": "Échec de la suppression du fournisseur",
     "providerDeleteSuccess": "Fournisseur et ses configurations de modèle supprimés",
-    "referenceCheckFailed": "OpenBitFun n'a pas pu vérifier si d'autres paramètres référencent encore ce modèle, donc la suppression a été annulée",
-    "providerReferenceCheckFailed": "OpenBitFun n'a pas pu vérifier si d'autres paramètres référencent encore les modèles de ce fournisseur, donc la suppression a été annulée",
+    "referenceCheckFailed": "Alex n'a pas pu vérifier si d'autres paramètres référencent encore ce modèle, donc la suppression a été annulée",
+    "providerReferenceCheckFailed": "Alex n'a pas pu vérifier si d'autres paramètres référencent encore les modèles de ce fournisseur, donc la suppression a été annulée",
     "loadFailed": "Échec du chargement de la configuration IA",
     "testing": "Test en cours…",
     "testSuccess": "Test réussi",
@@ -567,7 +567,7 @@
     "reveal": "Afficher dans le dossier",
     "revealFailed": "Impossible d'ouvrir le dossier de cache",
     "offlineTitle": "Mise à jour sans accès réseau",
-    "offlineDescription": "Sur un appareil avec accès internet, téléchargez le fichier models.dev original, nommez-le catalog.json, et placez-le dans le répertoire de cache ci-dessus. Redémarrez OpenBitFun pour l'appliquer ; Mettre à jour maintenant peut écraser ce fichier.",
+    "offlineDescription": "Sur un appareil avec accès internet, téléchargez le fichier models.dev original, nommez-le catalog.json, et placez-le dans le répertoire de cache ci-dessus. Redémarrez Alex pour l'appliquer ; Mettre à jour maintenant peut écraser ce fichier.",
     "downloadOriginal": "Télécharger le catalogue original",
     "openCacheDirectory": "Ouvrir le répertoire de cache"
   },

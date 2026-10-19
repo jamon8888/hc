@@ -73,7 +73,7 @@ describe('extractVoiceTaskSummary', () => {
 
   it('provides a stable fallback when the task has no final text', () => {
     expect(extractVoiceTaskSummary(sessionWithItems([])))
-      .toBe('OpenBitFun completed the task without a text response.');
+      .toBe('Alex completed the task without a text response.');
   });
 
   it('extracts only completed public text while a task is running', () => {

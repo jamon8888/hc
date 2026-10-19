@@ -225,7 +225,7 @@ export const OpenBitFunCanvasPanel: React.FC<OpenBitFunCanvasPanelProps> = ({
   const resolvedSource = loadedCanvas?.source?.source || source;
   const resolvedStatus = loadedCanvas?.artifact?.status || status;
   const resolvedDiagnostics = loadedCanvas?.diagnostics ?? diagnostics;
-  const resolvedTitle = loadedCanvas?.artifact?.title || title || 'OpenBitFun Canvas';
+  const resolvedTitle = loadedCanvas?.artifact?.title || title || 'Alex Canvas';
   const renderedCanvas = useMemo(
     () => buildReactCanvasHtmlResult(resolvedHtml, {
       title: resolvedTitle,
@@ -245,7 +245,7 @@ export const OpenBitFunCanvasPanel: React.FC<OpenBitFunCanvasPanelProps> = ({
   }, [resolvedSource]);
   const sourceDialogText = resolvedSource || renderedHtml || '';
   const sourceDialogFileName = resolvedSource ? 'canvas.source.tsx' : 'canvas.html';
-  const sourceDialogFilePath = `OpenBitFun Canvas/${sourceDialogFileName}`;
+  const sourceDialogFilePath = `Alex Canvas/${sourceDialogFileName}`;
   const sourceDialogLanguage = resolvedSource ? 'typescriptreact' : 'html';
   const sourceDialogKey = `${sourceDialogFileName}:${sourceDialogText.length}:${renderedCanvas.revision ?? renderedHtmlKey}`;
   const hasSourceDialogText = sourceDialogText.trim().length > 0;
