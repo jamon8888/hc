@@ -121,6 +121,7 @@ DevTools；`Cmd/Ctrl + Shift + I` 切换 OpenBitFun 元素检查器，`Cmd/Ctrl 
 - 先开 Issue 说明问题或方案，尤其是较大改动，以避免重复与设计冲突
 - 新功能或 UI 变更建议先讨论设计方向，确保符合产品体验
 - 将 Issue 和 PR 模板作为填写指引；保持 PR 聚焦，必要时说明跳过了哪些验证以及原因。
+- 较大或风险较高的改动请尽早确定评审深度：风险等级与审批数量见 [代码评审](#代码评审)。
 
 ### PR 标题与描述
 
@@ -174,6 +175,91 @@ UI 改动在有帮助时附截图或短录屏。无法运行相关检查时，�
 
 `pnpm run check:web` 会组合执行 Web UI 类型检查，以及 CI 针对前端改动运行的 Appearance contract、
 主题颜色和主题视觉治理门禁。
+
+## 代码评审
+
+评审是分层进行的，而不是最后一道闸门。大部分阅读由机器完成，人的时间只花在风险上。
+[`REVIEW.md`](REVIEW.md) 是评审方的契约：本仓库的失败形态、发现项如何书写，以及保证评审收敛的限额。
+评审前请先阅读它，邀请他人评审前同样请先阅读它。
+
+### 打开 PR 之前
+
+- 给 Agent 可以自行运行的检查，并把命令与输出粘贴到 PR 的 Verification 区块。
+  "完成了" 不是证据，命令和它的输出才是。
+- 先用新上下文对自己的 diff 跑一遍 Agent 评审：`code-review` skill（Standards 对照
+  `CONTRIBUTING.md`、`REVIEW.md` 和最近的 `AGENTS.md`；Spec 对照 `.scratch/` 下的 Issue），
+  再加上上表中的 focused 检查。先修掉它发现的问题，再占用人的注意力。
+- 保持改动小。容易回滚的改动才容易通过评审。
+
+### 分层
+
+| 层 | 运行内容 | 是否需在人看之前完成 |
+| --- | --- | --- |
+| 1. 自我验证 | PR Verification 区块中的确切命令与输出 | 是 |
+| 2. Agent 评审 | 用新上下文审查 diff；每条发现都要修复或给出理由后关闭 | 是 |
+| 3. 自动检查 | CI：构建、测试、仓库卫生、GitHub 配置、核心边界、i18n 与主题审计 | 是 |
+| 4. 人工审批 | 按下方风险等级分层 | 中/高风险需要 |
+| 5. 合并与回滚 | 小 PR、一步回滚；不便回滚的改动使用 feature flag | 之后 |
+
+### Open Code Review
+
+第二层可以使用 [Open Code Review](https://github.com/alibaba/open-code-review)
+（`ocr`）运行：它由确定性流水线加 LLM agent 组成，产出行级发现。它是可选项，
+`code-review` skill 与新上下文 subagent 依然是填充第二层的有效方式。
+
+```bash
+npm install -g @alibaba-group/open-code-review
+ocr config provider      # 或非交互式：ocr config set provider <name>
+ocr config model
+ocr llm test             # 必须先通过，评审才有意义
+ocr review --from main --to <branch>
+ocr review --preview     # 只列出将要读取的文件，不消耗模型调用
+```
+
+- 凭据保存在仓库之外的 `~/.opencodereview/config.json`（权限 `600`）。永远不要把
+  端点 URL 或 API key 写进会被提交的文件——`pnpm run check:repo-hygiene` 会拒绝它们，
+  而进入 Git 的密钥必须轮换。
+- 在 OpenCode 中，`.opencode/plugins/` 注册了 `ocr_review`、`ocr_health`、
+  `/ocr-review` 和 `/ocr-health`。需先在 `.opencode/` 内执行 `npm install`；
+  其 `node_modules` 已被 gitignore。
+- `ocr` 的发现与其他评审遵循相同的限额与严重度标签：每条发现都要回应，nit 有上限，
+  重复问题修在源头而不是重复发布。
+
+### 风险等级
+
+等级由改动本身决定，而不是由作者决定。请在 PR 模板中声明。
+
+| 风险 | 示例 | 人工审批数 |
+| --- | --- | --- |
+| 低 | 文档、文案、内部专用 helper、flag 后的增量改动、生成物刷新 | 前三层为绿即可，无需人工 |
+| 中 | 常规产品改动；缓存、适配器、会话、设置、远程与对端路径 | 一人 |
+| 高 | 认证、凭据、发布与打包、CI 工作流、持久化数据结构、升级兼容、安全边界 | 两人 |
+
+- Agent 的批准永远不能算作一个人的批准。
+- 指挥 Agent 完成改动的人，等同于必需评审人之一，如同代码由其亲手写成。
+- 一次批准只覆盖一个 commit。新 commit（尤其是 Agent 推送或人工解决的合并）需要重新批准。
+- 分支保护与 `CODEOWNERS` 是在服务端强制第 3、4 层的手段。在配置之前，风险等级只是作者与
+  评审人共同遵守的规范。
+
+### 收敛
+
+Agent 作者与 Agent 评审人可能无限地互相消耗。以下规则用于终止它：
+
+- **每条发现都必须被回应**——修复，或给出简短理由后关闭。沉默永远不会关闭一条发现。
+- **评审轮次上限为三轮。** 三轮评审与修复之后，停下来重新审视方案，而不是开始第四轮。
+- 首轮之后的再评审 **只读新增 diff**。
+- **汇报问题的类别**，让一次修复关掉全部实例；已发布过的发现不再重复发布。
+
+### 把重复评论修在源头
+
+同一条发现在第二个 PR 再次出现时，修复方式不是第三条评论，而是把它写进会在下一次评审之前运行的东西：
+
+- 约定 → [`REVIEW.md`](REVIEW.md) 或最近的 `AGENTS.md`
+- 机器能检查的 → lint 规则、审计，或 `scripts/check-*.mjs`
+- 已过期的说明 → 它所矛盾的那行文档
+- 已经上线的缺陷 → `REVIEW.md` 中的失败形态，以便下次评审能拦住这一类问题
+
+回滚或逃逸的回归是评审证据，不只是事故：请记录失败形态，让下一次评审捕获它。
 
 ## 安全与合规
 

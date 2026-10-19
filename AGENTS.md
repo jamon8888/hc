@@ -352,6 +352,38 @@ Do not hard-code OpenBitFun repository assumptions as target-project rules; keep
 quality protection behavior target-aware, evidence-backed, risk-tiered,
 cost-aware, and auditable.
 
+## Code review
+
+Review is layered, and most of the reading is automated.
+[`REVIEW.md`](REVIEW.md) is the reviewer contract — what failure looks like in
+this repo, how findings are written, and the caps that keep review converging.
+Read it before reviewing a change, and before asking a person to review one.
+Risk tiers and approval counts live in `CONTRIBUTING.md` → Code review.
+
+- **Verify before the PR.** Give the agent checks it can run and paste their
+  output into the PR's Verification section. "Done" without output is not
+  evidence.
+- **Review with fresh context before a person looks.** Run the `code-review`
+  skill against the branch (Standards from `REVIEW.md`, `CONTRIBUTING.md`, and
+  the nearest `AGENTS.md`; Spec from the `.scratch/` issue), or a
+  fresh-context subagent over the diff. Open Code Review is the other layer-2
+  option: `ocr review --from main --to <branch>`, or `/ocr-review` when the
+  `.opencode/plugins/` integration is installed. Fix what any of them finds
+  first.
+- **Risk sets the review, not the author.** An agent's approval never counts
+  as a person's, and whoever directed an agent change counts as one of the
+  required reviewers.
+- **Every finding is answered** — fixed, or resolved with a reason. Silence
+  never closes a finding.
+- **Reviews converge.** After three review-and-fix rounds, step back and
+  reconsider the approach rather than starting a fourth. Re-reviews after the
+  first pass read the new diff only, and never re-post a finding already
+  posted.
+- **A repeated comment is a source bug.** The same finding in two PRs means
+  the fix is `REVIEW.md`, the nearest `AGENTS.md`, or a lint/audit rule — not
+  a third comment. A revert or an escaped regression becomes a failure mode in
+  `REVIEW.md`.
+
 ## Verification
 
 Choose verification at the owner, not from a repository-wide test matrix:
