@@ -56,10 +56,12 @@ web-search-port = []
 workspace-ports = ["dep:anyhow", "dep:tokio-util", "dep:tokio", "tokio/io-util"]
 terminal-port = ["dep:tokio"]
 remote-exec-port = ["dep:tokio"]
+rag-search = []
 tool-runtime-handles = [
     "workspace-ports",
     "terminal-port",
     "remote-exec-port",
+    "rag-search",
 ]
 remote-workspace-ports = []
 git-port = []

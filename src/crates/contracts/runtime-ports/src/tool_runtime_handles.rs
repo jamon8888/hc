@@ -14,6 +14,8 @@ pub struct ToolRuntimeHandles {
     round_injection_preemption_token: Option<CancellationToken>,
     terminal_port: Option<Arc<dyn TerminalPort>>,
     remote_exec_port: Option<Arc<dyn RemoteExecPort>>,
+    #[cfg(feature = "rag-search")]
+    rag_search_port: Option<Arc<dyn RagSearchPort>>,
     #[cfg(feature = "web-search-port")]
     web_search_provider: Option<Arc<dyn WebSearchProvider>>,
 }
@@ -29,6 +31,8 @@ impl ToolRuntimeHandles {
             round_injection_preemption_token: None,
             terminal_port: None,
             remote_exec_port: None,
+            #[cfg(feature = "rag-search")]
+            rag_search_port: None,
             #[cfg(feature = "web-search-port")]
             web_search_provider: None,
         }
@@ -52,6 +56,12 @@ impl ToolRuntimeHandles {
         remote_exec_port: Option<Arc<dyn RemoteExecPort>>,
     ) -> Self {
         self.remote_exec_port = remote_exec_port;
+        self
+    }
+
+    #[cfg(feature = "rag-search")]
+    pub fn with_rag_search_port(mut self, rag_search_port: Option<Arc<dyn RagSearchPort>>) -> Self {
+        self.rag_search_port = rag_search_port;
         self
     }
 
@@ -82,6 +92,11 @@ impl ToolRuntimeHandles {
 
     pub fn remote_exec_port(&self) -> Option<&Arc<dyn RemoteExecPort>> {
         self.remote_exec_port.as_ref()
+    }
+
+    #[cfg(feature = "rag-search")]
+    pub fn rag_search_port(&self) -> Option<&Arc<dyn RagSearchPort>> {
+        self.rag_search_port.as_ref()
     }
 
     #[cfg(feature = "web-search-port")]
@@ -125,6 +140,16 @@ impl std::fmt::Debug for ToolRuntimeHandles {
                     .as_ref()
                     .map(|_| "<dyn RemoteExecPort>"),
             )
+            .field("rag_search_port", &{
+                #[cfg(feature = "rag-search")]
+                {
+                    self.rag_search_port.as_ref().map(|_| "<dyn RagSearchPort>")
+                }
+                #[cfg(not(feature = "rag-search"))]
+                {
+                    None::<&str>
+                }
+            })
             .field("web_search_provider", &{
                 #[cfg(feature = "web-search-port")]
                 {
@@ -182,7 +207,7 @@ mod tests {
         ));
         assert_eq!(
             format!("{:?}", handles),
-            "ToolRuntimeHandles { workspace_services: Some(\"<WorkspaceServices>\"), cancellation_token: Some(\"<CancellationToken>\"), round_injection_preemption_token: Some(\"<CancellationToken>\"), terminal_port: None, remote_exec_port: None, web_search_provider: None }"
+            "ToolRuntimeHandles { workspace_services: Some(\"<WorkspaceServices>\"), cancellation_token: Some(\"<CancellationToken>\"), round_injection_preemption_token: Some(\"<CancellationToken>\"), terminal_port: None, remote_exec_port: None, rag_search_port: None, web_search_provider: None }"
         );
     }
 }

@@ -17,6 +17,7 @@
 | I6 | Open workspace is queryable via natural language (RAG) | New `rag_search` tool (§4) |
 | I7 | Works on every OS (Linux, macOS, Windows) with local model download | Basemind binary bundled; models lazy-download on first use (§8) |
 | I8 | Models configurable in Settings (local paths, auto-download toggle) | Settings panel for Basemind (§9) |
+| I9 | No PII from user prompts reaches any LLM — local models included (D2) | Single interception at `desktop_dialog_turn_request` (§11.4); fail-closed (D7); single master toggle that explicitly voids I9 when off (§11.8) |
 
 **No constraint on LLM used (cloud or local)** — guarantees rest on what *reaches* the LLM.
 
@@ -197,32 +198,91 @@ let conversion = tokio::time::timeout(DOCUMENT_CONVERSION_TIMEOUT, conversion_ca
 
 ## 4. New Tool — RAG Search on Open Workspace
 
-**File to create:** `src/crates/assembly/core/src/agentic/tools/implementations/rag_search_tool.rs`
+> **Corrected — PII-safe identity spine.** The original §4 passed search hits straight
+> through with `entity_ids: string[]`, assuming basemind exposed stable cross-document
+> entity ids. It does not: basemind's `entity_id` is a per-file span id
+> (`file:category:start:end`) and its `value_hash` hashes the *positional redaction
+> token*, not the value. Cross-document identity is product logic owned by
+> `basemind-integration` (ADR 0001, decisions D3/D4/D6/D7/D9/D10 in
+> `.scratch/pii-safe-rag-spine/map.md`). Every hit is re-tokenized through the identity
+> registry into an opaque session token (HMAC, D3 clarified) before it can reach the
+> LLM. The RAG index itself stays **raw**, inside the same trust boundary as the source
+> files it derives from (D6, amended) — the boundary that guarantees I1 is the one at
+> the LLM, not one at rest.
 
-```rust
-pub struct RagSearchTool { basemind: Arc<BasemindClient> }
+**Ownership — three layers, one port:**
 
-#[async_trait]
-impl Tool for RagSearchTool {
-    fn name(&self) -> &str { "rag_search" }
-    
-    // Input: { query: string, top_k?: number }
-    // Output: [{ chunk: string, source_doc: string, score: number, entity_ids: string[] }]
-    async fn execute(&self, input: Value, context: &ToolUseContext) -> ToolResult {
-        let query = input["query"].as_str().ok_or("query required")?;
-        let top_k = input["top_k"].as_u64().unwrap_or(8) as usize;
-        let hits = self.basemind.query_rag(query, top_k).await?;
-        // hits.chunk is already redacted (indexed from redacted markdown)
-        ToolResult::json(hits)
-    }
-}
+| Layer | Crate / file | Owns |
+|---|---|---|
+| Port | `src/crates/contracts/runtime-ports/src/rag_search.rs` (feature `rag-search`) | `RagSearchPort` trait + `RagSearchRequest` / `RagSearchResponse` / error DTOs — the only shape `openbitfun-core` ever sees |
+| Tool wrapper | `src/crates/assembly/core/src/agentic/tools/implementations/rag_search_tool.rs` (`openbitfun-core`, feature `tools-rag`) | `Tool` impl (`call_impl`), input schema, the **real** `session_id` from `ToolUseContext`, delegation to `context.runtime_handles.rag_search_port()` |
+| PII-safe search pipeline | `src/crates/services/basemind-integration/src/rag_search.rs` (`RagSearchTool::search`) + `query_resolution.rs` (`QueryResolver`) | `impl RagSearchPort`: query resolution, basemind MCP call, hit re-tokenization, vault upsert |
+
+**Dependency rule:** `openbitfun-runtime-ports` and `openbitfun-core` must **not**
+depend on `basemind-integration`. The concrete port is constructed at the host
+composition root — beside where the desktop app already builds `PromptPseudonymizer`
+in `AppState` — and reaches the tool through the existing `ToolRuntimeHandles` seam
+(`with_rag_search_port`, mirroring how `RemoteExecPort` and `TerminalPort` are
+threaded in). `openbitfun-core` only ever holds `Arc<dyn RagSearchPort>`; if no port
+is injected the tool reports itself unavailable (no silent local fallback).
+
+**Pipeline** (ticket `.scratch/basemind-integration/issues/06-rag-search-tool.md`):
+
+1. **Query resolution** (`QueryResolver::rewrite_query(query, session_id)`) — load
+   `SessionPayload { map, salt }` for the session, then replace every token the model
+   echoed back with its raw value from the vault map
+   (`[PERSON_9c21de04a7f3b2d1] → "Jean Dupont"`). Model context only ever contains
+   tokens (§11) while the index stores raw text (D6 amended), so **the vault — not a
+   salt-strip — is what reverses a token**: the token is an HMAC (D3), its alias and
+   salt are not recoverable from it. Tokens with no vault entry pass through unchanged
+   (already opaque, nothing leaks); ordinary search terms pass through unchanged. The
+   resolved query stays local — loopback MCP to the sidecar — the same boundary as the
+   index itself. A missing or unreadable session payload hard-fails the call (D7).
+2. **Search** — call basemind MCP `memory` with `mode="documents"`, the resolved
+   `query`, `limit=top_k`.
+3. **Hit re-tokenization** (`QueryResolver::retokenize_hits`) — for each
+   `DocumentSearchHit`, on the **raw** chunk before anything else:
+   - collect candidate values: `hit.entities[].text` (`DocEntity { category, text,
+     start, end, confidence }` — raw values from scan-time detection) **union** the
+     `detections[]` of a basemind `redact_text` pass over the chunk (catches
+     regex-class PII and scans where NER was off — I1 must not depend on index
+     configuration), sorted longest-first so a value nested in another (email inside
+     a URL) is replaced outermost-first;
+   - for each value: `value_hash = SHA-256(value)` → `get_or_create_alias_for_value`
+     mints `ENT_<CAT>_<hash8>` on first sight, exactly like the prompt flow → mint the
+     session token `[CAT_<HMAC16(salt, alias)>]` (D3) → replace the raw value inside
+     `hit.text` before the hit can leave the pipeline (I1);
+   - upsert each `token → value` pair into the session vault so the UI render boundary
+     can rehydrate the chunk (D4);
+   - return `{ chunk, source_doc, score, entities: [{ category, token }] }`. The
+     workspace-stable alias is deliberately **absent** from the payload: the tool
+     result is model context, and an alias visible there would link this session to
+     every other session of the workspace (D3).
+4. **Registration** — tool registry in `assembly/core/src/agentic/tools/registry.rs`
+   behind `cfg(feature = "tools-rag")`, plus the `ProductToolPlan` row in Product
+   Assembly so `product-full` materializes the tool.
+5. **Hard failure (D7)** — if basemind is unreachable, or the session payload (salt +
+   vault map) cannot be loaded, or the `redact_text` safety pass fails, the call fails
+   with a clear error. No raw fallback.
+
+**Input / output contract:**
+
+```json
+// input
+{ "query": "[PERSON_9c21de04a7f3b2d1]'s chronology", "top_k": 8 }
+// output
+[{ "chunk": "…[PERSON_9c21de04a7f3b2d1] joined Acme in 2019…",
+   "source_doc": "notes/meeting.md", "score": 0.82,
+   "entities": [{ "category": "person", "token": "[PERSON_9c21de04a7f3b2d1]" }] }]
 ```
 
-**Registration:** Add to tool registry in `assembly/core/src/agentic/tools/registry.rs` (feature-gated).
-
-**Feature flag:** `tools-rag` in `assembly/core/Cargo.toml`.
-
-**Content indexed:** Exclusively from `basemind_extract_and_redact` output → automatically inherits I1.
+**Content indexed:** workspace files as they are on disk. basemind's scan daemon
+indexes them directly and exposes no "index this text now" RPC (issue 01), so the
+index is **raw** (D6 amended): the same trust boundary as the source files, with
+`[documents].redaction.enabled` set to `false` so the index never mixes in basemind's
+own positional tokens either. The registry's aliases and the session salt are never
+written into the index; step 3 is the single chokepoint that keeps I1 true — at the
+LLM boundary, not at rest.
 
 ---
 
@@ -561,386 +621,250 @@ Add "Basemind" page with:
 
 ---
 
-## 11. User Prompt Pseudonymization (Local-Model Aware)
+## 11. User Prompt Pseudonymization (Model-Agnostic)
+
+> **Corrected — PII-safe identity spine.** The original §11 had two defects:
+> it **skipped pseudonymization for local models** (D2 reverses this — "no PII to the
+> LLM" is model-agnostic), and it minted **positional** `[PERSON_1]` tokens per prompt
+> (D3 clarifies this: the replacement is a session token minted as
+> `HMAC(session salt, workspace alias)`, so an entity is the same token across prompts
+> and documents within a session, a different token in every other session, and the
+> token itself reveals neither the alias nor the salt). Design authority: `GLOSSARY.md`,
+> `docs/adr/0001-*.md`, and the locked decisions D1–D10 in
+> `.scratch/pii-safe-rag-spine/map.md`.
 
 ### 11.1 Objective
 
-Pseudonymize user prompts in the composer before sending to cloud LLMs, while **skipping pseudonymization for local models** (Ollama, LM Studio, vLLM, etc.) since data never leaves the machine. RAG search remains available for both.
+Pseudonymize **every** user prompt before it reaches the model — cloud *or* local —
+through the workspace identity registry, keyed by a per-session salt, with rehydration
+only at the UI render boundary.
 
-**Invariant I9:** No PII from user prompts reaches cloud LLMs. Local models receive raw prompts.
+**Invariant I9:** No PII from user prompts reaches any LLM, local models included (D2).
+Session storage and the model-facing transcript stay tokenized; the workspace corpus
+and the RAG index remain raw inside the local trust boundary (D6 amended); only the
+human view is rehydrated (D4).
 
 ### 11.2 Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ USER PROMPT PSEUDONYMIZATION FLOW                                           │
+│ USER PROMPT PSEUDONYMIZATION FLOW (model-agnostic)                          │
 ├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
 │  Composer (ChatInput.tsx)                                                   │
-│       │                                                                     │
+│       │  raw prompt                                                         │
 │       ▼                                                                     │
-│  useMessageSender.ts ── sends: message (raw), displayMessage (raw)         │
-│       │                                                                     │
-│       ▼                                                                     │
-│  LocalSessionDriver.startTurn()                                            │
-│       │                                                                     │
-│       ▼                                                                     │
-│  agentAPI.startDialogTurn({ user_input, original_user_input })             │
+│  LocalSessionDriver.startTurn() → agentAPI.startDialogTurn()                │
 │       │                                                                     │
 │       ▼                    ┌──────────────────────────────────────────┐    │
-│  Tauri: start_dialog_turn │  PSEUDONYMIZATION INTERCEPTION POINT     │    │
-│       │                   │  desktop_dialog_turn_request()           │    │
-│       ▼                   │  1. Get active model's base_url          │    │
-│  desktop_dialog_turn_     │  2. If local (localhost/private IP) →    │    │
-│  request()                │     SKIP pseudonymization                │    │
-│       │                   │  3. If cloud → run PII detection         │    │
-│       ▼                   │  4. Replace with tokens ([PERSON_1])     │    │
-│  AgentRuntime.submit_    │  5. Store rehydration map in session     │    │
-│  dialog_turn()            │     vault (encrypted)                    │    │
-│       │                   │  6. Send pseudonymized → agent           │    │
-│       ▼                   │  7. Keep original_user_input for display │    │
-│  Agent Loop               │                                           │    │
-│  (LLM sees pseudonymized  └──────────────────────────────────────────┘    │
-│   text for cloud;       ─── HISTORY DISPLAY ───                          │
-│   raw for local)        Session restore → rehydrate from vault →         │
-│                         show original values                             │
+│  Tauri: start_dialog_turn  │  PSEUDONYMIZATION INTERCEPTION POINT     │    │
+│       │                    │  desktop_dialog_turn_request()           │    │
+│       ▼                    │  1. basemind redact_text(prompt)         │    │
+│  AgentRuntime.submit_      │     → detections[] {category, value}     │    │
+│  dialog_turn()             │  2. value_hash → identity registry       │    │
+│       │                    │     → stable alias (mint if new)         │    │
+│       ▼                    │  3. token = HMAC(salt, alias)            │    │
+│  Agent Loop                │  4. store token → value in SessionVault  │    │
+│  (LLM sees ONLY            │     SessionVault (encrypted, keychain)   │    │
+│   session tokens —         │  5. send pseudonymized prompt            │    │
+│   cloud AND local)         │  6. any failure → HARD-FAIL turn (D7)    │    │
+│                             └──────────────────────────────────────────┘    │
+│  UI render boundary (single chokepoint, D4): history restore, live          │
+│  display, RAG hits, tool results — all rehydrate here; everything           │
+│  else (storage, index, model context) stays tokenized.                      │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### 11.3 Local Model Detection
+### 11.3 Detection surface — basemind `redact_text`
 
-**New file:** `src/web-ui/src/infrastructure/config/services/localModelDetection.ts`
+The original §11.3 ("local model detection" gate) is **retired**: pseudonymization has
+no model-type branch (D2), so there is nothing to gate. `redact_text` is the single
+detection entry point:
 
-```typescript
-/** Check if a base URL points to a local/private endpoint */
-export function isLocalModelBaseUrl(baseUrl: string): boolean {
-  try {
-    const url = new URL(baseUrl);
-    const hostname = url.hostname.toLowerCase();
-    
-    // Explicit localhost
-    if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1') {
-      return true;
-    }
-    
-    // Private IP ranges (RFC 1918)
-    const ipv4Match = hostname.match(/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/);
-    if (ipv4Match) {
-      const [_, a, b] = ipv4Match.map(Number);
-      // 10.0.0.0/8
-      if (a === 10) return true;
-      // 172.16.0.0/12
-      if (a === 172 && b >= 16 && b <= 31) return true;
-      // 192.168.0.0/16
-      if (a === 192 && b === 168) return true;
-      // 169.254.0.0/16 (link-local)
-      if (a === 169 && b === 254) return true;
-    }
-    
-    // Docker/container hostnames
-    if (hostname === 'host.docker.internal' || hostname.endsWith('.local')) {
-      return true;
-    }
-    
-    return false;
-  } catch {
-    return false;
-  }
-}
+| Fact | Value |
+|---|---|
+| MCP tool | `redact_text(text, strategy="token-replace")` — `src/mcp/tools_redact.rs:72` in the basemind fork |
+| Response | `redacted_text`, `rehydration_map` (`[PERSON_1] → "Jean Dupont"`), `detections[] = {category, start, end, text: original value, confidence}`, `ner_ran` |
+| Categories | ~20 regex patterns (email, phone, iban, credit_card, ssn, …) + 42 GLiNER2 NER labels (person, organization, location, …), filterable per call |
+| Transport | MCP Streamable HTTP on loopback (`Authorization: Bearer <token>`); `hc` connects as an MCP client (issue 01) |
 
-/** Determine if pseudonymization should run for a session */
-export async function shouldPseudonymize(sessionId: string): Promise<boolean> {
-  const baseUrl = await getActiveModelBaseUrl(sessionId);
-  if (!baseUrl) return true; // Default to pseudonymize if unknown
-  
-  return !isLocalModelBaseUrl(baseUrl);
-}
-```
+**Pipeline (issue 02):** `hc` calls detection on the raw prompt → builds/looks up
+`value_hash → alias` in the identity registry → mints the session token
+`[CAT_<HMAC16(salt, alias)>]` (D3) → only tokenized text ever leaves the interception
+point. basemind's positional `rehydration_map` is a transient input for this rewrite;
+the durable map is the session vault's `token → value` map.
 
-**Rust equivalent** in `basemind-integration/src/lib.rs`:
-
-```rust
-pub fn is_local_model_base_url(base_url: &str) -> bool {
-    let Ok(url) = url::Url::parse(base_url) else { return false; };
-    let Some(hostname) = url.host_str() else { return false; };
-    let hostname = hostname.to_lowercase();
-    
-    // Explicit localhost
-    if matches!(hostname.as_str(), "localhost" | "127.0.0.1" | "::1") {
-        return true;
-    }
-    
-    // Private IPv4 ranges
-    if let Ok(ip) = hostname.parse::<std::net::Ipv4Addr>() {
-        let octets = ip.octets();
-        if octets[0] == 10 { return true; }                    // 10.0.0.0/8
-        if octets[0] == 172 && (16..=31).contains(&octets[1]) { return true; } // 172.16.0.0/12
-        if octets[0] == 192 && octets[1] == 168 { return true; } // 192.168.0.0/16
-        if octets[0] == 169 && octets[1] == 254 { return true; } // 169.254.0.0/16
-    }
-    
-    // Docker/container hostnames
-    if hostname == "host.docker.internal" || hostname.ends_with(".local") {
-        return true;
-    }
-    
-    false
-}
-```
-
-### 11.4 Interception Point
+### 11.4 Interception point
 
 **File:** `src/apps/desktop/src/api/agentic_api.rs` — `desktop_dialog_turn_request()`
 
+Rules:
+
+1. **Always run** when the `basemind` feature is enabled — there is no cloud/local
+   branch anymore (D2). The old `should_pseudonymize` / `is_local_model_base_url`
+   gate is deleted. The **only** bypass is the §11.8 master toggle being explicitly
+   off (an accepted user override that voids I9 — §11.9); every other skip path is
+   forbidden.
+2. **Fail closed (D7):** if basemind is unreachable, the registry cannot be read, or
+   the session vault cannot be written, the turn aborts with a clear error. Silent
+   fallback to the raw prompt is forbidden.
+3. `message` carries the pseudonymized text (what the LLM sees); `original_message`
+   carries the raw text for the UI only (D4). The rehydration map must **not** be
+   copied into request metadata or any model-visible field.
+
 ```rust
-fn desktop_dialog_turn_request(
-    request: StartDialogTurnRequest,
-    state: &AppState,  // Need AppState for config access
-) -> Result<AgentDialogTurnRequest, String> 
-{
-    // ... existing code ...
-    
-    // NEW: Check if pseudonymization should run
-    #[cfg(feature = "basemind")]
-    let should_pseudonymize = {
-        // Get the model config for this session
-        let model_name = request.agent_type.clone(); // or from session config
-        let base_url = get_model_base_url(&state, &model_name).await?;
-        !basemind_integration::is_local_model_base_url(&base_url)
-    };
-    
-    #[cfg(not(feature = "basemind"))]
-    let should_pseudonymize = false;
+#[cfg(feature = "basemind")]
+let pseudonymized = basemind_integration::get_prompt_pseudonymizer(&state)?
+    .pseudonymize(&request.user_input, &request.session_id)
+    .await
+    .map_err(|e| format!("PII pseudonymization failed (basemind required): {e}"))?;
 
-    // NEW: Pseudonymize only for cloud models
-    #[cfg(feature = "basemind")]
-    let (pseudonymized_input, rehydration_map) = if should_pseudonymize {
-        let pseudonymizer = basemind_integration::get_prompt_pseudonymizer(&state)?;
-        tokio::task::block_in_place(|| {
-            tokio::runtime::Handle::current().block_on(async {
-                pseudonymizer.pseudonymize(&request.user_input, &request.session_id).await
-            })
-        })?
-    } else {
-        (request.user_input.clone(), HashMap::new())
-    };
-    
-    #[cfg(not(feature = "basemind"))]
-    let (pseudonymized_input, rehydration_map) = (request.user_input.clone(), HashMap::new());
-
-    // Store rehydration map in request metadata for debugging
-    let mut metadata = desktop_user_message_metadata(request.user_message_metadata);
-    if !rehydration_map.is_empty() {
-        metadata.insert(
-            "prompt_rehydration".to_string(),
-            serde_json::to_value(rehydration_map).unwrap_or_default()
-        );
-    }
-
-    Ok(AgentDialogTurnRequest {
-        session_id: request.session_id,
-        message: pseudonymized_input,           // ← LLM sees this (pseudonymized for cloud, raw for local)
-        original_message: request.original_user_input.or(Some(request.user_input)), // ← UI sees this
-        // ... rest unchanged
-        metadata,
-    })
-}
+Ok(AgentDialogTurnRequest {
+    session_id: request.session_id,
+    message: pseudonymized.text,                  // session tokens only
+    original_message: Some(request.user_input),   // UI display only (D4)
+    // ...
+})
 ```
 
-### 11.5 Prompt Pseudonymizer Implementation
+### 11.5 PromptPseudonymizer
 
-**New file:** `basemind-integration/src/prompt_pseudonym.rs`
+**File:** `basemind-integration/src/prompt_pseudonym.rs` (implemented).
 
 ```rust
-use basemind::pii::{translate_findings, FindingInput, ChunkSpan};
-use basemind::vault::{vault_encrypt, vault_decrypt};
-
 pub struct PromptPseudonymizer {
-    basemind_client: Arc<BasemindClient>,
-    vault: Arc<SessionVault>,
-}
-
-impl PromptPseudonymizer {
-    /// Pseudonymize user prompt, return (pseudonymized_text, rehydration_map)
-    pub async fn pseudonymize(&self, text: &str, session_id: &str) 
-        -> Result<(String, HashMap<String, String>), PseudonymError> 
-    {
-        // 1. Run PII detection via basemind (reuse pii::pipeline)
-        let findings = self.basemind_client.detect_pii(text).await?;
-        
-        // 2. Build rehydration map: token → original value
-        let mut rehydration_map = HashMap::new();
-        let mut pseudonymized = text.to_string();
-        
-        // Sort by byte offset descending so replacements don't shift indices
-        let mut sorted_findings = findings;
-        sorted_findings.sort_by(|a, b| b.start.cmp(&a.start));
-        
-        for (idx, finding) in sorted_findings.iter().enumerate() {
-            let token = format!("[{}_{}]", finding.category.to_uppercase(), idx + 1);
-            let original = &text[finding.start as usize..finding.end as usize];
-            rehydration_map.insert(token.clone(), original.to_string());
-            
-            // Replace in pseudonymized text
-            pseudonymized.replace_range(
-                finding.start as usize..finding.end as usize, 
-                &token
-            );
-        }
-        
-        // 3. Encrypt and store in session vault
-        let vault_key = format!("session:{}:prompt_rehydration", session_id);
-        self.vault.encrypt_and_store(&vault_key, &rehydration_map).await?;
-        
-        Ok((pseudonymized, rehydration_map))
-    }
-    
-    /// Rehydrate a pseudonymized text for display
-    pub async fn rehydrate(&self, text: &str, session_id: &str) -> Result<String, PseudonymError> {
-        let vault_key = format!("session:{}:prompt_rehydration", session_id);
-        let map = self.vault.decrypt_and_load(&vault_key).await?;
-        
-        let mut result = text.to_string();
-        // Sort by token length descending to avoid partial replacements
-        let mut tokens: Vec<_> = map.keys().collect();
-        tokens.sort_by(|a, b| b.len().cmp(&a.len()));
-        
-        for token in tokens {
-            if let Some(original) = map.get(token) {
-                result = result.replace(token, original);
-            }
-        }
-        Ok(result)
-    }
+    basemind_client: BasemindClient,
+    registry: IdentityRegistry,   // per-workspace store (D9/D10)
+    vault: SessionVault,          // passphrase from OS keychain (D8)
 }
 ```
 
-### 11.6 Session Vault
+Flow of `pseudonymize(raw_prompt, session_id) -> PseudonymizedPrompt`:
 
-**New file:** `basemind-integration/src/session_vault.rs`
+1. `redact_text(raw_prompt, strategy="token-replace")` → `detections[]` (with the
+   **original values**) + positional `rehydration_map`.
+2. `vault.load_session(session_id)`; on miss, create the payload with a fresh
+   **≥128-bit CSPRNG salt** (`SessionVault::generate_salt()`) — never derived from
+   user content (issue 04).
+3. For each detection:
+   - `compute_value_hash(value)` (SHA-256);
+   - `registry.get_or_create_alias_for_value(value, category)` → stable alias
+     `ENT_<CATEGORY>_<hash8>` (minted on first sight, reused everywhere after);
+   - mint the session token `token = [CATEGORY_<H16>]`, where `H16` is the first 16
+     hex characters of `HMAC-SHA256(key = session salt, message = alias)` (D3);
+   - record `positional_token → token` and `token → value`.
+4. Replace the positional tokens in `redacted_text` with the session tokens.
+5. `vault.store_session(session_id, SessionPayload { map, salt })` — encrypted with
+   the keychain passphrase. The map is seeded from the existing session payload so
+   entries written by earlier turns keep rehydrating (D4); the returned
+   `rehydration_map` carries only this prompt's new entries.
+6. `registry.flush()` — persist the encrypted per-workspace registry.
+7. Return `PseudonymizedPrompt { text, rehydration_map, session_id }`.
+
+**Token format (D3, clarified):** `[<CATEGORY>_<H16>]` — an HMAC of the workspace
+alias under the per-session salt, truncated to 16 hex characters. The same entity is
+the same token across every prompt, document, and RAG hit **within** the session, and
+a different token in every other session, which breaks cross-session correlation. The
+token reveals **neither** the alias nor the salt: it can be reversed only through the
+session vault's `token → value` map — there is no strip-the-salt arithmetic — so an
+observer holding model context cannot confirm a guessed value, cannot link sessions,
+and cannot re-derive any workspace identity (issue 04). The alias and the salt exist
+only in the registry and in the session vault — never in the index, never in model
+context, never beyond the session.
+
+**Positional tokens are never sent to the LLM** — basemind's `[PERSON_1]` form exists
+only transiently between `redact_text` and step 4.
+
+### 11.6 Storage — identity registry, session vault, keychain
+
+| Store | Location | Protected by | Contents |
+|---|---|---|---|
+| Identity registry | `<workspace data dir>/identity_registry.enc` | AES-GCM + scrypt, keychain passphrase | `value_hash → ENT_<CAT>_<hash8>`; **per workspace** (D9), no raw values (D10) |
+| Session vault | `<session dir>/<session_id>.vault` | AES-GCM + scrypt, keychain passphrase | `SessionPayload { token → value, salt }` |
+
+**API:** `IdentityRegistry::{compute_value_hash, get_or_create_alias,
+get_or_create_alias_for_value, resolve_alias, flush}` (files:
+`identity_registry.rs`); `SessionVault::{store_session, load_session,
+delete_session, generate_salt}` (file: `session_vault.rs`).
+
+**Keychain (D8):** `keychain.rs::get_or_create_vault_passphrase()` generates a
+256-bit passphrase on first run and stores it in the OS keychain
+(macOS: `security-framework`; Windows DPAPI / Linux SecretService are stubs that
+fail closed until implemented). The passphrase is read in-process — never argv,
+never plaintext on disk. `keychain-macos|windows|linux` target deps are forwarded by
+the crate's `basemind` feature.
+
+### 11.7 History & UI rehydration (D4)
+
+Rehydration happens **only at the UI render boundary** — the single chokepoint:
+
+- session restore (`RestoreSessionWithTurns`), live turn display, RAG hit chunks,
+  and tool results resolve tokens through `PromptPseudonymizer::rehydrate(text,
+  session_id)` (implemented in ticket 16: load the session payload, replace
+  `token → value`, longest-token-first);
+- storage and the model-facing transcript stay tokenized — a transcript re-sent to
+  the model is never rehydrated;
+- §6 Entity Reveal remains UI/Tauri-only (I3).
 
 ```rust
-use basemind::vault::{vault_encrypt, vault_decrypt};
-
-pub struct SessionVault {
-    vault_path: PathBuf,
-}
-
-impl SessionVault {
-    pub fn new(vault_path: PathBuf) -> Self {
-        Self { vault_path }
+// restore path — display projection only
+for turn in turns.iter_mut() {
+    if let Some(user_msg) = turn.user_message.as_mut() {
+        user_msg.content = pseudonymizer
+            .rehydrate(&user_msg.content, &session_id)
+            .await
+            .unwrap_or_else(|_| user_msg.content.clone());
     }
-    
-    pub async fn encrypt_and_store(&self, key: &str, map: &HashMap<String, String>) -> Result<(), VaultError> {
-        let encrypted = vault_encrypt(map)?;
-        let path = self.vault_path.join(format!("{}.vault", key.replace(':', "_")));
-        tokio::fs::write(path, encrypted).await?;
-        Ok(())
-    }
-    
-    pub async fn decrypt_and_load(&self, key: &str) -> Result<HashMap<String, String>, VaultError> {
-        let path = self.vault_path.join(format!("{}.vault", key.replace(':', "_")));
-        let encrypted = tokio::fs::read_to_string(path).await?;
-        vault_decrypt(&encrypted)
-    }
-    
-    pub async fn delete(&self, key: &str) -> Result<(), VaultError> {
-        let path = self.vault_path.join(format!("{}.vault", key.replace(':', "_")));
-        let _ = tokio::fs::remove_file(path).await;
-        Ok(())
-    }
-}
-```
-
-### 11.7 History Rehydration
-
-When loading session history (`RestoreSessionWithTurnsResponse`), rehydrate user messages:
-
-```rust
-// In agentic_api.rs restore session functions
-async fn restore_session_with_turns(...) {
-    // ... existing code ...
-    
-    #[cfg(feature = "basemind")]
-    {
-        let pseudonymizer = basemind_integration::get_prompt_pseudonymizer(&state)?;
-        for turn in turns.iter_mut() {
-            if let Some(user_msg) = turn.user_message.as_mut() {
-                // Rehydrate the display content
-                user_msg.content = pseudonymizer.rehydrate(&user_msg.content, &session_id).await
-                    .unwrap_or_else(|_| user_msg.content.clone());
-            }
-        }
-    }
-    
-    Ok(RestoreSessionWithTurnsResponse { session, turns })
 }
 ```
 
 ### 11.8 Settings UI
 
-**File:** `src/web-ui/src/infrastructure/config/components/RuntimeSettingsPages.tsx` — add to Basemind settings:
+One master toggle; the local-model override is gone (D2):
 
 ```tsx
 interface BasemindSettings {
   enabled: boolean;
-  pseudonymize_prompts: boolean;           // Master toggle
-  pseudonymize_local_models: boolean;      // Override for local models (default: false)
+  pseudonymize_prompts: boolean; // master toggle; turning it off explicitly voids I9
   auto_download_models: boolean;
-  // ...
 }
-
-// In the Basemind settings panel:
-<SettingRow>
-  <SettingLabel>Pseudonymize user prompts</SettingLabel>
-  <SettingDescription>
-    Replace PII in your prompts before sending to cloud models. 
-    Local models (Ollama, LM Studio, etc.) are excluded by default.
-  </SettingDescription>
-  <Switch 
-    checked={settings.pseudonymize_prompts} 
-    onChange={v => updateSettings({ pseudonymize_prompts: v })} 
-  />
-</SettingRow>
-
-<SettingRow>
-  <SettingLabel>Also pseudonymize for local models</SettingLabel>
-  <SettingDescription>
-    When enabled, pseudonymization runs even for local models (Ollama, LM Studio). 
-    Normally not needed since data stays on your machine.
-  </SettingDescription>
-  <Switch 
-    checked={settings.pseudonymize_local_models} 
-    onChange={v => updateSettings({ pseudonymize_local_models: v })} 
-    disabled={!settings.pseudonymize_prompts}
-  />
-</SettingRow>
 ```
 
-### 11.9 Decision Matrix
+Copy states plainly that prompts are pseudonymized for **every** model — local
+models included — and that disabling the toggle sends raw prompts to the selected
+model.
 
-| Scenario | Model Type | Pseudonymization | RAG |
-|----------|------------|------------------|-----|
-| User types "Jean Dupont lives at 123 Main St" | **Cloud** (OpenAI, Anthropic, etc.) | ✅ **Yes** — `[PERSON_1]` `[ADDRESS_1]` sent to LLM | ✅ Available |
-| User types same prompt | **Local** (Ollama, LM Studio, vLLM) | ❌ **No** — raw text sent to local LLM | ✅ Available |
-| User enables "Also pseudonymize local" | **Local** | ✅ Yes (user choice) | ✅ Available |
-| Document read via `Read` tool | Any | ✅ Always (via BasemindWorkspaceFs) | ✅ Available |
+### 11.9 Decision matrix
 
-### 11.10 Performance Impact
+| Scenario | Model | Pseudonymization | RAG |
+|----------|-------|------------------|-----|
+| User types "Jean Dupont lives at 123 Main St" | **Cloud** (OpenAI, Anthropic, …) | ✅ `[PERSON_9c21de04a7f3b2d1]` `[ADDRESS_4d8f02a1c6b7e905]` sent to the LLM | ✅ Available |
+| Same prompt | **Local** (Ollama, LM Studio, vLLM) | ✅ Same pipeline, no exemption (D2) | ✅ Available |
+| Document read via `Read` tool | Any | ✅ Always (via §3 redaction) | ✅ Available |
+| Master toggle off | Any | ❌ Explicit user override; I9 no longer holds | ✅ Available |
 
-| Model Type | Pseudonymization | Added Latency |
-|------------|------------------|---------------|
-| **Cloud** | ✅ Runs (10-30ms PII detection + 1-5ms vault) | ~15-40ms |
-| **Local** | ❌ Skipped | **0ms** |
-| **Local (forced)** | ✅ Runs | ~15-40ms |
+### 11.10 Performance impact
+
+| Pseudonymization | Added latency |
+|------------------|---------------|
+| Runs for **every** prompt (cloud and local) | ~15–40ms: PII detection + registry lookup/mint + vault write |
+
+There is no skip branch anymore; the cost is unconditional and bounded by the
+sidecar's detection latency.
 
 ### 11.11 Remote/Peer/Detached Scenarios
 
+Interception lives in `desktop_dialog_turn_request()`, so pseudonymization runs
+**wherever the turn executes** — the host that owns the session, registry, and
+vault. The surface where the user types never bypasses it.
+
 | Scenario | Behavior |
 |----------|----------|
-| **Remote Workspace** | Pseudonymization runs on **controller** (where user types). Vault stored locally on controller. |
-| **Peer Device Mode** | Controller pseudonymizes; peer never sees raw prompt. |
-| **Detached Dispatch** | Controller pseudonymizes before dispatch; target only sees pseudonymized. |
+| **Remote Workspace** | Turn executes on the session-owning host; its sidecar, registry, and vault do the work. |
+| **Peer Device Mode** | The peer host pseudonymizes at interception; the controller only ever submits raw input through the proxied command. |
+| **Detached Dispatch** | The target pseudonymizes when the job's turn is submitted; the disconnected controller observes only tokens. |
+
+Ticket 19 (remote-scenarios compliance) validates this table against the Product
+Operation Registry rows.
 
 ---
 
@@ -957,7 +881,7 @@ interface BasemindSettings {
 
 | File | Action | Section |
 |------|--------|---------|
-| `src/crates/services/basemind-integration/` | **New crate** (Cargo.toml, lib.rs, workspace_fs.rs, document_convert.rs, models.rs, ipc.rs, prompt_pseudonym.rs, session_vault.rs, local_model_detection.rs) | §2, §3, §8, §11 |
+| `src/crates/services/basemind-integration/` | **New crate** (Cargo.toml, lib.rs, workspace_fs.rs, document_convert.rs, models.rs, ipc.rs, prompt_pseudonym.rs, session_vault.rs, identity_registry.rs, query_resolution.rs, rag_search.rs) | §2, §3, §8, §11 |
 | `services-core/src/workspace.rs` | Add `basemind_workspace_services()`, feature flag | §2.2 |
 | `tool-execution/src/fs/document.rs` | Add `RedactedEntity` to `ConvertedDocument` | §3.1 |
 | `assembly/core/src/agentic/tools/implementations/file_read_tool.rs` | Branch conversion call (feature-gated) | §3.3 |
@@ -975,8 +899,9 @@ interface BasemindSettings {
 | `web-ui/src/app/components/panels/content-canvas/RedactedDocumentTabs.tsx` | **New dual-tab viewer** | §7.5 |
 | `web-ui/src/app/components/panels/FilesPanel.tsx` | Route document clicks to new viewer type | §7.6 |
 | `web-ui/src/infrastructure/config/components/RuntimeSettingsPages.tsx` | Add Basemind settings page (incl. pseudonymization toggles) | §9.2, §11.8 |
-| `web-ui/src/infrastructure/config/services/localModelDetection.ts` | **New** — local model detection logic | §11.3 |
-| `web-ui/src/flow_chat/hooks/useMessageSender.ts` | Pass `session_id` context for detection | §11.4 |
+| `src/crates/contracts/runtime-ports/src/rag_search.rs` | **New port** — `RagSearchPort` + request/response DTOs (feature `rag-search`) | §4 |
+| `src/crates/contracts/runtime-ports/src/tool_runtime_handles.rs` | Add `with_rag_search_port` / `rag_search_port()` accessor | §4 |
+| `web-ui/src/flow_chat/hooks/useMessageSender.ts` | ~~Pass `session_id` context for detection~~ not needed — interception is backend-side and carries `session_id` itself (§11.4); local-model detection retired by D2 | §11.3, §11.4 |
 | `src-tauri/tauri.conf.json` | Add Basemind sidecar binaries per platform | §8.1 |
 | `Cargo.toml` (workspace) | Add `basemind-integration` to workspace members | — |
 
@@ -986,13 +911,32 @@ interface BasemindSettings {
 
 - [ ] **Basemind OCR ready?** Determines §5 Option A vs B.
 - [ ] **Redact filenames in `read_dir`?** (§2.1) — currently only content redacted.
-- [ ] **Exact Basemind IPC protocol** — stdio vs Unix socket vs gRPC loopback? Affects `ipc.rs` implementation.
+- [x] **Exact Basemind IPC protocol** — **resolved (issue 01):** MCP Streamable HTTP on
+  loopback with bearer token (`http://127.0.0.1:<port>/mcp`); OpenBitFun is an MCP
+  client. Agent Comms (msgpack/UDS) is agent-loop-only and irrelevant to the PII
+  pipeline.
 - [ ] **Cache strategy** — reuse `DocumentCache` or dedicated Basemind cache (redaction latency higher)?
 - [ ] **Model download source** — GitHub Releases vs Hugging Face Hub vs self-hosted?
 - [ ] **Remote Basemind binary sync** — how to ensure remote host has matching version?
 - [ ] **PII detection scope for prompts** — only user text, or also attached context (file paths, @mentions)?
-- [ ] **Token format consistency** — use same `[PERSON_1]` format as documents, or distinct `{{PERSON_1}}`?
-- [ ] **Vault storage location** — per-session file in session storage, or global vault with session keys?
+- [x] **Token format consistency** — **resolved (D3, clarified):** one format everywhere —
+  `[<CATEGORY>_<H16>]`, where `H16` is `HMAC-SHA256(session salt, alias)` truncated to
+  16 hex characters (§11.5, §4). The token hides both the alias and the salt and is
+  reversed only through the session vault. Positional `[PERSON_1]` exists only
+  transiently inside the `redact_text` response and is replaced before anything leaves
+  the interception point (§11.5).
+- [x] **Vault storage location** — **resolved (D8/D10, §11.6):** per-session encrypted
+  file `<session_id>.vault` plus a per-workspace `identity_registry.enc`, both
+  encrypted with a passphrase held in the OS keychain.
+- [x] **Index ingestion (D6 end-to-end)** — **resolved (D6 amended):** the index stays
+  **raw**, inside the same trust boundary as the source files. The scan daemon indexes
+  workspace files independently and basemind exposes no "index this text now" RPC
+  (issue 01), so there is no alias-substitution ingestion path to build — and none is
+  wanted: `[documents].redaction.enabled = false` keeps basemind's own positional
+  tokens out of the index, and hit re-tokenization at the LLM boundary (§4, step 3) is
+  the single chokepoint that keeps I1 true. Query direction: tokens → raw values via
+  the session vault (§4, step 1); output direction: value → alias → session token.
+  Settled 2026-10-16; ticket 06 may prove end-to-end behavior.
 
 ---
 
@@ -1061,14 +1005,15 @@ Fails at **compile time** if upstream signature changes — better than silent p
 
 | Layer | Command |
 |-------|---------|
-| Rust (basemind-integration) | `cargo test -p basemind-integration` |
-| Services-core | `cargo test -p openbitfun_services_core workspace` |
-| Tool-execution | `cargo test -p openbitfun_tool_execution document` |
-| Assembly/core (tools) | `cargo test -p openbitfun_assembly_core rag_search` |
-| Desktop (Tauri commands) | `cargo test -p openbitfun_desktop basemind` |
-| Desktop (pseudonymization) | `cargo test -p openbitfun_desktop prompt_pseudonym` |
+| Rust (basemind-integration) | `cargo test -p openbitfun-basemind-integration` |
+| Runtime-ports (RagSearchPort) | `cargo test -p openbitfun-runtime-ports rag_search` |
+| Services-core | `cargo test -p openbitfun-services-core workspace` |
+| Tool-execution | `cargo test -p tool-runtime document` |
+| Assembly/core (tools) | `cargo test -p openbitfun-core rag_search` |
+| Boundary rule (no core → basemind dep) | `pnpm run check:core-boundaries` |
+| Desktop (Tauri commands) | `cargo test -p openbitfun-desktop basemind` |
+| Desktop (pseudonymization) | `cargo test -p openbitfun-desktop prompt_pseudonym` |
 | Web UI (unit) | `pnpm --filter web-ui test BasemindAPI` |
-| Web UI (unit) | `pnpm --filter web-ui test localModelDetection` |
 | Web UI (E2E) | `pnpm --filter web-ui test:e2e redacted-document` |
 | Web UI (E2E) | `pnpm --filter web-ui test:e2e prompt-pseudonymization` |
 | Cross-platform | `pnpm run desktop:dev` (Linux/macOS/Windows) |
@@ -1077,6 +1022,16 @@ Fails at **compile time** if upstream signature changes — better than silent p
 ---
 
 ## 17. Dependencies on Basemind Fork (jamon8888/basemind)
+
+**Pinned version:** `jamon8888/basemind` **v0.33.1** (2026-10-11). All PII/identity
+evidence in this spec (issues 01–02, ADR 0001) was gathered at v0.33.0; v0.33.1 is a
+pure patch — zero `src/` delta, no `MEMORY_SCHEMA_VER` advance, no re-index — adding
+only the Linux ARM64 release asset 0.33.0 lacked and a `github_only` publish input, so
+the evidence carries over unchanged. Bundle v0.33.1: it ships the
+`aarch64-unknown-linux-gnu` binary §8.1 requires. The upstream `Goldziher/basemind`
+v0.29.x line is a **diverged numbering stream** (released after our tag, lower
+numbers) and is not the integration target — do not reconcile its changelog entries
+with ours.
 
 Assumes PR adds/provides:
 - [ ] `extract_and_redact(bytes, path_hint) -> (markdown, entities[])`
@@ -1088,6 +1043,11 @@ Assumes PR adds/provides:
 - [ ] Cross-platform binaries (Linux x86_64/aarch64, macOS x86_64/arm64, Windows x86_64)
 - [ ] Stable IPC protocol (stdio JSON-RPC or gRPC)
 - [ ] OCR capability (for Option A in §5)
+
+Where issue 01 measured reality, the MCP surface (`redact_text`,
+`memory mode="documents"`, `vault`) plus the product-side identity layer (§4, §11)
+supersede the assumed RPC shapes above (`query_rag`, `detect_pii`, `vault_encrypt`);
+treat the list as the original expectation, not as an open dependency.
 
 ---
 

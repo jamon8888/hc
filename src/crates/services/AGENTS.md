@@ -20,6 +20,7 @@ OS/network capabilities.
 | `relay-service` | Reusable Remote Connect relay state, storage, and HTTP/WebSocket routes shared by standalone and embedded hosts | [AGENTS.md](relay-service/AGENTS.md) |
 | `page-function-runtime` | Embedded JS Page Function runtime (rquickjs) for OpenBitFun Pages | [AGENTS.md](page-function-runtime/AGENTS.md) |
 | `terminal` | PTY, shell integration, and terminal session infrastructure | [AGENTS.md](terminal/AGENTS.md) |
+| `basemind-integration` | Basemind sidecar integration: PII detection/redaction pipeline, workspace identity registry, session vault, OS keychain, prompt pseudonymization, and the PII-safe RAG search pipeline | - |
 
 ## Placement Rules
 

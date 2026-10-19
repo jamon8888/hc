@@ -1,64 +1,62 @@
 [package]
-name = "openbitfun_basemind_integration"
+name = "openbitfun-basemind-integration"
 version = "0.1.0"
 edition = "2024"
-rust-version = "1.85"
-description = "Basemind integration for OpenBitFun - document extraction, redaction, RAG, and prompt pseudonymization"
-license = "MIT OR Apache-2.0"
-repository = "https://github.com/jamon8888/OpenBitFun"
+description = "Basemind integration: PII detection, redaction, RAG, identity registry, vault"
+license = "Apache-2.0"
+categories = ["integration", "security", "privacy"]
 
 [features]
-default = []
-basemind = [
-    "dep:tokio",
-    "dep:serde",
-    "dep:serde_json",
-    "dep:anyhow",
-    "dep:url",
-    "dep:async-trait",
-    "dep:tracing",
-    "dep:thiserror",
-    "dep:aes-gcm",
-    "dep:rand",
-    "dep:sha2",
-    "dep:tokio-util",
-    "dep:openbitfun-runtime-ports",
-    "dep:openbitfun-services-core",
-    "dep:tool-runtime",
-]
+default = ["basemind"]
+basemind = ["dep:anyhow", "dep:async-trait", "dep:base64", "dep:chrono", "dep:dashmap", "dep:hex", "dep:hmac", "dep:log", "dep:md5", "dep:regex", "dep:serde", "dep:serde_json", "dep:thiserror", "dep:tokio", "dep:tracing", "dep:uuid", "dep:reqwest", "dep:aes-gcm", "dep:scrypt", "dep:rand", "dep:sha2", "dep:url", "dep:openbitfun-runtime-ports", "dep:security-framework", "dep:security-framework-sys", "dep:windows", "dep:secret-service"]
 tools-rag = ["basemind"]
-document-read = ["basemind", "tool-runtime/document-read"]
+document-read = ["basemind"]
+pseudonymization = ["basemind"]
 
 [dependencies]
-tokio = { workspace = true, features = ["fs", "io-util", "process", "sync"], optional = true }
-serde = { version = "1", features = ["derive"], optional = true }
-serde_json = { version = "1", optional = true }
-anyhow = { version = "1", optional = true }
-url = { version = "2", optional = true }
-sha2 = { version = "0.10", optional = true }
-tokio-util = { version = "0.7", optional = true }
+# Workspace deps
+anyhow = { workspace = true, optional = true }
+async-trait = { workspace = true, optional = true }
+base64 = { workspace = true, optional = true }
+chrono = { workspace = true, optional = true }
+dashmap = { workspace = true, optional = true }
+hex = { version = "0.4", optional = true }
+log = { workspace = true, optional = true }
+md5 = { workspace = true, optional = true }
+regex = { workspace = true, optional = true }
+serde = { workspace = true, optional = true }
+serde_json = { workspace = true, optional = true }
+thiserror = { workspace = true, optional = true }
+tokio = { workspace = true, optional = true, features = ["sync", "time"] }
+tracing = { workspace = true, optional = true }
+uuid = { workspace = true, optional = true }
+url = { workspace = true, optional = true }
 
-# Basemind-specific dependencies (crate names with hyphens)
-async-trait = { version = "0.1", optional = true }
-tracing = { version = "0.1", optional = true }
-thiserror = { version = "1", optional = true }
+# Runtime ports: workspace filesystem port (workspace_fs) + the RagSearchPort
+# seam implemented over RagSearchTool (D11).
+openbitfun-runtime-ports = { path = "../../contracts/runtime-ports", optional = true, features = ["workspace-ports", "rag-search"] }
+
+# MCP HTTP client - raw reqwest, no rmcp client dependency.
+# Loopback plain HTTP only; workspace reqwest keeps default features (and TLS) off.
+reqwest = { workspace = true, optional = true, features = ["json"] }
+
+# Vault crypto
 aes-gcm = { version = "0.10", optional = true }
-rand = { version = "0.8", optional = true }
+hmac = { workspace = true, optional = true }
+scrypt = { version = "0.12", optional = true, features = ["kdf"] }
+rand = { workspace = true, optional = true }
+sha2 = { version = "0.10", optional = true }
 
-# Workspace dependencies (inherited from root)
-openbitfun-runtime-ports = { path = "../../contracts/runtime-ports", optional = true }
-openbitfun-services-core = { path = "../../services/services-core", optional = true, features = ["workspace-runtime"] }
-
-# tool_runtime is from execution/tool-execution
-tool-runtime = { path = "../../execution/tool-execution", optional = true }
+# Keychain integration — target-gated so each platform only builds its own
+# store; the `basemind` feature forwards `dep:` for all three (a no-op for
+# targets where the dependency is not declared).
+[target.'cfg(target_os = "macos")'.dependencies]
+security-framework = { version = "2.11", optional = true }
+security-framework-sys = { version = "2.11", optional = true }
+[target.'cfg(target_os = "windows")'.dependencies]
+windows = { version = "0.60", features = ["Win32_Security_Cryptography", "Win32_Foundation", "Win32_System_DataExchange"], optional = true }
+[target.'cfg(target_os = "linux")'.dependencies]
+secret-service = { version = "5", optional = true }
 
 [dev-dependencies]
 tokio-test = "0.4"
-tempfile = "3"
-
-[lints.rust]
-unsafe_code = "warn"
-
-[lints.clippy]
-all = "warn"
-pedantic = "warn"
