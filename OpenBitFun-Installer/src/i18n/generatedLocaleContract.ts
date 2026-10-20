@@ -62,8 +62,8 @@ export type SharedI18nTerms = {
 export const SHARED_TERMS_BY_APP_LANGUAGE = {
   "en-US": {
     "product": {
-      "name": "OpenBitFun",
-      "remote": "OpenBitFun Remote"
+      "name": "Alex",
+      "remote": "Alex Remote"
     },
     "features": {
       "remoteControl": "Remote Control",
@@ -99,7 +99,7 @@ export const SHARED_TERMS_BY_APP_LANGUAGE = {
     },
     "connectionMethods": {
       "lan": "LAN",
-      "openbitfunServer": "OpenBitFun Server",
+      "openbitfunServer": "Alex Server",
       "customServer": "Custom Server",
       "botFeishu": "Feishu Bot",
       "botTelegram": "Telegram Bot",
@@ -115,8 +115,8 @@ export const SHARED_TERMS_BY_APP_LANGUAGE = {
   },
   "fr-FR": {
     "product": {
-      "name": "OpenBitFun",
-      "remote": "OpenBitFun Remote"
+      "name": "Alex",
+      "remote": "Alex Remote"
     },
     "features": {
       "remoteControl": "Contrôle à distance",
@@ -152,7 +152,7 @@ export const SHARED_TERMS_BY_APP_LANGUAGE = {
     },
     "connectionMethods": {
       "lan": "Réseau local",
-      "openbitfunServer": "Serveur OpenBitFun",
+      "openbitfunServer": "Serveur Alex",
       "customServer": "Serveur personnalisé",
       "botFeishu": "Bot Feishu",
       "botTelegram": "Bot Telegram",
@@ -168,8 +168,8 @@ export const SHARED_TERMS_BY_APP_LANGUAGE = {
   },
   "zh-CN": {
     "product": {
-      "name": "OpenBitFun",
-      "remote": "OpenBitFun Remote"
+      "name": "Alex",
+      "remote": "Alex Remote"
     },
     "features": {
       "remoteControl": "远程控制",
@@ -205,7 +205,7 @@ export const SHARED_TERMS_BY_APP_LANGUAGE = {
     },
     "connectionMethods": {
       "lan": "局域网",
-      "openbitfunServer": "OpenBitFun Server",
+      "openbitfunServer": "Alex Server",
       "customServer": "自定义服务器",
       "botFeishu": "飞书机器人",
       "botTelegram": "Telegram Bot",
@@ -221,8 +221,8 @@ export const SHARED_TERMS_BY_APP_LANGUAGE = {
   },
   "zh-TW": {
     "product": {
-      "name": "OpenBitFun",
-      "remote": "OpenBitFun Remote"
+      "name": "Alex",
+      "remote": "Alex Remote"
     },
     "features": {
       "remoteControl": "遠端控制",
@@ -258,7 +258,7 @@ export const SHARED_TERMS_BY_APP_LANGUAGE = {
     },
     "connectionMethods": {
       "lan": "區域網路",
-      "openbitfunServer": "OpenBitFun Server",
+      "openbitfunServer": "Alex Server",
       "customServer": "自訂伺服器",
       "botFeishu": "飛書機器人",
       "botTelegram": "Telegram Bot",

@@ -2,7 +2,7 @@
   "loading": "Chargement de la capacité de revue...",
   "desktopOnly": {
     "title": "Bureau uniquement",
-    "description": "Les paramètres de capacité de revue sont disponibles dans l'application de bureau OpenBitFun. La revue n'est pas disponible sur cette surface."
+    "description": "Les paramètres de capacité de revue sont disponibles dans l'application de bureau Alex. La revue n'est pas disponible sur cette surface."
   },
   "error": {
     "title": "Capacité de revue indisponible",

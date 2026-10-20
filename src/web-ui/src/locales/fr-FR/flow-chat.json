@@ -255,7 +255,7 @@
       "legacyModel": "Les anciennes sessions ne stockaient pas les noms de modèle par échange ; ce rapport ne peut donc pas identifier le modèle exact.",
       "inferredModel": "Déduit du paramètre de modèle de la session, car les anciens tours ne stockaient pas les noms de modèle par échange.",
       "filesUnavailable": "Aucun instantané de fichier ni enregistrement d'outil de modification de fichier n'a été trouvé pour cette session.",
-      "filesNoRecordedChanges": "OpenBitFun n'a détecté aucune modification de fichier dans cette session. C'est normal lorsque l'agent n'a modifié aucun fichier.",
+      "filesNoRecordedChanges": "Alex n'a détecté aucune modification de fichier dans cette session. C'est normal lorsque l'agent n'a modifié aucun fichier.",
       "filesRemoteUnavailable": "Aucun résumé d'instantané distant n'a été trouvé pour cette session. Des lignes de fichiers peuvent tout de même apparaître à partir des enregistrements d'outils de modification de fichier reconnus.",
       "filesNotTracked": "Aucun instantané local ni enregistrement identifiable d'outil de modification de fichier n'a été trouvé pour cette session.",
       "fileTurnIndexes": "Les index de tours ne sont pas enregistrés lorsque l'activité sur les fichiers provient d'un résumé plutôt que d'enregistrements d'opérations par tour.",
@@ -483,7 +483,7 @@
     "more": "Plus de sessions",
     "restoreMain": "Restaurer la fenêtre principale",
     "inUseTitle": "Session ouverte ailleurs",
-    "inUseMessage": "Cette session est ouverte dans une autre instance d'OpenBitFun. Fermez-la là-bas, puis réessayez.",
+    "inUseMessage": "Cette session est ouverte dans une autre instance d'Alex. Fermez-la là-bas, puis réessayez.",
     "surfaceSwitchDroppedTitle": "Message non envoyé",
     "surfaceSwitchDropped": "L'appareil a changé avant l'envoi de ce message, et sa file d'attente est pleine. Envoyez-le à nouveau.",
     "retry": "Réessayer"
@@ -715,7 +715,7 @@
       "menuLabel": "Où s'exécute cette tâche",
       "sessionScope": "Cette tâche uniquement",
       "localSection": "Local",
-      "localDescription": "Exécuter dans cette application OpenBitFun",
+      "localDescription": "Exécuter dans cette application Alex",
       "sshSection": "SSH",
       "loading": "Chargement des cibles…",
       "noSshTargets": "Aucune cible SSH enregistrée",
@@ -731,8 +731,8 @@
       "createFailed": "Impossible de créer la tâche distante. Vérifiez la cible et réessayez.",
       "remoteTarget": "l'appareil distant",
       "transferInProgress": "Préparation de la cible et transfert du projet…",
-      "cliInstallStarted": "Préparation d'OpenBitFun {{version}} sur l'appareil distant…",
-      "cliInstallSucceeded": "OpenBitFun {{version}} est prêt sur l'appareil distant.",
+      "cliInstallStarted": "Préparation d'Alex {{version}} sur l'appareil distant…",
+      "cliInstallSucceeded": "Alex {{version}} est prêt sur l'appareil distant.",
       "cliInstallFailed": "Impossible de préparer l'environnement distant. Vérifiez la connexion SSH et réessayez.",
       "cliInstallInProgress": "Préparation de l'environnement distant…",
       "cliInstallUnknownVersion": "version requise",
@@ -750,7 +750,7 @@
         "compactWhileRunning": "Attendez la fin de la tâche distante en cours avant de compacter le contexte.",
         "compactRejected": "La cible n'a pas pu démarrer le compactage. Réessayez dans un instant.",
         "sessionNotReady": "La tâche distante est encore en préparation. Réessayez l'envoi dans un instant.",
-        "submissionUnconfirmed": "OpenBitFun ne peut pas encore confirmer que la cible a reçu cette tâche. Vérifiez bientôt l'état de la tâche."
+        "submissionUnconfirmed": "Alex ne peut pas encore confirmer que la cible a reçu cette tâche. Vérifiez bientôt l'état de la tâche."
       }
     },
     "harness": {
@@ -769,8 +769,8 @@
       "unsupportedProfile": "Harness non pris en charge ({{id}})",
       "unsupportedProfileNotice": "Cette session utilise {{id}}, que cette version ne peut pas exécuter. Sélectionnez explicitement un Harness pris en charge.",
       "profileChangeBusy": "Attendez la fin du tour en cours avant de changer de Harness.",
-      "profileChangeOutcomeUnknown": "OpenBitFun ne peut pas confirmer que le Harness a changé. Actualisez la session avant de réessayer.",
-      "profileUnavailable": "Ce Harness n'est pas pris en charge par l'hôte OpenBitFun actuel.",
+      "profileChangeOutcomeUnknown": "Alex ne peut pas confirmer que le Harness a changé. Actualisez la session avant de réessayer.",
+      "profileUnavailable": "Ce Harness n'est pas pris en charge par l'hôte Alex actuel.",
       "profileChangeFailed": "Échec du changement de Harness. Réessayez.",
       "rememberFailed": "Le Harness a changé, mais cette sélection n'a pas pu être mémorisée. Les nouvelles sessions peuvent continuer à utiliser la valeur par défaut précédente.",
       "otherAgentsTitle": "Agents",
@@ -830,7 +830,7 @@
       "globalScope": "Global",
       "current": "Autorisations : {{mode}}",
       "changeFailed": "Échec du changement de mode d'autorisation.",
-      "changeFailedSessionInUse": "Cette session est ouverte en écriture dans une autre instance d'OpenBitFun. Fermez l'autre instance et réessayez.",
+      "changeFailedSessionInUse": "Cette session est ouverte en écriture dans une autre instance d'Alex. Fermez l'autre instance et réessayez.",
       "ask": {
         "label": "Demander",
         "description": "Les accès externes, modifications de fichiers et exécutions de commandes nécessitent une confirmation."
@@ -860,7 +860,7 @@
       "resetToDefault": "Suivre le mode par défaut",
       "noSession": "Ouvrez ou démarrez une session avant de changer son mode d'autorisation.",
       "unread": "Impossible de lire le mode d'autorisation de cette session. Le mode par défaut est affiché à la place.",
-      "unreadSessionInUse": "Cette session est ouverte en écriture dans une autre instance d'OpenBitFun ; son mode d'autorisation ne peut donc pas être lu. Le mode par défaut est affiché à la place. Fermez l'autre instance et rouvrez cette session.",
+      "unreadSessionInUse": "Cette session est ouverte en écriture dans une autre instance d'Alex ; son mode d'autorisation ne peut donc pas être lu. Le mode par défaut est affiché à la place. Fermez l'autre instance et rouvrez cette session.",
       "unreadTooltip": "Impossible de lire le mode d'autorisation ; affichage du mode par défaut : {{mode}}",
       "unreadMenuNotice": "Le mode propre à cette session n'a pas pu être lu ; aucun mode n'est donc marqué.",
       "turnScope": "Prochain message uniquement",
@@ -959,7 +959,7 @@
     "noMatchingCommand": "Aucune commande correspondante",
     "externalCommandContextUnsupported": "Supprimez les pièces jointes et références du composeur avant d'exécuter cette commande déléguée.",
     "nativeCommandChoiceNotSaved": "Cette commande sera exécutée une fois, mais votre choix de résolution du conflit n'a pas pu être enregistré.",
-    "nativeCommandReconfirmationRequired": "La commande externe que vous aviez choisie n'est plus disponible. Choisissez la commande OpenBitFun dans le menu slash pour l'exécuter.",
+    "nativeCommandReconfirmationRequired": "La commande externe que vous aviez choisie n'est plus disponible. Choisissez la commande Alex dans le menu slash pour l'exécuter.",
     "selectHint": "↑↓ Sélectionner · Entrée Confirmer · Échap Annuler",
     "current": "Actuel",
     "commandStatus": {
@@ -1195,7 +1195,7 @@
     },
     "decisionGate": {
       "title": "Confirmez les éléments de décision avant la correction",
-      "description": "Choisissez comment traiter chaque décision sélectionnée avant qu'OpenBitFun ne commence les modifications.",
+      "description": "Choisissez comment traiter chaque décision sélectionnée avant qu'Alex ne commence les modifications.",
       "supplementLabel": "Exigences supplémentaires",
       "supplementPlaceholder": "Facultatif : ajoutez des contraintes, des limites de périmètre ou des préférences d'implémentation avant de démarrer.",
       "missingSelection": "Choisissez une option pour chaque élément de décision sélectionné avant de démarrer.",
@@ -1271,8 +1271,8 @@
     },
     "resultRecovery": {
       "title": "La revue stricte nécessite un rapport",
-      "missingSubmitCodeReview": "La revue est terminée, mais OpenBitFun n'a reçu aucun résultat structuré à confirmer. Continuer conserve le travail de revue terminé et demande à l'agent de soumettre le rapport manquant.",
-      "invalidSubmitCodeReview": "La revue a renvoyé un résultat qu'OpenBitFun n'a pas pu lire. Continuer conserve le travail de revue terminé et demande à l'agent de réparer le rapport.",
+      "missingSubmitCodeReview": "La revue est terminée, mais Alex n'a reçu aucun résultat structuré à confirmer. Continuer conserve le travail de revue terminé et demande à l'agent de soumettre le rapport manquant.",
+      "invalidSubmitCodeReview": "La revue a renvoyé un résultat qu'Alex n'a pas pu lire. Continuer conserve le travail de revue terminé et demande à l'agent de réparer le rapport.",
       "wrongReviewMode": "La revue a renvoyé un résultat de revue standard. Continuer conserve le travail de revue terminé et demande à l'agent de soumettre le rapport de revue stricte."
     },
     "capacityQueue": {
@@ -1283,7 +1283,7 @@
       "detail": "L'attente de capacité n'est pas comptée dans la durée d'exécution de la revue.",
       "activeReviewerDetail": "Le travail de revue en attente démarre dès que le travail de revue actif libère de la capacité. L'attente de capacité n'est pas comptée dans la durée d'exécution de la revue.",
       "longLaunchBatchWaitDetail": "Cette revue attend depuis plus longtemps que la fenêtre de capacité configurée, car un travail de revue antérieur est toujours en cours. Vous pouvez continuer à attendre, mettre l'attente en pause, annuler la revue en attente ou ouvrir les paramètres de revue.",
-      "providerDetail": "OpenBitFun attend une capacité temporaire du modèle. Cette attente n'est pas comptée dans la durée d'exécution de la revue.",
+      "providerDetail": "Alex attend une capacité temporaire du modèle. Cette attente n'est pas comptée dans la durée d'exécution de la revue.",
       "reason": "Raison : {{reason}}",
       "elapsed": "Attente : {{elapsed}}",
       "elapsedWithMax": "Attente : {{elapsed}} sur {{max}}",
@@ -1297,12 +1297,12 @@
         "temporaryOverload": "surcharge temporaire"
       },
       "reasonDetails": {
-        "providerRateLimit": "Le fournisseur du modèle a limité le débit de cette requête de revue. OpenBitFun réessaiera dès que de la capacité sera disponible.",
-        "providerConcurrencyLimit": "Le fournisseur du modèle a refusé une requête de revue simultanée supplémentaire. OpenBitFun réessaiera dès que de la capacité sera disponible.",
-        "retryAfter": "Le fournisseur du modèle a demandé à OpenBitFun d'attendre avant de réessayer cette requête de revue.",
+        "providerRateLimit": "Le fournisseur du modèle a limité le débit de cette requête de revue. Alex réessaiera dès que de la capacité sera disponible.",
+        "providerConcurrencyLimit": "Le fournisseur du modèle a refusé une requête de revue simultanée supplémentaire. Alex réessaiera dès que de la capacité sera disponible.",
+        "retryAfter": "Le fournisseur du modèle a demandé à Alex d'attendre avant de réessayer cette requête de revue.",
         "localConcurrencyCap": "La capacité de revue stricte configurée est saturée. Le travail de revue en attente démarrera une fois le travail actif terminé.",
         "launchBatchBlocked": "Un travail de revue antérieur est toujours en cours. L'attente préserve l'ordre de revue planifié et empêche le travail suivant de le dépasser.",
-        "temporaryOverload": "Le fournisseur du modèle est temporairement surchargé. OpenBitFun réessaiera dès que de la capacité sera disponible."
+        "temporaryOverload": "Le fournisseur du modèle est temporairement surchargé. Alex réessaiera dès que de la capacité sera disponible."
       },
       "sessionBusy": "Votre session active est occupée. Mettez la revue stricte en pause ou continuez plus tard.",
       "stopHint": "Utilisez Arrêter pour interrompre cette revue.",
@@ -1359,7 +1359,7 @@
     "windowTitle": "Plan de revue",
     "eyebrow": "Plan de revue",
     "title": "Lancer cette revue ?",
-    "body": "OpenBitFun examine directement cette modification et n'ajoute des vérifications supplémentaires que lorsque les éléments le justifient. Confirmez la cible, la durée estimée et la limite de lecture seule avant de continuer.",
+    "body": "Alex examine directement cette modification et n'ajoute des vérifications supplémentaires que lorsque les éléments le justifient. Confirmez la cible, la durée estimée et la limite de lecture seule avant de continuer.",
     "readonlyLabel": "Lecture seule",
     "readonly": "La revue ne modifie aucun fichier.",
     "sessionConcurrencyTitle": "La session active est occupée",
@@ -1574,7 +1574,7 @@
     "dialogNotFound": "Données de dialogue introuvables",
     "containerNotFound": "Conteneur d'export introuvable",
     "generateFailed": "Échec de la génération de l'image",
-    "fileNamePrefix": "OpenBitFun-Chat",
+    "fileNamePrefix": "Alex-Chat",
     "exportSuccess": "Image exportée : {{filePath}}",
     "exportSuccessPrefix": "Image exportée : ",
     "exportFailed": "Échec de l'export, veuillez réessayer",
@@ -1747,7 +1747,7 @@
       "openSourceFailed": "Échec de l'ouverture de l'éditeur de source de l'interface générée"
     },
     "generativeWidget": {
-      "exportFileNamePrefix": "OpenBitFun-Widget"
+      "exportFileNamePrefix": "Alex-Widget"
     },
     "initMiniApp": {
       "title": "Mini App",
@@ -1767,7 +1767,7 @@
       "title": "Déployer la page",
       "deployingShort": "…",
       "untitled": "(sans nom)",
-      "deployFailed": "Impossible de déployer la version de la Page OpenBitFun",
+      "deployFailed": "Impossible de déployer la version de la Page Alex",
       "openFailed": "Impossible de créer un lien sécurisé pour cette Page.",
       "labelSlug": "slug",
       "labelVersion": "version",
@@ -1778,7 +1778,7 @@
       "title": "Publier la page",
       "publishingShort": "…",
       "untitled": "(sans nom)",
-      "publishFailed": "Impossible de publier la Page OpenBitFun",
+      "publishFailed": "Impossible de publier la Page Alex",
       "openFailed": "Impossible de créer un lien sécurisé pour cette Page.",
       "labelSlug": "slug",
       "labelVersion": "version",
@@ -1922,7 +1922,7 @@
       "submittedWaiting": "Envoyé, en attente de traitement",
       "submitting": "Envoi...",
       "submitFailed": "Impossible d'envoyer la réponse. Vérifiez la connexion et réessayez.",
-      "unsupportedOnPeer": "La version d'OpenBitFun de cet appareil ne peut pas répondre à la question. Mettez à jour OpenBitFun sur cet appareil.",
+      "unsupportedOnPeer": "La version d'Alex de cet appareil ne peut pas répondre à la question. Mettez à jour Alex sur cet appareil.",
       "waitingAnswer": "En attente de réponse",
       "awaitingTimeoutConfirmation": "En attente de confirmation du délai",
       "cancelCountdown": "Annuler le compte à rebours",
@@ -1969,7 +1969,7 @@
       "appLabel": "Application",
       "targetLabel": "Cible",
       "permissionDenied": "Autorisation requise pour le contrôle du bureau",
-      "permissionDeniedHint": "OpenBitFun a besoin des autorisations Accessibilité et Enregistrement de l'écran de macOS pour contrôler d'autres applications. Ouvrez les Réglages Système, accordez l'accès à OpenBitFun, puis réessayez.",
+      "permissionDeniedHint": "Alex a besoin des autorisations Accessibilité et Enregistrement de l'écran de macOS pour contrôler d'autres applications. Ouvrez les Réglages Système, accordez l'accès à Alex, puis réessayez.",
       "openSettings": "Ouvrir les Réglages Système",
       "openSettingsFailed": "Impossible d'ouvrir les Réglages Système"
     },
@@ -2159,7 +2159,7 @@
         "open": "Ouvrir la fonctionnalité",
         "execute": "Exécuter l'opération",
         "configure": "Modifier le paramètre",
-        "unknown": "Contrôler OpenBitFun"
+        "unknown": "Contrôler Alex"
       },
       "target": "Cible",
       "query": "$t(shared:tools.search)",
@@ -2535,7 +2535,7 @@
         "saveSuccess": "Rapport de revue exporté.",
         "saveFailed": "Échec de l'exportation du rapport de revue.",
         "saveDialogTitle": "Exporter le rapport de revue",
-        "fileNamePrefix": "OpenBitFun-Review",
+        "fileNamePrefix": "Alex-Review",
         "editorTitle": "Rapport de revue"
       },
       "reviewModes": {
@@ -2870,11 +2870,11 @@
     "loadingHistory": "Chargement des messages…",
     "newConversation": "Nouvelle conversation de contrôle",
     "newConversationBusy": "Terminez la tâche ou l'appel en cours pour démarrer une nouvelle conversation",
-    "open": "Assistant OpenBitFun",
+    "open": "Assistant Alex",
     "tabs": "Conversations flottantes",
     "moveToMain": "Déplacer vers la fenêtre principale",
     "collapse": "Réduire",
-    "welcome": "Gérez OpenBitFun et gardez votre travail en mouvement.",
+    "welcome": "Gérez Alex et gardez votre travail en mouvement.",
     "unavailable": "Cette conversation est indisponible. Rouvrez son application.",
     "loadFailed": "Impossible d'ouvrir l'assistant",
     "retry": "Réessayer",

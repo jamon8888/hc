@@ -10,7 +10,7 @@ pub const OPENBITFUN_USER_SKILL_SLOT: &str = "openbitfun";
 pub const OPENBITFUN_SYSTEM_SKILL_SLOT: &str = "openbitfun-system";
 pub const OPENBITFUN_SYSTEM_SKILL_DIR: &str = ".system";
 pub const OPENBITFUN_SKILL_SOURCE_ID: &str = "openbitfun";
-pub const OPENBITFUN_SKILL_SOURCE_LABEL: &str = "OpenBitFun";
+pub const OPENBITFUN_SKILL_SOURCE_LABEL: &str = "Alex";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SkillRootSpec {

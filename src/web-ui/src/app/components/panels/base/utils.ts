@@ -261,7 +261,7 @@ export const PANEL_CONTENT_CONFIGS: Record<PanelContentType, PanelContentConfig>
   },
   'openbitfun-canvas': {
     type: 'openbitfun-canvas',
-    displayName: 'OpenBitFun Canvas',
+    displayName: 'Alex Canvas',
     icon: { glyph: Network },
     supportsCopy: false,
     supportsDownload: false,

@@ -4,7 +4,7 @@
 # ==================== General ====================
 app-version = Version { $version }
 loading = Chargement...
-welcome = Bienvenue dans OpenBitFun
+welcome = Bienvenue dans Alex
 
 # ==================== Actions ====================
 action-confirm = Confirmer

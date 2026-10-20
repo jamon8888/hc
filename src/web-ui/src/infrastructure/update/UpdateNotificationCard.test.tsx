@@ -108,7 +108,7 @@ it('clears both indicators only when the version is explicitly skipped', () => {
 
 it('opens release notes from the version title while keeping both indicators', () => {
   const details = card()!.querySelector<HTMLButtonElement>('[data-testid="app-update-release-notes"]')!;
-  expect(details.textContent).toContain('OpenBitFun v2.0.0');
+  expect(details.textContent).toContain('Alex v2.0.0');
   expect(details.getAttribute('aria-haspopup')).toBe('dialog');
   act(() => details.click());
   expect(state().detailsOpen).toBe(true);
@@ -149,7 +149,7 @@ it('does not describe an older download target with a newer release introduction
     notice: 'downloading', status: 'downloading', downloadVersion: '1.5.0',
   }));
   expect(card()!.querySelector('[data-testid="app-update-introduction"]')).toBeNull();
-  expect(card()?.textContent).toContain('OpenBitFun v1.5.0');
+  expect(card()?.textContent).toContain('Alex v1.5.0');
 });
 
 it('keeps download progress and failures visible until the user closes them', () => {

@@ -33,7 +33,7 @@ export const openBitFunChinaNightPalette: AppearancePalette = {
   name: 'Ink Night',
   type: 'dark',
   description: 'Chinese dark appearance - Starlit ink night, moonlight like water, serene and elegant',
-  author: 'OpenBitFun Team',
+  author: 'Alex Team',
   version: '1.1.0',
 
 

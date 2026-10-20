@@ -33,7 +33,7 @@ describe('OpenBitFun control card content', () => {
     expect(html).toContain('data-openbitfun-tool-card="openbitfun-control"');
     expect(html).toContain('data-openbitfun-attention="prominent"');
     expect(html).toContain('Change setting');
-    expect(html).toContain('OpenBitFun');
+    expect(html).toContain('Alex');
     expect(html).toContain('lucide-sliders-horizontal');
     expect(html).not.toContain('data-openbitfun-part="extra"');
     expect(html).not.toContain('Tool: OpenBitFunControl');

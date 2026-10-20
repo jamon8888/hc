@@ -79,8 +79,8 @@
   "editor": {
     "createTitle": "Créer une Tâche",
     "editTitle": "Éditer la Tâche",
-    "createDescription": "Créez une tâche et OpenBitFun l'exécutera automatiquement à l'heure planifiée.",
-    "editDescription": "Mettez à jour les détails de la tâche et comment OpenBitFun doit l'exécuter.",
+    "createDescription": "Créez une tâche et Alex l'exécutera automatiquement à l'heure planifiée.",
+    "editDescription": "Mettez à jour les détails de la tâche et comment Alex doit l'exécuter.",
     "noWorkspace": "Ouvrez un espace de travail avant de créer une Tâche — une exécution planifiée a besoin d'un endroit où s'exécuter.",
     "sections": {
       "information": "Détails de la tâche",
@@ -92,7 +92,7 @@
     },
     "smartExecution": {
       "title": "Exécution consciente du contexte",
-      "description": "OpenBitFun exécute le message à l'heure planifiée avec l'Agent et le contexte d'espace de travail sélectionnés."
+      "description": "Alex exécute le message à l'heure planifiée avec l'Agent et le contexte d'espace de travail sélectionnés."
     },
     "advanced": {
       "title": "Paramètres avancés (optionnels)",

@@ -76,7 +76,7 @@ describe('startup preload shell', () => {
     expect(dom.window.document.documentElement.lang).toBe('zh-CN');
     expect(dom.window.document.getElementById('root')?.childElementCount).toBe(0);
     expect(dom.window.document.getElementById('openbitfun-startup-overlay')).not.toBeNull();
-    expect(hint?.textContent).toBe('正在启动 OpenBitFun...');
+    expect(hint?.textContent).toBe('正在启动 Alex...');
 
     const controls = dom.window.document.querySelector<HTMLElement>('[data-startup-window-controls]');
     expect(controls?.hidden).toBe(false);

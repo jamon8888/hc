@@ -70,7 +70,7 @@ export function DetailPage({ catalogSearch, isAdmin, locale, onNavigate, slug, t
   useEffect(() => {
     if (!detail) return;
     const previous = document.title;
-    document.title = `${detail.name} | OpenBitFun Skin Market`;
+    document.title = `${detail.name} | Alex Skin Market`;
     return () => { document.title = previous; };
   }, [detail]);
 
