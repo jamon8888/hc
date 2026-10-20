@@ -45,6 +45,7 @@
     "opencode": { "description": "Support ACP natif." },
     "dsh": { "description": "Utilise le pont ACP intégré de Hacienda Work et les paramètres de modèle de dsh." },
     "omp": { "description": "Support ACP natif." },
+    "interpreter": { "description": "Support ACP natif, fourni avec OpenBitFun." },
     "claudeCode": { "description": "Se connecte via l'adaptateur ACP officiel." },
     "codex": { "description": "Se connecte via l'adaptateur ACP officiel." }
   },

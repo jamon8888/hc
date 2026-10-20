@@ -17,8 +17,8 @@ Configure external agents connected through Agent Client Protocol and inspect ad
 
 ## 完整功能清单 / Everything included
 
-- **智能体可定位入口，需交互完成 / Agent opens; interaction required** · 使用 OpenCode、dsh、OMP、Claude Code 和 Codex 等预设
-  - Use presets for OpenCode, dsh, OMP, Claude Code, Codex, and others
+- **智能体可定位入口，需交互完成 / Agent opens; interaction required** · 使用 OpenCode、dsh、OMP、Open Interpreter、Claude Code 和 Codex 等预设
+  - Use presets for OpenCode, dsh, OMP, Open Interpreter, Claude Code, Codex, and others
 - **智能体可定位入口，需交互完成 / Agent opens; interaction required** · 通过 JSON 查看、添加和保存 ACP 智能体配置
   - View, add, and save ACP agent configuration through JSON
 - **智能体可定位入口，需交互完成 / Agent opens; interaction required** · 探测 CLI、适配器、路径、版本、连接与权限要求

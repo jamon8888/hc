@@ -53,7 +53,25 @@ test("payload validation requires every desktop runtime surface", () => {
   for (const relativePath of REQUIRED_PAYLOAD_FILES) {
     const diskPath = path.join(payload, ...relativePath.split("/"));
     fs.mkdirSync(path.dirname(diskPath), { recursive: true });
-    fs.writeFileSync(diskPath, relativePath);
+    if (relativePath === "interpreter/openbitfun-bundled-tool.json") {
+      // The packaged agent is a directory, and the manifest names the
+      // executable inside it.
+      fs.writeFileSync(
+        diskPath,
+        JSON.stringify({
+          toolId: "interpreter",
+          version: "0.0.56",
+          hostTag: "windows-x86_64",
+          target: "x86_64-pc-windows-msvc",
+          entrypoint: "bin/interpreter.exe",
+          sourceSha256: "a".repeat(64),
+        })
+      );
+      fs.mkdirSync(path.join(payload, "interpreter", "bin"), { recursive: true });
+      fs.writeFileSync(path.join(payload, "interpreter", "bin", "interpreter.exe"), "agent");
+    } else {
+      fs.writeFileSync(diskPath, relativePath);
+    }
     manifest.files.push({ path: relativePath });
   }
 
@@ -63,6 +81,39 @@ test("payload validation requires every desktop runtime surface", () => {
   assert.throws(
     () => validateRequiredPayloadFiles(payload, manifest),
     /frontend\/dist\/index\.html/
+  );
+});
+
+test("payload validation rejects a bundled agent package without its entrypoint", () => {
+  const payload = fs.mkdtempSync(path.join(os.tmpdir(), "openbitfun-installer-payload-"));
+  const manifest = { files: [] };
+
+  for (const relativePath of REQUIRED_PAYLOAD_FILES) {
+    const diskPath = path.join(payload, ...relativePath.split("/"));
+    fs.mkdirSync(path.dirname(diskPath), { recursive: true });
+    if (relativePath === "interpreter/openbitfun-bundled-tool.json") {
+      fs.writeFileSync(
+        diskPath,
+        JSON.stringify({
+          toolId: "interpreter",
+          version: "0.0.56",
+          hostTag: "windows-x86_64",
+          target: "x86_64-pc-windows-msvc",
+          entrypoint: "bin/interpreter.exe",
+          sourceSha256: "a".repeat(64),
+        })
+      );
+    } else {
+      fs.writeFileSync(diskPath, relativePath);
+    }
+    manifest.files.push({ path: relativePath });
+  }
+
+  // The manifest is present, but the executable it names is not, so the
+  // product would ship an agent it cannot start.
+  assert.throws(
+    () => validateRequiredPayloadFiles(payload, manifest),
+    /bundled Open Interpreter entrypoint/
   );
 });
 

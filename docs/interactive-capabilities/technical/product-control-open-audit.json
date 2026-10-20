@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "src/shared/interactive-capabilities/catalog.json",
-  "catalogDigest": "87081800751c89a86b9fbd8f9c05481916c11ceaa174e7b25895cb94fadd7cee",
+  "catalogDigest": "1079dbf9acd4553eb63143eb39df8933bce073a9ba4336cfe77a53f20bddfc7e",
   "count": 212,
   "reasonCounts": {
     "externalAuth": 4,
@@ -3420,11 +3420,11 @@
     {
       "capabilityId": "setting.tools.acp",
       "itemId": "presets",
-      "titleZh": "使用 OpenCode、dsh、OMP、Claude Code 和 Codex 等预设",
-      "titleEn": "Use presets for OpenCode, dsh, OMP, Claude Code, Codex, and others",
+      "titleZh": "使用 OpenCode、dsh、OMP、Open Interpreter、Claude Code 和 Codex 等预设",
+      "titleEn": "Use presets for OpenCode, dsh, OMP, Open Interpreter, Claude Code, Codex, and others",
       "reasonCode": "unstructuredInteraction",
-      "reasonZh": "“使用 OpenCode、dsh、OMP、Claude Code 和 Codex 等预设”由多个实时状态相关步骤组成，目前没有一个能确定完成整个流程的单一结构化 Command；智能体会打开精确入口，并把后续交互保留在用户可见界面。",
-      "reasonEn": "“Use presets for OpenCode, dsh, OMP, Claude Code, Codex, and others” spans multiple live-state-dependent steps and currently has no single structured Command that can deterministically complete the whole workflow; the Agent opens the exact entry and keeps the remaining interaction visible to the user.",
+      "reasonZh": "“使用 OpenCode、dsh、OMP、Open Interpreter、Claude Code 和 Codex 等预设”由多个实时状态相关步骤组成，目前没有一个能确定完成整个流程的单一结构化 Command；智能体会打开精确入口，并把后续交互保留在用户可见界面。",
+      "reasonEn": "“Use presets for OpenCode, dsh, OMP, Open Interpreter, Claude Code, Codex, and others” spans multiple live-state-dependent steps and currently has no single structured Command that can deterministically complete the whole workflow; the Agent opens the exact entry and keeps the remaining interaction visible to the user.",
       "presentationTarget": {
         "kind": "settings",
         "pageId": "tools.acp",

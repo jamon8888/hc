@@ -45,6 +45,7 @@
     "opencode": { "description": "Native ACP support." },
     "dsh": { "description": "Uses Alex's bundled ACP bridge and the model settings from dsh." },
     "omp": { "description": "Native ACP support." },
+    "interpreter": { "description": "Native ACP support, packaged with OpenBitFun." },
     "claudeCode": { "description": "Connects through the official ACP adapter." },
     "codex": { "description": "Connects through the official ACP adapter." }
   },

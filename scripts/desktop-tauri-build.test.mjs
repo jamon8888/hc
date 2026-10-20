@@ -7,7 +7,9 @@ import {
   configureDesktopWebFontProfile,
   configureWindowsSigning,
   prepareMacOSFlashgrepForSigning,
+  prepareMacOSInterpreterForSigning,
   prepareTauriConfig,
+  shouldPackageInterpreter,
   shouldRetryMacDmgBuild,
 } from './desktop-tauri-build.mjs';
 import { resolveProductDefinition } from './product-customization/resolver.mjs';
@@ -160,6 +162,96 @@ test('macOS release signing covers the bundled flashgrep executable', () => {
   } finally {
     rmSync(fixture, { force: true, recursive: true });
   }
+});
+
+test('macOS release signing covers every executable in the bundled Open Interpreter package', () => {
+  const fixture = join(tmpdir(), `openbitfun-interpreter-signing-${process.pid}-${Date.now()}`);
+  const desktopDir = join(fixture, 'src', 'apps', 'desktop');
+  const source = join(fixture, 'resources', 'interpreter', 'aarch64-apple-darwin');
+  const calls = [];
+  mkdirSync(join(source, 'bin'), { recursive: true });
+  mkdirSync(join(source, 'codex-path'), { recursive: true });
+  mkdirSync(desktopDir, { recursive: true });
+  writeFileSync(join(source, 'bin', 'interpreter'), 'agent');
+  writeFileSync(join(source, 'bin', 'i'), 'alias');
+  writeFileSync(join(source, 'codex-path', 'rg'), 'ripgrep');
+  writeFileSync(join(source, 'codex-package.json'), '{}');
+  writeFileSync(
+    join(source, 'openbitfun-bundled-tool.json'),
+    JSON.stringify({
+      toolId: 'interpreter',
+      version: '0.0.56',
+      hostTag: 'macos-aarch64',
+      target: 'aarch64-apple-darwin',
+      entrypoint: 'bin/interpreter',
+      sourceSha256: 'a'.repeat(64),
+      executables: ['bin/interpreter', 'bin/i', 'codex-path/rg'],
+    }),
+  );
+
+  try {
+    const signed = prepareMacOSInterpreterForSigning(source, desktopDir, {
+      platform: 'darwin',
+      signingIdentity: 'Developer ID Application: Test (TEAMID)',
+      spawnSync: (...args) => {
+        calls.push(args);
+        return { status: 0 };
+      },
+    });
+
+    assert.notEqual(signed, source);
+    // The whole package travels together, so every executable in it is signed.
+    assert.equal(calls.length, 3);
+    assert.ok(calls.every((call) => call[0] === 'codesign'));
+    const signedPaths = calls.map((call) => call[1][call[1].length - 1]).sort();
+    assert.deepEqual(signedPaths, [
+      join(signed, 'bin', 'i'),
+      join(signed, 'bin', 'interpreter'),
+      join(signed, 'codex-path', 'rg'),
+    ]);
+    // The signed copy keeps the package layout the agent reads at runtime.
+    assert.equal(readFileSync(join(signed, 'bin', 'interpreter'), 'utf8'), 'agent');
+    assert.equal(readFileSync(join(signed, 'codex-package.json'), 'utf8'), '{}');
+  } finally {
+    rmSync(fixture, { force: true, recursive: true });
+  }
+});
+
+test('unsigned and non-macOS builds keep the original Open Interpreter package', () => {
+  assert.equal(
+    prepareMacOSInterpreterForSigning('/tmp/interpreter', '/tmp/desktop', {
+      platform: 'darwin',
+      signingIdentity: '',
+    }),
+    '/tmp/interpreter',
+  );
+  assert.equal(
+    prepareMacOSInterpreterForSigning('/tmp/interpreter', '/tmp/desktop', {
+      platform: 'linux',
+      signingIdentity: 'unused',
+    }),
+    '/tmp/interpreter',
+  );
+  assert.equal(
+    prepareMacOSInterpreterForSigning(undefined, '/tmp/desktop', {
+      platform: 'darwin',
+      signingIdentity: 'unused',
+    }),
+    undefined,
+  );
+});
+
+test('a debug build does not pull the packaged Open Interpreter agent', () => {
+  // The package is a few hundred megabytes. A debug build is a developer
+  // build, not a release artifact, so it does not pay for it.
+  assert.equal(shouldPackageInterpreter(['--debug', '--no-bundle'], {}), false);
+  assert.equal(shouldPackageInterpreter(['--no-bundle'], {}), true);
+  assert.equal(shouldPackageInterpreter([], {}), true);
+  // A release build can opt out too.
+  assert.equal(
+    shouldPackageInterpreter([], { OPENBITFUN_SKIP_INTERPRETER_PACKAGE: '1' }),
+    false,
+  );
 });
 
 test('unsigned and non-macOS builds keep the original flashgrep executable', () => {
@@ -360,6 +452,57 @@ test('Desktop packaging includes only the selected Flashgrep target', () => {
     ]);
     assert.equal(config.bundle.resources['../../../resources/flashgrep'], undefined);
     assert.equal(config.bundle.resources['../../../dist'], 'frontend/dist');
+  } finally {
+    rmSync(fixture, { force: true, recursive: true });
+  }
+});
+
+test('Desktop packaging includes the packaged Open Interpreter directory', () => {
+  const fixture = join(tmpdir(), `openbitfun-with-interpreter-${process.pid}-${Date.now()}`);
+  const packageDirectory = join(fixture, 'resources', 'interpreter', 'aarch64-apple-darwin');
+  mkdirSync(packageDirectory, { recursive: true });
+  const baseConfig = join(fixture, 'tauri.conf.json');
+  writeFileSync(baseConfig, JSON.stringify({
+    bundle: { resources: { '../../../resources/interpreter': 'interpreter' } },
+  }));
+  try {
+    const generated = prepareTauriConfig(baseConfig, {
+      desktopDir: fixture,
+      flashgrepBinary: join(fixture, 'flashgrep-aarch64-apple-darwin'),
+      interpreterPackage: packageDirectory,
+    });
+    const config = JSON.parse(readFileSync(generated, 'utf8'));
+    // The package is a directory, because the agent reads its helper files
+    // relative to the executable.
+    const interpreterResources = Object.entries(config.bundle.resources)
+      .filter(([, target]) => target === 'interpreter');
+    assert.equal(interpreterResources.length, 1);
+    assert.ok(
+      interpreterResources[0][0].endsWith('aarch64-apple-darwin'),
+      `unexpected source: ${interpreterResources[0][0]}`,
+    );
+    assert.equal(config.bundle.resources['../../../resources/interpreter'], undefined);
+  } finally {
+    rmSync(fixture, { force: true, recursive: true });
+  }
+});
+
+test('Desktop packaging without a prepared Open Interpreter package adds no resource', () => {
+  const fixture = join(tmpdir(), `openbitfun-without-interpreter-${process.pid}-${Date.now()}`);
+  mkdirSync(fixture, { recursive: true });
+  const baseConfig = join(fixture, 'tauri.conf.json');
+  writeFileSync(baseConfig, JSON.stringify({ bundle: { resources: {} } }));
+  try {
+    const generated = prepareTauriConfig(baseConfig, {
+      desktopDir: fixture,
+      flashgrepBinary: join(fixture, 'flashgrep-aarch64-apple-darwin'),
+      interpreterPackage: undefined,
+    });
+    const config = JSON.parse(readFileSync(generated, 'utf8'));
+    assert.equal(
+      Object.values(config.bundle.resources).includes('interpreter'),
+      false,
+    );
   } finally {
     rmSync(fixture, { force: true, recursive: true });
   }

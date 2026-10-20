@@ -11,6 +11,7 @@ pub(crate) mod bootstrap; // Workspace persona bootstrap helpers
 #[cfg(feature = "canvas-runtime")]
 pub mod canvas; // Canvas service compatibility facade
 pub mod config; // Config management
+pub mod bundled_tools; // Tool packages that ship inside the product bundle
 #[cfg(feature = "agent-runtime")]
 pub(crate) mod coordination_persistence;
 #[cfg(all(feature = "agent-runtime", feature = "scheduled-jobs"))]

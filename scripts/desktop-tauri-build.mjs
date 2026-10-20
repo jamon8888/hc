@@ -10,11 +10,13 @@ import {
   mkdirSync,
   readFileSync,
   readdirSync,
+  rmSync,
   statSync,
   writeFileSync,
 } from 'fs';
 import { ensureFlashgrepBinary } from './prepare-flashgrep-resource.mjs';
 import { ensureBasemindBinary } from './prepare-basemind-resource.mjs';
+import { ensureInterpreterPackage } from './prepare-interpreter-resource.mjs';
 import { extractProductConfigArg } from './product-customization/cli.mjs';
 import { productBuildEnvironment } from './product-customization/projections.mjs';
 import { resolveProductDefinition } from './product-customization/resolver.mjs';
@@ -63,6 +65,17 @@ async function main() {
   const basemindBinary = ensureBasemindBinary({
     target: optionValue(forward, '--target') || rustHostTargetTriple(),
   });
+  // The Open Interpreter agent is packaged with the product, so a user does
+  // not have to install it before an ACP session can use it. The package is
+  // a few hundred megabytes, so a debug build does not pull it: a developer
+  // build is not a release artifact, and the product falls back to the user's
+  // own installation without it.
+  const interpreterPackage = prepareMacOSInterpreterForSigning(
+    shouldPackageInterpreter(forward)
+      ? ensureInterpreterPackage({ target: optionValue(forward, '--target') || rustHostTargetTriple() })
+      : undefined,
+    desktopDir,
+  );
   // Tauri CLI reads CI and rejects numeric "1" (common in CI providers).
   process.env.CI = 'true';
   if (process.platform === 'darwin' && requestsDmgBundle(forward)) {
@@ -75,6 +88,7 @@ async function main() {
     desktopDir,
     flashgrepBinary,
     basemindBinary,
+    interpreterPackage,
     resolution,
     releaseChannel,
   });
@@ -260,6 +274,16 @@ export function configureDesktopWebFontProfile(
   return profile;
 }
 
+export function shouldPackageInterpreter(args = [], env = process.env) {
+  // A debug build is a developer build, not a release artifact, so it does not
+  // pay for the packaged agent. `OPENBITFUN_SKIP_INTERPRETER_PACKAGE=1`
+  // opts a release build out as well.
+  if (['1', 'true', 'yes'].includes(String(env.OPENBITFUN_SKIP_INTERPRETER_PACKAGE ?? '').toLowerCase())) {
+    return false;
+  }
+  return !args.includes('--debug');
+}
+
 export function prepareMacOSFlashgrepForSigning(
   flashgrepBinary,
   desktopDir,
@@ -300,6 +324,49 @@ export function prepareMacOSFlashgrepForSigning(
   return signedBinary;
 }
 
+export function prepareMacOSInterpreterForSigning(
+  interpreterPackage,
+  desktopDir,
+  runtime = {},
+) {
+  const platform = runtime.platform ?? process.platform;
+  const signingIdentity = runtime.signingIdentity ?? process.env.APPLE_SIGNING_IDENTITY;
+  if (platform !== 'darwin' || !signingIdentity || !interpreterPackage) {
+    return interpreterPackage;
+  }
+
+  // The package is a directory of executables that have to stay together, so
+  // the whole directory is copied and every executable in it is signed.
+  const signedDir = join(desktopDir, 'gen', 'signed-resources', 'interpreter');
+  rmSync(signedDir, { recursive: true, force: true });
+  mkdirSync(signedDir, { recursive: true });
+  copyDirectory(interpreterPackage, signedDir);
+
+  const run = runtime.spawnSync ?? spawnSync;
+  for (const relativePath of interpreterExecutables(signedDir)) {
+    const result = run(
+      'codesign',
+      [
+        '--force',
+        '--sign',
+        signingIdentity,
+        '--options',
+        'runtime',
+        '--timestamp',
+        join(signedDir, relativePath),
+      ],
+      { encoding: 'utf8', shell: false, windowsHide: true },
+    );
+    if (result.error || result.status !== 0) {
+      const detail = result.error?.message || result.stderr || `exit status ${result.status}`;
+      throw new Error(`Failed to sign bundled Open Interpreter binary: ${detail}`);
+    }
+  }
+
+  console.log(`[tauri-build] Signed bundled Open Interpreter package: ${signedDir}`);
+  return signedDir;
+}
+
 // The cloud private key remains in SimplySign; only its certificate selector is
 // passed to Tauri. Authenticode runs before Tauri creates updater signatures.
 export function configureWindowsSigning(config, env = process.env, platform = process.platform) {
@@ -320,7 +387,7 @@ export function configureWindowsSigning(config, env = process.env, platform = pr
 
 export function prepareTauriConfig(
   baseConfigPath,
-  { desktopDir, flashgrepBinary, basemindBinary, resolution, releaseChannel }
+  { desktopDir, flashgrepBinary, basemindBinary, interpreterPackage, resolution, releaseChannel }
 ) {
   const config = JSON.parse(readFileSync(baseConfigPath, 'utf8'));
   if (resolution) {
@@ -334,6 +401,7 @@ export function prepareTauriConfig(
   configureWindowsSigning(config);
   injectTargetFlashgrepResource(config, desktopDir, flashgrepBinary);
   injectTargetBasemindResource(config, desktopDir, basemindBinary);
+  injectTargetInterpreterResource(config, desktopDir, interpreterPackage);
   // The DeepSeek bridge is not a compile-time resource: cargo check and
   // desktop:dev must not require packages/dsh-acp/dist-profile. Official
   // packaging injects it here; frontend:build-all (beforeBuildCommand)
@@ -452,6 +520,54 @@ function injectTargetBasemindResource(config, desktopDir, basemindBinary) {
     ...(config.bundle || {}),
     resources,
   };
+}
+
+function injectTargetInterpreterResource(config, desktopDir, interpreterPackage) {
+  if (!interpreterPackage) {
+    return;
+  }
+  const resources = { ...(config.bundle?.resources || {}) };
+  delete resources['../../../resources/interpreter'];
+
+  // The package is a directory: the agent reads its helper files relative to
+  // the executable, so the whole directory has to travel together.
+  const source = toTauriPath(relative(desktopDir, interpreterPackage));
+  resources[source] = 'interpreter';
+  config.bundle = {
+    ...(config.bundle || {}),
+    resources,
+  };
+}
+
+function copyDirectory(source, destination) {
+  mkdirSync(destination, { recursive: true });
+  for (const entry of readdirSync(source, { withFileTypes: true })) {
+    const from = join(source, entry.name);
+    const to = join(destination, entry.name);
+    if (entry.isDirectory()) {
+      copyDirectory(from, to);
+    } else if (entry.isFile()) {
+      copyFileSync(from, to);
+      // The mode travels with the file: the package's data files are not
+      // executable, and the signing step covers only the files that are.
+      chmodSync(to, statSync(from).mode & 0o777);
+    }
+  }
+}
+
+function interpreterExecutables(root) {
+  // The preparation step records the executables it made runnable, so the
+  // signing step covers exactly the files that are code. The package's data
+  // files must not be signed.
+  const manifestPath = join(root, 'openbitfun-bundled-tool.json');
+  if (!existsSync(manifestPath)) {
+    throw new Error('Bundled Open Interpreter package is missing its manifest');
+  }
+  const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+  if (!Array.isArray(manifest.executables) || manifest.executables.length === 0) {
+    throw new Error('Bundled Open Interpreter manifest lists no executables');
+  }
+  return manifest.executables;
 }
 
 function bundledFlashgrepResources(primaryBinary) {
