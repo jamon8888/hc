@@ -247,7 +247,10 @@ export const AgentCompanionDesktopPet: React.FC = () => {
       removeTauriListener = unlisten;
       return true;
     }).catch(error => {
-      log.warn('Failed to listen for Agent companion settings updates', error);
+      // A disposed pet must not report failures: the log would outlive the component.
+      if (!disposed) {
+        log.warn('Failed to listen for Agent companion settings updates', error);
+      }
       return false;
     });
 
@@ -275,7 +278,10 @@ export const AgentCompanionDesktopPet: React.FC = () => {
       removeActivityListener = unlisten;
       return true;
     }).catch(error => {
-      log.warn('Failed to listen for Agent companion activity updates', error);
+      // A disposed pet must not report failures: the log would outlive the component.
+      if (!disposed) {
+        log.warn('Failed to listen for Agent companion activity updates', error);
+      }
       return false;
     });
 
@@ -617,7 +623,10 @@ export const AgentCompanionDesktopPet: React.FC = () => {
         setIsHoveringPet(isPointerInsideHitbox);
         setHoveredBubbleSessionId(hoveredBubble?.sessionId ?? null);
       } catch (error) {
-        log.warn('Failed to poll Agent companion pointer hover state', error);
+        // A disposed pet must not report failures: the log would outlive the component.
+        if (!disposed) {
+          log.warn('Failed to poll Agent companion pointer hover state', error);
+        }
       } finally {
         pointerPollInFlight = false;
       }
