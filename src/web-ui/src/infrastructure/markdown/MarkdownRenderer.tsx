@@ -1742,7 +1742,7 @@ const MarkdownSurface = React.memo<MarkdownRendererProps & { thinking?: boolean 
       return <td {...props} className={['markdown-data-cell', className].filter(Boolean).join(' ')}>{children}</td>;
     },
     
-    span({ node, className, children, ...props }: any) {
+    span({ node: _node, className, children, ...props }: any) {
       const entityType = props['data-entity-type'] as string | undefined;
       const entityId = props['data-entity-id'] as string | undefined;
       // Revealable entities are opt-in: only the redacted document viewer
