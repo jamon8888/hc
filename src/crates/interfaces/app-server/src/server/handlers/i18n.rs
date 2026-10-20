@@ -62,7 +62,7 @@ pub(in crate::server) fn builder() -> Builder<AppServer, impl HandleDispatchFrom
                             .unwrap_or_else(|_| {
                                 openbitfun_core::service::i18n::default_locale_code().to_string()
                             }),
-                        fallback_language: "en-US".to_string(),
+                        fallback_language: openbitfun_core::service::i18n::fallback_locale_code().to_string(),
                         auto_detect: false,
                     })
                 }

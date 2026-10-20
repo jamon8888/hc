@@ -141,7 +141,7 @@ pub async fn i18n_get_config(state: State<'_, AppState>) -> Result<Value, String
 
     Ok(serde_json::json!({
         "currentLanguage": current_language,
-        "fallbackLanguage": "en-US",
+        "fallbackLanguage": openbitfun_core::service::i18n::fallback_locale_code(),
         "autoDetect": false
     }))
 }

@@ -2,6 +2,7 @@
 //!
 //! Defines all configuration-related types shared between backend and frontend.
 
+use crate::generated_locale_contract::DEFAULT_APP_LANGUAGE;
 use openbitfun_core_types::{product_identity, WorktreeSettings};
 pub use openbitfun_core_types::{ReasoningConfig, ReasoningPreset, ReasoningPresetAction};
 use openbitfun_product_domains::tool_permissions::{PermissionRule, ToolPermissionConfig};
@@ -155,12 +156,12 @@ pub struct AppConfig {
     /// One-time product locale rollout marker.
     ///
     /// The product forces its default locale for existing installations once.
-    /// This field records the locale that was forced, so the rollout is not
-    /// re-applied to a language the user picked afterwards, and a later rollout
-    /// can target a different locale without replaying an old one.
+    /// This field records the locale the installation was rolled out to, so the
+    /// rollout is not re-applied to a language the user picked afterwards.
     ///
     /// A document written before this field existed has no marker and is
-    /// migrated when it is loaded.
+    /// migrated when it is loaded. The pre-rollout document is kept as a
+    /// configuration backup, so the previous language stays recoverable.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub language_rollout: Option<String>,
     pub auto_update: bool,
@@ -803,15 +804,6 @@ pub enum ModelCapability {
 }
 
 pub const CURRENT_CONFIG_SCHEMA_VERSION: u32 = 1;
-
-/// Canonical locale id the product starts in when the user has not chosen a
-/// language.
-///
-/// This mirrors `surfaceDefaults.core` in the shared i18n contract
-/// (`src/shared/i18n/contract/locales.json`). The configuration contract crate
-/// cannot read that generated contract, so the value is kept here explicitly and
-/// covered by the contract consistency test.
-pub const DEFAULT_APP_LANGUAGE: &str = "fr-FR";
 
 /// Model category (for UI display and filtering).
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]

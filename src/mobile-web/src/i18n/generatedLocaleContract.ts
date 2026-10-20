@@ -26,7 +26,7 @@ export const MOBILE_LOCALES = [
     contentFallbacks: ["en-US"],
   }
 ] as const;
-const UNKNOWN_LANGUAGE_FALLBACK_CHAIN = ["en-US", "fr-FR"] as const satisfies readonly MobileLanguage[];
+const UNKNOWN_LANGUAGE_FALLBACK_CHAIN = ["en-US", "zh-CN"] as const satisfies readonly MobileLanguage[];
 
 const mobileLocaleAliasesByPriority = MOBILE_LOCALES
   .flatMap(locale => locale.aliases.map(alias => ({ locale, alias: alias.toLowerCase() })))

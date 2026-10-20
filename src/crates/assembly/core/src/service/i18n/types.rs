@@ -76,6 +76,11 @@ pub fn default_locale_code() -> &'static str {
     LocaleId::default().as_str()
 }
 
+/// Returns the content fallback locale code from the shared i18n contract.
+pub fn fallback_locale_code() -> &'static str {
+    GENERATED_FALLBACK_LOCALE.as_str()
+}
+
 impl std::fmt::Display for LocaleId {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.as_str())

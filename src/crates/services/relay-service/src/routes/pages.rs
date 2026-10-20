@@ -1290,10 +1290,10 @@ fn page_login_form_response(
 ) -> Response {
     let access_description = match visibility {
         PageVisibility::Private => {
-            "Seul le compte propriétaire de la Page peut continuer. 仅页面所有者账号可以访问。 Only the Page owner account can continue."
+            "Seul le compte propriétaire de la Page peut continuer. Only the Page owner account can continue."
         }
         PageVisibility::Relay => {
-            "Tous les comptes de ce relais peuvent continuer. 此中继的任意账号均可访问。 Any account on this relay can continue."
+            "Tous les comptes de ce relais peuvent continuer. Any account on this relay can continue."
         }
         PageVisibility::Public => "",
     };
@@ -1321,14 +1321,14 @@ fn page_login_form_response(
     <p class="eyebrow">ALEX PAGE</p>
     <h1>Connexion requise pour accéder à cette page</h1>
     <p>Cette page est protégée. Connectez-vous avec votre e-mail ou votre compte GitHub.</p>
-    <p class="secondary">登录后访问。此页面受访问权限保护，请使用邮箱或 GitHub 登录。 This Page is protected. Sign in with your email or GitHub account.</p>
+    <p class="secondary">This Page is protected. Sign in with your email or GitHub account.</p>
     <p class="access">{access_description}</p>
     <form data-page-login-form{login_state_attribute}>
       <p data-page-login-error class="error" role="alert" hidden></p>
-      <button data-page-login-submit class="submit" type="submit">Se connecter avec un e-mail ou GitHub · 使用邮箱或 GitHub 登录 · Sign in with email or GitHub</button>
+      <button data-page-login-submit class="submit" type="submit">Se connecter avec un e-mail ou GitHub · Sign in with email or GitHub</button>
     </form>
-    <p class="note">Connectez-vous avec votre compte Alex. 使用 Alex 统一账号登录。</p>
-    <noscript><p class="error">JavaScript est requis pour se connecter. 登录需要启用 JavaScript。 JavaScript is required to sign in.</p></noscript>
+    <p class="note">Connectez-vous avec votre compte Alex.</p>
+    <noscript><p class="error">JavaScript est requis pour se connecter. JavaScript is required to sign in.</p></noscript>
   </main>
   <script src="{client_script}" defer></script>
 </body>

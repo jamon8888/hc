@@ -60,12 +60,21 @@ impl OAuthCallbackLocale {
         }
     }
 
+    /// The locale used when the request names no supported language.
+    ///
+    /// This follows the product default from the shared i18n contract instead
+    /// of naming one locale here.
+    fn product_default() -> Self {
+        Self::from_language_code(LocaleId::default().as_str())
+            .unwrap_or(Self::EnUS)
+    }
+
     fn from_accept_language(value: &str) -> Self {
         value
             .split(',')
             .filter_map(|part| part.split(';').next())
             .find_map(|part| Self::from_language_code(part.trim()))
-            .unwrap_or(Self::FrFR)
+            .unwrap_or_else(Self::product_default)
     }
 
     fn copy(self) -> OAuthCallbackPageCopy {
@@ -180,7 +189,7 @@ fn resolve_oauth_callback_locale(
     preferred_language
         .and_then(OAuthCallbackLocale::from_language_code)
         .or_else(|| accept_language.map(OAuthCallbackLocale::from_accept_language))
-        .unwrap_or(OAuthCallbackLocale::FrFR)
+        .unwrap_or_else(OAuthCallbackLocale::product_default)
 }
 
 fn render_oauth_callback_page(

@@ -6,6 +6,12 @@
     "en-US",
     "fr-FR"
   ],
+  "surfaceUnknownFallbackChains": {
+    "mobile-web": [
+      "en-US",
+      "zh-CN"
+    ]
+  },
   "surfaceDefaults": {
     "android": "zh-CN",
     "web-ui": "fr-FR",
