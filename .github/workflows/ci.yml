@@ -655,6 +655,14 @@ jobs:
         if: needs.build-impact.outputs.frontend_required != 'false'
         run: pnpm --dir src/web-ui run test:run
 
+      - name: Run MiniApp Market tests
+        if: needs.build-impact.outputs.frontend_required != 'false'
+        run: pnpm --dir src/miniapp-market-web run test
+
+      - name: Run Skin Market tests
+        if: needs.build-impact.outputs.frontend_required != 'false'
+        run: pnpm --dir src/skin-market-web run test
+
       - name: Build web UI
         if: needs.build-impact.outputs.frontend_required != 'false'
         run: pnpm run build:web
