@@ -17,7 +17,7 @@ Areas:
 ## Risk
 
 <!-- Set from the change, not from who wrote it. Approval counts live in CONTRIBUTING.md → Code review.
-     Low    — docs, copy, additive change behind a flag, internal-only helper. No human approval once checks are green.
+     Low    — docs, copy, internal-only helper, additive change behind a flag, generated-output refresh. No human approval once checks are green.
      Medium — ordinary product change; caching, adapters, sessions, settings, remote or peer paths. One reviewer.
      High   — auth, credentials, release/packaging, CI workflows, persisted data shapes, upgrade compatibility,
               security boundaries. Two reviewers. -->

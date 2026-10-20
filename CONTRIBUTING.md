@@ -207,8 +207,9 @@ converging. Read it before you review, and before you ask someone else to.
 - Give the agent checks it can run, and paste their output into the PR's
   Verification section. "Done" is not evidence; the command and its output are.
 - Run an agent review against your own diff first, with fresh context: the
-  `code-review` skill (Standards against `CONTRIBUTING.md`, `REVIEW.md` and the
-  nearest `AGENTS.md`; Spec against the issue under `.scratch/`), plus the
+  `code-review` skill if your environment provides it, or a fresh-context
+  subagent over the diff (Standards against `CONTRIBUTING.md`, `REVIEW.md` and
+  the nearest `AGENTS.md`; Spec against the issue under `.scratch/`), plus the
   focused checks from the table above. Fix what it finds before spending a
   person's attention on it.
 - Keep the change small. A change that is easy to revert is easy to approve.
@@ -245,7 +246,13 @@ ocr review --preview     # list the files it would read, no model call
   secrets, and a key in Git needs rotation.
 - In OpenCode, `.opencode/plugins/` registers `ocr_review`, `ocr_health`,
   `/ocr-review` and `/ocr-health`. Run `npm install` inside `.opencode/`
-  first; its `node_modules` is gitignored.
+  first; its `node_modules` is gitignored. The install is optional and pulls
+  a large upstream dependency tree — only do it if you use the OCR layer.
+- The vendored plugin is based on `@alibaba-group/open-code-review` v1.13.2.
+  Its file header records the upstream provenance, the local modification
+  (`windowsHide: true` per the child-process rule), and a known upstream gap:
+  pass long or sensitive background text as `backgroundFile`, never as the
+  free-text `background` argument.
 - `ocr` findings obey the same caps and severity tags as any other review:
   every finding is answered, nits are capped, and repeats get fixed at the
   source rather than reposted.
@@ -268,7 +275,9 @@ The change sets the tier, not the author. Declare it in the PR template.
   hand-resolved merge — need a fresh approval.
 - Branch protection and `CODEOWNERS` are how layers 3 and 4 are enforced
   server-side. Until they are configured, tiers are a review norm the author
-  and reviewers hold to.
+  and reviewers hold to. GitHub never lets a PR author approve their own PR,
+  so once "Require approval from someone other than the author" is enabled,
+  Medium and High changes need an approver other than the directing author.
 
 ### Convergence
 

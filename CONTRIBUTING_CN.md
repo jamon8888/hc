@@ -186,7 +186,8 @@ UI 改动在有帮助时附截图或短录屏。无法运行相关检查时，�
 
 - 给 Agent 可以自行运行的检查，并把命令与输出粘贴到 PR 的 Verification 区块。
   "完成了" 不是证据，命令和它的输出才是。
-- 先用新上下文对自己的 diff 跑一遍 Agent 评审：`code-review` skill（Standards 对照
+- 先用新上下文对自己的 diff 跑一遍 Agent 评审：环境提供 `code-review` skill 时用它，
+  否则用新上下文的 subagent 审查 diff（Standards 对照
   `CONTRIBUTING.md`、`REVIEW_CN.md` 和最近的 `AGENTS.md`；Spec 对照 `.scratch/` 下的 Issue），
   再加上上表中的 focused 检查。先修掉它发现的问题，再占用人的注意力。
 - 保持改动小。容易回滚的改动才容易通过评审。
@@ -221,7 +222,11 @@ ocr review --preview     # 只列出将要读取的文件，不消耗模型调�
   与形似密钥的字符串，而进入 Git 的密钥必须轮换。
 - 在 OpenCode 中，`.opencode/plugins/` 注册了 `ocr_review`、`ocr_health`、
   `/ocr-review` 和 `/ocr-health`。需先在 `.opencode/` 内执行 `npm install`；
-  其 `node_modules` 已被 gitignore。
+  其 `node_modules` 已被 gitignore。该安装是可选的，且会拉取庞大的上游依赖树——
+  只在使用 OCR 层时才执行。
+- vendored 插件基于 `@alibaba-group/open-code-review` v1.13.2。其文件头部记录了
+  上游出处、本地修改（按子进程规则补上的 `windowsHide: true`）以及一个已知上游缺口：
+  长或敏感的 background 文本要走 `backgroundFile`，不要走 free-text `background` 参数。
 - `ocr` 的发现与其他评审遵循相同的限额与严重度标签：每条发现都要回应，nit 有上限，
   重复问题修在源头而不是重复发布。
 
@@ -240,7 +245,9 @@ ocr review --preview     # 只列出将要读取的文件，不消耗模型调�
   写成该改动；Agent 本身永远不计。
 - 一次批准只覆盖一个 commit。新 commit（尤其是 Agent 推送或人工解决的合并）需要重新批准。
 - 分支保护与 `CODEOWNERS` 是在服务端强制第 3、4 层的手段。在配置之前，风险等级只是作者与
-  评审人共同遵守的规范。
+  评审人共同遵守的规范。GitHub 从不允许 PR 作者批准自己的 PR，因此一旦开启
+  "Require approval from someone other than the author"，Medium 与 High 需要指挥作者本人
+  之外的批准人。
 
 ### 收敛
 
