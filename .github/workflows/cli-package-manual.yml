@@ -16,13 +16,14 @@ on:
           - windows-x64
           - all
       ubuntu_version:
-        description: "Ubuntu runner baseline for Linux builds. Ignored for macOS and Windows."
+        description: "Ubuntu runner baseline for Linux builds. Ignored for macOS and Windows. 22.04 is the glibc 2.35 release floor; 26.04 is a newer-glibc variant (Kubuntu 26 / Ubuntu 26.04), never a release asset."
         required: true
         default: "22.04"
         type: choice
         options:
           - "22.04"
           - "24.04"
+          - "26.04"
       ref_name:
         description: "Branch, tag, or commit SHA to build. Leave empty to use the selected workflow ref."
         required: false
@@ -75,6 +76,15 @@ jobs:
               LINUX_X64_RUNNER="ubuntu-24.04"
               LINUX_ARM64_RUNNER="ubuntu-24.04-arm"
               LINUX_NAME_SUFFIX="ubuntu2404"
+              ;;
+            26.04)
+              # Kubuntu 26 / Ubuntu 26.04 baseline. Artifacts built here link a
+              # glibc newer than the 2.35 release floor asserted in
+              # linux-binaries.yml, so they stay manual-only and must never
+              # replace the ubuntu-22.04 release assets.
+              LINUX_X64_RUNNER="ubuntu-26.04"
+              LINUX_ARM64_RUNNER="ubuntu-26.04-arm"
+              LINUX_NAME_SUFFIX="ubuntu2604"
               ;;
             *)
               echo "Unsupported ubuntu_version: ${INPUT_UBUNTU_VERSION}" >&2
