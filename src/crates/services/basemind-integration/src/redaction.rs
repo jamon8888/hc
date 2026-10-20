@@ -8,8 +8,8 @@
 //!
 //! So this module keeps what the fork does not:
 //!
-//! - the token -> value map, encrypted at rest through the session vault, so
-//!   a reveal can resolve a token back to the original value;
+//! - the entity id -> value map, encrypted at rest through the session vault,
+//!   so a reveal can resolve an entity id back to the original value;
 //! - the entity id, minted from a hash of the real value so the same value
 //!   carries the same id across documents and workspaces;
 //! - the span markup the web UI needs to render a click-to-reveal badge.
@@ -46,19 +46,17 @@ pub struct RedactedDocument {
 
 /// The product's rehydration state for one workspace.
 ///
-/// Holds the token -> value map for the documents redacted in this
+/// Holds the entity id -> value map for the documents redacted in this
 /// workspace. The map is persisted encrypted through the session vault, so a
 /// reveal still works after a restart, and the entity id for a value is
 /// stable because it is derived from a hash of the value itself.
 #[cfg(feature = "basemind")]
 pub struct RedactionStore {
-    /// token -> original value, for the documents redacted in this workspace.
-    values: Mutex<BTreeMap<String, String>>,
-    /// entity id -> original value, for reveal.
+    /// entity id -> original value, for reveal and for the persisted map.
     by_entity: Mutex<BTreeMap<String, String>>,
     /// Mints entity ids from a hash of the real value.
     registry: Mutex<IdentityRegistry>,
-    /// Encrypted at-rest store for the token -> value map.
+    /// Encrypted at-rest store for the entity id -> value map.
     vault: crate::session_vault::SessionVault,
     /// The vault key this workspace's map is stored under.
     scope: String,
@@ -75,7 +73,6 @@ impl RedactionStore {
         let registry = IdentityRegistry::new(workspace_data_dir)?;
         let vault = crate::session_vault::SessionVault::new(vault_dir)?;
         let store = Self {
-            values: Mutex::new(BTreeMap::new()),
             by_entity: Mutex::new(BTreeMap::new()),
             registry: Mutex::new(registry),
             vault,
@@ -98,7 +95,6 @@ impl RedactionStore {
         let registry = IdentityRegistry::with_passphrase(workspace_data_dir, passphrase.clone())?;
         let vault = crate::session_vault::SessionVault::with_passphrase(vault_dir, passphrase);
         let store = Self {
-            values: Mutex::new(BTreeMap::new()),
             by_entity: Mutex::new(BTreeMap::new()),
             registry: Mutex::new(registry),
             vault,
@@ -108,7 +104,7 @@ impl RedactionStore {
         Ok(store)
     }
 
-    /// Restore the persisted token -> value map.
+    /// Restore the persisted entity id -> value map.
     fn load_persisted(&self) -> Result<()> {
         let payload = match self.vault.load_session(&self.scope) {
             Ok(payload) => payload,
@@ -116,22 +112,22 @@ impl RedactionStore {
             // entry yet; that is not an error.
             Err(_) => return Ok(()),
         };
-        let mut values = self.values.lock().unwrap_or_else(|e| e.into_inner());
-        values.extend(payload.map);
+        let mut by_entity = self.by_entity.lock().unwrap_or_else(|e| e.into_inner());
+        by_entity.extend(payload.map);
         Ok(())
     }
 
-    /// Persist the token -> value map.
+    /// Persist the entity id -> value map.
     fn persist(&self) -> Result<()> {
-        let values = self
-            .values
+        let map = self
+            .by_entity
             .lock()
             .unwrap_or_else(|e| e.into_inner())
             .clone();
         self.vault.store_session(
             &self.scope,
             crate::session_vault::SessionPayload {
-                map: values,
+                map,
                 salt: String::new(),
             },
         )
@@ -143,7 +139,10 @@ impl RedactionStore {
     /// `rehydration_map` and `detections`. Each token in the rehydration map
     /// is given an entity id minted from a hash of its value, so the same
     /// value keeps the same id everywhere it appears.
-    pub fn record(&self, payload: &Value, source_format: &str) -> RedactedDocument {
+    ///
+    /// A failed write is an error: a redaction the user cannot reveal is
+    /// worse than a visible failure.
+    pub fn record(&self, payload: &Value, source_format: &str) -> Result<RedactedDocument> {
         let redacted_text = payload["redacted_text"].as_str().unwrap_or("").to_string();
         let rehydration = payload["rehydration_map"]
             .as_object()
@@ -151,12 +150,11 @@ impl RedactionStore {
             .unwrap_or_default();
 
         // Count the occurrences per entity id so the UI can show "3 PII" per
-        // type, and collect the token each id was minted from.
+        // type, and collect every token that was minted for that entity.
         let mut counts: BTreeMap<String, (String, u32)> = BTreeMap::new();
-        let mut token_for_entity: BTreeMap<String, String> = BTreeMap::new();
+        let mut tokens_for_entity: BTreeMap<String, Vec<String>> = BTreeMap::new();
 
         {
-            let mut values = self.values.lock().unwrap_or_else(|e| e.into_inner());
             let mut by_entity = self.by_entity.lock().unwrap_or_else(|e| e.into_inner());
             let mut registry = self.registry.lock().unwrap_or_else(|e| e.into_inner());
 
@@ -167,22 +165,26 @@ impl RedactionStore {
                 }
                 let category = category_of(token);
                 let entity_id = registry.get_or_create_alias_for_value(original, &category);
-                values.insert(token.clone(), original.to_string());
                 by_entity.insert(entity_id.clone(), original.to_string());
-                token_for_entity.insert(entity_id.clone(), token.clone());
+                tokens_for_entity
+                    .entry(entity_id.clone())
+                    .or_default()
+                    .push(token.clone());
                 let entry = counts.entry(entity_id.clone()).or_insert((category, 0));
-                entry.1 += 1;
+                // The summary counts occurrences in the text, not tokens: one
+                // token can stand for the same value several times.
+                entry.1 += redacted_text.matches(token.as_str()).count() as u32;
             }
 
             // Persist the identity registry so the ids stay stable across
             // runs. The rehydration map is persisted below, outside the
             // locks, because persisting it takes the same lock.
-            let _ = registry.flush();
+            registry.flush()?;
         }
 
         // Persist the rehydration map so a later reveal resolves, including
         // after a restart. This must happen without the value lock held.
-        let _ = self.persist();
+        self.persist()?;
 
         let entities = counts
             .into_iter()
@@ -195,13 +197,13 @@ impl RedactionStore {
             )
             .collect();
 
-        let markdown = rewrite_tokens_as_spans(&redacted_text, &token_for_entity);
+        let markdown = rewrite_tokens_as_spans(&redacted_text, &tokens_for_entity);
 
-        RedactedDocument {
+        Ok(RedactedDocument {
             markdown,
             entities,
             source_format: source_format.to_string(),
-        }
+        })
     }
 
     /// Reveal the original value behind an entity id.
@@ -210,33 +212,7 @@ impl RedactionStore {
     /// from another workspace cannot be resolved here.
     pub fn reveal(&self, entity_id: &str) -> Option<String> {
         let by_entity = self.by_entity.lock().unwrap_or_else(|e| e.into_inner());
-        if let Some(value) = by_entity.get(entity_id) {
-            return Some(value.clone());
-        }
-        // The id may have been minted in an earlier run: the registry knows
-        // the value hash, but not the value, so the value must come from the
-        // persisted map, which is keyed by token.
-        drop(by_entity);
-        let token = self.token_for_entity(entity_id)?;
-        let values = self.values.lock().unwrap_or_else(|e| e.into_inner());
-        values.get(&token).cloned()
-    }
-
-    /// Find the token an entity id was minted from.
-    fn token_for_entity(&self, entity_id: &str) -> Option<String> {
-        let values = self.values.lock().unwrap_or_else(|e| e.into_inner());
-        // The persisted map is token -> value, and the registry maps a value
-        // hash to the alias, so an alias resolves to a token by matching the
-        // hash of the stored value.
-        let registry = self.registry.lock().unwrap_or_else(|e| e.into_inner());
-        values
-            .iter()
-            .find(|(_, value)| {
-                registry
-                    .resolve_alias(entity_id)
-                    .is_some_and(|hash| hash == IdentityRegistry::compute_value_hash(value))
-            })
-            .map(|(token, _)| token.clone())
+        by_entity.get(entity_id).cloned()
     }
 }
 
@@ -263,17 +239,22 @@ pub fn category_of(token: &str) -> String {
 /// renders a click-to-reveal badge for a span that carries `data-entity-type`
 /// and `data-entity-id`, so each token becomes such a span. The token text
 /// stays the visible label, so the redacted document still reads as redacted.
+///
+/// An entity can carry more than one token, so every token of an entity is
+/// rewritten; a token that stayed bare would not be revealable.
 #[cfg(feature = "basemind")]
-pub fn rewrite_tokens_as_spans(text: &str, token_for_entity: &BTreeMap<String, String>) -> String {
+pub fn rewrite_tokens_as_spans(text: &str, tokens_for_entity: &BTreeMap<String, Vec<String>>) -> String {
     let mut out = text.to_string();
-    for (entity_id, token) in token_for_entity {
-        let category = category_of(token);
-        out = out.replace(
-            token,
-            &format!(
-                "<span data-entity-type=\"{category}\" data-entity-id=\"{entity_id}\">{token}</span>"
-            ),
-        );
+    for (entity_id, tokens) in tokens_for_entity {
+        for token in tokens {
+            let category = category_of(token);
+            out = out.replace(
+                token,
+                &format!(
+                    "<span data-entity-type=\"{category}\" data-entity-id=\"{entity_id}\">{token}</span>"
+                ),
+            );
+        }
     }
     out
 }

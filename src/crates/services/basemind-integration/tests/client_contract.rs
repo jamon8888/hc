@@ -103,15 +103,35 @@ fn a_missing_portfile_names_the_daemon_start_command() {
 
 #[test]
 fn tokens_become_entity_spans() {
-    let mut token_for_entity = BTreeMap::new();
-    token_for_entity.insert("ENT_EMAIL_abcdef12".to_string(), "[EMAIL_1]".to_string());
+    let mut tokens_for_entity = BTreeMap::new();
+    tokens_for_entity.insert(
+        "ENT_EMAIL_abcdef12".to_string(),
+        vec!["[EMAIL_1]".to_string()],
+    );
     let markdown = openbitfun_basemind_integration::redaction::testable::rewrite_tokens_as_spans(
         "Contact [EMAIL_1] today.",
-        &token_for_entity,
+        &tokens_for_entity,
     );
     assert_eq!(
         markdown,
         "Contact <span data-entity-type=\"email\" data-entity-id=\"ENT_EMAIL_abcdef12\">[EMAIL_1]</span> today."
+    );
+}
+
+#[test]
+fn every_token_of_an_entity_becomes_a_span() {
+    let mut tokens_for_entity = BTreeMap::new();
+    tokens_for_entity.insert(
+        "ENT_EMAIL_abcdef12".to_string(),
+        vec!["[EMAIL_1]".to_string(), "[EMAIL_2]".to_string()],
+    );
+    let markdown = openbitfun_basemind_integration::redaction::testable::rewrite_tokens_as_spans(
+        "Contact [EMAIL_1] and [EMAIL_2] today.",
+        &tokens_for_entity,
+    );
+    assert_eq!(
+        markdown,
+        "Contact <span data-entity-type=\"email\" data-entity-id=\"ENT_EMAIL_abcdef12\">[EMAIL_1]</span> and <span data-entity-type=\"email\" data-entity-id=\"ENT_EMAIL_abcdef12\">[EMAIL_2]</span> today."
     );
 }
 

@@ -458,11 +458,8 @@ impl AppState {
         &self,
         workspace_id: Option<&str>,
     ) -> Result<Arc<BasemindClient>, String> {
-        let root = self
-            .basemind_workspace_root(workspace_id)
-            .await?
-            .to_string_lossy()
-            .to_string();
+        let (_, root) = self.basemind_workspace(workspace_id).await?;
+        let root = root.to_string_lossy().to_string();
         openbitfun_basemind_integration::verify_version().map_err(|error| error.to_string())?;
         let endpoint = openbitfun_basemind_integration::daemon::discover()
             .map_err(|error| error.to_string())?;
@@ -475,52 +472,64 @@ impl AppState {
 
     /// The product's rehydration store for a workspace.
     ///
-    /// The store owns the token -> value map and the entity ids, because the
-    /// basemind fork has no reveal tool (ADR 0001).
+    /// The store owns the entity id -> value map and the entity ids, because
+    /// the basemind fork has no reveal tool (ADR 0001).
     #[cfg(feature = "basemind")]
     pub async fn get_basemind_redaction_store(
         &self,
         workspace_id: Option<&str>,
     ) -> Result<Arc<openbitfun_basemind_integration::RedactionStore>, String> {
-        let root = self.basemind_workspace_root(workspace_id).await?;
-        let scope = workspace_id
-            .map(str::to_string)
-            .unwrap_or_else(|| "default".to_string());
+        let (workspace_id, _) = self.basemind_workspace(workspace_id).await?;
+        // The store belongs to one workspace, so its registry and its vault
+        // entry live under that workspace's own directory.
         let data_dir = self
             .workspace_service
             .path_manager()
             .user_data_dir()
-            .join("basemind");
+            .join("basemind")
+            .join(&workspace_id);
         std::fs::create_dir_all(&data_dir)
             .map_err(|error| format!("failed to create basemind data dir: {error}"))?;
         let store = openbitfun_basemind_integration::RedactionStore::new(
             data_dir.join("registry"),
             data_dir.join("vault"),
-            scope,
+            workspace_id,
         )
         .map_err(|error| error.to_string())?;
         Ok(Arc::new(store))
     }
 
-    /// The absolute path of the workspace the basemind sidecar should host.
+    /// The workspace the basemind sidecar should host, resolved once.
     ///
     /// The daemon refuses any root that is neither a git repository nor a
     /// directory carrying a basemind config, so the workspace root is the
-    /// only root that can be handed to it.
+    /// only root that can be handed to it. The resolved workspace ID is also
+    /// the scope of the redaction store, so a caller that names no workspace
+    /// still gets a per-workspace store instead of a shared one.
     #[cfg(feature = "basemind")]
-    async fn basemind_workspace_root(
+    async fn basemind_workspace(
         &self,
         workspace_id: Option<&str>,
-    ) -> Result<std::path::PathBuf, String> {
+    ) -> Result<(String, std::path::PathBuf), String> {
         if let Some(workspace_id) = workspace_id {
-            if let Some(workspace) = self.workspace_service.get_workspace(workspace_id).await {
-                return Ok(workspace.root_path);
-            }
+            // A workspace the caller names must be the workspace the daemon
+            // hosts. Falling back to the current workspace would redact a
+            // different document than the caller asked for.
+            let workspace = self
+                .workspace_service
+                .get_workspace(workspace_id)
+                .await
+                .ok_or_else(|| {
+                    format!("workspace {workspace_id} is not open for the basemind integration")
+                })?;
+            return Ok((workspace.id.clone(), workspace.root_path.clone()));
         }
-        if let Some(current) = self.workspace_service.get_current_workspace().await {
-            return Ok(current.root_path);
-        }
-        Err("no workspace is open for the basemind integration".to_string())
+        let current = self
+            .workspace_service
+            .get_current_workspace()
+            .await
+            .ok_or_else(|| "no workspace is open for the basemind integration".to_string())?;
+        Ok((current.id.clone(), current.root_path.clone()))
     }
 
     /// Set current remote workspace

@@ -5855,7 +5855,9 @@ pub mod basemind_commands {
         let store = state
             .get_basemind_redaction_store(request.workspace_id.as_deref())
             .await?;
-        let document = store.record(&payload, &source_format_for(&request.file_path));
+        let document = store
+            .record(&payload, &source_format_for(&request.file_path))
+            .map_err(|error| error.to_string())?;
         Ok(RedactedDocumentResponse {
             markdown: document.markdown,
             entities: document.entities,

@@ -126,7 +126,9 @@ async fn document_redaction_round_trips_through_the_product_store() {
     )
     .expect("open redaction store");
 
-    let redacted = store.record(&payload, "txt");
+    let redacted = store
+        .record(&payload, "txt")
+        .expect("record the redaction result");
     assert!(
         redacted.markdown.contains("data-entity-id"),
         "the redacted markdown must carry entity spans, got {}",
