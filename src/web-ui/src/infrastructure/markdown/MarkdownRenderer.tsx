@@ -41,7 +41,6 @@ import { SessionMarkdownImage, type SessionImageReader } from './SessionMarkdown
 import { ImageLightbox, type ImageLightboxState } from '@/shared/ui/ImageLightbox';
 import { rehypeSourceRange, type MarkdownSourceRange } from './rehypeSourceRange';
 import RevealableEntityBadge from './RevealableEntityBadge';
-import './RevealableEntityBadge.scss';
 
 const log = createLogger('Markdown');
 const COMPUTER_LINK_PREFIX = 'computer://';
@@ -272,7 +271,9 @@ const sanitizeSchema = {
     p: [...(defaultSchema.attributes?.p || []), 'align'],
     pre: [...(defaultSchema.attributes?.pre || []), 'className'],
     summary: [...(defaultSchema.attributes?.summary || [])],
-    span: [...(defaultSchema.attributes?.span || []), 'className', 'data-entity-type', 'data-entity-id'],
+    // Entity attributes use the hast property names. `className` stays out of
+    // the allowlist so redacted Markdown cannot inject application classes.
+    span: [...(defaultSchema.attributes?.span || []), 'dataEntityType', 'dataEntityId'],
   },
   protocols: {
     ...defaultSchema.protocols,
@@ -912,6 +913,13 @@ export interface MarkdownRendererProps {
   onTabOpen?: (tabInfo: any) => void;
   onHttpLinkClick?: (url: string, event: React.MouseEvent<HTMLAnchorElement>) => boolean | void;
   traceContext?: MarkdownTraceContext;
+  /**
+   * Render entity spans as revealable badges.
+   *
+   * Off by default: the reveal command is served by the redacted document
+   * viewer only, so every other surface keeps entity spans as plain text.
+   */
+  enableEntityReveal?: boolean;
 }
 
 function useLiveValueRef<T>(value: T): React.MutableRefObject<T> {
@@ -939,6 +947,7 @@ const MarkdownSurface = React.memo<MarkdownRendererProps & { thinking?: boolean 
   onTabOpen,
   onHttpLinkClick,
   traceContext,
+  enableEntityReveal = false,
 }) => {
   const fileAccess = useResourceFileAccess();
   const fileAccessRef = useLiveValueRef(fileAccess);
@@ -1736,12 +1745,16 @@ const MarkdownSurface = React.memo<MarkdownRendererProps & { thinking?: boolean 
     span({ node, className, children, ...props }: any) {
       const entityType = props['data-entity-type'] as string | undefined;
       const entityId = props['data-entity-id'] as string | undefined;
-      if (entityType && entityId) {
+      // Revealable entities are opt-in: only the redacted document viewer
+      // serves the reveal command, so every other surface keeps entity spans
+      // as plain text.
+      if (enableEntityReveal && entityType && entityId) {
         return (
           <RevealableEntityBadge
             entityType={entityType}
             entityId={entityId}
             maskedLabel={children}
+            workspaceId={workspaceIdRef.current}
           />
         );
       }
@@ -1785,6 +1798,7 @@ const MarkdownSurface = React.memo<MarkdownRendererProps & { thinking?: boolean 
     syntaxThemeRef,
     traceContextRef,
     sourceRangeRef,
+    enableEntityReveal,
   ]);
   
   const textRevealRef = useRef<HTMLDivElement>(null);

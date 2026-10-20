@@ -32,6 +32,7 @@ const mocks = vi.hoisted(() => ({
   renderMath: vi.fn(),
   renderHighlighter: vi.fn(),
   showContextMenu: vi.fn(),
+  revealEntity: vi.fn(),
 }));
 
 vi.mock('@/infrastructure/api', () => ({
@@ -45,12 +46,18 @@ vi.mock('@/infrastructure/api', () => ({
   systemAPI: {
     openExternal: (...args: unknown[]) => mocks.openExternal(...args),
   },
+  basemindAPI: {
+    revealEntity: (...args: unknown[]) => mocks.revealEntity(...args),
+  },
 }));
 
 vi.mock('@/infrastructure/i18n', () => ({
   i18nService: {
     t: (key: string, options?: { defaultValue?: string }) => options?.defaultValue ?? key,
   },
+  useI18n: () => ({
+    t: (key: string, options?: { defaultValue?: string }) => options?.defaultValue ?? key,
+  }),
 }));
 
 vi.mock('@/infrastructure/appearance', () => ({
@@ -288,6 +295,27 @@ describe('Markdown file links', () => {
     expect(container.querySelector('script')).toBeNull();
     expect(container.querySelector('[onerror]')).toBeNull();
     expect(container.querySelector('p p')).toBeNull();
+  });
+
+  it('renders entity spans as revealable badges only when entity reveal is enabled', async () => {
+    const content = 'Signed by <span data-entity-type="PERSON" data-entity-id="p1">[PERSON_1]</span>.';
+    await act(async () => root.render(<MarkdownRenderer content={content} />));
+    expect(container.querySelector('.pii-entity-badge')).toBeNull();
+    expect(container.textContent).toContain('[PERSON_1]');
+
+    await act(async () => root.render(<MarkdownRenderer content={content} enableEntityReveal />));
+    const badge = container.querySelector('.pii-entity-badge');
+    expect(badge).not.toBeNull();
+    expect(badge?.textContent).toContain('[PERSON_1]');
+    expect(badge?.getAttribute('data-entity-type')).toBe('PERSON');
+  });
+
+  it('drops injected span classes from redacted Markdown', async () => {
+    const content = '<span class="pii-entity" data-entity-type="PERSON" data-entity-id="p1">[PERSON_1]</span>';
+    await act(async () => root.render(<MarkdownRenderer content={content} enableEntityReveal />));
+    const badge = container.querySelector('.pii-entity-badge');
+    expect(badge).not.toBeNull();
+    expect(badge?.classList.contains('pii-entity')).toBe(false);
   });
 
   it('routes thinking file images through the owning remote reader', async () => {

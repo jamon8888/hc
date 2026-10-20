@@ -27,7 +27,8 @@
     "renameFailed": "Échec du renommage",
     "openInBrowserFailed": "Échec de l'ouverture du fichier dans le navigateur",
     "revealFailed": "Échec de l'ouverture du gestionnaire de fichiers",
-    "wordcraftOpenFailed": "Échec de l'ouverture dans WordCraft"
+    "wordcraftOpenFailed": "Échec de l'ouverture dans WordCraft",
+    "redactedDocumentUnavailable": "L'affichage des documents caviardés n'est pas disponible dans cette version"
   },
   "workspace": {
     "notFound": "Espace de travail introuvable",

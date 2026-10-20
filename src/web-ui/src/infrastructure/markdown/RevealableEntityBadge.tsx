@@ -1,159 +1,139 @@
 import React, { useState, useCallback } from 'react';
 import { Tooltip } from '@openbitfun/ui';
+import { Eye, EyeOff } from 'lucide-react';
 import { basemindAPI } from '@/infrastructure/api';
+import { useI18n } from '@/infrastructure/i18n';
+import { createLogger } from '@/shared/utils/logger';
 import './RevealableEntityBadge.scss';
 
-interface RevealableEntityBadgeProps {
+const log = createLogger('RevealableEntityBadge');
+
+/**
+ * Semantic tone of an entity type.
+ *
+ * The redaction surface reports a type per entity, and the tone decides which
+ * theme role colors it. Identity data reads as accent, contact data as
+ * accent-secondary, secrets and financial identifiers as danger, and neutral
+ * metadata as muted content. Colors stay theme-owned instead of hard-coded
+ * per type.
+ */
+export type EntityTone = 'identity' | 'contact' | 'secret' | 'neutral';
+
+const ENTITY_TONES: Record<string, EntityTone> = {
+  PERSON: 'identity',
+  ORG: 'identity',
+  ORGANIZATION: 'identity',
+  ADDRESS: 'identity',
+  LOCATION: 'identity',
+  CITY: 'identity',
+  EMAIL: 'contact',
+  PHONE: 'contact',
+  IBAN: 'secret',
+  NATIONAL_ID: 'secret',
+  PASSPORT: 'secret',
+  CREDIT_CARD: 'secret',
+  BANK_ACCOUNT: 'secret',
+  DRIVERS_LICENSE: 'secret',
+  TAX_ID: 'secret',
+  API_KEY: 'secret',
+  JWT: 'secret',
+  TOKEN: 'secret',
+  SSH_KEY: 'secret',
+  GPG_KEY: 'secret',
+  TLS_CERT: 'secret',
+  DB_CONNECTION: 'secret',
+  ENV_SECRET: 'secret',
+  DATE: 'neutral',
+  POSTAL_CODE: 'neutral',
+  IP_ADDRESS: 'neutral',
+  INTERNAL_HOST: 'neutral',
+  INTERNAL_URL: 'neutral',
+  MAC_ADDRESS: 'neutral',
+  COOKIE_ID: 'neutral',
+};
+
+export interface RevealableEntityBadgeProps {
   entityType: string;
   entityId: string;
   maskedLabel: React.ReactNode;
+  /** Owning workspace; the reveal command runs against that workspace. */
+  workspaceId?: string;
 }
-
-const ENTITY_TYPE_COLORS: Record<string, string> = {
-  PERSON: '#3b82f6',    // blue
-  DATE: '#9ca3af',      // gray
-  ORG: '#22c55e',       // green
-  IBAN: '#ef4444',      // red
-  EMAIL: '#a855f7',     // purple
-  PHONE: '#f97316',     // orange
-  ADDRESS: '#84cc16',   // lime
-  LOCATION: '#06b6d4',  // cyan
-  CITY: '#06b6d4',      // cyan
-  POSTAL_CODE: '#84cc16', // lime
-  NATIONAL_ID: '#ef4444', // red
-  PASSPORT: '#ef4444',  // red
-  CREDIT_CARD: '#ef4444', // red
-  BANK_ACCOUNT: '#ef4444', // red
-  DRIVERS_LICENSE: '#ef4444', // red
-  TAX_ID: '#ef4444',    // red
-  API_KEY: '#ef4444',   // red
-  JWT: '#ef4444',       // red
-  TOKEN: '#ef4444',     // red
-  SSH_KEY: '#ef4444',   // red
-  GPG_KEY: '#ef4444',   // red
-  TLS_CERT: '#ef4444',  // red
-  DB_CONNECTION: '#ef4444', // red
-  ENV_SECRET: '#ef4444', // red
-  IP_ADDRESS: '#6b7280', // gray
-  INTERNAL_HOST: '#6b7280', // gray
-  INTERNAL_URL: '#6b7280', // gray
-  MAC_ADDRESS: '#6b7280', // gray
-  COOKIE_ID: '#6b7280', // gray
-  ORGANIZATION: '#22c55e', // green
-};
-
-const ENTITY_TYPE_LABELS: Record<string, string> = {
-  PERSON: 'Person',
-  DATE: 'Date',
-  ORG: 'Organization',
-  IBAN: 'IBAN',
-  EMAIL: 'Email',
-  PHONE: 'Phone',
-  ADDRESS: 'Address',
-  LOCATION: 'Location',
-  CITY: 'City',
-  POSTAL_CODE: 'Postal Code',
-  NATIONAL_ID: 'National ID',
-  PASSPORT: 'Passport',
-  CREDIT_CARD: 'Credit Card',
-  BANK_ACCOUNT: 'Bank Account',
-  DRIVERS_LICENSE: "Driver's License",
-  TAX_ID: 'Tax ID',
-  API_KEY: 'API Key',
-  JWT: 'JWT',
-  TOKEN: 'Token',
-  SSH_KEY: 'SSH Key',
-  GPG_KEY: 'GPG Key',
-  TLS_CERT: 'TLS Certificate',
-  DB_CONNECTION: 'DB Connection',
-  ENV_SECRET: 'Env Secret',
-  IP_ADDRESS: 'IP Address',
-  INTERNAL_HOST: 'Internal Host',
-  INTERNAL_URL: 'Internal URL',
-  MAC_ADDRESS: 'MAC Address',
-  COOKIE_ID: 'Cookie ID',
-  ORGANIZATION: 'Organization',
-};
 
 export const RevealableEntityBadge: React.FC<RevealableEntityBadgeProps> = ({
   entityType,
   entityId,
   maskedLabel,
+  workspaceId,
 }) => {
+  const { t } = useI18n('panels/redacted-document');
   const [isRevealed, setIsRevealed] = useState(false);
   const [revealedValue, setRevealedValue] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const color = ENTITY_TYPE_COLORS[entityType] || '#6b7280';
-  const label = ENTITY_TYPE_LABELS[entityType] || entityType;
+  const tone = ENTITY_TONES[entityType] ?? 'neutral';
+  const label = t(`entityTypes.${entityType}`, { defaultValue: entityType });
+  const actionLabel = isRevealed ? t('badge.hide') : t('badge.reveal');
 
   const handleClick = useCallback(async () => {
+    if (isLoading) {
+      return;
+    }
     if (isRevealed) {
       setIsRevealed(false);
       setRevealedValue(null);
+      setErrorMessage(null);
       return;
     }
 
     setIsLoading(true);
+    setErrorMessage(null);
     try {
-      const value = await basemindAPI.revealEntity(entityId);
+      const value = await basemindAPI.revealEntity(entityId, workspaceId);
       setRevealedValue(value);
       setIsRevealed(true);
     } catch (error) {
-      console.error('Failed to reveal entity:', error);
+      const cause = error instanceof Error ? error : new Error(String(error));
+      log.error('Failed to reveal redacted entity', { entityId, entityType, error: cause });
+      setErrorMessage(cause.message || t('state.revealFailed'));
     } finally {
       setIsLoading(false);
     }
-  }, [entityId, isRevealed]);
+  }, [entityId, entityType, isLoading, isRevealed, t, workspaceId]);
 
   const displayText = isRevealed && revealedValue ? revealedValue : maskedLabel;
+  const statusText = errorMessage ?? `${label}: ${actionLabel}`;
 
   return (
     <Tooltip
-      content={`${label}: ${isRevealed ? 'Click to hide' : 'Click to reveal'}`}
+      content={statusText}
       placement="top"
       delay={200}
     >
       <span
-        className="pii-entity-badge"
-        style={{
-          backgroundColor: color + '20',
-          borderColor: color,
-          color: color,
-          border: '1px solid',
-          borderRadius: '4px',
-          padding: '2px 6px',
-          fontSize: '0.85em',
-          fontWeight: 500,
-          cursor: 'pointer',
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '4px',
-          transition: 'all 0.2s ease',
-        } as React.CSSProperties}
-        onClick={handleClick}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            handleClick();
+        className={`pii-entity-badge pii-entity-badge--${tone}`}
+        data-entity-type={entityType}
+        data-state={errorMessage ? 'error' : isRevealed ? 'revealed' : isLoading ? 'loading' : 'masked'}
+        onClick={() => { void handleClick(); }}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            void handleClick();
           }
         }}
         tabIndex={0}
         role="button"
-        aria-label={`${label}: ${isRevealed ? 'Click to hide' : 'Click to reveal'}`}
+        aria-label={statusText}
       >
-        <span style={{ textDecoration: isRevealed ? 'underline' : 'none' }}>
+        <span className="pii-entity-badge__label">
           {displayText}
         </span>
-        {isLoading && (
-          <span className="pii-badge-spinner" style={{ width: '10px', height: '10px', border: '2px solid currentColor', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-        )}
-        {!isLoading && (
-          <span style={{ fontSize: '0.7em', opacity: 0.7 }}>
-            {isRevealed ? '🔓' : '🔒'}
-          </span>
-        )}
-        </span>
+        {isLoading && <span className="pii-entity-badge__spinner" aria-hidden="true" />}
+        {!isLoading && (isRevealed
+          ? <EyeOff className="pii-entity-badge__icon" size={12} aria-hidden="true" />
+          : <Eye className="pii-entity-badge__icon" size={12} aria-hidden="true" />)}
+      </span>
     </Tooltip>
   );
 };

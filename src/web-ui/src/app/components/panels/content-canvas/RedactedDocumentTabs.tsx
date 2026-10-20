@@ -1,15 +1,21 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Toolbar, ToolbarGroup } from '@openbitfun/ui';
 import { FileText, Shield } from 'lucide-react';
 import { MarkdownRenderer } from '@/infrastructure/markdown/MarkdownRenderer';
-import { basemindAPI } from '@/infrastructure/api';
+import { basemindAPI, workspaceAPI } from '@/infrastructure/api';
+import type { RedactedEntity } from '@/infrastructure/api/service-api/BasemindAPI';
+import { isBasemindPeerRefused } from '@/infrastructure/basemind/basemindPeerPolicy';
+import { useI18n } from '@/infrastructure/i18n';
+import { createLogger } from '@/shared/utils/logger';
 import { basename } from 'path-browserify';
 import './RedactedDocumentTabs.scss';
+
+const log = createLogger('RedactedDocumentTabs');
 
 interface RedactedDocumentTabsProps {
   sourcePath: string;
   redactedMarkdown?: string;
-  entities?: Array<{ entityId: string; entityType: string; occurrenceCount: number }>;
+  entities?: RedactedEntity[];
   sourceFormat: string;
   workspaceId?: string;
 }
@@ -19,11 +25,17 @@ interface EntityCount {
   count: number;
 }
 
-/** Formats a browser will not render inline, so an iframe preview is pointless. */
-const OFFICE_SOURCE_FORMATS = new Set([
-  'doc', 'docx', 'docm', 'xls', 'xlsx', 'xlsm', 'xlsb', 'ppt', 'pptx', 'pptm',
-  'pps', 'ppsx', 'ppsm', 'pot', 'odt', 'ods', 'odp', 'rtf', 'epub',
-]);
+type LoadState = 'idle' | 'loading' | 'ready' | 'error' | 'unsupported';
+
+/**
+ * Whether retrieved content is binary rather than readable text.
+ *
+ * A NUL byte never appears in decoded text, so its presence means the file
+ * cannot be previewed as source text.
+ */
+function isBinaryContent(content: string): boolean {
+  return content.includes('\u0000');
+}
 
 export const RedactedDocumentTabs: React.FC<RedactedDocumentTabsProps> = ({
   sourcePath,
@@ -32,47 +44,102 @@ export const RedactedDocumentTabs: React.FC<RedactedDocumentTabsProps> = ({
   sourceFormat,
   workspaceId,
 }) => {
+  const { t } = useI18n('panels/redacted-document');
   const [activeTab, setActiveTab] = useState<'source' | 'redacted'>('source');
   const [redactedContent, setRedactedContent] = useState<string | null>(redactedMarkdown ?? null);
-  const [isLoading, setIsLoading] = useState(!redactedMarkdown);
+  const [loadedEntities, setLoadedEntities] = useState<RedactedEntity[]>(entities);
+  const [redactedState, setRedactedState] = useState<LoadState>(redactedMarkdown ? 'ready' : 'idle');
+  const [redactedError, setRedactedError] = useState<string | null>(null);
+  const [sourceContent, setSourceContent] = useState<string | null>(null);
+  const [sourceState, setSourceState] = useState<LoadState>('idle');
+  const redactedLoadStarted = useRef(false);
+  const sourceLoadStarted = useRef(false);
 
-  // Aggregate entities by type
+  // Aggregate entities by type. The lazily loaded document owns the counts,
+  // so the summary never shows the pre-load placeholder.
   const entityCounts: EntityCount[] = React.useMemo(() => {
     const counts: Record<string, number> = {};
-    entities.forEach((e) => {
-      counts[e.entityType] = (counts[e.entityType] || 0) + e.occurrenceCount;
+    loadedEntities.forEach((entity) => {
+      counts[entity.entityType] = (counts[entity.entityType] || 0) + entity.occurrenceCount;
     });
     return Object.entries(counts).map(([type, count]) => ({ type, count }));
-  }, [entities]);
+  }, [loadedEntities]);
 
-  const totalEntities = entityCounts.reduce((sum, e) => sum + e.count, 0);
+  const totalEntities = entityCounts.reduce((sum, entry) => sum + entry.count, 0);
 
   const loadRedactedContent = useCallback(async () => {
-    if (redactedContent) return;
-    setIsLoading(true);
+    if (redactedLoadStarted.current) return;
+    redactedLoadStarted.current = true;
+    // The Basemind surface is controller-local, so a workspace on a connected
+    // device is not redactable here. Refuse before any Basemind call.
+    if (isBasemindPeerRefused(workspaceId)) {
+      setRedactedState('unsupported');
+      return;
+    }
+    setRedactedState('loading');
     try {
       const result = await basemindAPI.readRedactedDocument(sourcePath, workspaceId);
       setRedactedContent(result.markdown);
+      setLoadedEntities(result.entities ?? []);
+      setRedactedState('ready');
     } catch (error) {
-      console.error('Failed to load redacted document:', error);
-    } finally {
-      setIsLoading(false);
+      const cause = error instanceof Error ? error : new Error(String(error));
+      log.error('Failed to load redacted document', { sourcePath, workspaceId, error: cause });
+      setRedactedError(cause.message);
+      setRedactedState('error');
     }
-  }, [sourcePath, workspaceId, redactedContent]);
+  }, [sourcePath, workspaceId]);
+
+  /**
+   * Read the source through the workspace file owner.
+   *
+   * The host that owns the workspace serves the bytes, so a workspace on a
+   * connected device reads the peer's file instead of this machine's.
+   */
+  const loadSourceContent = useCallback(async () => {
+    if (sourceLoadStarted.current) return;
+    sourceLoadStarted.current = true;
+    if (!workspaceId) {
+      setSourceState('unsupported');
+      return;
+    }
+    setSourceState('loading');
+    try {
+      const content = await workspaceAPI.readWorkspaceFile(workspaceId, sourcePath);
+      if (isBinaryContent(content)) {
+        setSourceState('unsupported');
+        return;
+      }
+      setSourceContent(content);
+      setSourceState('ready');
+    } catch (error) {
+      const cause = error instanceof Error ? error : new Error(String(error));
+      log.error('Failed to read the source document', { sourcePath, workspaceId, error: cause });
+      setSourceState('unsupported');
+    }
+  }, [sourcePath, workspaceId]);
 
   useEffect(() => {
     if (activeTab === 'redacted' && !redactedContent) {
-      loadRedactedContent();
+      void loadRedactedContent();
     }
   }, [activeTab, redactedContent, loadRedactedContent]);
 
-  const formatFileName = (path: string) => basename(path);
-  const fileName = formatFileName(sourcePath);
+  useEffect(() => {
+    if (activeTab === 'source') {
+      void loadSourceContent();
+    }
+  }, [activeTab, loadSourceContent]);
 
-  // Browsers cannot render Office documents in an iframe, so the source pane
-  // falls back to a message for those formats instead of showing a blank frame.
-  const sourceExtension = (sourceFormat || fileName.split('.').pop() || '').toLowerCase();
-  const supportsIframePreview = !OFFICE_SOURCE_FORMATS.has(sourceExtension);
+  const fileName = useMemo(() => basename(sourcePath), [sourcePath]);
+  // The Basemind surface is controller-local, so a workspace on a connected
+  // device is not redactable here. Entity reveal stays off for it.
+  const peerRefused = isBasemindPeerRefused(workspaceId);
+
+  const retryRedactedContent = useCallback(() => {
+    redactedLoadStarted.current = false;
+    void loadRedactedContent();
+  }, [loadRedactedContent]);
 
   return (
     <div className="redacted-document-tabs" data-openbitfun-component="redacted-document-tabs">
@@ -87,7 +154,7 @@ export const RedactedDocumentTabs: React.FC<RedactedDocumentTabsProps> = ({
               onClick={() => setActiveTab('source')}
               className={`redacted-document-tabs__tab ${activeTab === 'source' ? 'active' : ''}`}
             >
-              <FileText size={14} /> Source
+              <FileText size={14} /> {t('tabs.source')}
             </button>
             <button
               type="button"
@@ -97,10 +164,10 @@ export const RedactedDocumentTabs: React.FC<RedactedDocumentTabsProps> = ({
               className={`redacted-document-tabs__tab ${activeTab === 'redacted' ? 'active' : ''}`}
             >
               <Shield size={14} />
-              Redacted
+              {t('tabs.redacted')}
               {totalEntities > 0 && (
                 <span className="redacted-document-tabs__entity-count">
-                  ({totalEntities} PII)
+                  {t('summary.piiCount', { count: totalEntities })}
                 </span>
               )}
             </button>
@@ -110,18 +177,17 @@ export const RedactedDocumentTabs: React.FC<RedactedDocumentTabsProps> = ({
           <ToolbarGroup className="redacted-document-tabs__entity-summary">
             {totalEntities > 0 && (
               <span className="redacted-document-tabs__entity-badge">
-                <Shield size={12} /> {totalEntities} PII detected
+                <Shield size={12} /> {t('summary.piiDetected', { count: totalEntities })}
               </span>
             )}
             {entityCounts.length > 0 && (
               <div className="redacted-document-tabs__entity-types">
-                {entityCounts.map((e) => (
+                {entityCounts.map((entry) => (
                   <span
-                    key={e.type}
+                    key={entry.type}
                     className="redacted-document-tabs__entity-type"
-                    title={`${e.type}: ${e.count}`}
                   >
-                    {e.type}: {e.count}
+                    {t('entityTypeCount', { type: entry.type, count: entry.count })}
                   </span>
                 ))}
               </div>
@@ -133,37 +199,55 @@ export const RedactedDocumentTabs: React.FC<RedactedDocumentTabsProps> = ({
       <div className="redacted-document-tabs__content">
         {activeTab === 'source' ? (
           <div className="redacted-document-tabs__source">
-            {supportsIframePreview ? (
-              <iframe
-                className="redacted-document-tabs__iframe"
-                src={`file://${sourcePath}`}
-                title={`Source: ${fileName}`}
-              />
+            {sourceState === 'loading' || sourceState === 'idle' ? (
+              <div className="redacted-document-tabs__loading">
+                <div className="redacted-document-tabs__spinner" />
+                <span>{t('state.sourceLoading')}</span>
+              </div>
+            ) : sourceState === 'ready' && sourceContent !== null ? (
+              <>
+                <div className="redacted-document-tabs__source-header">
+                  <span className="redacted-document-tabs__source-name">{fileName}</span>
+                  {sourceFormat && (
+                    <span className="redacted-document-tabs__source-format">{sourceFormat}</span>
+                  )}
+                </div>
+                <pre className="redacted-document-tabs__source-text">{sourceContent}</pre>
+              </>
             ) : (
-              <div className="redacted-document-tabs__error">
-                {fileName} cannot be previewed in the browser. Use the Redacted tab to
-                read the PII-safe version.
+              <div className="redacted-document-tabs__notice">
+                {t('state.sourceUnavailable', { fileName })}
               </div>
             )}
           </div>
         ) : (
           <div className="redacted-document-tabs__redacted">
-            {isLoading ? (
+            {redactedState === 'loading' || redactedState === 'idle' ? (
               <div className="redacted-document-tabs__loading">
-                <div className="spinner" />
-                <span>Loading redacted document...</span>
+                <div className="redacted-document-tabs__spinner" />
+                <span>{t('state.loading')}</span>
+              </div>
+            ) : redactedState === 'unsupported' ? (
+              <div className="redacted-document-tabs__notice">
+                {t('state.peerUnsupported')}
+              </div>
+            ) : redactedState === 'error' ? (
+              <div className="redacted-document-tabs__notice">
+                <span>{t('state.loadFailed')}</span>
+                {redactedError && (
+                  <span className="redacted-document-tabs__notice-detail">{redactedError}</span>
+                )}
+                <button type="button" onClick={retryRedactedContent}>
+                  {t('state.retry')}
+                </button>
               </div>
             ) : redactedContent ? (
               <MarkdownRenderer
                 content={redactedContent}
                 workspaceId={workspaceId}
+                enableEntityReveal={!peerRefused}
               />
-            ) : (
-              <div className="redacted-document-tabs__error">
-                Failed to load redacted document.
-                <button onClick={loadRedactedContent}>Retry</button>
-              </div>
-            )}
+            ) : null}
           </div>
         )}
       </div>

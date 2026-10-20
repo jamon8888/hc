@@ -1,31 +1,80 @@
+/**
+ * Revealable PII entity badge.
+ *
+ * Colors come from theme tokens so the badge follows the active appearance.
+ * The entity type selects a semantic tone, never a hard-coded literal.
+ */
 .pii-entity-badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 0.85em;
-  font-weight: 500;
+  gap: var(--openbitfun-space-1);
+  padding: 1px 6px;
+  border: 1px solid var(--openbitfun-color-border-default);
+  border-radius: var(--openbitfun-radius-sm);
+  font-size: var(--openbitfun-type-body-xs-font-size);
+  font-weight: var(--openbitfun-type-label-sm-font-weight);
+  color: var(--openbitfun-color-content-secondary);
+  background: var(--openbitfun-color-action-neutral-surface);
   cursor: pointer;
-  transition: all 0.2s ease;
-  border: 1px solid;
   user-select: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 
   &:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-color: var(--openbitfun-color-border-strong);
   }
 
   &:focus-visible {
-    outline: 2px solid currentColor;
+    outline: 2px solid var(--openbitfun-color-focus-ring);
     outline-offset: 2px;
   }
 
-  .pii-badge-spinner {
-    animation: spin 1s linear infinite;
+  &--identity {
+    color: var(--openbitfun-color-accent-default);
+    background: var(--openbitfun-color-accent-surface);
+    border-color: var(--openbitfun-color-accent-border);
   }
 
-  @keyframes spin {
+  &--contact {
+    color: var(--openbitfun-color-accent-secondary);
+    background: var(--openbitfun-color-accent-secondary-surface);
+    border-color: var(--openbitfun-color-accent-secondary-border);
+  }
+
+  &--secret {
+    color: var(--openbitfun-color-status-danger-content);
+    background: var(--openbitfun-color-status-danger-surface);
+    border-color: var(--openbitfun-color-status-danger-border);
+  }
+
+  &[data-state='error'] {
+    color: var(--openbitfun-color-status-danger-content);
+    background: var(--openbitfun-color-status-danger-surface);
+    border-color: var(--openbitfun-color-status-danger-border);
+  }
+
+  &[data-state='revealed'] {
+    text-decoration: underline;
+  }
+
+  &__label {
+    text-decoration: inherit;
+  }
+
+  &__icon {
+    flex-shrink: 0;
+  }
+
+  &__spinner {
+    flex-shrink: 0;
+    width: 10px;
+    height: 10px;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: var(--openbitfun-radius-pill);
+    animation: pii-entity-badge-spin 1s linear infinite;
+  }
+
+  @keyframes pii-entity-badge-spin {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
   }
