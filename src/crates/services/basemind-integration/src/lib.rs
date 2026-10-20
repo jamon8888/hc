@@ -7,6 +7,8 @@
 #![cfg_attr(feature = "basemind", allow(unused_imports))]
 
 #[cfg(feature = "basemind")]
+pub mod daemon;
+#[cfg(feature = "basemind")]
 pub mod document_convert;
 #[cfg(feature = "basemind")]
 pub mod identity_registry;
@@ -23,6 +25,8 @@ pub mod query_resolution;
 #[cfg(feature = "basemind")]
 pub mod rag_search;
 #[cfg(feature = "basemind")]
+pub mod redaction;
+#[cfg(feature = "basemind")]
 pub mod session_vault;
 #[cfg(feature = "basemind")]
 pub mod token;
@@ -31,6 +35,10 @@ pub mod vault;
 #[cfg(feature = "basemind")]
 pub mod workspace_fs;
 
+#[cfg(feature = "basemind")]
+pub use self::daemon::{
+    daemon_version, verify_version, DaemonEndpoint, BASEMIND_VERSION, COMMS_DIR_ENV,
+};
 #[cfg(feature = "basemind")]
 pub use self::document_convert::basemind_extract_and_redact;
 #[cfg(feature = "basemind")]
@@ -47,6 +55,8 @@ pub use self::prompt_pseudonym::{PromptPseudonymizer, PseudonymizedPrompt};
 pub use self::query_resolution::{QueryResolver, RetokenizedEntity, RetokenizedHit};
 #[cfg(feature = "basemind")]
 pub use self::rag_search::{RagSearchInput, RagSearchOutput, RagSearchPortAdapter, RagSearchTool};
+#[cfg(feature = "basemind")]
+pub use self::redaction::{RedactedDocument, RedactionStore};
 #[cfg(feature = "basemind")]
 pub use self::session_vault::SessionVault;
 #[cfg(feature = "basemind")]

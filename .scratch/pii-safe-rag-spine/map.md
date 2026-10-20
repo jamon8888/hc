@@ -9,7 +9,7 @@ A corrected §4 (RAG search) and §11 (prompt pseudonymization) of `SPEC-basemin
 
 ## Notes
 
-Domain: OpenBitFun (Rust workspace + React) integrating the basemind sidecar (`jamon8888/basemind`, pinned to **v0.33.1**) for PII detection, redaction, indexing, retrieval, and vault storage. Evidence (tickets 01/02, ADR 0001) was gathered at v0.33.0; v0.33.1 is a patch with zero `src/` delta (Linux ARM64 asset + `github_only` publish input, no schema advance, no re-index) — the version to bundle since 0.33.0 shipped no `aarch64-unknown-linux-gnu` binary. The upstream `Goldziher/basemind` v0.29.x line is a diverged numbering stream (lower numbers, later dates) and is **not** the integration target.
+Domain: OpenBitFun (Rust workspace + React) integrating the basemind sidecar (`jamon8888/basemind`, pinned to **v0.34.0**) for PII detection, redaction, indexing, retrieval, and vault storage. Evidence (tickets 01/02, ADR 0001) was gathered at v0.33.0 and the MCP surface it measured was re-verified against a live v0.34.0 daemon. v0.34.0 is the upstream sync of `Goldziher/basemind` v0.29.3 into the fork (1,202 commits); it keeps the fork's PII, redaction and vault features end to end, so the evidence carries over. The upstream `Goldziher/basemind` v0.29.x line is a diverged numbering stream (lower numbers, later dates) and is **not** the integration target.
 
 Skills every session should consult: `research`, `prototype`, `grilling`, `domain-modeling`. Read `GLOSSARY.md` for the canonical terms (redaction / pseudonymization / rehydration / entity identity) and `docs/adr/0001-*.md` for the identity architecture.
 

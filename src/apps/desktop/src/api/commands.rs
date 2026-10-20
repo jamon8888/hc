@@ -5832,11 +5832,12 @@ pub mod basemind_commands {
         state: State<'_, AppState>,
         request: RevealEntityRequest,
     ) -> Result<String, String> {
-        let client = state.get_basemind_client().await?;
-        client
-            .reveal_entity(&request.entity_id)
-            .await
-            .map_err(|e| e.to_string())
+        let store = state
+            .get_basemind_redaction_store(request.workspace_id.as_deref())
+            .await?;
+        store
+            .reveal(&request.entity_id)
+            .ok_or_else(|| format!("no PII entity matches id {}", request.entity_id))
     }
 
     #[tauri::command]
@@ -5844,16 +5845,30 @@ pub mod basemind_commands {
         state: State<'_, AppState>,
         request: ReadRedactedDocumentRequest,
     ) -> Result<RedactedDocumentResponse, String> {
-        let client = state.get_basemind_client().await?;
-        let result = client
-            .extract_and_redact_path(&request.file_path)
+        let client = state
+            .get_basemind_client(request.workspace_id.as_deref())
+            .await?;
+        let payload = client
+            .redact_path(&request.file_path)
             .await
             .map_err(|e| e.to_string())?;
+        let store = state
+            .get_basemind_redaction_store(request.workspace_id.as_deref())
+            .await?;
+        let document = store.record(&payload, &source_format_for(&request.file_path));
         Ok(RedactedDocumentResponse {
-            markdown: result.markdown,
-            entities: result.entities,
-            source_format: result.source_format,
+            markdown: document.markdown,
+            entities: document.entities,
+            source_format: document.source_format,
         })
+    }
+
+    /// The document format the fork extracted, from the file extension.
+    fn source_format_for(path: &str) -> String {
+        path.rsplit_once('.')
+            .map(|(_, extension)| extension.to_lowercase())
+            .filter(|extension| !extension.is_empty() && extension.len() <= 8)
+            .unwrap_or_else(|| "unknown".to_string())
     }
 }
 

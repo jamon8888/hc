@@ -11,7 +11,52 @@ use serde_json::Value;
 #[cfg(feature = "basemind")]
 use std::time::Duration;
 
-use crate::models::ExtractResult;
+/// The pure helpers the crate's own tests exercise.
+#[cfg(feature = "basemind")]
+pub mod testable {
+    pub use super::{extract_tool_payload, urlencoding};
+}
+
+/// Percent-encode a value for use in a query string.
+///
+/// The daemon resolves the workspace root from `?root=`, so a path with
+/// spaces or non-ASCII characters must be percent-encoded or the daemon
+/// rejects the request before it ever routes it.
+#[cfg(feature = "basemind")]
+pub fn urlencoding(value: &str) -> String {
+    let mut out = String::with_capacity(value.len());
+    for byte in value.as_bytes() {
+        match byte {
+            b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'_' | b'.' | b'~' => {
+                out.push(*byte as char);
+            }
+            other => out.push_str(&format!("%{other:02X}")),
+        }
+    }
+    out
+}
+
+/// Pull the tool payload out of an MCP result envelope.
+///
+/// A tool that returns structured content puts it in `structuredContent`; a
+/// tool that returns only text puts the JSON document in the first content
+/// block. Prefer the structured form and fall back to parsing the text.
+#[cfg(feature = "basemind")]
+pub fn extract_tool_payload(result: &Value) -> Value {
+    if let Some(structured) = result.get("structuredContent") {
+        if !structured.is_null() {
+            return structured.clone();
+        }
+    }
+    result
+        .get("content")
+        .and_then(Value::as_array)
+        .and_then(|blocks| blocks.first())
+        .and_then(|block| block.get("text"))
+        .and_then(Value::as_str)
+        .and_then(|text| serde_json::from_str::<Value>(text).ok())
+        .unwrap_or_else(|| result.clone())
+}
 
 #[cfg(feature = "basemind")]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -64,11 +109,20 @@ pub struct BasemindClient {
     http: HttpClient,
     base_url: String,
     auth_token: String,
+    root: String,
+    next_id: std::sync::Arc<std::sync::atomic::AtomicU64>,
 }
 
 #[cfg(feature = "basemind")]
 impl BasemindClient {
-    pub fn new(base_url: String, auth_token: String) -> Self {
+    /// Create a client for a running basemind daemon.
+    ///
+    /// `base_url` is the daemon's `host:port` as published in the portfile
+    /// (`<comms_dir>/http.addr`, line 1); `auth_token` is the bearer token on
+    /// line 2. `root` is the absolute workspace root the daemon should host:
+    /// the daemon refuses any root that is neither a git repository nor a
+    /// directory carrying a basemind config.
+    pub fn new(base_url: String, auth_token: String, root: String) -> Self {
         let http = HttpClient::builder()
             .timeout(Duration::from_secs(30))
             .build()
@@ -77,27 +131,55 @@ impl BasemindClient {
             http,
             base_url,
             auth_token,
+            root,
+            next_id: std::sync::Arc::new(std::sync::atomic::AtomicU64::new(1)),
         }
     }
 
     /// Call an MCP tool by name with JSON params.
+    ///
+    /// The daemon speaks MCP over streamable HTTP: a JSON-RPC 2.0 request
+    /// posted to `/mcp` with the workspace root in the query string, answered
+    /// with a JSON-RPC envelope whose `result` carries the tool result.
+    /// Returns the `structuredContent` payload when the tool provides one
+    /// and falls back to the first text content block.
     pub async fn call_tool(&self, tool: &str, params: Value) -> Result<Value> {
-        let url = format!("{}/tools/call", self.base_url);
+        let id = self
+            .next_id
+            .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        let url = format!("{}/mcp?root={}", self.base_url, urlencoding(&self.root));
         let body = serde_json::json!({
-            "name": tool,
-            "arguments": params
+            "jsonrpc": "2.0",
+            "id": id,
+            "method": "tools/call",
+            "params": {
+                "name": tool,
+                "arguments": params,
+            }
         });
         let resp = self
             .http
             .post(&url)
             .bearer_auth(&self.auth_token)
+            .header("Content-Type", "application/json")
+            .header("Accept", "application/json, text/event-stream")
             .json(&body)
             .send()
             .await?
             .error_for_status()?
             .json::<Value>()
             .await?;
-        Ok(resp)
+
+        if let Some(error) = resp.get("error") {
+            anyhow::bail!("basemind tool {tool} failed: {error}");
+        }
+        let result = resp
+            .get("result")
+            .ok_or_else(|| anyhow::anyhow!("basemind tool {tool} returned no result"))?;
+        if result.get("isError").and_then(Value::as_bool) == Some(true) {
+            anyhow::bail!("basemind tool {tool} reported an error: {result}");
+        }
+        Ok(extract_tool_payload(result))
     }
 
     /// Convenience: redact_text tool
@@ -112,60 +194,26 @@ impl BasemindClient {
         .await
     }
 
-    /// Extract a document and return redacted markdown with entity ids.
+    /// Extract a document and return the fork's redaction payload.
     ///
-    /// Restored for the desktop redaction surface (`basemind_read_redacted_document`);
-    /// the sidecar is now reached through MCP over HTTP instead of the legacy
-    /// JSON-RPC transport. The payload is read from the MCP `content[0].json`
-    /// envelope with a flat-response fallback.
-    pub async fn extract_and_redact_path(&self, path: &str) -> Result<ExtractResult> {
-        let response = self
-            .call_tool(
-                "extract_and_redact_path",
-                serde_json::json!({ "path": path }),
-            )
-            .await?;
-        let payload = response
-            .get("content")
-            .and_then(|content| content.get(0))
-            .and_then(|item| item.get("json"))
-            .cloned()
-            .unwrap_or(response);
-        Ok(ExtractResult {
-            markdown: payload["markdown"].as_str().unwrap_or("").to_string(),
-            source_format: payload["source_format"]
-                .as_str()
-                .unwrap_or("unknown")
-                .to_string(),
-            entities: payload["entities"]
-                .as_array()
-                .map(|arr| {
-                    arr.iter()
-                        .filter_map(|value| serde_json::from_value(value.clone()).ok())
-                        .collect()
-                })
-                .unwrap_or_default(),
-        })
-    }
-
-    /// Reveal the original value of a redacted entity.
+    /// The fork exposes document extraction and redaction as one MCP tool:
+    /// `redact_text` takes either inline `text` or a `file_path` it extracts
+    /// itself (PDF, Office, HTML, images via OCR) and answers with
+    /// `redacted_text`, the `rehydration_map` (token -> original value) and
+    /// the `detections` it found.
     ///
-    /// Restored for the desktop reveal surface (`basemind_reveal_entity`); see
-    /// `extract_and_redact_path` for the transport note.
-    pub async fn reveal_entity(&self, entity_id: &str) -> Result<String> {
-        let response = self
-            .call_tool(
-                "reveal_entity",
-                serde_json::json!({ "entity_id": entity_id }),
-            )
-            .await?;
-        let payload = response
-            .get("content")
-            .and_then(|content| content.get(0))
-            .and_then(|item| item.get("json"))
-            .cloned()
-            .unwrap_or(response);
-        Ok(payload["value"].as_str().unwrap_or("").to_string())
+    /// The returned payload is the fork's own answer; turning it into
+    /// entity ids and a revealable document is the product's job
+    /// (`crate::redaction`).
+    pub async fn redact_path(&self, path: &str) -> Result<Value> {
+        self.call_tool(
+            "redact_text",
+            serde_json::json!({
+                "file_path": path,
+                "strategy": "token-replace",
+            }),
+        )
+        .await
     }
 
     /// Convenience: memory search documents
@@ -185,8 +233,9 @@ impl BasemindClient {
             )
             .await?;
 
-        // Parse the structured response
-        let hits = result["content"][0]["json"]["hits"]
+        // `call_tool` already unwrapped the MCP envelope, so the hits sit
+        // directly in the payload.
+        let hits = result["hits"]
             .as_array()
             .ok_or_else(|| anyhow::anyhow!("missing hits array"))?;
 

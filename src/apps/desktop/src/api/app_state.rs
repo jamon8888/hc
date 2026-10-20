@@ -101,9 +101,6 @@ pub struct AppState {
     /// Cancellation flags for active file transfers (download/upload), keyed by transfer_id.
     pub active_transfers: Arc<Mutex<HashMap<String, Arc<AtomicBool>>>>,
     pub announcement_scheduler: Arc<announcement::AnnouncementScheduler>,
-    // Basemind integration
-    #[cfg(feature = "basemind")]
-    pub basemind_client: Arc<RwLock<Option<Arc<BasemindClient>>>>,
 }
 
 impl AppState {
@@ -369,9 +366,6 @@ impl AppState {
             active_searches: Arc::new(Mutex::new(HashMap::new())),
             active_transfers: Arc::new(Mutex::new(HashMap::new())),
             announcement_scheduler,
-            // Basemind integration
-            #[cfg(feature = "basemind")]
-            basemind_client: Arc::new(RwLock::new(None)),
         };
 
         if let Some(workspace_info) = initial_workspace {
@@ -460,9 +454,73 @@ impl AppState {
 
     // Basemind integration methods
     #[cfg(feature = "basemind")]
-    pub async fn get_basemind_client(&self) -> Result<Arc<BasemindClient>, String> {
-        let client = self.basemind_client.read().await.clone();
-        client.ok_or_else(|| "Basemind client not initialized".to_string())
+    pub async fn get_basemind_client(
+        &self,
+        workspace_id: Option<&str>,
+    ) -> Result<Arc<BasemindClient>, String> {
+        let root = self
+            .basemind_workspace_root(workspace_id)
+            .await?
+            .to_string_lossy()
+            .to_string();
+        openbitfun_basemind_integration::verify_version().map_err(|error| error.to_string())?;
+        let endpoint = openbitfun_basemind_integration::daemon::discover()
+            .map_err(|error| error.to_string())?;
+        Ok(Arc::new(BasemindClient::new(
+            endpoint.base_url(),
+            endpoint.token,
+            root,
+        )))
+    }
+
+    /// The product's rehydration store for a workspace.
+    ///
+    /// The store owns the token -> value map and the entity ids, because the
+    /// basemind fork has no reveal tool (ADR 0001).
+    #[cfg(feature = "basemind")]
+    pub async fn get_basemind_redaction_store(
+        &self,
+        workspace_id: Option<&str>,
+    ) -> Result<Arc<openbitfun_basemind_integration::RedactionStore>, String> {
+        let root = self.basemind_workspace_root(workspace_id).await?;
+        let scope = workspace_id
+            .map(str::to_string)
+            .unwrap_or_else(|| "default".to_string());
+        let data_dir = self
+            .workspace_service
+            .path_manager()
+            .user_data_dir()
+            .join("basemind");
+        std::fs::create_dir_all(&data_dir)
+            .map_err(|error| format!("failed to create basemind data dir: {error}"))?;
+        let store = openbitfun_basemind_integration::RedactionStore::new(
+            data_dir.join("registry"),
+            data_dir.join("vault"),
+            scope,
+        )
+        .map_err(|error| error.to_string())?;
+        Ok(Arc::new(store))
+    }
+
+    /// The absolute path of the workspace the basemind sidecar should host.
+    ///
+    /// The daemon refuses any root that is neither a git repository nor a
+    /// directory carrying a basemind config, so the workspace root is the
+    /// only root that can be handed to it.
+    #[cfg(feature = "basemind")]
+    async fn basemind_workspace_root(
+        &self,
+        workspace_id: Option<&str>,
+    ) -> Result<std::path::PathBuf, String> {
+        if let Some(workspace_id) = workspace_id {
+            if let Some(workspace) = self.workspace_service.get_workspace(workspace_id).await {
+                return Ok(workspace.root_path);
+            }
+        }
+        if let Some(current) = self.workspace_service.get_current_workspace().await {
+            return Ok(current.root_path);
+        }
+        Err("no workspace is open for the basemind integration".to_string())
     }
 
     /// Set current remote workspace

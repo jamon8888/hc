@@ -4,6 +4,14 @@
 **Date:** 2026-10-15  
 **Repo:** jamon8888/basemind fork at v0.33.0 (read-only)
 
+**Re-verified 2026-10-20 against a live v0.34.0 daemon** (the pinned version). The
+measured surface below still holds, and the live daemon serves exactly these MCP
+tools: `redact_text`, `memory`, `vault`, `code`, `git`, `graph`, `shell`, `web`,
+`admin`, `agents`, `workspace`. There is **no** `extract_and_redact_path` and **no**
+`reveal_entity` tool — redaction is `redact_text` with a `file_path`, and the
+reversible `rehydration_map` it returns is the only way back to an original value,
+which is why the product owns the reveal (ADR 0001).
+
 ---
 
 ## Transport
