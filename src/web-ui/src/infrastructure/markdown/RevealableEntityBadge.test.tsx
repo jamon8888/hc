@@ -75,6 +75,7 @@ describe('RevealableEntityBadge', () => {
     expect(mocks.revealEntity).toHaveBeenCalledWith('p1', 'workspace-1');
     expect(badge.textContent).toContain('Ada Lovelace');
     expect(badge.getAttribute('data-openbitfun-state')).toBe('revealed');
+    expect(badge.getAttribute('aria-pressed')).toBe('true');
   });
 
   it('blocks a second reveal while the first one is in flight', async () => {
@@ -109,7 +110,7 @@ describe('RevealableEntityBadge', () => {
     });
 
     expect(badge.getAttribute('data-openbitfun-state')).toBe('error');
-    expect(badge.getAttribute('aria-label')).toContain('vault locked');
+    expect(badge.textContent).toContain('vault locked');
     expect(badge.textContent).toContain('[PERSON_1]');
   });
 

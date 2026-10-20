@@ -133,11 +133,13 @@ export const RevealableEntityBadge: React.FC<RevealableEntityBadgeProps> = ({
         }}
         tabIndex={0}
         role="button"
-        aria-label={statusText}
+        aria-pressed={isRevealed}
+        aria-busy={isLoading || undefined}
       >
         <span className="pii-entity-badge__label" data-openbitfun-component="pii-entity-badge" data-openbitfun-part="label">
           {displayText}
         </span>
+        <span className="sr-only">{statusText}</span>
         {isLoading && (
           <span
             className="pii-entity-badge__spinner"

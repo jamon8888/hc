@@ -440,10 +440,12 @@ const FlexiblePanel: React.FC<ExtendedFlexiblePanelProps> = memo(({
           <div className="openbitfun-flexible-panel__redacted-document-container" data-openbitfun-component="flexible-panel" data-openbitfun-part="redactedDocument">
             {renderLazyEditor(
               <RedactedDocumentTabs
+                key={JSON.stringify([redactedData.surfaceId ?? null, redactedData.workspaceId ?? null, redactedData.filePath ?? null])}
                 sourcePath={redactedData.filePath || ''}
                 sourceFormat={redactedData.sourceFormat || ''}
                 redactedMarkdown={redactedData.redactedMarkdown}
                 entities={redactedData.entities}
+                surfaceId={redactedData.surfaceId}
                 workspaceId={redactedData.workspaceId}
               />
             )}

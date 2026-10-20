@@ -5,6 +5,7 @@ import { MarkdownRenderer } from '@/infrastructure/markdown/MarkdownRenderer';
 import { basemindAPI, workspaceAPI } from '@/infrastructure/api';
 import type { RedactedEntity } from '@/infrastructure/api/service-api/BasemindAPI';
 import { isBasemindPeerRefused } from '@/infrastructure/basemind/basemindPeerPolicy';
+import type { DeviceSurfaceId } from '@/infrastructure/peer-device/deviceSurface';
 import { useI18n } from '@/infrastructure/i18n';
 import { createLogger } from '@/shared/utils/logger';
 import { basename } from 'path-browserify';
@@ -17,6 +18,8 @@ interface RedactedDocumentTabsProps {
   redactedMarkdown?: string;
   entities?: RedactedEntity[];
   sourceFormat: string;
+  /** Device surface that owns the document; decides whether Basemind may serve it. */
+  surfaceId?: DeviceSurfaceId;
   workspaceId?: string;
 }
 
@@ -51,6 +54,7 @@ export const RedactedDocumentTabs: React.FC<RedactedDocumentTabsProps> = ({
   redactedMarkdown,
   entities = [],
   sourceFormat,
+  surfaceId,
   workspaceId,
 }) => {
   const { t } = useI18n('panels/redacted-document');
@@ -81,7 +85,7 @@ export const RedactedDocumentTabs: React.FC<RedactedDocumentTabsProps> = ({
     redactedLoadStarted.current = true;
     // The Basemind surface is controller-local, so a workspace on a connected
     // device is not redactable here. Refuse before any Basemind call.
-    if (isBasemindPeerRefused(workspaceId)) {
+    if (isBasemindPeerRefused(workspaceId, surfaceId)) {
       setRedactedState('unsupported');
       return;
     }
@@ -97,7 +101,7 @@ export const RedactedDocumentTabs: React.FC<RedactedDocumentTabsProps> = ({
       setRedactedError(cause.message);
       setRedactedState('error');
     }
-  }, [sourcePath, workspaceId]);
+  }, [sourcePath, surfaceId, workspaceId]);
 
   /**
    * Read the source through the workspace file owner.
@@ -143,7 +147,7 @@ export const RedactedDocumentTabs: React.FC<RedactedDocumentTabsProps> = ({
   const fileName = useMemo(() => basename(sourcePath), [sourcePath]);
   // The Basemind surface is controller-local, so a workspace on a connected
   // device is not redactable here. Entity reveal stays off for it.
-  const peerRefused = isBasemindPeerRefused(workspaceId);
+  const peerRefused = isBasemindPeerRefused(workspaceId, surfaceId);
   const viewerState = redactedState === 'error'
     ? 'error'
     : sourceState === 'loading' || redactedState === 'loading'
@@ -216,7 +220,10 @@ export const RedactedDocumentTabs: React.FC<RedactedDocumentTabsProps> = ({
                     key={entry.type}
                     className="redacted-document-tabs__entity-type"
                   >
-                    {t('entityTypeCount', { type: entry.type, count: entry.count })}
+                    {t('entityTypeCount', {
+                      type: t(`entityTypes.${entry.type}`, { defaultValue: entry.type }),
+                      count: entry.count,
+                    })}
                   </span>
                 ))}
               </div>

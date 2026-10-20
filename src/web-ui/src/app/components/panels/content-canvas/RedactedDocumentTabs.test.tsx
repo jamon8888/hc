@@ -10,7 +10,8 @@ const mocks = vi.hoisted(() => ({
   readRedactedDocument: vi.fn(),
   revealEntity: vi.fn(),
   readWorkspaceFile: vi.fn(),
-  isBasemindPeerRefused: vi.fn(),
+  isBasemindPeerRefused: vi.fn((_workspaceId?: string, surfaceId?: string) =>
+    surfaceId ? surfaceId !== 'local' : false),
   markdownProps: [] as Array<Record<string, unknown>>,
 }));
 
@@ -65,8 +66,9 @@ describe('RedactedDocumentTabs', () => {
     mocks.readRedactedDocument.mockReset();
     mocks.readWorkspaceFile.mockReset();
     mocks.isBasemindPeerRefused.mockReset();
+    mocks.isBasemindPeerRefused.mockImplementation((_workspaceId?: string, surfaceId?: string) =>
+      surfaceId ? surfaceId !== 'local' : false);
     mocks.markdownProps.length = 0;
-    mocks.isBasemindPeerRefused.mockReturnValue(false);
     mocks.readWorkspaceFile.mockResolvedValue('plain source text');
   });
 
@@ -144,6 +146,15 @@ describe('RedactedDocumentTabs', () => {
 
     expect(mocks.readRedactedDocument).not.toHaveBeenCalled();
     expect(container.querySelector('.redacted-document-tabs__notice')?.textContent).toContain('state.peerUnsupported');
+  });
+
+  it('refuses the Basemind surface for a document owned by another device surface', async () => {
+    render({ surfaceId: 'peer-device-1' });
+    await selectRedactedTab();
+    await act(async () => {});
+
+    expect(mocks.isBasemindPeerRefused).toHaveBeenCalledWith('workspace-1', 'peer-device-1');
+    expect(mocks.readRedactedDocument).not.toHaveBeenCalled();
   });
 
   it('enables entity reveal only for a controller-local workspace', async () => {

@@ -8,17 +8,29 @@
  * answer with its own files instead of the peer's — so peer-owned workspaces
  * get an explicit unsupported state instead of a wrong document.
  */
-import { getActiveSurfaceId, isLocalSurface } from '@/infrastructure/peer-device/deviceSurface';
+import {
+  getActiveSurfaceId,
+  isLocalSurface,
+  type DeviceSurfaceId,
+} from '@/infrastructure/peer-device/deviceSurface';
 import { workspaceManager } from '@/infrastructure/services/business/workspaceManager';
 
 /**
  * Whether the Basemind surface must refuse the given workspace.
  *
- * The workspace ID selects the document; the owning device surface decides
- * which machine hosts it. An unknown workspace ID falls back to the rendered
- * surface, because the rendered surface is the only host the caller can see.
+ * The resource surface is authoritative: it names the device that owns the
+ * document, and the same workspace ID can exist on two devices. The
+ * workspace-ID lookup is only a fallback for callers that do not carry a
+ * surface; it prefers the rendered surface and therefore cannot resolve a
+ * peer resource to the local surface when the caller knows better.
  */
-export function isBasemindPeerRefused(workspaceId: string | undefined): boolean {
+export function isBasemindPeerRefused(
+  workspaceId: string | undefined,
+  surfaceId?: DeviceSurfaceId,
+): boolean {
+  if (surfaceId) {
+    return !isLocalSurface(surfaceId);
+  }
   const id = workspaceId?.trim() ?? '';
   if (!id) {
     return !isLocalSurface(getActiveSurfaceId());

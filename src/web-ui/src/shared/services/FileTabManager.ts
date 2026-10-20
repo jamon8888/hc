@@ -135,7 +135,7 @@ class FileTabManager {
     fileName: string;
   }): Promise<void> {
     const { options, scope, filePath, fileName } = args;
-    if (isBasemindPeerRefused(scope.workspaceId)) {
+    if (isBasemindPeerRefused(scope.workspaceId, scope.surfaceId)) {
       this.openEditorTab(options, scope, filePath, fileName, 'code-editor');
       return;
     }
@@ -178,6 +178,7 @@ class FileTabManager {
     const tabData = {
       filePath: filePath,
       fileName: fileName,
+      surfaceId: scope.surfaceId,
       workspaceId: scope.workspaceId,
       workspacePath: scope.workspacePath,
       remoteConnectionId: scope.remoteConnectionId,
