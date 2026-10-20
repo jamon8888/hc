@@ -39,7 +39,7 @@
       },
       "Creative": {
         "name": "$t(shared:agents.Creative)",
-        "purpose": "Personnaliser et construire sur OpenBitFun"
+        "purpose": "Personnaliser et construire sur Alex"
       }
     }
   },
@@ -153,7 +153,7 @@
     "skillsSave": "Sauvegarder",
     "skillsEdit": "Gérer les compétences",
     "subagentsEdit": "Gérer les Sous-Agents",
-    "subagentsDone": "Terminé",
+    "subagentsDone": "$t(shared:statuses.done)",
     "noSubagents": "Aucun Sous-Agent gérable disponible",
     "enableGroup": "Activer le groupe",
     "disableGroup": "Désactiver le groupe",
@@ -269,7 +269,7 @@
       }
     },
     "customActions": "Agent personnalisé",
-    "editAgent": "Éditer",
+    "editAgent": "$t(shared:tools.edit)",
     "deleteAgent": "Supprimer",
     "externalActions": "Agent externe",
     "manageExternalAgent": "Gérer dans la Compatibilité Écosystème",
@@ -379,6 +379,6 @@
     "Standard": "Exécution de tâches générales avec planification, outils et travail délégué.",
     "Ultimate": "Décomposer les tâches complexes, coordonner des Sous-Agents parallèles, et revoir leurs résultats.",
     "Minimal": "Une boucle d'exécution compacte avec un ensemble d'outils petit et fixe.",
-    "Creative": "Créer et personnaliser les expériences et capacités OpenBitFun."
+    "Creative": "Créer et personnaliser les expériences et capacités Alex."
   }
 }

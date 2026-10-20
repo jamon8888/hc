@@ -174,6 +174,7 @@ const SERVICES_CORE_TOKIO_FEATURES = new Map([
   ['permission', ['rt']],
   ['process-runtime', ['io-util', 'process', 'rt', 'time']],
   ['session-search', ['rt']],
+  ['wordcraft', ['io-util', 'process', 'rt', 'time']],
   ['workspace-instructions', ['fs', 'io-util', 'rt']],
   ['workspace-text-runtime', ['rt']],
   ['workspace-runtime', ['fs', 'io-util', 'process', 'rt', 'sync', 'time']],
@@ -324,6 +325,11 @@ const REQWEST_PACKAGE_PROFILES = new Map([
       ['subscription-auth', new Set(['reqwest/form'])],
     ]),
     tlsProviderDependency: 'openbitfun-services-core',
+  }],
+  // Loopback MCP JSON-RPC over plain HTTP; model downloads stay sidecar-owned.
+  ['openbitfun-basemind-integration', {
+    dependencyFeatures: ['json'],
+    optional: true,
   }],
   ['openbitfun-cli', {
     dependencyFeatures: ['http2', 'rustls-no-provider', 'stream'],

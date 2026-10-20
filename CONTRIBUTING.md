@@ -132,6 +132,7 @@ We welcome contributions beyond standard feature or bug-fix PRs. Examples includ
 - Open an issue to describe the problem or proposal, especially for larger changes, to avoid duplication and design conflicts
 - For new features or UI changes, discuss the design direction early to ensure it fits the product experience
 - Use the issue and PR templates as a guide. Keep the PR focused and explain any skipped verification when it matters.
+- For larger or riskier changes, settle the review depth early: the risk tiers and approval counts live in [Code review](#code-review).
 
 ### PR title and description
 
@@ -192,6 +193,106 @@ manual verification path.
 `pnpm run check:web` combines the Web UI type-check with the Appearance
 contract, theme color, and theme visual governance gates that CI applies to
 frontend changes.
+
+## Code review
+
+Review runs in layers, not as one gate at the end. Most of the reading is
+automated, and human attention goes where the risk is.
+[`REVIEW.md`](REVIEW.md) is the reviewer-facing contract: what failure looks
+like in this repo, how a finding is written up, and the caps that keep review
+converging. Read it before you review, and before you ask someone else to.
+
+### Before you open the PR
+
+- Give the agent checks it can run, and paste their output into the PR's
+  Verification section. "Done" is not evidence; the command and its output are.
+- Run an agent review against your own diff first, with fresh context: the
+  `code-review` skill (Standards against `CONTRIBUTING.md`, `REVIEW.md` and the
+  nearest `AGENTS.md`; Spec against the issue under `.scratch/`), plus the
+  focused checks from the table above. Fix what it finds before spending a
+  person's attention on it.
+- Keep the change small. A change that is easy to revert is easy to approve.
+
+### The layers
+
+| Layer | What runs | Before a person looks |
+| --- | --- | --- |
+| 1. Self-verification | Exact commands and output in the PR's Verification section | Yes |
+| 2. Agent review | Fresh-context review of the diff; every finding fixed or resolved with a reason | Yes |
+| 3. Automated checks | CI: builds, tests, repository hygiene, GitHub config, core boundaries, i18n and theme audits | Yes |
+| 4. Human approval | Scaled by the risk tier below | Yes, for Medium and High |
+| 5. Merge and rollback | Small PRs, one-step revert, feature flags where the change is not trivially reversible | After |
+
+### Open Code Review
+
+Layer 2 can run on [Open Code Review](https://github.com/alibaba/open-code-review)
+(`ocr`), a deterministic-pipeline plus LLM-agent reviewer that posts line-level
+findings. It is optional: the `code-review` skill and a fresh-context subagent
+are still valid ways to fill layer 2.
+
+```bash
+npm install -g @alibaba-group/open-code-review
+ocr config provider      # or non-interactive: ocr config set provider <name>
+ocr config model
+ocr llm test             # must pass before a review is worth running
+ocr review --from main --to <branch>
+ocr review --preview     # list the files it would read, no model call
+```
+
+- Credentials live in `~/.opencodereview/config.json` (mode `600`), outside the
+  repository. Never write an endpoint URL or API key into a committed file —
+  `pnpm run check:repo-hygiene` rejects them, and a key in Git needs rotation.
+- In OpenCode, `.opencode/plugins/` registers `ocr_review`, `ocr_health`,
+  `/ocr-review` and `/ocr-health`. Run `npm install` inside `.opencode/`
+  first; its `node_modules` is gitignored.
+- `ocr` findings obey the same caps and severity tags as any other review:
+  every finding is answered, nits are capped, and repeats get fixed at the
+  source rather than reposted.
+
+### Risk tiers
+
+The change sets the tier, not the author. Declare it in the PR template.
+
+| Risk | Examples | Human approvals |
+| --- | --- | --- |
+| Low | Docs, copy, internal-only helpers, additive change behind a flag, generated-output refresh | None, once layers 1-3 are green |
+| Medium | Ordinary product changes; caching, adapters, sessions, settings, remote and peer paths | One |
+| High | Auth, credentials, release and packaging, CI workflows, persisted data shapes, upgrade compatibility, security boundaries | Two |
+
+- An agent's approval never counts as a person's.
+- Whoever directed an agent-generated change counts as one of the required
+  reviewers, exactly as if they had written it.
+- An approval covers one commit. New commits — especially an agent's push or a
+  hand-resolved merge — need a fresh approval.
+- Branch protection and `CODEOWNERS` are how layers 3 and 4 are enforced
+  server-side. Until they are configured, tiers are a review norm the author
+  and reviewers hold to.
+
+### Convergence
+
+An agent author and an agent reviewer can keep each other busy indefinitely.
+These rules are what stop that:
+
+- **Every finding is answered** — fixed, or resolved with a short reason.
+  Silence never closes a finding.
+- **Round cap: three.** After three rounds of review and fix, stop and
+  reconsider the approach instead of starting a fourth pass.
+- **Re-reviews read the new diff only** after the first pass.
+- **Reviewers report the class of problem**, so one fix closes every instance,
+  and never re-post a finding already posted.
+
+### Fix repeated comments at the source
+
+When a reviewer flags the same thing in two PRs, the fix is not a third
+comment. Move it into the thing that runs before the next review:
+
+- a convention → [`REVIEW.md`](REVIEW.md) or the nearest `AGENTS.md`
+- something a machine can catch → a lint rule, an audit, or a `scripts/check-*.mjs`
+- a stale instruction → the doc line it contradicts
+- a bug that shipped → a failure mode in `REVIEW.md`, so the class is caught next time
+
+A revert or an escaped regression is review evidence, not just an incident:
+record the failure mode so the next review catches it.
 
 ## Security and Compliance
 

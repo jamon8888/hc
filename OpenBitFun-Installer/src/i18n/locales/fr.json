@@ -7,7 +7,7 @@
       "notAbsolute": "Le chemin d'installation doit être un chemin absolu (par exemple un dossier sur un lecteur local).",
       "filesystemRoot": "Impossible d'installer à la racine d'un lecteur. Choisissez un dossier à l'intérieur du lecteur.",
       "pathNotDirectory": "Le chemin sélectionné existe mais n'est pas un dossier.",
-      "directoryMustBeEmptyOrOpenBitFun": "Le dossier d'installation doit être vide, ou déjà contenir une installation OpenBitFun.",
+      "directoryMustBeEmptyOrOpenBitFun": "Le dossier d'installation doit être vide, ou déjà contenir une installation Alex.",
       "inspectDirectoryFailed": "Impossible de lire le dossier d'installation. Vérifiez les permissions et réessayez.",
       "directoryNotWritable": "Le dossier d'installation n'est pas accessible en écriture. Choisissez un autre emplacement ou exécutez l'installateur en tant qu'administrateur (voir ci-dessous).",
       "parentNotWritable": "Le dossier parent n'est pas accessible en écriture. Les dossiers système comme Program Files nécessitent souvent des droits d'administrateur (voir ci-dessous).",
@@ -15,7 +15,7 @@
     }
   },
   "options": {
-    "title": "Installer OpenBitFun",
+    "title": "Installer Alex",
     "subtitle": "Vérifiez l'emplacement d'installation et les préférences",
     "theme": "Thème",
     "changeLanguage": "Changer la langue",
@@ -28,11 +28,11 @@
     "optionsLabel": "Options",
     "desktopShortcut": "Créer un raccourci sur le bureau",
     "startMenu": "Ajouter au menu Démarrer",
-    "launchAfterInstall": "Lancer OpenBitFun après l'installation",
+    "launchAfterInstall": "Lancer Alex après l'installation",
     "back": "Retour",
     "install": "Installer",
     "installing": "Préparation…",
-    "existingInstallTitle": "OpenBitFun est déjà installé. Vous pouvez le mettre à jour ou le réparer sur place.",
+    "existingInstallTitle": "Alex est déjà installé. Vous pouvez le mettre à jour ou le réparer sur place.",
     "existingInstallVersion": "Version installée : {{version}}",
     "existingInstallLocation": "Emplacement d'installation : {{path}}",
     "existingInstallBinaryMissing": "L'application installée est manquante. Réinstallez pour la réparer.",
@@ -54,8 +54,8 @@
     "baseUrlPlaceholder": "ex. https://open.bigmodel.cn/api/paas/v4/chat/completions",
     "providers": {
       "openbitfun": {
-        "name": "OpenBitFun Service",
-        "description": "Plateforme de modèles OpenBitFun",
+        "name": "Alex Service",
+        "description": "Plateforme de modèles Alex",
         "urlOptions": {
           "default": "Format Anthropic - Défaut",
           "openai": "Format OpenAI Compatible"
@@ -211,7 +211,7 @@
     "failed": "Installation échouée",
     "confirmContinue": "Continuer la configuration",
     "completed": "Installation terminée",
-    "completedDescription": "OpenBitFun est prêt. Personnalisez-le avec un modèle et un thème.",
+    "completedDescription": "Alex est prêt. Personnalisez-le avec un modèle et un thème.",
     "description": "Configuration de votre espace de travail pour la suite.",
     "retry": "Réessayer"
   },
@@ -233,11 +233,11 @@
   "complete": {
     "finish": "Terminer",
     "migrateLegacyData": "Migrer les données héritées après l'installation",
-    "migrateLegacyDataDescription": "Lance le Migrateur de données installé. Il conserve les anciennes données inchangées, vous demande de confirmer l'étendue, et rouvre OpenBitFun à la fin de la migration."
+    "migrateLegacyDataDescription": "Lance le Migrateur de données installé. Il conserve les anciennes données inchangées, vous demande de confirmer l'étendue, et rouvre Alex à la fin de la migration."
   },
   "uninstall": {
-    "title": "Désinstaller OpenBitFun",
-    "subtitle": "Cela supprime OpenBitFun et les intégrations associées (raccourcis, menu contextuel, PATH).",
+    "title": "Désinstaller Alex",
+    "subtitle": "Cela supprime Alex et les intégrations associées (raccourcis, menu contextuel, PATH).",
     "installPath": "Chemin d'installation",
     "pathUnknown": "Chemin d'installation non détecté",
     "confirm": "Démarrer la désinstallation",

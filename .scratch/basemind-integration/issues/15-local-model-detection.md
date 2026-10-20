@@ -4,7 +4,15 @@
 
 **Blocked by:** 14 (settings schema for toggles)
 
-**Status:** ready-for-agent
+**Status:** superseded (2026-10-16, decision D2 — re-scope record: `.scratch/pii-safe-rag-spine/issues/09-ticket-rescope-15-17-18.md`)
+
+> **Superseded — do not build.** Local model detection exists only to *skip*
+> pseudonymization for local endpoints. D2 removes the skip: pseudonymization runs for
+> every model, cloud or local, so there is nothing to detect. `isLocalModelBaseUrl`,
+> `shouldPseudonymize` and `is_local_model_base_url` are dead ends; any of them that
+> already exists in code should be deleted or left unreferenced. The behavior that
+> survives lives in ticket 17 (unconditional interception, the master toggle as the
+> only skip condition) and ticket 18 (single `pseudonymize_prompts` switch).
 
 - [ ] Create `src/web-ui/src/infrastructure/config/services/localModelDetection.ts`:
   ```typescript

@@ -55,6 +55,17 @@ gradlew             text eol=lf
 gradlew.bat         text eol=crlf
 *.jar               binary
 
+# Font faces are byte-pinned by scripts/web-font-profile.mjs (verifyHarmonyFontSources).
+# Git for Windows defaults to core.autocrlf=true; a Windows checkout rewrote
+# source-serif-4/SourceSerif4-Regular.ttf's 529 LF bytes as CRLF (+529 octets), so the
+# nightly Windows package job failed the font hash check on 2026-10-19. Pin every font
+# face, and the byte-verified font asset root, as binary on every checkout.
+*.ttf               binary
+*.otf               binary
+*.woff              binary
+*.woff2             binary
+src/web-ui/src/assets/fonts/** binary
+
 Dockerfile          text eol=lf
 Dockerfile.*        text eol=lf
 *.Dockerfile        text eol=lf

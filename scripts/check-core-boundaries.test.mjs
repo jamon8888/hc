@@ -437,6 +437,7 @@ test('portable contract crates expose only capability-local feature slices', asy
       'permission',
       'plugin-runtime',
       'product-search',
+      'rag-search',
       'remote-exec-port',
       'remote-workspace-ports',
       'runtime-event-port',
@@ -454,6 +455,7 @@ test('portable contract crates expose only capability-local feature slices', asy
   assert.deepEqual(runtimePortFeatures['product-search'], ['dep:openbitfun-product-domains']);
   assert.deepEqual(runtimePortFeatures['script-tool-runtime'], []);
   assert.deepEqual(runtimePortFeatures['web-search-port'], []);
+  assert.deepEqual(runtimePortFeatures['rag-search'], []);
   // Workspace byte readers expose AsyncRead/AsyncSeek without selecting a
   // process, network, scheduler, or full Tokio runtime at the contract layer.
   assert.deepEqual(new Set(runtimePortFeatures['workspace-ports']), new Set(['dep:anyhow', 'dep:tokio-util', 'dep:tokio', 'tokio/io-util']));
@@ -465,6 +467,7 @@ test('portable contract crates expose only capability-local feature slices', asy
       'workspace-ports',
       'terminal-port',
       'remote-exec-port',
+      'rag-search',
     ]),
   );
 
@@ -580,6 +583,7 @@ test('Services Core feature-free dependencies stay behind exact text and async I
       'permission',
       'process-runtime',
       'session-search',
+      'wordcraft',
       'workspace-instructions',
       'workspace-runtime',
       'workspace-text-runtime',
@@ -663,12 +667,13 @@ const RUNTIME_PORT_FEATURE_PROFILES = {
   permission: ['dep:openbitfun-product-domains'],
   'plugin-runtime': [],
   'product-search': ['dep:openbitfun-product-domains'],
+  'rag-search': [],
   'remote-exec-port': ['dep:tokio'],
   'remote-workspace-ports': [],
   'runtime-event-port': [],
   'script-tool-runtime': [],
   'terminal-port': ['dep:tokio'],
-  'tool-runtime-handles': ['workspace-ports', 'terminal-port', 'remote-exec-port'],
+  'tool-runtime-handles': ['workspace-ports', 'terminal-port', 'remote-exec-port', 'rag-search'],
   ts: [
     'dep:ts-rs',
     'agent-api',
@@ -4057,6 +4062,7 @@ test('services-core capability profiles keep heavy owners out of the empty profi
     'system',
     'token_usage',
     'workspace_instructions',
+    'wordcraft',
   ]) {
     assert.match(
       sourceContracts,
@@ -4133,6 +4139,19 @@ test('Services Core accepts only the reviewed feature-owned Tokio runtime graph'
         'tokio/process',
         'tokio/rt',
         'tokio/time',
+      ],
+      wordcraft: [
+        'process-runtime',
+        'dep:sha2',
+        'dep:libc',
+        'dep:tokio',
+        'dep:which',
+        'dep:win32job',
+        'dep:windows',
+        'windows/Win32_Foundation',
+        'windows/Win32_System_Diagnostics_ToolHelp',
+        'windows/Win32_System_JobObjects',
+        'windows/Win32_System_Threading',
       ],
       'workspace-instructions': ['dep:tokio', 'tokio/fs', 'tokio/io-util', 'tokio/rt'],
       'workspace-text-runtime': ['dep:tokio', 'tokio/rt'],

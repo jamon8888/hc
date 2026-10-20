@@ -27,7 +27,7 @@ Stable Contracts and Security Control Plane 的边界以
 | 1 | 接口与入口层 | `src/apps/*`, `src/web-ui`, `src/mobile-web`, `OpenBitFun-Installer`, `tests/e2e`, `src/crates/interfaces` | 产品宿主、命令、UI 入口、协议接口和跨形态测试 | desktop、CLI、server、relay、Web UI、mobile web、installer、E2E、`acp`、`sdk-host` | 最近的本地 `AGENTS.md`；[interfaces](src/crates/interfaces/AGENTS.md) |
 | 2 | 产品组装层 | `src/crates/assembly` | 兼容导出、产品能力选择、product-full 接线、不可变内置 Agent 内容、adapter/service 注册和生态无关的来源协调 | `agent-content`, `core`, `external-sources`, `product-capabilities` | [AGENTS.md](src/crates/assembly/AGENTS.md) |
 | 3 | 适配层 | `src/crates/adapters` | AI/transport/WebDriver 协议 adapter、外部 AI work source adapter（OpenCode/Claude Code/Codex）和外部 provider 转换 | `agent-runtime-ipc`、`ai-adapters`, `opencode-adapter`, `claude-code-adapter`, `codex-adapter`, `static-hook-support`, `transport`, `webdriver` | [AGENTS.md](src/crates/adapters/AGENTS.md) |
-| 4 | 服务实现层 | `src/crates/services` | 可复用 OS、filesystem、terminal、MCP、remote、git、watch、process、session persistence primitives、network 和 MiniApp runtime IO 实现 | `services-core`, `services-integrations`, `relay-service`, `page-function-runtime`, `terminal` | [AGENTS.md](src/crates/services/AGENTS.md) |
+| 4 | 服务实现层 | `src/crates/services` | 可复用 OS、filesystem、terminal、MCP、remote、git、watch、process、session persistence primitives、network 和 MiniApp runtime IO 实现 | `services-core`, `services-integrations`, `relay-service`, `page-function-runtime`, `terminal`, `basemind-integration` | [AGENTS.md](src/crates/services/AGENTS.md) |
 | 5 | 执行原语层 | `src/crates/execution` | 可移植 Agent Runtime、命名工作流策略、stream、插件运行时客户端、typed-service、tool-contract、tool-group 和 tool-execution 构件 | `agent-runtime`, `agent-workflows`, `agent-stream`, `tool-contracts`, `plugin-runtime-client`, `runtime-services`, `tool-provider-groups`, `tool-execution`, `tool-call-jsonrepair` | [AGENTS.md](src/crates/execution/AGENTS.md) |
 | 6 | 稳定契约与产品领域层 | `src/crates/contracts` | 跨层共享 DTO、事件形状、runtime port、产品领域契约和策略 | `core-types`, `events`, `runtime-ports`, `product-domains` | [AGENTS.md](src/crates/contracts/AGENTS.md) |
 
@@ -269,6 +269,27 @@ OpenCode 兼容或目标项目治理的变更，先阅读
 不要把 OpenBitFun 自身验证假设硬编码成目标项目通用规则；质量保护行为必须保持面向目标项目、
 基于证据、按风险分级、成本可控并可审计。
 
+## 代码评审
+
+评审是分层进行的，大部分阅读由机器完成。
+[`REVIEW.md`](REVIEW.md) 是评审契约——本仓库的失败形态、发现项如何书写，以及保证评审收敛的限额。
+评审改动前，以及请人评审前，先阅读它。风险等级与审批数量见 `CONTRIBUTING.md` → 代码评审。
+
+- **PR 之前先验证。** 给 Agent 可以自行运行的检查，并把输出粘贴到 PR 的 Verification 区块。
+  没有输出的 "完成了" 不是证据。
+- **在人看之前用新上下文评审。** 对分支运行 `code-review` skill（Standards 来自 `REVIEW.md`、
+  `CONTRIBUTING.md` 和最近的 `AGENTS.md`；Spec 来自 `.scratch/` 的 Issue），或用新上下文的
+  subagent 审查 diff。Open Code Review 是第二层的另一种方式：`ocr review --from main --to <branch>`，
+  或在安装了 `.opencode/plugins/` 集成时使用 `/ocr-review`。先修掉它们发现的问题。
+- **风险决定评审强度，而不是作者。** Agent 的批准永远不算一个人的批准；指挥 Agent 完成改动的人
+  也计为所需评审人之一。
+- **每条发现都必须被回应**——修复，或给出理由后关闭。沉默永远不会关闭一条发现。
+- **评审必须收敛。** 三轮评审与修复之后，停下来重新审视方案，而不是开始第四轮。首轮之后的再评审
+  只读新增 diff，且不再重复发布已发布过的发现。
+- **重复的评论是源头缺陷。** 同一条发现在两个 PR 出现，说明修复方式是 `REVIEW.md`、最近的
+  `AGENTS.md`，或一条 lint/审计规则——而不是第三条评论。回滚或逃逸的回归要变成 `REVIEW.md`
+  中的失败形态。
+
 ## 验证
 
 验证范围由 owner 决定，不在根文档维护全仓测试矩阵：
@@ -287,3 +308,17 @@ OpenCode 兼容或目标项目治理的变更，先阅读
 ## Agent 文档优先级
 
 进入具体目录后，优先遵循离目标文件最近的 `AGENTS.md` / `AGENTS-CN.md`。如果局部文档与本文件冲突，以更具体、更近的文档为准。
+
+## Agent skills
+
+### Issue tracker
+
+Issue 与 spec 以本地 markdown 文件形式存放在 `.scratch/<feature>/`。参见 `docs/agents/issue-tracker.md`。
+
+### Triage labels
+
+五个规范的 triage 角色字符串（`needs-triage`、`needs-info`、`ready-for-agent`、`ready-for-human`、`wontfix`）。参见 `docs/agents/triage-labels.md`。
+
+### Domain docs
+
+多 context —— 根目录的 `CONTEXT-MAP.md` 指向各 context 的 `CONTEXT.md` 文件。目前尚未创建；`/domain-modeling` 会在术语实际沉淀时惰性创建。参见 `docs/agents/domain.md`。

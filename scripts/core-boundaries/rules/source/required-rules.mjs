@@ -101,6 +101,10 @@ export const requiredContentRules = [
         message: 'missing process-runtime process manager source gate',
       },
       {
+        regex: /#\[cfg\(feature = "wordcraft"\)\]\s*pub mod wordcraft;/,
+        message: 'missing wordcraft capability source gate',
+      },
+      {
         regex: /#\[cfg\(feature = "process-runtime"\)\]\s*pub mod process_tree;/,
         message: 'missing process-runtime process tree source gate',
       },

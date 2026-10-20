@@ -6,8 +6,8 @@
     "serverList": {
       "title": "Liste des Serveurs MCP",
       "description": "Serveurs MCP et configuration JSON",
-      "desktopUnavailable": "Gérer OpenBitFun MCP dans Desktop.",
-      "remoteUnavailable": "La gestion d'OpenBitFun MCP n'est pas disponible pendant une connexion à distance.",
+      "desktopUnavailable": "Gérer Alex MCP dans Desktop.",
+      "remoteUnavailable": "La gestion d'Alex MCP n'est pas disponible pendant une connexion à distance.",
       "loadFailed": "Les serveurs MCP n'ont pas pu être chargés."
     }
   },
@@ -20,7 +20,7 @@
     "unavailable": "MCP externe temporairement indisponible.",
     "empty": "Aucun MCP externe trouvé.",
     "import": {
-      "preview": "Importer dans OpenBitFun",
+      "preview": "Importer dans Alex",
       "confirm": "Importer {{count}} serveur(s) supporté(s) comme entrées natives désactivées ?",
       "apply": "Importer",
       "cancel": "Annuler",
@@ -108,7 +108,7 @@
     "remoteOAuthExchangingToken": "Échange du code d'autorisation",
     "remoteOAuthAuthorized": "Autorisé",
     "remoteOAuthFailed": "Échoué",
-    "remoteOAuthCancelled": "Annulé",
+    "remoteOAuthCancelled": "$t(shared:statuses.cancelled)",
     "runtime": {
       "source": "Source",
       "path": "Chemin Résolu",
@@ -146,7 +146,7 @@
     "enableAndStart": "Activer et démarrer",
     "add": "Ajouter un Serveur",
     "addFirst": "Ajouter le Premier Serveur",
-    "edit": "Éditer",
+    "edit": "$t(shared:tools.edit)",
     "editServer": "Éditer le Serveur",
     "addServer": "Ajouter un Serveur",
     "delete": "Supprimer",
@@ -187,7 +187,7 @@
   },
   "modal": {
     "remoteAuthTitle": "Auth distante : {{serverName}}",
-    "remoteOAuthHint": "Utilisez OAuth pour connecter ce serveur MCP distant. OpenBitFun écoutera sur une URL de callback locale et reconnectera le serveur après l'autorisation.",
+    "remoteOAuthHint": "Utilisez OAuth pour connecter ce serveur MCP distant. Alex écoutera sur une URL de callback locale et reconnectera le serveur après l'autorisation.",
     "remoteOAuthCurrentStatus": "État OAuth : {{status}}",
     "remoteOAuthRedirectUri": "URL de callback : {{redirectUri}}",
     "remoteOAuthStatus": "Statut OAuth : {{status}} - {{message}}",
@@ -201,7 +201,7 @@
     "loadFailed": "La configuration MCP n'a pas pu être chargée.",
     "hint1": "Utilisez le format standard Cursor pour la configuration MCP. La config sera sauvée dans app.json dans le répertoire utilisateur.",
     "hint2": "Utilisez command pour stdio ou url pour Streamable HTTP. Les configurations HTTP+SSE héritées restent lisibles ; transport peut sélectionner le protocole explicite.",
-    "secretWarning": "env, headers, et URLs peuvent contenir des clés API. Inspectez et sauvegardez la configuration seulement dans OpenBitFun ; ne la collez pas dans des validateurs JSON en ligne.",
+    "secretWarning": "env, headers, et URLs peuvent contenir des clés API. Inspectez et sauvegardez la configuration seulement dans Alex ; ne la collez pas dans des validateurs JSON en ligne.",
     "discardTitle": "Ignorer les modifications MCP JSON ?",
     "discardMessage": "Fermer maintenant perdra les modifications non sauvegardées de la configuration MCP.",
     "discardConfirm": "Ignorer les modifications",
@@ -276,7 +276,7 @@
     "operationFailed": "{{context}} Échoué",
     "suggestions": {
       "jsonFormat": [
-        "Utilisez la localisation de syntaxe inline d'OpenBitFun pour vérifier le format ; ne téléversez pas de configuration qui peut contenir des secrets",
+        "Utilisez la localisation de syntaxe inline d'Alex pour vérifier le format ; ne téléversez pas de configuration qui peut contenir des secrets",
         "Assurez-vous que toutes les chaînes utilisent des guillemets doubles",
         "Vérifiez les virgules en trop",
         "Vérifiez que toutes les parenthèses sont correctement fermées"

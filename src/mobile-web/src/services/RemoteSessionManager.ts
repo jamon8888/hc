@@ -42,7 +42,7 @@ export class WorkspaceIdReferencesUnsupportedError extends Error {
   readonly messageKey = 'workspace.idReferencesUnsupported' as const;
 
   constructor(readonly workspaceId: string) {
-    super('Connected host does not support workspace ID references; update OpenBitFun on that device');
+    super('Connected host does not support workspace ID references; update Alex on that device');
     this.name = 'WorkspaceIdReferencesUnsupportedError';
   }
 }

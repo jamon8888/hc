@@ -6,11 +6,13 @@ import {
   type InstallerUiLanguage,
 } from './generatedLocaleContract';
 import en from './locales/en.json';
+import fr from './locales/fr.json';
 import zh from './locales/zh.json';
 import zhTW from './locales/zh-TW.json';
 
 const installerResourceByUiCode = {
   en,
+  fr,
   zh,
   'zh-TW': zhTW,
 } satisfies Record<InstallerUiLanguage, Record<string, unknown>>;

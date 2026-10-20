@@ -20,7 +20,7 @@ export const openBitFunMonochromePalette: AppearancePalette = {
   name: 'Black & White',
   type: 'light',
   description: 'Black-and-white contrast appearance - Deep black chrome, bright white workspace, soft neutral blocks',
-  author: 'OpenBitFun Team',
+  author: 'Alex Team',
   version: '1.0.0',
 
   layout: content.layout,

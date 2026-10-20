@@ -43,7 +43,7 @@ export const openBitFunLightPalette: AppearancePalette = {
   name: 'Light',
   type: 'light',
   description: 'Light appearance - Crisp white surfaces, soft neutral grays, deep navy actions',
-  author: 'OpenBitFun Team',
+  author: 'Alex Team',
   version: '2.5.0',
 
   layout: {

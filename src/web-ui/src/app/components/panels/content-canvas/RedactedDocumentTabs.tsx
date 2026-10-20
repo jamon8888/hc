@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Toolbar, ToolbarGroup, ToolbarItem } from '@openbitfun/ui';
-import { FileText, Lock, Eye, EyeOff, Shield } from 'lucide-react';
+import { Toolbar, ToolbarGroup } from '@openbitfun/ui';
+import { FileText, Shield } from 'lucide-react';
 import { MarkdownRenderer } from '@/infrastructure/markdown/MarkdownRenderer';
 import { basemindAPI } from '@/infrastructure/api';
 import { basename } from 'path-browserify';
@@ -18,6 +18,12 @@ interface EntityCount {
   type: string;
   count: number;
 }
+
+/** Formats a browser will not render inline, so an iframe preview is pointless. */
+const OFFICE_SOURCE_FORMATS = new Set([
+  'doc', 'docx', 'docm', 'xls', 'xlsx', 'xlsm', 'xlsb', 'ppt', 'pptx', 'pptm',
+  'pps', 'ppsx', 'ppsm', 'pot', 'odt', 'ods', 'odp', 'rtf', 'epub',
+]);
 
 export const RedactedDocumentTabs: React.FC<RedactedDocumentTabsProps> = ({
   sourcePath,
@@ -63,64 +69,82 @@ export const RedactedDocumentTabs: React.FC<RedactedDocumentTabsProps> = ({
   const formatFileName = (path: string) => basename(path);
   const fileName = formatFileName(sourcePath);
 
+  // Browsers cannot render Office documents in an iframe, so the source pane
+  // falls back to a message for those formats instead of showing a blank frame.
+  const sourceExtension = (sourceFormat || fileName.split('.').pop() || '').toLowerCase();
+  const supportsIframePreview = !OFFICE_SOURCE_FORMATS.has(sourceExtension);
+
   return (
     <div className="redacted-document-tabs" data-openbitfun-component="redacted-document-tabs">
-      <Toolbar className="redacted-document-tabs__toolbar">
-        <ToolbarGroup>
-          <ToolbarItem
-            role="tab"
-            aria-selected={activeTab === 'source'}
-            onClick={() => setActiveTab('source')}
-            className={`redacted-document-tabs__tab ${activeTab === 'source' ? 'active' : ''}`}
-          >
-            <FileText size={14} /> Source
-          </ToolbarItem>
-          <ToolbarItem
-            role="tab"
-            aria-selected={activeTab === 'redacted'}
-            onClick={() => setActiveTab('redacted')}
-            className={`redacted-document-tabs__tab ${activeTab === 'redacted' ? 'active' : ''}`}
-          >
-            <Shield size={14} />
-            Redacted
+      <Toolbar
+        className="redacted-document-tabs__toolbar"
+        leading={
+          <ToolbarGroup role="tablist" aria-label={fileName}>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === 'source'}
+              onClick={() => setActiveTab('source')}
+              className={`redacted-document-tabs__tab ${activeTab === 'source' ? 'active' : ''}`}
+            >
+              <FileText size={14} /> Source
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === 'redacted'}
+              onClick={() => setActiveTab('redacted')}
+              className={`redacted-document-tabs__tab ${activeTab === 'redacted' ? 'active' : ''}`}
+            >
+              <Shield size={14} />
+              Redacted
+              {totalEntities > 0 && (
+                <span className="redacted-document-tabs__entity-count">
+                  ({totalEntities} PII)
+                </span>
+              )}
+            </button>
+          </ToolbarGroup>
+        }
+        trailing={
+          <ToolbarGroup className="redacted-document-tabs__entity-summary">
             {totalEntities > 0 && (
-              <span className="redacted-document-tabs__entity-count">
-                ({totalEntities} PII)
+              <span className="redacted-document-tabs__entity-badge">
+                <Shield size={12} /> {totalEntities} PII detected
               </span>
             )}
-          </ToolbarItem>
-        </ToolbarGroup>
-
-        <ToolbarGroup className="redacted-document-tabs__entity-summary">
-          {totalEntities > 0 && (
-            <span className="redacted-document-tabs__entity-badge">
-              <Shield size={12} /> {totalEntities} PII detected
-            </span>
-          )}
-          {entityCounts.length > 0 && (
-            <div className="redacted-document-tabs__entity-types">
-              {entityCounts.map((e) => (
-                <span
-                  key={e.type}
-                  className="redacted-document-tabs__entity-type"
-                  title={`${e.type}: ${e.count}`}
-                >
-                  {e.type}: {e.count}
-                </span>
-              ))}
-            </div>
-          )}
-        </ToolbarGroup>
-      </Toolbar>
+            {entityCounts.length > 0 && (
+              <div className="redacted-document-tabs__entity-types">
+                {entityCounts.map((e) => (
+                  <span
+                    key={e.type}
+                    className="redacted-document-tabs__entity-type"
+                    title={`${e.type}: ${e.count}`}
+                  >
+                    {e.type}: {e.count}
+                  </span>
+                ))}
+              </div>
+            )}
+          </ToolbarGroup>
+        }
+      />
 
       <div className="redacted-document-tabs__content">
         {activeTab === 'source' ? (
           <div className="redacted-document-tabs__source">
-            <iframe
-              className="redacted-document-tabs__iframe"
-              src={`file://${sourcePath}`}
-              title={`Source: ${fileName}`}
-            />
+            {supportsIframePreview ? (
+              <iframe
+                className="redacted-document-tabs__iframe"
+                src={`file://${sourcePath}`}
+                title={`Source: ${fileName}`}
+              />
+            ) : (
+              <div className="redacted-document-tabs__error">
+                {fileName} cannot be previewed in the browser. Use the Redacted tab to
+                read the PII-safe version.
+              </div>
+            )}
           </div>
         ) : (
           <div className="redacted-document-tabs__redacted">

@@ -113,14 +113,16 @@ export function getEditorType(filePathOrName: string): 'code-editor' | 'markdown
   }
 
   if (fileName.endsWith('.pdf')) {
-    return 'redacted-document-viewer';
+    return 'pdf-viewer';
   }
 
   if (fileName.endsWith('.html') || fileName.endsWith('.htm')) {
     return 'html-preview';
   }
 
-  // Document formats that should open with redacted-document-viewer
+  // Office and document formats have no built-in viewer; the redacted
+  // document viewer renders them through basemind. PDF keeps the built-in
+  // pdf-viewer: it renders locally and does not need document conversion.
   const documentExtensions = ['.doc', '.docx', '.docm', '.odt', '.pptx', '.pptm', '.ppsx', '.ppsm', '.ppt', '.pps', '.pot', '.rtf', '.epub', '.xlsx', '.xlsm', '.xlsb', '.xls', '.ods', '.odp', '.csv'];
   if (documentExtensions.some(ext => fileName.endsWith(ext))) {
     return 'redacted-document-viewer';

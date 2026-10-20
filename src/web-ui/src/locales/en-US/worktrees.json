@@ -43,7 +43,7 @@
     },
     "autoDelete": {
       "label": "Automatically delete old worktrees",
-      "description": "After creating a worktree, OpenBitFun removes the oldest managed worktrees beyond the workspace limit when they are safe to delete."
+      "description": "After creating a worktree, Alex removes the oldest managed worktrees beyond the workspace limit when they are safe to delete."
     },
     "autoDeleteLimit": {
       "label": "Auto-delete limit",
@@ -53,15 +53,15 @@
   },
   "management": {
     "title": "Workspace worktrees",
-    "description": "Worktrees under the configured OpenBitFun root on the current execution host, grouped by owning workspace.",
-    "loading": "Scanning OpenBitFun worktrees…",
-    "loadFailed": "Could not load the OpenBitFun worktree list.",
+    "description": "Worktrees under the configured Alex root on the current execution host, grouped by owning workspace.",
+    "loading": "Scanning Alex worktrees…",
+    "loadFailed": "Could not load the Alex worktree list.",
     "refresh": "Refresh worktrees",
     "retry": "Try again",
     "worktreeCount": "{{count}} worktrees",
     "deleted": "Deleted {{path}}.",
     "empty": {
-      "title": "No OpenBitFun worktrees",
+      "title": "No Alex worktrees",
       "description": "Worktrees created for isolated sessions will appear here."
     },
     "lifecycle": {

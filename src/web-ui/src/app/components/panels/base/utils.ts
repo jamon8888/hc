@@ -99,6 +99,14 @@ export const PANEL_CONTENT_CONFIGS: Record<PanelContentType, PanelContentConfig>
     supportsDownload: false,
     showHeader: false
   },
+  'redacted-document-viewer': {
+    type: 'redacted-document-viewer',
+    displayName: 'Redacted Document Viewer',
+    icon: { glyph: FileText },
+    supportsCopy: true,
+    supportsDownload: false,
+    showHeader: false
+  },
   'html-preview': {
     type: 'html-preview',
     displayName: 'HTML Preview',
@@ -261,7 +269,7 @@ export const PANEL_CONTENT_CONFIGS: Record<PanelContentType, PanelContentConfig>
   },
   'openbitfun-canvas': {
     type: 'openbitfun-canvas',
-    displayName: 'OpenBitFun Canvas',
+    displayName: 'Alex Canvas',
     icon: { glyph: Network },
     supportsCopy: false,
     supportsDownload: false,

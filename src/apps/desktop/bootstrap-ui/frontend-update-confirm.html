@@ -29,7 +29,7 @@
     <main>
       <div class="eyebrow"><span id="indicator" class="indicator loading"></span><span id="phase">Safety check</span></div>
       <h1 id="title">Loading the new frontend…</h1>
-      <p id="message">OpenBitFun is waiting for the real app shell to render. You can roll back immediately if the preview looks wrong.</p>
+      <p id="message">Alex is waiting for the real app shell to render. You can roll back immediately if the preview looks wrong.</p>
       <div class="actions">
         <button id="rollback" type="button">Roll back</button>
         <button id="confirm" class="primary" type="button" disabled>Keep changes</button>
@@ -45,24 +45,24 @@
           phaseDone: '已完成',
           titleLoading: '正在加载新界面…',
           titleReady: '保留这次前端修改吗？',
-          messageLoading: 'OpenBitFun 正在等待真实应用界面完成渲染。如果预览不对，可以立即回滚。',
-          messageReady: function (seconds) { return '请在 <strong>' + seconds + '</strong> 秒内确认，否则 OpenBitFun 会自动恢复上一版本。'; },
+          messageLoading: 'Alex 正在等待真实应用界面完成渲染。如果预览不对，可以立即回滚。',
+          messageReady: function (seconds) { return '请在 <strong>' + seconds + '</strong> 秒内确认，否则 Alex 会自动恢复上一版本。'; },
           rolledBack: '已恢复上一版本。',
           rollback: '回滚',
           confirm: '保留修改',
-          bridgeError: 'OpenBitFun 宿主桥接不可用',
+          bridgeError: 'Alex 宿主桥接不可用',
         } : {
           phaseLoading: 'Safety check',
           phaseReady: 'Preview ready',
           phaseDone: 'Complete',
           titleLoading: 'Loading the new frontend…',
           titleReady: 'Keep this frontend?',
-          messageLoading: 'OpenBitFun is waiting for the real app shell to render. You can roll back immediately if the preview looks wrong.',
-          messageReady: function (seconds) { return 'Confirm within <strong>' + seconds + '</strong> seconds or OpenBitFun will restore the previous version automatically.'; },
+          messageLoading: 'Alex is waiting for the real app shell to render. You can roll back immediately if the preview looks wrong.',
+          messageReady: function (seconds) { return 'Confirm within <strong>' + seconds + '</strong> seconds or Alex will restore the previous version automatically.'; },
           rolledBack: 'The previous version has been restored.',
           rollback: 'Roll back',
           confirm: 'Keep changes',
-          bridgeError: 'OpenBitFun host bridge is unavailable',
+          bridgeError: 'Alex host bridge is unavailable',
         };
         if (zh) document.documentElement.lang = 'zh-CN';
 

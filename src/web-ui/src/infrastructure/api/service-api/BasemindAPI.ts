@@ -17,18 +17,6 @@ export interface RedactedDocumentResponse {
   sourceFormat: string;
 }
 
-export interface RagSearchHit {
-  chunk: string;
-  sourceDoc: string;
-  score: number;
-  entityIds: string[];
-}
-
-export interface RagSearchRequest {
-  query: string;
-  topK?: number;
-}
-
 class BasemindAPI {
   /**
    * Reveal the original value of a redacted entity.
@@ -46,26 +34,6 @@ class BasemindAPI {
   async readRedactedDocument(filePath: string, workspaceId?: string): Promise<RedactedDocumentResponse> {
     return api.invoke<RedactedDocumentResponse>('basemind_read_redacted_document', {
       request: { workspaceId, filePath },
-    });
-  }
-
-  /**
-   * Perform a RAG search on the workspace.
-   */
-  async ragSearch(request: { query: string; topK?: number }): Promise<Array<{
-    chunk: string;
-    sourceDoc: string;
-    score: number;
-    entityIds: string[];
-  }>> {
-    return api.invoke<Array<{
-      chunk: string;
-      sourceDoc: string;
-      score: number;
-      entityIds: string[];
-    }>>('rag_search', {
-      query: 'query',
-      top_k: 8,
     });
   }
 }

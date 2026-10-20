@@ -5,9 +5,16 @@
  */
 import { resourceFilePath } from '@/app/workbench/contentResourceStore';
 import { getEditorType } from '@/infrastructure/language-detection';
+import { i18nService } from '@/infrastructure/i18n';
+import { wordcraftAPI } from '@/infrastructure/api/service-api/WordcraftAPI';
+import { notificationService } from '@/shared/notification-system/services/NotificationService';
+import { createLogger } from '@/shared/utils/logger';
+import { isWordcraftDocumentPath } from '@/shared/context-menu-system/commands/builtin/file/WordcraftDocumentCommands';
 import { type LineRange } from '@/shared/editor/LineRange';
 import { captureContentScope, openContentInBestTarget } from './workbenchContentService';
 import type { ContentResourceScope } from '../types/contentResource';
+
+const log = createLogger('FileTabManager');
 
 export interface FileTabOptions {
   scope?: ContentResourceScope;
@@ -65,10 +72,6 @@ class FileTabManager {
       fileName: providedFileName,
       workspaceId,
       workspacePath,
-      jumpToLine,
-      jumpToColumn,
-      jumpToRange,
-      navigationToken,
       editorType: explicitEditorType,
       remoteConnectionId,
     } = options;
@@ -82,14 +85,47 @@ class FileTabManager {
     
     
     const editorType = explicitEditorType || getEditorType(fileName);
-    
-    
+
+    // WordCraft owns .docx opens (tickets 13/17): when no caller picked an
+    // explicit surface ("Open as Text" keeps working), route through the
+    // capability-aware WordCraft decision instead of the code-editor binary
+    // dump. The decision is async behind the capability probe; surfaces
+    // without the probe keep the current tab behavior.
+    if (!explicitEditorType && isWordcraftDocumentPath(fileName)) {
+      void this.openWordcraftOrLoudFallback({
+        options,
+        scope,
+        filePath: normalizedPath,
+        fileName,
+        editorType,
+      });
+      return;
+    }
+
+    this.openEditorTab(options, scope, normalizedPath, fileName, editorType);
+  }
+
+  /** Builds and opens the regular editor tab for a file (non-WordCraft path). */
+  private openEditorTab(
+    options: FileTabOptions,
+    scope: ContentResourceScope,
+    filePath: string,
+    fileName: string,
+    editorType: ReturnType<typeof getEditorType>,
+  ): void {
+    const {
+      jumpToLine,
+      jumpToColumn,
+      jumpToRange,
+      navigationToken,
+      editorType: explicitEditorType,
+    } = options;
     const finalJumpToRange = jumpToRange;
     
     
     const tabData = {
-      filePath: normalizedPath,
-      fileName,
+      filePath: filePath,
+      fileName: fileName,
       workspaceId: scope.workspaceId,
       workspacePath: scope.workspacePath,
       remoteConnectionId: scope.remoteConnectionId,
@@ -107,13 +143,60 @@ class FileTabManager {
       title: fileName,
       data: tabData,
       metadata: {
-        duplicateCheckKey: explicitEditorType ? `${normalizedPath}:${editorType}` : normalizedPath
+        duplicateCheckKey: explicitEditorType ? `${filePath}:${editorType}` : filePath
       }
     };
 
     
     openContentInBestTarget(content, { scope, replaceExisting: Boolean(explicitEditorType),
       splitView: options.splitView, targetGroup: options.targetGroup });
+  }
+
+  /**
+   * Capability-aware routing for default `.docx` opens (tickets 13/17):
+   * capability `available` launches the WordCraft editor window (the same
+   * action as the context entry, failures loud with the record's remediation);
+   * any other record state is a loud toast, never a code-editor binary dump.
+   * Where the probe is unavailable (server/web surfaces with no desktop host
+   * adapter) the previous tab behavior is kept — the loud path is also
+   * unavailable there.
+   */
+  private async openWordcraftOrLoudFallback(args: {
+    options: FileTabOptions;
+    scope: ContentResourceScope;
+    filePath: string;
+    fileName: string;
+    editorType: ReturnType<typeof getEditorType>;
+  }): Promise<void> {
+    const { options, scope, filePath, fileName, editorType } = args;
+    const capability = await wordcraftAPI.statusQuiet();
+    if (!capability) {
+      this.openEditorTab(options, scope, filePath, fileName, editorType);
+      return;
+    }
+
+    const t = i18nService.getT();
+    if (capability.status !== 'available' || !capability.app) {
+      const detail = capability.remediation || capability.message || t('errors:file.wordcraftOpenFailed');
+      notificationService.error(detail, { title: t('errors:file.wordcraftOpenFailed') });
+      log.warn('WordCraft unavailable; docx open refused loudly', {
+        filePath,
+        status: capability.status,
+      });
+      return;
+    }
+
+    try {
+      await wordcraftAPI.openDocument({ path: filePath, workspaceId: scope.workspaceId });
+    } catch (error) {
+      const cause = error instanceof Error ? error : new Error(String(error));
+      // Loud degradation: remote targets and unrunnable editors surface the
+      // backend message verbatim; the code-editor dump stays forbidden.
+      notificationService.error(cause.message || t('errors:file.wordcraftOpenFailed'), {
+        title: t('errors:file.wordcraftOpenFailed'),
+      });
+      log.error('Failed to route docx open to WordCraft', { filePath, error: cause });
+    }
   }
 
    

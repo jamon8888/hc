@@ -42,7 +42,7 @@ Keep crate dependencies inside each layer to the smallest set needed.
 | 1 | Interfaces and entrypoints | `src/apps/*`, `src/web-ui`, `src/mobile-web`, `OpenBitFun-Installer`, `tests/e2e`, `src/crates/interfaces` | Product hosts, commands, UI entrypoints, protocol interfaces, and cross-surface tests | desktop, CLI, server, relay, Web UI, mobile web, installer, E2E, `acp`, `app-server`, `sdk-host` | nearest local `AGENTS.md`; [interfaces](src/crates/interfaces/AGENTS.md) |
 | 2 | Product assembly | `src/crates/assembly` | Compatibility exports, product capability selection, product-full wiring, immutable built-in Agent content, adapter/service registration, and ecosystem-neutral source coordination | `agent-content`, `core`, `external-sources`, `product-capabilities` | [AGENTS.md](src/crates/assembly/AGENTS.md) |
 | 3 | Adapters | `src/crates/adapters` | AI/transport/WebDriver protocol adapters, external AI work source adapters (OpenCode/Claude Code/Codex), and external-provider translation | `agent-runtime-ipc`, `ai-adapters`, `opencode-adapter`, `claude-code-adapter`, `codex-adapter`, `static-hook-support`, `transport`, `webdriver` | [AGENTS.md](src/crates/adapters/AGENTS.md) |
-| 4 | Services | `src/crates/services` | Reusable OS, filesystem, terminal, MCP, remote, git, watch, process, session persistence primitives, MiniApp runtime IO, and network implementations | `services-core`, `services-integrations`, `miniapp-market-service`, `relay-service`, `page-function-runtime`, `terminal` | [AGENTS.md](src/crates/services/AGENTS.md) |
+| 4 | Services | `src/crates/services` | Reusable OS, filesystem, terminal, MCP, remote, git, watch, process, session persistence primitives, MiniApp runtime IO, and network implementations | `services-core`, `services-integrations`, `miniapp-market-service`, `relay-service`, `page-function-runtime`, `terminal`, `basemind-integration` | [AGENTS.md](src/crates/services/AGENTS.md) |
 | 5 | Execution primitives | `src/crates/execution` | Portable Agent Runtime, named-workflow policy, stream, plugin runtime client, typed-service, tool-contract, tool-group, and tool-execution building blocks | `agent-runtime`, `agent-workflows`, `agent-stream`, `tool-contracts`, `plugin-runtime-client`, `runtime-services`, `tool-provider-groups`, `tool-execution`, `tool-call-jsonrepair` | [AGENTS.md](src/crates/execution/AGENTS.md) |
 | 6 | Stable contracts and product domains | `src/crates/contracts` | Shared DTOs, event shapes, runtime ports, and product domain contracts/policies | `core-types`, `events`, `runtime-ports`, `product-domains` | [AGENTS.md](src/crates/contracts/AGENTS.md) |
 
@@ -352,6 +352,38 @@ Do not hard-code OpenBitFun repository assumptions as target-project rules; keep
 quality protection behavior target-aware, evidence-backed, risk-tiered,
 cost-aware, and auditable.
 
+## Code review
+
+Review is layered, and most of the reading is automated.
+[`REVIEW.md`](REVIEW.md) is the reviewer contract — what failure looks like in
+this repo, how findings are written, and the caps that keep review converging.
+Read it before reviewing a change, and before asking a person to review one.
+Risk tiers and approval counts live in `CONTRIBUTING.md` → Code review.
+
+- **Verify before the PR.** Give the agent checks it can run and paste their
+  output into the PR's Verification section. "Done" without output is not
+  evidence.
+- **Review with fresh context before a person looks.** Run the `code-review`
+  skill against the branch (Standards from `REVIEW.md`, `CONTRIBUTING.md`, and
+  the nearest `AGENTS.md`; Spec from the `.scratch/` issue), or a
+  fresh-context subagent over the diff. Open Code Review is the other layer-2
+  option: `ocr review --from main --to <branch>`, or `/ocr-review` when the
+  `.opencode/plugins/` integration is installed. Fix what any of them finds
+  first.
+- **Risk sets the review, not the author.** An agent's approval never counts
+  as a person's, and whoever directed an agent change counts as one of the
+  required reviewers.
+- **Every finding is answered** — fixed, or resolved with a reason. Silence
+  never closes a finding.
+- **Reviews converge.** After three review-and-fix rounds, step back and
+  reconsider the approach rather than starting a fourth. Re-reviews after the
+  first pass read the new diff only, and never re-post a finding already
+  posted.
+- **A repeated comment is a source bug.** The same finding in two PRs means
+  the fix is `REVIEW.md`, the nearest `AGENTS.md`, or a lint/audit rule — not
+  a third comment. A revert or an escaped regression becomes a failure mode in
+  `REVIEW.md`.
+
 ## Verification
 
 Choose verification at the owner, not from a repository-wide test matrix:
@@ -387,4 +419,4 @@ Five canonical role strings (`needs-triage`, `needs-info`, `ready-for-agent`, `r
 
 ### Domain docs
 
-Multi-context — `CONTEXT-MAP.md` at the root points at per-context `CONTEXT.md` files. See `docs/agents/domain.md`.
+Multi-context — `CONTEXT-MAP.md` at the root points at per-context `CONTEXT.md` files. None exist yet; `/domain-modeling` creates them lazily as terms get resolved. See `docs/agents/domain.md`.

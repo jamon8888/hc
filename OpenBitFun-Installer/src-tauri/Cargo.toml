@@ -19,6 +19,17 @@ zip = "0.6"
 
 [dependencies]
 tauri = { version = "=2.11.5", features = [] }
+# This standalone context has no tracked Cargo.lock, so fresh CI resolution
+# must not drift the tauri support crates past what tauri 2.11.5 compiles
+# against: tauri-runtime 2.12 changed the monitor APIs to Result (E0308/E0277
+# in tauri/src/app.rs), tauri-macros 2.7.x emits an Error::UnexpectedMenuKind
+# variant that only newer tauri releases define (E0599 in src/menu/plugin.rs),
+# and tauri-codegen 2.7.x makes generate_context! call
+# tauri::image::default_window_icon_from_app_icon_resource on Windows, which
+# tauri 2.11.5 does not define (E0425). Pin all three to the declared pairing.
+tauri-runtime = "=2.11.3"
+tauri-macros = "=2.6.3"
+tauri-codegen = "=2.6.3"
 tauri-plugin-dialog = "=2.7.3"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"

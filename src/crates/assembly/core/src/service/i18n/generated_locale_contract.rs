@@ -152,7 +152,7 @@ pub const GENERATED_SHARED_TERMS: &[GeneratedSharedTermEntry] = &[
     GeneratedSharedTermEntry {
         locale: LocaleId::ZhCN,
         key: "connectionMethods.openbitfunServer",
-        value: "OpenBitFun Server",
+        value: "Alex Server",
     },
     GeneratedSharedTermEntry {
         locale: LocaleId::ZhCN,
@@ -197,12 +197,12 @@ pub const GENERATED_SHARED_TERMS: &[GeneratedSharedTermEntry] = &[
     GeneratedSharedTermEntry {
         locale: LocaleId::ZhCN,
         key: "product.name",
-        value: "OpenBitFun",
+        value: "Alex",
     },
     GeneratedSharedTermEntry {
         locale: LocaleId::ZhCN,
         key: "product.remote",
-        value: "OpenBitFun Remote",
+        value: "Alex Remote",
     },
     GeneratedSharedTermEntry {
         locale: LocaleId::ZhCN,
@@ -337,7 +337,7 @@ pub const GENERATED_SHARED_TERMS: &[GeneratedSharedTermEntry] = &[
     GeneratedSharedTermEntry {
         locale: LocaleId::ZhTW,
         key: "connectionMethods.openbitfunServer",
-        value: "OpenBitFun Server",
+        value: "Alex Server",
     },
     GeneratedSharedTermEntry {
         locale: LocaleId::ZhTW,
@@ -382,12 +382,12 @@ pub const GENERATED_SHARED_TERMS: &[GeneratedSharedTermEntry] = &[
     GeneratedSharedTermEntry {
         locale: LocaleId::ZhTW,
         key: "product.name",
-        value: "OpenBitFun",
+        value: "Alex",
     },
     GeneratedSharedTermEntry {
         locale: LocaleId::ZhTW,
         key: "product.remote",
-        value: "OpenBitFun Remote",
+        value: "Alex Remote",
     },
     GeneratedSharedTermEntry {
         locale: LocaleId::ZhTW,
@@ -522,7 +522,7 @@ pub const GENERATED_SHARED_TERMS: &[GeneratedSharedTermEntry] = &[
     GeneratedSharedTermEntry {
         locale: LocaleId::EnUS,
         key: "connectionMethods.openbitfunServer",
-        value: "OpenBitFun Server",
+        value: "Alex Server",
     },
     GeneratedSharedTermEntry {
         locale: LocaleId::EnUS,
@@ -567,12 +567,12 @@ pub const GENERATED_SHARED_TERMS: &[GeneratedSharedTermEntry] = &[
     GeneratedSharedTermEntry {
         locale: LocaleId::EnUS,
         key: "product.name",
-        value: "OpenBitFun",
+        value: "Alex",
     },
     GeneratedSharedTermEntry {
         locale: LocaleId::EnUS,
         key: "product.remote",
-        value: "OpenBitFun Remote",
+        value: "Alex Remote",
     },
     GeneratedSharedTermEntry {
         locale: LocaleId::EnUS,
@@ -707,7 +707,7 @@ pub const GENERATED_SHARED_TERMS: &[GeneratedSharedTermEntry] = &[
     GeneratedSharedTermEntry {
         locale: LocaleId::FrFR,
         key: "connectionMethods.openbitfunServer",
-        value: "Serveur OpenBitFun",
+        value: "Serveur Alex",
     },
     GeneratedSharedTermEntry {
         locale: LocaleId::FrFR,
@@ -752,12 +752,12 @@ pub const GENERATED_SHARED_TERMS: &[GeneratedSharedTermEntry] = &[
     GeneratedSharedTermEntry {
         locale: LocaleId::FrFR,
         key: "product.name",
-        value: "OpenBitFun",
+        value: "Alex",
     },
     GeneratedSharedTermEntry {
         locale: LocaleId::FrFR,
         key: "product.remote",
-        value: "OpenBitFun Remote",
+        value: "Alex Remote",
     },
     GeneratedSharedTermEntry {
         locale: LocaleId::FrFR,
@@ -893,6 +893,10 @@ mod tests {
         );
         assert_eq!(
             generated_locale_entry_from_code("fr-FR").map(|entry| entry.id),
+            Some(LocaleId::FrFR)
+        );
+        assert_eq!(
+            generated_locale_entry_from_code("de-DE").map(|entry| entry.id),
             None
         );
     }

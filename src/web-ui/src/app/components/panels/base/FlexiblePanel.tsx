@@ -72,6 +72,12 @@ const PdfViewer = React.lazy(() =>
   }))
 );
 
+const RedactedDocumentTabs = React.lazy(() =>
+  import('@/app/components/panels/content-canvas/RedactedDocumentTabs').then(module => ({
+    default: module.default,
+  }))
+);
+
 const DiffEditor = React.lazy(() =>
   import('@/tools/editor/components/DiffEditor').then(module => ({
     default: module.default,
@@ -421,6 +427,24 @@ const FlexiblePanel: React.FC<ExtendedFlexiblePanelProps> = memo(({
                 filePath={pdfViewerData.filePath || ''}
                 fileName={content.title}
                 className="openbitfun-flexible-panel__pdf-viewer"
+              />
+            )}
+          </div>
+        );
+      }
+
+      case 'redacted-document-viewer': {
+        const redactedData = content.data || {};
+
+        return (
+          <div className="openbitfun-flexible-panel__redacted-document-container" data-openbitfun-component="flexible-panel" data-openbitfun-part="redacted-document">
+            {renderLazyEditor(
+              <RedactedDocumentTabs
+                sourcePath={redactedData.filePath || ''}
+                sourceFormat={redactedData.sourceFormat || ''}
+                redactedMarkdown={redactedData.redactedMarkdown}
+                entities={redactedData.entities}
+                workspaceId={redactedData.workspaceId}
               />
             )}
           </div>

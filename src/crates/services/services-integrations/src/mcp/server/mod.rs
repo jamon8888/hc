@@ -8,6 +8,7 @@ mod registry;
 mod runtime_helpers;
 mod runtime_policy;
 mod runtime_state;
+mod wordcraft_session;
 
 use crate::mcp::config::ConfigLocation;
 use serde::{Deserialize, Serialize};
@@ -31,6 +32,11 @@ pub use runtime_policy::{
 };
 pub use runtime_state::{
     MCPProcessStartContext, MCPProcessStartOutcome, MCPServerRuntimeState, MCPServerStartFailure,
+};
+pub use wordcraft_session::{
+    wordcraft_route_session, wordcraft_session_idle_reap_due, WordcraftLiveBridgeSpec,
+    WordcraftMcpSession, WordcraftSessionRoute, WordcraftSessionSpec, WORDCRAFT_AUTHOR_PREFIX,
+    WORDCRAFT_CLI_COMMAND, WORDCRAFT_IDLE_REAP, WORDCRAFT_SESSION_ID_MAX_LEN,
 };
 
 /// MCP server type.

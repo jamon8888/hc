@@ -76,6 +76,8 @@ pub mod system;
 pub mod tls_provider;
 #[cfg(feature = "local-storage")]
 pub mod token_usage;
+#[cfg(feature = "wordcraft")]
+pub mod wordcraft;
 #[cfg(feature = "workspace-runtime")]
 pub mod workspace;
 #[cfg(feature = "workspace-identity")]

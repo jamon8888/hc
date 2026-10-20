@@ -48,12 +48,19 @@ mod tests {
             .map(str::trim)
             .filter(|line| !line.is_empty() && !line.starts_with("//"))
             .map(|line| {
-                // cfg-gated entries carry their attribute either on its own
-                // line or inline before the command path; strip leading
-                // attributes and parse what remains, matching the capability
-                // generator's entry handling.
-                strip_leading_attributes(line)
-                    .trim_end_matches(',')
+                // cfg-gated entries carry `#[cfg(feature = "x")]` either on
+                // its own line or inline before the command path; strip the
+                // attribute exactly as the capability generator does so it can
+                // never be parsed as a command name.
+                let mut line = line;
+                while let Some(rest) = line.strip_prefix("#[") {
+                    line = match rest.split_once(']') {
+                        Some((_, tail)) => tail.trim(),
+                        None => "",
+                    };
+                }
+                let entry = line.trim_end_matches(',');
+                entry
                     .rsplit("::")
                     .next()
                     .expect("command path segments are non-empty")
@@ -61,18 +68,6 @@ mod tests {
             })
             .filter(|entry| !entry.is_empty())
             .collect()
-    }
-
-    /// Drops leading `#[...]` attributes so only the command path remains.
-    fn strip_leading_attributes(line: &str) -> &str {
-        let mut rest = line.trim_start();
-        while let Some(after) = rest.strip_prefix("#[") {
-            match after.find(']') {
-                Some(close) => rest = after[close + 1..].trim_start(),
-                None => break,
-            }
-        }
-        rest
     }
 
     #[test]
@@ -95,7 +90,7 @@ mod tests {
                 "basemind_reveal_entity".to_string(),
                 "basemind_read_redacted_document".to_string(),
             ]),
-            "own-line attributes must vanish; inline attributes must leave the command path"
+            "attributes must never parse as command names"
         );
     }
 

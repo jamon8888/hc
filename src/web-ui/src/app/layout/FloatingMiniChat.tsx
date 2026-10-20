@@ -84,7 +84,7 @@ function DockConversationView({ entry, active, onCollapse, renderHeader, onVoice
     {!session || !claimValid ? unavailable : <ChatPane sessionRef={entry} viewId={dockConversationKey(entry)} presentation="compact" width={0} isFullscreen={false}
       isSceneActive={active} workspacePath={session.workspacePath} showChatInput chatInputRegistration={registration}
       emptyState={<MiniAppBubbleWelcome
-        appName={entry.kind === 'control' ? 'OpenBitFun' : entry.kind === 'miniapp' ? appName : resolveDisplayTitle(session)}
+        appName={entry.kind === 'control' ? 'Alex' : entry.kind === 'miniapp' ? appName : resolveDisplayTitle(session)}
         appDescription={entry.kind === 'control' ? t('dock.welcome') : app ? pickLocalizedString(app, i18n.language, 'description') : undefined}
         appIcon={app?.icon} showIcon={entry.kind === 'miniapp'} customization={claim?.customization}
         onSuggestion={setDraft}
@@ -209,7 +209,7 @@ export function FloatingMiniChat() {
     };
   }, [surfaceId, live]);
   const collapse = () => dock.setOpen(false);
-  const label = (entry: DockConversation) => entry.kind === 'control' ? 'OpenBitFun' : entry.kind === 'miniapp'
+  const label = (entry: DockConversation) => entry.kind === 'control' ? 'Alex' : entry.kind === 'miniapp'
     ? claims[entry.appId!]?.customization?.title || (() => { const app = apps.find(a => a.id === entry.appId); return app ? pickLocalizedString(app, i18n.language, 'name') : entry.appId; })() || entry.appId!
     : resolveDisplayTitle(flow.sessions.get(entry.sessionId));
   const acceptDrop = (event: React.DragEvent) => {
@@ -234,7 +234,7 @@ export function FloatingMiniChat() {
               onDragOver={event => { if (dragging.current) event.preventDefault(); }}
               onDrop={event => { if (!dragging.current) return; event.preventDefault(); event.stopPropagation(); dock.reorder(dragging.current, item.value); }}
             >{node}</div>;
-          }} /> : <OverflowText className="openbitfun-fmc__title-wrapper">{active ? label(active) : 'OpenBitFun'}</OverflowText>}
+          }} /> : <OverflowText className="openbitfun-fmc__title-wrapper">{active ? label(active) : 'Alex'}</OverflowText>}
         {active?.kind === 'session' && <IconButton size="sm" icon={<ArrowUpRight size={15} />} aria-label={t('dock.moveToMain')}
           onClick={() => returnConversationToWorkbench(active)} />}
         {active?.kind === 'miniapp' && <IconButton size="sm" icon={<ArrowUpRight size={15} />} aria-label={t('dock.openApp')} title={t('dock.openApp')}

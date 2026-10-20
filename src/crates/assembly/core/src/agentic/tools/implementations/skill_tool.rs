@@ -102,7 +102,7 @@ Important:
             && context.and_then(|c| c.ws_fs()).is_none()
         {
             section.push_str(
-                "\n\nRemote workspace note: Project-level skills on the server could not be indexed because workspace I/O is unavailable. Only user-level skills are shown; OpenBitFun will not fall back to scanning the remote path on the local filesystem.",
+                "\n\nRemote workspace note: Project-level skills on the server could not be indexed because workspace I/O is unavailable. Only user-level skills are shown; Alex will not fall back to scanning the remote path on the local filesystem.",
             );
         }
         Some(section)
@@ -781,7 +781,7 @@ Use the remote project skill.
         assert!(data.get("skill_display_name").is_none());
         assert_eq!(data["source_slot"], "openbitfun");
         assert_eq!(data["source_id"], "openbitfun");
-        assert_eq!(data["source_label"], "OpenBitFun");
+        assert_eq!(data["source_label"], "Alex");
     }
 
     #[tokio::test]
@@ -824,7 +824,7 @@ Use the remote project skill.
             .await
             .expect("native DeepResearch should still allow explicit stable-key invocation");
         assert_eq!(loaded.name, "deep-research");
-        assert_eq!(loaded.source_label, "OpenBitFun");
+        assert_eq!(loaded.source_label, "Alex");
     }
 
     #[tokio::test]
@@ -957,7 +957,7 @@ Use the remote project skill.
             .expect("remote Claude skill should load with the discovery dialect");
         assert_eq!(loaded.name, "remote-review");
         assert_eq!(loaded.source_id, "openbitfun");
-        assert_eq!(loaded.source_label, "OpenBitFun");
+        assert_eq!(loaded.source_label, "Alex");
         assert_eq!(loaded.argument_names, ["target", "focus"]);
         assert_eq!(loaded.compatibility_warnings.len(), 2);
         assert!(loaded.content.contains("!`git diff`"));
@@ -1153,7 +1153,7 @@ Use the remote project skill.
                 &context,
             )
             .await
-            .expect("stable key should load OpenBitFun's built-in ppt-design skill");
+            .expect("stable key should load Alex's built-in ppt-design skill");
 
         let ToolResult::Result {
             data,
@@ -1167,7 +1167,7 @@ Use the remote project skill.
         assert_eq!(data["skill_key"], "user::openbitfun-system::ppt-design");
         assert_eq!(data["source_slot"], "openbitfun-system");
         assert_eq!(data["source_id"], "openbitfun");
-        assert_eq!(data["source_label"], "OpenBitFun");
+        assert_eq!(data["source_label"], "Alex");
         assert!(data["content"]
             .as_str()
             .unwrap_or_default()

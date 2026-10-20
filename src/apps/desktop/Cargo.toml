@@ -19,7 +19,7 @@ tauri-build = { workspace = true }
 serde_json = { workspace = true }
 
 [dependencies]
-openbitfun-services-core = { path = "../../crates/services/services-core", features = ["pet-packages"] }
+openbitfun-services-core = { path = "../../crates/services/services-core", features = ["pet-packages", "wordcraft"] }
 # Internal crates
 openbitfun-core = { path = "../../crates/assembly/core", features = ["product-full"] }
 openbitfun-relay-service = { path = "../../crates/services/relay-service" }
@@ -33,7 +33,7 @@ openbitfun-transport = { path = "../../crates/adapters/transport", features = ["
 openbitfun-events = { path = "../../crates/contracts/events" }
 openbitfun-webdriver = { path = "../../crates/adapters/webdriver" }
 openbitfun-acp = { path = "../../crates/interfaces/acp", default-features = false, features = ["client"] }
-openbitfun_basemind_integration = { path = "../../crates/integrations/basemind-integration", optional = true, features = ["basemind"] }
+openbitfun-basemind-integration = { path = "../../crates/services/basemind-integration", optional = true, features = ["basemind"] }
 
 # Tauri
 tauri = { workspace = true, features = ["unstable", "macos-private-api", "tray-icon"] }
@@ -156,7 +156,7 @@ default = []
 # Only active in debug builds or when explicitly requested via --features devtools.
 # Never enabled in release profile intended for end users.
 devtools = ["tauri/devtools", "openbitfun-webdriver/embedded"]
-basemind = ["openbitfun_basemind_integration/basemind"]
+basemind = ["openbitfun-basemind-integration/basemind"]
 
 [target.'cfg(target_os = "linux")'.dependencies]
 atspi = { workspace = true, features = ["zbus"] }

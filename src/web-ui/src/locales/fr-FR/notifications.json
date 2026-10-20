@@ -53,7 +53,7 @@
     "release_letter": {
       "skip": "Lire la lettre",
       "replay": "Rejouer l'animation de la lettre de sortie",
-      "replay_mascot": "Rejouer le saut du personnage OpenBitFun"
+      "replay_mascot": "Rejouer le saut du personnage Alex"
     },
     "common": {
       "learn_more": "En savoir plus",
@@ -61,7 +61,7 @@
       "close": "Fermer",
       "prev": "Précédent",
       "next": "Page suivante",
-      "done": "Terminé",
+      "done": "$t(shared:statuses.done)",
       "never_show_again": "Ne plus afficher",
       "page": "Page"
     }

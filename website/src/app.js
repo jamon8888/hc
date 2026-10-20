@@ -2,7 +2,7 @@ import { matchingItems, queryTokens, scoreCapability } from './search.js';
 
 const root = document.querySelector('#app');
 const pageData = JSON.parse(document.querySelector('#page-data')?.textContent ?? '{}');
-const THEME_STORAGE_KEY = 'openbitfun-playbook-theme';
+const THEME_STORAGE_KEY = 'hacienda-work-playbook-theme';
 const SIDEBAR_SCROLL_STORAGE_KEY = 'openbitfun-playbook-sidebar-scroll';
 const THEME_CHOICES = ['system', 'light', 'dark'];
 

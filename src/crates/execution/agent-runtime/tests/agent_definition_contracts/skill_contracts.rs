@@ -621,7 +621,7 @@ fn skill_discovery_root_facts_are_runtime_owned() {
     assert_eq!(
         project_roots,
         [
-            (".openbitfun", "openbitfun", "openbitfun", "OpenBitFun"),
+            (".openbitfun", "openbitfun", "openbitfun", "Alex"),
             (".claude", "claude", "claude-code", "Claude Code"),
             (".codex", "codex", "codex", "Codex"),
             (".cursor", "cursor", "cursor", "Cursor"),

@@ -31,7 +31,7 @@ describe('startup preload shell', () => {
     ['zh-HK', 'en-US', 'zh-TW'],
     ['en-GB', 'zh-CN', 'en-US'],
     [undefined, 'zh-Hant', 'zh-TW'],
-    ['fr-FR', 'en-US', 'zh-CN'],
+    ['fr-FR', 'en-US', 'fr-FR'],
   ])('localizes first-paint text for saved locale %s and system language %s', (saved, system, expected) => {
     const dom = new JSDOM(readIndexHtml(), {
       url: 'http://localhost:1422/',
@@ -76,7 +76,7 @@ describe('startup preload shell', () => {
     expect(dom.window.document.documentElement.lang).toBe('zh-CN');
     expect(dom.window.document.getElementById('root')?.childElementCount).toBe(0);
     expect(dom.window.document.getElementById('openbitfun-startup-overlay')).not.toBeNull();
-    expect(hint?.textContent).toBe('正在启动 OpenBitFun...');
+    expect(hint?.textContent).toBe('正在启动 Alex...');
 
     const controls = dom.window.document.querySelector<HTMLElement>('[data-startup-window-controls]');
     expect(controls?.hidden).toBe(false);

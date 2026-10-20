@@ -30,7 +30,8 @@ export type PanelContentType =
   | 'generative-widget'
   | 'openbitfun-canvas'
   | 'browser'
-  | 'html-preview';
+  | 'html-preview'
+  | 'redacted-document-viewer';
 
 export interface PanelContent {
   type: PanelContentType;

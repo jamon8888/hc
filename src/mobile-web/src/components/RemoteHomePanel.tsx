@@ -30,7 +30,7 @@ const RemoteHomePanel: React.FC<RemoteHomePanelProps> = ({
           <span className="remote-home__menu remote-home__menu--placeholder" aria-hidden="true" />
         )}
         <div className="remote-home__heading">
-          <h2 id="remote-home-title">OpenBitFun</h2>
+          <h2 id="remote-home-title">Alex</h2>
         </div>
         <span className="remote-home__header-spacer" aria-hidden="true" />
       </header>

@@ -40,7 +40,6 @@ const ENTITY_TYPE_COLORS: Record<string, string> = {
   MAC_ADDRESS: '#6b7280', // gray
   COOKIE_ID: '#6b7280', // gray
   ORGANIZATION: '#22c55e', // green
-  LOCATION: '#06b6d4', // cyan
 };
 
 const ENTITY_TYPE_LABELS: Record<string, string> = {
@@ -74,7 +73,6 @@ const ENTITY_TYPE_LABELS: Record<string, string> = {
   MAC_ADDRESS: 'MAC Address',
   COOKIE_ID: 'Cookie ID',
   ORGANIZATION: 'Organization',
-  LOCATION: 'Location',
 };
 
 export const RevealableEntityBadge: React.FC<RevealableEntityBadgeProps> = ({
@@ -138,7 +136,8 @@ export const RevealableEntityBadge: React.FC<RevealableEntityBadgeProps> = ({
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
             handleClick();
-          }}
+          }
+        }}
         tabIndex={0}
         role="button"
         aria-label={`${label}: ${isRevealed ? 'Click to hide' : 'Click to reveal'}`}
@@ -152,7 +151,8 @@ export const RevealableEntityBadge: React.FC<RevealableEntityBadgeProps> = ({
         {!isLoading && (
           <span style={{ fontSize: '0.7em', opacity: 0.7 }}>
             {isRevealed ? '🔓' : '🔒'}
-          </span>}
+          </span>
+        )}
         </span>
     </Tooltip>
   );

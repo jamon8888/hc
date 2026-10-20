@@ -77,16 +77,63 @@ function stripRustComments(source) {
   return source.replace(/\/\*[\s\S]*?\*\//gu, '').replace(/\/\/.*$/gmu, '');
 }
 
+const FEATURE_GATE_PATTERN = /^\s*cfg\s*\(\s*feature\s*=\s*"([^"]+)"\s*\)\s*$/u;
+
+/**
+ * Parse `tauri::generate_handler![...]` registrations.
+ *
+ * An entry may be preceded by attributes, most commonly
+ * `#[cfg(feature = "basemind")]`. Feature-gated entries stay part of the set:
+ * the Product Operation Registry owns exactly one row for every desktop
+ * Tauri command regardless of the feature gates guarding its registration, and
+ * the catalog must agree with those rows. Any other `cfg(...)` predicate is
+ * rejected rather than guessed at, so a future platform- or state-gated
+ * command forces an explicit decision here.
+ */
 export function parseRegisteredCommands(source) {
   const match = source.match(/\.invoke_handler\(tauri::generate_handler!\[([\s\S]*?)\]\)/u);
   if (!match) throw new Error('Desktop invoke_handler registration block was not found');
-  const entries = stripRustComments(match[1])
-    .split(',')
-    .map((entry) => entry.trim())
-    .filter(Boolean);
-  const invalid = entries.filter((entry) => !/^[A-Za-z0-9_:]+$/u.test(entry));
+
+  const found = [];
+  let gates = [];
+  for (const rawLine of stripRustComments(match[1]).split('\n')) {
+    let rest = rawLine.trim();
+    if (!rest) continue;
+    const attributes = [];
+    while (rest.startsWith('#[')) {
+      const end = rest.lastIndexOf(']');
+      if (end < 0) throw new Error(`Unterminated attribute in invoke_handler: ${rest}`);
+      attributes.push(rest.slice(2, end).trim());
+      rest = rest.slice(end + 1).trim();
+    }
+    gates.push(...attributes);
+    if (!rest) continue;
+    for (const segment of rest.split(',')) {
+      const entry = segment.trim();
+      if (!entry) continue;
+      found.push({ entry, gates });
+      gates = [];
+    }
+  }
+  if (gates.length) {
+    throw new Error(`invoke_handler attribute without a following command: ${gates.join(', ')}`);
+  }
+
+  const invalid = found.map(({ entry }) => entry).filter((entry) => !/^[A-Za-z0-9_:]+$/u.test(entry));
   if (invalid.length) throw new Error(`Unsupported invoke_handler entries: ${invalid.join(', ')}`);
-  return entries.map((rustPath) => ({ id: rustPath.split('::').at(-1), rustPath }));
+
+  const entries = [];
+  for (const { entry, gates: entryGates } of found) {
+    for (const gate of entryGates) {
+      if (FEATURE_GATE_PATTERN.test(gate)) continue;
+      throw new Error(
+        `Unsupported invoke_handler attribute \`#[${gate}]\` on ${entry}: `
+        + 'only feature gates are understood; extend parseRegisteredCommands for other cfg predicates.',
+      );
+    }
+    entries.push({ id: entry.split('::').at(-1), rustPath: entry });
+  }
+  return entries;
 }
 
 function findBalancedFunctionEnd(source, start) {

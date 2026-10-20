@@ -53,7 +53,7 @@
     "release_letter": {
       "skip": "Read letter",
       "replay": "Replay the release letter animation",
-      "replay_mascot": "Replay the OpenBitFun character jump"
+      "replay_mascot": "Replay the Alex character jump"
     },
     "common": {
       "learn_more": "Learn more",
