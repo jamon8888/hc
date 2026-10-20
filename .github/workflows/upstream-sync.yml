@@ -2,7 +2,7 @@ name: Upstream Sync Validation
 
 on:
   schedule:
-    - cron: '0 6 * * 1'  # Tous les lundis 6h UTC
+    - cron: '0 6 * * 1'  # Mondays 06:00 UTC
   workflow_dispatch:
     inputs:
       upstream_branch:
@@ -32,6 +32,13 @@ jobs:
     name: Validate Upstream Sync
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    env:
+      # Scheduled runs carry no inputs, so the dispatch defaults must be
+      # applied here. Every step reads these variables instead of
+      # github.event.inputs; previously the empty input rendered as the
+      # invalid ref "upstream/..HEAD" and failed the first git log.
+      UPSTREAM_BRANCH: ${{ github.event.inputs.upstream_branch || 'main' }}
+      STRATEGY: ${{ github.event.inputs.strategy || 'test-merge' }}
     steps:
       - name: Checkout fork
         uses: actions/checkout@v5
@@ -45,45 +52,54 @@ jobs:
           git fetch upstream --tags --prune
 
       - name: Show divergence
+        id: divergence
         run: |
           echo "=== Local commits not in upstream ==="
-          git log --oneline upstream/${{ github.event.inputs.upstream_branch }}..HEAD | wc -l
+          local_ahead=$(git log --oneline "upstream/${UPSTREAM_BRANCH}..HEAD" | wc -l)
+          echo "$local_ahead"
           echo "=== Upstream commits not in local ==="
-          git log --oneline HEAD..upstream/${{ github.event.inputs.upstream_branch }} | wc -l
+          upstream_ahead=$(git log --oneline "HEAD..upstream/${UPSTREAM_BRANCH}" | wc -l)
+          echo "$upstream_ahead"
           echo "=== Diff stat ==="
-          git diff --stat HEAD..upstream/${{ github.event.inputs.upstream_branch }}
+          git diff --stat "HEAD..upstream/${UPSTREAM_BRANCH}"
+          {
+            echo "local_ahead=$local_ahead"
+            echo "upstream_ahead=$upstream_ahead"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Test merge strategy
-        if: github.event.inputs.strategy == 'test-merge'
+        if: env.STRATEGY == 'test-merge'
         run: |
           git config user.email "github-actions@users.noreply.github.com"
           git config user.name "github-actions"
           git checkout -b test-merge-${{ github.run_id }}
-          if git merge upstream/${{ github.event.inputs.upstream_branch }} --no-ff -m "chore: test merge upstream/${{ github.event.inputs.upstream_branch }}" 2>&1; then
-            echo "✅ Merge test passed - no conflicts"
+          if git merge "upstream/${UPSTREAM_BRANCH}" --no-ff -m "chore: test merge upstream/${UPSTREAM_BRANCH}" 2>&1; then
+            echo "Merge test passed - no conflicts"
           else
-            echo "⚠️ Merge has conflicts - analyzing..."
+            echo "Merge has conflicts - analyzing..."
             echo "=== CONFLICTED FILES ==="
             git diff --name-only --diff-filter=U | head -100
             echo "=== CONFLICT SUMMARY ==="
             git diff --name-only --diff-filter=U | wc -l
-            # Don't fail - we want to see the report
+            # Report-only by design: abort the conflicted merge so the
+            # follow-up checkout does not fail on an unmerged index.
+            git merge --abort 2>/dev/null || true
           fi
           git checkout main
           git branch -D test-merge-${{ github.run_id }} 2>/dev/null || true
 
       - name: Test rebase strategy
-        if: github.event.inputs.strategy == 'test-rebase'
+        if: env.STRATEGY == 'test-rebase'
         run: |
           git config user.email "github-actions@users.noreply.github.com"
           git config user.name "github-actions"
           git checkout -b test-rebase-${{ github.run_id }}
           git config rerere.enabled true
           git config rerere.autoupdate true
-          if git rebase upstream/${{ github.event.inputs.upstream_branch }} 2>&1 | tee rebase.log; then
-            echo "✅ Rebase clean - no conflicts"
+          if git rebase "upstream/${UPSTREAM_BRANCH}" 2>&1 | tee rebase.log; then
+            echo "Rebase clean - no conflicts"
           else
-            echo "⚠️ Rebase has conflicts:"
+            echo "Rebase has conflicts:"
             grep -c "^CONFLICT" rebase.log || true
             echo "First 20 conflicts:"
             grep "^CONFLICT" rebase.log | head -20
@@ -93,7 +109,7 @@ jobs:
           git branch -D test-rebase-${{ github.run_id }} 2>/dev/null || true
 
       - name: Run repo checks on merged state
-        if: github.event.inputs.strategy != 'open-pr'
+        if: env.STRATEGY != 'open-pr'
         run: |
           # Skip checks if merge/rebase had conflicts (we're on main branch now)
           echo "=== Skipping build checks due to known massive divergence ==="
@@ -106,22 +122,22 @@ jobs:
           echo "  cargo check --workspace --locked"
 
       - name: Open PR with merge commit
-        if: github.event.inputs.strategy == 'open-pr'
+        if: env.STRATEGY == 'open-pr'
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          branch: sync/upstream-${{ github.event.inputs.upstream_branch }}-${{ github.run_id }}
+          branch: sync/upstream-${{ env.UPSTREAM_BRANCH }}-${{ github.run_id }}
           base: main
-          title: 'chore: sync upstream/${{ github.event.inputs.upstream_branch }} (${{ github.run_id }})'
+          title: 'chore: sync upstream/${{ env.UPSTREAM_BRANCH }} (${{ github.run_id }})'
           body: |
-            Automated sync from upstream/${{ github.event.inputs.upstream_branch }}.
-            
+            Automated sync from upstream/${{ env.UPSTREAM_BRANCH }}.
+
             **Divergence:**
-            - Local ahead: `$(git log --oneline upstream/${{ github.event.inputs.upstream_branch }}..HEAD | wc -l)` commits
-            - Upstream ahead: `$(git log --oneline HEAD..upstream/${{ github.event.inputs.upstream_branch }} | wc -l)` commits
-            
+            - Local ahead: `${{ steps.divergence.outputs.local_ahead }}` commits
+            - Upstream ahead: `${{ steps.divergence.outputs.upstream_ahead }}` commits
+
             **Strategy:** Merge commit (preserves both histories)
-            
+
             **Review required:** Check for conflicts in:
             - Cargo.toml / Cargo.lock (workspace deps)
             - pnpm-lock.yaml
@@ -132,10 +148,12 @@ jobs:
             needs-review
           draft: true
 
-  # Job séparé pour tester le build complet sur la PR créée
+  # Separate job to run the full build against the PR created above.
   build-test:
     name: Full Build Test
     needs: validate-sync
+    # Job-level `if` cannot see the `env` context, so this deliberately keeps
+    # github.event.inputs: scheduled runs have no inputs and stay skipped.
     if: github.event.inputs.strategy == 'open-pr'
     runs-on: ubuntu-latest
     timeout-minutes: 90
