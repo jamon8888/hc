@@ -578,6 +578,23 @@ describe('WorkspaceManager device surface switching', () => {
     deviceSurface.activateSurface(deviceSurface.LOCAL_SURFACE_ID);
     expect(manager.getState().currentWorkspace?.name).toBe('Local repo renamed');
   });
+
+  it('reports the device surface that owns a workspace id', async () => {
+    globalStateMocks.initializeWorkspaceStartupState
+      .mockResolvedValueOnce(startupSnapshot(workspaceA))
+      .mockResolvedValueOnce(startupSnapshot(workspaceB));
+    const { manager, deviceSurface } = await getFreshWorkspaceHarness();
+
+    await manager.initialize();
+    expect(manager.surfaceOwningWorkspace('workspace-a')).toBe(deviceSurface.LOCAL_SURFACE_ID);
+
+    deviceSurface.activateSurface('peer-b');
+    await manager.reinitializeForPeerModeSwitch();
+    expect(manager.surfaceOwningWorkspace('workspace-b')).toBe('peer-b');
+    expect(manager.surfaceOwningWorkspace('workspace-a')).toBe(deviceSurface.LOCAL_SURFACE_ID);
+    expect(manager.surfaceOwningWorkspace('unknown-workspace')).toBeNull();
+    expect(manager.surfaceOwningWorkspace('  ')).toBeNull();
+  });
 });
 
 describe('WorkspaceManager project rename', () => {
