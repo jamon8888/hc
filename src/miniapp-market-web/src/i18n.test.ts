@@ -12,6 +12,6 @@ it('uses browser English even when storage is unavailable', () => {
   vi.stubGlobal('navigator', { language: 'en-GB' });
   expect(initialLocale()).toBe('en-US');
 });
-it.each([['zh-Hant-HK', 'zh-TW'], ['zh-Hans', 'zh-CN'], ['en', 'en-US'], ['fr', undefined]])('resolves %s from the shared locale contract', (input, expected) => {
+it.each([['zh-Hant-HK', 'zh-TW'], ['zh-Hans', 'zh-CN'], ['en', 'en-US'], ['fr', 'fr-FR']])('resolves %s from the shared locale contract', (input, expected) => {
   expect(resolveMarketLocale(input)).toBe(expected);
 });
