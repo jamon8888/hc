@@ -13,7 +13,7 @@ use log::debug;
 ///
 /// The value comes from the shared i18n contract (`surfaceDefaults.core`), so the
 /// backend, the Desktop host, and the Agent prompt language stay on one locale.
-const DEFAULT_APP_LANGUAGE: LocaleId = LocaleId::default();
+const DEFAULT_APP_LANGUAGE: LocaleId = crate::service::i18n::DEFAULT_LOCALE;
 
 /// Returns a supported `app.language` from global config; otherwise the product
 /// default locale (matches [`crate::service::config::AppConfig::default`]).

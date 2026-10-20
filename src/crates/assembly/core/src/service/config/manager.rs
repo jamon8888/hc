@@ -519,6 +519,11 @@ impl ConfigManager {
 
         let mut config = GlobalConfig::default();
         config.app.language = language.to_string();
+        // The repaired document predates the product locale rollout, so it must
+        // not claim the rollout already ran. The rollout applied after this
+        // repair is what switches the reconstructed document to the product
+        // default language.
+        config.app.language_rollout = None;
         if let Some(themes) = root.get("themes") {
             let Some(selection) = themes.get("current").and_then(Value::as_str) else {
                 return Ok(None);

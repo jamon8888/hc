@@ -56,6 +56,12 @@ impl LocaleId {
     }
 }
 
+/// The product default locale from the shared i18n contract.
+///
+/// This is the const form of [`LocaleId::default`], so hosts can bind the
+/// contract default in a constant.
+pub const DEFAULT_LOCALE: LocaleId = GENERATED_DEFAULT_LOCALE;
+
 impl Default for LocaleId {
     fn default() -> Self {
         GENERATED_DEFAULT_LOCALE
