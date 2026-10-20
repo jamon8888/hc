@@ -93,7 +93,7 @@ export const MODEL_PROVIDERS = {
 
 
 export const DEFAULT_CONFIG = {
-  LANGUAGE: 'zh-CN',
+  LANGUAGE: 'fr-FR',
   AUTO_SAVE: true,
   AUTO_ANALYZE: false,
   SHOW_LINE_NUMBERS: true,

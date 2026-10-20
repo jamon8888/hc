@@ -291,10 +291,35 @@ impl ConfigManager {
             self.create_default_config().await?;
         }
 
+        self.apply_locale_rollout().await?;
+
         if let Err(error) = self.consume_installer_config_handoff().await {
             warn!("Could not apply installer configuration handoff: {error}");
         }
 
+        Ok(())
+    }
+
+    /// Forces the product default locale on installations that predate the
+    /// rollout, exactly once.
+    ///
+    /// `app.language_rollout` records the locale that was forced. A document
+    /// written before that field existed carries no marker, so it is migrated
+    /// here; once the marker matches, the language the user picks afterwards is
+    /// authoritative and the rollout never runs again.
+    async fn apply_locale_rollout(&mut self) -> OpenBitFunResult<()> {
+        let target = DEFAULT_APP_LANGUAGE;
+        if self.config.app.language_rollout.as_deref() == Some(target) {
+            return Ok(());
+        }
+
+        let previous_language = self.config.app.language.clone();
+        self.config.app.language = target.to_string();
+        self.config.app.language_rollout = Some(target.to_string());
+        self.save_config().await?;
+        info!(
+            "Applied product locale rollout: previous_language={previous_language}, language={target}"
+        );
         Ok(())
     }
 
@@ -982,7 +1007,7 @@ mod tests {
         ConfigManagerSettings, INSTALLER_MODEL_ID,
     };
     use crate::infrastructure::PathManager;
-    use crate::service::config::types::GlobalConfig;
+    use crate::service::config::types::{GlobalConfig, DEFAULT_APP_LANGUAGE};
     use openbitfun_core_types::installer_config_handoff::{
         InstallerConfigHandoff, InstallerModelHandoff, INSTALLER_CONFIG_HANDOFF_FILE_NAME,
     };
@@ -1177,7 +1202,7 @@ mod tests {
         let manager = ConfigManager::new(manager_settings(path_manager.clone()))
             .await
             .unwrap();
-        assert_eq!(manager.config.app.language, "en-US");
+        assert_eq!(manager.config.app.language, DEFAULT_APP_LANGUAGE);
         assert_eq!(manager.config.appearance.selection, "openbitfun-midnight");
         assert_eq!(
             manager.config.schema_version,
@@ -1189,6 +1214,74 @@ mod tests {
             .unwrap();
         let backup = backups.next_entry().await.unwrap().unwrap().path();
         assert_eq!(tokio::fs::read_to_string(backup).await.unwrap(), original);
+    }
+
+    #[tokio::test]
+    async fn locale_rollout_forces_the_product_default_once() {
+        let temp = tempfile::tempdir().unwrap();
+        let path_manager = Arc::new(PathManager::with_user_root_for_tests(
+            temp.path().join("rollout"),
+        ));
+        path_manager.initialize_user_directories().await.unwrap();
+
+        // A document written before the rollout existed: no marker, and a
+        // language the user had picked earlier.
+        let mut config = GlobalConfig::default();
+        config.app.language = "en-US".to_string();
+        config.app.language_rollout = None;
+        tokio::fs::write(
+            path_manager.app_config_file(),
+            serde_json::to_vec(&config).unwrap(),
+        )
+        .await
+        .unwrap();
+
+        let manager = ConfigManager::new(manager_settings(path_manager.clone()))
+            .await
+            .unwrap();
+        assert_eq!(manager.config.app.language, DEFAULT_APP_LANGUAGE);
+        assert_eq!(
+            manager.config.app.language_rollout.as_deref(),
+            Some(DEFAULT_APP_LANGUAGE)
+        );
+
+        // The rollout is recorded in the persisted document, so a second load
+        // keeps the same locale and does not rewrite the document again.
+        let persisted: serde_json::Value =
+            serde_json::from_slice(&tokio::fs::read(path_manager.app_config_file()).await.unwrap())
+                .unwrap();
+        assert_eq!(persisted["app"]["language_rollout"], DEFAULT_APP_LANGUAGE);
+
+        let manager = ConfigManager::new(manager_settings(path_manager.clone()))
+            .await
+            .unwrap();
+        assert_eq!(manager.config.app.language, DEFAULT_APP_LANGUAGE);
+    }
+
+    #[tokio::test]
+    async fn locale_rollout_keeps_a_language_the_user_picked_afterwards() {
+        let temp = tempfile::tempdir().unwrap();
+        let path_manager = Arc::new(PathManager::with_user_root_for_tests(
+            temp.path().join("rollout-keep"),
+        ));
+        path_manager.initialize_user_directories().await.unwrap();
+
+        let mut config = GlobalConfig::default();
+        config.app.language = "en-US".to_string();
+        config.app.language_rollout = Some(DEFAULT_APP_LANGUAGE.to_string());
+        let original = serde_json::to_vec(&config).unwrap();
+        tokio::fs::write(path_manager.app_config_file(), &original)
+            .await
+            .unwrap();
+
+        let manager = ConfigManager::new(manager_settings(path_manager.clone()))
+            .await
+            .unwrap();
+        assert_eq!(manager.config.app.language, "en-US");
+        assert_eq!(
+            tokio::fs::read(path_manager.app_config_file()).await.unwrap(),
+            original
+        );
     }
 
     #[test]

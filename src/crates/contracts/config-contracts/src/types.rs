@@ -152,6 +152,17 @@ fn default_close_button_behavior() -> String {
 #[serde(default)]
 pub struct AppConfig {
     pub language: String,
+    /// One-time product locale rollout marker.
+    ///
+    /// The product forces its default locale for existing installations once.
+    /// This field records the locale that was forced, so the rollout is not
+    /// re-applied to a language the user picked afterwards, and a later rollout
+    /// can target a different locale without replaying an old one.
+    ///
+    /// A document written before this field existed has no marker and is
+    /// migrated when it is loaded.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub language_rollout: Option<String>,
     pub auto_update: bool,
     pub telemetry: bool,
     pub startup_behavior: String,
@@ -792,6 +803,15 @@ pub enum ModelCapability {
 }
 
 pub const CURRENT_CONFIG_SCHEMA_VERSION: u32 = 1;
+
+/// Canonical locale id the product starts in when the user has not chosen a
+/// language.
+///
+/// This mirrors `surfaceDefaults.core` in the shared i18n contract
+/// (`src/shared/i18n/contract/locales.json`). The configuration contract crate
+/// cannot read that generated contract, so the value is kept here explicitly and
+/// covered by the contract consistency test.
+pub const DEFAULT_APP_LANGUAGE: &str = "fr-FR";
 
 /// Model category (for UI display and filtering).
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -1864,7 +1884,8 @@ impl Default for GlobalConfig {
 impl Default for AppConfig {
     fn default() -> Self {
         Self {
-            language: "zh-CN".to_string(),
+            language: DEFAULT_APP_LANGUAGE.to_string(),
+            language_rollout: Some(DEFAULT_APP_LANGUAGE.to_string()),
             auto_update: true,
             telemetry: false,
             startup_behavior: "lastWorkspace".to_string(),

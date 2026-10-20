@@ -1075,7 +1075,9 @@ pub async fn run() {
                     let language = config_service
                         .get_config::<String>(Some("app.language"))
                         .await
-                        .unwrap_or_else(|_| "zh-CN".to_string());
+                        .unwrap_or_else(|_| {
+                            openbitfun_core::service::i18n::default_locale_code().to_string()
+                        });
 
                     let has_workspace = workspace_id.read().await.is_some();
                     let mode = if has_workspace {

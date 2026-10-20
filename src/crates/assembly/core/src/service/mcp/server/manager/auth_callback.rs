@@ -27,6 +27,7 @@ enum OAuthCallbackLocale {
     ZhCN,
     ZhTW,
     EnUS,
+    FrFR,
 }
 
 struct OAuthCallbackPageCopy {
@@ -54,7 +55,8 @@ impl OAuthCallbackLocale {
         match LocaleId::from_str(value)? {
             LocaleId::ZhCN => Some(Self::ZhCN),
             LocaleId::ZhTW => Some(Self::ZhTW),
-            LocaleId::EnUS | LocaleId::FrFR => Some(Self::EnUS),
+            LocaleId::EnUS => Some(Self::EnUS),
+            LocaleId::FrFR => Some(Self::FrFR),
         }
     }
 
@@ -63,7 +65,7 @@ impl OAuthCallbackLocale {
             .split(',')
             .filter_map(|part| part.split(';').next())
             .find_map(|part| Self::from_language_code(part.trim()))
-            .unwrap_or(Self::ZhCN)
+            .unwrap_or(Self::FrFR)
     }
 
     fn copy(self) -> OAuthCallbackPageCopy {
@@ -135,6 +137,29 @@ impl OAuthCallbackLocale {
                 error_detail_title: "Provider response",
                 close_hint: "This page can be closed after you review the status.",
             },
+            Self::FrFR => OAuthCallbackPageCopy {
+                html_lang: "fr-FR",
+                page_title: "Rappel OAuth Alex",
+                brand_label: "Alex Desktop",
+                badge_success: "Autorisation reçue",
+                badge_warning: "Rappel incomplet",
+                badge_error: "Autorisation échouée",
+                success_title: "Alex a reçu le rappel OAuth",
+                success_message:
+                    "Vous pouvez revenir à Alex. L'application échange le code d'autorisation et reconnecte le serveur MCP.",
+                success_detail_title: "La suite",
+                success_detail_body:
+                    "Cette page peut être fermée. Si la reconnexion ne se termine pas automatiquement, revenez aux paramètres MCP et relancez OAuth.",
+                warning_title: "Alex a reçu un rappel OAuth avec des paramètres manquants",
+                warning_message:
+                    "Le fournisseur vous a redirigé, mais des paramètres OAuth obligatoires manquaient. Revenez à Alex et relancez la connexion.",
+                warning_detail_title: "Paramètres manquants",
+                error_title: "Alex n'a pas pu terminer l'autorisation OAuth",
+                error_message:
+                    "Revenez à Alex et vérifiez la réponse du fournisseur ci-dessous avant de relancer OAuth.",
+                error_detail_title: "Réponse du fournisseur",
+                close_hint: "Cette page peut être fermée après avoir vérifié le statut.",
+            },
         }
     }
 }
@@ -155,7 +180,7 @@ fn resolve_oauth_callback_locale(
     preferred_language
         .and_then(OAuthCallbackLocale::from_language_code)
         .or_else(|| accept_language.map(OAuthCallbackLocale::from_accept_language))
-        .unwrap_or(OAuthCallbackLocale::ZhCN)
+        .unwrap_or(OAuthCallbackLocale::FrFR)
 }
 
 fn render_oauth_callback_page(
@@ -172,6 +197,7 @@ fn render_oauth_callback_page(
                     OAuthCallbackLocale::ZhCN => "OAuth 提供方拒绝了这次授权请求。",
                     OAuthCallbackLocale::ZhTW => "OAuth 提供方拒絕了這次授權請求。",
                     OAuthCallbackLocale::EnUS => "The provider rejected the authorization request.",
+                    OAuthCallbackLocale::FrFR => "Le fournisseur a refusé la demande d'autorisation.",
                 });
             (
                 copy.badge_error,
@@ -194,6 +220,7 @@ fn render_oauth_callback_page(
                     OAuthCallbackLocale::ZhCN => "完成",
                     OAuthCallbackLocale::ZhTW => "完成",
                     OAuthCallbackLocale::EnUS => "Done",
+                    OAuthCallbackLocale::FrFR => "Terminé",
                 },
             )
         } else {
@@ -539,7 +566,10 @@ async fn handle_oauth_callback(
 
 #[cfg(test)]
 mod tests {
-    use super::{render_oauth_callback_page, resolve_oauth_callback_locale, OAuthCallbackPayload};
+    use super::{
+        render_oauth_callback_page, resolve_oauth_callback_locale, OAuthCallbackLocale,
+        OAuthCallbackPayload,
+    };
 
     #[test]
     fn callback_page_prefers_the_product_locale_and_escapes_provider_errors() {
@@ -557,5 +587,24 @@ mod tests {
         assert!(page.contains("OpenBitFun could not finish the OAuth authorization"));
         assert!(page.contains("denied&lt;script&gt;: bad &amp; unsafe"));
         assert!(!page.contains("denied<script>"));
+    }
+
+    #[test]
+    fn callback_page_falls_back_to_the_product_default_locale() {
+        let locale = resolve_oauth_callback_locale(None, None);
+        assert!(matches!(locale, OAuthCallbackLocale::FrFR));
+
+        let page = render_oauth_callback_page(
+            &OAuthCallbackPayload {
+                code: Some("fixture-code".to_string()),
+                state: Some("fixture-state".to_string()),
+                error: None,
+                error_description: None,
+            },
+            locale,
+        );
+
+        assert!(page.contains("lang=\"fr-FR\""));
+        assert!(page.contains("Alex a reçu le rappel OAuth"));
     }
 }

@@ -568,7 +568,9 @@ pub async fn dispatch(
                 .config_service
                 .get_config(Some("app.language"))
                 .await
-                .unwrap_or_else(|_| "zh-CN".to_string());
+                .unwrap_or_else(|_| {
+                    openbitfun_core::service::i18n::default_locale_code().to_string()
+                });
             let lang = LocaleId::from_str(&lang)
                 .unwrap_or_default()
                 .as_str()
@@ -614,7 +616,7 @@ pub async fn dispatch(
                     .unwrap_or_default()
                     .as_str()
                     .to_string(),
-                Err(_) => "zh-CN".to_string(),
+                Err(_) => openbitfun_core::service::i18n::default_locale_code().to_string(),
             };
 
             Ok(serde_json::json!({

@@ -81,7 +81,7 @@ pub async fn i18n_get_current_language(state: State<'_, AppState>) -> Result<Str
             .unwrap_or_default()
             .as_str()
             .to_string()),
-        Err(_) => Ok("zh-CN".to_string()),
+        Err(_) => Ok(openbitfun_core::service::i18n::default_locale_code().to_string()),
     }
 }
 
@@ -136,7 +136,7 @@ pub async fn i18n_get_config(state: State<'_, AppState>) -> Result<Value, String
             .unwrap_or_default()
             .as_str()
             .to_string(),
-        Err(_) => "zh-CN".to_string(),
+        Err(_) => openbitfun_core::service::i18n::default_locale_code().to_string(),
     };
 
     Ok(serde_json::json!({

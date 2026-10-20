@@ -1,23 +1,23 @@
 {
   "version": 1,
-  "defaultLocale": "zh-CN",
+  "defaultLocale": "fr-FR",
   "fallbackLocale": "en-US",
   "unknownLocaleFallbackChain": [
     "en-US",
-    "zh-CN"
+    "fr-FR"
   ],
   "surfaceDefaults": {
     "android": "zh-CN",
-    "web-ui": "zh-CN",
+    "web-ui": "fr-FR",
     "mobile-web": "en-US",
-    "installer": "en-US",
-    "core": "zh-CN"
+    "installer": "fr-FR",
+    "core": "fr-FR"
   },
   "surfaceOrders": {
     "web-ui": [
-      "zh-CN",
-      "en-US",
       "fr-FR",
+      "en-US",
+      "zh-CN",
       "zh-TW"
     ],
     "mobile-web": [
@@ -27,16 +27,16 @@
       "fr-FR"
     ],
     "installer": [
-      "en-US",
       "fr-FR",
+      "en-US",
       "zh-CN",
       "zh-TW"
     ],
     "core": [
-      "zh-CN",
-      "zh-TW",
+      "fr-FR",
       "en-US",
-      "fr-FR"
+      "zh-CN",
+      "zh-TW"
     ]
   },
   "surfaces": {

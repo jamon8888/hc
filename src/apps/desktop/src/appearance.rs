@@ -203,7 +203,7 @@ impl AppearanceConfig {
         let default_appearance = Self::default();
         let default = StartupBootstrapConfig {
             appearance: default_appearance.clone(),
-            locale: "zh-CN".to_string(),
+            locale: openbitfun_core::service::i18n::default_locale_code().to_string(),
             keybindings: None,
         };
         let path_manager = match try_get_path_manager_arc() {
@@ -252,7 +252,7 @@ impl AppearanceConfig {
                     .pointer("/i18n/currentLanguage")
                     .and_then(|value| value.as_str())
             })
-            .unwrap_or("zh-CN")
+            .unwrap_or_else(|| openbitfun_core::service::i18n::default_locale_code().to_string())
             .to_string();
 
         let appearance_selection = config_value
@@ -315,8 +315,8 @@ impl AppearanceConfig {
     ) -> String {
         let appearance_mode = if self.is_light { "light" } else { "dark" };
         let startup_locale = &bootstrap_config.locale;
-        let startup_locale_json =
-            serde_json::to_string(&startup_locale).unwrap_or_else(|_| "\"zh-CN\"".to_string());
+        let startup_locale_json = serde_json::to_string(&startup_locale)
+            .unwrap_or_else(|_| format!("\"{}\"", openbitfun_core::service::i18n::default_locale_code()));
         let show_startup_window_controls = !cfg!(target_os = "macos");
         let native_sidebar_material = cfg!(any(target_os = "windows", target_os = "macos"));
         let startup_trace_id_json = serde_json::to_string(startup_trace_id)

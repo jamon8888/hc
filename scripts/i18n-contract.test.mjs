@@ -138,6 +138,21 @@ test('i18n contract generated files are in sync with the canonical contract', ()
   });
 });
 
+test('configuration contract default language mirrors the shared i18n contract', () => {
+  const contract = readJson('src/shared/i18n/contract/locales.json');
+  const configContractsSource = readText('src/crates/contracts/config-contracts/src/types.rs');
+  const declared = configContractsSource.match(
+    /pub const DEFAULT_APP_LANGUAGE: &str = "([^"]+)";/,
+  );
+
+  assert.ok(declared, 'config-contracts must declare DEFAULT_APP_LANGUAGE');
+  assert.equal(
+    declared[1],
+    contract.surfaceDefaults.core,
+    'config-contracts DEFAULT_APP_LANGUAGE must match the shared contract surfaceDefaults.core',
+  );
+});
+
 test('shared i18n terms exist for every canonical locale with matching keys', () => {
   const contract = readJson('src/shared/i18n/contract/locales.json');
   const expectedLocaleIds = contract.locales.map((locale) => locale.id);

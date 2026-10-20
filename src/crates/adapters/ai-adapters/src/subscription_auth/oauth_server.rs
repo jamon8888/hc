@@ -282,6 +282,9 @@ fn preferred_locale(request: &str) -> &'static str {
         if language.starts_with("zh") {
             return "zh-CN";
         }
+        if language.starts_with("fr") {
+            return "fr-FR";
+        }
         break;
     }
     "en"

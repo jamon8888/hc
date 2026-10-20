@@ -2,7 +2,7 @@
 
 import { api } from './ApiClient';
 import type { LocaleId, LocaleMetadata, I18nConfig } from '@/infrastructure/i18n/types';
-import { getLocaleMetadata } from '@/infrastructure/i18n/presets';
+import { getLocaleMetadata, DEFAULT_LOCALE } from '@/infrastructure/i18n/presets';
 import { createLogger } from '@/shared/utils/logger';
 
 const log = createLogger('I18nAPI');
@@ -25,7 +25,7 @@ class I18nAPIClass {
       return language as LocaleId;
     } catch (error) {
       log.warn('Failed to get current language, using default', error);
-      return 'zh-CN';
+      return DEFAULT_LOCALE;
     }
   }
 
@@ -69,7 +69,7 @@ class I18nAPIClass {
     try {
       const config = await api.invoke<any>('i18n_get_config');
       return {
-        currentLanguage: config.currentLanguage || 'zh-CN',
+        currentLanguage: config.currentLanguage || DEFAULT_LOCALE,
         fallbackLanguage: config.fallbackLanguage || 'en-US',
         autoDetect: config.autoDetect || false,
         loadedNamespaces: [],
@@ -77,7 +77,7 @@ class I18nAPIClass {
     } catch (error) {
       log.warn('Failed to get i18n config, using defaults', error);
       return {
-        currentLanguage: 'zh-CN',
+        currentLanguage: DEFAULT_LOCALE,
         fallbackLanguage: 'en-US',
         autoDetect: false,
         loadedNamespaces: [],
