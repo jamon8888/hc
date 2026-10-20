@@ -129,6 +129,13 @@ export interface EditorTypeOptions {
   basemindAvailable?: boolean;
 }
 
+/**
+ * Panel content type that opens a file.
+ *
+ * Document formats resolve to the redacted document viewer only when the
+ * host implements the Basemind redaction surface; otherwise they keep the
+ * plain editor behavior.
+ */
 export function getEditorType(
   filePathOrName: string,
   options: EditorTypeOptions = {},

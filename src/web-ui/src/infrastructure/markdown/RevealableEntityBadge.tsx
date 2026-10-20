@@ -60,6 +60,13 @@ export interface RevealableEntityBadgeProps {
   workspaceId?: string;
 }
 
+/**
+ * Badge for one redacted entity in rendered Markdown.
+ *
+ * The badge shows the masked label until the user asks for the original
+ * value. The reveal command is UI-only: the value never enters the Markdown
+ * or the conversation history.
+ */
 export const RevealableEntityBadge: React.FC<RevealableEntityBadgeProps> = ({
   entityType,
   entityId,

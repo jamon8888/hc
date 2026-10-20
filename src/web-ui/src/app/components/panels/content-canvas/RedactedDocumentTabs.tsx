@@ -37,6 +37,15 @@ function isBinaryContent(content: string): boolean {
   return content.includes('\u0000');
 }
 
+/**
+ * Redacted document viewer.
+ *
+ * The Source tab reads the document through the workspace file owner, and
+ * the Redacted tab loads the PII-safe version from the Basemind surface. A
+ * workspace on a connected device has no controller-local Basemind surface,
+ * so the redacted tab states that explicitly instead of answering with the
+ * controller's own files.
+ */
 export const RedactedDocumentTabs: React.FC<RedactedDocumentTabsProps> = ({
   sourcePath,
   redactedMarkdown,
