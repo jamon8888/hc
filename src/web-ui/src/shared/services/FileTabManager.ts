@@ -124,9 +124,11 @@ class FileTabManager {
    * Capability-aware routing for document formats the redacted viewer owns.
    *
    * The Basemind surface is controller-local, so a workspace that lives on a
-   * connected device is not redactable here and keeps the plain editor. A
-   * host without the Basemind capability also keeps the plain editor, with a
-   * loud notice so the missing feature is never silent.
+   * connected device is not redactable here. The viewer still serves that
+   * document: its source tab reads through the workspace owner, and the
+   * redacted tab states that redaction is unavailable. The plain editor would
+   * only show a binary dump. A host without the Basemind capability keeps the
+   * plain editor, with a loud notice so the missing feature is never silent.
    */
   private async openRedactedDocumentOrFallback(args: {
     options: FileTabOptions;
@@ -136,7 +138,7 @@ class FileTabManager {
   }): Promise<void> {
     const { options, scope, filePath, fileName } = args;
     if (isBasemindPeerRefused(scope.workspaceId, scope.surfaceId)) {
-      this.openEditorTab(options, scope, filePath, fileName, 'code-editor');
+      this.openEditorTab(options, scope, filePath, fileName, 'redacted-document-viewer');
       return;
     }
 

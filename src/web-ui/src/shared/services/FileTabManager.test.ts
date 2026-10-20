@@ -208,7 +208,7 @@ describe('FileTabManager redacted document routing', () => {
     });
   });
 
-  it('keeps the plain editor for a workspace on a connected device without probing', async () => {
+  it('opens a peer-owned document in the viewer, which states that redaction is unavailable', async () => {
     mocks.isBasemindPeerRefused.mockReturnValue(true);
     manager.openFile({ filePath: '/tmp/workspace/deck.pptx' });
 
@@ -216,7 +216,8 @@ describe('FileTabManager redacted document routing', () => {
       expect(mocks.openContentInBestTarget).toHaveBeenCalled();
     });
     const content = mocks.openContentInBestTarget.mock.calls[0][0];
-    expect(content.type).toBe('code-editor');
+    expect(content.type).toBe('redacted-document-viewer');
     expect(mocks.probeBasemindSurface).not.toHaveBeenCalled();
+    expect(mocks.notifyError).not.toHaveBeenCalled();
   });
 });
