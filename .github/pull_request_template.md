@@ -48,4 +48,4 @@ Risk: <!-- Low / Medium / High -->
 - [ ] User-facing strings, docs, and locales are updated where applicable.
 - [ ] An agent review ran against this diff (see `REVIEW.md`), or its absence is explained, and every finding is fixed or resolved with a reason.
 - [ ] The risk tier above matches the change, and any reviewer it requires has approved this commit.
-- [ ] AI-assisted changes name the person who directed the agent; they count as one of the required reviewers.
+- [ ] AI-assisted changes name the person who directed the agent; that person counts as one of the required reviewers, exactly as if they had written the change — never the agent.

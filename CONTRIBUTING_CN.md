@@ -179,7 +179,7 @@ UI 改动在有帮助时附截图或短录屏。无法运行相关检查时，�
 ## 代码评审
 
 评审是分层进行的，而不是最后一道闸门。大部分阅读由机器完成，人的时间只花在风险上。
-[`REVIEW.md`](REVIEW.md) 是评审方的契约：本仓库的失败形态、发现项如何书写，以及保证评审收敛的限额。
+[`REVIEW_CN.md`](REVIEW_CN.md) 是评审方的契约：本仓库的失败形态、发现项如何书写，以及保证评审收敛的限额。
 评审前请先阅读它，邀请他人评审前同样请先阅读它。
 
 ### 打开 PR 之前
@@ -187,7 +187,7 @@ UI 改动在有帮助时附截图或短录屏。无法运行相关检查时，�
 - 给 Agent 可以自行运行的检查，并把命令与输出粘贴到 PR 的 Verification 区块。
   "完成了" 不是证据，命令和它的输出才是。
 - 先用新上下文对自己的 diff 跑一遍 Agent 评审：`code-review` skill（Standards 对照
-  `CONTRIBUTING.md`、`REVIEW.md` 和最近的 `AGENTS.md`；Spec 对照 `.scratch/` 下的 Issue），
+  `CONTRIBUTING.md`、`REVIEW_CN.md` 和最近的 `AGENTS.md`；Spec 对照 `.scratch/` 下的 Issue），
   再加上上表中的 focused 检查。先修掉它发现的问题，再占用人的注意力。
 - 保持改动小。容易回滚的改动才容易通过评审。
 
@@ -217,8 +217,8 @@ ocr review --preview     # 只列出将要读取的文件，不消耗模型调�
 ```
 
 - 凭据保存在仓库之外的 `~/.opencodereview/config.json`（权限 `600`）。永远不要把
-  端点 URL 或 API key 写进会被提交的文件——`pnpm run check:repo-hygiene` 会拒绝它们，
-  而进入 Git 的密钥必须轮换。
+  API key 或私钥写进会被提交的文件——`pnpm run check:repo-hygiene` 会标记私钥特征
+  与形似密钥的字符串，而进入 Git 的密钥必须轮换。
 - 在 OpenCode 中，`.opencode/plugins/` 注册了 `ocr_review`、`ocr_health`、
   `/ocr-review` 和 `/ocr-health`。需先在 `.opencode/` 内执行 `npm install`；
   其 `node_modules` 已被 gitignore。
@@ -236,7 +236,8 @@ ocr review --preview     # 只列出将要读取的文件，不消耗模型调�
 | 高 | 认证、凭据、发布与打包、CI 工作流、持久化数据结构、升级兼容、安全边界 | 两人 |
 
 - Agent 的批准永远不能算作一个人的批准。
-- 指挥 Agent 完成改动的人，也计为所需评审人之一，如同代码由其亲手写成。
+- 指挥 Agent 产出改动的人即为其人类负责人，可计为所需评审人之一，等同于亲手
+  写成该改动；Agent 本身永远不计。
 - 一次批准只覆盖一个 commit。新 commit（尤其是 Agent 推送或人工解决的合并）需要重新批准。
 - 分支保护与 `CODEOWNERS` 是在服务端强制第 3、4 层的手段。在配置之前，风险等级只是作者与
   评审人共同遵守的规范。

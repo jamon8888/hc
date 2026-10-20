@@ -240,8 +240,9 @@ ocr review --preview     # list the files it would read, no model call
 ```
 
 - Credentials live in `~/.opencodereview/config.json` (mode `600`), outside the
-  repository. Never write an endpoint URL or API key into a committed file —
-  `pnpm run check:repo-hygiene` rejects them, and a key in Git needs rotation.
+  repository. Never write an API key or private key into a committed file —
+  `pnpm run check:repo-hygiene` flags private-key markers and token-shaped
+  secrets, and a key in Git needs rotation.
 - In OpenCode, `.opencode/plugins/` registers `ocr_review`, `ocr_health`,
   `/ocr-review` and `/ocr-health`. Run `npm install` inside `.opencode/`
   first; its `node_modules` is gitignored.
@@ -260,8 +261,9 @@ The change sets the tier, not the author. Declare it in the PR template.
 | High | Auth, credentials, release and packaging, CI workflows, persisted data shapes, upgrade compatibility, security boundaries | Two |
 
 - An agent's approval never counts as a person's.
-- Whoever directed an agent-generated change counts as one of the required
-  reviewers, exactly as if they had written it.
+- The person who directed an agent-generated change counts as one of the
+  required reviewers for it, exactly as if they had written it themselves;
+  the agent never counts.
 - An approval covers one commit. New commits — especially an agent's push or a
   hand-resolved merge — need a fresh approval.
 - Branch protection and `CODEOWNERS` are how layers 3 and 4 are enforced
