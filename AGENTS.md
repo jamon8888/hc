@@ -371,8 +371,9 @@ Risk tiers and approval counts live in `CONTRIBUTING.md` → Code review.
   `.opencode/plugins/` integration is installed. Fix what any of them finds
   first.
 - **Risk sets the review, not the author.** An agent's approval never counts
-  as a person's, and whoever directed an agent change counts as one of the
-  required reviewers.
+  as a person's. The person who directed an agent-generated change counts as
+  one of the required reviewers for it, exactly as if they had written the
+  change themselves; the agent never counts.
 - **Every finding is answered** — fixed, or resolved with a reason. Silence
   never closes a finding.
 - **Reviews converge.** After three review-and-fix rounds, step back and
