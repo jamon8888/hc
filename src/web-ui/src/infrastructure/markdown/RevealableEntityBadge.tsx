@@ -113,8 +113,10 @@ export const RevealableEntityBadge: React.FC<RevealableEntityBadgeProps> = ({
     >
       <span
         className={`pii-entity-badge pii-entity-badge--${tone}`}
+        data-openbitfun-component="pii-entity-badge"
+        data-openbitfun-part="root"
+        data-openbitfun-state={errorMessage ? 'error' : isRevealed ? 'revealed' : isLoading ? 'loading' : undefined}
         data-entity-type={entityType}
-        data-state={errorMessage ? 'error' : isRevealed ? 'revealed' : isLoading ? 'loading' : 'masked'}
         onClick={() => { void handleClick(); }}
         onKeyDown={(event) => {
           if (event.key === 'Enter' || event.key === ' ') {
@@ -126,13 +128,20 @@ export const RevealableEntityBadge: React.FC<RevealableEntityBadgeProps> = ({
         role="button"
         aria-label={statusText}
       >
-        <span className="pii-entity-badge__label">
+        <span className="pii-entity-badge__label" data-openbitfun-component="pii-entity-badge" data-openbitfun-part="label">
           {displayText}
         </span>
-        {isLoading && <span className="pii-entity-badge__spinner" aria-hidden="true" />}
+        {isLoading && (
+          <span
+            className="pii-entity-badge__spinner"
+            data-openbitfun-component="pii-entity-badge"
+            data-openbitfun-part="spinner"
+            aria-hidden="true"
+          />
+        )}
         {!isLoading && (isRevealed
-          ? <EyeOff className="pii-entity-badge__icon" size={12} aria-hidden="true" />
-          : <Eye className="pii-entity-badge__icon" size={12} aria-hidden="true" />)}
+          ? <EyeOff className="pii-entity-badge__icon" data-openbitfun-component="pii-entity-badge" data-openbitfun-part="icon" size={12} aria-hidden="true" />
+          : <Eye className="pii-entity-badge__icon" data-openbitfun-component="pii-entity-badge" data-openbitfun-part="icon" size={12} aria-hidden="true" />)}
       </span>
     </Tooltip>
   );

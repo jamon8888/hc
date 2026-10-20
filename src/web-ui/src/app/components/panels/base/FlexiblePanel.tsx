@@ -437,7 +437,7 @@ const FlexiblePanel: React.FC<ExtendedFlexiblePanelProps> = memo(({
         const redactedData = content.data || {};
 
         return (
-          <div className="openbitfun-flexible-panel__redacted-document-container" data-openbitfun-component="flexible-panel" data-openbitfun-part="redacted-document">
+          <div className="openbitfun-flexible-panel__redacted-document-container" data-openbitfun-component="flexible-panel" data-openbitfun-part="redactedDocument">
             {renderLazyEditor(
               <RedactedDocumentTabs
                 sourcePath={redactedData.filePath || ''}

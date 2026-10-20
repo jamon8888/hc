@@ -135,6 +135,11 @@ export const RedactedDocumentTabs: React.FC<RedactedDocumentTabsProps> = ({
   // The Basemind surface is controller-local, so a workspace on a connected
   // device is not redactable here. Entity reveal stays off for it.
   const peerRefused = isBasemindPeerRefused(workspaceId);
+  const viewerState = redactedState === 'error'
+    ? 'error'
+    : sourceState === 'loading' || redactedState === 'loading'
+      ? 'loading'
+      : undefined;
 
   const retryRedactedContent = useCallback(() => {
     redactedLoadStarted.current = false;
@@ -142,9 +147,16 @@ export const RedactedDocumentTabs: React.FC<RedactedDocumentTabsProps> = ({
   }, [loadRedactedContent]);
 
   return (
-    <div className="redacted-document-tabs" data-openbitfun-component="redacted-document-tabs">
+    <div
+      className="redacted-document-tabs"
+      data-openbitfun-component="redacted-document-tabs"
+      data-openbitfun-part="root"
+      data-openbitfun-state={viewerState}
+    >
       <Toolbar
         className="redacted-document-tabs__toolbar"
+        data-openbitfun-component="redacted-document-tabs"
+        data-openbitfun-part="toolbar"
         leading={
           <ToolbarGroup role="tablist" aria-label={fileName}>
             <button
@@ -153,6 +165,8 @@ export const RedactedDocumentTabs: React.FC<RedactedDocumentTabsProps> = ({
               aria-selected={activeTab === 'source'}
               onClick={() => setActiveTab('source')}
               className={`redacted-document-tabs__tab ${activeTab === 'source' ? 'active' : ''}`}
+              data-openbitfun-component="redacted-document-tabs"
+              data-openbitfun-part="tab"
             >
               <FileText size={14} /> {t('tabs.source')}
             </button>
@@ -162,6 +176,8 @@ export const RedactedDocumentTabs: React.FC<RedactedDocumentTabsProps> = ({
               aria-selected={activeTab === 'redacted'}
               onClick={() => setActiveTab('redacted')}
               className={`redacted-document-tabs__tab ${activeTab === 'redacted' ? 'active' : ''}`}
+              data-openbitfun-component="redacted-document-tabs"
+              data-openbitfun-part="tab"
             >
               <Shield size={14} />
               {t('tabs.redacted')}
@@ -174,7 +190,11 @@ export const RedactedDocumentTabs: React.FC<RedactedDocumentTabsProps> = ({
           </ToolbarGroup>
         }
         trailing={
-          <ToolbarGroup className="redacted-document-tabs__entity-summary">
+          <ToolbarGroup
+            className="redacted-document-tabs__entity-summary"
+            data-openbitfun-component="redacted-document-tabs"
+            data-openbitfun-part="summary"
+          >
             {totalEntities > 0 && (
               <span className="redacted-document-tabs__entity-badge">
                 <Shield size={12} /> {t('summary.piiDetected', { count: totalEntities })}
@@ -196,11 +216,23 @@ export const RedactedDocumentTabs: React.FC<RedactedDocumentTabsProps> = ({
         }
       />
 
-      <div className="redacted-document-tabs__content">
+      <div
+        className="redacted-document-tabs__content"
+        data-openbitfun-component="redacted-document-tabs"
+        data-openbitfun-part="content"
+      >
         {activeTab === 'source' ? (
-          <div className="redacted-document-tabs__source">
+          <div
+            className="redacted-document-tabs__source"
+            data-openbitfun-component="redacted-document-tabs"
+            data-openbitfun-part="source"
+          >
             {sourceState === 'loading' || sourceState === 'idle' ? (
-              <div className="redacted-document-tabs__loading">
+              <div
+                className="redacted-document-tabs__loading"
+                data-openbitfun-component="redacted-document-tabs"
+                data-openbitfun-part="loading"
+              >
                 <div className="redacted-document-tabs__spinner" />
                 <span>{t('state.sourceLoading')}</span>
               </div>
@@ -215,24 +247,44 @@ export const RedactedDocumentTabs: React.FC<RedactedDocumentTabsProps> = ({
                 <pre className="redacted-document-tabs__source-text">{sourceContent}</pre>
               </>
             ) : (
-              <div className="redacted-document-tabs__notice">
+              <div
+                className="redacted-document-tabs__notice"
+                data-openbitfun-component="redacted-document-tabs"
+                data-openbitfun-part="notice"
+              >
                 {t('state.sourceUnavailable', { fileName })}
               </div>
             )}
           </div>
         ) : (
-          <div className="redacted-document-tabs__redacted">
+          <div
+            className="redacted-document-tabs__redacted"
+            data-openbitfun-component="redacted-document-tabs"
+            data-openbitfun-part="redacted"
+          >
             {redactedState === 'loading' || redactedState === 'idle' ? (
-              <div className="redacted-document-tabs__loading">
+              <div
+                className="redacted-document-tabs__loading"
+                data-openbitfun-component="redacted-document-tabs"
+                data-openbitfun-part="loading"
+              >
                 <div className="redacted-document-tabs__spinner" />
                 <span>{t('state.loading')}</span>
               </div>
             ) : redactedState === 'unsupported' ? (
-              <div className="redacted-document-tabs__notice">
+              <div
+                className="redacted-document-tabs__notice"
+                data-openbitfun-component="redacted-document-tabs"
+                data-openbitfun-part="notice"
+              >
                 {t('state.peerUnsupported')}
               </div>
             ) : redactedState === 'error' ? (
-              <div className="redacted-document-tabs__notice">
+              <div
+                className="redacted-document-tabs__notice"
+                data-openbitfun-component="redacted-document-tabs"
+                data-openbitfun-part="notice"
+              >
                 <span>{t('state.loadFailed')}</span>
                 {redactedError && (
                   <span className="redacted-document-tabs__notice-detail">{redactedError}</span>

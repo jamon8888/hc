@@ -66,7 +66,7 @@ describe('RevealableEntityBadge', () => {
     mocks.revealEntity.mockResolvedValue('Ada Lovelace');
     const badge = render();
     expect(badge.textContent).toContain('[PERSON_1]');
-    expect(badge.getAttribute('data-state')).toBe('masked');
+    expect(badge.getAttribute('data-openbitfun-state')).toBeNull();
 
     await act(async () => {
       badge.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
@@ -74,7 +74,7 @@ describe('RevealableEntityBadge', () => {
 
     expect(mocks.revealEntity).toHaveBeenCalledWith('p1', 'workspace-1');
     expect(badge.textContent).toContain('Ada Lovelace');
-    expect(badge.getAttribute('data-state')).toBe('revealed');
+    expect(badge.getAttribute('data-openbitfun-state')).toBe('revealed');
   });
 
   it('blocks a second reveal while the first one is in flight', async () => {
@@ -92,12 +92,12 @@ describe('RevealableEntityBadge', () => {
     });
 
     expect(mocks.revealEntity).toHaveBeenCalledTimes(1);
-    expect(badge.getAttribute('data-state')).toBe('loading');
+    expect(badge.getAttribute('data-openbitfun-state')).toBe('loading');
 
     await act(async () => {
       resolveReveal?.('Ada Lovelace');
     });
-    expect(badge.getAttribute('data-state')).toBe('revealed');
+    expect(badge.getAttribute('data-openbitfun-state')).toBe('revealed');
   });
 
   it('shows a visible error state when the reveal fails', async () => {
@@ -108,7 +108,7 @@ describe('RevealableEntityBadge', () => {
       badge.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
     });
 
-    expect(badge.getAttribute('data-state')).toBe('error');
+    expect(badge.getAttribute('data-openbitfun-state')).toBe('error');
     expect(badge.getAttribute('aria-label')).toContain('vault locked');
     expect(badge.textContent).toContain('[PERSON_1]');
   });
@@ -126,6 +126,6 @@ describe('RevealableEntityBadge', () => {
       badge.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
     });
     expect(badge.textContent).toContain('[PERSON_1]');
-    expect(badge.getAttribute('data-state')).toBe('masked');
+    expect(badge.getAttribute('data-openbitfun-state')).toBeNull();
   });
 });
