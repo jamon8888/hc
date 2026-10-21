@@ -546,6 +546,26 @@ the check was moved to the Web UI surface test, which is where the rule says a
 cross-surface contract belongs. The check was verified to fail when an agent is added to
 only one of the two lists.
 
+### 8.1 CodeRabbit findings
+
+CodeRabbit reviewed the branch and raised five findings. All five were fixed, and each fix
+has a test.
+
+| # | Severity | Finding | Resolution |
+|---|---|---|---|
+| 1 | Minor | The installer joined the manifest's `entrypoint` onto the package root without checking containment, so an entrypoint such as `../resources/worker_host.js` would resolve outside the package. | **Fixed.** The resolved path is checked against the package root before it is accepted, and a tampered entrypoint is rejected. |
+| 2 | Minor | The macOS signing step signed the manifest's executable paths without checking containment, so a path could reach a file outside the package. | **Fixed.** A path that climbs out of the package is rejected before anything is signed. |
+| 3 | Minor | An interrupted preparation left its staging directory behind. The package is a few hundred megabytes, so every interrupted run kept another copy on the build machine. | **Fixed.** Stale staging directories for the target are swept before the download — before it, so a failed download still frees them — and a staging directory for a different target is left alone. |
+| 4 | Minor | The development-tree lookup used `env!("CARGO_MANIFEST_DIR")`, which bakes the build machine's absolute path into every release binary. | **Fixed.** The development tree is discovered at runtime by walking up from the running executable, so a shipped binary carries no build path. |
+| 5 | Minor | The runtime joined the manifest's `entrypoint` onto the package root without checking containment. | **Fixed.** An entrypoint containing a parent or root component is refused. |
+
+Findings 1, 2 and 5 are the same class: a manifest is data, and data read from disk has to
+be validated before it is used to build a path or to choose a file to sign. The fix is the
+same check in each place, because each place builds a path for a different purpose — the
+installer validates a payload, the build signs a package, and the runtime launches an
+agent.
+
+
 
 
 

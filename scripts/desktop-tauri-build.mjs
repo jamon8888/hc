@@ -567,6 +567,16 @@ function interpreterExecutables(root) {
   if (!Array.isArray(manifest.executables) || manifest.executables.length === 0) {
     throw new Error('Bundled Open Interpreter manifest lists no executables');
   }
+  for (const relativePath of manifest.executables) {
+    // The manifest is data. A path that climbs out of the package would make
+    // the signing step touch a file outside it.
+    const segments = relativePath.split('/');
+    if (segments.includes('..') || isAbsolute(relativePath)) {
+      throw new Error(
+        `Bundled Open Interpreter manifest lists a path outside the package: ${relativePath}`,
+      );
+    }
+  }
   return manifest.executables;
 }
 

@@ -241,6 +241,42 @@ test('unsigned and non-macOS builds keep the original Open Interpreter package',
   );
 });
 
+test('the signing step refuses a manifest path that escapes the package', () => {
+  const fixture = join(tmpdir(), `openbitfun-interpreter-escape-${process.pid}-${Date.now()}`);
+  const desktopDir = join(fixture, 'src', 'apps', 'desktop');
+  const source = join(fixture, 'resources', 'interpreter', 'aarch64-apple-darwin');
+  mkdirSync(join(source, 'bin'), { recursive: true });
+  mkdirSync(desktopDir, { recursive: true });
+  writeFileSync(join(source, 'bin', 'interpreter'), 'agent');
+  writeFileSync(
+    join(source, 'openbitfun-bundled-tool.json'),
+    JSON.stringify({
+      toolId: 'interpreter',
+      version: '0.0.56',
+      hostTag: 'macos-aarch64',
+      target: 'aarch64-apple-darwin',
+      entrypoint: 'bin/interpreter',
+      sourceSha256: 'a'.repeat(64),
+      // The manifest is data. A path that climbs out of the package would
+      // make the signing step touch a file outside it.
+      executables: ['bin/interpreter', '../../../../etc/hosts'],
+    }),
+  );
+
+  try {
+    assert.throws(
+      () => prepareMacOSInterpreterForSigning(source, desktopDir, {
+        platform: 'darwin',
+        signingIdentity: 'Developer ID Application: Test (TEAMID)',
+        spawnSync: () => ({ status: 0 }),
+      }),
+      /outside the package/,
+    );
+  } finally {
+    rmSync(fixture, { force: true, recursive: true });
+  }
+});
+
 test('a debug build does not pull the packaged Open Interpreter agent', () => {
   // The package is a few hundred megabytes. A debug build is a developer
   // build, not a release artifact, so it does not pay for it.

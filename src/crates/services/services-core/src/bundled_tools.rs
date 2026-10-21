@@ -11,7 +11,7 @@
 //! this module never has to know how a third party lays its own files out.
 
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::{Component, Path, PathBuf};
 
 use serde::Deserialize;
 
@@ -98,15 +98,48 @@ fn bundled_tool_containers(tool_id: &str) -> Vec<PathBuf> {
             );
         }
     }
-    // The development tree keeps one directory per packaged target. The path
-    // is only meaningful in a tree built from this repository, and a missing
-    // directory is simply not a candidate.
-    containers.push(
-        PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("../../../../resources")
-            .join(tool_id),
-    );
+    // The development tree keeps one directory per packaged target. It is
+    // found at runtime rather than baked in at compile time, so a release
+    // binary does not carry the build machine's directory.
+    containers.extend(development_tree_candidates(tool_id));
     containers
+}
+
+/// The development tree, found by walking up from the running executable.
+///
+/// A build lands in `target/<profile>/`, and its test binaries one level
+/// deeper, so the repository root is a few levels up from the executable.
+fn development_tree_candidates(tool_id: &str) -> Vec<PathBuf> {
+    let mut candidates = Vec::new();
+    let Ok(executable) = std::env::current_exe() else {
+        return candidates;
+    };
+    let Some(mut directory) = executable.parent().map(Path::to_path_buf) else {
+        return candidates;
+    };
+    for _ in 0..4 {
+        candidates.push(directory.join("resources").join(tool_id));
+        let Some(parent) = directory.parent() else {
+            break;
+        };
+        if parent == directory {
+            break;
+        }
+        directory = parent.to_path_buf();
+    }
+    candidates
+}
+
+/// The manifest names the executable to launch. A path that climbs out of the
+/// package would let a tampered manifest point at anything on the machine, so
+/// the entrypoint has to stay inside the package it belongs to.
+fn entrypoint_stays_inside_package(entrypoint: &str) -> bool {
+    !Path::new(entrypoint).components().any(|component| {
+        matches!(
+            component,
+            Component::ParentDir | Component::RootDir | Component::Prefix(_)
+        )
+    })
 }
 
 fn read_bundled_tool_package(
@@ -143,6 +176,9 @@ fn read_bundled_tool_manifest(
         return None;
     }
     let entrypoint = root.join(&manifest.entrypoint);
+    if !entrypoint_stays_inside_package(&manifest.entrypoint) {
+        return None;
+    }
     if !entrypoint.is_file() {
         return None;
     }
@@ -163,6 +199,11 @@ mod tests {
     fn write_manifest(root: &Path, body: &str) {
         fs::create_dir_all(root).expect("package directory");
         fs::write(root.join(BUNDLED_TOOL_MANIFEST), body).expect("manifest");
+    }
+
+    fn write_file(root: &Path, name: &str) {
+        fs::create_dir_all(root).expect("directory");
+        fs::write(root.join(name), b"content").expect("file");
     }
 
     fn temp_dir(name: &str) -> PathBuf {
@@ -255,6 +296,49 @@ mod tests {
         );
 
         assert!(read_bundled_tool_manifest(&root, "interpreter", &bundled_tool_host_tag()).is_none());
+    }
+
+    #[test]
+    fn refuses_an_entrypoint_that_climbs_out_of_the_package() {
+        let root = temp_dir("escaping-entrypoint");
+        // The manifest is data. An entrypoint that climbs out of the package
+        // would point at any file on the machine.
+        let outside = temp_dir("escaping-target");
+        write_file(&outside, "not the agent");
+        write_manifest(
+            &root,
+            &format!(
+                r#"{{"toolId":"interpreter","version":"0.0.56","hostTag":"{}","entrypoint":"../{}/not the agent"}}"#,
+                bundled_tool_host_tag(),
+                outside.file_name().expect("target name").to_string_lossy()
+            ),
+        );
+
+        assert!(read_bundled_tool_manifest(&root, "interpreter", &bundled_tool_host_tag()).is_none());
+    }
+
+    #[test]
+    fn an_entrypoint_inside_the_package_is_accepted() {
+        assert!(entrypoint_stays_inside_package("bin/interpreter"));
+        assert!(entrypoint_stays_inside_package("codex-resources/zsh/bin/zsh"));
+        assert!(!entrypoint_stays_inside_package("../outside"));
+        assert!(!entrypoint_stays_inside_package("bin/../../outside"));
+        assert!(!entrypoint_stays_inside_package("/etc/passwd"));
+    }
+
+    #[test]
+    fn the_development_tree_is_found_without_a_compiled_in_build_path() {
+        // A release binary must not carry the build machine's directory, so
+        // the development tree is discovered from the running executable.
+        let candidates = development_tree_candidates("interpreter");
+
+        assert!(!candidates.is_empty());
+        for candidate in &candidates {
+            assert!(
+                candidate.ends_with("resources/interpreter"),
+                "unexpected candidate: {candidate:?}"
+            );
+        }
     }
 
     #[test]

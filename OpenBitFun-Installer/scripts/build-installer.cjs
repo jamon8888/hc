@@ -229,7 +229,14 @@ function validateBundledInterpreterPackage(payloadDir) {
     );
   }
   const entrypoint = path.join(packageRoot, ...packageManifest.entrypoint.split("/"));
-  if (!fs.existsSync(entrypoint)) {
+  // The manifest is data. An entrypoint that climbs out of the package would
+  // let a tampered payload point at any file on the machine.
+  const relativeToRoot = path.relative(packageRoot, entrypoint);
+  const escapesPackageRoot =
+    relativeToRoot === ".." ||
+    relativeToRoot.startsWith(`..${path.sep}`) ||
+    path.isAbsolute(relativeToRoot);
+  if (escapesPackageRoot || !fs.existsSync(entrypoint)) {
     throw new Error(
       `Installer payload is missing the bundled Open Interpreter entrypoint: ${packageManifest.entrypoint}`
     );

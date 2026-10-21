@@ -237,8 +237,50 @@ test('the asset name follows the pinned stem and target', () => {
   );
 });
 
-test('a caller-supplied pinned manifest is used instead of the repository one', () => {
-  // The helper must not silently fall back to the repository's pinned
+test('an interrupted preparation does not leave its staging directory behind', () => {
+  const workspace = mkdtempSync(join(tmpdir(), 'interpreter-staging-'));
+  const resourceDir = join(workspace, 'resources');
+  const target = 'aarch64-apple-darwin';
+  mkdirSync(resourceDir, { recursive: true });
+
+  // A previous run was interrupted after extracting, so its staging copy is
+  // still there. The package is a few hundred megabytes, so leaving one
+  // behind for every interrupted run would fill the build machine.
+  const stale = join(resourceDir, `.staging-${target}-interrupted`);
+  mkdirSync(join(stale, 'bin'), { recursive: true });
+  writeFileSync(join(stale, 'bin', 'interpreter'), 'partial');
+
+  // A staging directory for a different target is not this run's business.
+  const otherTarget = join(resourceDir, '.staging-x86_64-unknown-linux-musl-other');
+  mkdirSync(otherTarget, { recursive: true });
+
+  const manifest = {
+    repo: 'openinterpreter/openinterpreter',
+    tag: 'rust-v0.0.56',
+    version: '0.0.56',
+    assetStem: 'open-interpreter-package',
+    assets: { [target]: { sha256: 'a'.repeat(64), size: 10 } },
+  };
+
+  try {
+    // The download fails, but the sweep runs before the download.
+    assert.throws(() => ensureInterpreterPackage({
+      resourceDir,
+      target,
+      manifest,
+      platform: 'darwin',
+      arch: 'arm64',
+      download: (_, destination) => writeFileSync(destination, 'not the release'),
+    }));
+
+    assert.equal(existsSync(stale), false, 'the stale staging directory should be swept');
+    assert.equal(existsSync(otherTarget), true, 'another target\'s staging directory is not ours');
+  } finally {
+    rmSync(workspace, { recursive: true, force: true });
+  }
+});
+
+test('a caller-supplied pinned manifest is used instead of the repository one', () => {  // The helper must not silently fall back to the repository's pinned
   // release, or a test asserts against the real file.
   assert.equal(
     interpreterAssetName({

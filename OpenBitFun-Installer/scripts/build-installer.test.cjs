@@ -117,6 +117,42 @@ test("payload validation rejects a bundled agent package without its entrypoint"
   );
 });
 
+test("payload validation rejects a bundled agent entrypoint that escapes the package", () => {
+  const payload = fs.mkdtempSync(path.join(os.tmpdir(), "openbitfun-installer-payload-"));
+  const manifest = { files: [] };
+
+  for (const relativePath of REQUIRED_PAYLOAD_FILES) {
+    const diskPath = path.join(payload, ...relativePath.split("/"));
+    fs.mkdirSync(path.dirname(diskPath), { recursive: true });
+    if (relativePath === "interpreter/openbitfun-bundled-tool.json") {
+      fs.writeFileSync(
+        diskPath,
+        JSON.stringify({
+          toolId: "interpreter",
+          version: "0.0.56",
+          hostTag: "windows-x86_64",
+          target: "x86_64-pc-windows-msvc",
+          // The manifest is data. An entrypoint that climbs out of the package
+          // would let a tampered payload point at any file on the machine.
+          entrypoint: "../resources/worker_host.js",
+          sourceSha256: "a".repeat(64),
+        })
+      );
+      // The file the entrypoint names exists, and it is outside the package.
+      fs.mkdirSync(path.join(payload, "resources"), { recursive: true });
+      fs.writeFileSync(path.join(payload, "resources", "worker_host.js"), "not the agent");
+    } else {
+      fs.writeFileSync(diskPath, relativePath);
+    }
+    manifest.files.push({ path: relativePath });
+  }
+
+  assert.throws(
+    () => validateRequiredPayloadFiles(payload, manifest),
+    /bundled Open Interpreter entrypoint/
+  );
+});
+
 test("Cargo implementation locks are not copied into the installer", () => {
   assert.equal(shouldCopySiblingRuntimeFile(".cargo-lock", "openbitfun-desktop.exe"), false);
   assert.equal(

@@ -108,6 +108,21 @@ function extractArchive(archivePath, destination) {
 // Apache-2.0 requires the license and the upstream NOTICE to travel with the
 // redistributed code, so they are copied into the package itself rather than
 // shipped beside it.
+// An interrupted extraction leaves its staging directory behind, and the
+// package is a few hundred megabytes. Without this sweep every interrupted
+// run would keep one more copy on the build machine.
+function sweepStaleStagingDirectories(parent, target) {
+  if (!existsSync(parent)) {
+    return;
+  }
+  const prefix = `.staging-${target}-`;
+  for (const entry of readdirSync(parent, { withFileTypes: true })) {
+    if (entry.isDirectory() && entry.name.startsWith(prefix)) {
+      rmSync(join(parent, entry.name), { recursive: true, force: true });
+    }
+  }
+}
+
 function copyLicenseFiles(root, resourceDir) {
   for (const name of ['LICENSE', 'NOTICE']) {
     const source = join(resourceDir, name);
@@ -220,6 +235,11 @@ export function ensureInterpreterPackage(options = {}) {
   if (options.force !== true && installedPackageEntryPoint(packageDirectory)) {
     return packageDirectory;
   }
+
+  // Sweep before the download. The package is a few hundred megabytes, so
+  // freeing the copies an interrupted run left behind matters on a build
+  // machine, and it has to happen even if the download itself fails.
+  sweepStaleStagingDirectories(dirname(packageDirectory), target);
 
   const assetName = `${manifest.assetStem}-${target}.tar.gz`;
   const url = `https://github.com/${manifest.repo}/releases/download/${manifest.tag}/${assetName}`;
