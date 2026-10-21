@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { pinNumberFormattingLocale } from '@/test/i18nTestUtils';
 import type { SessionUsageReport } from '@/infrastructure/api/service-api/SessionAPI';
 import {
   calculateShare,
@@ -118,6 +119,14 @@ function usageReport(overrides: Partial<SessionUsageReport> = {}): SessionUsageR
 }
 
 describe('usageReportUtils', () => {
+  beforeEach(() => {
+    pinNumberFormattingLocale('en-US');
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('formats token counts with compact units', () => {
     expect(formatTokenCount(999, t)).toBe('999');
     expect(formatTokenCount(1_234, t)).toBe('1.23K');

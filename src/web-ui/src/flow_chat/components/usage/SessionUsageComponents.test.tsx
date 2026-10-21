@@ -6,6 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import type { SessionUsageReport } from '@/infrastructure/api/service-api/SessionAPI';
+import { pinNumberFormattingLocale } from '@/test/i18nTestUtils';
 import { AppearanceCompiler } from '@/infrastructure/appearance/compiler/AppearanceCompiler';
 import { AppearanceRegistry } from '@/infrastructure/appearance/registry/AppearanceRegistry';
 import { APPEARANCE_SCHEMA_VERSION, type AppearancePackage } from '@/infrastructure/appearance/types';
@@ -495,6 +496,11 @@ function flattenStrings(value: unknown): string[] {
 }
 
 describe('Session usage report UI components', () => {
+  beforeEach(() => {
+    pinNumberFormattingLocale('en-US');
+  });
+
+
   let dom: JSDOM;
   let container: HTMLDivElement;
   let root: Root;
@@ -523,6 +529,7 @@ describe('Session usage report UI components', () => {
     act(() => {
       root.unmount();
     });
+    vi.restoreAllMocks();
     vi.unstubAllGlobals();
   });
 

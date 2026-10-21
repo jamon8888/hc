@@ -1,8 +1,16 @@
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
+import { pinCatalogLocale } from '@/test/i18nTestUtils';
 import {
   resolveThreadGoalHeaderTitle,
   resolveThreadGoalUserMessageDisplay,
 } from './threadGoalDisplay';
+
+// The raw thread-goal text is English, so only a catalog in another language
+// can prove that the display came from the catalog. Pin the catalog locale
+// instead of inheriting the product default.
+beforeAll(async () => {
+  await pinCatalogLocale('zh-CN');
+});
 
 describe('resolveThreadGoalUserMessageDisplay', () => {
   it('localizes objective-updated metadata', () => {

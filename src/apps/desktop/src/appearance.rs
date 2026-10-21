@@ -252,7 +252,7 @@ impl AppearanceConfig {
                     .pointer("/i18n/currentLanguage")
                     .and_then(|value| value.as_str())
             })
-            .unwrap_or_else(|| openbitfun_core::service::i18n::default_locale_code().to_string())
+            .unwrap_or_else(|| openbitfun_core::service::i18n::default_locale_code())
             .to_string();
 
         let appearance_selection = config_value
