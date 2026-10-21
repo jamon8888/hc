@@ -27,7 +27,8 @@
     "renameFailed": "Rename failed",
     "openInBrowserFailed": "在瀏覽器中開啟檔案失敗",
     "revealFailed": "Failed to open file manager",
-    "wordcraftOpenFailed": "在 WordCraft 中開啟失敗"
+    "wordcraftOpenFailed": "在 WordCraft 中開啟失敗",
+    "redactedDocumentUnavailable": "目前的版本不支援去識別化文件檢視"
   },
   "workspace": {
     "notFound": "工作區未找到",

@@ -60,3 +60,12 @@ secret-service = { version = "5", optional = true }
 
 [dev-dependencies]
 tokio-test = "0.4"
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
+
+[[test]]
+name = "client_contract"
+required-features = ["basemind"]
+
+[[test]]
+name = "live_daemon"
+required-features = ["basemind"]

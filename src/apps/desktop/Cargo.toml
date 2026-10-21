@@ -151,7 +151,11 @@ webview2-com = { workspace = true }
 windows = { workspace = true, features = ["Win32_UI_Shell_Common"] }
 
 [features]
-default = []
+# Basemind ships in the default build: the redaction and entity-reveal
+# surfaces are part of the product, and the commands are registered
+# unconditionally so the web UI can reach them. The sidecar itself stays
+# optional at runtime - the commands fail loudly when no daemon is running.
+default = ["basemind"]
 # Enable webview devtools and element inspector for development builds.
 # Only active in debug builds or when explicitly requested via --features devtools.
 # Never enabled in release profile intended for end users.

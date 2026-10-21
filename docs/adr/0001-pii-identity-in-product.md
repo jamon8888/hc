@@ -70,7 +70,16 @@ decision is expressed, not what it decides; D1–D10 stay locked.
   behind an adapter.
 
 **Version note.** Evidence (ADR context, tickets 01–02) was gathered against
-`jamon8888/basemind` **v0.33.0**; the pin is **v0.33.1** (2026-10-11 — a patch with
-zero `src/` delta: Linux ARM64 release asset + `github_only` publish input, no schema
-advance, no re-index). The upstream `Goldziher/basemind` v0.29.x line is a diverged
+`jamon8888/basemind` **v0.33.0**; the pin is now **v0.34.0** (2026-10-19), recorded in
+code as `openbitfun_basemind_integration::BASEMIND_VERSION`. v0.34.0 is the upstream sync
+of `Goldziher/basemind` v0.29.3 into the fork (1,202 commits). The sync keeps the fork's
+PII, redaction and vault features end to end — the alternative this ADR rejected is still
+rejected, so the fork still offers no value-keyed identity primitive and the identity layer
+remains product logic. The upstream `Goldziher/basemind` v0.29.x line is a diverged
 numbering stream released after our tag and is not the integration target.
+
+**Upgrade note.** v0.34.0 advances the fork's release minor from 33 to 34, and the
+persisted blob, index and git-cache schema versions derive from it. The first scan after
+upgrading therefore resets each view in place and rebuilds it once. A workspace indexed by
+v0.33.x re-indexes on the first scan against v0.34.0; no product state is lost, because
+the identity registry and the session vault are product-owned and carry their own schema.

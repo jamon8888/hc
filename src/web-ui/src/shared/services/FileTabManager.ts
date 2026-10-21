@@ -4,8 +4,10 @@
  * Opens files beside an already open session in their workspace, or in a main tab.
  */
 import { resourceFilePath } from '@/app/workbench/contentResourceStore';
-import { getEditorType } from '@/infrastructure/language-detection';
+import { getEditorType, isRedactedDocumentPath } from '@/infrastructure/language-detection';
 import { i18nService } from '@/infrastructure/i18n';
+import { basemindAPI } from '@/infrastructure/api/service-api/BasemindAPI';
+import { isBasemindPeerRefused } from '@/infrastructure/basemind/basemindPeerPolicy';
 import { wordcraftAPI } from '@/infrastructure/api/service-api/WordcraftAPI';
 import { notificationService } from '@/shared/notification-system/services/NotificationService';
 import { createLogger } from '@/shared/utils/logger';
@@ -102,7 +104,59 @@ class FileTabManager {
       return;
     }
 
+    // Document formats the redacted viewer can read are decided behind the
+    // Basemind capability probe: a host without that surface keeps the plain
+    // editor instead of opening a viewer it cannot serve.
+    if (!explicitEditorType && isRedactedDocumentPath(fileName)) {
+      void this.openRedactedDocumentOrFallback({
+        options,
+        scope,
+        filePath: normalizedPath,
+        fileName,
+      });
+      return;
+    }
+
     this.openEditorTab(options, scope, normalizedPath, fileName, editorType);
+  }
+
+  /**
+   * Capability-aware routing for document formats the redacted viewer owns.
+   *
+   * The Basemind surface is controller-local, so a workspace that lives on a
+   * connected device is not redactable here. The viewer still serves that
+   * document: its source tab reads through the workspace owner, and the
+   * redacted tab states that redaction is unavailable. The plain editor would
+   * only show a binary dump. A host without the Basemind capability keeps the
+   * plain editor, with a loud notice so the missing feature is never silent.
+   */
+  private async openRedactedDocumentOrFallback(args: {
+    options: FileTabOptions;
+    scope: ContentResourceScope;
+    filePath: string;
+    fileName: string;
+  }): Promise<void> {
+    const { options, scope, filePath, fileName } = args;
+    if (isBasemindPeerRefused(scope.workspaceId, scope.surfaceId)) {
+      this.openEditorTab(options, scope, filePath, fileName, 'redacted-document-viewer');
+      return;
+    }
+
+    const basemindAvailable = await basemindAPI.probeSurface();
+    if (!basemindAvailable) {
+      const t = i18nService.getT();
+      notificationService.error(t('errors:file.redactedDocumentUnavailable'), {
+        title: t('errors:file.redactedDocumentUnavailable'),
+      });
+      log.warn('Basemind redaction surface unavailable; document opened in the plain editor', {
+        filePath,
+        workspaceId: scope.workspaceId,
+      });
+      this.openEditorTab(options, scope, filePath, fileName, 'code-editor');
+      return;
+    }
+
+    this.openEditorTab(options, scope, filePath, fileName, 'redacted-document-viewer');
   }
 
   /** Builds and opens the regular editor tab for a file (non-WordCraft path). */
@@ -126,6 +180,7 @@ class FileTabManager {
     const tabData = {
       filePath: filePath,
       fileName: fileName,
+      surfaceId: scope.surfaceId,
       workspaceId: scope.workspaceId,
       workspacePath: scope.workspacePath,
       remoteConnectionId: scope.remoteConnectionId,

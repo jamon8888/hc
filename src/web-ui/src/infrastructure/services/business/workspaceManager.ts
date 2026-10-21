@@ -1663,6 +1663,28 @@ class WorkspaceManager {
     return !!this.state.currentWorkspace;
   }
 
+  /**
+   * Device surface that owns the given workspace.
+   *
+   * Workspaces are listed per surface, so a workspace ID identifies the
+   * machine that holds it. `null` means no known surface lists that ID: the
+   * caller cannot claim ownership and must not assume this machine owns it.
+   */
+  public surfaceOwningWorkspace(workspaceId: string): DeviceSurfaceId | null {
+    const id = workspaceId.trim();
+    if (!id) return null;
+    const owns = (container: WorkspaceSurfaceContainer) =>
+      container.state.openedWorkspaces.has(id)
+      || container.state.recentWorkspaces.some(record => record.id === id);
+    const activeSurfaceId = getActiveSurfaceId();
+    if (owns(this.surfaceContainer(activeSurfaceId))) return activeSurfaceId;
+    for (const [surfaceId, container] of this.surfaceContainers) {
+      if (surfaceId === activeSurfaceId) continue;
+      if (owns(container)) return surfaceId;
+    }
+    return null;
+  }
+
   public getWorkspaceName(): string {
     return this.state.currentWorkspace?.name || '';
   }

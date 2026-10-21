@@ -1023,15 +1023,30 @@ Fails at **compile time** if upstream signature changes — better than silent p
 
 ## 17. Dependencies on Basemind Fork (jamon8888/basemind)
 
-**Pinned version:** `jamon8888/basemind` **v0.33.1** (2026-10-11). All PII/identity
-evidence in this spec (issues 01–02, ADR 0001) was gathered at v0.33.0; v0.33.1 is a
-pure patch — zero `src/` delta, no `MEMORY_SCHEMA_VER` advance, no re-index — adding
-only the Linux ARM64 release asset 0.33.0 lacked and a `github_only` publish input, so
-the evidence carries over unchanged. Bundle v0.33.1: it ships the
+**Pinned version:** `jamon8888/basemind` **v0.34.0** (2026-10-19), recorded in code as
+`openbitfun_basemind_integration::BASEMIND_VERSION` and checked against the running
+daemon's published version before the first call. All PII/identity evidence in this spec
+(issues 01–02, ADR 0001) was gathered at v0.33.0.
+
+v0.34.0 is the upstream sync of `Goldziher/basemind` v0.29.3 into the fork (1,202
+commits). The sync keeps the fork's PII, redaction and vault features end to end, so the
+evidence in issues 01–02 still holds; the MCP surface it measured was re-verified against a
+live v0.34.0 daemon, which serves `redact_text`, `memory`, `vault`, `code`, `git`,
+`graph`, `shell`, `web`, `admin`, `agents` and `workspace`. Bundle v0.34.0: it ships the
 `aarch64-unknown-linux-gnu` binary §8.1 requires. The upstream `Goldziher/basemind`
 v0.29.x line is a **diverged numbering stream** (released after our tag, lower
 numbers) and is not the integration target — do not reconcile its changelog entries
 with ours.
+
+**Upgrade note:** v0.34.0 advances the fork's release minor from 33 to 34, and the
+persisted blob, index and git-cache schema versions derive from it. The first scan after
+upgrading resets each view in place and rebuilds it once. The product's own state — the
+identity registry and the session vault — carries its own schema and is unaffected.
+
+**Transport:** the daemon serves MCP over streamable HTTP at `POST /mcp?root=<abs
+workspace path>`, on the loopback address published in `<comms_dir>/http.addr` (line 1:
+`host:port`, line 2: the bearer token the front-end requires). The client speaks
+JSON-RPC 2.0 to that endpoint; there is no `/tools/call` route.
 
 Assumes PR adds/provides:
 - [ ] `extract_and_redact(bytes, path_hint) -> (markdown, entities[])`

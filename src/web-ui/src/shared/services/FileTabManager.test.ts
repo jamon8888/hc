@@ -10,10 +10,20 @@ const mocks = vi.hoisted(() => ({
     workspacePath: '/tmp/workspace',
     remoteConnectionId: undefined as string | undefined,
   })),
+  probeBasemindSurface: vi.fn(),
+  isBasemindPeerRefused: vi.fn(() => false),
 }));
 
 vi.mock('@/infrastructure/api/service-api/ApiClient', () => ({
   api: { invoke: mocks.invoke },
+}));
+
+vi.mock('@/infrastructure/api/service-api/BasemindAPI', () => ({
+  basemindAPI: { probeSurface: (...args: unknown[]) => mocks.probeBasemindSurface(...args) },
+}));
+
+vi.mock('@/infrastructure/basemind/basemindPeerPolicy', () => ({
+  isBasemindPeerRefused: (...args: unknown[]) => mocks.isBasemindPeerRefused(...args),
 }));
 
 vi.mock('@/infrastructure/i18n', () => ({
@@ -27,6 +37,7 @@ vi.mock('@/shared/notification-system/services/NotificationService', () => ({
 vi.mock('@/infrastructure/language-detection', () => ({
   getEditorType: (filePathOrName: string) =>
     filePathOrName.endsWith('.md') ? 'markdown-editor' : 'code-editor',
+  isRedactedDocumentPath: (filePathOrName: string) => filePathOrName.endsWith('.pptx'),
 }));
 
 vi.mock('@/app/workbench/contentResourceStore', () => ({
@@ -159,5 +170,54 @@ describe('FileTabManager docx routing (tickets 13/17)', () => {
 
     expect(mocks.openContentInBestTarget).toHaveBeenCalled();
     expect(mocks.invoke).not.toHaveBeenCalled();
+  });
+});
+
+describe('FileTabManager redacted document routing', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mocks.invoke.mockReset();
+    mocks.probeBasemindSurface.mockReset();
+    mocks.isBasemindPeerRefused.mockReset();
+    mocks.isBasemindPeerRefused.mockReturnValue(false);
+    mocks.probeBasemindSurface.mockResolvedValue(true);
+  });
+
+  it('opens a document format in the redacted viewer once the surface is available', async () => {
+    manager.openFile({ filePath: '/tmp/workspace/deck.pptx' });
+
+    await vi.waitFor(() => {
+      expect(mocks.openContentInBestTarget).toHaveBeenCalled();
+    });
+    const content = mocks.openContentInBestTarget.mock.calls[0][0];
+    expect(content.type).toBe('redacted-document-viewer');
+    expect(mocks.notifyError).not.toHaveBeenCalled();
+  });
+
+  it('keeps the plain editor and reports loudly when the surface is missing', async () => {
+    mocks.probeBasemindSurface.mockResolvedValue(false);
+    manager.openFile({ filePath: '/tmp/workspace/deck.pptx' });
+
+    await vi.waitFor(() => {
+      expect(mocks.openContentInBestTarget).toHaveBeenCalled();
+    });
+    const content = mocks.openContentInBestTarget.mock.calls[0][0];
+    expect(content.type).toBe('code-editor');
+    expect(mocks.notifyError).toHaveBeenCalledWith('errors:file.redactedDocumentUnavailable', {
+      title: 'errors:file.redactedDocumentUnavailable',
+    });
+  });
+
+  it('opens a peer-owned document in the viewer, which states that redaction is unavailable', async () => {
+    mocks.isBasemindPeerRefused.mockReturnValue(true);
+    manager.openFile({ filePath: '/tmp/workspace/deck.pptx' });
+
+    await vi.waitFor(() => {
+      expect(mocks.openContentInBestTarget).toHaveBeenCalled();
+    });
+    const content = mocks.openContentInBestTarget.mock.calls[0][0];
+    expect(content.type).toBe('redacted-document-viewer');
+    expect(mocks.probeBasemindSurface).not.toHaveBeenCalled();
+    expect(mocks.notifyError).not.toHaveBeenCalled();
   });
 });

@@ -1,0 +1,56 @@
+{
+  "tabs": {
+    "source": "Source",
+    "redacted": "Caviardé"
+  },
+  "summary": {
+    "piiCount": "{{count}} PII",
+    "piiDetected": "{{count}} PII détectées"
+  },
+  "entityTypeCount": "{{type}} : {{count}}",
+  "state": {
+    "loading": "Chargement du document caviardé...",
+    "loadFailed": "Impossible de charger le document caviardé.",
+    "retry": "Réessayer",
+    "sourceLoading": "Chargement du document source...",
+    "sourceUnavailable": "{{fileName}} ne peut pas être prévisualisé ici. Utilisez l'onglet Caviardé pour lire la version sans données personnelles.",
+    "peerUnsupported": "Les documents caviardés ne sont pas disponibles pour un espace de travail situé sur un appareil connecté.",
+    "revealFailed": "Impossible d'afficher la valeur d'origine."
+  },
+  "badge": {
+    "reveal": "Cliquer pour révéler",
+    "hide": "Cliquer pour masquer"
+  },
+  "entityTypes": {
+    "PERSON": "Personne",
+    "DATE": "Date",
+    "ORG": "Organisation",
+    "ORGANIZATION": "Organisation",
+    "IBAN": "IBAN",
+    "EMAIL": "Adresse e-mail",
+    "PHONE": "Numéro de téléphone",
+    "ADDRESS": "Adresse",
+    "LOCATION": "Lieu",
+    "CITY": "Ville",
+    "POSTAL_CODE": "Code postal",
+    "NATIONAL_ID": "Numéro de pièce d'identité",
+    "PASSPORT": "Numéro de passeport",
+    "CREDIT_CARD": "Numéro de carte bancaire",
+    "BANK_ACCOUNT": "Compte bancaire",
+    "DRIVERS_LICENSE": "Numéro de permis de conduire",
+    "TAX_ID": "Identifiant fiscal",
+    "API_KEY": "Clé d'API",
+    "JWT": "JWT",
+    "TOKEN": "Jeton",
+    "SSH_KEY": "Clé SSH",
+    "GPG_KEY": "Clé GPG",
+    "TLS_CERT": "Certificat TLS",
+    "DB_CONNECTION": "Connexion à la base de données",
+    "ENV_SECRET": "Secret d'environnement",
+    "IP_ADDRESS": "Adresse IP",
+    "INTERNAL_HOST": "Hôte interne",
+    "INTERNAL_URL": "URL interne",
+    "MAC_ADDRESS": "Adresse MAC",
+    "COOKIE_ID": "Identifiant de cookie"
+  }
+}

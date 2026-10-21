@@ -1,0 +1,56 @@
+{
+  "tabs": {
+    "source": "原始文件",
+    "redacted": "脱敏版本"
+  },
+  "summary": {
+    "piiCount": "{{count}} 项 PII",
+    "piiDetected": "检测到 {{count}} 项 PII"
+  },
+  "entityTypeCount": "{{type}}：{{count}}",
+  "state": {
+    "loading": "正在加载脱敏文档...",
+    "loadFailed": "无法加载脱敏文档。",
+    "retry": "重试",
+    "sourceLoading": "正在加载原始文档...",
+    "sourceUnavailable": "此处无法预览 {{fileName}}。请切换到“脱敏版本”标签页阅读去除敏感信息的版本。",
+    "peerUnsupported": "位于已连接设备上的工作区暂不支持脱敏文档。",
+    "revealFailed": "无法显示该内容的原始值。"
+  },
+  "badge": {
+    "reveal": "点击显示原值",
+    "hide": "点击隐藏原值"
+  },
+  "entityTypes": {
+    "PERSON": "姓名",
+    "DATE": "日期",
+    "ORG": "机构",
+    "ORGANIZATION": "机构",
+    "IBAN": "国际银行账号",
+    "EMAIL": "电子邮箱",
+    "PHONE": "电话号码",
+    "ADDRESS": "地址",
+    "LOCATION": "地点",
+    "CITY": "城市",
+    "POSTAL_CODE": "邮政编码",
+    "NATIONAL_ID": "身份证件号",
+    "PASSPORT": "护照号",
+    "CREDIT_CARD": "银行卡号",
+    "BANK_ACCOUNT": "银行账户",
+    "DRIVERS_LICENSE": "驾驶证号",
+    "TAX_ID": "纳税识别号",
+    "API_KEY": "接口密钥",
+    "JWT": "JSON 网页令牌",
+    "TOKEN": "令牌",
+    "SSH_KEY": "SSH 密钥",
+    "GPG_KEY": "GPG 密钥",
+    "TLS_CERT": "TLS 证书",
+    "DB_CONNECTION": "数据库连接串",
+    "ENV_SECRET": "环境变量密文",
+    "IP_ADDRESS": "IP 地址",
+    "INTERNAL_HOST": "内网主机",
+    "INTERNAL_URL": "内网地址",
+    "MAC_ADDRESS": "MAC 地址",
+    "COOKIE_ID": "Cookie 标识"
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "tabs": {
+    "source": "原始檔案",
+    "redacted": "去識別化版本"
+  },
+  "summary": {
+    "piiCount": "{{count}} 項 PII",
+    "piiDetected": "偵測到 {{count}} 項 PII"
+  },
+  "entityTypeCount": "{{type}}：{{count}}",
+  "state": {
+    "loading": "正在載入去識別化文件...",
+    "loadFailed": "無法載入去識別化文件。",
+    "retry": "重試",
+    "sourceLoading": "正在載入原始文件...",
+    "sourceUnavailable": "此處無法預覽 {{fileName}}。請切換到「去識別化版本」分頁閱讀去除敏感資訊的版本。",
+    "peerUnsupported": "位於已連線裝置上的工作區暫不支援去識別化文件。",
+    "revealFailed": "無法顯示該內容的原始值。"
+  },
+  "badge": {
+    "reveal": "點擊顯示原值",
+    "hide": "點擊隱藏原值"
+  },
+  "entityTypes": {
+    "PERSON": "姓名",
+    "DATE": "日期",
+    "ORG": "機構",
+    "ORGANIZATION": "機構",
+    "IBAN": "國際銀行帳號",
+    "EMAIL": "電子郵件",
+    "PHONE": "電話號碼",
+    "ADDRESS": "地址",
+    "LOCATION": "地點",
+    "CITY": "城市",
+    "POSTAL_CODE": "郵遞區號",
+    "NATIONAL_ID": "身分證字號",
+    "PASSPORT": "護照號碼",
+    "CREDIT_CARD": "信用卡號",
+    "BANK_ACCOUNT": "銀行帳戶",
+    "DRIVERS_LICENSE": "駕駛執照號",
+    "TAX_ID": "統一編號",
+    "API_KEY": "介面金鑰",
+    "JWT": "JSON 網頁權杖",
+    "TOKEN": "權杖",
+    "SSH_KEY": "SSH 金鑰",
+    "GPG_KEY": "GPG 金鑰",
+    "TLS_CERT": "TLS 憑證",
+    "DB_CONNECTION": "資料庫連線字串",
+    "ENV_SECRET": "環境變數密文",
+    "IP_ADDRESS": "IP 位址",
+    "INTERNAL_HOST": "內部主機",
+    "INTERNAL_URL": "內部網址",
+    "MAC_ADDRESS": "MAC 位址",
+    "COOKIE_ID": "Cookie 識別碼"
+  }
+}

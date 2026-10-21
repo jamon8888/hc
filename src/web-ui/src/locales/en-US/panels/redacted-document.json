@@ -1,0 +1,56 @@
+{
+  "tabs": {
+    "source": "Source",
+    "redacted": "Redacted"
+  },
+  "summary": {
+    "piiCount": "{{count}} PII",
+    "piiDetected": "{{count}} PII detected"
+  },
+  "entityTypeCount": "{{type}}: {{count}}",
+  "state": {
+    "loading": "Loading the redacted document...",
+    "loadFailed": "Could not load the redacted document.",
+    "retry": "Retry",
+    "sourceLoading": "Loading the source document...",
+    "sourceUnavailable": "{{fileName}} cannot be previewed here. Use the Redacted tab to read the PII-safe version.",
+    "peerUnsupported": "Redacted documents are unavailable for a workspace that lives on a connected device.",
+    "revealFailed": "Could not reveal this value."
+  },
+  "badge": {
+    "reveal": "Click to reveal",
+    "hide": "Click to hide"
+  },
+  "entityTypes": {
+    "PERSON": "Person",
+    "DATE": "Date",
+    "ORG": "Organization",
+    "ORGANIZATION": "Organization",
+    "IBAN": "IBAN",
+    "EMAIL": "Email",
+    "PHONE": "Phone",
+    "ADDRESS": "Address",
+    "LOCATION": "Location",
+    "CITY": "City",
+    "POSTAL_CODE": "Postal code",
+    "NATIONAL_ID": "National ID",
+    "PASSPORT": "Passport",
+    "CREDIT_CARD": "Credit card",
+    "BANK_ACCOUNT": "Bank account",
+    "DRIVERS_LICENSE": "Driver's license",
+    "TAX_ID": "Tax ID",
+    "API_KEY": "API key",
+    "JWT": "JWT",
+    "TOKEN": "Token",
+    "SSH_KEY": "SSH key",
+    "GPG_KEY": "GPG key",
+    "TLS_CERT": "TLS certificate",
+    "DB_CONNECTION": "Database connection",
+    "ENV_SECRET": "Environment secret",
+    "IP_ADDRESS": "IP address",
+    "INTERNAL_HOST": "Internal host",
+    "INTERNAL_URL": "Internal URL",
+    "MAC_ADDRESS": "MAC address",
+    "COOKIE_ID": "Cookie ID"
+  }
+}

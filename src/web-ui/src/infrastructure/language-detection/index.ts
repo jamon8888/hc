@@ -32,6 +32,7 @@ export {
   getPrismLanguage,
   getPrismLanguageFromAlias,
   getEditorType,
+  isRedactedDocumentPath,
   isImageFile,
   isCodeFile,
   isConfigFile,

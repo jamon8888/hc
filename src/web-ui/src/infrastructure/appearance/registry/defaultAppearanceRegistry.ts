@@ -96,6 +96,7 @@ import { localizedDateTimeFieldAppearanceDescriptor } from '@/app/components/sch
 import { dateTimePickerAppearanceDescriptor } from '@/app/components/scheduled-jobs/DateTimePickerPopover.appearance';
 import { todosSceneAppearanceDescriptor } from '@/app/scenes/todos/appearance';
 import { flexiblePanelAppearanceDescriptor } from '@/app/components/panels/base/FlexiblePanel.appearance';
+import { redactedDocumentTabsAppearanceDescriptor } from '@/app/components/panels/content-canvas/RedactedDocumentTabs.appearance';
 import { btwSessionPanelAppearanceDescriptor } from '@/flow_chat/components/btw/BtwSessionPanel.appearance';
 import { conversationExcerptAppearanceDescriptor } from '@/flow_chat/selection/ConversationExcerpt.appearance';
 import { modernFlowChatAppearanceDescriptor, virtualMessageListAppearanceDescriptor } from '@/flow_chat/components/modern/appearance';
@@ -166,6 +167,7 @@ import { welcomePanelAppearanceDescriptor } from '@/flow_chat/components/Welcome
 import { generativeWidgetToolCardAppearanceDescriptor } from '@/flow_chat/tool-cards/GenerativeWidgetToolCard.appearance';
 import { snapshotFullscreenDiffViewerAppearanceDescriptor } from '@/flow_chat/tool-cards/SnapshotFullscreenDiffViewer.appearance';
 import { mermaidBlockAppearanceDescriptor } from '@/infrastructure/markdown/MermaidBlock.appearance';
+import { revealableEntityBadgeAppearanceDescriptor } from '@/infrastructure/markdown/RevealableEntityBadge.appearance';
 import { defaultModelConfigAppearanceDescriptor } from '@/infrastructure/config/components/DefaultModelConfig.appearance';
 import { globalPermissionRulesDialogAppearanceDescriptor } from '@/infrastructure/config/components/GlobalPermissionRulesDialog.appearance';
 import { mcpResourceBrowserAppearanceDescriptor } from '@/infrastructure/config/components/MCPResourceBrowser.appearance';
@@ -425,6 +427,8 @@ export function createDefaultAppearanceRegistry(): AppearanceRegistry {
     .registerComponent(generativeWidgetToolCardAppearanceDescriptor)
     .registerComponent(snapshotFullscreenDiffViewerAppearanceDescriptor)
     .registerComponent(mermaidBlockAppearanceDescriptor)
+    .registerComponent(revealableEntityBadgeAppearanceDescriptor)
+    .registerComponent(redactedDocumentTabsAppearanceDescriptor)
     .registerComponent(defaultModelConfigAppearanceDescriptor)
     .registerComponent(globalPermissionRulesDialogAppearanceDescriptor)
     .registerComponent(mcpResourceBrowserAppearanceDescriptor)
