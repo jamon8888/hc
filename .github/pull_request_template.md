@@ -17,7 +17,7 @@ Areas:
 ## Risk
 
 <!-- Set from the change, not from who wrote it. Approval counts live in CONTRIBUTING.md → Code review.
-     Low    — docs, copy, additive change behind a flag, internal-only helper. No human approval once checks are green.
+     Low    — docs, copy, internal-only helper, additive change behind a flag, generated-output refresh. No human approval once checks are green.
      Medium — ordinary product change; caching, adapters, sessions, settings, remote or peer paths. One reviewer.
      High   — auth, credentials, release/packaging, CI workflows, persisted data shapes, upgrade compatibility,
               security boundaries. Two reviewers. -->
@@ -48,4 +48,4 @@ Risk: <!-- Low / Medium / High -->
 - [ ] User-facing strings, docs, and locales are updated where applicable.
 - [ ] An agent review ran against this diff (see `REVIEW.md`), or its absence is explained, and every finding is fixed or resolved with a reason.
 - [ ] The risk tier above matches the change, and any reviewer it requires has approved this commit.
-- [ ] AI-assisted changes name the person who directed the agent; they count as one of the required reviewers.
+- [ ] AI-assisted changes name the person who directed the agent; that person counts as one of the required reviewers, exactly as if they had written the change — never the agent.

@@ -272,17 +272,17 @@ OpenCode 兼容或目标项目治理的变更，先阅读
 ## 代码评审
 
 评审是分层进行的，大部分阅读由机器完成。
-[`REVIEW.md`](REVIEW.md) 是评审契约——本仓库的失败形态、发现项如何书写，以及保证评审收敛的限额。
+[`REVIEW_CN.md`](REVIEW_CN.md) 是评审契约——本仓库的失败形态、发现项如何书写，以及保证评审收敛的限额。
 评审改动前，以及请人评审前，先阅读它。风险等级与审批数量见 `CONTRIBUTING.md` → 代码评审。
 
 - **PR 之前先验证。** 给 Agent 可以自行运行的检查，并把输出粘贴到 PR 的 Verification 区块。
   没有输出的 "完成了" 不是证据。
-- **在人看之前用新上下文评审。** 对分支运行 `code-review` skill（Standards 来自 `REVIEW.md`、
+- **在人看之前用新上下文评审。** 对分支运行 `code-review` skill（Standards 来自 `REVIEW_CN.md`、
   `CONTRIBUTING.md` 和最近的 `AGENTS.md`；Spec 来自 `.scratch/` 的 Issue），或用新上下文的
   subagent 审查 diff。Open Code Review 是第二层的另一种方式：`ocr review --from main --to <branch>`，
   或在安装了 `.opencode/plugins/` 集成时使用 `/ocr-review`。先修掉它们发现的问题。
-- **风险决定评审强度，而不是作者。** Agent 的批准永远不算一个人的批准；指挥 Agent 完成改动的人
-  也计为所需评审人之一。
+- **风险决定评审强度，而不是作者。** Agent 的批准永远不算一个人的批准。指挥 Agent 产出改动的人
+  即为其人类负责人，可计为所需评审人之一，等同于亲手写成该改动；Agent 本身永远不计。
 - **每条发现都必须被回应**——修复，或给出理由后关闭。沉默永远不会关闭一条发现。
 - **评审必须收敛。** 三轮评审与修复之后，停下来重新审视方案，而不是开始第四轮。首轮之后的再评审
   只读新增 diff，且不再重复发布已发布过的发现。

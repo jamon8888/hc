@@ -1,5 +1,17 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2026 alibaba/open-code-review Contributors
+//
+// Provenance: based on upstream alibaba/open-code-review,
+// plugins/open-code-review/opencode/open-code-review.ts (npm package
+// @alibaba-group/open-code-review v1.13.2), upstream sha256
+// 8843b636b419b0a62af43629c67c11248285cd14abf8343da0c184d4fd56f95e,
+// 22730 bytes, byte-identical at adoption. Local modifications:
+//   - windowsHide: true on both child-process spawns, per this repo's rule
+//     that non-interactive child processes must not flash console windows
+//     under GUI/headless hosts.
+// Known upstream limitation, kept as-is: a free-text `background` value is
+// passed inline on the ocr argv (--background); pass `backgroundFile` to keep
+// long or sensitive background text off the process list and out of ARG_MAX.
 
 import { spawn } from "node:child_process"
 import { chmod, mkdtemp, rm, writeFile } from "node:fs/promises"
@@ -179,6 +191,7 @@ async function runOcr(args: string[], options: RunOptions): Promise<RunResult> {
         env: process.env,
         shell: false,
         detached: process.platform !== "win32",
+        windowsHide: true,
       },
     )
     child.stdin.end()
@@ -205,7 +218,7 @@ async function runOcr(args: string[], options: RunOptions): Promise<RunResult> {
     const killProcessGroup = (signal: NodeJS.Signals): void => {
       if (closed || child.pid === undefined) return
       if (process.platform === "win32") {
-        spawn("taskkill", ["/pid", String(child.pid), "/T", "/F"], { stdio: "ignore" })
+        spawn("taskkill", ["/pid", String(child.pid), "/T", "/F"], { stdio: "ignore", windowsHide: true })
         return
       }
       try {
