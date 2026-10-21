@@ -1,4 +1,4 @@
-//! Full-viewport Alex account panel (Login / Account status).
+//! Full-viewport OpenBitFun account panel (Login / Account status).
 //!
 //! Opened by `/login`. When already logged in, shows account info and connected devices instead of the credential form.
 

@@ -29,7 +29,7 @@ const AUTO_CHECK_INTERVAL: Duration = Duration::from_secs(6 * 60 * 60);
 const PROBE_WINDOW: Duration = Duration::from_secs(10);
 const PROBE_BYTES: u64 = 4 * 1024 * 1024;
 /// GitHub stays first at or above this rate. Below it, a synchronized
-/// Alex copy is preferred and GitHub remains the fallback.
+/// OpenBitFun copy is preferred and GitHub remains the fallback.
 const HEALTHY_THROUGHPUT: u64 = 512 * 1024;
 /// Sustained below this counts as a dead link and we fail over. Deliberately
 /// far under the healthy bar: a genuinely slow but only available source must
@@ -890,7 +890,7 @@ async fn download_text(client: &Client, url: &str) -> Result<String> {
 /// Forks that publish their own releases override this with their own key.
 const RELEASE_PUBKEY: Option<&str> = option_env!("OPENBITFUN_RELEASE_PUBKEY");
 
-/// The official Alex release public key (minisign key ID `50F47CBE6CC0A376`),
+/// The official OpenBitFun release public key (minisign key ID `50F47CBE6CC0A376`),
 /// base64-wrapped the way Tauri wraps `minisign.pub`. Public data — each
 /// release ships it as the `minisign.pub` asset — and the update source above
 /// is pinned to the official repository, so local and fork builds verifying

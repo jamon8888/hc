@@ -1,4 +1,4 @@
-//! System tray integration for Alex Desktop.
+//! System tray integration for OpenBitFun Desktop.
 //!
 //! Creates a system tray icon with a context menu. On Windows and Linux the tray
 //! icon is always visible while the process is running; on macOS the icon appears
@@ -7,8 +7,8 @@
 //! Left-click  – shows and focuses the main window on macOS; toggles it elsewhere.
 //! Right-click – opens a context menu with:
 //!   • toggle desktop Agent companion pet (persisted via `app.ai_experience`)
-//!   • "Show Alex"
-//!   • "Quit Alex"
+//!   • "Show OpenBitFun"
+//!   • "Quit OpenBitFun"
 //!
 //! The context menu is rebuilt every time the user left-clicks (for freshness),
 //! periodically, and after locale changes.
