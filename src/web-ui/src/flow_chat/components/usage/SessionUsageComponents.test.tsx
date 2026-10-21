@@ -1,12 +1,12 @@
 import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { JSDOM } from 'jsdom';
-import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 
 import type { SessionUsageReport } from '@/infrastructure/api/service-api/SessionAPI';
-import { pinI18nLocale } from '@/test/i18nTestUtils';
+import { pinNumberFormattingLocale } from '@/test/i18nTestUtils';
 import { AppearanceCompiler } from '@/infrastructure/appearance/compiler/AppearanceCompiler';
 import { AppearanceRegistry } from '@/infrastructure/appearance/registry/AppearanceRegistry';
 import { APPEARANCE_SCHEMA_VERSION, type AppearancePackage } from '@/infrastructure/appearance/types';
@@ -496,8 +496,8 @@ function flattenStrings(value: unknown): string[] {
 }
 
 describe('Session usage report UI components', () => {
-  beforeAll(async () => {
-    await pinI18nLocale('en-US');
+  beforeEach(() => {
+    pinNumberFormattingLocale('en-US');
   });
 
 

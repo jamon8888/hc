@@ -60,15 +60,30 @@ function interpolate(message: string, options?: TranslationOptions): string {
 }
 
 /**
- * Pins the shared i18n service to one locale.
+ * Pins the shared number formatting to one locale.
  *
  * The product default locale is a product decision, so a test that asserts
- * localized copy or formatted numbers has to state the locale it asserts
- * against instead of inheriting the ambient default. Pinning the service
- * covers both, because the shared formatting helpers read the service locale.
+ * formatted numbers has to state the locale it asserts against instead of
+ * inheriting the ambient default. The formatting goes through the i18next
+ * formatter service so the locale stays explicit without a direct `Intl` call.
  */
-export async function pinI18nLocale(locale: LocaleId): Promise<void> {
-  // The service mirrors the applied locale onto the document element.
-  vi.stubGlobal('document', { documentElement: { setAttribute: vi.fn() } });
-  await i18nService.applyPersistedLanguage(locale);
+export function pinNumberFormattingLocale(locale: LocaleId = 'en-US'): void {
+  const formatter = i18nService.getI18nInstance().services.formatter;
+  if (!formatter) {
+    throw new Error('The i18next formatter service is unavailable');
+  }
+  vi.spyOn(i18nService, 'formatNumber').mockImplementation(
+    (value, options) => formatter.format(value, 'number', locale, options),
+  );
+}
+
+/**
+ * Pins the i18n catalog to one locale.
+ *
+ * Use this when the assertion proves that the copy came from the catalog
+ * rather than from the raw source text: only a locale other than the source
+ * language can tell the two apart.
+ */
+export async function pinCatalogLocale(locale: LocaleId): Promise<void> {
+  await i18nService.getI18nInstance().changeLanguage(locale);
 }

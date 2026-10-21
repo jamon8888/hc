@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it } from 'vitest';
-import { pinI18nLocale } from '@/test/i18nTestUtils';
+import { pinCatalogLocale } from '@/test/i18nTestUtils';
 import {
   resolveThreadGoalHeaderTitle,
   resolveThreadGoalUserMessageDisplay,
@@ -9,7 +9,7 @@ import {
 // can prove that the display came from the catalog. Pin the catalog locale
 // instead of inheriting the product default.
 beforeAll(async () => {
-  await pinI18nLocale('zh-CN');
+  await pinCatalogLocale('zh-CN');
 });
 
 describe('resolveThreadGoalUserMessageDisplay', () => {

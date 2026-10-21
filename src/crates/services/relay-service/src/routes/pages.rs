@@ -4678,7 +4678,7 @@ mod tests {
             .await
             .unwrap();
         let login_html = String::from_utf8_lossy(&body);
-        assert!(login_html.contains("登录后访问"));
+        assert!(login_html.contains("Connexion requise pour accéder à cette page"));
         assert!(login_html.contains("GitHub"));
         assert_eq!(
             get_page(&app, "/p/alice/priv", Some(&bob)).await,
