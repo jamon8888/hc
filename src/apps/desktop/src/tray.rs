@@ -7,8 +7,8 @@
 //! Left-click  – shows and focuses the main window on macOS; toggles it elsewhere.
 //! Right-click – opens a context menu with:
 //!   • toggle desktop Agent companion pet (persisted via `app.ai_experience`)
-//!   • "Show OpenBitFun"
-//!   • "Quit OpenBitFun"
+//!   • "Show Alex"
+//!   • "Quit Alex"
 //!
 //! The context menu is rebuilt every time the user left-clicks (for freshness),
 //! periodically, and after locale changes.
