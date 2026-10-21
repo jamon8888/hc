@@ -76,14 +76,3 @@ export function pinNumberFormattingLocale(locale: LocaleId = 'en-US'): void {
     (value, options) => formatter.format(value, 'number', locale, options),
   );
 }
-
-/**
- * Pins the i18n catalog to one locale.
- *
- * Use this when the assertion proves that the copy came from the catalog
- * rather than from the raw source text: only a locale other than the source
- * language can tell the two apart.
- */
-export async function pinCatalogLocale(locale: LocaleId): Promise<void> {
-  await i18nService.getI18nInstance().changeLanguage(locale);
-}

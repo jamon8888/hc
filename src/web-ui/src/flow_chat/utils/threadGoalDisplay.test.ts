@@ -1,37 +1,42 @@
-import { beforeAll, describe, expect, it } from 'vitest';
-import { pinCatalogLocale } from '@/test/i18nTestUtils';
+import { describe, expect, it } from 'vitest';
+import { i18nService } from '@/infrastructure/i18n/core/I18nService';
 import {
   resolveThreadGoalHeaderTitle,
   resolveThreadGoalUserMessageDisplay,
 } from './threadGoalDisplay';
 
-// The raw thread-goal text is English, so only a catalog in another language
-// can prove that the display came from the catalog. Pin the catalog locale
-// instead of inheriting the product default.
-beforeAll(async () => {
-  await pinCatalogLocale('zh-CN');
-});
+// The raw thread-goal text is whatever the model streamed, so it is never the
+// same string as a catalog entry. The assertions below therefore hold in every
+// locale, and the expected copy is read from the active catalog instead of
+// being pinned to one language.
+const RAW_OBJECTIVE_UPDATED = 'raw-thread-goal-payload';
+const RAW_CONTINUATION = 'raw-thread-goal-continuation-payload';
 
 describe('resolveThreadGoalUserMessageDisplay', () => {
   it('localizes objective-updated metadata', () => {
-    const result = resolveThreadGoalUserMessageDisplay('Thread goal updated: foo', {
+    const result = resolveThreadGoalUserMessageDisplay(RAW_OBJECTIVE_UPDATED, {
       threadGoalObjectiveUpdated: true,
       objective: '同步上游',
     });
     expect(result).toContain('同步上游');
-    expect(result).not.toContain('Thread goal updated');
+    expect(result).not.toContain(RAW_OBJECTIVE_UPDATED);
+    expect(result).toBe(
+      i18nService.t('flow-chat:threadGoal.updatedUserMessage', { objective: '同步上游' }),
+    );
   });
 
   it('localizes auto-continuation completion-check metadata', () => {
-    const result = resolveThreadGoalUserMessageDisplay('Continuing thread goal: sync', {
+    const result = resolveThreadGoalUserMessageDisplay(RAW_CONTINUATION, {
       threadGoalContinuation: true,
       objective: '同步上游',
       autoContinuationAttempt: 2,
       autoContinuationMax: 100,
     });
     expect(result).toContain('同步上游');
-    expect(result).not.toContain('Continuing thread goal');
-    expect(result).toContain('目标完成检查');
+    expect(result).not.toContain(RAW_CONTINUATION);
+    expect(result).toBe(
+      i18nService.t('flow-chat:threadGoal.continuationCheckUserMessage', { objective: '同步上游' }),
+    );
   });
 });
 
