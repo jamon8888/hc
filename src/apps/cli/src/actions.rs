@@ -935,7 +935,7 @@ static ACTION_SPECS: &[ActionSpec] = &[
         id: "logout",
         name: "Logout",
         aliases: &["/logout"],
-        description: "Log out of OpenBitFun account",
+        description: "Log out of Alex account",
         contexts: BOTH,
         availability: ActionAvailability::Always,
         handler: ActionHandler::Logout,
@@ -1586,7 +1586,7 @@ impl ResolvedKeymap {
                 keymap.push_binding(
                     spec,
                     binding,
-                    "OpenBitFun safety".to_string(),
+                    "Alex safety".to_string(),
                     BindingPolicy {
                         availability,
                         modifier_match: built_in_modifier_match(spec, binding),
@@ -1629,7 +1629,7 @@ impl ResolvedKeymap {
                 }
                 Err(error) => keymap.push_diagnostic(
                     format!(
-                        "Invalid {} ({}); using OpenBitFun default",
+                        "Invalid {} ({}); using Alex default",
                         field.source(),
                         binding_error_summary(&error)
                     ),
@@ -1649,7 +1649,7 @@ impl ResolvedKeymap {
                 keymap.push_binding(
                     spec,
                     binding,
-                    "OpenBitFun default".to_string(),
+                    "Alex default".to_string(),
                     BindingPolicy {
                         availability: spec.availability,
                         modifier_match: built_in_modifier_match(spec, binding),
@@ -2740,7 +2740,7 @@ mod tests {
             Some("exit")
         );
         let diagnostic = keymap.diagnostics().join("\n");
-        assert!(diagnostic.contains("OpenBitFun safety"));
+        assert!(diagnostic.contains("Alex safety"));
         assert!(diagnostic.contains("shortcuts.menu"));
         assert!(diagnostic.contains("Quit"));
         assert!(diagnostic.contains("Interrupt"));
@@ -2905,7 +2905,7 @@ mod tests {
         let diagnostic = keymap.diagnostics().join("\n");
         assert!(diagnostic.contains("Ctrl+Esc"));
         assert!(diagnostic.contains("shortcuts.menu"));
-        assert!(diagnostic.contains("OpenBitFun safety"));
+        assert!(diagnostic.contains("Alex safety"));
     }
 
     #[test]
@@ -3097,7 +3097,7 @@ mod tests {
             help.lines().all(|line| line.chars().count() <= 74),
             "{help}"
         );
-        assert!(help.contains("OpenBitFun safety"));
+        assert!(help.contains("Alex safety"));
     }
 
     #[test]
@@ -3110,7 +3110,7 @@ mod tests {
         let help = keymap.help_text(ActionState::chat(false, false));
 
         assert!(help.contains("shortcuts.send_message"), "{help}");
-        assert!(help.contains("OpenBitFun default"), "{help}");
+        assert!(help.contains("Alex default"), "{help}");
         assert!(help.contains("Commands"), "{help}");
         assert!(!help.contains("open_palette"), "{help}");
         assert!(help.lines().all(|line| line.chars().count() <= 74));
@@ -3145,11 +3145,30 @@ mod tests {
 
         assert!(help.contains("Invalid shortcuts.send_message"), "{help}");
         assert!(help.contains("unsupported key"), "{help}");
-        assert!(help.contains("using OpenBitFun"), "{help}");
-        assert!(help.lines().any(|line| line.trim() == "default"), "{help}");
+        // The 72-char notice wrap may or may not split this phrase, so match it
+        // on whitespace-collapsed text instead of pinning a line break.
+        let flat_help = help.split_whitespace().collect::<Vec<_>>().join(" ");
+        assert!(flat_help.contains("using Alex default"), "{help}");
         assert!(!help.contains("more shortcut notices"), "{help}");
         assert!(help.lines().count() <= 19, "{help}");
         assert!(help.lines().all(|line| line.chars().count() <= 74));
+    }
+
+    #[test]
+    fn wrap_help_notice_wraps_long_notices_without_dropping_words() {
+        // The fallback assertion above checks content rather than layout, so the
+        // wrap itself needs direct coverage instead of a line-break coincidence.
+        let notice = "Invalid shortcuts.send_message (unsupported key); using Alex default. \
+                       This notice is deliberately longer than the 72-column help limit.";
+        let wrapped = wrap_help_notice(notice, 72);
+
+        assert!(wrapped.len() >= 2, "{wrapped:?}");
+        assert!(
+            wrapped.iter().all(|line| line.chars().count() <= 72),
+            "{wrapped:?}"
+        );
+        let flatten = |text: &str| text.split_whitespace().collect::<Vec<_>>().join(" ");
+        assert_eq!(flatten(&wrapped.join(" ")), flatten(notice));
     }
 
     #[test]
