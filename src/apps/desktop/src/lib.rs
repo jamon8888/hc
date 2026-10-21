@@ -2351,7 +2351,7 @@ fn configure_workspace_search_daemon_env() -> Option<std::path::PathBuf> {
 /// The sidecar is packaged next to the application resources, and the whole
 /// extracted tree travels together: the binary loads its shared libraries
 /// relative to its own directory.
-fn resolve_bundled_basemind_binary(app: &tauri::AppHandle) -> Option<std::path::PathBuf> {
+fn resolve_bundled_basemind_binary(app: &tauri::App) -> Option<std::path::PathBuf> {
     let binary_name = if cfg!(target_os = "windows") {
         "basemind.exe"
     } else {
@@ -2404,6 +2404,26 @@ fn start_bundled_basemind_daemon(path: &std::path::Path) {
     }
 }
 
+/// Wait for the daemon to publish its endpoint.
+///
+/// The daemon writes the portfile when it binds its HTTP listener, which can
+/// happen after `comms start` returns. Waiting here keeps the ports from
+/// being missing on a cold start, where the daemon is coming up with the
+/// product.
+fn wait_for_basemind_endpoint() -> Option<openbitfun_basemind_integration::DaemonEndpoint> {
+    const ATTEMPTS: u32 = 20;
+    const RETRY_DELAY: std::time::Duration = std::time::Duration::from_millis(200);
+    for attempt in 0..ATTEMPTS {
+        if let Ok(endpoint) = openbitfun_basemind_integration::daemon::discover() {
+            return Some(endpoint);
+        }
+        if attempt + 1 < ATTEMPTS {
+            std::thread::sleep(RETRY_DELAY);
+        }
+    }
+    None
+}
+
 /// Publish the PII-safe workspace search port to the runtime.
 ///
 /// The host owns the composition: it builds the sidecar client, the identity
@@ -2431,10 +2451,12 @@ fn publish_basemind_search_port() {
         }
     }
 
-    let endpoint = match openbitfun_basemind_integration::daemon::discover() {
-        Ok(endpoint) => endpoint,
-        Err(error) => {
-            log::warn!("Basemind search port is not available: {}", error);
+    let endpoint = match wait_for_basemind_endpoint() {
+        Some(endpoint) => endpoint,
+        None => {
+            log::warn!(
+                "Basemind search port is not available: the daemon did not publish its endpoint"
+            );
             return;
         }
     };
