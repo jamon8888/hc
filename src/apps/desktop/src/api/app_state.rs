@@ -458,15 +458,12 @@ impl AppState {
         &self,
         workspace_id: Option<&str>,
     ) -> Result<Arc<BasemindClient>, String> {
-        let (_, root) = self.basemind_workspace(workspace_id).await?;
-        let root = root.to_string_lossy().to_string();
         openbitfun_basemind_integration::verify_version().map_err(|error| error.to_string())?;
         let endpoint = openbitfun_basemind_integration::daemon::discover()
             .map_err(|error| error.to_string())?;
         Ok(Arc::new(BasemindClient::new(
             endpoint.base_url(),
             endpoint.token,
-            root,
         )))
     }
 

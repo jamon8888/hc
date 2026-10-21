@@ -20,6 +20,12 @@ pub enum ToolPackFeatureGroup {
     Creation,
     Canvas,
     AgentControl,
+    /// PII-safe workspace search (the `rag_search` tool).
+    ///
+    /// The group is separate from the basic file tools because the search
+    /// answers from the sidecar's index, and the sidecar is only present
+    /// where the basemind feature is enabled.
+    Basemind,
 }
 
 impl ToolPackFeatureGroup {
@@ -35,6 +41,7 @@ impl ToolPackFeatureGroup {
             Self::Pages => "pages",
             Self::Creation => "creation",
             Self::Canvas => "canvas",
+            Self::Basemind => "basemind",
             Self::AgentControl => "agent-control",
         }
     }
@@ -85,6 +92,10 @@ pub fn enabled_feature_groups() -> Vec<ToolPackFeatureGroup> {
             cfg!(feature = "agent-control"),
             ToolPackFeatureGroup::AgentControl,
         ),
+        (
+            cfg!(feature = "basemind"),
+            ToolPackFeatureGroup::Basemind,
+        ),
     ]
     .into_iter()
     .filter_map(|(enabled, group)| enabled.then_some(group))
@@ -103,6 +114,7 @@ pub fn tool_feature_group(tool_name: &str) -> Option<ToolPackFeatureGroup> {
         }
         "WebSearch" | "WebFetch" | "ControlHub" => Some(ToolPackFeatureGroup::BrowserWeb),
         "ComputerUse" => Some(ToolPackFeatureGroup::ComputerUse),
+        "rag_search" => Some(ToolPackFeatureGroup::Basemind),
         "view_image" | "analyze_image" => Some(ToolPackFeatureGroup::ImageAnalysis),
         "GenerativeUI" | "InitMiniApp" | "FinalizeMiniApp" | "PublishMiniApp"
         | "PublishAppearance" | "Playbook" => Some(ToolPackFeatureGroup::MiniApp),
@@ -169,8 +181,14 @@ const CORE_COMPUTER_USE_FEATURE_GROUPS: &[ToolPackFeatureGroup] =
     &[ToolPackFeatureGroup::ComputerUse];
 const CORE_MINIAPP_FEATURE_GROUPS: &[ToolPackFeatureGroup] = &[ToolPackFeatureGroup::MiniApp];
 const CORE_CREATION_FEATURE_GROUPS: &[ToolPackFeatureGroup] = &[ToolPackFeatureGroup::Creation];
+const CORE_BASEMIND_FEATURE_GROUPS: &[ToolPackFeatureGroup] = &[ToolPackFeatureGroup::Basemind];
 
 const PRODUCT_TOOL_PROVIDER_GROUP_PLAN: &[ToolProviderGroupPlan] = &[
+    ToolProviderGroupPlan {
+        provider_id: "core.basemind",
+        feature_groups: CORE_BASEMIND_FEATURE_GROUPS,
+        tool_names: &["rag_search"],
+    },
     ToolProviderGroupPlan {
         provider_id: "core.basic",
         feature_groups: CORE_BASIC_FEATURE_GROUPS,

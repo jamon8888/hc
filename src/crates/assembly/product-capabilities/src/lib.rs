@@ -63,6 +63,8 @@ pub enum ProductFeatureGroup {
     Creation,
     Canvas,
     AgentControl,
+    /// PII-safe workspace search (the `rag_search` tool).
+    Basemind,
 }
 
 impl ProductFeatureGroup {
@@ -79,6 +81,7 @@ impl ProductFeatureGroup {
             Self::Creation => "creation",
             Self::Canvas => "canvas",
             Self::AgentControl => "agent-control",
+            Self::Basemind => "basemind",
         }
     }
 }
@@ -103,6 +106,7 @@ impl From<ToolPackFeatureGroup> for ProductFeatureGroup {
             ToolPackFeatureGroup::Creation => Self::Creation,
             ToolPackFeatureGroup::Canvas => Self::Canvas,
             ToolPackFeatureGroup::AgentControl => Self::AgentControl,
+            ToolPackFeatureGroup::Basemind => Self::Basemind,
         }
     }
 }
@@ -121,6 +125,7 @@ impl From<ProductFeatureGroup> for ToolPackFeatureGroup {
             ProductFeatureGroup::Creation => Self::Creation,
             ProductFeatureGroup::Canvas => Self::Canvas,
             ProductFeatureGroup::AgentControl => Self::AgentControl,
+            ProductFeatureGroup::Basemind => Self::Basemind,
         }
     }
 }

@@ -588,6 +588,7 @@ mod tests {
             "CallDeferredTool",
             "OpenBitFunControl",
             "GetFileDiff",
+            "rag_search",
             "CreateCanvas",
             "ReadCanvas",
             "UpdateCanvas",

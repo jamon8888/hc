@@ -51,6 +51,8 @@ pub mod session_usage; // Session runtime usage reports
 pub mod snapshot; // Snapshot-based change tracking
 #[cfg(feature = "agent-runtime")]
 pub mod token_usage; // Token usage tracking
+#[cfg(feature = "tools-rag")]
+pub mod rag_search; // PII-safe workspace search port, published by the host
 #[cfg(feature = "web-tools")]
 pub mod web_search; // Provider-neutral WebSearch runtime and local credentials
 #[cfg(feature = "workspace-runtime")]

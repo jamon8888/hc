@@ -19,6 +19,12 @@ pub struct RagSearchRequest {
     pub top_k: u32,
     /// The session whose vault payload scopes token resolution and minting.
     pub session_id: String,
+    /// The absolute workspace root the sidecar hosts.
+    ///
+    /// One daemon hosts many workspaces, so the root travels with the
+    /// request; the sidecar refuses any root that is neither a git
+    /// repository nor a directory carrying a basemind config.
+    pub workspace_root: String,
 }
 
 /// A rehydratable entity reference: category plus opaque session token.
@@ -97,6 +103,7 @@ mod tests {
             query: "[PERSON_9c21de04a7f3b2d1]'s chronology".to_string(),
             top_k: 8,
             session_id: "session-1".to_string(),
+            workspace_root: "/srv/workspace".to_string(),
         };
         let value = serde_json::to_value(&request).unwrap();
         assert_eq!(value["query"], "[PERSON_9c21de04a7f3b2d1]'s chronology");

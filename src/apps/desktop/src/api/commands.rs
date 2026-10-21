@@ -5852,8 +5852,11 @@ pub mod basemind_commands {
         // it is given, so it is resolved against the workspace first: a
         // document outside the workspace must not be extracted and returned.
         let file_path = resolve_workspace_document(&state, &request).await?;
+        let (_, root) = state
+            .basemind_workspace(request.workspace_id.as_deref())
+            .await?;
         let payload = client
-            .redact_path(&file_path)
+            .redact_path(&file_path, &root.to_string_lossy())
             .await
             .map_err(|e| e.to_string())?;
         let store = state

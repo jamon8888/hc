@@ -24,6 +24,8 @@ mod plugin;
 #[cfg(feature = "product-search")]
 mod product_search;
 #[cfg(feature = "rag-search")]
+mod document_redaction;
+mod prompt_pseudonymization;
 mod rag_search;
 #[cfg(feature = "script-tool-runtime")]
 mod script_tool;
@@ -77,6 +79,8 @@ pub use plugin::{
 #[cfg(feature = "product-search")]
 pub use product_search::ProductSearchPort;
 #[cfg(feature = "rag-search")]
+pub use document_redaction::*;
+pub use prompt_pseudonymization::*;
 pub use rag_search::*;
 #[cfg(feature = "script-tool-runtime")]
 pub use script_tool::{

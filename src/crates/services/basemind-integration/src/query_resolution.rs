@@ -89,6 +89,7 @@ impl QueryResolver {
         &mut self,
         hits: Vec<crate::ipc::DocumentSearchHit>,
         session_id: &str,
+        workspace_root: &str,
     ) -> Result<Vec<RetokenizedHit>> {
         let mut session = self
             .vault
@@ -102,7 +103,7 @@ impl QueryResolver {
 
         for hit in hits {
             // Safety pass over the raw chunk; failure hard-fails the call (D7).
-            let redact_result = self.client.redact_text(&hit.text).await?;
+            let redact_result = self.client.redact_text(&hit.text, workspace_root).await?;
             let detections = redact_result["detections"]
                 .as_array()
                 .ok_or_else(|| anyhow::anyhow!("missing detections in redact_text safety pass"))?;

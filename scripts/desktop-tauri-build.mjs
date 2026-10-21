@@ -14,6 +14,7 @@ import {
   writeFileSync,
 } from 'fs';
 import { ensureFlashgrepBinary } from './prepare-flashgrep-resource.mjs';
+import { ensureBasemindBinary } from './prepare-basemind-resource.mjs';
 import { extractProductConfigArg } from './product-customization/cli.mjs';
 import { productBuildEnvironment } from './product-customization/projections.mjs';
 import { resolveProductDefinition } from './product-customization/resolver.mjs';
@@ -55,6 +56,13 @@ async function main() {
     desktopDir,
   );
   process.env.FLASHGREP_DAEMON_BIN = flashgrepBinary;
+  // The Basemind sidecar is packaged with the product: the PII redaction
+  // surface is part of the desktop, and a user must not have to install the
+  // sidecar before a document can be redacted. The binary is downloaded from
+  // the pinned fork release and verified against its published checksum.
+  const basemindBinary = ensureBasemindBinary({
+    target: optionValue(forward, '--target') || rustHostTargetTriple(),
+  });
   // Tauri CLI reads CI and rejects numeric "1" (common in CI providers).
   process.env.CI = 'true';
   if (process.platform === 'darwin' && requestsDmgBundle(forward)) {
@@ -66,6 +74,7 @@ async function main() {
   const tauriConfig = prepareTauriConfig(join(desktopDir, 'tauri.conf.json'), {
     desktopDir,
     flashgrepBinary,
+    basemindBinary,
     resolution,
     releaseChannel,
   });
@@ -311,7 +320,7 @@ export function configureWindowsSigning(config, env = process.env, platform = pr
 
 export function prepareTauriConfig(
   baseConfigPath,
-  { desktopDir, flashgrepBinary, resolution, releaseChannel }
+  { desktopDir, flashgrepBinary, basemindBinary, resolution, releaseChannel }
 ) {
   const config = JSON.parse(readFileSync(baseConfigPath, 'utf8'));
   if (resolution) {
@@ -324,6 +333,7 @@ export function prepareTauriConfig(
   }
   configureWindowsSigning(config);
   injectTargetFlashgrepResource(config, desktopDir, flashgrepBinary);
+  injectTargetBasemindResource(config, desktopDir, basemindBinary);
   // The DeepSeek bridge is not a compile-time resource: cargo check and
   // desktop:dev must not require packages/dsh-acp/dist-profile. Official
   // packaging injects it here; frontend:build-all (beforeBuildCommand)
@@ -421,6 +431,23 @@ function injectTargetFlashgrepResource(config, desktopDir, flashgrepBinary) {
     const source = toTauriPath(relative(desktopDir, binaryPath));
     resources[source] = `flashgrep/${basename(binaryPath)}`;
   }
+  config.bundle = {
+    ...(config.bundle || {}),
+    resources,
+  };
+}
+
+function injectTargetBasemindResource(config, desktopDir, basemindBinary) {
+  if (!basemindBinary) {
+    return;
+  }
+  const resources = { ...(config.bundle?.resources || {}) };
+  delete resources['../../../resources/basemind'];
+
+  // The sidecar loads its shared libraries relative to its own directory, so
+  // the whole extracted tree travels together, not just the binary.
+  const source = toTauriPath(relative(desktopDir, dirname(basemindBinary)));
+  resources[source] = 'basemind';
   config.bundle = {
     ...(config.bundle || {}),
     resources,

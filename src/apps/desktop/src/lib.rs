@@ -926,6 +926,34 @@ pub async fn run() {
                 );
             }
 
+            // The Basemind sidecar is bundled with the product. The daemon is
+            // started here so the PII redaction surface is available without
+            // the user installing anything; when the sidecar is missing the
+            // surface reports that loudly rather than silently degrading.
+            {
+                let step_started = Instant::now();
+                match resolve_bundled_basemind_binary(app) {
+                    Some(path) => {
+                        log::info!(
+                            "Basemind sidecar startup check passed: path={}",
+                            path.display()
+                        );
+                        start_bundled_basemind_daemon(&path);
+                        publish_basemind_search_port();
+                    }
+                    None => {
+                        log::warn!(
+                            "Basemind sidecar startup check failed: the sidecar binary was not found in the application resources"
+                        );
+                    }
+                }
+                startup_trace.record_elapsed_step(
+                    "native_setup",
+                    "resolve_basemind_sidecar",
+                    step_started,
+                );
+            }
+
             // Register bundled mobile-web resource path for remote connect.
             // tauri.conf.json maps "../../mobile-web/dist" -> "mobile-web/dist",
             // so the primary candidate is "mobile-web/dist". Additional fallbacks
@@ -2316,6 +2344,158 @@ fn configure_workspace_search_daemon_env() -> Option<std::path::PathBuf> {
         std::env::set_var("FLASHGREP_DAEMON_BIN", path);
     }
     path
+}
+
+/// Resolve the bundled Basemind sidecar binary.
+///
+/// The sidecar is packaged next to the application resources, and the whole
+/// extracted tree travels together: the binary loads its shared libraries
+/// relative to its own directory.
+fn resolve_bundled_basemind_binary(app: &tauri::AppHandle) -> Option<std::path::PathBuf> {
+    let binary_name = if cfg!(target_os = "windows") {
+        "basemind.exe"
+    } else {
+        "basemind"
+    };
+    if let Ok(path) = app.path().resolve(
+        &format!("basemind/{binary_name}"),
+        tauri::path::BaseDirectory::Resource,
+    ) {
+        if path.exists() {
+            return Some(path);
+        }
+    }
+    if let Ok(resource_dir) = app.path().resource_dir() {
+        for candidate in [
+            resource_dir.join("basemind").join(binary_name),
+            resource_dir.join("resources").join("basemind").join(binary_name),
+        ] {
+            if candidate.exists() {
+                return Some(candidate);
+            }
+        }
+    }
+    None
+}
+
+/// Start the bundled Basemind daemon.
+///
+/// `comms start` is the fork's own "ensure the daemon is running" verb: it
+/// spawns the daemon when no daemon holds the comms directory and is a no-op
+/// when one already does. The daemon publishes its address and bearer token
+/// in the portfile the client reads, so nothing else has to be wired here.
+fn start_bundled_basemind_daemon(path: &std::path::Path) {
+    use openbitfun_core::util::process_manager::create_command;
+
+    let mut command = create_command(path);
+    command
+        .arg("comms")
+        .arg("start")
+        .stdin(std::process::Stdio::null())
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null());
+
+    // The daemon outlives this call, so it is spawned detached and never
+    // waited on: the fork's own `comms start` returns once the daemon holds
+    // the comms directory.
+    match command.spawn() {
+        Ok(_) => log::info!("Basemind daemon start requested"),
+        Err(error) => log::warn!("Failed to start the Basemind daemon: {}", error),
+    }
+}
+
+/// Publish the PII-safe workspace search port to the runtime.
+///
+/// The host owns the composition: it builds the sidecar client, the identity
+/// registry and the session vault, and hands the pipeline to the runtime as
+/// a port. `openbitfun-core` only ever sees the port trait (D11).
+#[cfg(feature = "basemind")]
+fn publish_basemind_search_port() {
+    use openbitfun_basemind_integration::{
+        BasemindClient, IdentityRegistry, RagSearchPortAdapter, RagSearchTool, SessionVault,
+    };
+
+    let data_dir = match openbitfun_core::infrastructure::app_paths::try_get_path_manager_arc() {
+        Ok(manager) => manager.user_data_dir().join("basemind"),
+        Err(error) => {
+            log::warn!("Basemind search port is not available: {}", error);
+            return;
+        }
+    };
+    let registry_dir = data_dir.join("registry");
+    let vault_dir = data_dir.join("vault");
+    for directory in [&registry_dir, &vault_dir] {
+        if let Err(error) = std::fs::create_dir_all(directory) {
+            log::warn!("Basemind search port is not available: {}", error);
+            return;
+        }
+    }
+
+    let endpoint = match openbitfun_basemind_integration::daemon::discover() {
+        Ok(endpoint) => endpoint,
+        Err(error) => {
+            log::warn!("Basemind search port is not available: {}", error);
+            return;
+        }
+    };
+    let client = BasemindClient::new(endpoint.base_url(), endpoint.token);
+    let registry = match IdentityRegistry::new(registry_dir.clone()) {
+        Ok(registry) => registry,
+        Err(error) => {
+            log::warn!("Basemind search port is not available: {}", error);
+            return;
+        }
+    };
+    let vault = match SessionVault::new(vault_dir.clone()) {
+        Ok(vault) => vault,
+        Err(error) => {
+            log::warn!("Basemind search port is not available: {}", error);
+            return;
+        }
+    };
+
+    // The prompt pseudonymizer is the interception that keeps personal
+    // values out of the prompt the model sees (SPEC §11.4, I9). It shares
+    // the registry and the vault with the search pipeline: both mint the
+    // same aliases and read the same session payload.
+    let vault_for_prompt = match SessionVault::new(vault_dir.clone()) {
+        Ok(vault) => vault,
+        Err(error) => {
+            log::warn!("Basemind prompt pseudonymization is not available: {}", error);
+            return;
+        }
+    };
+    let registry_for_prompt = match IdentityRegistry::new(registry_dir.clone()) {
+        Ok(registry) => registry,
+        Err(error) => {
+            log::warn!("Basemind prompt pseudonymization is not available: {}", error);
+            return;
+        }
+    };
+    let pseudonymizer = std::sync::Arc::new(
+        openbitfun_basemind_integration::BasemindPromptPseudonymizer::new(
+            openbitfun_basemind_integration::PromptPseudonymizer::new(
+                client.clone(),
+                registry_for_prompt,
+                vault_for_prompt,
+            ),
+        ),
+    );
+    let port: std::sync::Arc<dyn openbitfun_runtime_ports::PromptPseudonymizationPort> =
+        pseudonymizer;
+    openbitfun_core::service::rag_search::set_global_prompt_pseudonymization_port(Some(port));
+
+    let tool = RagSearchTool::new(client.clone(), registry, vault);
+    let port = std::sync::Arc::new(RagSearchPortAdapter::new(tool));
+    openbitfun_core::service::rag_search::set_global_rag_search_port(Some(port));
+
+    // The document redaction port is the interception that keeps unredacted
+    // document text out of the model context (SPEC §3, I1).
+    let redactor = std::sync::Arc::new(
+        openbitfun_basemind_integration::BasemindDocumentRedactor::new(client),
+    );
+    openbitfun_core::service::rag_search::set_global_document_redaction_port(Some(redactor));
+    log::info!("Basemind search and redaction ports published");
 }
 
 /// Deliver one event to the WebView and, when peer controllers are attached,

@@ -103,7 +103,12 @@ pub struct DocumentConversionError {
 
 #[cfg(feature = "document-read")]
 impl DocumentConversionError {
-    fn new(code: &'static str, message: impl Into<String>) -> Self {
+    /// Build a conversion failure.
+    ///
+    /// Public so a caller that converts a document by its own means — the
+    /// basemind redaction interception — reports the failure in the same
+    /// shape the built-in conversion does.
+    pub fn new(code: &'static str, message: impl Into<String>) -> Self {
         Self {
             code,
             message: message.into(),

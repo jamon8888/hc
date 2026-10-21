@@ -40,7 +40,7 @@ pub use self::daemon::{
     daemon_version, verify_version, DaemonEndpoint, BASEMIND_VERSION, COMMS_DIR_ENV,
 };
 #[cfg(feature = "basemind")]
-pub use self::document_convert::basemind_extract_and_redact;
+pub use self::document_convert::BasemindDocumentRedactor;
 #[cfg(feature = "basemind")]
 pub use self::identity_registry::IdentityRegistry;
 #[cfg(feature = "basemind")]
@@ -50,7 +50,9 @@ pub use self::keychain::{get_vault_passphrase, set_vault_passphrase, KeychainErr
 #[cfg(feature = "basemind")]
 pub use self::models::{ExtractResult, ModelConfig, ModelManager, RedactedEntity};
 #[cfg(feature = "basemind")]
-pub use self::prompt_pseudonym::{PromptPseudonymizer, PseudonymizedPrompt};
+pub use self::prompt_pseudonym::{
+    BasemindPromptPseudonymizer, PromptPseudonymizer, PseudonymizedPrompt,
+};
 #[cfg(feature = "basemind")]
 pub use self::query_resolution::{QueryResolver, RetokenizedEntity, RetokenizedHit};
 #[cfg(feature = "basemind")]

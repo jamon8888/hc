@@ -72,6 +72,7 @@ impl RagSearchTool {
         query: &str,
         top_k: usize,
         session_id: &str,
+        workspace_root: &str,
     ) -> Result<RagSearchOutput> {
         // 1. Resolve echoed session tokens through the vault (D7 on miss)
         let rewritten_query = self.resolver.rewrite_query(query, session_id)?;
@@ -79,11 +80,14 @@ impl RagSearchTool {
         // 2. Search the raw index with the resolved query
         let hits = self
             .client
-            .search_documents(&rewritten_query, top_k)
+            .search_documents(&rewritten_query, top_k, workspace_root)
             .await?;
 
         // 3. Re-tokenize hits into session tokens (D3/I1 chokepoint)
-        let retokenized = self.resolver.retokenize_hits(hits, session_id).await?;
+        let retokenized = self
+            .resolver
+            .retokenize_hits(hits, session_id, workspace_root)
+            .await?;
 
         Ok(RagSearchOutput { hits: retokenized })
     }
@@ -125,7 +129,12 @@ impl openbitfun_runtime_ports::RagSearchPort for RagSearchPortAdapter {
         }
         let mut tool = self.tool.lock().await;
         let output = tool
-            .search(&request.query, request.top_k as usize, &request.session_id)
+            .search(
+                &request.query,
+                request.top_k as usize,
+                &request.session_id,
+                &request.workspace_root,
+            )
             .await
             .map_err(|e| {
                 // D7: the pipeline hard-fails (session payload, sidecar, or

@@ -42,9 +42,10 @@ impl PromptPseudonymizer {
         &mut self,
         raw_prompt: &str,
         session_id: &str,
+        workspace_root: &str,
     ) -> Result<PseudonymizedPrompt> {
         // 1. Call basemind `redact_text` with strategy="token-replace"
-        let redact_result = self.client.redact_text(raw_prompt).await?;
+        let redact_result = self.client.redact_text(raw_prompt, workspace_root).await?;
 
         // Parse response
         let redacted_text = redact_result["redacted_text"]
@@ -135,5 +136,52 @@ impl PromptPseudonymizer {
             rehydration_map: new_entries,
             session_id: session_id.to_string(),
         })
+    }
+}
+
+/// The pseudonymizer seen through the port the host publishes.
+///
+/// The port is shared, so the pseudonymizer behind it is guarded: it
+/// mutates the identity registry and the session vault while it works.
+#[cfg(feature = "basemind")]
+pub struct BasemindPromptPseudonymizer {
+    inner: tokio::sync::Mutex<PromptPseudonymizer>,
+}
+
+#[cfg(feature = "basemind")]
+impl BasemindPromptPseudonymizer {
+    pub fn new(pseudonymizer: PromptPseudonymizer) -> Self {
+        Self {
+            inner: tokio::sync::Mutex::new(pseudonymizer),
+        }
+    }
+}
+
+#[cfg(feature = "basemind")]
+#[async_trait::async_trait]
+impl openbitfun_runtime_ports::PromptPseudonymizationPort for BasemindPromptPseudonymizer {
+    async fn pseudonymize(
+        &self,
+        prompt: &str,
+        session_id: &str,
+        workspace_root: &str,
+    ) -> Result<
+        openbitfun_runtime_ports::PseudonymizedPrompt,
+        openbitfun_runtime_ports::PromptPseudonymizationError,
+    > {
+        let mut guard = self.inner.lock().await;
+        PromptPseudonymizer::pseudonymize(&mut guard, prompt, session_id, workspace_root)
+            .await
+            .map(|pseudonymized| openbitfun_runtime_ports::PseudonymizedPrompt {
+                text: pseudonymized.text,
+                rehydration_map: pseudonymized.rehydration_map,
+                session_id: pseudonymized.session_id,
+            })
+            .map_err(|error| {
+                openbitfun_runtime_ports::PromptPseudonymizationError::new(
+                    openbitfun_runtime_ports::PromptPseudonymizationErrorKind::Failed,
+                    error.to_string(),
+                )
+            })
     }
 }

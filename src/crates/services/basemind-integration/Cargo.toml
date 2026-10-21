@@ -34,7 +34,7 @@ url = { workspace = true, optional = true }
 
 # Runtime ports: workspace filesystem port (workspace_fs) + the RagSearchPort
 # seam implemented over RagSearchTool (D11).
-openbitfun-runtime-ports = { path = "../../contracts/runtime-ports", optional = true, features = ["workspace-ports", "rag-search"] }
+openbitfun-runtime-ports = { path = "../../contracts/runtime-ports", optional = true, features = ["workspace-ports", "rag-search", "document-redaction", "prompt-pseudonymization"] }
 
 # MCP HTTP client - raw reqwest, no rmcp client dependency.
 # Loopback plain HTTP only; workspace reqwest keeps default features (and TLS) off.

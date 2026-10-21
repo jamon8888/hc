@@ -362,6 +362,8 @@ tools-mcp = [
 # openbitfun-basemind-integration, constructed at the host composition root.
 tools-rag = [
     "openbitfun-runtime-ports/rag-search",
+    "openbitfun-runtime-ports/document-redaction",
+    "openbitfun-runtime-ports/prompt-pseudonymization",
 ]
 tools-browser-web = [
     "openbitfun-tool-packs/browser-web",
