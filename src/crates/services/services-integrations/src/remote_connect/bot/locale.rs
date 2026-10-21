@@ -831,7 +831,7 @@ Ouvrez Remote Connect dans Alex Desktop et envoyez le code d'appairage à 6 chif
     weixin_remote_push_unsupported: "WeChat ne peut pas encore pousser les résultats d'une tâche planifiée ou d'une session depuis un autre appareil. Les demandes envoyées depuis WeChat reçoivent toujours une réponse.",
 
     devices_title: "Contrôle multi-appareils",
-    devices_account_required: "L'ordinateur appairé n'est pas connecté à un compte GitHub, le contrôle multi-appareils est donc indisponible. Connectez-vous via la boîte de dialogue de connexion du compte sur l'ordinateur et le bot héritera de l'identité du compte.",
+    devices_account_required: "L'ordinateur appairé n'est pas connecté à un compte, le contrôle multi-appareils est donc indisponible. Connectez-vous via la boîte de dialogue de connexion du compte sur l'ordinateur et le bot héritera de l'identité du compte.",
     devices_empty: "Aucun autre appareil dans ce compte.",
     devices_status_online: "en ligne",
     devices_status_offline: "hors ligne",
