@@ -11,29 +11,14 @@ use serde_json::Value;
 #[cfg(feature = "basemind")]
 use std::time::Duration;
 
-/// The pure helpers the crate's own tests exercise.
-#[cfg(feature = "basemind")]
-pub mod testable {
-    pub use super::{extract_tool_payload, urlencoding};
-}
-
 /// Percent-encode a value for use in a query string.
 ///
-/// The daemon resolves the workspace root from `?root=`, so a path with
-/// spaces or non-ASCII characters must be percent-encoded or the daemon
-/// rejects the request before it ever routes it.
+/// The daemon decodes the query with `form_urlencoded`, so the encoding must
+/// be the same one: a path with spaces or non-ASCII characters otherwise
+/// changes the query the daemon parses.
 #[cfg(feature = "basemind")]
 pub fn urlencoding(value: &str) -> String {
-    let mut out = String::with_capacity(value.len());
-    for byte in value.as_bytes() {
-        match byte {
-            b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'_' | b'.' | b'~' => {
-                out.push(*byte as char);
-            }
-            other => out.push_str(&format!("%{other:02X}")),
-        }
-    }
-    out
+    url::form_urlencoded::byte_serialize(value.as_bytes()).collect()
 }
 
 /// Pull the tool payload out of an MCP result envelope.

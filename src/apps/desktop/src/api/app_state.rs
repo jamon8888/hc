@@ -507,7 +507,7 @@ impl AppState {
     /// the scope of the redaction store, so a caller that names no workspace
     /// still gets a per-workspace store instead of a shared one.
     #[cfg(feature = "basemind")]
-    async fn basemind_workspace(
+    pub(crate) async fn basemind_workspace(
         &self,
         workspace_id: Option<&str>,
     ) -> Result<(String, std::path::PathBuf), String> {

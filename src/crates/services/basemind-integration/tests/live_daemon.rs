@@ -47,10 +47,21 @@ async fn daemon_serves_the_tools_the_client_calls() {
         return;
     };
 
-    let tools = client.call_tool("__list__", serde_json::json!({})).await;
-    // `__list__` is not a tool, so this must fail rather than hang; the real
-    // check is the explicit tool calls below.
-    assert!(tools.is_err() || tools.is_ok());
+    // A tool the fork does not have must be refused, and the error must
+    // name it. The fork answers an unknown tool with an error rather than
+    // an empty success, so the client surfaces it instead of handing the
+    // caller a silent empty payload.
+    let missing = client
+        .call_tool(
+            "extract_and_redact_path",
+            serde_json::json!({ "path": "/tmp/x" }),
+        )
+        .await
+        .expect_err("a tool the fork does not have must fail");
+    assert!(
+        missing.to_string().contains("extract_and_redact_path"),
+        "the error must name the tool that is missing, got {missing}"
+    );
 
     // `redact_text` is a real tool and must answer.
     let payload = client
@@ -126,9 +137,7 @@ async fn document_redaction_round_trips_through_the_product_store() {
     )
     .expect("open redaction store");
 
-    let redacted = store
-        .record(&payload, "txt")
-        .expect("record the redaction result");
+    let redacted = store.record(&payload, "txt").expect("record the redaction");
     assert!(
         redacted.markdown.contains("data-entity-id"),
         "the redacted markdown must carry entity spans, got {}",

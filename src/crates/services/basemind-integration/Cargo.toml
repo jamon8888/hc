@@ -8,7 +8,7 @@ categories = ["integration", "security", "privacy"]
 
 [features]
 default = ["basemind"]
-basemind = ["dep:anyhow", "dep:async-trait", "dep:base64", "dep:chrono", "dep:dashmap", "dep:hex", "dep:hmac", "dep:log", "dep:md5", "dep:regex", "dep:serde", "dep:serde_json", "dep:thiserror", "dep:tokio", "dep:tracing", "dep:uuid", "dep:reqwest", "dep:aes-gcm", "dep:scrypt", "dep:rand", "dep:sha2", "dep:url", "dep:openbitfun-runtime-ports", "dep:security-framework", "dep:security-framework-sys", "dep:windows", "dep:secret-service"]
+basemind = ["dep:anyhow", "dep:async-trait", "dep:base64", "dep:chrono", "dep:dashmap", "dep:hex", "dep:hmac", "dep:log", "dep:md5", "dep:regex", "dep:serde", "dep:serde_json", "dep:thiserror", "dep:tokio", "dep:tracing", "dep:uuid", "dep:reqwest", "dep:aes-gcm", "dep:scrypt", "dep:rand", "dep:sha2", "dep:url", "dep:openbitfun-runtime-ports", "dep:security-framework", "dep:security-framework-sys", "dep:windows", "dep:secret-service", "dep:keyring-core", "dep:windows-native-keyring-store", "dep:zbus-secret-service-keyring-store"]
 tools-rag = ["basemind"]
 document-read = ["basemind"]
 pseudonymization = ["basemind"]
@@ -55,8 +55,15 @@ security-framework = { version = "2.11", optional = true }
 security-framework-sys = { version = "2.11", optional = true }
 [target.'cfg(target_os = "windows")'.dependencies]
 windows = { version = "0.60", features = ["Win32_Security_Cryptography", "Win32_Foundation", "Win32_System_DataExchange"], optional = true }
+windows-native-keyring-store = { workspace = true, optional = true }
 [target.'cfg(target_os = "linux")'.dependencies]
 secret-service = { version = "5", optional = true }
+[target.'cfg(all(unix, not(any(target_os = "macos", target_os = "ios", target_os = "android"))))'.dependencies]
+zbus-secret-service-keyring-store = { workspace = true, optional = true }
+# The credential store the product already uses off macOS: the Windows
+# Credential Manager and the Linux Secret Service, through `keyring-core`.
+[target.'cfg(not(target_os = "macos"))'.dependencies]
+keyring-core = { workspace = true, optional = true }
 
 [dev-dependencies]
 tokio-test = "0.4"
