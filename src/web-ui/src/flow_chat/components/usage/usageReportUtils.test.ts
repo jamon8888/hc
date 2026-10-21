@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { pinNumberFormattingLocale } from '@/test/i18nTestUtils';
+import { pinNumberFormattingLocale } from '@/test/i18nLocaleTestUtils';
 import type { SessionUsageReport } from '@/infrastructure/api/service-api/SessionAPI';
 import {
   calculateShare,

@@ -6,7 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import type { SessionUsageReport } from '@/infrastructure/api/service-api/SessionAPI';
-import { pinNumberFormattingLocale } from '@/test/i18nTestUtils';
+import { pinNumberFormattingLocale } from '@/test/i18nLocaleTestUtils';
 import { AppearanceCompiler } from '@/infrastructure/appearance/compiler/AppearanceCompiler';
 import { AppearanceRegistry } from '@/infrastructure/appearance/registry/AppearanceRegistry';
 import { APPEARANCE_SCHEMA_VERSION, type AppearancePackage } from '@/infrastructure/appearance/types';
