@@ -1,5 +1,5 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { pinNumberFormattingLocale } from '@/test/i18nTestUtils';
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
+import { pinI18nLocale } from '@/test/i18nTestUtils';
 import type { SessionUsageReport } from '@/infrastructure/api/service-api/SessionAPI';
 import {
   calculateShare,
@@ -119,12 +119,12 @@ function usageReport(overrides: Partial<SessionUsageReport> = {}): SessionUsageR
 }
 
 describe('usageReportUtils', () => {
-  beforeEach(() => {
-    pinNumberFormattingLocale('en-US');
+  beforeAll(async () => {
+    await pinI18nLocale('en-US');
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
   });
 
   it('formats token counts with compact units', () => {
