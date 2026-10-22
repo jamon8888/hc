@@ -231,7 +231,12 @@ mod tests {
             agent_type: None,
             session_id: Some("session-1".to_string()),
             dialog_turn_id: None,
-            workspace: None,
+            // The search is scoped to the workspace the daemon hosts, so the
+            // tool needs one.
+            workspace: Some(crate::agentic::workspace::WorkspaceBinding::new(
+                Some("workspace-1".to_string()),
+                std::path::PathBuf::from("/srv/workspace"),
+            )),
             loaded_deferred_tool_specs: Vec::new(),
             primary_model_facts: tool_runtime::context::PrimaryModelFacts::default(),
             custom_data: HashMap::new(),
