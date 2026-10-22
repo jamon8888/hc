@@ -2541,7 +2541,7 @@ async fn desktop_dialog_turn_request(
     // the session vault cannot be written, the turn aborts. Sending the raw
     // prompt to a model would break the guarantee the user was promised.
     #[cfg(feature = "basemind")]
-    let (message, original_message) = {
+    let message = {
         let workspace_root = workspace_path
             .clone()
             .ok_or_else(|| "a workspace is required to pseudonymize the prompt".to_string())?;
@@ -2549,22 +2549,23 @@ async fn desktop_dialog_turn_request(
             .ok_or_else(|| {
                 "PII pseudonymization is unavailable: the basemind sidecar is not running".to_string()
             })?;
-        let pseudonymized = port
-            .pseudonymize(&user_input, &session_id, &workspace_root)
+        port.pseudonymize(&user_input, &session_id, &workspace_root)
             .await
             .map_err(|error| {
                 format!("PII pseudonymization failed (basemind required): {error}")
-            })?;
-        (pseudonymized.text, Some(user_input))
+            })?
+            .text
     };
     #[cfg(not(feature = "basemind"))]
-    let (message, original_message) = (user_input, original_user_input);
+    let message = user_input;
+    // `original_message` keeps its meaning: the text as the user typed it,
+    // for the user's own display (D4). Only what the model sees changes.
 
     Ok(AgentDialogTurnRequest {
         session_id,
         message,
         output_schema: None,
-        original_message,
+        original_message: original_user_input,
         turn_id,
         execution,
         agent_type,
@@ -4447,6 +4448,18 @@ mod tests {
         }
     }
 
+    /// Serializes the tests that publish or clear the pseudonymization port.
+    ///
+    /// The port is process-wide, so two tests touching it at once would
+    /// see each other's port and fail for the wrong reason.
+    #[cfg(feature = "basemind")]
+    fn pseudonymization_port_guard() -> std::sync::MutexGuard<'static, ()> {
+        static LOCK: std::sync::OnceLock<std::sync::Mutex<()>> = std::sync::OnceLock::new();
+        LOCK.get_or_init(|| std::sync::Mutex::new(()))
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+    }
+
     /// Publish the stub pseudonymization port for the duration of a test.
     #[cfg(feature = "basemind")]
     fn publish_stub_pseudonymizer() {
@@ -4462,6 +4475,8 @@ mod tests {
 
     #[tokio::test]
     async fn desktop_dialog_turn_request_preserves_runtime_contract() {
+        #[cfg(feature = "basemind")]
+        let _guard = pseudonymization_port_guard();
         #[cfg(feature = "basemind")]
         publish_stub_pseudonymizer();
         let request: StartDialogTurnRequest = serde_json::from_value(json!({
@@ -4610,6 +4625,7 @@ mod tests {
     #[cfg(feature = "basemind")]
     #[tokio::test]
     async fn desktop_dialog_turn_refuses_to_send_a_raw_prompt() {
+        let _guard = pseudonymization_port_guard();
         clear_stub_pseudonymizer();
         let request = serde_json::from_value::<StartDialogTurnRequest>(json!({
             "sessionId": "session-1",
@@ -4629,6 +4645,8 @@ mod tests {
 
     #[tokio::test]
     async fn desktop_dialog_turn_accepts_and_normalizes_legacy_non_object_metadata() {
+        #[cfg(feature = "basemind")]
+        let _guard = pseudonymization_port_guard();
         #[cfg(feature = "basemind")]
         publish_stub_pseudonymizer();
         let request = serde_json::from_value::<StartDialogTurnRequest>(json!({
