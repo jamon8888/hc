@@ -33,6 +33,7 @@ const REQUIRED_PAYLOAD_FILES = [
   "resources/ext-host/extension-host.js",
   "resources/worker_host.js",
   "flashgrep/flashgrep-x86_64-pc-windows-msvc.exe",
+  "interpreter/openbitfun-bundled-tool.json",
 ];
 
 function getMode(args) {
@@ -205,6 +206,41 @@ function validateRequiredPayloadFiles(payloadDir, manifest) {
       `Installer payload is incomplete. Missing required files: ${missing.join(", ")}`
     );
   }
+  validateBundledInterpreterPackage(payloadDir);
+}
+
+// The packaged Open Interpreter agent is a directory: the agent reads its
+// helper files relative to the executable, so shipping the manifest alone
+// would leave the product with an agent it cannot start.
+function validateBundledInterpreterPackage(payloadDir) {
+  const packageRoot = path.join(payloadDir, "interpreter");
+  const manifestPath = path.join(packageRoot, "openbitfun-bundled-tool.json");
+  let packageManifest;
+  try {
+    packageManifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+  } catch (error) {
+    throw new Error(
+      `Installer payload is missing the bundled Open Interpreter package manifest: ${error.message}`
+    );
+  }
+  if (typeof packageManifest.entrypoint !== "string" || !packageManifest.entrypoint) {
+    throw new Error(
+      "Bundled Open Interpreter package manifest does not name an entrypoint."
+    );
+  }
+  const entrypoint = path.join(packageRoot, ...packageManifest.entrypoint.split("/"));
+  // The manifest is data. An entrypoint that climbs out of the package would
+  // let a tampered payload point at any file on the machine.
+  const relativeToRoot = path.relative(packageRoot, entrypoint);
+  const escapesPackageRoot =
+    relativeToRoot === ".." ||
+    relativeToRoot.startsWith(`..${path.sep}`) ||
+    path.isAbsolute(relativeToRoot);
+  if (escapesPackageRoot || !fs.existsSync(entrypoint)) {
+    throw new Error(
+      `Installer payload is missing the bundled Open Interpreter entrypoint: ${packageManifest.entrypoint}`
+    );
+  }
 }
 
 function main() {
@@ -289,6 +325,7 @@ if (appExePath) {
     "mobile-web",
     "frontend",
     "flashgrep",
+    "interpreter",
   ];
   for (const dirName of runtimeDirs) {
     const srcDir = path.join(releaseDir, dirName);

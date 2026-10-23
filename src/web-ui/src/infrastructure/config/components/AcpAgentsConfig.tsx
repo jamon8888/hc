@@ -99,18 +99,28 @@ interface AcpClientPreset {
 
 // Presets that speak ACP natively and therefore need no separate adapter
 // package (their CLI binary is launched directly).
-const NATIVE_ACP_PRESET_IDS = new Set(['opencode', 'dsh', 'omp']);
+const NATIVE_ACP_PRESET_IDS = new Set(['opencode', 'dsh', 'omp', 'interpreter']);
 
 // Presets OpenBitFun cannot install on the user's behalf — the agent must be
-// installed manually (e.g. omp targets bun and ships via its own installer).
+// installed manually (e.g. omp targets bun and ships via its own installer),
+// or OpenBitFun packages it with the product instead of installing it
+// (Open Interpreter ships as a packaged binary with no npm package).
 // The UI hides the one-click "Install CLI" action for these.
-const SELF_MANAGED_INSTALL_PRESET_IDS = new Set(['omp']);
+const SELF_MANAGED_INSTALL_PRESET_IDS = new Set(['omp', 'interpreter']);
 
 const CLI_INSTALL_PACKAGES: Record<string, string> = {
   opencode: 'opencode-ai',
   dsh: '@deepseek-ai/dsh',
   'claude-code': '@anthropic-ai/claude-code',
   codex: '@openai/codex',
+};
+
+// Where a user-managed agent documents its own installation. The vendor owns
+// these pages, so they stay correct across platforms and release channels —
+// copying their install commands into this UI would not.
+const SELF_MANAGED_INSTALL_DOC_URLS: Record<string, string> = {
+  omp: 'https://github.com/can1357/oh-my-pi#installation',
+  interpreter: 'https://www.openinterpreter.com/docs/terminal/install',
 };
 
 const PRESETS: AcpClientPreset[] = [
@@ -136,6 +146,12 @@ const PRESETS: AcpClientPreset[] = [
     args: ['acp'],
   },
   {
+    id: 'interpreter',
+    name: 'Open Interpreter',
+    command: 'interpreter',
+    args: ['acp'],
+  },
+  {
     id: 'claude-code',
     name: 'Claude Code',
     command: 'npx',
@@ -151,10 +167,13 @@ const PRESETS: AcpClientPreset[] = [
 
 const PRESET_BY_ID = new Map(PRESETS.map(preset => [preset.id, preset]));
 
-interface SelfManagedInstallInfo extends Record<string, string> {
+// A type alias, not an interface: an interface gets no implicit index
+// signature, so it cannot be passed to `t()` as interpolation params.
+type SelfManagedInstallInfo = {
   name: string;
   command: string;
-}
+  docsUrl?: string;
+};
 
 interface InstallConfirmation {
   preset: AcpClientPreset;
@@ -192,6 +211,7 @@ function selfManagedInstallInfoForPreset(preset?: AcpClientPreset): SelfManagedI
   return {
     name: preset.name,
     command: preset.command,
+    docsUrl: SELF_MANAGED_INSTALL_DOC_URLS[preset.id],
   };
 }
 
@@ -582,6 +602,8 @@ const AcpAgentsConfig = forwardRef<AcpAgentsConfigHandle, AcpAgentsConfigProps>(
         return t('presets.dsh.description');
       case 'omp':
         return t('presets.omp.description');
+      case 'interpreter':
+        return t('presets.interpreter.description');
       case 'claude-code':
         return t('presets.claudeCode.description');
       case 'codex':
@@ -1224,7 +1246,18 @@ const AcpAgentsConfig = forwardRef<AcpAgentsConfigHandle, AcpAgentsConfigProps>(
     notifyInfo(t('registry.selfManagedCliMissingDetail', info), {
       title: t('registry.cliMissing'),
     });
-  }, [notifyInfo, t]);
+    // The vendor owns the install instructions, so the toast above stays about
+    // what OpenBitFun needs and the browser gets the part only they can keep
+    // current — including the platform-specific install variants.
+    if (info.docsUrl) {
+      void systemAPI.openExternal(info.docsUrl).catch((error) => {
+        log.error('Failed to open agent installation documentation', error);
+        notifyError(error instanceof Error ? error.message : String(error), {
+          title: t('notifications.openLinkFailed'),
+        });
+      });
+    }
+  }, [notifyError, notifyInfo, t]);
 
   const openLearnMore = useCallback(() => {
     void systemAPI.openExternal('https://agentclientprotocol.com/get-started/introduction').catch((error) => {

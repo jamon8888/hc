@@ -52,18 +52,36 @@ pub(crate) fn acp_requirement_spec<'a>(
 }
 
 pub(crate) async fn probe_executable(command: &str) -> AcpRequirementProbeItem {
-    let path = find_executable(command);
+    match find_executable(command) {
+        Some(path) => probe_executable_path(command, &path).await,
+        None => AcpRequirementProbeItem {
+            name: command.to_string(),
+            installed: false,
+            version: None,
+            path: None,
+            error: None,
+        },
+    }
+}
+
+/// Probes a command that has already been resolved to a path.
+///
+/// A command the product packages is not on the user's PATH, so the probe has
+/// to start from the path that will actually be launched.
+pub(crate) async fn probe_executable_path(
+    name: &str,
+    path: &Path,
+) -> AcpRequirementProbeItem {
     let mut item = AcpRequirementProbeItem {
-        name: command.to_string(),
-        installed: path.is_some(),
+        name: name.to_string(),
+        installed: path.is_file(),
         version: None,
-        path: path.as_ref().map(|path| path.to_string_lossy().to_string()),
+        path: Some(path.to_string_lossy().to_string()),
         error: None,
     };
 
-    if let Some(path) = path {
-        match run_command_with_timeout(path.as_os_str(), ["--version"], REQUIREMENT_PROBE_TIMEOUT)
-            .await
+    if item.installed {
+        match run_command_with_timeout(path.as_os_str(), ["--version"], REQUIREMENT_PROBE_TIMEOUT).await
         {
             Ok(output) if output.status.success() => {
                 item.version = parse_version_text(&output.stdout)

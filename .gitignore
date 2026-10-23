@@ -138,6 +138,11 @@ src/apps/mobile/android/.kotlin/
 /resources/basemind/*.so
 /resources/basemind/*.download-*
 
+# Downloaded Open Interpreter release assets (metadata stays tracked).
+/resources/interpreter/.cache/
+/resources/interpreter/*/
+/resources/interpreter/.staging-*
+
 # Local generated workspace output.
 /output/
 /graphify-out/

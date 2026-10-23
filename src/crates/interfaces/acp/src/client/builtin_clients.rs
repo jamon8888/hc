@@ -24,11 +24,20 @@ pub(crate) struct BuiltinAcpClientPreset {
     /// before launching it. `None` — every preset but dsh — means the CLI is
     /// self-contained and the command runs as-is.
     pub(crate) bundled_profile: Option<&'static str>,
+    /// A tool package that ships with the OpenBitFun product, resolved at
+    /// runtime instead of from the user's PATH. `None` means the agent's CLI
+    /// comes from the user's machine.
+    pub(crate) bundled_tool: Option<&'static str>,
 }
 
 /// The profile directory OpenBitFun materializes for DeepSeek Harness. See
 /// `dsh_profile.rs`: the bridge ships with OpenBitFun, the harness does not.
 pub(crate) const DSH_BUNDLED_PROFILE: &str = "openbitfun-acp";
+
+/// The bundled tool package that carries the Open Interpreter agent. The id
+/// matches the directory the build step packages it under, under
+/// `resources/interpreter`.
+pub(crate) const INTERPRETER_BUNDLED_TOOL: &str = "interpreter";
 
 const BUILTIN_ACP_CLIENT_PRESETS: &[BuiltinAcpClientPreset] = &[
     BuiltinAcpClientPreset {
@@ -40,6 +49,7 @@ const BUILTIN_ACP_CLIENT_PRESETS: &[BuiltinAcpClientPreset] = &[
         adapter_package: None,
         adapter_bin: None,
         bundled_profile: None,
+        bundled_tool: None,
     },
     // DeepSeek Harness (dsh) — the harness has no ACP entry point of its own,
     // so OpenBitFun ships one as a dsh PROFILE (packages/dsh-acp) and launches it
@@ -55,6 +65,7 @@ const BUILTIN_ACP_CLIENT_PRESETS: &[BuiltinAcpClientPreset] = &[
         adapter_package: None,
         adapter_bin: None,
         bundled_profile: Some(DSH_BUNDLED_PROFILE),
+        bundled_tool: None,
     },
     // Oh My Pi (omp) — a terminal coding agent that speaks ACP natively via
     // `omp acp` (no adapter needed, like opencode). User-managed: omp targets
@@ -71,6 +82,27 @@ const BUILTIN_ACP_CLIENT_PRESETS: &[BuiltinAcpClientPreset] = &[
         adapter_package: None,
         adapter_bin: None,
         bundled_profile: None,
+        bundled_tool: None,
+    },
+    // Open Interpreter — a Rust coding agent (an OpenAI Codex fork, Apache-2.0)
+    // that speaks ACP natively via `interpreter acp` (no adapter needed, like
+    // opencode and omp). OpenBitFun packages it with the product
+    // (resources/interpreter), so a user does not have to install it first;
+    // there is no npm package, so install_package is None and there is no
+    // one-click installer to offer. Its draw is harness emulation — swapping the
+    // model-facing prompt/tool surface per model family (kimi-code, qwen-code,
+    // deepseek-tui, zcode, swe-agent) to get work out of low-cost models.
+    // https://github.com/openinterpreter/openinterpreter
+    BuiltinAcpClientPreset {
+        id: "interpreter",
+        command: "interpreter",
+        args: &["acp"],
+        tool_command: "interpreter",
+        install_package: None,
+        adapter_package: None,
+        adapter_bin: None,
+        bundled_profile: None,
+        bundled_tool: Some(INTERPRETER_BUNDLED_TOOL),
     },
     BuiltinAcpClientPreset {
         id: "claude-code",
@@ -81,6 +113,7 @@ const BUILTIN_ACP_CLIENT_PRESETS: &[BuiltinAcpClientPreset] = &[
         adapter_package: Some(CLAUDE_ACP_PACKAGE),
         adapter_bin: Some("claude-agent-acp"),
         bundled_profile: None,
+        bundled_tool: None,
     },
     BuiltinAcpClientPreset {
         id: "codex",
@@ -91,6 +124,7 @@ const BUILTIN_ACP_CLIENT_PRESETS: &[BuiltinAcpClientPreset] = &[
         adapter_package: Some(CODEX_ACP_PACKAGE),
         adapter_bin: Some("codex-acp"),
         bundled_profile: None,
+        bundled_tool: None,
     },
 ];
 
@@ -177,6 +211,25 @@ mod tests {
         let config = default_config_for_builtin_client("omp").expect("omp config");
         assert!(config.enabled);
         assert_eq!(config.command, "omp");
+        assert_eq!(config.args, vec!["acp"]);
+    }
+
+    #[test]
+    fn interpreter_is_a_native_acp_preset() {
+        let preset =
+            builtin_acp_client_preset("interpreter").expect("interpreter preset registered");
+        assert_eq!(preset.command, "interpreter");
+        assert_eq!(preset.args, &["acp"]);
+        assert_eq!(preset.tool_command, "interpreter");
+        // Native ACP — no adapter package/bin, like opencode and omp.
+        assert!(preset.adapter_package.is_none());
+        assert!(preset.adapter_bin.is_none());
+        // User-managed: distributed as a standalone binary, not npm.
+        assert!(preset.install_package.is_none());
+
+        let config = default_config_for_builtin_client("interpreter").expect("interpreter config");
+        assert!(config.enabled);
+        assert_eq!(config.command, "interpreter");
         assert_eq!(config.args, vec!["acp"]);
     }
 

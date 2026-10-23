@@ -337,6 +337,9 @@ jobs:
       - name: Download and verify target Flashgrep binary
         run: node scripts/prepare-flashgrep-resource.mjs --target "${{ matrix.platform.target }}"
 
+      - name: Download and verify target Open Interpreter package
+        run: node scripts/prepare-interpreter-resource.mjs --target "${{ matrix.platform.target }}"
+
       - name: Build desktop app
         run: ${{ matrix.platform.build_command }}
 
