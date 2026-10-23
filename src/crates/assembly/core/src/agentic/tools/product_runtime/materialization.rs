@@ -50,6 +50,8 @@ const PRODUCT_TOOL_REGISTRATION_ORDER: &[&str] = &[
     "CallDeferredTool",
     "OpenBitFunControl",
     "GetFileDiff",
+    #[cfg(feature = "tools-rag")]
+    "rag_search",
     "CreateCanvas",
     "ReadCanvas",
     "UpdateCanvas",

@@ -142,6 +142,24 @@ pub fn unavailable_feature_groups(requested: &[ToolPackFeatureGroup]) -> Vec<Too
         .collect()
 }
 
+/// Groups the product removes by policy — not because the binary lacks them.
+///
+/// Option B per SPEC §5: when the basemind capability is compiled in, the
+/// ImageAnalysis group is deliberately dropped (the fork's OCR path is not
+/// validated, and an unredacted image path would leak PII silently). Plan
+/// derivation filters these out so the requested set never contains a group
+/// that policy removed, while a direct request for the group still fails the
+/// availability check loudly.
+pub fn deliberately_disabled_feature_groups() -> Vec<ToolPackFeatureGroup> {
+    [(
+        cfg!(feature = "basemind"),
+        ToolPackFeatureGroup::ImageAnalysis,
+    )]
+    .into_iter()
+    .filter_map(|(disabled, group)| disabled.then_some(group))
+    .collect()
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ToolProviderGroupPlan {
     provider_id: &'static str,
@@ -405,7 +423,7 @@ mod tests {
         );
         assert_eq!(
             groups.contains(&ToolPackFeatureGroup::ImageAnalysis),
-            cfg!(feature = "image-analysis")
+            cfg!(all(feature = "image-analysis", not(feature = "basemind")))
         );
         assert_eq!(
             groups.contains(&ToolPackFeatureGroup::MiniApp),
@@ -508,6 +526,7 @@ mod tests {
         assert_eq!(
             provider_ids,
             vec![
+                "core.basemind",
                 "core.basic",
                 "core.agent",
                 "core.session",
@@ -534,6 +553,7 @@ mod tests {
         assert_eq!(
             tool_names,
             vec![
+                "rag_search",
                 "LS",
                 "Read",
                 "view_image",
@@ -618,6 +638,7 @@ mod tests {
         assert_eq!(
             feature_groups,
             vec![
+                ("core.basemind", vec!["basemind"]),
                 ("core.basic", vec!["basic", "image-analysis"]),
                 ("core.agent", vec!["agent-control"]),
                 ("core.session", vec!["agent-control"]),

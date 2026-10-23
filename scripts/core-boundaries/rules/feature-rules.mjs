@@ -179,7 +179,7 @@ export const optionalDependencyFeatureOwnerRules = [
       { depName: 'openbitfun-opencode-adapter', ownerFeatures: ['external-sources'] },
       { depName: 'openbitfun-dsh-adapter', ownerFeatures: ['external-sources'] },
       { depName: 'openbitfun-plugin-runtime-client', ownerFeatures: ['plugin-runtime'] },
-      { depName: 'openbitfun-product-capabilities', ownerFeatures: ['product-capabilities'] },
+      { depName: 'openbitfun-product-capabilities', ownerFeatures: ['product-capabilities', 'tools-rag'] },
       {
         depName: 'openbitfun-product-domains',
         ownerFeatures: [
@@ -233,6 +233,7 @@ export const optionalDependencyFeatureOwnerRules = [
           'tools-mcp',
           'tools-miniapp',
           'tools-pages',
+          'tools-rag',
         ],
       },
       { depName: 'chrono-tz', ownerFeatures: ['scheduled-jobs'] },

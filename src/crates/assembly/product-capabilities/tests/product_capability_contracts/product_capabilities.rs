@@ -133,6 +133,8 @@ fn default_capability_registry_preserves_product_tool_provider_order() {
     assert_eq!(
         provider_ids,
         vec![
+            #[cfg(feature = "basemind")]
+            "core.basemind",
             "core.basic",
             "core.agent",
             "core.session",
@@ -190,6 +192,8 @@ fn product_assembly_plan_keeps_full_capabilities_only_for_core_compatibility_pro
         "canvas",
     ];
     let full_tool_groups = vec![
+        #[cfg(feature = "basemind")]
+        "core.basemind",
         "core.basic",
         "core.agent",
         "core.session",
@@ -250,6 +254,8 @@ fn product_assembly_plan_keeps_full_capabilities_only_for_core_compatibility_pro
                 .map(|group| group.provider_id())
                 .collect::<Vec<_>>(),
             vec![
+                #[cfg(feature = "basemind")]
+                "core.basemind",
                 "core.basic",
                 "core.agent",
                 "core.session",
@@ -493,7 +499,10 @@ fn product_assembly_plan_exposes_build_feature_groups_explicitly() {
     assert_eq!(
         plan.feature_groups(),
         &[
+            #[cfg(feature = "basemind")]
+            ProductFeatureGroup::Basemind,
             ProductFeatureGroup::Basic,
+            #[cfg(not(feature = "basemind"))]
             ProductFeatureGroup::ImageAnalysis,
             ProductFeatureGroup::AgentControl,
             ProductFeatureGroup::Git,
@@ -509,7 +518,10 @@ fn product_assembly_plan_exposes_build_feature_groups_explicitly() {
     assert_eq!(
         plan.feature_group_ids(),
         vec![
+            #[cfg(feature = "basemind")]
+            "basemind",
             "basic",
+            #[cfg(not(feature = "basemind"))]
             "image-analysis",
             "agent-control",
             "git",
@@ -854,6 +866,8 @@ fn default_capability_assembly_keeps_service_and_tool_facts_together() {
     assert_eq!(
         tool_provider_ids,
         vec![
+            #[cfg(feature = "basemind")]
+            "core.basemind",
             "core.basic",
             "core.agent",
             "core.session",

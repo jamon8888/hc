@@ -13,7 +13,8 @@ use openbitfun_runtime_ports::{
 use openbitfun_runtime_services::RuntimeServices;
 pub use openbitfun_tool_packs::ToolProviderGroupPlanSelectionError as ProductCapabilityBuildError;
 use openbitfun_tool_packs::{
-    try_product_tool_provider_group_plan_for_ids, ToolPackFeatureGroup, ToolProviderGroupPlan,
+    deliberately_disabled_feature_groups, try_product_tool_provider_group_plan_for_ids,
+    ToolPackFeatureGroup, ToolProviderGroupPlan,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -973,10 +974,19 @@ pub fn product_extension_capabilities_for_profile(
 fn feature_groups_from_tool_provider_group_plan(
     tool_provider_group_plan: &[ToolProviderGroupPlan],
 ) -> Vec<ProductFeatureGroup> {
+    // Policy-removed groups (e.g. ImageAnalysis under the basemind capability)
+    // never enter the requested set: the plan must describe what the binary
+    // actually builds, not what the providers statically declare.
+    let disabled = deliberately_disabled_feature_groups()
+        .into_iter()
+        .collect::<HashSet<_>>();
     let mut seen = HashSet::new();
     let mut feature_groups = Vec::new();
     for group_plan in tool_provider_group_plan {
         for feature_group in group_plan.feature_groups() {
+            if disabled.contains(feature_group) {
+                continue;
+            }
             let product_feature_group = ProductFeatureGroup::from(*feature_group);
             if seen.insert(product_feature_group) {
                 feature_groups.push(product_feature_group);
@@ -1026,6 +1036,10 @@ const CODE_AGENT_TOOL_GROUPS: &[&str] = &[
     "core.web",
     "core.mcp",
     "core.computer-use",
+    // PII-safe workspace search; the pack only requests the owner when the
+    // binary carries the basemind capability.
+    #[cfg(feature = "basemind")]
+    "core.basemind",
 ];
 const DEEP_REVIEW_TOOL_GROUPS: &[&str] = &["core.review"];
 const DEEP_RESEARCH_TOOL_GROUPS: &[&str] = &["core.web", "core.mcp"];

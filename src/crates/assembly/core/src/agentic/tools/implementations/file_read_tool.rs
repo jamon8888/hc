@@ -904,6 +904,20 @@ mod tests {
     use std::sync::atomic::{AtomicUsize, Ordering};
     use std::sync::Arc;
 
+    /// Serializes the tests that publish or clear the redaction port.
+    ///
+    /// The port is process-wide, so leaving it published while another
+    /// document-conversion test runs would replace that test's conversion.
+    /// Every test that converts a document holds this guard, whether or not
+    /// it publishes a port of its own.
+    #[cfg(feature = "document-read")]
+    fn redaction_port_guard() -> std::sync::MutexGuard<'static, ()> {
+        static LOCK: std::sync::OnceLock<std::sync::Mutex<()>> = std::sync::OnceLock::new();
+        LOCK.get_or_init(|| std::sync::Mutex::new(()))
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+    }
+
     /// A redaction port that answers with a fixed document and records the
     /// path it was asked about.
     #[cfg(all(feature = "document-read", feature = "tools-rag"))]
@@ -940,8 +954,9 @@ mod tests {
     #[cfg(all(feature = "document-read", feature = "tools-rag"))]
     #[tokio::test]
     async fn a_document_read_is_redacted_through_the_published_port() {
-        use openbitfun_runtime_ports::DocumentRedactionPort;
-
+        // The port is process-wide, so this test holds the guard while it
+        // owns it, and the other document-conversion tests run unimpeded.
+        let _guard = redaction_port_guard();
         let redactor = Arc::new(StubRedactor {
             seen: std::sync::Mutex::new(None),
         });
@@ -960,7 +975,7 @@ mod tests {
             .read_document_window(
                 &document.to_string_lossy(),
                 "contract.pdf",
-                0,
+                1,
                 200,
                 false,
                 &crate::agentic::workspace::LocalWorkspaceFs,
@@ -968,6 +983,7 @@ mod tests {
             )
             .await
             .expect("the redacted document should be read");
+        crate::service::rag_search::set_global_document_redaction_port(None);
 
         // The port saw the file and the workspace it belongs to.
         let (path, workspace_root) = seen
@@ -985,12 +1001,11 @@ mod tests {
         // The content is the redacted one, and the format comes from the
         // sidecar's answer.
         assert!(
-            result.output.contains("[EMAIL_1]"),
+            result.content.contains("[EMAIL_1]"),
             "the read returned the redacted text"
         );
         assert_eq!(metadata.source_format, "pdf");
 
-        crate::service::rag_search::set_global_document_redaction_port(None);
         let _ = fs::remove_dir_all(&root);
     }
 
@@ -1414,6 +1429,7 @@ mod tests {
     #[cfg(feature = "document-read")]
     #[tokio::test]
     async fn read_converts_rtf_to_a_markdown_representation() {
+        let _guard = redaction_port_guard();
         let dir = tempfile::tempdir().expect("tempdir");
         let source = br"{\rtf1\ansi Hello from the document}";
         fs::write(dir.path().join("notes.rtf"), source).expect("write RTF");
@@ -1449,6 +1465,7 @@ mod tests {
     #[cfg(feature = "document-read")]
     #[tokio::test]
     async fn document_conversion_failure_does_not_fallback_to_source_bytes() {
+        let _guard = redaction_port_guard();
         let dir = tempfile::tempdir().expect("tempdir");
         fs::write(dir.path().join("broken.pdf"), b"not a PDF").expect("write invalid PDF");
         let context = local_context(dir.path().to_path_buf());
@@ -1464,6 +1481,7 @@ mod tests {
     #[cfg(feature = "document-read")]
     #[tokio::test]
     async fn csv_auto_preserves_source_while_markdown_render_extracts_a_table() {
+        let _guard = redaction_port_guard();
         let dir = tempfile::tempdir().expect("tempdir");
         fs::write(
             dir.path().join("table.csv"),
@@ -1512,6 +1530,7 @@ mod tests {
     #[cfg(feature = "document-read")]
     #[tokio::test]
     async fn remote_document_uses_bounded_file_transfer_and_host_side_conversion() {
+        let _guard = redaction_port_guard();
         let bounded_limit = Arc::new(AtomicUsize::new(0));
         let context = remote_context(
             br"{\rtf1\ansi Hello from remote RTF}".to_vec(),

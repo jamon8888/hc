@@ -308,6 +308,7 @@ mod baseline_tests {
             "ListMCPResources",
             "Worktree",
             "ComputerUse",
+            "rag_search",
         ] {
             assert!(
                 names.iter().all(|name| name != excluded),
