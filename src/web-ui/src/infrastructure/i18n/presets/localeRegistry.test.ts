@@ -46,6 +46,6 @@ describe('localeRegistry', () => {
     expect(resolveLocaleId('en')).toBe('en-US');
 
     expect(getLocaleFallbackChain('zh-TW', true)).toEqual(['zh-TW', 'zh-CN', 'en-US']);
-    expect(getLocaleFallbackChain('unknown')).toEqual(['en-US', 'zh-CN']);
+    expect(getLocaleFallbackChain('unknown')).toEqual(['en-US', 'fr-FR']);
   });
 });

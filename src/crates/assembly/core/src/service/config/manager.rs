@@ -291,11 +291,57 @@ impl ConfigManager {
             self.create_default_config().await?;
         }
 
+        self.apply_locale_rollout().await;
+
         if let Err(error) = self.consume_installer_config_handoff().await {
             warn!("Could not apply installer configuration handoff: {error}");
         }
 
         Ok(())
+    }
+
+    /// Forces the product default locale on installations that predate the
+    /// rollout, exactly once.
+    ///
+    /// `app.language_rollout` records the locale this installation was rolled
+    /// out to. A document written before that field existed carries no marker,
+    /// so it is migrated here; once the marker exists the rollout never runs
+    /// again, and a language the user picks afterwards stays authoritative.
+    ///
+    /// The previous language is kept in a configuration backup, so the switch
+    /// is reversible. A failed write is reported and degrades to the in-memory
+    /// language: a locale migration must never keep the product from starting.
+    async fn apply_locale_rollout(&mut self) {
+        if self.config.app.language_rollout.is_some() {
+            return;
+        }
+
+        let target = DEFAULT_APP_LANGUAGE;
+        let previous_language = self.config.app.language.clone();
+
+        // Keep the pre-rollout document so the previous language stays
+        // recoverable instead of being silently overwritten.
+        if let Ok(previous_content) = serde_json::to_string_pretty(&self.config) {
+            if let Err(error) = self
+                .backup_raw_config(&previous_content, "locale-rollout")
+                .await
+            {
+                warn!("Could not back up the configuration before the product locale rollout: {error}");
+            }
+        }
+
+        self.config.app.language = target.to_string();
+        self.config.app.language_rollout = Some(target.to_string());
+
+        if let Err(error) = self.save_config().await {
+            warn!(
+                "Could not persist the product locale rollout: previous_language={previous_language}, language={target}, error={error}"
+            );
+            return;
+        }
+        info!(
+            "Applied product locale rollout: previous_language={previous_language}, language={target}"
+        );
     }
 
     /// Creates the first config file using the already initialized defaults.
@@ -494,6 +540,11 @@ impl ConfigManager {
 
         let mut config = GlobalConfig::default();
         config.app.language = language.to_string();
+        // The repaired document predates the product locale rollout, so it must
+        // not claim the rollout already ran. The rollout applied after this
+        // repair is what switches the reconstructed document to the product
+        // default language.
+        config.app.language_rollout = None;
         if let Some(themes) = root.get("themes") {
             let Some(selection) = themes.get("current").and_then(Value::as_str) else {
                 return Ok(None);
@@ -982,7 +1033,7 @@ mod tests {
         ConfigManagerSettings, INSTALLER_MODEL_ID,
     };
     use crate::infrastructure::PathManager;
-    use crate::service::config::types::GlobalConfig;
+    use crate::service::config::types::{GlobalConfig, DEFAULT_APP_LANGUAGE};
     use openbitfun_core_types::installer_config_handoff::{
         InstallerConfigHandoff, InstallerModelHandoff, INSTALLER_CONFIG_HANDOFF_FILE_NAME,
     };
@@ -1177,7 +1228,7 @@ mod tests {
         let manager = ConfigManager::new(manager_settings(path_manager.clone()))
             .await
             .unwrap();
-        assert_eq!(manager.config.app.language, "en-US");
+        assert_eq!(manager.config.app.language, DEFAULT_APP_LANGUAGE);
         assert_eq!(manager.config.appearance.selection, "openbitfun-midnight");
         assert_eq!(
             manager.config.schema_version,
@@ -1187,8 +1238,109 @@ mod tests {
         let mut backups = tokio::fs::read_dir(path_manager.user_config_dir().join("backups"))
             .await
             .unwrap();
-        let backup = backups.next_entry().await.unwrap().unwrap().path();
+        let mut repair_backup = None;
+        while let Some(entry) = backups.next_entry().await.unwrap() {
+            let path = entry.path();
+            let is_repair_backup = path
+                .file_name()
+                .and_then(|name| name.to_str())
+                .is_some_and(|name| name.contains("installer-config-repair"));
+            if is_repair_backup {
+                repair_backup = Some(path);
+                break;
+            }
+        }
+        let backup = repair_backup.expect("the sparse installer repair must keep a backup");
         assert_eq!(tokio::fs::read_to_string(backup).await.unwrap(), original);
+    }
+
+    #[tokio::test]
+    async fn locale_rollout_forces_the_product_default_once() {
+        let temp = tempfile::tempdir().unwrap();
+        let path_manager = Arc::new(PathManager::with_user_root_for_tests(
+            temp.path().join("rollout"),
+        ));
+        path_manager.initialize_user_directories().await.unwrap();
+
+        // A document written before the rollout existed: no marker, and a
+        // language the user had picked earlier.
+        let mut config = GlobalConfig::default();
+        config.app.language = "en-US".to_string();
+        config.app.language_rollout = None;
+        tokio::fs::write(
+            path_manager.app_config_file(),
+            serde_json::to_vec(&config).unwrap(),
+        )
+        .await
+        .unwrap();
+
+        let manager = ConfigManager::new(manager_settings(path_manager.clone()))
+            .await
+            .unwrap();
+        assert_eq!(manager.config.app.language, DEFAULT_APP_LANGUAGE);
+        assert_eq!(
+            manager.config.app.language_rollout.as_deref(),
+            Some(DEFAULT_APP_LANGUAGE)
+        );
+
+        // The rollout is recorded in the persisted document, so a second load
+        // keeps the same locale and does not rewrite the document again.
+        let persisted: serde_json::Value =
+            serde_json::from_slice(&tokio::fs::read(path_manager.app_config_file()).await.unwrap())
+                .unwrap();
+        assert_eq!(persisted["app"]["language_rollout"], DEFAULT_APP_LANGUAGE);
+
+        // The pre-rollout document is kept, so the previous language stays
+        // recoverable instead of being silently overwritten.
+        let mut backups = tokio::fs::read_dir(path_manager.user_config_dir().join("backups"))
+            .await
+            .unwrap();
+        let mut rollout_backup = None;
+        while let Some(entry) = backups.next_entry().await.unwrap() {
+            let path = entry.path();
+            let is_rollout_backup = path
+                .file_name()
+                .and_then(|name| name.to_str())
+                .is_some_and(|name| name.contains("locale-rollout"));
+            if is_rollout_backup {
+                rollout_backup = Some(path);
+                break;
+            }
+        }
+        let backup = rollout_backup.expect("the locale rollout must keep a backup");
+        let backup_content = tokio::fs::read_to_string(backup).await.unwrap();
+        assert!(backup_content.contains("\"language\": \"en-US\""));
+
+        let manager = ConfigManager::new(manager_settings(path_manager.clone()))
+            .await
+            .unwrap();
+        assert_eq!(manager.config.app.language, DEFAULT_APP_LANGUAGE);
+    }
+
+    #[tokio::test]
+    async fn locale_rollout_keeps_a_language_the_user_picked_afterwards() {
+        let temp = tempfile::tempdir().unwrap();
+        let path_manager = Arc::new(PathManager::with_user_root_for_tests(
+            temp.path().join("rollout-keep"),
+        ));
+        path_manager.initialize_user_directories().await.unwrap();
+
+        let mut config = GlobalConfig::default();
+        config.app.language = "en-US".to_string();
+        config.app.language_rollout = Some(DEFAULT_APP_LANGUAGE.to_string());
+        let original = serde_json::to_vec(&config).unwrap();
+        tokio::fs::write(path_manager.app_config_file(), &original)
+            .await
+            .unwrap();
+
+        let manager = ConfigManager::new(manager_settings(path_manager.clone()))
+            .await
+            .unwrap();
+        assert_eq!(manager.config.app.language, "en-US");
+        assert_eq!(
+            tokio::fs::read(path_manager.app_config_file()).await.unwrap(),
+            original
+        );
     }
 
     #[test]

@@ -1,6 +1,9 @@
  
 
 
+import { DEFAULT_LOCALE } from '@/infrastructure/i18n/presets';
+
+
 export const APP_INFO = {
   name: 'Alex',
   version: '1.0.0',
@@ -93,7 +96,7 @@ export const MODEL_PROVIDERS = {
 
 
 export const DEFAULT_CONFIG = {
-  LANGUAGE: 'zh-CN',
+  LANGUAGE: DEFAULT_LOCALE,
   AUTO_SAVE: true,
   AUTO_ANALYZE: false,
   SHOW_LINE_NUMBERS: true,

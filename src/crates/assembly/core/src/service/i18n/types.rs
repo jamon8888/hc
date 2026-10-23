@@ -56,10 +56,29 @@ impl LocaleId {
     }
 }
 
+/// The product default locale from the shared i18n contract.
+///
+/// This is the const form of [`LocaleId::default`], so hosts can bind the
+/// contract default in a constant.
+pub const DEFAULT_LOCALE: LocaleId = GENERATED_DEFAULT_LOCALE;
+
 impl Default for LocaleId {
     fn default() -> Self {
         GENERATED_DEFAULT_LOCALE
     }
+}
+
+/// Returns the product default locale code from the shared i18n contract.
+///
+/// Hosts use this instead of a hardcoded locale literal so the Desktop host,
+/// the Server host, and the App Server stay on the contract default.
+pub fn default_locale_code() -> &'static str {
+    LocaleId::default().as_str()
+}
+
+/// Returns the content fallback locale code from the shared i18n contract.
+pub fn fallback_locale_code() -> &'static str {
+    GENERATED_FALLBACK_LOCALE.as_str()
 }
 
 impl std::fmt::Display for LocaleId {
@@ -133,6 +152,14 @@ mod tests {
         assert_eq!(
             LocaleId::ZhTW.content_fallbacks(),
             &[LocaleId::ZhCN, LocaleId::EnUS]
+        );
+    }
+
+    #[test]
+    fn contract_default_matches_the_configuration_contract_default() {
+        assert_eq!(
+            LocaleId::default().as_str(),
+            openbitfun_config_contracts::DEFAULT_APP_LANGUAGE
         );
     }
 }

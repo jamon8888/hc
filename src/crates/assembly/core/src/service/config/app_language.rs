@@ -9,10 +9,14 @@ use super::GlobalConfigManager;
 use crate::service::i18n::LocaleId;
 use log::debug;
 
-const DEFAULT_APP_LANGUAGE: LocaleId = LocaleId::ZhCN;
+/// Product default for the canonical UI language.
+///
+/// The value comes from the shared i18n contract (`surfaceDefaults.core`), so the
+/// backend, the Desktop host, and the Agent prompt language stay on one locale.
+const DEFAULT_APP_LANGUAGE: LocaleId = crate::service::i18n::DEFAULT_LOCALE;
 
-/// Returns a supported `app.language` from global config; otherwise `zh-CN`
-/// (matches [`crate::service::config::AppConfig::default`]).
+/// Returns a supported `app.language` from global config; otherwise the product
+/// default locale (matches [`crate::service::config::AppConfig::default`]).
 pub async fn get_app_language() -> LocaleId {
     let Ok(svc) = GlobalConfigManager::get_service().await else {
         return DEFAULT_APP_LANGUAGE;
@@ -22,7 +26,11 @@ pub async fn get_app_language() -> LocaleId {
             if let Some(locale) = LocaleId::from_str(&code) {
                 locale
             } else {
-                debug!("Unknown app.language {}, defaulting to zh-CN", code);
+                debug!(
+                    "Unknown app.language {}, defaulting to {}",
+                    code,
+                    DEFAULT_APP_LANGUAGE.as_str()
+                );
                 DEFAULT_APP_LANGUAGE
             }
         }
@@ -30,8 +38,8 @@ pub async fn get_app_language() -> LocaleId {
     }
 }
 
-/// Returns a supported `app.language` code from global config; otherwise `zh-CN`
-/// (matches [`crate::service::config::AppConfig::default`]).
+/// Returns a supported `app.language` code from global config; otherwise the
+/// product default locale (matches [`crate::service::config::AppConfig::default`]).
 pub async fn get_app_language_code() -> String {
     get_app_language().await.as_str().to_string()
 }

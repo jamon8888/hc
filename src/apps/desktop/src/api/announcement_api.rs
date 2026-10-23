@@ -21,9 +21,9 @@ pub async fn get_pending_announcements(
 ) -> Result<Vec<AnnouncementCard>, String> {
     let locale = state
         .config_service
-        .get_config::<String>(Some("app.general.language"))
+        .get_config::<String>(Some("app.language"))
         .await
-        .unwrap_or_else(|_| "zh-CN".to_string());
+        .unwrap_or_else(|_| openbitfun_core::service::i18n::default_locale_code().to_string());
 
     let mut cards = state
         .announcement_scheduler
@@ -99,9 +99,9 @@ pub async fn trigger_announcement(
 ) -> Result<Option<AnnouncementCard>, String> {
     let locale = state
         .config_service
-        .get_config::<String>(Some("app.general.language"))
+        .get_config::<String>(Some("app.language"))
         .await
-        .unwrap_or_else(|_| "zh-CN".to_string());
+        .unwrap_or_else(|_| openbitfun_core::service::i18n::default_locale_code().to_string());
 
     Ok(state
         .announcement_scheduler
@@ -116,9 +116,9 @@ pub async fn get_announcement_tips(
 ) -> Result<Vec<AnnouncementCard>, String> {
     let locale = state
         .config_service
-        .get_config::<String>(Some("app.general.language"))
+        .get_config::<String>(Some("app.language"))
         .await
-        .unwrap_or_else(|_| "zh-CN".to_string());
+        .unwrap_or_else(|_| openbitfun_core::service::i18n::default_locale_code().to_string());
 
     // Re-use the scheduler run result but filter to tips only.
     let cards = state

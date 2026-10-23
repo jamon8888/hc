@@ -865,7 +865,7 @@ async fn clear_active_workspace_context(
             .config_service
             .get_config::<String>(Some("app.language"))
             .await
-            .unwrap_or_else(|_| "zh-CN".to_string());
+            .unwrap_or_else(|_| openbitfun_core::service::i18n::default_locale_code().to_string());
         let edit_mode = *state.macos_edit_menu_mode.read().await;
         let _ = crate::macos_menubar::set_macos_menubar_with_mode(
             app,
@@ -929,7 +929,7 @@ async fn apply_active_workspace_context(
             .config_service
             .get_config::<String>(Some("app.language"))
             .await
-            .unwrap_or_else(|_| "zh-CN".to_string());
+            .unwrap_or_else(|_| openbitfun_core::service::i18n::default_locale_code().to_string());
         let edit_mode = *state.macos_edit_menu_mode.read().await;
         let _ = crate::macos_menubar::set_macos_menubar_with_mode(
             app,

@@ -15,6 +15,8 @@ pub enum BotLanguage {
     ZhTW,
     #[serde(rename = "en-US")]
     EnUS,
+    #[serde(rename = "fr-FR")]
+    FrFR,
 }
 
 impl BotLanguage {
@@ -25,7 +27,7 @@ impl BotLanguage {
 
 /// Centralised string table consumed by command router, menu builder, and
 /// platform adapters.  Add new strings here, then translate in both
-/// [`STRINGS_ZH`], [`STRINGS_ZH_TW`], and [`STRINGS_EN`].
+/// [`STRINGS_ZH`], [`STRINGS_ZH_TW`], [`STRINGS_EN`], and [`STRINGS_FR`].
 pub struct BotStrings {
     pub tool_approval_title: &'static str,
     pub tool_approve: &'static str,
@@ -681,11 +683,176 @@ Open Remote Connect in OpenBitFun Desktop and send the 6-digit pairing code here
     devices_msg_sent: "Message sent. Replies and attachments will return to this chat.",
 };
 
+const STRINGS_FR: BotStrings = BotStrings {
+    tool_approval_title: "Autorisation requise",
+    tool_approve: "Autoriser une fois",
+    tool_reject: "Refuser",
+    welcome: "\
+Bienvenue dans Alex.
+
+Ouvrez Remote Connect dans Alex Desktop et envoyez le code d'appairage à 6 chiffres ici pour vous connecter.",
+    paired_success: "Appairage réussi. Alex est maintenant connecté.",
+    need_pairing: "Pas encore connecté. Envoyez d'abord le code d'appairage à 6 chiffres.",
+    invalid_pairing_code: "Code d'appairage invalide ou expiré. Générez-en un nouveau dans Alex Desktop et réessayez.",
+    bootstrap_workspace_unavailable: "Le service d'espaces de travail est indisponible. Réessayez dans un instant.",
+    bootstrap_session_failed_prefix: "Le mode Assistant est actif mais la création de la session a échoué : ",
+    bootstrap_ready: "Une nouvelle session Assistant est prête. Envoyez un message pour démarrer.",
+
+    mode_assistant: "Mode Assistant",
+    mode_expert: "Mode Expert",
+    current_session_label: "Session actuelle",
+    current_workspace_label: "Espace de travail actuel",
+    current_assistant_label: "Assistant actuel",
+    no_session: "Aucune session sélectionnée",
+    no_workspace: "Aucun espace de travail sélectionné",
+    no_assistant: "Aucun assistant sélectionné",
+
+    main_title_assistant: "Alex · Assistant",
+    main_title_expert: "Alex · Expert",
+    settings_title: "Paramètres",
+    welcome_title: "Alex",
+    need_session_title: "Choisissez ou créez d'abord une session",
+
+    item_new_session: "Nouvelle session",
+    item_new_code_session: "Session Code",
+    item_new_cowork_session: "Session Cowork",
+    item_resume_session: "Reprendre",
+    item_switch_assistant: "Assistant",
+    item_switch_workspace: "Espace de travail",
+    item_settings: "Paramètres",
+    item_devices: "Appareils",
+    item_back: "Retour",
+    item_help: "Aide",
+    item_switch_to_expert: "Mode Expert",
+    item_switch_to_assistant: "Mode Assistant",
+    item_verbose_on: "Détails d'exécution",
+    item_verbose_off: "Masquer les détails",
+    item_cancel_task: "Annuler la tâche",
+    item_confirm_switch: "Changer et continuer",
+    item_next_page: "Page suivante",
+    item_other: "Autre",
+    item_switch_model: "Changer de modèle",
+
+    question_title: "Question",
+    verbose_label: "Détails d'exécution",
+    workspace_session_count_fmt: "{n} sessions",
+
+    footer_reply_or_menu: "Répondez avec un numéro, ou envoyez /menu pour revenir.",
+    footer_reply_workspace: "Répondez avec un numéro d'espace de travail, ou 0 pour revenir.",
+    footer_reply_assistant: "Répondez avec un numéro d'assistant, ou 0 pour revenir.",
+    footer_reply_session_or_next:
+        "Répondez avec un numéro de session ; envoyez 0 pour la page suivante, ou /menu pour revenir.",
+    footer_reply_session: "Répondez avec un numéro de session, ou 0 pour revenir.",
+    footer_reply_model: "Répondez avec un numéro de modèle, ou 0 pour revenir.",
+    footer_question_single: "Répondez avec le numéro d'une option ; envoyez /menu pour quitter.",
+    footer_question_multi: "Répondez avec un ou plusieurs numéros d'options (par ex. 1,3) ; envoyez /menu pour quitter.",
+    footer_question_custom: "Saisissez votre réponse ; envoyez /menu pour quitter.",
+    footer_processing_cancel_hint: "Pour arrêter, répondez /cancel ou appuyez sur Annuler la tâche.",
+
+    welcome_body: "Pas encore appairé.",
+    paired_body_intro: "Envoyez un message pour démarrer la conversation.",
+    help_body: "Répondez avec un numéro pour effectuer l'action, ou envoyez un message pour discuter.\nEnvoyez /cancel pour interrompre une tâche en cours.",
+
+    switch_pick_workspace: "Choisissez l'espace de travail vers lequel basculer :",
+    switch_pick_assistant: "Choisissez l'assistant vers lequel basculer :",
+    switch_no_workspaces: "Aucun espace de travail trouvé. Ouvrez d'abord un projet dans Alex Desktop.",
+    switch_no_assistants: "Aucun assistant trouvé. Créez-en un dans Alex Desktop.",
+    current_marker: " · actuel",
+
+    resume_no_sessions: "Aucune session pour le moment. Envoyez /new pour en créer une.",
+    resume_page_label: "Sessions",
+    resume_untitled: "Session sans titre",
+    resume_msg_count_zero: "aucun message",
+    resume_msg_count_one: "1 message",
+    resume_msg_count_many_fmt: "{n} messages",
+    resume_resumed_prefix: "Session reprise : ",
+    resume_last_dialog_header: "— Dernière conversation —",
+    resume_you_label: "Vous",
+    resume_continue_hint: "Vous pouvez poursuivre la conversation.",
+    resume_first_message_hint: "Envoyez un message pour démarrer.",
+
+    switch_model_title: "Choisir un modèle",
+    switch_model_pick: "Choisissez le modèle à utiliser :",
+    switch_model_no_models: "Aucun modèle disponible. Configurez d'abord des modèles IA dans Alex Desktop.",
+    switch_model_primary: "Modèle principal",
+    switch_model_applied_prefix: "Modèle changé : ",
+    switch_model_failed_prefix: "Échec du changement de modèle : ",
+    switch_model_no_session: "Aucune session active. Créez ou reprenez d'abord une session.",
+
+    processing: "Traitement de votre message…",
+    queued: "Message mis en file d'attente. Il s'exécutera à la fin de l'étape en cours.",
+    no_response: "(pas de réponse)",
+    task_cancelled: "Tâche annulée.",
+    task_cancel_requested: "Annulation demandée.",
+    task_cancel_failed_prefix: "Échec de l'annulation : ",
+    task_no_active: "Aucune tâche active à annuler.",
+    timeout_one_hour: "La réponse a expiré au bout d'une heure.",
+    error_prefix: "Erreur : ",
+    send_failed_prefix: "Échec de l'envoi : ",
+
+    mode_switched_to_expert: "Passé en mode Expert. Vous pouvez créer des sessions Code ou Cowork.",
+    mode_switched_to_assistant: "Passé en mode Assistant. Idéal pour les conversations continues.",
+    mode_already_expert: "Déjà en mode Expert.",
+    mode_already_assistant: "Déjà en mode Assistant.",
+    mode_confirm_switch_prefix: "Cette action nécessite l'autre mode. Changer et continuer ?",
+
+    verbose_enabled: "Détails d'exécution activés. La prochaine tâche affichera la réflexion et les étapes d'outils.",
+    verbose_disabled: "Détails d'exécution désactivés. Seuls les résultats finaux seront affichés.",
+    verbose_status_on: "activé",
+    verbose_status_off: "désactivé",
+
+    session_created_prefix: "Nouvelle session créée : ",
+    session_workspace_label: "Espace de travail : ",
+    session_start_hint: "Envoyez un message pour démarrer la conversation.",
+    session_create_failed_prefix: "Échec de la création de la session : ",
+    session_system_unavailable: "Le système de sessions Alex n'est pas encore prêt.",
+    workspace_service_unavailable: "Service d'espaces de travail indisponible.",
+    workspace_open_failed_prefix: "Échec de l'ouverture de l'espace de travail : ",
+    workspace_list_changed: "La liste des espaces de travail a changé. Choisissez à nouveau.",
+    assistant_create_failed_prefix: "Échec de la création de l'espace de travail de l'assistant : ",
+
+    pending_expired: "L'étape précédente a expiré. Retour au menu principal.",
+    pending_invalid_input: "Entrée invalide. Suivez l'invite ci-dessus, ou envoyez /menu pour revenir.",
+    pending_invalid_after_retries: "Trop de réponses invalides. Retour au menu principal.",
+    pending_back_hint: "Envoyez 0 ou /menu pour revenir au menu principal.",
+
+    answers_submitted: "Réponses envoyées. En attente de la suite de l'assistant…",
+    answers_submit_failed_prefix: "Échec de l'envoi des réponses : ",
+    question_invalid_state: "L'état de la question est invalide ; redémarrez la conversation.",
+    question_custom_required: "La réponse personnalisée ne peut pas être vide. Saisissez-la à nouveau.",
+    question_custom_for_other_prefix: "Saisissez votre réponse pour « Autre » : ",
+
+    thinking_label: "Réflexion",
+
+    auto_push_intro_one: "Envoi de 1 fichier…",
+    auto_push_intro_many_fmt: "Envoi de {n} fichiers…",
+    auto_push_skip_too_large_fmt: "« {name} » ignoré : {size} dépasse la limite de {limit}. Récupérez-le depuis Alex Desktop.",
+    auto_push_failed_fmt: "Échec de l'envoi de « {name} » : {err}",
+    weixin_remote_push_unsupported: "WeChat ne peut pas encore pousser les résultats d'une tâche planifiée ou d'une session depuis un autre appareil. Les demandes envoyées depuis WeChat reçoivent toujours une réponse.",
+
+    devices_title: "Contrôle multi-appareils",
+    devices_account_required: "L'ordinateur appairé n'est pas connecté à un compte, le contrôle multi-appareils est donc indisponible. Connectez-vous via la boîte de dialogue de connexion du compte sur l'ordinateur et le bot héritera de l'identité du compte.",
+    devices_empty: "Aucun autre appareil dans ce compte.",
+    devices_status_online: "en ligne",
+    devices_status_offline: "hors ligne",
+    devices_list_failed_prefix: "Échec de la liste des appareils : ",
+    devices_send_ok: "Message envoyé à l'appareil cible.",
+    devices_send_failed_prefix: "Échec de l'envoi à l'appareil : ",
+    devices_local: "Appareil local",
+    devices_pick_to_switch:
+        "Répondez avec un numéro pour changer — toutes les commandes suivantes s'exécuteront sur cet appareil ; envoyez 0 pour revenir",
+    devices_switched_to: "Basculé vers l'appareil distant",
+    devices_switched_local: "Retour à l'appareil local",
+    devices_remote_prefix: "Appareil distant",
+    devices_msg_sent: "Message envoyé. Les réponses et les pièces jointes reviendront dans cette conversation.",
+};
+
 pub fn strings_for(language: BotLanguage) -> &'static BotStrings {
     match language {
         BotLanguage::ZhCN => &STRINGS_ZH,
         BotLanguage::ZhTW => &STRINGS_ZH_TW,
         BotLanguage::EnUS => &STRINGS_EN,
+        BotLanguage::FrFR => &STRINGS_FR,
     }
 }
 

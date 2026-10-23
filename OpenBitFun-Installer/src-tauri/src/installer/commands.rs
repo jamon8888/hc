@@ -1950,11 +1950,13 @@ mod tests {
         assert_eq!(normalize_app_language("  EN-us  "), Some("en-US"));
         assert_eq!(normalize_app_language("en"), Some("en-US"));
         assert_eq!(normalize_app_language("en-US"), Some("en-US"));
+        assert_eq!(normalize_app_language("fr"), Some("fr-FR"));
+        assert_eq!(normalize_app_language("fr-FR"), Some("fr-FR"));
     }
 
     #[test]
     fn normalize_app_language_rejects_unknown_language_codes() {
-        assert_eq!(normalize_app_language("fr-FR"), None);
+        assert_eq!(normalize_app_language("de-DE"), None);
         assert_eq!(normalize_app_language(""), None);
     }
 
