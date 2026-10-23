@@ -62,7 +62,7 @@ fn labels_for_language(language: &str) -> MenubarLabels {
             edit_menu: "Edit",
             open_project: "Open Project…",
             new_project: "New Project…",
-            about_openbitfun: "About OpenBitFun",
+            about_openbitfun: "About Alex",
             undo: "Undo",
             redo: "Redo",
             cut: "Cut",
@@ -75,7 +75,7 @@ fn labels_for_language(language: &str) -> MenubarLabels {
             edit_menu: "編輯",
             open_project: "開啟工程…",
             new_project: "新建工程…",
-            about_openbitfun: "關於 OpenBitFun",
+            about_openbitfun: "關於 Alex",
             undo: "復原",
             redo: "重做",
             cut: "剪下",
@@ -88,7 +88,7 @@ fn labels_for_language(language: &str) -> MenubarLabels {
             edit_menu: "Édition",
             open_project: "Ouvrir un projet…",
             new_project: "Nouveau projet…",
-            about_openbitfun: "À propos d'OpenBitFun",
+            about_openbitfun: "À propos d'Alex",
             undo: "Annuler",
             redo: "Rétablir",
             cut: "Couper",
@@ -101,7 +101,7 @@ fn labels_for_language(language: &str) -> MenubarLabels {
             edit_menu: "编辑",
             open_project: "打开工程…",
             new_project: "新建工程…",
-            about_openbitfun: "关于 OpenBitFun",
+            about_openbitfun: "关于 Alex",
             undo: "撤销",
             redo: "重做",
             cut: "剪切",
@@ -122,7 +122,7 @@ pub fn set_macos_menubar_with_mode(
     let labels = labels_for_language(language);
     let _ = mode;
 
-    let app_menu = SubmenuBuilder::new(app, "OpenBitFun")
+    let app_menu = SubmenuBuilder::new(app, "Alex")
         .text("openbitfun.about", labels.about_openbitfun)
         .separator()
         .quit()

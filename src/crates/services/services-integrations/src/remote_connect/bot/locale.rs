@@ -198,11 +198,11 @@ const STRINGS_ZH: BotStrings = BotStrings {
     tool_approve: "允许本次",
     tool_reject: "拒绝",
     welcome: "\
-欢迎使用 OpenBitFun。
+欢迎使用 Alex。
 
-请在 OpenBitFun 桌面端打开 Remote Connect 面板，复制 6 位配对码并发送到这里完成连接。",
-    paired_success: "配对成功，OpenBitFun 已连接。",
-    need_pairing: "尚未连接 OpenBitFun 桌面端。请先发送 6 位配对码。",
+请在 Alex 桌面端打开 Remote Connect 面板，复制 6 位配对码并发送到这里完成连接。",
+    paired_success: "配对成功，Alex 已连接。",
+    need_pairing: "尚未连接 Alex 桌面端。请先发送 6 位配对码。",
     invalid_pairing_code: "配对码无效或已过期，请到桌面端重新生成后再发送。",
     bootstrap_workspace_unavailable: "工作区服务暂时不可用，请稍后再试。",
     bootstrap_session_failed_prefix: "已进入助理模式，但创建会话失败：",
@@ -217,10 +217,10 @@ const STRINGS_ZH: BotStrings = BotStrings {
     no_workspace: "尚未选择工作区",
     no_assistant: "尚未选择助理",
 
-    main_title_assistant: "OpenBitFun · 助理模式",
-    main_title_expert: "OpenBitFun · 专业模式",
+    main_title_assistant: "Alex · 助理模式",
+    main_title_expert: "Alex · 专业模式",
     settings_title: "设置",
-    welcome_title: "OpenBitFun",
+    welcome_title: "Alex",
     need_session_title: "请先选择或新建会话",
 
     item_new_session: "新建会话",
@@ -264,8 +264,8 @@ const STRINGS_ZH: BotStrings = BotStrings {
 
     switch_pick_workspace: "请选择要切换的工作区：",
     switch_pick_assistant: "请选择要切换的助理：",
-    switch_no_workspaces: "尚未发现工作区，请先在 OpenBitFun 桌面端打开一个项目。",
-    switch_no_assistants: "尚未发现助理，请先在 OpenBitFun 桌面端创建一个助理。",
+    switch_no_workspaces: "尚未发现工作区，请先在 Alex 桌面端打开一个项目。",
+    switch_no_assistants: "尚未发现助理，请先在 Alex 桌面端创建一个助理。",
     current_marker: " · 当前",
 
     resume_no_sessions: "当前还没有会话，可以发送 /new 直接新建。",
@@ -282,7 +282,7 @@ const STRINGS_ZH: BotStrings = BotStrings {
 
     switch_model_title: "选择模型",
     switch_model_pick: "请选择要使用的模型：",
-    switch_model_no_models: "没有可用的模型，请先在 OpenBitFun 桌面端配置 AI 模型。",
+    switch_model_no_models: "没有可用的模型，请先在 Alex 桌面端配置 AI 模型。",
     switch_model_primary: "主力模型",
     switch_model_applied_prefix: "已切换模型：",
     switch_model_failed_prefix: "切换模型失败：",
@@ -314,7 +314,7 @@ const STRINGS_ZH: BotStrings = BotStrings {
     session_workspace_label: "工作区：",
     session_start_hint: "可以发送消息开始对话。",
     session_create_failed_prefix: "创建会话失败：",
-    session_system_unavailable: "OpenBitFun 会话系统尚未就绪，请稍后再试。",
+    session_system_unavailable: "Alex 会话系统尚未就绪，请稍后再试。",
     workspace_service_unavailable: "工作区服务暂时不可用。",
     workspace_open_failed_prefix: "打开工作区失败：",
     workspace_list_changed: "工作区列表已更新，请重新选择。",
@@ -360,11 +360,11 @@ const STRINGS_ZH_TW: BotStrings = BotStrings {
     tool_approve: "允許本次",
     tool_reject: "拒絕",
     welcome: "\
-歡迎使用 OpenBitFun。
+歡迎使用 Alex。
 
-請在 OpenBitFun 桌面端打開 Remote Connect 面板，複製 6 位配對碼併發送到這裡完成連接。",
-    paired_success: "配對成功，OpenBitFun 已連接。",
-    need_pairing: "尚未連接 OpenBitFun 桌面端。請先發送 6 位配對碼。",
+請在 Alex 桌面端打開 Remote Connect 面板，複製 6 位配對碼併發送到這裡完成連接。",
+    paired_success: "配對成功，Alex 已連接。",
+    need_pairing: "尚未連接 Alex 桌面端。請先發送 6 位配對碼。",
     invalid_pairing_code: "配對碼無效或已過期，請到桌面端重新生成後再發送。",
     bootstrap_workspace_unavailable: "工作區服務暫時不可用，請稍後再試。",
     bootstrap_session_failed_prefix: "已進入助理模式，但創建會話失敗：",
@@ -379,10 +379,10 @@ const STRINGS_ZH_TW: BotStrings = BotStrings {
     no_workspace: "尚未選擇工作區",
     no_assistant: "尚未選擇助理",
 
-    main_title_assistant: "OpenBitFun · 助理模式",
-    main_title_expert: "OpenBitFun · 專業模式",
+    main_title_assistant: "Alex · 助理模式",
+    main_title_expert: "Alex · 專業模式",
     settings_title: "設置",
-    welcome_title: "OpenBitFun",
+    welcome_title: "Alex",
     need_session_title: "請先選擇或新建會話",
 
     item_new_session: "新建會話",
@@ -426,8 +426,8 @@ const STRINGS_ZH_TW: BotStrings = BotStrings {
 
     switch_pick_workspace: "請選擇要切換的工作區：",
     switch_pick_assistant: "請選擇要切換的助理：",
-    switch_no_workspaces: "尚未發現工作區，請先在 OpenBitFun 桌面端打開一個項目。",
-    switch_no_assistants: "尚未發現助理，請先在 OpenBitFun 桌面端創建一個助理。",
+    switch_no_workspaces: "尚未發現工作區，請先在 Alex 桌面端打開一個項目。",
+    switch_no_assistants: "尚未發現助理，請先在 Alex 桌面端創建一個助理。",
     current_marker: " · 當前",
 
     resume_no_sessions: "當前還沒有會話，可以發送 /new 直接新建。",
@@ -444,7 +444,7 @@ const STRINGS_ZH_TW: BotStrings = BotStrings {
 
     switch_model_title: "選擇模型",
     switch_model_pick: "請選擇要使用的模型：",
-    switch_model_no_models: "沒有可用的模型，請先在 OpenBitFun 桌面端配置 AI 模型。",
+    switch_model_no_models: "沒有可用的模型，請先在 Alex 桌面端配置 AI 模型。",
     switch_model_primary: "主力模型",
     switch_model_applied_prefix: "已切換模型：",
     switch_model_failed_prefix: "切換模型失敗：",
@@ -476,7 +476,7 @@ const STRINGS_ZH_TW: BotStrings = BotStrings {
     session_workspace_label: "工作區：",
     session_start_hint: "可以發送消息開始對話。",
     session_create_failed_prefix: "創建會話失敗：",
-    session_system_unavailable: "OpenBitFun 會話系統尚未就緒，請稍後再試。",
+    session_system_unavailable: "Alex 會話系統尚未就緒，請稍後再試。",
     workspace_service_unavailable: "工作區服務暫時不可用。",
     workspace_open_failed_prefix: "打開工作區失敗：",
     workspace_list_changed: "工作區清單已更新，請重新選擇。",
@@ -522,12 +522,12 @@ const STRINGS_EN: BotStrings = BotStrings {
     tool_approve: "Allow once",
     tool_reject: "Reject",
     welcome: "\
-Welcome to OpenBitFun.
+Welcome to Alex.
 
-Open Remote Connect in OpenBitFun Desktop and send the 6-digit pairing code here to connect.",
-    paired_success: "Pairing successful. OpenBitFun is now connected.",
+Open Remote Connect in Alex Desktop and send the 6-digit pairing code here to connect.",
+    paired_success: "Pairing successful. Alex is now connected.",
     need_pairing: "Not connected yet. Please send the 6-digit pairing code first.",
-    invalid_pairing_code: "Invalid or expired pairing code. Generate a new one in OpenBitFun Desktop and try again.",
+    invalid_pairing_code: "Invalid or expired pairing code. Generate a new one in Alex Desktop and try again.",
     bootstrap_workspace_unavailable: "Workspace service is unavailable. Please try again shortly.",
     bootstrap_session_failed_prefix: "Assistant mode is on but session creation failed: ",
     bootstrap_ready: "A new assistant session is ready. Send a message to start.",
@@ -541,10 +541,10 @@ Open Remote Connect in OpenBitFun Desktop and send the 6-digit pairing code here
     no_workspace: "No workspace selected",
     no_assistant: "No assistant selected",
 
-    main_title_assistant: "OpenBitFun · Assistant",
-    main_title_expert: "OpenBitFun · Expert",
+    main_title_assistant: "Alex · Assistant",
+    main_title_expert: "Alex · Expert",
     settings_title: "Settings",
-    welcome_title: "OpenBitFun",
+    welcome_title: "Alex",
     need_session_title: "Pick or create a session first",
 
     item_new_session: "New Session",
@@ -589,8 +589,8 @@ Open Remote Connect in OpenBitFun Desktop and send the 6-digit pairing code here
 
     switch_pick_workspace: "Pick a workspace to switch to:",
     switch_pick_assistant: "Pick an assistant to switch to:",
-    switch_no_workspaces: "No workspaces found. Open a project in OpenBitFun Desktop first.",
-    switch_no_assistants: "No assistants found. Create one in OpenBitFun Desktop first.",
+    switch_no_workspaces: "No workspaces found. Open a project in Alex Desktop first.",
+    switch_no_assistants: "No assistants found. Create one in Alex Desktop first.",
     current_marker: " · current",
 
     resume_no_sessions: "No sessions yet. Send /new to create one.",
@@ -607,7 +607,7 @@ Open Remote Connect in OpenBitFun Desktop and send the 6-digit pairing code here
 
     switch_model_title: "Select Model",
     switch_model_pick: "Pick a model to use:",
-    switch_model_no_models: "No models available. Please configure AI models in OpenBitFun Desktop first.",
+    switch_model_no_models: "No models available. Please configure AI models in Alex Desktop first.",
     switch_model_primary: "Primary model",
     switch_model_applied_prefix: "Switched model: ",
     switch_model_failed_prefix: "Failed to switch model: ",
@@ -639,7 +639,7 @@ Open Remote Connect in OpenBitFun Desktop and send the 6-digit pairing code here
     session_workspace_label: "Workspace: ",
     session_start_hint: "Send a message to start the conversation.",
     session_create_failed_prefix: "Failed to create session: ",
-    session_system_unavailable: "OpenBitFun session system is not ready yet.",
+    session_system_unavailable: "Alex session system is not ready yet.",
     workspace_service_unavailable: "Workspace service unavailable.",
     workspace_open_failed_prefix: "Failed to open workspace: ",
     workspace_list_changed: "The workspace list has changed. Please choose again.",
@@ -660,7 +660,7 @@ Open Remote Connect in OpenBitFun Desktop and send the 6-digit pairing code here
 
     auto_push_intro_one: "Sending 1 file for you…",
     auto_push_intro_many_fmt: "Sending {n} files for you…",
-    auto_push_skip_too_large_fmt: "Skipping \"{name}\": {size} exceeds the {limit} limit. Please grab it from OpenBitFun Desktop instead.",
+    auto_push_skip_too_large_fmt: "Skipping \"{name}\": {size} exceeds the {limit} limit. Please grab it from Alex Desktop instead.",
     auto_push_failed_fmt: "Failed to send \"{name}\": {err}",
     weixin_remote_push_unsupported: "WeChat cannot proactively push scheduled-job or desktop-session results from another device yet. Requests you send from WeChat still receive replies.",
 
