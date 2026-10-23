@@ -555,7 +555,7 @@ function copyDirectory(source, destination) {
   }
 }
 
-function interpreterExecutables(root) {
+export function interpreterExecutables(root) {
   // The preparation step records the executables it made runnable, so the
   // signing step covers exactly the files that are code. The package's data
   // files must not be signed.
@@ -568,8 +568,13 @@ function interpreterExecutables(root) {
     throw new Error('Bundled Open Interpreter manifest lists no executables');
   }
   for (const relativePath of manifest.executables) {
-    // The manifest is data. A path that climbs out of the package would make
-    // the signing step touch a file outside it.
+    // The manifest is data. A non-string entry, or a path that climbs out of
+    // the package, would make the signing step touch an unintended file.
+    if (typeof relativePath !== 'string') {
+      throw new Error(
+        `Bundled Open Interpreter manifest lists a non-string executable path: ${typeof relativePath}`,
+      );
+    }
     const segments = relativePath.split('/');
     if (segments.includes('..') || isAbsolute(relativePath)) {
       throw new Error(

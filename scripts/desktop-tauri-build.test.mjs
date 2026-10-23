@@ -6,6 +6,7 @@ import test from 'node:test';
 import {
   configureDesktopWebFontProfile,
   configureWindowsSigning,
+  interpreterExecutables,
   prepareMacOSFlashgrepForSigning,
   prepareMacOSInterpreterForSigning,
   prepareTauriConfig,
@@ -212,6 +213,39 @@ test('macOS release signing covers every executable in the bundled Open Interpre
     // The signed copy keeps the package layout the agent reads at runtime.
     assert.equal(readFileSync(join(signed, 'bin', 'interpreter'), 'utf8'), 'agent');
     assert.equal(readFileSync(join(signed, 'codex-package.json'), 'utf8'), '{}');
+  } finally {
+    rmSync(fixture, { force: true, recursive: true });
+  }
+});
+
+test('interpreter executables from the manifest are validated before the signing step uses them', () => {
+  const fixture = join(tmpdir(), `openbitfun-interpreter-manifest-${process.pid}-${Date.now()}`);
+  const root = join(fixture, 'aarch64-apple-darwin');
+  mkdirSync(root, { recursive: true });
+  writeFileSync(
+    join(root, 'openbitfun-bundled-tool.json'),
+    JSON.stringify({ executables: ['bin/interpreter'] }),
+  );
+
+  try {
+    assert.deepEqual(interpreterExecutables(root), ['bin/interpreter']);
+
+    for (const [label, executables] of [
+      ['a non-string entry', [42]],
+      ['a parent-directory segment', ['..']],
+      ['a segment that climbs out of the package', ['bin/../../../outside/agent']],
+      ['an absolute path', ['/etc/passwd']],
+    ]) {
+      writeFileSync(
+        join(root, 'openbitfun-bundled-tool.json'),
+        JSON.stringify({ executables }),
+      );
+      assert.throws(
+        () => interpreterExecutables(root),
+        /Bundled Open Interpreter manifest lists a/,
+        label,
+      );
+    }
   } finally {
     rmSync(fixture, { force: true, recursive: true });
   }

@@ -35,7 +35,8 @@ node scripts/prepare-interpreter-resource.mjs --target x86_64-pc-windows-msvc
 
 The preparation step requires `curl` (`curl.exe` on Windows) and `tar`. Desktop
 builds use the explicit Tauri target, falling back to the Rust host triple.
-Downloads go to ignored files under `resources/interpreter/<target>/`. Cached
+Downloads go to ignored files under `resources/interpreter/.cache/<target>/`, and
+the extracted package goes to `resources/interpreter/<target>/`. Cached
 files are verified before reuse; a failed or corrupted download never becomes
 a package input. Only the selected target is added to the Tauri resources, even
 if the cache holds other targets.
