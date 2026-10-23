@@ -557,7 +557,9 @@ mod tests {
         let expected_names = vec![
             "LS",
             "Read",
+            #[cfg(not(feature = "tools-rag"))]
             "view_image",
+            #[cfg(not(feature = "tools-rag"))]
             "analyze_image",
             "Glob",
             "Grep",
@@ -588,6 +590,8 @@ mod tests {
             "CallDeferredTool",
             "OpenBitFunControl",
             "GetFileDiff",
+            #[cfg(feature = "tools-rag")]
+            "rag_search",
             "CreateCanvas",
             "ReadCanvas",
             "UpdateCanvas",
@@ -831,7 +835,9 @@ mod tests {
             vec![
                 "LS",
                 "Read",
+                #[cfg(not(feature = "tools-rag"))]
                 "view_image",
+                #[cfg(not(feature = "tools-rag"))]
                 "analyze_image",
                 "Glob",
                 "Grep",
@@ -845,6 +851,8 @@ mod tests {
                 "submit_code_review",
                 "GetToolSpec",
                 "GetFileDiff",
+                #[cfg(feature = "tools-rag")]
+                "rag_search",
                 "ReadCanvas",
                 "SessionHistory",
                 "WebSearch",

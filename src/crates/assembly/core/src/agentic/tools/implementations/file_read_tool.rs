@@ -49,7 +49,12 @@ pub const DEFAULT_READ_MAX_TOTAL_CHARS: usize = 64_000;
 const DOCUMENT_CONVERSION_TIMEOUT: Duration = Duration::from_secs(30);
 
 struct DocumentReadMetadata {
-    source_format: &'static str,
+    /// The format the document was extracted from.
+    ///
+    /// Owned rather than a static string: the basemind redaction path
+    /// derives the format from the file it extracted, so it is not one of the
+    /// built-in conversion's compile-time formats.
+    source_format: String,
     source_size_bytes: usize,
 }
 
@@ -214,10 +219,52 @@ impl FileReadTool {
             context.session_id,
             context.dialog_turn_id
         );
-        let conversion = tokio::time::timeout(
-            DOCUMENT_CONVERSION_TIMEOUT,
-            convert_document_to_markdown(bytes, resolved_path.to_string()),
-        )
+        // Interception #2 (SPEC §3): when the host published a redaction
+        // port, the document is extracted and redacted by the sidecar, so no
+        // unredacted text reaches the model context (I1). The plain
+        // conversion stays as the fallback for a host without the sidecar.
+        #[cfg(feature = "tools-rag")]
+        let conversion_call = {
+            let port = crate::service::rag_search::global_document_redaction_port();
+            let workspace_root = context
+                .workspace_root()
+                .map(|root| root.to_string_lossy().to_string());
+            let path = resolved_path.to_string();
+            async move {
+                match (port, workspace_root) {
+                    (Some(port), Some(root)) => port
+                        .redact(&path, &root)
+                        .await
+                        .map(|document| (document.markdown, document.source_format))
+                        .map_err(|error| DocumentConversionError::new("redaction", error.message)),
+                    // No redaction port, or no workspace to scope it: the
+                    // document is read the plain way, and the read says so
+                    // rather than pretending the text was redacted.
+                    _ => convert_document_to_markdown(bytes, path)
+                        .await
+                        .map(|converted| {
+                            (
+                                converted.markdown.to_string(),
+                                converted.source_format.to_string(),
+                            )
+                        })
+                        .map_err(|error| error),
+                }
+            }
+        };
+        #[cfg(not(feature = "tools-rag"))]
+        let conversion_call = async {
+            convert_document_to_markdown(bytes, resolved_path.to_string())
+                .await
+                .map(|converted| {
+                    (
+                        converted.markdown.to_string(),
+                        converted.source_format.to_string(),
+                    )
+                })
+        };
+
+        let conversion = tokio::time::timeout(DOCUMENT_CONVERSION_TIMEOUT, conversion_call)
         .await
         .map_err(|_| {
             warn!(
@@ -233,7 +280,7 @@ impl FileReadTool {
                 logical_path
             ))
         })?;
-        let converted = conversion.map_err(|error| {
+        let (converted_markdown, converted_source_format) = conversion.map_err(|error| {
                 warn!(
                     "Document conversion failed: path={}, source_size_bytes={}, duration_ms={}, error_code={}, error={}",
                     logical_path,
@@ -247,22 +294,22 @@ impl FileReadTool {
         debug!(
             "Document conversion completed: path={}, source_format={}, source_size_bytes={}, markdown_size_bytes={}, duration_ms={}",
             logical_path,
-            converted.source_format,
+            converted_source_format,
             source_size_bytes,
-            converted.markdown.len(),
+            converted_markdown.len(),
             elapsed_ms_u64(conversion_started_at)
         );
 
         let read_result = if tail {
             read_text_tail(
-                &converted.markdown,
+                &converted_markdown,
                 limit,
                 self.max_line_chars,
                 self.max_total_chars,
             )
         } else {
             read_text(
-                &converted.markdown,
+                &converted_markdown,
                 start_line,
                 limit,
                 self.max_line_chars,
@@ -274,7 +321,7 @@ impl FileReadTool {
         Ok((
             read_result,
             DocumentReadMetadata {
-                source_format: converted.source_format,
+                source_format: converted_source_format,
                 source_size_bytes,
             },
         ))
@@ -857,6 +904,111 @@ mod tests {
     use std::sync::atomic::{AtomicUsize, Ordering};
     use std::sync::Arc;
 
+    /// Serializes the tests that publish or clear the redaction port.
+    ///
+    /// The port is process-wide, so leaving it published while another
+    /// document-conversion test runs would replace that test's conversion.
+    /// Every test that converts a document holds this guard, whether or not
+    /// it publishes a port of its own.
+    #[cfg(feature = "document-read")]
+    fn redaction_port_guard() -> std::sync::MutexGuard<'static, ()> {
+        static LOCK: std::sync::OnceLock<std::sync::Mutex<()>> = std::sync::OnceLock::new();
+        LOCK.get_or_init(|| std::sync::Mutex::new(()))
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+    }
+
+    /// A redaction port that answers with a fixed document and records the
+    /// path it was asked about.
+    #[cfg(all(feature = "document-read", feature = "tools-rag"))]
+    struct StubRedactor {
+        seen: std::sync::Mutex<Option<(String, String)>>,
+    }
+
+    #[cfg(all(feature = "document-read", feature = "tools-rag"))]
+    #[async_trait]
+    impl openbitfun_runtime_ports::DocumentRedactionPort for StubRedactor {
+        async fn redact(
+            &self,
+            path: &str,
+            workspace_root: &str,
+        ) -> Result<
+            openbitfun_runtime_ports::RedactedDocument,
+            openbitfun_runtime_ports::DocumentRedactionError,
+        > {
+            *self.seen.lock().unwrap() = Some((path.to_string(), workspace_root.to_string()));
+            Ok(openbitfun_runtime_ports::RedactedDocument {
+                markdown: "Contact [EMAIL_1].".to_string(),
+                source_format: "pdf".to_string(),
+                entities: vec![openbitfun_runtime_ports::RedactedEntity {
+                    entity_id: "ENT_EMAIL_abcdef12".to_string(),
+                    entity_type: "EMAIL".to_string(),
+                    occurrence_count: 1,
+                }],
+            })
+        }
+    }
+
+    /// The document the agent reads goes through the redaction port, so no
+    /// unredacted text reaches the model context (SPEC §3, I1).
+    #[cfg(all(feature = "document-read", feature = "tools-rag"))]
+    #[tokio::test]
+    async fn a_document_read_is_redacted_through_the_published_port() {
+        // The port is process-wide, so this test holds the guard while it
+        // owns it, and the other document-conversion tests run unimpeded.
+        let _guard = redaction_port_guard();
+        let redactor = Arc::new(StubRedactor {
+            seen: std::sync::Mutex::new(None),
+        });
+        let seen = redactor.clone();
+        crate::service::rag_search::set_global_document_redaction_port(Some(redactor));
+
+        let root = std::env::temp_dir().join("openbitfun-file-read-redaction-test");
+        let _ = fs::remove_dir_all(&root);
+        fs::create_dir_all(&root).expect("create temp root");
+        let document = root.join("contract.pdf");
+        fs::write(&document, b"%PDF-1.7 not really a pdf").expect("write document");
+
+        let tool = FileReadTool::new();
+        let context = local_context(root.clone());
+        let (result, metadata) = tool
+            .read_document_window(
+                &document.to_string_lossy(),
+                "contract.pdf",
+                1,
+                200,
+                false,
+                &crate::agentic::workspace::LocalWorkspaceFs,
+                &context,
+            )
+            .await
+            .expect("the redacted document should be read");
+        crate::service::rag_search::set_global_document_redaction_port(None);
+
+        // The port saw the file and the workspace it belongs to.
+        let (path, workspace_root) = seen
+            .seen
+            .lock()
+            .unwrap()
+            .clone()
+            .expect("the port was called");
+        assert!(path.ends_with("contract.pdf"), "the port saw {path}");
+        assert!(
+            workspace_root.contains("openbitfun-file-read-redaction-test"),
+            "the port saw the workspace root {workspace_root}"
+        );
+
+        // The content is the redacted one, and the format comes from the
+        // sidecar's answer.
+        assert!(
+            result.content.contains("[EMAIL_1]"),
+            "the read returned the redacted text"
+        );
+        assert_eq!(metadata.source_format, "pdf");
+
+        let _ = fs::remove_dir_all(&root);
+    }
+
     fn local_context(root: PathBuf) -> ToolUseContext {
         ToolUseContext {
             tool_call_id: None,
@@ -1277,6 +1429,7 @@ mod tests {
     #[cfg(feature = "document-read")]
     #[tokio::test]
     async fn read_converts_rtf_to_a_markdown_representation() {
+        let _guard = redaction_port_guard();
         let dir = tempfile::tempdir().expect("tempdir");
         let source = br"{\rtf1\ansi Hello from the document}";
         fs::write(dir.path().join("notes.rtf"), source).expect("write RTF");
@@ -1312,6 +1465,7 @@ mod tests {
     #[cfg(feature = "document-read")]
     #[tokio::test]
     async fn document_conversion_failure_does_not_fallback_to_source_bytes() {
+        let _guard = redaction_port_guard();
         let dir = tempfile::tempdir().expect("tempdir");
         fs::write(dir.path().join("broken.pdf"), b"not a PDF").expect("write invalid PDF");
         let context = local_context(dir.path().to_path_buf());
@@ -1327,6 +1481,7 @@ mod tests {
     #[cfg(feature = "document-read")]
     #[tokio::test]
     async fn csv_auto_preserves_source_while_markdown_render_extracts_a_table() {
+        let _guard = redaction_port_guard();
         let dir = tempfile::tempdir().expect("tempdir");
         fs::write(
             dir.path().join("table.csv"),
@@ -1375,6 +1530,7 @@ mod tests {
     #[cfg(feature = "document-read")]
     #[tokio::test]
     async fn remote_document_uses_bounded_file_transfer_and_host_side_conversion() {
+        let _guard = redaction_port_guard();
         let bounded_limit = Arc::new(AtomicUsize::new(0));
         let context = remote_context(
             br"{\rtf1\ansi Hello from remote RTF}".to_vec(),

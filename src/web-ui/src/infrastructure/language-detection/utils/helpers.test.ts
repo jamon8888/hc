@@ -5,6 +5,14 @@ import { getEditorType, isRedactedDocumentPath } from './helpers';
 describe('getEditorType', () => {
   it('routes PDF files to the PDF viewer case-insensitively', () => {
     expect(getEditorType('report.PDF')).toBe('pdf-viewer');
+    expect(getEditorType('report.PDF', { basemindAvailable: false })).toBe('pdf-viewer');
+  });
+
+  it('routes a PDF to the redacted viewer once the redaction surface is available', () => {
+    // The sidecar extracts PDF text, so the redacted view of a PDF is where
+    // the PII guarantee matters most.
+    expect(getEditorType('report.pdf', { basemindAvailable: true })).toBe('redacted-document-viewer');
+    expect(isRedactedDocumentPath('report.pdf')).toBe(true);
   });
 
   it('routes HTML files to the embedded preview case-insensitively', () => {

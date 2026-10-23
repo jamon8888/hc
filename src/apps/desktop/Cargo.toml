@@ -160,7 +160,10 @@ default = ["basemind"]
 # Only active in debug builds or when explicitly requested via --features devtools.
 # Never enabled in release profile intended for end users.
 devtools = ["tauri/devtools", "openbitfun-webdriver/embedded"]
-basemind = ["openbitfun-basemind-integration/basemind"]
+basemind = [
+    "openbitfun-basemind-integration/basemind",
+    "openbitfun-core/tools-rag",
+]
 
 [target.'cfg(target_os = "linux")'.dependencies]
 atspi = { workspace = true, features = ["zbus"] }

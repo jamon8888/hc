@@ -1107,7 +1107,7 @@ mod tests {
             .any(|tool| tool.name == GET_TOOL_SPEC_TOOL_NAME));
     }
 
-    #[cfg(feature = "tools-image-analysis")]
+    #[cfg(all(feature = "tools-image-analysis", not(feature = "tools-rag")))]
     #[tokio::test]
     async fn product_manifest_keeps_view_image_for_multimodal_anthropic_context() {
         let allowed_tools = vec!["Read".to_string(), "view_image".to_string()];

@@ -108,9 +108,11 @@ export function getPrismLanguageFromAlias(alias: string): string {
  * `.docx` is absent on purpose: WordCraft owns that format, and the file tab
  * manager routes it to the WordCraft decision first. `.csv` and `.pot` keep
  * their plain code-editor behavior because no redaction contract covers them.
+ * `.pdf` is present: the sidecar extracts PDF text, and the redacted view of
+ * a PDF is where the PII guarantee matters most.
  */
 const REDACTED_DOCUMENT_EXTENSIONS = [
-  '.doc', '.docm', '.odt', '.rtf', '.epub',
+  '.doc', '.docm', '.odt', '.rtf', '.epub', '.pdf',
   '.pptx', '.pptm', '.ppsx', '.ppsm', '.ppt', '.pps',
   '.xlsx', '.xlsm', '.xlsb', '.xls', '.ods', '.odp',
 ];
@@ -149,6 +151,15 @@ export function getEditorType(
     return 'plan-viewer';
   }
 
+  // Document formats the redacted viewer can read win over the built-in
+  // viewers, but only where the host implements the Basemind surface: a host
+  // without it keeps the plain editor instead of opening a viewer it cannot
+  // serve. PDF is among them, so a PDF that the sidecar can redact opens in
+  // the redacted viewer; without the surface it keeps the local PDF viewer.
+  if (options.basemindAvailable && isRedactedDocumentPath(fileName)) {
+    return 'redacted-document-viewer';
+  }
+
   if (fileName.endsWith('.pdf')) {
     return 'pdf-viewer';
   }
@@ -157,15 +168,6 @@ export function getEditorType(
     return 'html-preview';
   }
 
-  // Office and document formats have no built-in viewer; the redacted
-  // document viewer renders them through basemind. PDF keeps the built-in
-  // pdf-viewer: it renders locally and does not need document conversion.
-  // A host without the Basemind surface keeps the plain editor behavior
-  // instead of opening a viewer it cannot serve.
-  if (options.basemindAvailable && isRedactedDocumentPath(fileName)) {
-    return 'redacted-document-viewer';
-  }
-  
   
   if (iconType === 'image') {
     return 'image-viewer';

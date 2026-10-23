@@ -2490,7 +2490,7 @@ pub async fn start_dialog_turn(
     runtime: State<'_, DesktopRuntimeContext>,
     request: StartDialogTurnRequest,
 ) -> Result<StartDialogTurnResponse, String> {
-    let runtime_request = desktop_dialog_turn_request(request)?;
+    let runtime_request = desktop_dialog_turn_request(request).await?;
 
     runtime
         .agent_runtime()
@@ -2504,7 +2504,7 @@ pub async fn start_dialog_turn(
     })
 }
 
-fn desktop_dialog_turn_request(
+async fn desktop_dialog_turn_request(
     request: StartDialogTurnRequest,
 ) -> Result<AgentDialogTurnRequest, String> {
     let StartDialogTurnRequest {
@@ -2533,9 +2533,36 @@ fn desktop_dialog_turn_request(
     };
     let metadata = desktop_user_message_metadata(user_message_metadata);
 
+    // Interception #3 (SPEC §11.4, invariant I9): the prompt the model sees
+    // carries session tokens, never the personal values. The raw text stays
+    // in `original_message` for the user's own display.
+    //
+    // The interception is fail-closed: when the sidecar cannot be reached, or
+    // the session vault cannot be written, the turn aborts. Sending the raw
+    // prompt to a model would break the guarantee the user was promised.
+    #[cfg(feature = "basemind")]
+    let message = {
+        let workspace_root = workspace_path
+            .clone()
+            .ok_or_else(|| "a workspace is required to pseudonymize the prompt".to_string())?;
+        let port = openbitfun_core::service::rag_search::global_prompt_pseudonymization_port()
+            .ok_or_else(|| {
+                "PII pseudonymization is unavailable: the basemind sidecar is not running"
+                    .to_string()
+            })?;
+        port.pseudonymize(&user_input, &session_id, &workspace_root)
+            .await
+            .map_err(|error| format!("PII pseudonymization failed (basemind required): {error}"))?
+            .text
+    };
+    #[cfg(not(feature = "basemind"))]
+    let message = user_input;
+    // `original_message` keeps its meaning: the text as the user typed it,
+    // for the user's own display (D4). Only what the model sees changes.
+
     Ok(AgentDialogTurnRequest {
         session_id,
-        message: user_input,
+        message,
         output_schema: None,
         original_message: original_user_input,
         turn_id,
@@ -4395,8 +4422,62 @@ mod tests {
         .is_err());
     }
 
-    #[test]
-    fn desktop_dialog_turn_request_preserves_runtime_contract() {
+    /// A prompt pseudonymization port that answers with a fixed tokenized
+    /// prompt, so the interception can be exercised without a sidecar.
+    #[cfg(feature = "basemind")]
+    struct StubPseudonymizer;
+
+    #[cfg(feature = "basemind")]
+    #[async_trait::async_trait]
+    impl openbitfun_runtime_ports::PromptPseudonymizationPort for StubPseudonymizer {
+        async fn pseudonymize(
+            &self,
+            prompt: &str,
+            session_id: &str,
+            _workspace_root: &str,
+        ) -> Result<
+            openbitfun_runtime_ports::PseudonymizedPrompt,
+            openbitfun_runtime_ports::PromptPseudonymizationError,
+        > {
+            Ok(openbitfun_runtime_ports::PseudonymizedPrompt {
+                text: format!("{prompt} [PSEUDONYMIZED]"),
+                rehydration_map: Default::default(),
+                session_id: session_id.to_string(),
+            })
+        }
+    }
+
+    /// Serializes the tests that publish or clear the pseudonymization port.
+    ///
+    /// The port is process-wide, so two tests touching it at once would
+    /// see each other's port and fail for the wrong reason.
+    #[cfg(feature = "basemind")]
+    fn pseudonymization_port_guard() -> std::sync::MutexGuard<'static, ()> {
+        static LOCK: std::sync::OnceLock<std::sync::Mutex<()>> = std::sync::OnceLock::new();
+        LOCK.get_or_init(|| std::sync::Mutex::new(()))
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+    }
+
+    /// Publish the stub pseudonymization port for the duration of a test.
+    #[cfg(feature = "basemind")]
+    fn publish_stub_pseudonymizer() {
+        let port: std::sync::Arc<dyn openbitfun_runtime_ports::PromptPseudonymizationPort> =
+            std::sync::Arc::new(StubPseudonymizer);
+        openbitfun_core::service::rag_search::set_global_prompt_pseudonymization_port(Some(port));
+    }
+
+    #[cfg(feature = "basemind")]
+    fn clear_stub_pseudonymizer() {
+        openbitfun_core::service::rag_search::set_global_prompt_pseudonymization_port(None);
+    }
+
+    #[tokio::test]
+    async fn desktop_dialog_turn_request_preserves_runtime_contract() {
+        #[cfg(feature = "basemind")]
+        let _guard = pseudonymization_port_guard();
+        #[cfg(feature = "basemind")]
+        publish_stub_pseudonymizer();
         let request: StartDialogTurnRequest = serde_json::from_value(json!({
             "sessionId": "session-1",
             "userInput": "resolved input",
@@ -4424,10 +4505,16 @@ mod tests {
         }))
         .expect("current Tauri request shape");
 
-        let runtime_request =
-            desktop_dialog_turn_request(request).expect("Desktop runtime request");
+        let runtime_request = desktop_dialog_turn_request(request)
+            .await
+            .expect("Desktop runtime request");
 
         assert_eq!(runtime_request.session_id, "session-1");
+        // The model sees the pseudonymized prompt; the raw text stays in
+        // `original_message` for the user's own display (SPEC §11.4, D4).
+        #[cfg(feature = "basemind")]
+        assert_eq!(runtime_request.message, "resolved input [PSEUDONYMIZED]");
+        #[cfg(not(feature = "basemind"))]
         assert_eq!(runtime_request.message, "resolved input");
         assert_eq!(
             runtime_request.original_message.as_deref(),
@@ -4529,22 +4616,55 @@ mod tests {
         );
     }
 
-    #[test]
-    fn desktop_dialog_turn_accepts_and_normalizes_legacy_non_object_metadata() {
+    /// Without a pseudonymization port the turn is refused, not sent raw.
+    ///
+    /// The sidecar being unreachable must not turn into a prompt with the
+    /// personal values in it (SPEC §11.4, D7, I9).
+    #[cfg(feature = "basemind")]
+    #[tokio::test]
+    async fn desktop_dialog_turn_refuses_to_send_a_raw_prompt() {
+        let _guard = pseudonymization_port_guard();
+        clear_stub_pseudonymizer();
+        let request = serde_json::from_value::<StartDialogTurnRequest>(json!({
+            "sessionId": "session-1",
+            "userInput": "my name is Jean Dupont",
+            "agentType": "Standard",
+            "workspacePath": "/workspace/project"
+        }))
+        .expect("request shape");
+        let error = desktop_dialog_turn_request(request)
+            .await
+            .expect_err("a turn without pseudonymization must be refused");
+        assert!(
+            error.contains("pseudonymiz") || error.contains("Pseudonymiz"),
+            "the error must say the prompt was not pseudonymized, got {error}"
+        );
+    }
+
+    #[tokio::test]
+    async fn desktop_dialog_turn_accepts_and_normalizes_legacy_non_object_metadata() {
+        #[cfg(feature = "basemind")]
+        let _guard = pseudonymization_port_guard();
+        #[cfg(feature = "basemind")]
+        publish_stub_pseudonymizer();
         let request = serde_json::from_value::<StartDialogTurnRequest>(json!({
             "sessionId": "session-1",
             "userInput": "hello",
             "agentType": "Standard",
+            "workspacePath": "/workspace/project",
             "userMessageMetadata": "not-an-object"
         }))
         .expect("legacy metadata request");
-        let runtime_request =
-            desktop_dialog_turn_request(request).expect("Desktop runtime request");
+        let runtime_request = desktop_dialog_turn_request(request)
+            .await
+            .expect("Desktop runtime request");
 
         assert_eq!(
             runtime_request.metadata.get("raw_metadata"),
             Some(&json!("not-an-object"))
         );
+        #[cfg(feature = "basemind")]
+        clear_stub_pseudonymizer();
     }
 
     fn idempotent_create_request() -> CreateSessionRequest {

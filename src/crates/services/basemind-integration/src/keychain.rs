@@ -42,27 +42,15 @@ pub fn get_vault_passphrase() -> Result<String, KeychainError> {
         }
     }
 
-    #[cfg(target_os = "windows")]
+    #[cfg(not(target_os = "macos"))]
     {
-        // Use DPAPI via CryptUnprotectData - simplified, would need proper implementation
-        Err(KeychainError::Unavailable(
-            "Windows DPAPI not fully implemented".into(),
-        ))
-    }
-
-    #[cfg(target_os = "linux")]
-    {
-        // Simplified - would need async SecretService
-        Err(KeychainError::Unavailable(
-            "Linux secret-service not fully implemented".into(),
-        ))
-    }
-
-    #[cfg(not(any(target_os = "macos", target_os = "windows", target_os = "linux")))]
-    {
-        Err(KeychainError::Unavailable(
-            "keychain not available on this platform".into(),
-        ))
+        match open_entry()?.get_secret() {
+            Ok(secret) => {
+                String::from_utf8(secret).map_err(|_| KeychainError::Failed("invalid UTF-8".into()))
+            }
+            Err(keyring_core::Error::NoEntry) => Err(KeychainError::NotFound),
+            Err(error) => Err(KeychainError::Failed(error.to_string())),
+        }
     }
 }
 
@@ -77,26 +65,52 @@ pub fn set_vault_passphrase(passphrase: &str) -> Result<(), KeychainError> {
         Ok(())
     }
 
-    #[cfg(target_os = "windows")]
+    #[cfg(not(target_os = "macos"))]
     {
-        Err(KeychainError::Unavailable(
-            "Windows DPAPI not fully implemented".into(),
-        ))
+        open_entry()?
+            .set_secret(passphrase.as_bytes())
+            .map_err(|error| KeychainError::Failed(error.to_string()))
+    }
+}
+
+/// The credential-store entry the vault passphrase lives in.
+///
+/// macOS uses the Keychain directly. The other platforms go through the
+/// credential store the rest of the product already uses: the Windows
+/// Credential Manager and the Linux Secret Service, through `keyring-core`.
+#[cfg(all(feature = "basemind", not(target_os = "macos")))]
+fn open_entry() -> Result<keyring_core::Entry, KeychainError> {
+    use std::sync::{Mutex, OnceLock};
+
+    static LOCK: OnceLock<Mutex<()>> = OnceLock::new();
+    let _guard = LOCK.get_or_init(|| Mutex::new(())).lock();
+
+    if keyring_core::get_default_store().is_none() {
+        #[cfg(target_os = "windows")]
+        let store = windows_native_keyring_store::Store::new();
+        #[cfg(all(
+            unix,
+            not(any(target_os = "macos", target_os = "ios", target_os = "android"))
+        ))]
+        let store = zbus_secret_service_keyring_store::Store::new();
+        #[cfg(not(any(
+            target_os = "windows",
+            all(
+                unix,
+                not(any(target_os = "macos", target_os = "ios", target_os = "android"))
+            )
+        )))]
+        let store: keyring_core::Result<std::sync::Arc<keyring_core::CredentialStore>> =
+            Err(keyring_core::Error::NoDefaultStore);
+
+        let store = store.map_err(|error| {
+            KeychainError::Unavailable(format!("initialize system credential store: {error}"))
+        })?;
+        keyring_core::set_default_store(store);
     }
 
-    #[cfg(target_os = "linux")]
-    {
-        Err(KeychainError::Unavailable(
-            "Linux secret-service not fully implemented".into(),
-        ))
-    }
-
-    #[cfg(not(any(target_os = "macos", target_os = "windows", target_os = "linux")))]
-    {
-        Err(KeychainError::Unavailable(
-            "keychain not available on this platform".into(),
-        ))
-    }
+    keyring_core::Entry::new(SERVICE, ACCOUNT)
+        .map_err(|error| KeychainError::Unavailable(format!("open credential entry: {error}")))
 }
 
 #[cfg(feature = "basemind")]

@@ -50,6 +50,8 @@ const PRODUCT_TOOL_REGISTRATION_ORDER: &[&str] = &[
     "CallDeferredTool",
     "OpenBitFunControl",
     "GetFileDiff",
+    #[cfg(feature = "tools-rag")]
+    "rag_search",
     "CreateCanvas",
     "ReadCanvas",
     "UpdateCanvas",
@@ -135,6 +137,8 @@ impl StaticToolProviderFactory<dyn Tool> for ProductConcreteToolFactory {
             "get_goal" => Some(Arc::new(GetGoalTool::new())),
             "create_goal" => Some(Arc::new(CreateGoalTool::new())),
             "update_goal" => Some(Arc::new(UpdateGoalTool::new())),
+            #[cfg(feature = "tools-rag")]
+            "rag_search" => Some(Arc::new(RagSearchTool::new())),
             #[cfg(feature = "tools-canvas")]
             "CreateCanvas" => Some(Arc::new(CreateCanvasTool::new())),
             #[cfg(feature = "tools-canvas")]

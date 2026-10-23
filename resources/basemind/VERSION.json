@@ -1,0 +1,46 @@
+{
+  "repo": "jamon8888/basemind",
+  "tag": "v0.34.0",
+  "assets": {
+    "basemind-x86_64-apple-darwin.tar.gz": {
+      "sha256": "3de4666aca6652ed43a9724506e41cc511405642899d4463fb815f70f6cbf56b",
+      "size": 106987507,
+      "binary": {
+        "sha256": "bd52827a36adb1cee7ea1788608f7de19fa1a575ad9648e72da7c65e8f3fb345",
+        "size": 305222032
+      }
+    },
+    "basemind-x86_64-pc-windows-msvc.zip": {
+      "sha256": "869118761a47a79c18b9a065d3aa4aac9ea967454a81daa1426af3d6344bf395",
+      "size": 79598519,
+      "binary": {
+        "sha256": "a45f8c6f662f321cb93513f178df733ee77972fb827a42fb1013c9ac0fe5ee90",
+        "size": 252552192
+      }
+    },
+    "basemind-x86_64-unknown-linux-gnu.tar.gz": {
+      "sha256": "c73fb961ce5f045bca36fefcaf62f79402b5f4007fe08c21d47dcd7953838b03",
+      "size": 97048120,
+      "binary": {
+        "sha256": "f7680a2319a890415cb9fe2bb1a03c5a018c0347c98f8aaf38ce748867edfac0",
+        "size": 332911201
+      }
+    },
+    "basemind-aarch64-apple-darwin.tar.gz": {
+      "sha256": "e00713356bbbd944c4a275dcc857e4e0a6bcd8b3e27cefeb2f78c09760b926d6",
+      "size": 95413055,
+      "binary": {
+        "sha256": "5161e2e9968fcb09d75abe8096b7f6958228ff507dc9d3e7aad2d67a4068718d",
+        "size": 317393840
+      }
+    },
+    "basemind-aarch64-unknown-linux-gnu.tar.gz": {
+      "sha256": "eaafe39652d6ff5e3356b8ba743689205d9445cfaf80ca532180e45549cbfbe3",
+      "size": 106119554,
+      "binary": {
+        "sha256": "06d5995a24e68dd01e503d9c01948dec0ef89f5f77bdee94a1e9a960684201e5",
+        "size": 322401217
+      }
+    }
+  }
+}
