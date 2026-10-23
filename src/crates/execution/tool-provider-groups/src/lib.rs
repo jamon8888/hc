@@ -20,6 +20,12 @@ pub enum ToolPackFeatureGroup {
     Creation,
     Canvas,
     AgentControl,
+    /// PII-safe workspace search (the `rag_search` tool).
+    ///
+    /// The group is separate from the basic file tools because the search
+    /// answers from the sidecar's index, and the sidecar is only present
+    /// where the basemind feature is enabled.
+    Basemind,
 }
 
 impl ToolPackFeatureGroup {
@@ -35,6 +41,7 @@ impl ToolPackFeatureGroup {
             Self::Pages => "pages",
             Self::Creation => "creation",
             Self::Canvas => "canvas",
+            Self::Basemind => "basemind",
             Self::AgentControl => "agent-control",
         }
     }
@@ -85,6 +92,7 @@ pub fn enabled_feature_groups() -> Vec<ToolPackFeatureGroup> {
             cfg!(feature = "agent-control"),
             ToolPackFeatureGroup::AgentControl,
         ),
+        (cfg!(feature = "basemind"), ToolPackFeatureGroup::Basemind),
     ]
     .into_iter()
     .filter_map(|(enabled, group)| enabled.then_some(group))
@@ -103,6 +111,7 @@ pub fn tool_feature_group(tool_name: &str) -> Option<ToolPackFeatureGroup> {
         }
         "WebSearch" | "WebFetch" | "ControlHub" => Some(ToolPackFeatureGroup::BrowserWeb),
         "ComputerUse" => Some(ToolPackFeatureGroup::ComputerUse),
+        "rag_search" => Some(ToolPackFeatureGroup::Basemind),
         "view_image" | "analyze_image" => Some(ToolPackFeatureGroup::ImageAnalysis),
         "GenerativeUI" | "InitMiniApp" | "FinalizeMiniApp" | "PublishMiniApp"
         | "PublishAppearance" | "Playbook" => Some(ToolPackFeatureGroup::MiniApp),
@@ -131,6 +140,24 @@ pub fn unavailable_feature_groups(requested: &[ToolPackFeatureGroup]) -> Vec<Too
         .filter(|group| !enabled.contains(group))
         .filter(|group| seen.insert(*group))
         .collect()
+}
+
+/// Groups the product removes by policy — not because the binary lacks them.
+///
+/// Option B per SPEC §5: when the basemind capability is compiled in, the
+/// ImageAnalysis group is deliberately dropped (the fork's OCR path is not
+/// validated, and an unredacted image path would leak PII silently). Plan
+/// derivation filters these out so the requested set never contains a group
+/// that policy removed, while a direct request for the group still fails the
+/// availability check loudly.
+pub fn deliberately_disabled_feature_groups() -> Vec<ToolPackFeatureGroup> {
+    [(
+        cfg!(feature = "basemind"),
+        ToolPackFeatureGroup::ImageAnalysis,
+    )]
+    .into_iter()
+    .filter_map(|(disabled, group)| disabled.then_some(group))
+    .collect()
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -169,8 +196,14 @@ const CORE_COMPUTER_USE_FEATURE_GROUPS: &[ToolPackFeatureGroup] =
     &[ToolPackFeatureGroup::ComputerUse];
 const CORE_MINIAPP_FEATURE_GROUPS: &[ToolPackFeatureGroup] = &[ToolPackFeatureGroup::MiniApp];
 const CORE_CREATION_FEATURE_GROUPS: &[ToolPackFeatureGroup] = &[ToolPackFeatureGroup::Creation];
+const CORE_BASEMIND_FEATURE_GROUPS: &[ToolPackFeatureGroup] = &[ToolPackFeatureGroup::Basemind];
 
 const PRODUCT_TOOL_PROVIDER_GROUP_PLAN: &[ToolProviderGroupPlan] = &[
+    ToolProviderGroupPlan {
+        provider_id: "core.basemind",
+        feature_groups: CORE_BASEMIND_FEATURE_GROUPS,
+        tool_names: &["rag_search"],
+    },
     ToolProviderGroupPlan {
         provider_id: "core.basic",
         feature_groups: CORE_BASIC_FEATURE_GROUPS,
@@ -390,7 +423,7 @@ mod tests {
         );
         assert_eq!(
             groups.contains(&ToolPackFeatureGroup::ImageAnalysis),
-            cfg!(feature = "image-analysis")
+            cfg!(all(feature = "image-analysis", not(feature = "basemind")))
         );
         assert_eq!(
             groups.contains(&ToolPackFeatureGroup::MiniApp),
@@ -493,6 +526,7 @@ mod tests {
         assert_eq!(
             provider_ids,
             vec![
+                "core.basemind",
                 "core.basic",
                 "core.agent",
                 "core.session",
@@ -519,6 +553,7 @@ mod tests {
         assert_eq!(
             tool_names,
             vec![
+                "rag_search",
                 "LS",
                 "Read",
                 "view_image",
@@ -603,6 +638,7 @@ mod tests {
         assert_eq!(
             feature_groups,
             vec![
+                ("core.basemind", vec!["basemind"]),
                 ("core.basic", vec!["basic", "image-analysis"]),
                 ("core.agent", vec!["agent-control"]),
                 ("core.session", vec!["agent-control"]),

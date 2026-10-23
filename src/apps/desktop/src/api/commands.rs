@@ -5848,15 +5848,22 @@ pub mod basemind_commands {
         let client = state
             .get_basemind_client(request.workspace_id.as_deref())
             .await?;
+        // The path arrives from the UI, and the sidecar reads whatever file
+        // it is given, so it is resolved against the workspace first: a
+        // document outside the workspace must not be extracted and returned.
+        let file_path = resolve_workspace_document(&state, &request).await?;
+        let (_, root) = state
+            .basemind_workspace(request.workspace_id.as_deref())
+            .await?;
         let payload = client
-            .redact_path(&request.file_path)
+            .redact_path(&file_path, &root.to_string_lossy())
             .await
             .map_err(|e| e.to_string())?;
         let store = state
             .get_basemind_redaction_store(request.workspace_id.as_deref())
             .await?;
         let document = store
-            .record(&payload, &source_format_for(&request.file_path))
+            .record(&payload, &source_format_for(&file_path))
             .map_err(|error| error.to_string())?;
         Ok(RedactedDocumentResponse {
             markdown: document.markdown,
@@ -5865,7 +5872,30 @@ pub mod basemind_commands {
         })
     }
 
-    /// The document format the fork extracted, from the file extension.
+    /// Resolve a document path against the workspace it must live in.
+    ///
+    /// The path is canonicalized on both sides, so a relative path, a `..`
+    /// segment or a symlink cannot lead the sidecar outside the workspace.
+    async fn resolve_workspace_document(
+        state: &AppState,
+        request: &ReadRedactedDocumentRequest,
+    ) -> Result<String, String> {
+        let (_, root) = state
+            .basemind_workspace(request.workspace_id.as_deref())
+            .await?;
+        let workspace_root = std::fs::canonicalize(&root)
+            .map_err(|error| format!("Failed to resolve workspace root: {error}"))?;
+        let entry = std::fs::canonicalize(&request.file_path)
+            .map_err(|error| format!("Failed to resolve document: {error}"))?;
+        if !entry.starts_with(&workspace_root) || !entry.is_file() {
+            return Err("Document is outside the workspace or is not a file".to_string());
+        }
+        Ok(entry.to_string_lossy().to_string())
+    }
+
+    /// The document format, derived from the file extension.
+    ///
+    /// The fork's `redact_text` answer carries no format of its own.
     fn source_format_for(path: &str) -> String {
         path.rsplit_once('.')
             .map(|(_, extension)| extension.to_lowercase())

@@ -180,6 +180,15 @@ pub async fn basemind_extract_and_redact(
 }
 ```
 
+### 3.2a Remote workspaces
+
+The sidecar reads the file itself, so it can only redact a file the
+controller can read. A workspace whose files live on an SSH host cannot be
+redacted from the controller, and the interception is **fail-closed**: the
+document read is refused rather than answered with unredacted text. Serving
+those workspaces means running the sidecar on the remote host and proxying
+the read (ticket 19).
+
 ### 3.3 Branch in Caller (file_read_tool.rs line ~219)
 
 ```rust
@@ -499,20 +508,33 @@ Source viewer (`PdfViewer`) is **visual only** — never used as text source for
 | Mobile Web / IM Bots | Basemind runs on **desktop/CLI host** (controller proxies via Remote Connect) |
 | Detached Dispatch | Basemind runs on **target host** (headless CLI profile) |
 
-**Tauri sidecar config** (`src-tauri/tauri.conf.json`):
-```json
-{
-  "bundle": {
-    "sidecar": [
-      { "path": "../bin/basemind-linux-x86_64", "arch": "x86_64" },
-      { "path": "../bin/basemind-linux-aarch64", "arch": "aarch64" },
-      { "path": "../bin/basemind-macos-x86_64", "arch": "x86_64" },
-      { "path": "../bin/basemind-macos-arm64", "arch": "aarch64" },
-      { "path": "../bin/basemind-windows-x86_64.exe", "arch": "x86_64" }
-    ]
-  }
-}
-```
+**Delivery** — the binary is downloaded from the pinned fork release at build
+time and verified, rather than committed to the repository:
+
+- `resources/basemind/VERSION.json` pins the release (`jamon8888/basemind`,
+  `v0.34.0`) and, per platform, the SHA-256 and size of both the release
+  archive and the binary inside it.
+- `scripts/prepare-basemind-resource.mjs` downloads the archive for the
+  build target, refuses an archive that does not match the pin, extracts the
+  binary with the shared libraries it loads relative to itself, and verifies
+  the binary against its own pin. A cached binary that no longer matches is
+  repaired rather than trusted.
+- `scripts/desktop-tauri-build.mjs` stages the extracted tree into the
+  bundle as the `basemind` resource, the same way the Flashgrep daemon is
+  staged.
+- At startup the desktop resolves the bundled binary, starts the daemon
+  with the fork's own `comms start` verb, and publishes the three ports
+  below. When the sidecar is missing the PII surfaces refuse to run rather
+  than fall back to unredacted text (D7).
+
+**Ports** — the host owns the composition; the runtime only ever sees the
+port traits in `openbitfun-runtime-ports`:
+
+| Port | Feature | Owns |
+|------|---------|-------|
+| `DocumentRedactionPort` | `document-redaction` | Interception #2: a document the agent reads is redacted before it reaches the model context (I1, §3) |
+| `RagSearchPort` | `rag-search` | The `rag_search` tool's search seam (I6, §4) |
+| `PromptPseudonymizationPort` | `prompt-pseudonymization` | Interception #3: the prompt the model sees carries session tokens (I9, §11.4) |
 
 ### 8.2 IPC Protocol
 
@@ -617,7 +639,18 @@ Add "Basemind" page with:
 | **Peer Device Mode** | Controller shell local; Basemind runs on peer host. `PeerHostCapability::Basemind` advertised from registry. Commands routed via `RemoteCommand` wire protocol. |
 | **Detached Dispatch** | Target host runs headless (CLI profile). Basemind sidecar spawned by target. No controller connection required. Job payload includes model requirements. |
 
-**Registry entry** (Product Operation Registry): `src/crates/contracts/product-domains/src/remote_surface/table.rs` — add row for `basemind_reveal_entity` and `basemind_read_redacted_document` with `RemoteWorkspaceStance::Supported`.
+**Registry entry** (Product Operation Registry): `src/crates/contracts/product-domains/src/remote_surface/table.rs` — rows for `basemind_reveal_entity` and `basemind_read_redacted_document`.
+
+The rows are **`LocalOnly` / `ControllerLocal` / `REFUSED`**, not `Supported`. The
+sidecar runs on the controller and reads the file itself, so a workspace whose
+files live on an SSH host is not redactable from here: the controller's
+sidecar cannot read the peer's files, and the document is therefore refused
+rather than read unredacted. Serving a remote workspace means running the
+sidecar **on the remote host** and proxying the command, which is the remote
+binary sync and the `RemoteCommand` proxy in ticket 19 — separate work with
+its own version and checksum story. Until that lands, the refusal is the
+honest stance, and the web UI states it rather than falling back to reading
+the document unredacted.
 
 ---
 

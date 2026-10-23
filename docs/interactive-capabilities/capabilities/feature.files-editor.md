@@ -23,6 +23,8 @@ Browse, search, and edit project files while inspecting diffs, language-aware ed
   - Reveal a file or directory in the operating-system file manager
 - **由专用智能体工具控制 / Delegated Agent tool** · `Glob` / `Grep` · 按文件名模式和全文内容搜索当前工作区
   - Search the active workspace by filename pattern and full-text content
+- **由专用智能体工具控制 / Delegated Agent tool** · `rag_search` · 用索引语义搜索工作区代码与文档
+  - Search the workspace code and documents semantically through the index
 - **智能体可定位入口，需交互完成 / Agent opens; interaction required** · 建立或重建界面搜索索引
   - Build or rebuild the UI search index
 - **由专用智能体工具控制 / Delegated Agent tool** · `Read` / `Write` / `Edit` · 读取、编辑、保存文件并同步编辑器状态

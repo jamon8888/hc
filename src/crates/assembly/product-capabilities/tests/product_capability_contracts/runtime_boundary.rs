@@ -30,6 +30,8 @@ fn code_agent_tools_are_selected_from_atomic_provider_groups() {
     assert_eq!(
         provider_ids,
         vec![
+            #[cfg(feature = "basemind")]
+            "core.basemind",
             "core.basic",
             "core.agent",
             "core.session",

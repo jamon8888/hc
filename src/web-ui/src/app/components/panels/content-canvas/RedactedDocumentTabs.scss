@@ -109,6 +109,18 @@
     overflow: auto;
   }
 
+  &__source-pdf {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__pdf {
+    flex: 1;
+    min-height: 0;
+  }
+
   &__source-header {
     display: flex;
     align-items: baseline;

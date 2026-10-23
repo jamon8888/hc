@@ -16,6 +16,10 @@ path = "tests/product_capability_contracts.rs"
 
 [features]
 default = []
+# Compile-time switch for the Basemind tool owner. Mirrors and enables the
+# basemind cfg of openbitfun-tool-packs so the deliberate ImageAnalysis removal
+# and the tool request engage together in every build graph.
+basemind = ["openbitfun-tool-packs/basemind"]
 
 [dependencies]
 openbitfun-runtime-ports = { path = "../../contracts/runtime-ports", features = ["plugin-runtime"] }

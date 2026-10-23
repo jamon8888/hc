@@ -109,6 +109,16 @@ describe('RedactedDocumentTabs', () => {
     expect(container.querySelector('.redacted-document-tabs__source-text')?.textContent).toBe('plain source text');
   });
 
+  it('renders a PDF source with the PDF viewer instead of reading it as text', async () => {
+    render({ sourcePath: '/srv/workspace/report.pdf', sourceFormat: 'pdf' });
+    await act(async () => {});
+
+    // A PDF is binary: reading it as source text would yield nothing
+    // readable, so the PDF viewer renders it and the file is never read.
+    expect(mocks.readWorkspaceFile).not.toHaveBeenCalled();
+    expect(container.querySelector('.redacted-document-tabs__source-pdf')).not.toBeNull();
+  });
+
   it('shows the unavailable notice when the source cannot be read', async () => {
     mocks.readWorkspaceFile.mockRejectedValue(new Error('host offline'));
     render();

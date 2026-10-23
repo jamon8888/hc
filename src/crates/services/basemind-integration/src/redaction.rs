@@ -40,7 +40,9 @@ pub struct RedactedDocument {
     pub markdown: String,
     /// The entities found, with the product-minted entity id.
     pub entities: Vec<crate::models::RedactedEntity>,
-    /// The source format the fork extracted (`pdf`, `docx`, ...).
+    /// The source format of the redacted document, derived from the file
+    /// extension (`pdf`, `docx`, ...). The fork's `redact_text` answer does
+    /// not carry a format, so the caller supplies it.
     pub source_format: String,
 }
 
@@ -70,6 +72,17 @@ impl RedactionStore {
     /// `vault_dir` the encrypted rehydration map. `scope` names this
     /// workspace's entry in the vault.
     pub fn new(workspace_data_dir: PathBuf, vault_dir: PathBuf, scope: String) -> Result<Self> {
+        // The store owns its storage, so it creates the directories it writes
+        // into: the identity registry and the vault each write a file into
+        // their own directory.
+        for directory in [&workspace_data_dir, &vault_dir] {
+            std::fs::create_dir_all(directory).map_err(|error| {
+                anyhow::anyhow!(
+                    "failed to create the basemind store directory {}: {error}",
+                    directory.display()
+                )
+            })?;
+        }
         let registry = IdentityRegistry::new(workspace_data_dir)?;
         let vault = crate::session_vault::SessionVault::new(vault_dir)?;
         let store = Self {
@@ -92,6 +105,17 @@ impl RedactionStore {
         scope: String,
         passphrase: String,
     ) -> Result<Self> {
+        // The store owns its storage, so it creates the directories it writes
+        // into: the identity registry and the vault each write a file into
+        // their own directory.
+        for directory in [&workspace_data_dir, &vault_dir] {
+            std::fs::create_dir_all(directory).map_err(|error| {
+                anyhow::anyhow!(
+                    "failed to create the basemind store directory {}: {error}",
+                    directory.display()
+                )
+            })?;
+        }
         let registry = IdentityRegistry::with_passphrase(workspace_data_dir, passphrase.clone())?;
         let vault = crate::session_vault::SessionVault::with_passphrase(vault_dir, passphrase);
         let store = Self {
@@ -140,8 +164,10 @@ impl RedactionStore {
     /// is given an entity id minted from a hash of its value, so the same
     /// value keeps the same id everywhere it appears.
     ///
-    /// A failed write is an error: a redaction the user cannot reveal is
-    /// worse than a visible failure.
+    /// The identity registry and the rehydration map are persisted, so a
+    /// later reveal resolves — including after a restart. A failed write is
+    /// an error: a redaction the user cannot reveal is worse than a visible
+    /// failure.
     pub fn record(&self, payload: &Value, source_format: &str) -> Result<RedactedDocument> {
         let redacted_text = payload["redacted_text"].as_str().unwrap_or("").to_string();
         let rehydration = payload["rehydration_map"]
@@ -150,7 +176,9 @@ impl RedactionStore {
             .unwrap_or_default();
 
         // Count the occurrences per entity id so the UI can show "3 PII" per
-        // type, and collect every token that was minted for that entity.
+        // type, and collect every token that was minted for that entity. One
+        // value can carry several tokens (the same address typed twice), and
+        // every one of them must become a badge.
         let mut counts: BTreeMap<String, (String, u32)> = BTreeMap::new();
         let mut tokens_for_entity: BTreeMap<String, Vec<String>> = BTreeMap::new();
 
@@ -216,21 +244,20 @@ impl RedactionStore {
     }
 }
 
-/// The pure helpers the crate's own tests exercise.
-#[cfg(feature = "basemind")]
-pub mod testable {
-    pub use super::{category_of, rewrite_tokens_as_spans};
-}
-
-/// The category of a token, e.g. `[EMAIL_1]` -> `email`.
+/// The category of a token, e.g. `[EMAIL_1]` -> `EMAIL`.
+///
+/// The fork reports its detections in lower case (`email`), but the web UI's
+/// entity vocabulary is upper case (`ENTITY_TONES`, the `entityTypes.*` i18n
+/// keys and SPEC §3.1), so the category is normalized once, here, rather than
+/// in every consumer.
 #[cfg(feature = "basemind")]
 pub fn category_of(token: &str) -> String {
     token
         .trim_start_matches('[')
         .trim_end_matches(']')
         .rsplit_once('_')
-        .map(|(category, _)| category.to_lowercase())
-        .unwrap_or_else(|| "unknown".to_string())
+        .map(|(category, _)| category.to_uppercase())
+        .unwrap_or_else(|| "UNKNOWN".to_string())
 }
 
 /// Rewrite the fork's bare tokens into spans the UI can reveal.
@@ -240,21 +267,35 @@ pub fn category_of(token: &str) -> String {
 /// and `data-entity-id`, so each token becomes such a span. The token text
 /// stays the visible label, so the redacted document still reads as redacted.
 ///
-/// An entity can carry more than one token, so every token of an entity is
-/// rewritten; a token that stayed bare would not be revealable.
+/// One entity id can carry several tokens — the same value typed twice — and
+/// every one of them becomes a badge pointing at that id. A token that
+/// stayed bare would not be revealable.
+///
+/// The tokens are replaced longest-first, so a token that is a prefix of
+/// another (`[EMAIL_1]` against `[EMAIL_10]`) cannot consume it.
 #[cfg(feature = "basemind")]
-pub fn rewrite_tokens_as_spans(text: &str, tokens_for_entity: &BTreeMap<String, Vec<String>>) -> String {
-    let mut out = text.to_string();
+pub fn rewrite_tokens_as_spans(
+    text: &str,
+    tokens_for_entity: &BTreeMap<String, Vec<String>>,
+) -> String {
+    // Every token, longest first, with the entity id it belongs to.
+    let mut replacements: Vec<(&String, &String)> = Vec::new();
     for (entity_id, tokens) in tokens_for_entity {
         for token in tokens {
-            let category = category_of(token);
-            out = out.replace(
-                token,
-                &format!(
-                    "<span data-entity-type=\"{category}\" data-entity-id=\"{entity_id}\">{token}</span>"
-                ),
-            );
+            replacements.push((token, entity_id));
         }
+    }
+    replacements.sort_by(|left, right| right.0.len().cmp(&left.0.len()));
+
+    let mut out = text.to_string();
+    for (token, entity_id) in replacements {
+        let category = category_of(token);
+        out = out.replace(
+            token,
+            &format!(
+                "<span data-entity-type=\"{category}\" data-entity-id=\"{entity_id}\">{token}</span>"
+            ),
+        );
     }
     out
 }

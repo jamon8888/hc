@@ -1414,6 +1414,28 @@
           ]
         },
         {
+          "id": "semantic-search",
+          "titleZh": "用索引语义搜索工作区代码与文档",
+          "titleEn": "Search the workspace code and documents semantically through the index",
+          "control": {
+            "kind": "delegate",
+            "tools": [
+              "rag_search"
+            ],
+            "workflowZh": [
+              "用 rag_search 按自然语言检索已索引的工作区，直接返回相关代码片段、来源文件与匹配度",
+              "命中内容中的个人值已被替换为不透明会话令牌，模型看不到原始值，需要时由界面按用户操作还原"
+            ],
+            "workflowEn": [
+              "Use rag_search to query the indexed workspace in plain language and get the matching code chunks, their source files, and a relevance score",
+              "Personal values in the hits are replaced by opaque session tokens, so the model never sees the original value; the interface restores it only when the user asks"
+            ]
+          },
+          "evidence": [
+            "source:src/crates/assembly/core/src/agentic/tools/implementations/rag_search_tool.rs#RagSearchTool"
+          ]
+        },
+        {
           "id": "search-index-management",
           "titleZh": "建立或重建界面搜索索引",
           "titleEn": "Build or rebuild the UI search index",

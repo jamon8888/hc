@@ -13,6 +13,18 @@ import './RedactedDocumentTabs.scss';
 
 const log = createLogger('RedactedDocumentTabs');
 
+/**
+ * The PDF source is rendered by the PDF viewer, not read as text.
+ *
+ * A PDF is binary, so reading it as source text yields nothing readable;
+ * the sidecar extracts its text for the redacted tab.
+ */
+const PdfViewer = React.lazy(() =>
+  import('@/tools/editor/components/PdfViewer').then(module => ({
+    default: module.default,
+  }))
+);
+
 interface RedactedDocumentTabsProps {
   sourcePath: string;
   redactedMarkdown?: string;
@@ -38,6 +50,11 @@ type LoadState = 'idle' | 'loading' | 'ready' | 'error' | 'unsupported';
  */
 function isBinaryContent(content: string): boolean {
   return content.includes('\u0000');
+}
+
+/** Whether the document is a PDF, which the PDF viewer renders directly. */
+function isPdfDocument(path: string): boolean {
+  return basename(path).toLowerCase().endsWith('.pdf');
 }
 
 /**
@@ -108,10 +125,17 @@ export const RedactedDocumentTabs: React.FC<RedactedDocumentTabsProps> = ({
    *
    * The host that owns the workspace serves the bytes, so a workspace on a
    * connected device reads the peer's file instead of this machine's.
+   *
+   * A PDF is not read as text: it is rendered by the PDF viewer, and the
+   * sidecar extracts its text for the redacted tab.
    */
   const loadSourceContent = useCallback(async () => {
     if (sourceLoadStarted.current) return;
     sourceLoadStarted.current = true;
+    if (isPdfDocument(sourcePath)) {
+      setSourceState('ready');
+      return;
+    }
     if (!workspaceId) {
       setSourceState('unsupported');
       return;
@@ -251,6 +275,16 @@ export const RedactedDocumentTabs: React.FC<RedactedDocumentTabsProps> = ({
               >
                 <div className="redacted-document-tabs__spinner" />
                 <span>{t('state.sourceLoading')}</span>
+              </div>
+            ) : sourceState === 'ready' && isPdfDocument(sourcePath) ? (
+              <div className="redacted-document-tabs__source-pdf">
+                <React.Suspense fallback={null}>
+                  <PdfViewer
+                    filePath={sourcePath}
+                    fileName={fileName}
+                    className="redacted-document-tabs__pdf"
+                  />
+                </React.Suspense>
               </div>
             ) : sourceState === 'ready' && sourceContent !== null ? (
               <>

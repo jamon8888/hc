@@ -61,6 +61,8 @@ mod plan_artifact_diagnostics;
 pub mod playbook_tool;
 #[cfg(feature = "tools-agent-control")]
 pub mod port_forward_tool;
+#[cfg(feature = "tools-rag")]
+pub mod rag_search_tool;
 #[cfg(feature = "tools-git")]
 pub mod review_platform_tool;
 pub mod session_control_tool;
@@ -132,6 +134,8 @@ pub use page_publish_tool::PagePublishTool;
 pub use playbook_tool::PlaybookTool;
 #[cfg(feature = "tools-agent-control")]
 pub use port_forward_tool::PortForwardTool;
+#[cfg(feature = "tools-rag")]
+pub use rag_search_tool::RagSearchTool;
 #[cfg(feature = "tools-git")]
 pub use review_platform_tool::ReviewPlatformTool;
 pub use session_control_tool::SessionControlTool;

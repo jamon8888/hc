@@ -128,6 +128,15 @@ src/apps/mobile/android/.kotlin/
 # Downloaded Flashgrep release assets (metadata stays tracked).
 /resources/flashgrep/flashgrep-*
 /resources/flashgrep/*.download-*
+# The Basemind sidecar is downloaded from the pinned fork release at build
+# time and verified against its checksum; the binary is never committed.
+/resources/basemind/basemind
+/resources/basemind/basemind.exe
+/resources/basemind/lib/
+/resources/basemind/*.dll
+/resources/basemind/*.dylib
+/resources/basemind/*.so
+/resources/basemind/*.download-*
 
 # Local generated workspace output.
 /output/

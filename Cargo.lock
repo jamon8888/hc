@@ -6211,6 +6211,7 @@ dependencies = [
  "dashmap",
  "hex",
  "hmac 0.12.1",
+ "keyring-core",
  "log",
  "md5",
  "openbitfun-runtime-ports",
@@ -6231,6 +6232,8 @@ dependencies = [
  "url",
  "uuid",
  "windows 0.60.0",
+ "windows-native-keyring-store",
+ "zbus-secret-service-keyring-store",
 ]
 
 [[package]]

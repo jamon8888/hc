@@ -11,29 +11,14 @@ use serde_json::Value;
 #[cfg(feature = "basemind")]
 use std::time::Duration;
 
-/// The pure helpers the crate's own tests exercise.
-#[cfg(feature = "basemind")]
-pub mod testable {
-    pub use super::{extract_tool_payload, urlencoding};
-}
-
 /// Percent-encode a value for use in a query string.
 ///
-/// The daemon resolves the workspace root from `?root=`, so a path with
-/// spaces or non-ASCII characters must be percent-encoded or the daemon
-/// rejects the request before it ever routes it.
+/// The daemon decodes the query with `form_urlencoded`, so the encoding must
+/// be the same one: a path with spaces or non-ASCII characters otherwise
+/// changes the query the daemon parses.
 #[cfg(feature = "basemind")]
 pub fn urlencoding(value: &str) -> String {
-    let mut out = String::with_capacity(value.len());
-    for byte in value.as_bytes() {
-        match byte {
-            b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'_' | b'.' | b'~' => {
-                out.push(*byte as char);
-            }
-            other => out.push_str(&format!("%{other:02X}")),
-        }
-    }
-    out
+    url::form_urlencoded::byte_serialize(value.as_bytes()).collect()
 }
 
 /// Pull the tool payload out of an MCP result envelope.
@@ -109,7 +94,6 @@ pub struct BasemindClient {
     http: HttpClient,
     base_url: String,
     auth_token: String,
-    root: String,
     next_id: std::sync::Arc<std::sync::atomic::AtomicU64>,
 }
 
@@ -119,10 +103,11 @@ impl BasemindClient {
     ///
     /// `base_url` is the daemon's `host:port` as published in the portfile
     /// (`<comms_dir>/http.addr`, line 1); `auth_token` is the bearer token on
-    /// line 2. `root` is the absolute workspace root the daemon should host:
-    /// the daemon refuses any root that is neither a git repository nor a
-    /// directory carrying a basemind config.
-    pub fn new(base_url: String, auth_token: String, root: String) -> Self {
+    /// line 2.
+    ///
+    /// The client is the connection, not a workspace: one daemon hosts many
+    /// workspaces, so the root travels with each call.
+    pub fn new(base_url: String, auth_token: String) -> Self {
         let http = HttpClient::builder()
             .timeout(Duration::from_secs(30))
             .build()
@@ -131,7 +116,6 @@ impl BasemindClient {
             http,
             base_url,
             auth_token,
-            root,
             next_id: std::sync::Arc::new(std::sync::atomic::AtomicU64::new(1)),
         }
     }
@@ -143,11 +127,11 @@ impl BasemindClient {
     /// with a JSON-RPC envelope whose `result` carries the tool result.
     /// Returns the `structuredContent` payload when the tool provides one
     /// and falls back to the first text content block.
-    pub async fn call_tool(&self, tool: &str, params: Value) -> Result<Value> {
+    pub async fn call_tool(&self, tool: &str, params: Value, root: &str) -> Result<Value> {
         let id = self
             .next_id
             .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
-        let url = format!("{}/mcp?root={}", self.base_url, urlencoding(&self.root));
+        let url = format!("{}/mcp?root={}", self.base_url, urlencoding(root));
         let body = serde_json::json!({
             "jsonrpc": "2.0",
             "id": id,
@@ -183,13 +167,14 @@ impl BasemindClient {
     }
 
     /// Convenience: redact_text tool
-    pub async fn redact_text(&self, text: &str) -> Result<Value> {
+    pub async fn redact_text(&self, text: &str, root: &str) -> Result<Value> {
         self.call_tool(
             "redact_text",
             serde_json::json!({
                 "text": text,
                 "strategy": "token-replace"
             }),
+            root,
         )
         .await
     }
@@ -205,13 +190,14 @@ impl BasemindClient {
     /// The returned payload is the fork's own answer; turning it into
     /// entity ids and a revealable document is the product's job
     /// (`crate::redaction`).
-    pub async fn redact_path(&self, path: &str) -> Result<Value> {
+    pub async fn redact_path(&self, path: &str, root: &str) -> Result<Value> {
         self.call_tool(
             "redact_text",
             serde_json::json!({
                 "file_path": path,
                 "strategy": "token-replace",
             }),
+            root,
         )
         .await
     }
@@ -221,6 +207,7 @@ impl BasemindClient {
         &self,
         query: &str,
         limit: usize,
+        root: &str,
     ) -> Result<Vec<DocumentSearchHit>> {
         let result = self
             .call_tool(
@@ -230,6 +217,7 @@ impl BasemindClient {
                     "query": query,
                     "limit": limit
                 }),
+                root,
             )
             .await?;
 
@@ -249,7 +237,7 @@ impl BasemindClient {
     }
 
     /// Convenience: vault operations
-    pub async fn vault_encrypt(&self, map: Value, passphrase: &str) -> Result<Value> {
+    pub async fn vault_encrypt(&self, map: Value, passphrase: &str, root: &str) -> Result<Value> {
         self.call_tool(
             "vault",
             serde_json::json!({
@@ -257,11 +245,17 @@ impl BasemindClient {
                 "map": map,
                 "passphrase": passphrase
             }),
+            root,
         )
         .await
     }
 
-    pub async fn vault_decrypt(&self, encrypted_blob: &str, passphrase: &str) -> Result<Value> {
+    pub async fn vault_decrypt(
+        &self,
+        encrypted_blob: &str,
+        passphrase: &str,
+        root: &str,
+    ) -> Result<Value> {
         self.call_tool(
             "vault",
             serde_json::json!({
@@ -269,6 +263,7 @@ impl BasemindClient {
                 "encrypted_blob": encrypted_blob,
                 "passphrase": passphrase
             }),
+            root,
         )
         .await
     }

@@ -179,7 +179,7 @@ export const optionalDependencyFeatureOwnerRules = [
       { depName: 'openbitfun-opencode-adapter', ownerFeatures: ['external-sources'] },
       { depName: 'openbitfun-dsh-adapter', ownerFeatures: ['external-sources'] },
       { depName: 'openbitfun-plugin-runtime-client', ownerFeatures: ['plugin-runtime'] },
-      { depName: 'openbitfun-product-capabilities', ownerFeatures: ['product-capabilities'] },
+      { depName: 'openbitfun-product-capabilities', ownerFeatures: ['product-capabilities', 'tools-rag'] },
       {
         depName: 'openbitfun-product-domains',
         ownerFeatures: [
@@ -233,6 +233,7 @@ export const optionalDependencyFeatureOwnerRules = [
           'tools-mcp',
           'tools-miniapp',
           'tools-pages',
+          'tools-rag',
         ],
       },
       { depName: 'chrono-tz', ownerFeatures: ['scheduled-jobs'] },
@@ -405,13 +406,22 @@ export const capabilityContractDependencyRules = [
       permission: ['dep:openbitfun-product-domains'],
       'plugin-runtime': [],
       'product-search': ['dep:openbitfun-product-domains'],
+      'document-redaction': [],
+      'prompt-pseudonymization': [],
       'rag-search': [],
       'remote-exec-port': ['dep:tokio'],
       'remote-workspace-ports': [],
       'runtime-event-port': [],
       'script-tool-runtime': [],
       'terminal-port': ['dep:tokio'],
-      'tool-runtime-handles': ['workspace-ports', 'terminal-port', 'remote-exec-port', 'rag-search'],
+      'tool-runtime-handles': [
+        'workspace-ports',
+        'terminal-port',
+        'remote-exec-port',
+        'rag-search',
+        'document-redaction',
+        'prompt-pseudonymization',
+      ],
       'web-search-port': [],
       ts: [
         'dep:ts-rs',
@@ -447,7 +457,17 @@ export const capabilityContractDependencyRules = [
         [capabilityForwarder('ts', 'ts')],
       )],
       ['openbitfun-basemind-integration', capabilityConsumer(
-        [capabilityEdge(['workspace-ports', 'rag-search'], { optional: true })],
+        [
+          capabilityEdge(
+            [
+              'workspace-ports',
+              'rag-search',
+              'document-redaction',
+              'prompt-pseudonymization',
+            ],
+            { optional: true },
+          ),
+        ],
         [],
         ['basemind'],
         ['default', 'tools-rag', 'document-read', 'pseudonymization'],
@@ -470,6 +490,8 @@ export const capabilityContractDependencyRules = [
           capabilityForwarder('plugin-runtime', 'plugin-runtime'),
           capabilityForwarder('product-search', 'product-search'),
           capabilityForwarder('script-tool-runtime', 'script-tool-runtime'),
+          capabilityForwarder('tools-rag', 'document-redaction'),
+          capabilityForwarder('tools-rag', 'prompt-pseudonymization'),
           capabilityForwarder('tools-rag', 'rag-search'),
           capabilityForwarder('ts', 'ts'),
           capabilityForwarder('web-tools', 'web-search-port'),

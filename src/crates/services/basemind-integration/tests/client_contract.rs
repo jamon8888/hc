@@ -7,29 +7,23 @@
 #![cfg(feature = "basemind")]
 
 use openbitfun_basemind_integration::daemon;
-use openbitfun_basemind_integration::ipc::testable::{extract_tool_payload, urlencoding};
+use openbitfun_basemind_integration::ipc::{extract_tool_payload, urlencoding};
+use openbitfun_basemind_integration::redaction::{category_of, rewrite_tokens_as_spans};
 use std::collections::BTreeMap;
 
 #[test]
-fn query_values_are_percent_encoded() {
-    // The daemon decodes the query with `form_urlencoded`, so a percent-encoded
-    // separator comes back as a separator: escaping it is harmless, and
-    // escaping the characters that would otherwise change the query's meaning
-    // is what matters.
+fn query_values_are_form_urlencoded() {
+    // The daemon decodes the query with `form_urlencoded`, so the encoding
+    // must be the same one: a path with spaces or non-ASCII characters
+    // otherwise changes the query the daemon parses.
     assert_eq!(urlencoding("/tmp/plain"), "%2Ftmp%2Fplain");
-    assert_eq!(urlencoding("/tmp/with space"), "%2Ftmp%2Fwith%20space");
+    assert_eq!(urlencoding("/tmp/with space"), "%2Ftmp%2Fwith+space");
     assert_eq!(
         urlencoding("/tmp/Users/jamín/文档"),
         "%2Ftmp%2FUsers%2Fjam%C3%ADn%2F%E6%96%87%E6%A1%A3"
     );
     // Characters that carry meaning in a query string must not survive raw.
     assert_eq!(urlencoding("/a?b&c=d"), "%2Fa%3Fb%26c%3Dd");
-    // A separator stays a separator once the daemon decodes it.
-    assert_eq!(
-        urlencoding("/tmp/my repo"),
-        "%2Ftmp%2Fmy%20repo",
-        "the encoded form must decode back to the original path"
-    );
 }
 
 #[test]
@@ -108,41 +102,97 @@ fn tokens_become_entity_spans() {
         "ENT_EMAIL_abcdef12".to_string(),
         vec!["[EMAIL_1]".to_string()],
     );
-    let markdown = openbitfun_basemind_integration::redaction::testable::rewrite_tokens_as_spans(
-        "Contact [EMAIL_1] today.",
-        &tokens_for_entity,
-    );
+    let markdown = rewrite_tokens_as_spans("Contact [EMAIL_1] today.", &tokens_for_entity);
     assert_eq!(
         markdown,
-        "Contact <span data-entity-type=\"email\" data-entity-id=\"ENT_EMAIL_abcdef12\">[EMAIL_1]</span> today."
+        "Contact <span data-entity-type=\"EMAIL\" data-entity-id=\"ENT_EMAIL_abcdef12\">[EMAIL_1]</span> today."
     );
 }
 
 #[test]
-fn every_token_of_an_entity_becomes_a_span() {
+fn every_token_of_one_entity_becomes_a_badge() {
+    // The same value typed twice carries two tokens, and both must become
+    // badges pointing at the same entity id.
     let mut tokens_for_entity = BTreeMap::new();
     tokens_for_entity.insert(
         "ENT_EMAIL_abcdef12".to_string(),
         vec!["[EMAIL_1]".to_string(), "[EMAIL_2]".to_string()],
     );
-    let markdown = openbitfun_basemind_integration::redaction::testable::rewrite_tokens_as_spans(
-        "Contact [EMAIL_1] and [EMAIL_2] today.",
-        &tokens_for_entity,
-    );
+    let markdown = rewrite_tokens_as_spans("Mail [EMAIL_1] or [EMAIL_2].", &tokens_for_entity);
     assert_eq!(
-        markdown,
-        "Contact <span data-entity-type=\"email\" data-entity-id=\"ENT_EMAIL_abcdef12\">[EMAIL_1]</span> and <span data-entity-type=\"email\" data-entity-id=\"ENT_EMAIL_abcdef12\">[EMAIL_2]</span> today."
+        markdown
+            .matches("data-entity-id=\"ENT_EMAIL_abcdef12\"")
+            .count(),
+        2
     );
 }
 
 #[test]
-fn a_category_is_read_off_the_token() {
-    assert_eq!(
-        openbitfun_basemind_integration::redaction::testable::category_of("[EMAIL_1]"),
-        "email"
+fn a_token_prefix_of_another_token_does_not_consume_it() {
+    // `[EMAIL_1]` must not swallow the `[EMAIL_10]` next to it.
+    let mut tokens_for_entity = BTreeMap::new();
+    tokens_for_entity.insert(
+        "ENT_EMAIL_abcdef12".to_string(),
+        vec!["[EMAIL_1]".to_string()],
     );
-    assert_eq!(
-        openbitfun_basemind_integration::redaction::testable::category_of("[IBAN_12]"),
-        "iban"
+    tokens_for_entity.insert(
+        "ENT_EMAIL_99999999".to_string(),
+        vec!["[EMAIL_10]".to_string()],
     );
+    let markdown = rewrite_tokens_as_spans("Mail [EMAIL_10] and [EMAIL_1].", &tokens_for_entity);
+    assert!(markdown.contains("data-entity-id=\"ENT_EMAIL_99999999\">[EMAIL_10]"));
+    assert!(markdown.contains("data-entity-id=\"ENT_EMAIL_abcdef12\">[EMAIL_1]"));
+}
+
+#[test]
+fn a_category_is_read_off_the_token_in_the_ui_vocabulary() {
+    // The web UI's entity vocabulary and its `entityTypes.*` i18n keys are
+    // upper case, so the category is normalized to that spelling.
+    assert_eq!(category_of("[EMAIL_1]"), "EMAIL");
+    assert_eq!(category_of("[IBAN_12]"), "IBAN");
+}
+
+/// The rehydration map must survive a restart: the desktop builds the store
+/// per command, so the reveal runs against a store that never saw the
+/// redaction.
+#[test]
+fn a_redaction_survives_a_new_store() {
+    use openbitfun_basemind_integration::redaction::RedactionStore;
+
+    let temp = std::env::temp_dir().join("openbitfun-basemind-persistence-test");
+    let _ = std::fs::remove_dir_all(&temp);
+    let registry = temp.join("registry");
+    let vault = temp.join("vault");
+    let payload = serde_json::json!({
+        "redacted_text": "Contact [EMAIL_1].",
+        "rehydration_map": { "[EMAIL_1]": "jean.dupont@example.com" },
+    });
+
+    let first = RedactionStore::with_passphrase(
+        registry.clone(),
+        vault.clone(),
+        "workspace".to_string(),
+        "test-passphrase".to_string(),
+    )
+    .expect("open the store");
+    let document = first.record(&payload, "txt").expect("record the redaction");
+    let entity_id = document
+        .entities
+        .first()
+        .expect("one entity")
+        .entity_id
+        .clone();
+
+    // A fresh store, as the desktop builds one per command.
+    let second = RedactionStore::with_passphrase(
+        registry,
+        vault,
+        "workspace".to_string(),
+        "test-passphrase".to_string(),
+    )
+    .expect("reopen the store");
+    let revealed = second
+        .reveal(&entity_id)
+        .expect("the entity must still reveal after a restart");
+    assert_eq!(revealed, "jean.dupont@example.com");
 }

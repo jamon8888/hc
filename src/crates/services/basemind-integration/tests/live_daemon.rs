@@ -25,14 +25,14 @@ fn test_root() -> Option<std::path::PathBuf> {
     std::env::var_os("BASEMIND_TEST_ROOT").map(std::path::PathBuf::from)
 }
 
-/// A client bound to the live daemon, when one is reachable.
-fn live_client() -> Option<BasemindClient> {
+/// A client bound to the live daemon, and the workspace it hosts, when one
+/// is reachable.
+fn live_client() -> Option<(BasemindClient, std::path::PathBuf)> {
     let root = test_root()?;
     let endpoint = daemon::discover().ok()?;
-    Some(BasemindClient::new(
-        endpoint.base_url(),
-        endpoint.token,
-        root.to_string_lossy().to_string(),
+    Some((
+        BasemindClient::new(endpoint.base_url(), endpoint.token),
+        root,
     ))
 }
 
@@ -42,21 +42,34 @@ fn live_client() -> Option<BasemindClient> {
 #[tokio::test]
 #[ignore = "requires a running basemind daemon"]
 async fn daemon_serves_the_tools_the_client_calls() {
-    let Some(client) = live_client() else {
+    let Some((client, root)) = live_client() else {
         eprintln!("skipping: no basemind daemon reachable");
         return;
     };
 
-    let tools = client.call_tool("__list__", serde_json::json!({})).await;
-    // `__list__` is not a tool, so this must fail rather than hang; the real
-    // check is the explicit tool calls below.
-    assert!(tools.is_err() || tools.is_ok());
+    // A tool the fork does not have must be refused, and the error must
+    // name it. The fork answers an unknown tool with an error rather than
+    // an empty success, so the client surfaces it instead of handing the
+    // caller a silent empty payload.
+    let missing = client
+        .call_tool(
+            "extract_and_redact_path",
+            serde_json::json!({ "path": "/tmp/x" }),
+            &root.to_string_lossy(),
+        )
+        .await
+        .expect_err("a tool the fork does not have must fail");
+    assert!(
+        missing.to_string().contains("extract_and_redact_path"),
+        "the error must name the tool that is missing, got {missing}"
+    );
 
     // `redact_text` is a real tool and must answer.
     let payload = client
         .call_tool(
             "redact_text",
             serde_json::json!({ "text": "call 555-0100" }),
+            &root.to_string_lossy(),
         )
         .await
         .expect("redact_text must be callable");
@@ -72,13 +85,13 @@ async fn daemon_serves_the_tools_the_client_calls() {
 #[tokio::test]
 #[ignore = "requires a running basemind daemon"]
 async fn document_search_answers_with_hits() {
-    let Some(client) = live_client() else {
+    let Some((client, root)) = live_client() else {
         eprintln!("skipping: no basemind daemon reachable");
         return;
     };
 
     let hits = client
-        .search_documents("contact", 3)
+        .search_documents("contact", 3, &root.to_string_lossy())
         .await
         .expect("memory mode=documents must answer");
     // An empty index is a valid answer; a parse failure is not.
@@ -94,7 +107,7 @@ async fn document_search_answers_with_hits() {
 #[tokio::test]
 #[ignore = "requires a running basemind daemon"]
 async fn document_redaction_round_trips_through_the_product_store() {
-    let Some(client) = live_client() else {
+    let Some((client, root)) = live_client() else {
         eprintln!("skipping: no basemind daemon reachable");
         return;
     };
@@ -111,7 +124,7 @@ async fn document_redaction_round_trips_through_the_product_store() {
     .expect("write fixture");
 
     let payload = client
-        .redact_path(&document.to_string_lossy())
+        .redact_path(&document.to_string_lossy(), &root.to_string_lossy())
         .await
         .expect("redact_text with a file_path must succeed");
 
@@ -126,9 +139,7 @@ async fn document_redaction_round_trips_through_the_product_store() {
     )
     .expect("open redaction store");
 
-    let redacted = store
-        .record(&payload, "txt")
-        .expect("record the redaction result");
+    let redacted = store.record(&payload, "txt").expect("record the redaction");
     assert!(
         redacted.markdown.contains("data-entity-id"),
         "the redacted markdown must carry entity spans, got {}",
