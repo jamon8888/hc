@@ -13,14 +13,13 @@
 //! registers the port once at startup and every tool context picks it up.
 
 #[cfg(feature = "tools-rag")]
-use openbitfun_runtime_ports::{
-    DocumentRedactionPort, PromptPseudonymizationPort, RagSearchPort,
-};
+use openbitfun_runtime_ports::{DocumentRedactionPort, PromptPseudonymizationPort, RagSearchPort};
 #[cfg(feature = "tools-rag")]
 use std::sync::{OnceLock, RwLock};
 
 #[cfg(feature = "tools-rag")]
-static GLOBAL_RAG_SEARCH_PORT: OnceLock<RwLock<Option<std::sync::Arc<dyn RagSearchPort>>>> = OnceLock::new();
+static GLOBAL_RAG_SEARCH_PORT: OnceLock<RwLock<Option<std::sync::Arc<dyn RagSearchPort>>>> =
+    OnceLock::new();
 
 #[cfg(feature = "tools-rag")]
 static GLOBAL_DOCUMENT_REDACTION_PORT: OnceLock<

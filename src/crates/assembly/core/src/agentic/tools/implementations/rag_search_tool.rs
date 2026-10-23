@@ -95,7 +95,10 @@ Every personal value in the results is replaced by an opaque token, so a result 
     }
 
     fn render_tool_result_message(&self, output: &Value) -> String {
-        let hits = output.get("hits").and_then(Value::as_array).map_or(0, Vec::len);
+        let hits = output
+            .get("hits")
+            .and_then(Value::as_array)
+            .map_or(0, Vec::len);
         format!("Search returned {hits} hits")
     }
 
@@ -121,14 +124,11 @@ Every personal value in the results is replaced by an opaque token, so a result 
         // The real session id, never a placeholder: the port resolves the
         // session's vault payload with it, and a wrong id would resolve
         // against the wrong salt.
-        let session_id = context
-            .session_id
-            .clone()
-            .ok_or_else(|| {
-                crate::util::errors::OpenBitFunError::validation(
-                    "rag_search needs a session to scope the rehydration map",
-                )
-            })?;
+        let session_id = context.session_id.clone().ok_or_else(|| {
+            crate::util::errors::OpenBitFunError::validation(
+                "rag_search needs a session to scope the rehydration map",
+            )
+        })?;
         let workspace_root = context
             .workspace_root()
             .map(|root| root.to_string_lossy().to_string())
@@ -158,8 +158,8 @@ Every personal value in the results is replaced by an opaque token, so a result 
             .await
             .map_err(|error| rag_search_error(error))?;
 
-        let hits = serde_json::to_value(&response.hits)
-            .unwrap_or_else(|_| Value::Array(Vec::new()));
+        let hits =
+            serde_json::to_value(&response.hits).unwrap_or_else(|_| Value::Array(Vec::new()));
         Ok(vec![ToolResult::ok(
             json!({ "hits": hits }),
             Some(format!("Search returned {} hits", response.hits.len())),
@@ -182,9 +182,10 @@ fn rag_search_error(error: RagSearchError) -> crate::util::errors::OpenBitFunErr
             "rag_search could not resolve the session: {}",
             error.message
         )),
-        RagSearchErrorKind::Transport => {
-            OpenBitFunError::service(format!("rag_search could not reach the index: {}", error.message))
-        }
+        RagSearchErrorKind::Transport => OpenBitFunError::service(format!(
+            "rag_search could not reach the index: {}",
+            error.message
+        )),
         RagSearchErrorKind::InvalidResponse => OpenBitFunError::service(format!(
             "rag_search got an unusable answer from the index: {}",
             error.message
@@ -267,12 +268,20 @@ mod tests {
         let context = test_context(Some(port));
 
         let results = RagSearchTool::new()
-            .call_impl(&serde_json::json!({ "query": "how does login work" }), &context)
+            .call_impl(
+                &serde_json::json!({ "query": "how does login work" }),
+                &context,
+            )
             .await
             .expect("the search should succeed");
 
         assert_eq!(results.len(), 1);
-        let request = seen.seen.lock().unwrap().clone().expect("the port was called");
+        let request = seen
+            .seen
+            .lock()
+            .unwrap()
+            .clone()
+            .expect("the port was called");
         assert_eq!(request.query, "how does login work");
         assert_eq!(request.session_id, "session-1");
         // The tool never invents a session: the real one travels with the

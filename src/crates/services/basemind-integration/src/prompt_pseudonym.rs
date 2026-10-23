@@ -172,11 +172,13 @@ impl openbitfun_runtime_ports::PromptPseudonymizationPort for BasemindPromptPseu
         let mut guard = self.inner.lock().await;
         PromptPseudonymizer::pseudonymize(&mut guard, prompt, session_id, workspace_root)
             .await
-            .map(|pseudonymized| openbitfun_runtime_ports::PseudonymizedPrompt {
-                text: pseudonymized.text,
-                rehydration_map: pseudonymized.rehydration_map,
-                session_id: pseudonymized.session_id,
-            })
+            .map(
+                |pseudonymized| openbitfun_runtime_ports::PseudonymizedPrompt {
+                    text: pseudonymized.text,
+                    rehydration_map: pseudonymized.rehydration_map,
+                    session_id: pseudonymized.session_id,
+                },
+            )
             .map_err(|error| {
                 openbitfun_runtime_ports::PromptPseudonymizationError::new(
                     openbitfun_runtime_ports::PromptPseudonymizationErrorKind::Failed,

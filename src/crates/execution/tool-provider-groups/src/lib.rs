@@ -92,10 +92,7 @@ pub fn enabled_feature_groups() -> Vec<ToolPackFeatureGroup> {
             cfg!(feature = "agent-control"),
             ToolPackFeatureGroup::AgentControl,
         ),
-        (
-            cfg!(feature = "basemind"),
-            ToolPackFeatureGroup::Basemind,
-        ),
+        (cfg!(feature = "basemind"), ToolPackFeatureGroup::Basemind),
     ]
     .into_iter()
     .filter_map(|(enabled, group)| enabled.then_some(group))

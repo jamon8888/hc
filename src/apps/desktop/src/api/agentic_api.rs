@@ -2547,13 +2547,12 @@ async fn desktop_dialog_turn_request(
             .ok_or_else(|| "a workspace is required to pseudonymize the prompt".to_string())?;
         let port = openbitfun_core::service::rag_search::global_prompt_pseudonymization_port()
             .ok_or_else(|| {
-                "PII pseudonymization is unavailable: the basemind sidecar is not running".to_string()
+                "PII pseudonymization is unavailable: the basemind sidecar is not running"
+                    .to_string()
             })?;
         port.pseudonymize(&user_input, &session_id, &workspace_root)
             .await
-            .map_err(|error| {
-                format!("PII pseudonymization failed (basemind required): {error}")
-            })?
+            .map_err(|error| format!("PII pseudonymization failed (basemind required): {error}"))?
             .text
     };
     #[cfg(not(feature = "basemind"))]
@@ -4506,10 +4505,9 @@ mod tests {
         }))
         .expect("current Tauri request shape");
 
-        let runtime_request =
-            desktop_dialog_turn_request(request)
-                .await
-                .expect("Desktop runtime request");
+        let runtime_request = desktop_dialog_turn_request(request)
+            .await
+            .expect("Desktop runtime request");
 
         assert_eq!(runtime_request.session_id, "session-1");
         // The model sees the pseudonymized prompt; the raw text stays in
@@ -4657,10 +4655,9 @@ mod tests {
             "userMessageMetadata": "not-an-object"
         }))
         .expect("legacy metadata request");
-        let runtime_request =
-            desktop_dialog_turn_request(request)
-                .await
-                .expect("Desktop runtime request");
+        let runtime_request = desktop_dialog_turn_request(request)
+            .await
+            .expect("Desktop runtime request");
 
         assert_eq!(
             runtime_request.metadata.get("raw_metadata"),

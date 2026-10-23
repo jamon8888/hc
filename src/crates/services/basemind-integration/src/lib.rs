@@ -37,7 +37,7 @@ pub mod workspace_fs;
 
 #[cfg(feature = "basemind")]
 pub use self::daemon::{
-    daemon_version, verify_version, DaemonEndpoint, BASEMIND_VERSION, COMMS_DIR_ENV,
+    BASEMIND_VERSION, COMMS_DIR_ENV, DaemonEndpoint, daemon_version, verify_version,
 };
 #[cfg(feature = "basemind")]
 pub use self::document_convert::BasemindDocumentRedactor;
@@ -46,7 +46,7 @@ pub use self::identity_registry::IdentityRegistry;
 #[cfg(feature = "basemind")]
 pub use self::ipc::{BasemindClient, DocEntity, DocumentSearchHit};
 #[cfg(feature = "basemind")]
-pub use self::keychain::{get_vault_passphrase, set_vault_passphrase, KeychainError};
+pub use self::keychain::{KeychainError, get_vault_passphrase, set_vault_passphrase};
 #[cfg(feature = "basemind")]
 pub use self::models::{ExtractResult, ModelConfig, ModelManager, RedactedEntity};
 #[cfg(feature = "basemind")]
@@ -64,7 +64,7 @@ pub use self::session_vault::SessionVault;
 #[cfg(feature = "basemind")]
 pub use self::token::mint_session_token;
 #[cfg(feature = "basemind")]
-pub use self::vault::{vault_decrypt, vault_encrypt, VaultError};
+pub use self::vault::{VaultError, vault_decrypt, vault_encrypt};
 /// Re-exports for consumers when the `basemind` feature is enabled.
 #[cfg(feature = "basemind")]
 pub use self::workspace_fs::BasemindWorkspaceFs;

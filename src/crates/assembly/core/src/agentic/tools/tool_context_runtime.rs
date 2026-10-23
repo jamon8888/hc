@@ -359,7 +359,8 @@ fn core_tool_runtime_handles(
     // The workspace search port is published by the host at the composition
     // root; a runtime without one simply has no search tool.
     #[cfg(feature = "tools-rag")]
-    let handles = handles.with_rag_search_port(crate::service::rag_search::global_rag_search_port());
+    let handles =
+        handles.with_rag_search_port(crate::service::rag_search::global_rag_search_port());
     handles
 }
 

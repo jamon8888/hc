@@ -54,7 +54,10 @@ impl DocumentRedactionPort for BasemindDocumentRedactor {
                 )
             })?;
 
-        let rehydration = payload["rehydration_map"].as_object().cloned().unwrap_or_default();
+        let rehydration = payload["rehydration_map"]
+            .as_object()
+            .cloned()
+            .unwrap_or_default();
         let mut entities: Vec<openbitfun_runtime_ports::RedactedEntity> = Vec::new();
         for (token, value) in &rehydration {
             let original = value.as_str().unwrap_or_default();
@@ -63,7 +66,10 @@ impl DocumentRedactionPort for BasemindDocumentRedactor {
             }
             let category = category_of_token(token);
             let entity_id = entity_id_for_value(original, &category);
-            match entities.iter_mut().find(|entity| entity.entity_id == entity_id) {
+            match entities
+                .iter_mut()
+                .find(|entity| entity.entity_id == entity_id)
+            {
                 Some(entity) => entity.occurrence_count += 1,
                 None => entities.push(openbitfun_runtime_ports::RedactedEntity {
                     entity_id,
@@ -112,7 +118,11 @@ fn category_of_token(token: &str) -> String {
 #[cfg(feature = "basemind")]
 fn entity_id_for_value(value: &str, category: &str) -> String {
     let hash = crate::identity_registry::IdentityRegistry::compute_value_hash(value);
-    format!("ENT_{}_{}", category.to_uppercase(), &hash[..8.min(hash.len())])
+    format!(
+        "ENT_{}_{}",
+        category.to_uppercase(),
+        &hash[..8.min(hash.len())]
+    )
 }
 
 /// The sidecar's client for the running daemon.

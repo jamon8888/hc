@@ -13,6 +13,8 @@ pub use openbitfun_core_types::{
     WorktreeSummary,
 };
 
+#[cfg(feature = "rag-search")]
+mod document_redaction;
 #[cfg(feature = "hook-function-runtime")]
 mod hook_function;
 #[cfg(feature = "workspace-ports")]
@@ -23,14 +25,14 @@ mod permission;
 mod plugin;
 #[cfg(feature = "product-search")]
 mod product_search;
-#[cfg(feature = "rag-search")]
-mod document_redaction;
 mod prompt_pseudonymization;
 mod rag_search;
 #[cfg(feature = "script-tool-runtime")]
 mod script_tool;
 #[cfg(feature = "web-search-port")]
 mod web_search;
+#[cfg(feature = "rag-search")]
+pub use document_redaction::*;
 #[cfg(feature = "hook-function-runtime")]
 pub use hook_function::*;
 #[cfg(feature = "workspace-ports")]
@@ -78,8 +80,6 @@ pub use plugin::{
 };
 #[cfg(feature = "product-search")]
 pub use product_search::ProductSearchPort;
-#[cfg(feature = "rag-search")]
-pub use document_redaction::*;
 pub use prompt_pseudonymization::*;
 pub use rag_search::*;
 #[cfg(feature = "script-tool-runtime")]

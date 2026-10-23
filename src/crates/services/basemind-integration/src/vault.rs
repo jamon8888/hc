@@ -10,7 +10,7 @@ use base64::Engine;
 #[cfg(feature = "basemind")]
 use rand::RngCore;
 #[cfg(feature = "basemind")]
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{Deserialize, Serialize, de::DeserializeOwned};
 #[cfg(feature = "basemind")]
 use thiserror::Error;
 
@@ -54,7 +54,7 @@ fn xpcc_encrypt(plaintext: &[u8], passphrase: &str) -> Result<Vec<u8>, VaultErro
     use aes_gcm::aead::{Aead, KeyInit};
     use aes_gcm::{Aes256Gcm, Key, Nonce};
     use rand::RngCore;
-    use scrypt::{scrypt, Params};
+    use scrypt::{Params, scrypt};
 
     // Derive key via scrypt
     let mut key = [0u8; 32];
@@ -87,7 +87,7 @@ fn xpcc_encrypt(plaintext: &[u8], passphrase: &str) -> Result<Vec<u8>, VaultErro
 fn xpcc_decrypt(encrypted: &[u8], passphrase: &str) -> Result<Vec<u8>, VaultError> {
     use aes_gcm::aead::{Aead, KeyInit};
     use aes_gcm::{Aes256Gcm, Key, Nonce};
-    use scrypt::{scrypt, Params};
+    use scrypt::{Params, scrypt};
 
     if encrypted.len() < 4 + 12 {
         return Err(VaultError::Decrypt("too short".into()));

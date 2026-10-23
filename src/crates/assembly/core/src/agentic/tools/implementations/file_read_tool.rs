@@ -235,15 +235,8 @@ impl FileReadTool {
                     (Some(port), Some(root)) => port
                         .redact(&path, &root)
                         .await
-                        .map(|document| {
-                            (
-                                document.markdown,
-                                document.source_format,
-                            )
-                        })
-                        .map_err(|error| {
-                            DocumentConversionError::new("redaction", error.message)
-                        }),
+                        .map(|document| (document.markdown, document.source_format))
+                        .map_err(|error| DocumentConversionError::new("redaction", error.message)),
                     // No redaction port, or no workspace to scope it: the
                     // document is read the plain way, and the read says so
                     // rather than pretending the text was redacted.
@@ -260,14 +253,16 @@ impl FileReadTool {
             }
         };
         #[cfg(not(feature = "tools-rag"))]
-        let conversion_call = convert_document_to_markdown(bytes, resolved_path.to_string())
-            .await
-            .map(|converted| {
-                (
-                    converted.markdown.to_string(),
-                    converted.source_format.to_string(),
-                )
-            });
+        let conversion_call = async {
+            convert_document_to_markdown(bytes, resolved_path.to_string())
+                .await
+                .map(|converted| {
+                    (
+                        converted.markdown.to_string(),
+                        converted.source_format.to_string(),
+                    )
+                })
+        };
 
         let conversion = tokio::time::timeout(DOCUMENT_CONVERSION_TIMEOUT, conversion_call)
         .await
@@ -975,7 +970,12 @@ mod tests {
             .expect("the redacted document should be read");
 
         // The port saw the file and the workspace it belongs to.
-        let (path, workspace_root) = seen.seen.lock().unwrap().clone().expect("the port was called");
+        let (path, workspace_root) = seen
+            .seen
+            .lock()
+            .unwrap()
+            .clone()
+            .expect("the port was called");
         assert!(path.ends_with("contract.pdf"), "the port saw {path}");
         assert!(
             workspace_root.contains("openbitfun-file-read-redaction-test"),
@@ -984,7 +984,10 @@ mod tests {
 
         // The content is the redacted one, and the format comes from the
         // sidecar's answer.
-        assert!(result.output.contains("[EMAIL_1]"), "the read returned the redacted text");
+        assert!(
+            result.output.contains("[EMAIL_1]"),
+            "the read returned the redacted text"
+        );
         assert_eq!(metadata.source_format, "pdf");
 
         crate::service::rag_search::set_global_document_redaction_port(None);

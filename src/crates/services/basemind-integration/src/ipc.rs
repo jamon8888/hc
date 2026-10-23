@@ -237,12 +237,7 @@ impl BasemindClient {
     }
 
     /// Convenience: vault operations
-    pub async fn vault_encrypt(
-        &self,
-        map: Value,
-        passphrase: &str,
-        root: &str,
-    ) -> Result<Value> {
+    pub async fn vault_encrypt(&self, map: Value, passphrase: &str, root: &str) -> Result<Value> {
         self.call_tool(
             "vault",
             serde_json::json!({

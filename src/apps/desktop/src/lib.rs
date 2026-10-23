@@ -2368,7 +2368,10 @@ fn resolve_bundled_basemind_binary(app: &tauri::App) -> Option<std::path::PathBu
     if let Ok(resource_dir) = app.path().resource_dir() {
         for candidate in [
             resource_dir.join("basemind").join(binary_name),
-            resource_dir.join("resources").join("basemind").join(binary_name),
+            resource_dir
+                .join("resources")
+                .join("basemind")
+                .join(binary_name),
         ] {
             if candidate.exists() {
                 return Some(candidate);
@@ -2483,14 +2486,20 @@ fn publish_basemind_search_port() {
     let vault_for_prompt = match SessionVault::new(vault_dir.clone()) {
         Ok(vault) => vault,
         Err(error) => {
-            log::warn!("Basemind prompt pseudonymization is not available: {}", error);
+            log::warn!(
+                "Basemind prompt pseudonymization is not available: {}",
+                error
+            );
             return;
         }
     };
     let registry_for_prompt = match IdentityRegistry::new(registry_dir.clone()) {
         Ok(registry) => registry,
         Err(error) => {
-            log::warn!("Basemind prompt pseudonymization is not available: {}", error);
+            log::warn!(
+                "Basemind prompt pseudonymization is not available: {}",
+                error
+            );
             return;
         }
     };
@@ -2513,9 +2522,8 @@ fn publish_basemind_search_port() {
 
     // The document redaction port is the interception that keeps unredacted
     // document text out of the model context (SPEC §3, I1).
-    let redactor = std::sync::Arc::new(
-        openbitfun_basemind_integration::BasemindDocumentRedactor::new(client),
-    );
+    let redactor =
+        std::sync::Arc::new(openbitfun_basemind_integration::BasemindDocumentRedactor::new(client));
     openbitfun_core::service::rag_search::set_global_document_redaction_port(Some(redactor));
     log::info!("Basemind search and redaction ports published");
 }
