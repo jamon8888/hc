@@ -19,6 +19,21 @@ Chinese UI text use platform system fonts instead.
 The complete license agreement and a font-specific notice are included only in
 the non-Apple frontend artifact under `third-party/fonts/harmonyos-sans/`.
 
+## Open Interpreter
+
+- Project: Open Interpreter
+- Source: https://github.com/openinterpreter/openinterpreter
+- License: Apache-2.0
+- Copyright: Copyright (c) 2026 Open Interpreter contributors
+
+OpenBitFun redistributes the Open Interpreter coding agent with its Desktop
+release packages, so a user does not have to install it before an ACP session
+can use it. The redistributed code is a fork of OpenAI Codex
+(https://github.com/openai/codex), Copyright 2025 OpenAI, and includes code
+derived from Ratatui (MIT). The Apache-2.0 license text and the upstream
+NOTICE are included with the packaged agent under `interpreter/LICENSE` and
+`interpreter/NOTICE`, and are also installed with the Windows payload.
+
 ## models.dev catalog data
 
 - Project: models.dev

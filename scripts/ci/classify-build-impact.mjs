@@ -70,6 +70,7 @@ const DESKTOP_PACKAGE_INPUTS = collectLocalModuleInputs([
 const DESKTOP_PACKAGE_PREFIXES = [
   'products/',
   'resources/flashgrep/',
+  'resources/interpreter/',
   'src/apps/desktop/capabilities/',
   'src/apps/desktop/dmg/',
   'src/apps/desktop/icons/',

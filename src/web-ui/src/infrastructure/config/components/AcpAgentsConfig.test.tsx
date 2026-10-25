@@ -1,6 +1,8 @@
 // @vitest-environment jsdom
 
 import React, { act } from 'react';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createRoot, type Root } from 'react-dom/client';
 import AcpAgentsConfigPage, { type AcpAgentsConfigHandle } from './AcpAgentsConfig';
@@ -23,9 +25,15 @@ const listSavedConnectionsMock = vi.hoisted(() => vi.fn());
 const notifyErrorMock = vi.hoisted(() => vi.fn());
 const notifyInfoMock = vi.hoisted(() => vi.fn());
 const notifySuccessMock = vi.hoisted(() => vi.fn());
-const translate = (_key: string, options?: Record<string, unknown> & { defaultValue?: string }) => (
-  options?.defaultValue ?? _key
-);
+const openExternalMock = vi.hoisted(() => vi.fn());
+// A spy, so a test can assert the interpolation params a message was built
+// with — the translated text alone does not carry them.
+const translateMock = vi.hoisted(() => vi.fn(
+  (_key: string, options?: Record<string, unknown> & { defaultValue?: string }) => (
+    options?.defaultValue ?? _key
+  ),
+));
+const translate = translateMock;
 
 vi.mock('@/infrastructure/i18n', () => ({
   useI18n: () => ({
@@ -203,7 +211,7 @@ vi.mock('../../api/service-api/ACPClientAPI', () => ({
 
 vi.mock('../../api/service-api/SystemAPI', () => ({
   systemAPI: {
-    openExternal: vi.fn(),
+    openExternal: openExternalMock,
   },
 }));
 
@@ -291,6 +299,7 @@ describe('AcpAgentsConfig', () => {
     });
     installClientCliMock.mockResolvedValue(undefined);
     predownloadClientAdapterMock.mockResolvedValue(undefined);
+    openExternalMock.mockResolvedValue(undefined);
 
     container = document.createElement('div');
     document.body.appendChild(container);
@@ -990,6 +999,200 @@ describe('AcpAgentsConfig', () => {
 
     expect(installClientCliMock).not.toHaveBeenCalled();
     expect(saveJsonConfigMock).toHaveBeenCalledWith(expect.stringContaining('"omp"'));
+    expect(notifySuccessMock).toHaveBeenCalledWith('notifications.configAddedManualCliRequired');
+  });
+
+  it('lists the same agents as the ACP client the product ships', () => {
+    // The ACP client and this settings page each hold a list of the agents the
+    // product can start. An agent added to one and not the other would leave
+    // the user unable to configure an agent the product supports, so the two
+    // lists are checked against each other rather than trusted to stay in step
+    // by hand.
+    const presetIds = (source: string, open: string, close: string) =>
+      [
+        ...source
+          .slice(source.indexOf(open) + open.length, source.indexOf(close))
+          .matchAll(/id: ['"]([a-z0-9-]+)['"],/g),
+      ].map(match => match[1]);
+
+    const productAgents = presetIds(
+      readFileSync(
+        resolve(
+          process.cwd(),
+          '../crates/interfaces/acp/src/client/builtin_clients.rs',
+        ),
+        'utf8',
+      ),
+      'const BUILTIN_ACP_CLIENT_PRESETS: &[BuiltinAcpClientPreset] = &[',
+      '\n];',
+    );
+    const uiAgents = presetIds(
+      readFileSync(
+        resolve(
+          process.cwd(),
+          'src/infrastructure/config/components/AcpAgentsConfig.tsx',
+        ),
+        'utf8',
+      ),
+      'const PRESETS: AcpClientPreset[] = [',
+      '\n];',
+    );
+
+    expect(productAgents.length).toBeGreaterThan(0);
+    expect(uiAgents).toEqual(productAgents);
+  });
+
+  it('presents Open Interpreter as a native, self-managed ACP agent', async () => {
+    loadJsonConfigMock.mockResolvedValue(JSON.stringify({
+      acpClients: {
+        opencode: {
+          name: 'opencode',
+          command: 'opencode',
+          args: ['acp'],
+          env: {},
+          enabled: true,
+          readonly: false,
+          permissionMode: 'ask',
+        },
+        interpreter: {
+          name: 'Open Interpreter',
+          command: 'interpreter',
+          args: ['acp'],
+          env: {},
+          enabled: true,
+          readonly: false,
+          permissionMode: 'ask',
+        },
+      },
+    }));
+    probeClientRequirementsMock.mockResolvedValue([
+      {
+        id: 'opencode',
+        tool: { name: 'opencode', installed: true },
+        runnable: true,
+        notes: [],
+      },
+      {
+        id: 'interpreter',
+        tool: { name: 'interpreter', installed: false },
+        runnable: false,
+        notes: ['interpreter is not available on PATH'],
+      },
+    ]);
+
+    await act(async () => {
+      root.render(<AcpAgentsConfig />);
+    });
+
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    const row = Array.from(container.querySelectorAll('.openbitfun-acp-agents__registry-row'))
+      .find(candidate => candidate.querySelector('.openbitfun-acp-agents__registry-name')
+        ?.textContent === 'Open Interpreter');
+    expect(row).toBeTruthy();
+    expect(row?.textContent).toContain('presets.interpreter.description');
+
+    // Self-managed: OpenBitFun ships no installer, so the one-click action is
+    // hidden and the instructions take its place.
+    const rowButtons = Array.from(row!.querySelectorAll('button'));
+    expect(rowButtons.some(button => button.textContent?.includes('actions.installCli'))).toBe(false);
+
+    const instructionsButton = rowButtons
+      .find(button => button.textContent?.includes('actions.viewInstructions'));
+    expect(instructionsButton).toBeTruthy();
+
+    await act(async () => {
+      instructionsButton!.click();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    // The toast keeps the OpenBitFun-side guidance; the browser gets the
+    // vendor's install page, which is what stays correct across platforms.
+    expect(notifyInfoMock).toHaveBeenCalledWith(
+      'registry.selfManagedCliMissingDetail',
+      { title: 'registry.cliMissing' },
+    );
+    expect(translateMock).toHaveBeenCalledWith(
+      'registry.selfManagedCliMissingDetail',
+      expect.objectContaining({ name: 'Open Interpreter', command: 'interpreter' }),
+    );
+    expect(openExternalMock).toHaveBeenCalledWith('https://www.openinterpreter.com/docs/terminal/install');
+  });
+
+  it('does not ask a native ACP agent for a downloadable adapter', async () => {
+    probeClientRequirementsMock.mockResolvedValue([
+      {
+        id: 'interpreter',
+        tool: { name: 'interpreter', installed: true },
+        runnable: true,
+        notes: [],
+      },
+    ]);
+
+    await act(async () => {
+      root.render(<AcpAgentsConfig />);
+    });
+
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    const row = Array.from(container.querySelectorAll('.openbitfun-acp-agents__registry-row'))
+      .find(candidate => candidate.querySelector('.openbitfun-acp-agents__registry-name')
+        ?.textContent === 'Open Interpreter');
+    expect(row).toBeTruthy();
+    // A native ACP agent has no adapter to install, so it must not be reported
+    // as partially available and must not offer an adapter action.
+    expect(row?.textContent).not.toContain('registry.acpMissing');
+    expect(row?.textContent).not.toContain('registry.partial');
+    expect(Array.from(row!.querySelectorAll('button'))
+      .some(button => button.textContent?.includes('actions.configureAcp'))).toBe(false);
+    expect(predownloadClientAdapterMock).not.toHaveBeenCalled();
+  });
+
+  it('adds Open Interpreter as a manual install rather than a one-click one', async () => {
+    probeClientRequirementsMock.mockResolvedValue([
+      {
+        id: 'interpreter',
+        tool: { name: 'interpreter', installed: false },
+        runnable: false,
+        notes: ['interpreter is not available on PATH'],
+      },
+    ]);
+
+    await act(async () => {
+      root.render(<AcpAgentsConfig />);
+    });
+
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    const row = Array.from(container.querySelectorAll('.openbitfun-acp-agents__registry-row'))
+      .find(candidate => candidate.querySelector('.openbitfun-acp-agents__registry-name')
+        ?.textContent === 'Open Interpreter');
+    expect(row).toBeTruthy();
+
+    const addConfigButton = Array.from(row!.querySelectorAll('button'))
+      .find(button => button.textContent?.includes('actions.addConfig'));
+    expect(addConfigButton).toBeTruthy();
+
+    await act(async () => {
+      addConfigButton!.click();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    // Open Interpreter ships no npm package, so OpenBitFun must not try to
+    // install it — it records the config and hands the install to the user.
+    expect(installClientCliMock).not.toHaveBeenCalled();
+    expect(saveJsonConfigMock).toHaveBeenCalledWith(expect.stringContaining('"interpreter"'));
     expect(notifySuccessMock).toHaveBeenCalledWith('notifications.configAddedManualCliRequired');
   });
 

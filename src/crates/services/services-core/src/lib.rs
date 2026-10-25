@@ -4,6 +4,7 @@
 //! tested without compiling the full OpenBitFun product runtime.
 
 pub mod bounded_fs;
+pub mod bundled_tools;
 #[cfg(feature = "coordination-store")]
 pub mod coordination_persistence;
 #[cfg(feature = "credential-vault")]

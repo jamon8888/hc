@@ -1,0 +1,32 @@
+{
+  "repo": "openinterpreter/openinterpreter",
+  "tag": "rust-v0.0.56",
+  "version": "0.0.56",
+  "assetStem": "open-interpreter-package",
+  "assets": {
+    "aarch64-apple-darwin": {
+      "sha256": "7378352f8aac0e068770ce579890eda00a66ea1f26a6c7fbf759592dbe7c31d1",
+      "size": 220989635
+    },
+    "x86_64-apple-darwin": {
+      "sha256": "7f4146822521c6a695af4ba0e2709d8d7215dee6e77af82a1eca0a0732880382",
+      "size": 236101190
+    },
+    "aarch64-pc-windows-msvc": {
+      "sha256": "95f840a83c9c347321b89dec9a4709da790bf0c5d47c9ce959e374b8a20c6257",
+      "size": 240272128
+    },
+    "x86_64-pc-windows-msvc": {
+      "sha256": "0e7fd776ffb46cb3821d8acd54c4b45bc13d72110d1dfa0b92903f49fb2bb8a1",
+      "size": 260878051
+    },
+    "aarch64-unknown-linux-musl": {
+      "sha256": "0fe21c5e925dad7fcfa8f9b5df8a3c690e7a1e50fdc15ca3d73671f8bcdca3a0",
+      "size": 234243167
+    },
+    "x86_64-unknown-linux-musl": {
+      "sha256": "9e859353d6e2af28381489570d3ecf02060f7c73df5a652f3ca60c196835ccac",
+      "size": 250715859
+    }
+  }
+}
