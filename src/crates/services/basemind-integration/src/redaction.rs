@@ -143,15 +143,16 @@ impl RedactionStore {
 
     /// Persist the entity id -> value map.
     fn persist(&self) -> Result<()> {
-        let map = self
-            .by_entity
-            .lock()
-            .unwrap_or_else(|e| e.into_inner())
-            .clone();
+        // The map lock is held across the clone and the write: an entity
+        // committed after this clone began can only persist after this write
+        // returns, with a strictly newer snapshot. A clone under a released
+        // lock would let an older snapshot overwrite a newer one, because the
+        // vault write replaces the file without merging.
+        let by_entity = self.by_entity.lock().unwrap_or_else(|e| e.into_inner());
         self.vault.store_session(
             &self.scope,
             crate::session_vault::SessionPayload {
-                map,
+                map: by_entity.clone(),
                 salt: String::new(),
             },
         )

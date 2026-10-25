@@ -48,7 +48,7 @@ pub use self::gateway::{generate_gateway_token, is_protected_workspace, GATEWAY_
 #[cfg(feature = "basemind")]
 pub use self::identity_registry::IdentityRegistry;
 #[cfg(feature = "basemind")]
-pub use self::ipc::{BasemindClient, DocEntity, DocumentSearchHit};
+pub use self::ipc::{BasemindClient, DocEntity, DocumentSearchHit, RedactionPolicy};
 #[cfg(feature = "basemind")]
 pub use self::keychain::{get_vault_passphrase, set_vault_passphrase, KeychainError};
 #[cfg(feature = "basemind")]

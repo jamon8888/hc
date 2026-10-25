@@ -100,6 +100,17 @@ pub struct AppState {
     pub active_searches: Arc<Mutex<HashMap<String, Arc<AtomicBool>>>>,
     /// Cancellation flags for active file transfers (download/upload), keyed by transfer_id.
     pub active_transfers: Arc<Mutex<HashMap<String, Arc<AtomicBool>>>>,
+    /// One redaction store per workspace, for the life of the host.
+    ///
+    /// A store that every command rebuilt would let two concurrent commands
+    /// load, mutate, and rewrite the same vault entry: the second write
+    /// forgets the first document's entities. One shared store per resolved
+    /// workspace serializes the registry, the entity map, and the vault
+    /// write behind the store's own locks.
+    #[cfg(feature = "basemind")]
+    pub basemind_redaction_stores: Arc<
+        tokio::sync::Mutex<HashMap<String, Arc<openbitfun_basemind_integration::RedactionStore>>>,
+    >,
     pub announcement_scheduler: Arc<announcement::AnnouncementScheduler>,
 }
 
@@ -365,6 +376,8 @@ impl AppState {
             remote_workspace,
             active_searches: Arc::new(Mutex::new(HashMap::new())),
             active_transfers: Arc::new(Mutex::new(HashMap::new())),
+            #[cfg(feature = "basemind")]
+            basemind_redaction_stores: Arc::new(tokio::sync::Mutex::new(HashMap::new())),
             announcement_scheduler,
         };
 
@@ -458,25 +471,44 @@ impl AppState {
         &self,
         workspace_id: Option<&str>,
     ) -> Result<Arc<BasemindClient>, String> {
+        let _ = workspace_id;
         openbitfun_basemind_integration::verify_version().map_err(|error| error.to_string())?;
-        let endpoint = openbitfun_basemind_integration::daemon::discover()
-            .map_err(|error| error.to_string())?;
-        Ok(Arc::new(BasemindClient::new(
-            endpoint.base_url(),
-            endpoint.token,
-        )))
+        // The client follows the daemon (it may have self-terminated and
+        // restarted on a fresh port since startup) and obeys the same
+        // fail-closed redaction policy as the startup-published ports: every
+        // redaction it runs requires the bundled GLiNER2 model. When the
+        // model directory is unknown (no sidecar was resolved at startup)
+        // the NER requirement still stands — the sidecar then refuses the
+        // call rather than answering with pattern-only output.
+        let sidecar_binary = crate::basemind_sidecar_binary().map(std::path::Path::to_path_buf);
+        let policy = openbitfun_basemind_integration::RedactionPolicy {
+            require_ner: true,
+            ner_model_dir: crate::basemind_ner_model_dir()
+                .map(|dir| dir.to_string_lossy().into_owned()),
+        };
+        Ok(Arc::new(
+            BasemindClient::lazy(sidecar_binary).with_redaction_policy(policy),
+        ))
     }
 
     /// The product's rehydration store for a workspace.
     ///
     /// The store owns the entity id -> value map and the entity ids, because
-    /// the basemind fork has no reveal tool (ADR 0001).
+    /// the basemind fork has no reveal tool (ADR 0001). One store lives per
+    /// resolved workspace for the life of the host, so concurrent commands
+    /// share its locks instead of racing on the same vault entry. A named
+    /// workspace either resolves or the call fails; the store never moves to
+    /// a different workspace.
     #[cfg(feature = "basemind")]
     pub async fn get_basemind_redaction_store(
         &self,
         workspace_id: Option<&str>,
     ) -> Result<Arc<openbitfun_basemind_integration::RedactionStore>, String> {
         let (workspace_id, _) = self.basemind_workspace(workspace_id).await?;
+        let mut stores = self.basemind_redaction_stores.lock().await;
+        if let Some(store) = stores.get(&workspace_id) {
+            return Ok(store.clone());
+        }
         // The store belongs to one workspace, so its registry and its vault
         // entry live under that workspace's own directory.
         let data_dir = self
@@ -487,13 +519,16 @@ impl AppState {
             .join(&workspace_id);
         std::fs::create_dir_all(&data_dir)
             .map_err(|error| format!("failed to create basemind data dir: {error}"))?;
-        let store = openbitfun_basemind_integration::RedactionStore::new(
-            data_dir.join("registry"),
-            data_dir.join("vault"),
-            workspace_id,
-        )
-        .map_err(|error| error.to_string())?;
-        Ok(Arc::new(store))
+        let store = Arc::new(
+            openbitfun_basemind_integration::RedactionStore::new(
+                data_dir.join("registry"),
+                data_dir.join("vault"),
+                workspace_id.clone(),
+            )
+            .map_err(|error| error.to_string())?,
+        );
+        stores.insert(workspace_id.clone(), store.clone());
+        Ok(store)
     }
 
     /// The workspace the basemind sidecar should host, resolved once.

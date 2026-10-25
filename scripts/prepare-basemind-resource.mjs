@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { chmodSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, closeSync, existsSync, mkdirSync, openSync, readFileSync, readSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -202,6 +202,105 @@ export function basemindPinnedVersion(options = {}) {
   return manifest.tag.replace(/^v/, '');
 }
 
+/**
+ * Ensure the pinned GLiNER2 PII model is present next to the sidecar.
+ *
+ * The redaction pipeline refuses a call whose text NER could not run
+ * (`require_ner`), so the model is part of the sidecar the product
+ * bundles: the pinned Hugging Face revision fetches `tokenizer.json`,
+ * `model.safetensors` and `encoder_config/config.json` into
+ * `ner-model/`. Every download and every later prep validates each file
+ * against the size and sha256 pinned in `VERSION.json`, and a download
+ * lands through a temporary file so a failed attempt can never leave a
+ * partial artifact at the real path.
+ */
+export function ensureBasemindNerModel(options = {}) {
+  const resourceDir = options.resourceDir || RESOURCE_DIR;
+  const manifest = options.manifest || JSON.parse(readFileSync(join(RESOURCE_DIR, 'VERSION.json'), 'utf8'));
+  const pin = manifest.ner_model;
+  if (!pin || !/^[\w.-]+\/[\w.-]+$/.test(pin.repo) || !/^[a-f0-9]{40}$/.test(pin.revision)) {
+    throw new Error('Invalid pinned Basemind NER model');
+  }
+  const modelDir = join(resourceDir, 'ner-model');
+  // Every pinned file carries both its size and its sha256 digest. The
+  // digests were recorded from one verified download of the pinned revision;
+  // from then on they are the integrity contract: a local cache that no
+  // longer matches the pin is refused, not exchanged, and a first download
+  // must match the pin digest byte-for-byte.
+  const expected = pin.files.map((file) => ({
+    path: file.path,
+    size: Number(file.size),
+    sha256: typeof file.sha256 === 'string' && /^[a-f0-9]{64}$/.test(file.sha256) ? file.sha256 : '',
+    downloadedPath: join(modelDir, file.path),
+  }));
+  if (
+    !Number.isSafeInteger(expected[0]?.size) ||
+    expected.some((file) => file.path.startsWith('/') || !file.sha256)
+  ) {
+    throw new Error('Invalid pinned Basemind NER model file list');
+  }
+
+  // Size from file metadata and sha256 streamed in chunks: hashing the full
+  // 1.23 GB model through one Buffer would risk exhausting a memory-
+  // constrained build runner mid-prep.
+  const sameDigest = (filePath, expectedDigest) => {
+    const descriptor = openSync(filePath, 'r');
+    const chunk = Buffer.alloc(8 * 1024 * 1024);
+    try {
+      const hash = createHash('sha256');
+      for (;;) {
+        const read = readSync(descriptor, chunk, 0, chunk.length, null);
+        if (read <= 0) break;
+        hash.update(chunk.subarray(0, read));
+      }
+      return hash.digest('hex') === expectedDigest;
+    } finally {
+      closeSync(descriptor);
+    }
+  };
+  const validate = (file, filePath) => {
+    if (statSync(filePath).size !== file.size) {
+      throw new Error(`Basemind NER model size mismatch: ${file.path}`);
+    }
+    if (!sameDigest(filePath, file.sha256)) {
+      throw new Error(`Basemind NER model digest mismatch: ${file.path}`);
+    }
+  };
+  // 'missing' triggers a download; 'invalid' refuses outright. Both real
+  // files and finished downloads are validated the same way against the pin.
+  const states = new Map(expected.map((file) => {
+    let state = 'missing';
+    if (existsSync(file.downloadedPath)) {
+      validate(file, file.downloadedPath);
+      state = 'valid';
+    }
+    return [file.path, state];
+  }));
+  const downloadable = expected.filter((file) => states.get(file.path) !== 'valid');
+
+  if (downloadable.length > 0) {
+    mkdirSync(modelDir, { recursive: true });
+    const handoff = options.download || downloadBasemind;
+    for (const file of downloadable) {
+      // Download into a temporary sibling and validate there: a failed
+      // attempt must not leave a partial file at the real path, where it
+      // would wedge every later prep with a mismatch error instead of
+      // retrying.
+      const tempPath = `${file.downloadedPath}.download-${randomUUID()}`;
+      try {
+        const url = `https://huggingface.co/${pin.repo}/resolve/${pin.revision}/${encodeURIComponent(file.path)}`;
+        handoff(url, tempPath);
+        validate(file, tempPath);
+        renameSync(tempPath, file.downloadedPath);
+      } catch (error) {
+        rmSync(tempPath, { force: true });
+        throw error;
+      }
+    }
+  }
+  return modelDir;
+}
+
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
   const inlineTarget = args.find((arg) => arg.startsWith('--target='));
@@ -209,4 +308,5 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   const target = inlineTarget ? inlineTarget.slice('--target='.length) : targetIndex >= 0 ? args[targetIndex + 1] : undefined;
   if (targetIndex >= 0 && !target) throw new Error('--target requires a Rust target triple');
   console.log(ensureBasemindBinary({ target }));
+  console.log(ensureBasemindNerModel({ target }));
 }
