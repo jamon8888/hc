@@ -92,9 +92,57 @@ pub struct DocSummary {
 #[derive(Clone)]
 pub struct BasemindClient {
     http: HttpClient,
+    /// The snapshot's endpoint values, used only by `Snapshot` mode.
     base_url: String,
     auth_token: String,
+    /// How this client reaches the daemon: a snapshot taken once from the
+    /// portfile, or a living client that re-discovers (and, when the sidecar
+    /// is known, re-ensures) the daemon on every call, because the daemon
+    /// may restart with a fresh portfile between calls.
+    living: EndpointSource,
+    /// The fail-closed redaction policy every sidecar redaction call obeys.
+    redaction: RedactionPolicy,
     next_id: std::sync::Arc<std::sync::atomic::AtomicU64>,
+}
+
+#[cfg(feature = "basemind")]
+#[derive(Clone)]
+enum EndpointSource {
+    Snapshot,
+    Living {
+        daemon_binary: Option<std::path::PathBuf>,
+    },
+}
+
+/// The NER obligations the product puts on every sidecar redaction call.
+///
+/// The sidecar degrades to pattern-only redaction when NER cannot run, so a
+/// product that promises that no unredacted personal value reaches a model
+/// must pass `require_ner` and point the sidecar at its bundled GLiNER2
+/// model. The pattern detectors (`email`, `iban`, ...) run regardless; NER
+/// is what catches names, addresses and the PII taxonomy's model-found
+/// spans.
+#[cfg(feature = "basemind")]
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct RedactionPolicy {
+    /// Refuse a redaction whose NER run did not happen, instead of
+    /// answering with pattern-only output.
+    pub require_ner: bool,
+    /// The directory holding the pinned GLiNER2 model (`tokenizer.json`,
+    /// `model.safetensors`, `encoder_config/config.json`) the daemon uses.
+    pub ner_model_dir: Option<String>,
+}
+
+#[cfg(feature = "basemind")]
+impl RedactionPolicy {
+    /// The policy a product that ships the bundled model installs: NER is
+    /// required, and the sidecar is told where the model lives.
+    pub fn bundled(model_dir: std::path::PathBuf) -> Self {
+        Self {
+            require_ner: true,
+            ner_model_dir: Some(model_dir.to_string_lossy().to_string()),
+        }
+    }
 }
 
 #[cfg(feature = "basemind")]
@@ -116,7 +164,56 @@ impl BasemindClient {
             http,
             base_url,
             auth_token,
+            living: EndpointSource::Snapshot,
+            redaction: RedactionPolicy::default(),
             next_id: std::sync::Arc::new(std::sync::atomic::AtomicU64::new(1)),
+        }
+    }
+
+    /// Create a client that follows the daemon instead of a snapshot.
+    ///
+    /// The daemon may be self-terminated after its bootstrap window when a
+    /// client snapshot was taken at startup, and it binds a fresh port on
+    /// every restart, so a composition root that owns the sidecar hands the
+    /// client the binary the daemon could be brought back from. Each call
+    /// re-reads the portfile, and respawns the daemon when no endpoint is
+    /// published. Without a binary the client still re-discovers on every
+    /// call; it simply cannot bring a dead daemon back.
+    pub fn lazy(daemon_binary: Option<std::path::PathBuf>) -> Self {
+        let client = Self::new(String::new(), String::new());
+        Self {
+            living: EndpointSource::Living { daemon_binary },
+            ..client
+        }
+    }
+
+    /// Install the fail-closed redaction policy for this client.
+    pub fn with_redaction_policy(mut self, policy: RedactionPolicy) -> Self {
+        self.redaction = policy;
+        self
+    }
+
+    /// Put the policy's NER obligations on a redaction call's arguments.
+    ///
+    /// Only sidecar redaction tools accept these arguments; other tools are
+    /// not called with them.
+    fn apply_redaction_policy(&self, arguments: &mut Value) {
+        if self.redaction.require_ner {
+            arguments["require_ner"] = Value::Bool(true);
+        }
+        if let Some(ner_model_dir) = &self.redaction.ner_model_dir {
+            arguments["ner_model_dir"] = Value::String(ner_model_dir.clone());
+        }
+    }
+
+    /// The endpoint to use for this call, ensured to be alive.
+    async fn endpoint(&self) -> Result<(String, String)> {
+        match &self.living {
+            EndpointSource::Snapshot => Ok((self.base_url.clone(), self.auth_token.clone())),
+            EndpointSource::Living { daemon_binary } => {
+                let endpoint = crate::daemon::discover_or_ensure(daemon_binary.clone(), 15).await?;
+                Ok((endpoint.base_url(), endpoint.token))
+            }
         }
     }
 
@@ -131,7 +228,8 @@ impl BasemindClient {
         let id = self
             .next_id
             .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
-        let url = format!("{}/mcp?root={}", self.base_url, urlencoding(root));
+        let (base_url, auth_token) = self.endpoint().await?;
+        let url = format!("{}/mcp?root={}", base_url, urlencoding(root));
         let body = serde_json::json!({
             "jsonrpc": "2.0",
             "id": id,
@@ -144,7 +242,7 @@ impl BasemindClient {
         let resp = self
             .http
             .post(&url)
-            .bearer_auth(&self.auth_token)
+            .bearer_auth(&auth_token)
             .header("Content-Type", "application/json")
             .header("Accept", "application/json, text/event-stream")
             .json(&body)
@@ -168,15 +266,12 @@ impl BasemindClient {
 
     /// Convenience: redact_text tool
     pub async fn redact_text(&self, text: &str, root: &str) -> Result<Value> {
-        self.call_tool(
-            "redact_text",
-            serde_json::json!({
-                "text": text,
-                "strategy": "token-replace"
-            }),
-            root,
-        )
-        .await
+        let mut arguments = serde_json::json!({
+            "text": text,
+            "strategy": "token-replace"
+        });
+        self.apply_redaction_policy(&mut arguments);
+        self.call_tool("redact_text", arguments, root).await
     }
 
     /// Extract a document and return the fork's redaction payload.
@@ -191,15 +286,12 @@ impl BasemindClient {
     /// entity ids and a revealable document is the product's job
     /// (`crate::redaction`).
     pub async fn redact_path(&self, path: &str, root: &str) -> Result<Value> {
-        self.call_tool(
-            "redact_text",
-            serde_json::json!({
-                "file_path": path,
-                "strategy": "token-replace",
-            }),
-            root,
-        )
-        .await
+        let mut arguments = serde_json::json!({
+            "file_path": path,
+            "strategy": "token-replace",
+        });
+        self.apply_redaction_policy(&mut arguments);
+        self.call_tool("redact_text", arguments, root).await
     }
 
     /// Convenience: memory search documents

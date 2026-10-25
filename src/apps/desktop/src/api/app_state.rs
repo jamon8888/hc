@@ -458,13 +458,24 @@ impl AppState {
         &self,
         workspace_id: Option<&str>,
     ) -> Result<Arc<BasemindClient>, String> {
+        let _ = workspace_id;
         openbitfun_basemind_integration::verify_version().map_err(|error| error.to_string())?;
-        let endpoint = openbitfun_basemind_integration::daemon::discover()
-            .map_err(|error| error.to_string())?;
-        Ok(Arc::new(BasemindClient::new(
-            endpoint.base_url(),
-            endpoint.token,
-        )))
+        // The client follows the daemon (it may have self-terminated and
+        // restarted on a fresh port since startup) and obeys the same
+        // fail-closed redaction policy as the startup-published ports: every
+        // redaction it runs requires the bundled GLiNER2 model. When the
+        // model directory is unknown (no sidecar was resolved at startup)
+        // the NER requirement still stands — the sidecar then refuses the
+        // call rather than answering with pattern-only output.
+        let sidecar_binary = crate::basemind_sidecar_binary().map(std::path::Path::to_path_buf);
+        let policy = openbitfun_basemind_integration::RedactionPolicy {
+            require_ner: true,
+            ner_model_dir: crate::basemind_ner_model_dir()
+                .map(|dir| dir.to_string_lossy().into_owned()),
+        };
+        Ok(Arc::new(
+            BasemindClient::lazy(sidecar_binary).with_redaction_policy(policy),
+        ))
     }
 
     /// The product's rehydration store for a workspace.

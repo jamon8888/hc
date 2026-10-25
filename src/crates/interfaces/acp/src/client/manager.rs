@@ -1173,6 +1173,28 @@ impl AcpClientService {
         ))
     }
 
+    /// PII pseudonymization interception for a prompt about to cross to an
+    /// external agent (SPEC §11.4, invariant I9, extended to ACP clients).
+    ///
+    /// The prompt the external agent receives carries session tokens, never
+    /// the personal values. The seam keeps the concrete pseudonymizer in the
+    /// composition root that also owns the basemind sidecar and its ports:
+    /// `prompt_redaction::apply_prompt_interceptor` runs the installed
+    /// interceptor when a host shipped PII-safe prompting and passes the
+    /// prompt through when that host did not publish the guarantee at all.
+    async fn pseudonymize_acp_prompt(
+        prompt: String,
+        workspace_root: &Path,
+        openbitfun_session_id: &str,
+    ) -> OpenBitFunResult<String> {
+        super::prompt_redaction::apply_prompt_interceptor(
+            prompt,
+            workspace_root,
+            openbitfun_session_id,
+        )
+        .await
+    }
+
     pub async fn prompt_agent(
         self: &Arc<Self>,
         client_id: &str,
@@ -1191,8 +1213,16 @@ impl AcpClientService {
                 &openbitfun_session_id,
             )
             .await?;
-
         let run = async {
+            // Interception is inside the timeout-wrapped future: a slow daemon
+            // ensure or redaction request must be covered by the caller's
+            // configured deadline, not extend it. It runs before the session
+            // lock so redaction latency cannot serialize other users of the
+            // session.
+            let prompt =
+                Self::pseudonymize_acp_prompt(prompt, &resolved.cwd, &openbitfun_session_id)
+                    .await?;
+
             let mut session = resolved.session.lock().await;
             self.ensure_remote_session(
                 &resolved.client,
@@ -1246,8 +1276,14 @@ impl AcpClientService {
                 &openbitfun_session_id,
             )
             .await?;
-
         let run = async {
+            // Interception is inside the timeout-wrapped future, before the
+            // session lock: the caller's deadline covers redaction too, and
+            // redaction latency cannot serialize the session.
+            let prompt =
+                Self::pseudonymize_acp_prompt(prompt, &resolved.cwd, &openbitfun_session_id)
+                    .await?;
+
             let mut session = resolved.session.lock().await;
             self.ensure_remote_session(
                 &resolved.client,
@@ -3052,6 +3088,115 @@ mod tests {
         // there either way.
         assert_eq!(resolved.args, vec!["--profile", "openbitfun-acp"]);
         assert!(resolved.enabled);
+    }
+
+    /// An interceptor that answers with a fixed tokenized prompt, so the
+    /// seam can be exercised without a sidecar or composition wiring.
+    use crate::client::prompt_redaction::{set_prompt_interceptor, AcpPromptInterceptor};
+
+    struct StubPseudonymizer;
+
+    #[async_trait::async_trait]
+    impl AcpPromptInterceptor for StubPseudonymizer {
+        async fn pseudonymize(
+            &self,
+            prompt: &str,
+            _workspace_root: &Path,
+            _openbitfun_session_id: &str,
+        ) -> OpenBitFunResult<String> {
+            Ok(format!("{prompt} [PSEUDONYMIZED]"))
+        }
+    }
+
+    /// An interceptor that refuses the prompt, mirroring what a host without
+    /// a reachable sidecar must do.
+    struct RefusingPseudonymizer;
+
+    #[async_trait::async_trait]
+    impl AcpPromptInterceptor for RefusingPseudonymizer {
+        async fn pseudonymize(
+            &self,
+            _prompt: &str,
+            _workspace_root: &Path,
+            _openbitfun_session_id: &str,
+        ) -> OpenBitFunResult<String> {
+            Err(OpenBitFunError::service(
+                "PII pseudonymization is unavailable: the basemind sidecar is not running",
+            ))
+        }
+    }
+
+    /// Serializes the tests that install or remove the prompt interceptor.
+    ///
+    /// The seam is process-wide, so two tests touching it at once would see
+    /// each other's interceptor and fail for the wrong reason.
+    fn prompt_interceptor_guard() -> std::sync::MutexGuard<'static, ()> {
+        static LOCK: std::sync::OnceLock<std::sync::Mutex<()>> = std::sync::OnceLock::new();
+        LOCK.get_or_init(|| std::sync::Mutex::new(()))
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+    }
+
+    /// Installed interceptor: the prompt that crosses to the external agent
+    /// is the pseudonymized one, with the session id and cwd at hand.
+    #[tokio::test]
+    async fn acp_prompt_interception_pseudonymizes_before_the_wire() {
+        let _guard = prompt_interceptor_guard();
+        set_prompt_interceptor(Some(Arc::new(StubPseudonymizer)));
+
+        let text = AcpClientService::pseudonymize_acp_prompt(
+            "my name is Jean Dupont".to_string(),
+            Path::new("/workspace/project"),
+            "session-1",
+        )
+        .await
+        .expect("an installed interceptor pseudonymizes the prompt");
+
+        assert_eq!(text, "my name is Jean Dupont [PSEUDONYMIZED]");
+
+        set_prompt_interceptor(None);
+    }
+
+    /// A refusing interceptor aborts the prompt: the raw values must never
+    /// fall through to the external agent (SPEC §11.4, D7, I9).
+    #[tokio::test]
+    async fn acp_prompt_interception_refuses_to_send_a_raw_prompt() {
+        let _guard = prompt_interceptor_guard();
+        set_prompt_interceptor(Some(Arc::new(RefusingPseudonymizer)));
+
+        let error = AcpClientService::pseudonymize_acp_prompt(
+            "my name is Jean Dupont".to_string(),
+            Path::new("/workspace/project"),
+            "session-1",
+        )
+        .await
+        .expect_err("a prompt the interceptor refuses must not cross");
+
+        let message = error.to_string();
+        assert!(
+            message.contains("pseudonymiz") || message.contains("Pseudonymiz"),
+            "the error must say the prompt was not pseudonymized, got {message}"
+        );
+
+        set_prompt_interceptor(None);
+    }
+
+    /// No interceptor installed: the host never published the PII guarantee,
+    /// so the prompt passes through unchanged.
+    #[tokio::test]
+    async fn acp_prompt_interception_passes_through_without_an_installed_interceptor() {
+        let _guard = prompt_interceptor_guard();
+        set_prompt_interceptor(None);
+
+        let text = AcpClientService::pseudonymize_acp_prompt(
+            "plain prompt".to_string(),
+            Path::new("/workspace/project"),
+            "session-1",
+        )
+        .await
+        .expect("a host without an interceptor passes prompts through");
+
+        assert_eq!(text, "plain prompt");
     }
 
     #[test]
