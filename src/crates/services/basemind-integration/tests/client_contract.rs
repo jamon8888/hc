@@ -243,9 +243,9 @@ fn a_pseudonymised_value_stays_revealable_without_a_token_in_the_text() {
 }
 
 /// The fork's coverage contract (v0.34.1): `ner_truncated` refuses the payload
-/// as a full redaction (D7), a value that is present but not a boolean is a
-/// broken contract and refuses too, and an older sidecar that omits the field
-/// passes.
+/// as a full redaction (D7), an omitted field is a legacy v0.34.0 sidecar that
+/// passes, and a present field that is not a readable boolean — null
+/// included — is a broken contract and refuses.
 #[test]
 fn a_truncated_ner_pass_refuses_the_payload_but_a_v0_34_0_payload_passes() {
     use openbitfun_basemind_integration::redaction::ner_coverage_refusal;
@@ -259,14 +259,15 @@ fn a_truncated_ner_pass_refuses_the_payload_but_a_v0_34_0_payload_passes() {
     let older_sidecar = serde_json::json!({ "ner_ran": false });
     assert!(ner_coverage_refusal(&older_sidecar).is_none());
 
-    // A broken coverage flag cannot be verified, so it refuses like a
-    // truncation rather than being read as complete.
+    // A present flag that cannot be read cannot be verified, so it refuses
+    // like a truncation rather than being treated as the legacy omission.
     let string_flag = serde_json::json!({ "ner_truncated": "yes" });
     let number_flag = serde_json::json!({ "ner_truncated": 1 });
-    for payload in [string_flag, number_flag] {
+    let null_flag = serde_json::json!({ "ner_truncated": null });
+    for payload in [string_flag, number_flag, null_flag] {
         assert!(
             ner_coverage_refusal(&payload).is_some(),
-            "a malformed coverage flag must refuse"
+            "a present unreadable coverage flag must refuse"
         );
     }
 }
