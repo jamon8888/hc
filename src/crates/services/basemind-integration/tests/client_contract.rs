@@ -11,6 +11,13 @@ use openbitfun_basemind_integration::ipc::{extract_tool_payload, urlencoding};
 use openbitfun_basemind_integration::redaction::{category_of, rewrite_tokens_as_spans};
 use std::collections::BTreeMap;
 
+/// A temp directory that is unique to this test process, so concurrent test
+/// runs on one machine never delete or overwrite each other's registry and
+/// vault files.
+fn test_temp_dir(name: &str) -> std::path::PathBuf {
+    std::env::temp_dir().join(format!("openbitfun-basemind-{name}-{}", std::process::id()))
+}
+
 #[test]
 fn query_values_are_form_urlencoded() {
     // The daemon decodes the query with `form_urlencoded`, so the encoding
@@ -54,7 +61,7 @@ fn a_result_without_content_falls_back_to_the_result_itself() {
 
 #[test]
 fn a_portfile_yields_the_addr_and_the_token() {
-    let dir = std::env::temp_dir().join("openbitfun-basemind-portfile-with-token");
+    let dir = test_temp_dir("portfile-with-token");
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(&dir).expect("create temp dir");
     let portfile = dir.join("http.addr");
@@ -68,7 +75,7 @@ fn a_portfile_yields_the_addr_and_the_token() {
 
 #[test]
 fn a_portfile_without_a_token_is_refused() {
-    let dir = std::env::temp_dir().join("openbitfun-basemind-portfile-no-token");
+    let dir = test_temp_dir("portfile-no-token");
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(&dir).expect("create temp dir");
     let portfile = dir.join("http.addr");
@@ -85,7 +92,7 @@ fn a_portfile_without_a_token_is_refused() {
 
 #[test]
 fn a_missing_portfile_names_the_daemon_start_command() {
-    let dir = std::env::temp_dir().join("openbitfun-basemind-portfile-missing");
+    let dir = test_temp_dir("portfile-missing");
     let _ = std::fs::remove_dir_all(&dir);
     let portfile = dir.join("http.addr");
     let error = daemon::read_endpoint(&portfile).expect_err("must refuse");
@@ -159,7 +166,7 @@ fn a_category_is_read_off_the_token_in_the_ui_vocabulary() {
 fn a_redaction_survives_a_new_store() {
     use openbitfun_basemind_integration::redaction::RedactionStore;
 
-    let temp = std::env::temp_dir().join("openbitfun-basemind-persistence-test");
+    let temp = test_temp_dir("persistence-test");
     let _ = std::fs::remove_dir_all(&temp);
     let registry = temp.join("registry");
     let vault = temp.join("vault");
@@ -205,7 +212,7 @@ fn a_redaction_survives_a_new_store() {
 fn a_pseudonymised_value_stays_revealable_without_a_token_in_the_text() {
     use openbitfun_basemind_integration::redaction::RedactionStore;
 
-    let temp = std::env::temp_dir().join("openbitfun-basemind-pseudonym-test");
+    let temp = test_temp_dir("pseudonym-test");
     let _ = std::fs::remove_dir_all(&temp);
     // The text says "Orme" because the caller's dictionary renamed the true
     // party; the map still holds the token, so the value stays reversible.
@@ -236,7 +243,9 @@ fn a_pseudonymised_value_stays_revealable_without_a_token_in_the_text() {
 }
 
 /// The fork's coverage contract (v0.34.1): `ner_truncated` refuses the payload
-/// as a full redaction (D7), and an older sidecar that omits the field passes.
+/// as a full redaction (D7), a value that is present but not a boolean is a
+/// broken contract and refuses too, and an older sidecar that omits the field
+/// passes.
 #[test]
 fn a_truncated_ner_pass_refuses_the_payload_but_a_v0_34_0_payload_passes() {
     use openbitfun_basemind_integration::redaction::ner_coverage_refusal;
@@ -249,4 +258,15 @@ fn a_truncated_ner_pass_refuses_the_payload_but_a_v0_34_0_payload_passes() {
 
     let older_sidecar = serde_json::json!({ "ner_ran": false });
     assert!(ner_coverage_refusal(&older_sidecar).is_none());
+
+    // A broken coverage flag cannot be verified, so it refuses like a
+    // truncation rather than being read as complete.
+    let string_flag = serde_json::json!({ "ner_truncated": "yes" });
+    let number_flag = serde_json::json!({ "ner_truncated": 1 });
+    for payload in [string_flag, number_flag] {
+        assert!(
+            ner_coverage_refusal(&payload).is_some(),
+            "a malformed coverage flag must refuse"
+        );
+    }
 }

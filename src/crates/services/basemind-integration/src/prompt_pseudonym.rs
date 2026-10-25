@@ -46,6 +46,12 @@ impl PromptPseudonymizer {
     ) -> Result<PseudonymizedPrompt> {
         // 1. Call basemind `redact_text` with strategy="token-replace"
         let redact_result = self.client.redact_text(raw_prompt, workspace_root).await?;
+        // The same D7 rule covers a truncated NER pass here: a prompt whose
+        // text was only partly read must not reach the model, because the PII
+        // past the cut would be sent unchecked.
+        if let Some(message) = crate::redaction::ner_coverage_refusal(&redact_result) {
+            anyhow::bail!("redact_text safety pass refused the prompt: {message}");
+        }
 
         // Parse response
         let redacted_text = redact_result["redacted_text"]

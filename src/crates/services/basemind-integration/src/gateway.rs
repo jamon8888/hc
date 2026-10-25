@@ -36,19 +36,21 @@ pub const MIRROR_DIR: &str = "safe";
 ///
 /// 32 bytes from the OS source of randomness, hex-encoded: readable in the
 /// command environment without any quoting hazards, and never reused across
-/// launches.
+/// launches. Randomness failure is an error, not a panic, so a launch that
+/// cannot mint a token reports and skips the daemon instead of unwinding the
+/// host.
 #[cfg(feature = "basemind")]
-pub fn generate_gateway_token() -> String {
+pub fn generate_gateway_token() -> Result<String, rand::Error> {
     use rand::RngCore;
     let mut bytes = [0u8; 32];
-    rand::RngCore::fill_bytes(&mut rand::rngs::OsRng, &mut bytes);
+    rand::RngCore::try_fill_bytes(&mut rand::rngs::OsRng, &mut bytes)?;
     // The hex helper belongs to the basemind feature, where the other
     // random-value helpers live, so a non-basemind build has no crypto code.
     let mut out = String::with_capacity(bytes.len() * 2);
     for byte in bytes {
         out.push_str(&format!("{byte:02x}"));
     }
-    out
+    Ok(out)
 }
 
 /// True when `root` carries a `safe/` mirror, exactly like the fork's check.
@@ -74,8 +76,8 @@ mod tests {
     /// agent could learn once.
     #[test]
     fn tokens_are_random_and_formatted() {
-        let first = generate_gateway_token();
-        let second = generate_gateway_token();
+        let first = generate_gateway_token().expect("mint a token");
+        let second = generate_gateway_token().expect("mint a token");
         assert_ne!(first, second);
         assert_eq!(first.len(), 64);
         assert!(first.chars().all(|c| c.is_ascii_hexdigit()));

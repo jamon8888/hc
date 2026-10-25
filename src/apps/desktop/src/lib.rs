@@ -2400,14 +2400,24 @@ fn resolve_bundled_basemind_binary(app: &tauri::App) -> Option<std::path::PathBu
 fn start_bundled_basemind_daemon(path: &std::path::Path) {
     use openbitfun_core::util::process_manager::create_command;
 
+    // Randomness failure is an error, not a panic: the host reports it and
+    // skips the launch, and the feature degrades loudly through the probe.
+    let token = match openbitfun_basemind_integration::generate_gateway_token() {
+        Ok(token) => token,
+        Err(error) => {
+            log::warn!(
+                "Failed to generate the Basemind gateway token, skipping the daemon launch: {}",
+                error
+            );
+            return;
+        }
+    };
+
     let mut command = create_command(path);
     command
         .arg("comms")
         .arg("start")
-        .env(
-            openbitfun_basemind_integration::GATEWAY_TOKEN_ENV,
-            openbitfun_basemind_integration::generate_gateway_token(),
-        )
+        .env(openbitfun_basemind_integration::GATEWAY_TOKEN_ENV, token)
         .stdin(std::process::Stdio::null())
         .stdout(std::process::Stdio::null())
         .stderr(std::process::Stdio::null());

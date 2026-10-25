@@ -259,18 +259,24 @@ impl RedactionStore {
 /// not treat such a payload as a full redaction, so every consumer surfaces
 /// this refusal as an error instead of recording a redaction the user trusts.
 ///
-/// Field absent (a v0.34.0 sidecar) → `None`: no gap reported.
+/// Field absent (a v0.34.0 sidecar) → `None`: no gap reported. A value that
+/// is present but not a boolean is a broken contract: coverage cannot be
+/// verified, so it is refused like a truncation.
 #[cfg(feature = "basemind")]
 pub fn ner_coverage_refusal(payload: &Value) -> Option<String> {
-    if payload["ner_truncated"].as_bool() == Some(true) {
-        Some(
-            "the redaction pass could not read the whole text (ner_truncated): PII past the \
-             cut is not redacted, so the document is refused rather than shown as fully \
-             redacted. Shorten the source or retry after the sidecar recovers."
-                .to_string(),
-        )
-    } else {
-        None
+    const TRUNCATED: &str =
+        "the redaction pass could not read the whole text (ner_truncated): PII past the \
+         cut is not redacted, so the document is refused rather than shown as fully \
+         redacted. Shorten the source or retry after the sidecar recovers.";
+    match payload.get("ner_truncated") {
+        None | Some(Value::Null) => None,
+        Some(Value::Bool(false)) => None,
+        Some(Value::Bool(true)) => Some(TRUNCATED.to_string()),
+        Some(other) => Some(format!(
+            "the redaction pass reported an unreadable NER coverage flag \
+             (ner_truncated = {other}): coverage cannot be verified, so the result is \
+             refused rather than trusted as a full redaction."
+        )),
     }
 }
 
