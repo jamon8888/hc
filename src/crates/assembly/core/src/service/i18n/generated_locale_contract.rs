@@ -23,11 +23,35 @@ pub struct GeneratedSharedTermEntry {
     pub value: &'static str,
 }
 
-pub const GENERATED_DEFAULT_LOCALE: LocaleId = LocaleId::ZhCN;
+pub const GENERATED_DEFAULT_LOCALE: LocaleId = LocaleId::FrFR;
 pub const GENERATED_FALLBACK_LOCALE: LocaleId = LocaleId::EnUS;
-pub const GENERATED_UNKNOWN_LOCALE_FALLBACK_CHAIN: &[LocaleId] = &[LocaleId::EnUS, LocaleId::ZhCN];
+pub const GENERATED_UNKNOWN_LOCALE_FALLBACK_CHAIN: &[LocaleId] = &[LocaleId::EnUS, LocaleId::FrFR];
 
 pub const GENERATED_LOCALE_CONTRACT: &[GeneratedLocaleContractEntry] = &[
+    GeneratedLocaleContractEntry {
+        id: LocaleId::FrFR,
+        code: "fr-FR",
+        name: "Français",
+        english_name: "French",
+        native_name: "Français",
+        rtl: false,
+        model_language_name: "French",
+        short_model_instruction: "Utilisez le français",
+        aliases: &["fr", "fr-FR"],
+        content_fallbacks: &[LocaleId::EnUS],
+    },
+    GeneratedLocaleContractEntry {
+        id: LocaleId::EnUS,
+        code: "en-US",
+        name: "English",
+        english_name: "English (US)",
+        native_name: "English",
+        rtl: false,
+        model_language_name: "English",
+        short_model_instruction: "Use English",
+        aliases: &["en", "en-US"],
+        content_fallbacks: &[LocaleId::ZhCN],
+    },
     GeneratedLocaleContractEntry {
         id: LocaleId::ZhCN,
         code: "zh-CN",
@@ -52,33 +76,379 @@ pub const GENERATED_LOCALE_CONTRACT: &[GeneratedLocaleContractEntry] = &[
         aliases: &["zh-TW", "zh-Hant", "zh-HK", "zh-MO"],
         content_fallbacks: &[LocaleId::ZhCN, LocaleId::EnUS],
     },
-    GeneratedLocaleContractEntry {
-        id: LocaleId::EnUS,
-        code: "en-US",
-        name: "English",
-        english_name: "English (US)",
-        native_name: "English",
-        rtl: false,
-        model_language_name: "English",
-        short_model_instruction: "Use English",
-        aliases: &["en", "en-US"],
-        content_fallbacks: &[LocaleId::ZhCN],
-    },
-    GeneratedLocaleContractEntry {
-        id: LocaleId::FrFR,
-        code: "fr-FR",
-        name: "Français",
-        english_name: "French",
-        native_name: "Français",
-        rtl: false,
-        model_language_name: "French",
-        short_model_instruction: "Utilisez le français",
-        aliases: &["fr", "fr-FR"],
-        content_fallbacks: &[LocaleId::EnUS],
-    },
 ];
 
 pub const GENERATED_SHARED_TERMS: &[GeneratedSharedTermEntry] = &[
+    GeneratedSharedTermEntry {
+        locale: LocaleId::FrFR,
+        key: "agents.Claw",
+        value: "Assistant",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::FrFR,
+        key: "agents.ComputerUse",
+        value: "Utilisation ordinateur",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::FrFR,
+        key: "agents.Cowork",
+        value: "Collaboration",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::FrFR,
+        key: "agents.Creative",
+        value: "Créatif",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::FrFR,
+        key: "agents.DeepResearch",
+        value: "Recherche approfondie",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::FrFR,
+        key: "agents.default",
+        value: "Assistant par défaut",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::FrFR,
+        key: "agents.Minimal",
+        value: "Minimal",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::FrFR,
+        key: "agents.Standard",
+        value: "Standard",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::FrFR,
+        key: "agents.Ultimate",
+        value: "Ultime",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::FrFR,
+        key: "connectionMethods.botFeishu",
+        value: "Bot Feishu",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::FrFR,
+        key: "connectionMethods.botTelegram",
+        value: "Bot Telegram",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::FrFR,
+        key: "connectionMethods.botWeixin",
+        value: "Bot WeChat",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::FrFR,
+        key: "connectionMethods.customServer",
+        value: "Serveur personnalisé",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::FrFR,
+        key: "connectionMethods.lan",
+        value: "Réseau local",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::FrFR,
+        key: "connectionMethods.openbitfunServer",
+        value: "Serveur Alex",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::FrFR,
+        key: "features.codeAgent",
+        value: "Agent de code",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::FrFR,
+        key: "features.deepReview",
+        value: "Révision stricte",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::FrFR,
+        key: "features.remoteControl",
+        value: "Contrôle à distance",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::FrFR,
+        key: "features.settings",
+        value: "Paramètres",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::FrFR,
+        key: "features.workspace",
+        value: "Espace de travail",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::FrFR,
+        key: "modes.assistant",
+        value: "Mode assistant",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::FrFR,
+        key: "modes.expert",
+        value: "Mode expert",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::FrFR,
+        key: "modes.review",
+        value: "Mode révision",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::FrFR,
+        key: "product.name",
+        value: "Alex",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::FrFR,
+        key: "product.remote",
+        value: "Alex Remote",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::FrFR,
+        key: "statuses.cancelled",
+        value: "Annulé",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::FrFR,
+        key: "statuses.done",
+        value: "Terminé",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::FrFR,
+        key: "statuses.failed",
+        value: "Échec",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::FrFR,
+        key: "statuses.loading",
+        value: "Chargement",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::FrFR,
+        key: "statuses.running",
+        value: "En cours",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::FrFR,
+        key: "tools.edit",
+        value: "Éditer",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::FrFR,
+        key: "tools.explore",
+        value: "Explorer",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::FrFR,
+        key: "tools.read",
+        value: "Lire",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::FrFR,
+        key: "tools.search",
+        value: "Rechercher",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::FrFR,
+        key: "tools.shell",
+        value: "Terminal",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::FrFR,
+        key: "tools.todo",
+        value: "Tâches",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::FrFR,
+        key: "tools.write",
+        value: "Écrire",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::EnUS,
+        key: "agents.Claw",
+        value: "Assistant",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::EnUS,
+        key: "agents.ComputerUse",
+        value: "Computer Use",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::EnUS,
+        key: "agents.Cowork",
+        value: "Cowork",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::EnUS,
+        key: "agents.Creative",
+        value: "Creative",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::EnUS,
+        key: "agents.DeepResearch",
+        value: "Deep Research",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::EnUS,
+        key: "agents.default",
+        value: "Default Assistant",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::EnUS,
+        key: "agents.Minimal",
+        value: "Minimal",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::EnUS,
+        key: "agents.Standard",
+        value: "Standard",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::EnUS,
+        key: "agents.Ultimate",
+        value: "Ultimate",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::EnUS,
+        key: "connectionMethods.botFeishu",
+        value: "Feishu Bot",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::EnUS,
+        key: "connectionMethods.botTelegram",
+        value: "Telegram Bot",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::EnUS,
+        key: "connectionMethods.botWeixin",
+        value: "WeChat Bot",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::EnUS,
+        key: "connectionMethods.customServer",
+        value: "Custom Server",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::EnUS,
+        key: "connectionMethods.lan",
+        value: "LAN",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::EnUS,
+        key: "connectionMethods.openbitfunServer",
+        value: "Alex Server",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::EnUS,
+        key: "features.codeAgent",
+        value: "Code Agent",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::EnUS,
+        key: "features.deepReview",
+        value: "Review: Strict",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::EnUS,
+        key: "features.remoteControl",
+        value: "Remote Control",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::EnUS,
+        key: "features.settings",
+        value: "Settings",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::EnUS,
+        key: "features.workspace",
+        value: "Workspace",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::EnUS,
+        key: "modes.assistant",
+        value: "Assistant Mode",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::EnUS,
+        key: "modes.expert",
+        value: "Expert Mode",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::EnUS,
+        key: "modes.review",
+        value: "Review Mode",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::EnUS,
+        key: "product.name",
+        value: "Alex",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::EnUS,
+        key: "product.remote",
+        value: "Alex Remote",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::EnUS,
+        key: "statuses.cancelled",
+        value: "Cancelled",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::EnUS,
+        key: "statuses.done",
+        value: "Done",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::EnUS,
+        key: "statuses.failed",
+        value: "Failed",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::EnUS,
+        key: "statuses.loading",
+        value: "Loading",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::EnUS,
+        key: "statuses.running",
+        value: "Running",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::EnUS,
+        key: "tools.edit",
+        value: "Edit",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::EnUS,
+        key: "tools.explore",
+        value: "Explore",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::EnUS,
+        key: "tools.read",
+        value: "Read",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::EnUS,
+        key: "tools.search",
+        value: "Search",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::EnUS,
+        key: "tools.shell",
+        value: "Shell",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::EnUS,
+        key: "tools.todo",
+        value: "Todo",
+    },
+    GeneratedSharedTermEntry {
+        locale: LocaleId::EnUS,
+        key: "tools.write",
+        value: "Write",
+    },
     GeneratedSharedTermEntry {
         locale: LocaleId::ZhCN,
         key: "agents.Claw",
@@ -448,376 +818,6 @@ pub const GENERATED_SHARED_TERMS: &[GeneratedSharedTermEntry] = &[
         locale: LocaleId::ZhTW,
         key: "tools.write",
         value: "寫入",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::EnUS,
-        key: "agents.Claw",
-        value: "Assistant",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::EnUS,
-        key: "agents.ComputerUse",
-        value: "Computer Use",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::EnUS,
-        key: "agents.Cowork",
-        value: "Cowork",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::EnUS,
-        key: "agents.Creative",
-        value: "Creative",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::EnUS,
-        key: "agents.DeepResearch",
-        value: "Deep Research",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::EnUS,
-        key: "agents.default",
-        value: "Default Assistant",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::EnUS,
-        key: "agents.Minimal",
-        value: "Minimal",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::EnUS,
-        key: "agents.Standard",
-        value: "Standard",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::EnUS,
-        key: "agents.Ultimate",
-        value: "Ultimate",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::EnUS,
-        key: "connectionMethods.botFeishu",
-        value: "Feishu Bot",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::EnUS,
-        key: "connectionMethods.botTelegram",
-        value: "Telegram Bot",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::EnUS,
-        key: "connectionMethods.botWeixin",
-        value: "WeChat Bot",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::EnUS,
-        key: "connectionMethods.customServer",
-        value: "Custom Server",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::EnUS,
-        key: "connectionMethods.lan",
-        value: "LAN",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::EnUS,
-        key: "connectionMethods.openbitfunServer",
-        value: "Alex Server",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::EnUS,
-        key: "features.codeAgent",
-        value: "Code Agent",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::EnUS,
-        key: "features.deepReview",
-        value: "Review: Strict",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::EnUS,
-        key: "features.remoteControl",
-        value: "Remote Control",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::EnUS,
-        key: "features.settings",
-        value: "Settings",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::EnUS,
-        key: "features.workspace",
-        value: "Workspace",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::EnUS,
-        key: "modes.assistant",
-        value: "Assistant Mode",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::EnUS,
-        key: "modes.expert",
-        value: "Expert Mode",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::EnUS,
-        key: "modes.review",
-        value: "Review Mode",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::EnUS,
-        key: "product.name",
-        value: "Alex",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::EnUS,
-        key: "product.remote",
-        value: "Alex Remote",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::EnUS,
-        key: "statuses.cancelled",
-        value: "Cancelled",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::EnUS,
-        key: "statuses.done",
-        value: "Done",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::EnUS,
-        key: "statuses.failed",
-        value: "Failed",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::EnUS,
-        key: "statuses.loading",
-        value: "Loading",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::EnUS,
-        key: "statuses.running",
-        value: "Running",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::EnUS,
-        key: "tools.edit",
-        value: "Edit",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::EnUS,
-        key: "tools.explore",
-        value: "Explore",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::EnUS,
-        key: "tools.read",
-        value: "Read",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::EnUS,
-        key: "tools.search",
-        value: "Search",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::EnUS,
-        key: "tools.shell",
-        value: "Shell",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::EnUS,
-        key: "tools.todo",
-        value: "Todo",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::EnUS,
-        key: "tools.write",
-        value: "Write",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::FrFR,
-        key: "agents.Claw",
-        value: "Assistant",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::FrFR,
-        key: "agents.ComputerUse",
-        value: "Utilisation ordinateur",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::FrFR,
-        key: "agents.Cowork",
-        value: "Collaboration",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::FrFR,
-        key: "agents.Creative",
-        value: "Créatif",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::FrFR,
-        key: "agents.DeepResearch",
-        value: "Recherche approfondie",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::FrFR,
-        key: "agents.default",
-        value: "Assistant par défaut",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::FrFR,
-        key: "agents.Minimal",
-        value: "Minimal",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::FrFR,
-        key: "agents.Standard",
-        value: "Standard",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::FrFR,
-        key: "agents.Ultimate",
-        value: "Ultime",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::FrFR,
-        key: "connectionMethods.botFeishu",
-        value: "Bot Feishu",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::FrFR,
-        key: "connectionMethods.botTelegram",
-        value: "Bot Telegram",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::FrFR,
-        key: "connectionMethods.botWeixin",
-        value: "Bot WeChat",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::FrFR,
-        key: "connectionMethods.customServer",
-        value: "Serveur personnalisé",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::FrFR,
-        key: "connectionMethods.lan",
-        value: "Réseau local",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::FrFR,
-        key: "connectionMethods.openbitfunServer",
-        value: "Serveur Alex",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::FrFR,
-        key: "features.codeAgent",
-        value: "Agent de code",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::FrFR,
-        key: "features.deepReview",
-        value: "Révision stricte",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::FrFR,
-        key: "features.remoteControl",
-        value: "Contrôle à distance",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::FrFR,
-        key: "features.settings",
-        value: "Paramètres",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::FrFR,
-        key: "features.workspace",
-        value: "Espace de travail",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::FrFR,
-        key: "modes.assistant",
-        value: "Mode assistant",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::FrFR,
-        key: "modes.expert",
-        value: "Mode expert",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::FrFR,
-        key: "modes.review",
-        value: "Mode révision",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::FrFR,
-        key: "product.name",
-        value: "Alex",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::FrFR,
-        key: "product.remote",
-        value: "Alex Remote",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::FrFR,
-        key: "statuses.cancelled",
-        value: "Annulé",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::FrFR,
-        key: "statuses.done",
-        value: "Terminé",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::FrFR,
-        key: "statuses.failed",
-        value: "Échec",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::FrFR,
-        key: "statuses.loading",
-        value: "Chargement",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::FrFR,
-        key: "statuses.running",
-        value: "En cours",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::FrFR,
-        key: "tools.edit",
-        value: "Éditer",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::FrFR,
-        key: "tools.explore",
-        value: "Explorer",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::FrFR,
-        key: "tools.read",
-        value: "Lire",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::FrFR,
-        key: "tools.search",
-        value: "Rechercher",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::FrFR,
-        key: "tools.shell",
-        value: "Terminal",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::FrFR,
-        key: "tools.todo",
-        value: "Tâches",
-    },
-    GeneratedSharedTermEntry {
-        locale: LocaleId::FrFR,
-        key: "tools.write",
-        value: "Écrire",
     },
 ];
 

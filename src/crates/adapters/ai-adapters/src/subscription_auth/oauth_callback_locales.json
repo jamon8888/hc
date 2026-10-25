@@ -22,5 +22,13 @@
     "bad_request": "請求無效",
     "missing_code": "缺少授權碼",
     "invalid_state": "授權狀態無效"
+  },
+  "fr-FR": {
+    "success_title": "Connexion réussie",
+    "success_message": "Vous êtes connecté. Vous pouvez fermer cette fenêtre et revenir à Alex.",
+    "error_title": "Échec de la connexion",
+    "bad_request": "Requête invalide",
+    "missing_code": "Code d'autorisation manquant",
+    "invalid_state": "État d'autorisation invalide"
   }
 }

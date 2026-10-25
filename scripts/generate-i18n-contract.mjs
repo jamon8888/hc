@@ -36,6 +36,10 @@ internal const val DEFAULT_APP_LANGUAGE_TAG = "${contract.surfaceDefaults.androi
     generate: generateCoreRustLocaleContract,
   },
   {
+    path: path.join(root, 'src', 'crates', 'contracts', 'config-contracts', 'src', 'generated_locale_contract.rs'),
+    generate: generateConfigContractsRustLocaleContract,
+  },
+  {
     path: path.join(root, 'OpenBitFun-Installer', 'src-tauri', 'src', 'installer', 'generated_locale_contract.rs'),
     generate: generateInstallerRustLocaleContract,
   },
@@ -113,6 +117,22 @@ function validateContract(contract) {
   for (const [surface, localeId] of Object.entries(contract.surfaceDefaults ?? {})) {
     assert(ids.includes(localeId), `${surface} surface default includes unknown locale ${localeId}`);
   }
+
+  for (const [surface, chain] of Object.entries(contract.surfaceUnknownFallbackChains ?? {})) {
+    assert(Array.isArray(chain) && chain.length > 0, `${surface} unknown fallback chain must not be empty`);
+    for (const localeId of chain) {
+      assert(ids.includes(localeId), `${surface} unknown fallback chain includes unknown locale ${localeId}`);
+    }
+  }
+}
+
+/// Returns the unknown-locale content fallback chain for a surface.
+///
+/// A surface that ships no copy for a locale must not name it here: the chain
+/// is the last resort for content, so naming a locale without a catalog would
+/// promise copy the surface does not have.
+function unknownFallbacksForSurface(contract, surface) {
+  return contract.surfaceUnknownFallbackChains?.[surface] ?? contract.unknownLocaleFallbackChain;
 }
 
 function orderedLocales(contract, surface) {
@@ -212,7 +232,7 @@ function generateWebLocaleContract(contract, sharedTermsByLocale) {
   const localeMap = getLocaleMap(contract);
   const defaultLocale = contract.surfaceDefaults['web-ui'];
   const fallbackLocale = contract.fallbackLocale;
-  const unknownFallbacks = contract.unknownLocaleFallbackChain;
+  const unknownFallbacks = unknownFallbacksForSurface(contract, 'web-ui');
   const sharedTerms = sharedTermsForLocales(sharedTermsByLocale, locales);
 
   return `${generatedHeader('ts')}export const LOCALE_IDS = ${tsArray(locales.map((locale) => locale.id))} as const;
@@ -363,7 +383,7 @@ function generateWebStartupI18n(contract) {
 function generateMobileLocaleContract(contract, sharedTermsByLocale) {
   const locales = orderedLocales(contract, 'mobile-web');
   const defaultLanguage = contract.surfaceDefaults['mobile-web'];
-  const unknownFallbacks = contract.unknownLocaleFallbackChain;
+  const unknownFallbacks = unknownFallbacksForSurface(contract, 'mobile-web');
   const sharedTerms = sharedTermsForLocales(sharedTermsByLocale, locales);
 
   return `${generatedHeader('ts')}export const MOBILE_LOCALES = [
@@ -624,6 +644,21 @@ mod tests {
         );
     }
 }
+`;
+}
+
+function generateConfigContractsRustLocaleContract(contract) {
+  const localeMap = getLocaleMap(contract);
+  const defaultLocale = localeMap.get(contract.surfaceDefaults.core);
+
+  return `${generatedHeader('rust')}/// The product default locale id, taken from the shared i18n contract.
+///
+/// The configuration contract crate cannot read the generated Core contract, so
+/// the shared contract is projected here instead of being hand-copied.
+pub const DEFAULT_APP_LANGUAGE: &str = ${rustString(defaultLocale.id)};
+
+/// The content fallback locale id, taken from the shared i18n contract.
+pub const FALLBACK_APP_LANGUAGE: &str = ${rustString(contract.fallbackLocale)};
 `;
 }
 

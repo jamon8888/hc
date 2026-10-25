@@ -51,8 +51,8 @@ export function createWebFontProfilePlugin(
             `<link rel="stylesheet" href="${stylesheetPath}" data-openbitfun-font-profile-stylesheet="${profile}" />`,
           )
           .replace(
-            '<html lang="zh-CN">',
-            `<html lang="zh-CN" data-openbitfun-font-profile="${profile}">`,
+            '<html lang="fr-FR">',
+            `<html lang="fr-FR" data-openbitfun-font-profile="${profile}">`,
           );
       },
     },

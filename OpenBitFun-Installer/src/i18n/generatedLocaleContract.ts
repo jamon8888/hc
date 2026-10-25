@@ -12,15 +12,6 @@ export interface InstallerLanguageDefinition {
 
 export const INSTALLER_LANGUAGE_DEFINITIONS = [
   {
-    uiCode: "en",
-    appCode: "en-US",
-    label: "English",
-    nativeName: "English",
-    continueLabel: "Continue",
-    aliases: ["en", "en-US"],
-    contentFallbacks: ["zh-CN"],
-  },
-  {
     uiCode: "fr",
     appCode: "fr-FR",
     label: "French",
@@ -28,6 +19,15 @@ export const INSTALLER_LANGUAGE_DEFINITIONS = [
     continueLabel: "Continuer",
     aliases: ["fr", "fr-FR"],
     contentFallbacks: ["en-US"],
+  },
+  {
+    uiCode: "en",
+    appCode: "en-US",
+    label: "English",
+    nativeName: "English",
+    continueLabel: "Continue",
+    aliases: ["en", "en-US"],
+    contentFallbacks: ["zh-CN"],
   },
   {
     uiCode: "zh",
@@ -52,67 +52,14 @@ export const INSTALLER_LANGUAGE_DEFINITIONS = [
 export type InstallerUiLanguage = (typeof INSTALLER_LANGUAGE_DEFINITIONS)[number]['uiCode'];
 export type AppLanguage = (typeof INSTALLER_LANGUAGE_DEFINITIONS)[number]['appCode'];
 
-export const DEFAULT_INSTALLER_APP_LANGUAGE = "en-US" satisfies AppLanguage;
-export const DEFAULT_INSTALLER_UI_LANGUAGE = "en" satisfies InstallerUiLanguage;
+export const DEFAULT_INSTALLER_APP_LANGUAGE = "fr-FR" satisfies AppLanguage;
+export const DEFAULT_INSTALLER_UI_LANGUAGE = "fr" satisfies InstallerUiLanguage;
 
 export type SharedI18nTerms = {
   readonly [key: string]: string | SharedI18nTerms;
 };
 
 export const SHARED_TERMS_BY_APP_LANGUAGE = {
-  "en-US": {
-    "product": {
-      "name": "Alex",
-      "remote": "Alex Remote"
-    },
-    "features": {
-      "remoteControl": "Remote Control",
-      "codeAgent": "Code Agent",
-      "deepReview": "Review: Strict",
-      "settings": "Settings",
-      "workspace": "Workspace"
-    },
-    "modes": {
-      "assistant": "Assistant Mode",
-      "expert": "Expert Mode",
-      "review": "Review Mode"
-    },
-    "agents": {
-      "Minimal": "Minimal",
-      "Standard": "Standard",
-      "Ultimate": "Ultimate",
-      "Creative": "Creative",
-      "Claw": "Assistant",
-      "Cowork": "Cowork",
-      "DeepResearch": "Deep Research",
-      "ComputerUse": "Computer Use",
-      "default": "Default Assistant"
-    },
-    "tools": {
-      "explore": "Explore",
-      "read": "Read",
-      "write": "Write",
-      "shell": "Shell",
-      "search": "Search",
-      "edit": "Edit",
-      "todo": "Todo"
-    },
-    "connectionMethods": {
-      "lan": "LAN",
-      "openbitfunServer": "Alex Server",
-      "customServer": "Custom Server",
-      "botFeishu": "Feishu Bot",
-      "botTelegram": "Telegram Bot",
-      "botWeixin": "WeChat Bot"
-    },
-    "statuses": {
-      "loading": "Loading",
-      "running": "Running",
-      "done": "Done",
-      "failed": "Failed",
-      "cancelled": "Cancelled"
-    }
-  },
   "fr-FR": {
     "product": {
       "name": "Alex",
@@ -164,6 +111,59 @@ export const SHARED_TERMS_BY_APP_LANGUAGE = {
       "done": "Terminé",
       "failed": "Échec",
       "cancelled": "Annulé"
+    }
+  },
+  "en-US": {
+    "product": {
+      "name": "Alex",
+      "remote": "Alex Remote"
+    },
+    "features": {
+      "remoteControl": "Remote Control",
+      "codeAgent": "Code Agent",
+      "deepReview": "Review: Strict",
+      "settings": "Settings",
+      "workspace": "Workspace"
+    },
+    "modes": {
+      "assistant": "Assistant Mode",
+      "expert": "Expert Mode",
+      "review": "Review Mode"
+    },
+    "agents": {
+      "Minimal": "Minimal",
+      "Standard": "Standard",
+      "Ultimate": "Ultimate",
+      "Creative": "Creative",
+      "Claw": "Assistant",
+      "Cowork": "Cowork",
+      "DeepResearch": "Deep Research",
+      "ComputerUse": "Computer Use",
+      "default": "Default Assistant"
+    },
+    "tools": {
+      "explore": "Explore",
+      "read": "Read",
+      "write": "Write",
+      "shell": "Shell",
+      "search": "Search",
+      "edit": "Edit",
+      "todo": "Todo"
+    },
+    "connectionMethods": {
+      "lan": "LAN",
+      "openbitfunServer": "Alex Server",
+      "customServer": "Custom Server",
+      "botFeishu": "Feishu Bot",
+      "botTelegram": "Telegram Bot",
+      "botWeixin": "WeChat Bot"
+    },
+    "statuses": {
+      "loading": "Loading",
+      "running": "Running",
+      "done": "Done",
+      "failed": "Failed",
+      "cancelled": "Cancelled"
     }
   },
   "zh-CN": {

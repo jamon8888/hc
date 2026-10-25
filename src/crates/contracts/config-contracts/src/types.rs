@@ -2,6 +2,7 @@
 //!
 //! Defines all configuration-related types shared between backend and frontend.
 
+use crate::generated_locale_contract::DEFAULT_APP_LANGUAGE;
 use openbitfun_core_types::{product_identity, WorktreeSettings};
 pub use openbitfun_core_types::{ReasoningConfig, ReasoningPreset, ReasoningPresetAction};
 use openbitfun_product_domains::tool_permissions::{PermissionRule, ToolPermissionConfig};
@@ -152,6 +153,17 @@ fn default_close_button_behavior() -> String {
 #[serde(default)]
 pub struct AppConfig {
     pub language: String,
+    /// One-time product locale rollout marker.
+    ///
+    /// The product forces its default locale for existing installations once.
+    /// This field records the locale the installation was rolled out to, so the
+    /// rollout is not re-applied to a language the user picked afterwards.
+    ///
+    /// A document written before this field existed has no marker and is
+    /// migrated when it is loaded. The pre-rollout document is kept as a
+    /// configuration backup, so the previous language stays recoverable.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub language_rollout: Option<String>,
     pub auto_update: bool,
     pub telemetry: bool,
     pub startup_behavior: String,
@@ -1864,7 +1876,8 @@ impl Default for GlobalConfig {
 impl Default for AppConfig {
     fn default() -> Self {
         Self {
-            language: "zh-CN".to_string(),
+            language: DEFAULT_APP_LANGUAGE.to_string(),
+            language_rollout: Some(DEFAULT_APP_LANGUAGE.to_string()),
             auto_update: true,
             telemetry: false,
             startup_behavior: "lastWorkspace".to_string(),
