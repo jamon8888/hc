@@ -463,11 +463,16 @@ impl AppState {
         // The client follows the daemon (it may have self-terminated and
         // restarted on a fresh port since startup) and obeys the same
         // fail-closed redaction policy as the startup-published ports: every
-        // redaction it runs requires the bundled GLiNER2 model.
+        // redaction it runs requires the bundled GLiNER2 model. When the
+        // model directory is unknown (no sidecar was resolved at startup)
+        // the NER requirement still stands — the sidecar then refuses the
+        // call rather than answering with pattern-only output.
         let sidecar_binary = crate::basemind_sidecar_binary().map(std::path::Path::to_path_buf);
-        let policy = crate::basemind_ner_model_dir()
-            .map(openbitfun_basemind_integration::RedactionPolicy::bundled)
-            .unwrap_or_default();
+        let policy = openbitfun_basemind_integration::RedactionPolicy {
+            require_ner: true,
+            ner_model_dir: crate::basemind_ner_model_dir()
+                .map(|dir| dir.to_string_lossy().into_owned()),
+        };
         Ok(Arc::new(
             BasemindClient::lazy(sidecar_binary).with_redaction_policy(policy),
         ))

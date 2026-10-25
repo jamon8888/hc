@@ -1205,10 +1205,16 @@ impl AcpClientService {
                 &openbitfun_session_id,
             )
             .await?;
-        let prompt =
-            Self::pseudonymize_acp_prompt(prompt, &resolved.cwd, &openbitfun_session_id).await?;
-
         let run = async {
+            // Interception is inside the timeout-wrapped future: a slow daemon
+            // ensure or redaction request must be covered by the caller's
+            // configured deadline, not extend it. It runs before the session
+            // lock so redaction latency cannot serialize other users of the
+            // session.
+            let prompt =
+                Self::pseudonymize_acp_prompt(prompt, &resolved.cwd, &openbitfun_session_id)
+                    .await?;
+
             let mut session = resolved.session.lock().await;
             self.ensure_remote_session(
                 &resolved.client,
@@ -1262,10 +1268,14 @@ impl AcpClientService {
                 &openbitfun_session_id,
             )
             .await?;
-        let prompt =
-            Self::pseudonymize_acp_prompt(prompt, &resolved.cwd, &openbitfun_session_id).await?;
-
         let run = async {
+            // Interception is inside the timeout-wrapped future, before the
+            // session lock: the caller's deadline covers redaction too, and
+            // redaction latency cannot serialize the session.
+            let prompt =
+                Self::pseudonymize_acp_prompt(prompt, &resolved.cwd, &openbitfun_session_id)
+                    .await?;
+
             let mut session = resolved.session.lock().await;
             self.ensure_remote_session(
                 &resolved.client,

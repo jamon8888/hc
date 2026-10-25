@@ -92,14 +92,26 @@ pub struct DocSummary {
 #[derive(Clone)]
 pub struct BasemindClient {
     http: HttpClient,
+    /// The snapshot's endpoint values, used only by `Snapshot` mode.
     base_url: String,
     auth_token: String,
-    /// A living endpoint: the daemon is re-ensured and re-discovered on
-    /// every call, because it may restart (fresh portfile) between calls.
-    living: Option<std::path::PathBuf>,
+    /// How this client reaches the daemon: a snapshot taken once from the
+    /// portfile, or a living client that re-discovers (and, when the sidecar
+    /// is known, re-ensures) the daemon on every call, because the daemon
+    /// may restart with a fresh portfile between calls.
+    living: EndpointSource,
     /// The fail-closed redaction policy every sidecar redaction call obeys.
     redaction: RedactionPolicy,
     next_id: std::sync::Arc<std::sync::atomic::AtomicU64>,
+}
+
+#[cfg(feature = "basemind")]
+#[derive(Clone)]
+enum EndpointSource {
+    Snapshot,
+    Living {
+        daemon_binary: Option<std::path::PathBuf>,
+    },
 }
 
 /// The NER obligations the product puts on every sidecar redaction call.
@@ -152,7 +164,7 @@ impl BasemindClient {
             http,
             base_url,
             auth_token,
-            living: None,
+            living: EndpointSource::Snapshot,
             redaction: RedactionPolicy::default(),
             next_id: std::sync::Arc::new(std::sync::atomic::AtomicU64::new(1)),
         }
@@ -165,11 +177,12 @@ impl BasemindClient {
     /// every restart, so a composition root that owns the sidecar hands the
     /// client the binary the daemon could be brought back from. Each call
     /// re-reads the portfile, and respawns the daemon when no endpoint is
-    /// published.
+    /// published. Without a binary the client still re-discovers on every
+    /// call; it simply cannot bring a dead daemon back.
     pub fn lazy(daemon_binary: Option<std::path::PathBuf>) -> Self {
         let client = Self::new(String::new(), String::new());
         Self {
-            living: daemon_binary,
+            living: EndpointSource::Living { daemon_binary },
             ..client
         }
     }
@@ -196,10 +209,9 @@ impl BasemindClient {
     /// The endpoint to use for this call, ensured to be alive.
     async fn endpoint(&self) -> Result<(String, String)> {
         match &self.living {
-            None => Ok((self.base_url.clone(), self.auth_token.clone())),
-            Some(daemon_binary) => {
-                let endpoint =
-                    crate::daemon::discover_or_ensure(Some(daemon_binary.clone()), 15).await?;
+            EndpointSource::Snapshot => Ok((self.base_url.clone(), self.auth_token.clone())),
+            EndpointSource::Living { daemon_binary } => {
+                let endpoint = crate::daemon::discover_or_ensure(daemon_binary.clone(), 15).await?;
                 Ok((endpoint.base_url(), endpoint.token))
             }
         }

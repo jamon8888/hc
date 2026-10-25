@@ -209,11 +209,10 @@ export function basemindPinnedVersion(options = {}) {
  * (`require_ner`), so the model is part of the sidecar the product
  * bundles: the pinned Hugging Face revision fetches `tokenizer.json`,
  * `model.safetensors` and `encoder_config/config.json` into
- * `ner-model/`, sized and checksum-validated against the pinned tree.
- * A revision-pinned download over HTTPS plus the first-install size
- * check is the provenance contract; the sha256 record beside the model
- * makes every later prep verify the local cache, the same way the
- * extracted binary is re-verified.
+ * `ner-model/`. Every download and every later prep validates each file
+ * against the size and sha256 pinned in `VERSION.json`, and a download
+ * lands through a temporary file so a failed attempt can never leave a
+ * partial artifact at the real path.
  */
 export function ensureBasemindNerModel(options = {}) {
   const resourceDir = options.resourceDir || RESOURCE_DIR;
@@ -223,35 +222,41 @@ export function ensureBasemindNerModel(options = {}) {
     throw new Error('Invalid pinned Basemind NER model');
   }
   const modelDir = join(resourceDir, 'ner-model');
-  const sumsPath = join(modelDir, '.sha256sums');
+  // Every pinned file carries both its size and its sha256 digest. The
+  // digests were recorded from one verified download of the pinned revision;
+  // from then on they are the integrity contract: a local cache that no
+  // longer matches the pin is refused, not exchanged, and a first download
+  // must match the pin digest byte-for-byte.
   const expected = pin.files.map((file) => ({
     path: file.path,
     size: Number(file.size),
+    sha256: typeof file.sha256 === 'string' && /^[a-f0-9]{64}$/.test(file.sha256) ? file.sha256 : '',
     downloadedPath: join(modelDir, file.path),
   }));
-  if (!Number.isSafeInteger(expected.at(-1).size) || expected.some((file) => file.path.startsWith('/'))) {
+  if (
+    !Number.isSafeInteger(expected[0]?.size) ||
+    expected.some((file) => file.path.startsWith('/') || !file.sha256)
+  ) {
     throw new Error('Invalid pinned Basemind NER model file list');
   }
 
-  const shaRecorded = existsSync(sumsPath)
-    ? readFileSync(sumsPath, 'utf8').trim().split('\n')
-    : [];
-  const recordedSum = (path) => shaRecorded.find((line) => line.endsWith(`  ${path}`))?.split(' ')[0] ?? '';
-  // 'invalid' means present but not matching the pin: refuse rather than
-  // hand out a replaced model. 'first' means the size matches but no
-  // checksum was recorded yet (the first install completes that below).
-  const fileState = (file) => {
-    if (!existsSync(file.downloadedPath)) return 'missing';
-    const bytes = readFileSync(file.downloadedPath);
-    if (bytes.length !== file.size) return 'invalid';
-    const recorded = recordedSum(file.path);
-    if (!/^[a-f0-9]{64}$/.test(recorded)) return 'first';
-    return createHash('sha256').update(bytes).digest('hex') === recorded ? 'valid' : 'invalid';
+  const validate = (file, bytes) => {
+    if (bytes.length !== file.size) {
+      throw new Error(`Basemind NER model size mismatch: ${file.path}`);
+    }
+    const digest = createHash('sha256').update(bytes).digest('hex');
+    if (digest !== file.sha256) {
+      throw new Error(`Basemind NER model digest mismatch: ${file.path}`);
+    }
   };
+  // 'missing' triggers a download; 'invalid' refuses outright. Both real
+  // files and finished downloads are validated the same way against the pin.
   const states = new Map(expected.map((file) => {
-    const state = fileState(file);
-    if (state === 'invalid') {
-      throw new Error(`Basemind NER model cache validation failed: ${file.path}`);
+    let state = 'missing';
+    if (existsSync(file.downloadedPath)) {
+      const bytes = readFileSync(file.downloadedPath);
+      validate(file, bytes);
+      state = 'valid';
     }
     return [file.path, state];
   }));
@@ -261,22 +266,21 @@ export function ensureBasemindNerModel(options = {}) {
     mkdirSync(modelDir, { recursive: true });
     const handoff = options.download || downloadBasemind;
     for (const file of downloadable) {
-      mkdirSync(dirname(file.downloadedPath), { recursive: true });
-      const url = `https://huggingface.co/${pin.repo}/resolve/${pin.revision}/${encodeURIComponent(file.path)}`;
-      handoff(url, file.downloadedPath);
-      const bytes = readFileSync(file.downloadedPath);
-      if (bytes.length !== file.size) {
-        rmSync(file.downloadedPath, { force: true });
-        throw new Error(`Basemind NER model size mismatch: ${file.path}`);
+      // Download into a temporary sibling and validate there: a failed
+      // attempt must not leave a partial file at the real path, where it
+      // would wedge every later prep with a mismatch error instead of
+      // retrying.
+      const tempPath = `${file.downloadedPath}.download-${randomUUID()}`;
+      try {
+        const url = `https://huggingface.co/${pin.repo}/resolve/${pin.revision}/${encodeURIComponent(file.path)}`;
+        handoff(url, tempPath);
+        validate(file, readFileSync(tempPath));
+        renameSync(tempPath, file.downloadedPath);
+      } catch (error) {
+        rmSync(tempPath, { force: true });
+        throw error;
       }
     }
-    // Record the checksums so every later prep can detect a corrupted or
-    // replaced cache instead of silently handing out a differing model.
-    const sums = expected.map((file) => {
-      const bytes = readFileSync(file.downloadedPath);
-      return `${createHash('sha256').update(bytes).digest('hex')}  ${file.path}`;
-    });
-    writeFileSync(sumsPath, `${sums.join('\n')}\n`);
   }
   return modelDir;
 }

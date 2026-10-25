@@ -930,6 +930,18 @@ pub async fn run() {
             // started here so the PII redaction surface is available without
             // the user installing anything; when the sidecar is missing the
             // surface reports that loudly rather than silently degrading.
+            //
+            // The ACP refusing seat is installed BEFORE that resolve: a
+            // bundle where the sidecar cannot even be found must refuse ACP
+            // prompts (and log the reason loudly), never send the raw model
+            // text. The publish path below replaces the seat on success.
+            #[cfg(feature = "basemind")]
+            {
+                log::info!("Installing the refusing ACP prompt interceptor until the pseudonymizer is published");
+                openbitfun_acp::set_prompt_interceptor(Some(std::sync::Arc::new(
+                    AcpRefusingPromptInterceptor,
+                )));
+            }
             {
                 let step_started = Instant::now();
                 match resolve_bundled_basemind_binary(app) {
@@ -2540,12 +2552,9 @@ fn publish_basemind_search_port(sidecar: &std::path::Path) {
         BasemindClient, IdentityRegistry, RagSearchPortAdapter, RagSearchTool, SessionVault,
     };
 
-    // From here on the host has promised PII-safe prompting (SPEC §11.4,
-    // I9), so any ACP prompt must refuse until the sidecar-backed
-    // pseudonymizer is published. The refusing seat keeps that guarantee if
-    // any later startup step fails; the success path below replaces it.
-    openbitfun_acp::set_prompt_interceptor(Some(std::sync::Arc::new(AcpRefusingPromptInterceptor)));
-
+    // The ACP refusing seat was installed BEFORE the sidecar resolve, so the
+    // host's PII promise holds even if later startup steps fail. The real
+    // interceptor below replaces it on success (SPEC §11.4, I9).
     let data_dir = match openbitfun_core::infrastructure::app_paths::try_get_path_manager_arc() {
         Ok(manager) => manager.user_data_dir().join("basemind"),
         Err(error) => {

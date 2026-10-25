@@ -14,6 +14,23 @@
 //! stay on the pass-through path — the same semantics the native loop has
 //! behind its build-time `basemind` feature.
 //!
+//! # Public contract note
+//!
+//! Stable ACP host contract (`contracts/acp` boundary slice).
+//!
+//! - **Version impact**: Minor. Adding an interceptor method or changing the
+//!   trait is a breaking change for implementing hosts and must not land
+//!   without a replacement surface first.
+//! - **Verification command**: `cargo test -p openbitfun-acp --lib
+//!   acp_prompt_interception` and `pnpm run check:core-boundaries` (the seam
+//!   must stay free of upward dependencies).
+//! - **Removal condition**: removable only once no composition root installs
+//!   an interceptor and the external-agent surfaces (desktop, CLI, and the
+//!   bundled interpreters over ACP) either ship an equivalent PII seam
+//!   elsewhere or drop the PII-safe-prompting promise in their feature docs.
+//!   grep-verified absence of `set_prompt_interceptor` installations is the
+//!   removal gate.
+//!
 //! Installed or not, the seam never lets a host fail open by accident: when
 //! an installed interceptor errors, the prompt aborts; only a host without
 //! an interceptor passes raw text, and that host never published the PII
