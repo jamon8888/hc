@@ -15,6 +15,8 @@ pub enum BotLanguage {
     ZhTW,
     #[serde(rename = "en-US")]
     EnUS,
+    #[serde(rename = "fr-FR")]
+    FrFR,
 }
 
 impl BotLanguage {
@@ -25,7 +27,7 @@ impl BotLanguage {
 
 /// Centralised string table consumed by command router, menu builder, and
 /// platform adapters.  Add new strings here, then translate in both
-/// [`STRINGS_ZH`], [`STRINGS_ZH_TW`], and [`STRINGS_EN`].
+/// [`STRINGS_ZH`], [`STRINGS_ZH_TW`], [`STRINGS_EN`], and [`STRINGS_FR`].
 pub struct BotStrings {
     pub tool_approval_title: &'static str,
     pub tool_approve: &'static str,
@@ -198,11 +200,11 @@ const STRINGS_ZH: BotStrings = BotStrings {
     tool_approve: "允许本次",
     tool_reject: "拒绝",
     welcome: "\
-欢迎使用 OpenBitFun。
+欢迎使用 Alex。
 
-请在 OpenBitFun 桌面端打开 Remote Connect 面板，复制 6 位配对码并发送到这里完成连接。",
-    paired_success: "配对成功，OpenBitFun 已连接。",
-    need_pairing: "尚未连接 OpenBitFun 桌面端。请先发送 6 位配对码。",
+请在 Alex 桌面端打开 Remote Connect 面板，复制 6 位配对码并发送到这里完成连接。",
+    paired_success: "配对成功，Alex 已连接。",
+    need_pairing: "尚未连接 Alex 桌面端。请先发送 6 位配对码。",
     invalid_pairing_code: "配对码无效或已过期，请到桌面端重新生成后再发送。",
     bootstrap_workspace_unavailable: "工作区服务暂时不可用，请稍后再试。",
     bootstrap_session_failed_prefix: "已进入助理模式，但创建会话失败：",
@@ -217,10 +219,10 @@ const STRINGS_ZH: BotStrings = BotStrings {
     no_workspace: "尚未选择工作区",
     no_assistant: "尚未选择助理",
 
-    main_title_assistant: "OpenBitFun · 助理模式",
-    main_title_expert: "OpenBitFun · 专业模式",
+    main_title_assistant: "Alex · 助理模式",
+    main_title_expert: "Alex · 专业模式",
     settings_title: "设置",
-    welcome_title: "OpenBitFun",
+    welcome_title: "Alex",
     need_session_title: "请先选择或新建会话",
 
     item_new_session: "新建会话",
@@ -264,8 +266,8 @@ const STRINGS_ZH: BotStrings = BotStrings {
 
     switch_pick_workspace: "请选择要切换的工作区：",
     switch_pick_assistant: "请选择要切换的助理：",
-    switch_no_workspaces: "尚未发现工作区，请先在 OpenBitFun 桌面端打开一个项目。",
-    switch_no_assistants: "尚未发现助理，请先在 OpenBitFun 桌面端创建一个助理。",
+    switch_no_workspaces: "尚未发现工作区，请先在 Alex 桌面端打开一个项目。",
+    switch_no_assistants: "尚未发现助理，请先在 Alex 桌面端创建一个助理。",
     current_marker: " · 当前",
 
     resume_no_sessions: "当前还没有会话，可以发送 /new 直接新建。",
@@ -282,7 +284,7 @@ const STRINGS_ZH: BotStrings = BotStrings {
 
     switch_model_title: "选择模型",
     switch_model_pick: "请选择要使用的模型：",
-    switch_model_no_models: "没有可用的模型，请先在 OpenBitFun 桌面端配置 AI 模型。",
+    switch_model_no_models: "没有可用的模型，请先在 Alex 桌面端配置 AI 模型。",
     switch_model_primary: "主力模型",
     switch_model_applied_prefix: "已切换模型：",
     switch_model_failed_prefix: "切换模型失败：",
@@ -314,7 +316,7 @@ const STRINGS_ZH: BotStrings = BotStrings {
     session_workspace_label: "工作区：",
     session_start_hint: "可以发送消息开始对话。",
     session_create_failed_prefix: "创建会话失败：",
-    session_system_unavailable: "OpenBitFun 会话系统尚未就绪，请稍后再试。",
+    session_system_unavailable: "Alex 会话系统尚未就绪，请稍后再试。",
     workspace_service_unavailable: "工作区服务暂时不可用。",
     workspace_open_failed_prefix: "打开工作区失败：",
     workspace_list_changed: "工作区列表已更新，请重新选择。",
@@ -360,11 +362,11 @@ const STRINGS_ZH_TW: BotStrings = BotStrings {
     tool_approve: "允許本次",
     tool_reject: "拒絕",
     welcome: "\
-歡迎使用 OpenBitFun。
+歡迎使用 Alex。
 
-請在 OpenBitFun 桌面端打開 Remote Connect 面板，複製 6 位配對碼併發送到這裡完成連接。",
-    paired_success: "配對成功，OpenBitFun 已連接。",
-    need_pairing: "尚未連接 OpenBitFun 桌面端。請先發送 6 位配對碼。",
+請在 Alex 桌面端打開 Remote Connect 面板，複製 6 位配對碼併發送到這裡完成連接。",
+    paired_success: "配對成功，Alex 已連接。",
+    need_pairing: "尚未連接 Alex 桌面端。請先發送 6 位配對碼。",
     invalid_pairing_code: "配對碼無效或已過期，請到桌面端重新生成後再發送。",
     bootstrap_workspace_unavailable: "工作區服務暫時不可用，請稍後再試。",
     bootstrap_session_failed_prefix: "已進入助理模式，但創建會話失敗：",
@@ -379,10 +381,10 @@ const STRINGS_ZH_TW: BotStrings = BotStrings {
     no_workspace: "尚未選擇工作區",
     no_assistant: "尚未選擇助理",
 
-    main_title_assistant: "OpenBitFun · 助理模式",
-    main_title_expert: "OpenBitFun · 專業模式",
+    main_title_assistant: "Alex · 助理模式",
+    main_title_expert: "Alex · 專業模式",
     settings_title: "設置",
-    welcome_title: "OpenBitFun",
+    welcome_title: "Alex",
     need_session_title: "請先選擇或新建會話",
 
     item_new_session: "新建會話",
@@ -426,8 +428,8 @@ const STRINGS_ZH_TW: BotStrings = BotStrings {
 
     switch_pick_workspace: "請選擇要切換的工作區：",
     switch_pick_assistant: "請選擇要切換的助理：",
-    switch_no_workspaces: "尚未發現工作區，請先在 OpenBitFun 桌面端打開一個項目。",
-    switch_no_assistants: "尚未發現助理，請先在 OpenBitFun 桌面端創建一個助理。",
+    switch_no_workspaces: "尚未發現工作區，請先在 Alex 桌面端打開一個項目。",
+    switch_no_assistants: "尚未發現助理，請先在 Alex 桌面端創建一個助理。",
     current_marker: " · 當前",
 
     resume_no_sessions: "當前還沒有會話，可以發送 /new 直接新建。",
@@ -444,7 +446,7 @@ const STRINGS_ZH_TW: BotStrings = BotStrings {
 
     switch_model_title: "選擇模型",
     switch_model_pick: "請選擇要使用的模型：",
-    switch_model_no_models: "沒有可用的模型，請先在 OpenBitFun 桌面端配置 AI 模型。",
+    switch_model_no_models: "沒有可用的模型，請先在 Alex 桌面端配置 AI 模型。",
     switch_model_primary: "主力模型",
     switch_model_applied_prefix: "已切換模型：",
     switch_model_failed_prefix: "切換模型失敗：",
@@ -476,7 +478,7 @@ const STRINGS_ZH_TW: BotStrings = BotStrings {
     session_workspace_label: "工作區：",
     session_start_hint: "可以發送消息開始對話。",
     session_create_failed_prefix: "創建會話失敗：",
-    session_system_unavailable: "OpenBitFun 會話系統尚未就緒，請稍後再試。",
+    session_system_unavailable: "Alex 會話系統尚未就緒，請稍後再試。",
     workspace_service_unavailable: "工作區服務暫時不可用。",
     workspace_open_failed_prefix: "打開工作區失敗：",
     workspace_list_changed: "工作區清單已更新，請重新選擇。",
@@ -522,12 +524,12 @@ const STRINGS_EN: BotStrings = BotStrings {
     tool_approve: "Allow once",
     tool_reject: "Reject",
     welcome: "\
-Welcome to OpenBitFun.
+Welcome to Alex.
 
-Open Remote Connect in OpenBitFun Desktop and send the 6-digit pairing code here to connect.",
-    paired_success: "Pairing successful. OpenBitFun is now connected.",
+Open Remote Connect in Alex Desktop and send the 6-digit pairing code here to connect.",
+    paired_success: "Pairing successful. Alex is now connected.",
     need_pairing: "Not connected yet. Please send the 6-digit pairing code first.",
-    invalid_pairing_code: "Invalid or expired pairing code. Generate a new one in OpenBitFun Desktop and try again.",
+    invalid_pairing_code: "Invalid or expired pairing code. Generate a new one in Alex Desktop and try again.",
     bootstrap_workspace_unavailable: "Workspace service is unavailable. Please try again shortly.",
     bootstrap_session_failed_prefix: "Assistant mode is on but session creation failed: ",
     bootstrap_ready: "A new assistant session is ready. Send a message to start.",
@@ -541,10 +543,10 @@ Open Remote Connect in OpenBitFun Desktop and send the 6-digit pairing code here
     no_workspace: "No workspace selected",
     no_assistant: "No assistant selected",
 
-    main_title_assistant: "OpenBitFun · Assistant",
-    main_title_expert: "OpenBitFun · Expert",
+    main_title_assistant: "Alex · Assistant",
+    main_title_expert: "Alex · Expert",
     settings_title: "Settings",
-    welcome_title: "OpenBitFun",
+    welcome_title: "Alex",
     need_session_title: "Pick or create a session first",
 
     item_new_session: "New Session",
@@ -589,8 +591,8 @@ Open Remote Connect in OpenBitFun Desktop and send the 6-digit pairing code here
 
     switch_pick_workspace: "Pick a workspace to switch to:",
     switch_pick_assistant: "Pick an assistant to switch to:",
-    switch_no_workspaces: "No workspaces found. Open a project in OpenBitFun Desktop first.",
-    switch_no_assistants: "No assistants found. Create one in OpenBitFun Desktop first.",
+    switch_no_workspaces: "No workspaces found. Open a project in Alex Desktop first.",
+    switch_no_assistants: "No assistants found. Create one in Alex Desktop first.",
     current_marker: " · current",
 
     resume_no_sessions: "No sessions yet. Send /new to create one.",
@@ -607,7 +609,7 @@ Open Remote Connect in OpenBitFun Desktop and send the 6-digit pairing code here
 
     switch_model_title: "Select Model",
     switch_model_pick: "Pick a model to use:",
-    switch_model_no_models: "No models available. Please configure AI models in OpenBitFun Desktop first.",
+    switch_model_no_models: "No models available. Please configure AI models in Alex Desktop first.",
     switch_model_primary: "Primary model",
     switch_model_applied_prefix: "Switched model: ",
     switch_model_failed_prefix: "Failed to switch model: ",
@@ -639,7 +641,7 @@ Open Remote Connect in OpenBitFun Desktop and send the 6-digit pairing code here
     session_workspace_label: "Workspace: ",
     session_start_hint: "Send a message to start the conversation.",
     session_create_failed_prefix: "Failed to create session: ",
-    session_system_unavailable: "OpenBitFun session system is not ready yet.",
+    session_system_unavailable: "Alex session system is not ready yet.",
     workspace_service_unavailable: "Workspace service unavailable.",
     workspace_open_failed_prefix: "Failed to open workspace: ",
     workspace_list_changed: "The workspace list has changed. Please choose again.",
@@ -660,7 +662,7 @@ Open Remote Connect in OpenBitFun Desktop and send the 6-digit pairing code here
 
     auto_push_intro_one: "Sending 1 file for you…",
     auto_push_intro_many_fmt: "Sending {n} files for you…",
-    auto_push_skip_too_large_fmt: "Skipping \"{name}\": {size} exceeds the {limit} limit. Please grab it from OpenBitFun Desktop instead.",
+    auto_push_skip_too_large_fmt: "Skipping \"{name}\": {size} exceeds the {limit} limit. Please grab it from Alex Desktop instead.",
     auto_push_failed_fmt: "Failed to send \"{name}\": {err}",
     weixin_remote_push_unsupported: "WeChat cannot proactively push scheduled-job or desktop-session results from another device yet. Requests you send from WeChat still receive replies.",
 
@@ -681,11 +683,176 @@ Open Remote Connect in OpenBitFun Desktop and send the 6-digit pairing code here
     devices_msg_sent: "Message sent. Replies and attachments will return to this chat.",
 };
 
+const STRINGS_FR: BotStrings = BotStrings {
+    tool_approval_title: "Autorisation requise",
+    tool_approve: "Autoriser une fois",
+    tool_reject: "Refuser",
+    welcome: "\
+Bienvenue dans Alex.
+
+Ouvrez Remote Connect dans Alex Desktop et envoyez le code d'appairage à 6 chiffres ici pour vous connecter.",
+    paired_success: "Appairage réussi. Alex est maintenant connecté.",
+    need_pairing: "Pas encore connecté. Envoyez d'abord le code d'appairage à 6 chiffres.",
+    invalid_pairing_code: "Code d'appairage invalide ou expiré. Générez-en un nouveau dans Alex Desktop et réessayez.",
+    bootstrap_workspace_unavailable: "Le service d'espaces de travail est indisponible. Réessayez dans un instant.",
+    bootstrap_session_failed_prefix: "Le mode Assistant est actif mais la création de la session a échoué : ",
+    bootstrap_ready: "Une nouvelle session Assistant est prête. Envoyez un message pour démarrer.",
+
+    mode_assistant: "Mode Assistant",
+    mode_expert: "Mode Expert",
+    current_session_label: "Session actuelle",
+    current_workspace_label: "Espace de travail actuel",
+    current_assistant_label: "Assistant actuel",
+    no_session: "Aucune session sélectionnée",
+    no_workspace: "Aucun espace de travail sélectionné",
+    no_assistant: "Aucun assistant sélectionné",
+
+    main_title_assistant: "Alex · Assistant",
+    main_title_expert: "Alex · Expert",
+    settings_title: "Paramètres",
+    welcome_title: "Alex",
+    need_session_title: "Choisissez ou créez d'abord une session",
+
+    item_new_session: "Nouvelle session",
+    item_new_code_session: "Session Code",
+    item_new_cowork_session: "Session Cowork",
+    item_resume_session: "Reprendre",
+    item_switch_assistant: "Assistant",
+    item_switch_workspace: "Espace de travail",
+    item_settings: "Paramètres",
+    item_devices: "Appareils",
+    item_back: "Retour",
+    item_help: "Aide",
+    item_switch_to_expert: "Mode Expert",
+    item_switch_to_assistant: "Mode Assistant",
+    item_verbose_on: "Détails d'exécution",
+    item_verbose_off: "Masquer les détails",
+    item_cancel_task: "Annuler la tâche",
+    item_confirm_switch: "Changer et continuer",
+    item_next_page: "Page suivante",
+    item_other: "Autre",
+    item_switch_model: "Changer de modèle",
+
+    question_title: "Question",
+    verbose_label: "Détails d'exécution",
+    workspace_session_count_fmt: "{n} sessions",
+
+    footer_reply_or_menu: "Répondez avec un numéro, ou envoyez /menu pour revenir.",
+    footer_reply_workspace: "Répondez avec un numéro d'espace de travail, ou 0 pour revenir.",
+    footer_reply_assistant: "Répondez avec un numéro d'assistant, ou 0 pour revenir.",
+    footer_reply_session_or_next:
+        "Répondez avec un numéro de session ; envoyez 0 pour la page suivante, ou /menu pour revenir.",
+    footer_reply_session: "Répondez avec un numéro de session, ou 0 pour revenir.",
+    footer_reply_model: "Répondez avec un numéro de modèle, ou 0 pour revenir.",
+    footer_question_single: "Répondez avec le numéro d'une option ; envoyez /menu pour quitter.",
+    footer_question_multi: "Répondez avec un ou plusieurs numéros d'options (par ex. 1,3) ; envoyez /menu pour quitter.",
+    footer_question_custom: "Saisissez votre réponse ; envoyez /menu pour quitter.",
+    footer_processing_cancel_hint: "Pour arrêter, répondez /cancel ou appuyez sur Annuler la tâche.",
+
+    welcome_body: "Pas encore appairé.",
+    paired_body_intro: "Envoyez un message pour démarrer la conversation.",
+    help_body: "Répondez avec un numéro pour effectuer l'action, ou envoyez un message pour discuter.\nEnvoyez /cancel pour interrompre une tâche en cours.",
+
+    switch_pick_workspace: "Choisissez l'espace de travail vers lequel basculer :",
+    switch_pick_assistant: "Choisissez l'assistant vers lequel basculer :",
+    switch_no_workspaces: "Aucun espace de travail trouvé. Ouvrez d'abord un projet dans Alex Desktop.",
+    switch_no_assistants: "Aucun assistant trouvé. Créez-en un dans Alex Desktop.",
+    current_marker: " · actuel",
+
+    resume_no_sessions: "Aucune session pour le moment. Envoyez /new pour en créer une.",
+    resume_page_label: "Sessions",
+    resume_untitled: "Session sans titre",
+    resume_msg_count_zero: "aucun message",
+    resume_msg_count_one: "1 message",
+    resume_msg_count_many_fmt: "{n} messages",
+    resume_resumed_prefix: "Session reprise : ",
+    resume_last_dialog_header: "— Dernière conversation —",
+    resume_you_label: "Vous",
+    resume_continue_hint: "Vous pouvez poursuivre la conversation.",
+    resume_first_message_hint: "Envoyez un message pour démarrer.",
+
+    switch_model_title: "Choisir un modèle",
+    switch_model_pick: "Choisissez le modèle à utiliser :",
+    switch_model_no_models: "Aucun modèle disponible. Configurez d'abord des modèles IA dans Alex Desktop.",
+    switch_model_primary: "Modèle principal",
+    switch_model_applied_prefix: "Modèle changé : ",
+    switch_model_failed_prefix: "Échec du changement de modèle : ",
+    switch_model_no_session: "Aucune session active. Créez ou reprenez d'abord une session.",
+
+    processing: "Traitement de votre message…",
+    queued: "Message mis en file d'attente. Il s'exécutera à la fin de l'étape en cours.",
+    no_response: "(pas de réponse)",
+    task_cancelled: "Tâche annulée.",
+    task_cancel_requested: "Annulation demandée.",
+    task_cancel_failed_prefix: "Échec de l'annulation : ",
+    task_no_active: "Aucune tâche active à annuler.",
+    timeout_one_hour: "La réponse a expiré au bout d'une heure.",
+    error_prefix: "Erreur : ",
+    send_failed_prefix: "Échec de l'envoi : ",
+
+    mode_switched_to_expert: "Passé en mode Expert. Vous pouvez créer des sessions Code ou Cowork.",
+    mode_switched_to_assistant: "Passé en mode Assistant. Idéal pour les conversations continues.",
+    mode_already_expert: "Déjà en mode Expert.",
+    mode_already_assistant: "Déjà en mode Assistant.",
+    mode_confirm_switch_prefix: "Cette action nécessite l'autre mode. Changer et continuer ?",
+
+    verbose_enabled: "Détails d'exécution activés. La prochaine tâche affichera la réflexion et les étapes d'outils.",
+    verbose_disabled: "Détails d'exécution désactivés. Seuls les résultats finaux seront affichés.",
+    verbose_status_on: "activé",
+    verbose_status_off: "désactivé",
+
+    session_created_prefix: "Nouvelle session créée : ",
+    session_workspace_label: "Espace de travail : ",
+    session_start_hint: "Envoyez un message pour démarrer la conversation.",
+    session_create_failed_prefix: "Échec de la création de la session : ",
+    session_system_unavailable: "Le système de sessions Alex n'est pas encore prêt.",
+    workspace_service_unavailable: "Service d'espaces de travail indisponible.",
+    workspace_open_failed_prefix: "Échec de l'ouverture de l'espace de travail : ",
+    workspace_list_changed: "La liste des espaces de travail a changé. Choisissez à nouveau.",
+    assistant_create_failed_prefix: "Échec de la création de l'espace de travail de l'assistant : ",
+
+    pending_expired: "L'étape précédente a expiré. Retour au menu principal.",
+    pending_invalid_input: "Entrée invalide. Suivez l'invite ci-dessus, ou envoyez /menu pour revenir.",
+    pending_invalid_after_retries: "Trop de réponses invalides. Retour au menu principal.",
+    pending_back_hint: "Envoyez 0 ou /menu pour revenir au menu principal.",
+
+    answers_submitted: "Réponses envoyées. En attente de la suite de l'assistant…",
+    answers_submit_failed_prefix: "Échec de l'envoi des réponses : ",
+    question_invalid_state: "L'état de la question est invalide ; redémarrez la conversation.",
+    question_custom_required: "La réponse personnalisée ne peut pas être vide. Saisissez-la à nouveau.",
+    question_custom_for_other_prefix: "Saisissez votre réponse pour « Autre » : ",
+
+    thinking_label: "Réflexion",
+
+    auto_push_intro_one: "Envoi de 1 fichier…",
+    auto_push_intro_many_fmt: "Envoi de {n} fichiers…",
+    auto_push_skip_too_large_fmt: "« {name} » ignoré : {size} dépasse la limite de {limit}. Récupérez-le depuis Alex Desktop.",
+    auto_push_failed_fmt: "Échec de l'envoi de « {name} » : {err}",
+    weixin_remote_push_unsupported: "WeChat ne peut pas encore pousser les résultats d'une tâche planifiée ou d'une session depuis un autre appareil. Les demandes envoyées depuis WeChat reçoivent toujours une réponse.",
+
+    devices_title: "Contrôle multi-appareils",
+    devices_account_required: "L'ordinateur appairé n'est pas connecté à un compte, le contrôle multi-appareils est donc indisponible. Connectez-vous via la boîte de dialogue de connexion du compte sur l'ordinateur et le bot héritera de l'identité du compte.",
+    devices_empty: "Aucun autre appareil dans ce compte.",
+    devices_status_online: "en ligne",
+    devices_status_offline: "hors ligne",
+    devices_list_failed_prefix: "Échec de la liste des appareils : ",
+    devices_send_ok: "Message envoyé à l'appareil cible.",
+    devices_send_failed_prefix: "Échec de l'envoi à l'appareil : ",
+    devices_local: "Appareil local",
+    devices_pick_to_switch:
+        "Répondez avec un numéro pour changer — toutes les commandes suivantes s'exécuteront sur cet appareil ; envoyez 0 pour revenir",
+    devices_switched_to: "Basculé vers l'appareil distant",
+    devices_switched_local: "Retour à l'appareil local",
+    devices_remote_prefix: "Appareil distant",
+    devices_msg_sent: "Message envoyé. Les réponses et les pièces jointes reviendront dans cette conversation.",
+};
+
 pub fn strings_for(language: BotLanguage) -> &'static BotStrings {
     match language {
         BotLanguage::ZhCN => &STRINGS_ZH,
         BotLanguage::ZhTW => &STRINGS_ZH_TW,
         BotLanguage::EnUS => &STRINGS_EN,
+        BotLanguage::FrFR => &STRINGS_FR,
     }
 }
 

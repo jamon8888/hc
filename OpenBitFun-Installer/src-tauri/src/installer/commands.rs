@@ -35,13 +35,14 @@ struct WindowsInstallState {
 
 const MIN_WINDOWS_APP_EXE_BYTES: u64 = 5 * 1024 * 1024;
 const PAYLOAD_MANIFEST_FILE: &str = "payload-manifest.json";
-const REQUIRED_PAYLOAD_FILES: [&str; 6] = [
+const REQUIRED_PAYLOAD_FILES: [&str; 7] = [
     MAIN_APP_EXE,
     "frontend/dist/index.html",
     "mobile-web/dist/index.html",
     "resources/ext-host/extension-host.js",
     "resources/worker_host.js",
     "flashgrep/flashgrep-x86_64-pc-windows-msvc.exe",
+    "interpreter/openbitfun-bundled-tool.json",
 ];
 const INSTALLER_STATE_FILE: &str = "installer-state.json";
 const EMBEDDED_PAYLOAD_ZIP: &[u8] =
@@ -1950,11 +1951,13 @@ mod tests {
         assert_eq!(normalize_app_language("  EN-us  "), Some("en-US"));
         assert_eq!(normalize_app_language("en"), Some("en-US"));
         assert_eq!(normalize_app_language("en-US"), Some("en-US"));
+        assert_eq!(normalize_app_language("fr"), Some("fr-FR"));
+        assert_eq!(normalize_app_language("fr-FR"), Some("fr-FR"));
     }
 
     #[test]
     fn normalize_app_language_rejects_unknown_language_codes() {
-        assert_eq!(normalize_app_language("fr-FR"), None);
+        assert_eq!(normalize_app_language("de-DE"), None);
         assert_eq!(normalize_app_language(""), None);
     }
 

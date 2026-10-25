@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { pinNumberFormattingLocale } from '@/test/i18nLocaleTestUtils';
 import type { DialogTurn, Session, TokenUsage } from '../types/flow-chat';
 import {
   buildContextUsageTooltip,
@@ -52,6 +53,14 @@ const makeSession = (overrides: Partial<Session> = {}): Session => ({
 });
 
 describe('tokenUsageDisplay', () => {
+  beforeEach(() => {
+    pinNumberFormattingLocale('en-US');
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('uses prompt/input tokens for non-ACP context usage instead of spent total tokens', () => {
     const session = makeSession({
       currentTokenUsage: {

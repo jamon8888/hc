@@ -28,6 +28,7 @@ use openbitfun_core::infrastructure::events::{emit_global_event, BackendEvent};
 use openbitfun_core::infrastructure::PathManager;
 use openbitfun_core::service::config::ConfigService;
 use openbitfun_core::service::remote_ssh::workspace_state::get_remote_workspace_manager;
+use openbitfun_core::service::remote_ssh::SSHConnectionManager;
 use openbitfun_core::util::errors::{OpenBitFunError, OpenBitFunResult};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -39,6 +40,7 @@ use super::builtin_clients::{
     builtin_acp_client_preset, builtin_client_ids, default_config_for_builtin_client,
     migrate_legacy_builtin_client_configs,
 };
+use super::bundled_tool::{bundled_client_command, resolve_client_command};
 use super::config::{
     AcpClientConfig, AcpClientConfigFile, AcpClientInfo, AcpClientPermissionMode,
     AcpClientRequirementProbe, AcpClientStatus, RemoteAcpClientRequirementSnapshot,
@@ -50,8 +52,9 @@ use super::remote_session::{preferred_resume_strategies, AcpRemoteSessionStrateg
 use super::remote_shell::{remote_user_shell_command, render_remote_env_assignments, shell_escape};
 use super::requirements::{
     acp_requirement_spec, apply_command_environment, install_npm_cli_package,
-    install_remote_npm_cli_package, predownload_npm_adapter, probe_executable, probe_npm_adapter,
-    probe_remote_executable, probe_remote_npx_adapter, resolve_configured_command,
+    install_remote_npm_cli_package, predownload_npm_adapter, probe_executable,
+    probe_executable_path, probe_npm_adapter, probe_remote_executable,
+    probe_remote_npx_adapter,
 };
 use super::session_options::{
     model_config_id, session_options_from_state, AcpAvailableCommand, AcpSessionContextUsage,
@@ -355,7 +358,12 @@ impl AcpClientService {
         let mut probes = Vec::with_capacity(ids.len());
         for id in ids {
             let spec = acp_requirement_spec(&id, configs.get(&id));
-            let tool = probe_executable(spec.tool_command).await;
+            // A command the product packages is not on the user's PATH, so the
+            // probe has to start from the command that will be launched.
+            let tool = match bundled_client_command(&id, configs.get(&id)) {
+                Some(path) => probe_executable_path(spec.tool_command, &path).await,
+                None => probe_executable(spec.tool_command).await,
+            };
             let adapter = match spec.adapter {
                 Some(adapter) => Some(probe_npm_adapter(adapter.package, adapter.bin).await),
                 None => None,
@@ -1790,7 +1798,7 @@ impl AcpClientService {
             ensure_bundled_profile(profile).await?;
         }
 
-        let program = resolve_configured_command(&config.command, &config.env);
+        let program = resolve_client_command(client_id, config);
         let mut command = openbitfun_core::util::process_manager::create_tokio_command(&program);
         command
             .args(&config.args)
@@ -1898,6 +1906,16 @@ impl AcpClientService {
             )
             .await?;
         }
+        // A self-managed agent is the user's to install, on every host that runs
+        // it. Say which host is missing it instead of surfacing a bare exec
+        // failure the user cannot act on.
+        ensure_self_managed_agent_available_remote(
+            client_id,
+            config,
+            &ssh_manager,
+            remote_connection_id,
+        )
+        .await?;
         let transport = ssh_manager
             .open_workspace_stdio(remote_connection_id, &command)
             .await
@@ -1996,6 +2014,73 @@ fn ensure_remote_client_supported(
     }
 
     Ok(())
+}
+
+/// A self-managed agent has to exist on the host that runs it before OpenBitFun
+/// can drive it. The agent list already answers that question with `command -v`
+/// on the remote host; asking the same question here keeps the list and the
+/// launch from disagreeing, and turns a bare exec failure into a state the user
+/// can act on.
+async fn ensure_self_managed_agent_available_remote(
+    client_id: &str,
+    config: &AcpClientConfig,
+    ssh_manager: &SSHConnectionManager,
+    remote_connection_id: &str,
+) -> OpenBitFunResult<()> {
+    if !needs_remote_presence_check(client_id) {
+        return Ok(());
+    }
+    let launcher = config.command.trim();
+    if launcher.is_empty() {
+        return Ok(());
+    }
+    let probe = probe_remote_executable(
+        ssh_manager,
+        remote_connection_id,
+        launcher,
+        Some(&config.env),
+    )
+    .await;
+    if !probe.installed {
+        // Only an agent the product actually packages may be described that
+        // way. Saying it about every self-managed agent would tell a user
+        // about a copy that does not exist.
+        let packaged = builtin_acp_client_preset(client_id)
+            .and_then(|preset| preset.bundled_tool)
+            .is_some();
+        return Err(missing_self_managed_agent_error(
+            client_id,
+            launcher,
+            packaged,
+        ));
+    }
+    Ok(())
+}
+
+/// OpenBitFun cannot install a self-managed agent on the user's behalf, so the
+/// agent has to be on the remote host before OpenBitFun can drive it. Agents
+/// OpenBitFun can install remotely, and bundled-profile agents that carry their
+/// own launcher check, are not this function's business.
+fn needs_remote_presence_check(client_id: &str) -> bool {
+    builtin_acp_client_preset(client_id)
+        .is_some_and(|preset| preset.install_package.is_none() && preset.bundled_profile.is_none())
+}
+
+fn missing_self_managed_agent_error(
+    client_id: &str,
+    launcher: &str,
+    packaged: bool,
+) -> OpenBitFunError {
+    let guidance = if packaged {
+        "OpenBitFun packages a copy for the local machine only; install the agent on that host \
+         and make sure it is on PATH."
+    } else {
+        "Install the agent on that host and make sure it is on PATH."
+    };
+    OpenBitFunError::service(format!(
+        "ACP client '{client_id}' is not installed on the remote host: `{launcher}` is not on the \
+         login shell's PATH. {guidance}"
+    ))
 }
 
 fn render_remote_client_command(
@@ -3112,5 +3197,62 @@ mod tests {
         .expect("a host without an interceptor passes prompts through");
 
         assert_eq!(text, "plain prompt");
+    }
+
+    #[test]
+    fn checks_presence_on_the_remote_host_only_for_self_managed_agents() {
+        // OpenBitFun cannot install these, so the remote host has to have them
+        // already and the launch has to say which host is missing it.
+        assert!(needs_remote_presence_check("interpreter"));
+        assert!(needs_remote_presence_check("omp"));
+
+        // OpenBitFun can install these on the remote host on demand.
+        assert!(!needs_remote_presence_check("opencode"));
+        assert!(!needs_remote_presence_check("dsh"));
+        assert!(!needs_remote_presence_check("claude-code"));
+        assert!(!needs_remote_presence_check("codex"));
+
+        // A custom client is whatever the user configured it to be.
+        assert!(!needs_remote_presence_check("my-own-agent"));
+    }
+
+    #[test]
+    fn names_the_missing_agent_and_host_in_the_remote_presence_error() {
+        let error = missing_self_managed_agent_error("interpreter", "interpreter", true);
+
+        let message = error.to_string();
+        assert!(
+            message.contains("interpreter"),
+            "message should name the agent: {message}"
+        );
+        assert!(
+            message.contains("remote host"),
+            "message should name the host: {message}"
+        );
+        assert!(
+            message.contains("PATH"),
+            "message should say what to fix: {message}"
+        );
+        // A packaged agent may be pointed at the copy the product ships.
+        assert!(
+            message.contains("packages a copy"),
+            "message should mention the packaged copy: {message}"
+        );
+    }
+
+    #[test]
+    fn does_not_claim_a_packaged_copy_for_an_agent_that_is_not_packaged() {
+        // `omp` is user-managed and is not shipped with the product, so the
+        // error must not tell the user about a copy that does not exist.
+        let message = missing_self_managed_agent_error("omp", "omp", false).to_string();
+
+        assert!(
+            !message.contains("packages a copy"),
+            "message must not claim a packaged copy: {message}"
+        );
+        assert!(
+            message.contains("Install the agent on that host"),
+            "message should still say what to do: {message}"
+        );
     }
 }

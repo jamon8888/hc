@@ -1,4 +1,5 @@
 mod builtin_clients;
+mod bundled_tool;
 mod config;
 mod dsh_profile;
 mod manager;

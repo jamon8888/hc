@@ -14,7 +14,9 @@ pub(in crate::server) fn builder() -> Builder<AppServer, impl HandleDispatchFrom
                     Ok::<_, openbitfun_core::OpenBitFunError>(
                         s.get_config::<String>(Some("app.language"))
                             .await
-                            .unwrap_or_else(|_| "zh-CN".to_string()),
+                            .unwrap_or_else(|_| {
+                                openbitfun_core::service::i18n::default_locale_code().to_string()
+                            }),
                     )
                 }
                 .await
@@ -57,8 +59,10 @@ pub(in crate::server) fn builder() -> Builder<AppServer, impl HandleDispatchFrom
                         current_language: s
                             .get_config::<String>(Some("app.language"))
                             .await
-                            .unwrap_or_else(|_| "zh-CN".to_string()),
-                        fallback_language: "en-US".to_string(),
+                            .unwrap_or_else(|_| {
+                                openbitfun_core::service::i18n::default_locale_code().to_string()
+                            }),
+                        fallback_language: openbitfun_core::service::i18n::fallback_locale_code().to_string(),
                         auto_detect: false,
                     })
                 }

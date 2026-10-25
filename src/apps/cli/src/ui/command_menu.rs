@@ -116,14 +116,14 @@ impl CommandMenuState {
                     id: action.id.to_string(),
                     name: action.name.to_string(),
                     description: if unresolved || reconfirmation_required {
-                        format!("{} · OpenBitFun (choose once)", action.description)
+                        format!("{} · Alex (choose once)", action.description)
                     } else if discovery_pending {
                         format!(
-                            "{} · OpenBitFun (checking external sources)",
+                            "{} · Alex (checking external sources)",
                             action.description
                         )
                     } else if selected_external {
-                        format!("{} · OpenBitFun", action.description)
+                        format!("{} · Alex", action.description)
                     } else {
                         action.description.to_string()
                     },

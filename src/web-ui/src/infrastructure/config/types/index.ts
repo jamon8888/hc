@@ -62,6 +62,11 @@ export interface MemoriesConfig {
 
 export interface AppConfig {
   language: string;
+  /**
+   * One-time product locale rollout marker. Absent on documents written before
+   * the rollout existed.
+   */
+  language_rollout?: string | null;
   auto_update: boolean;
   telemetry: boolean;
   startup_behavior: string;

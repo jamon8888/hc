@@ -8,12 +8,12 @@ pub(super) struct InstallerGeneratedLocaleEntry {
 
 pub(super) const INSTALLER_GENERATED_LOCALES: &[InstallerGeneratedLocaleEntry] = &[
     InstallerGeneratedLocaleEntry {
-        code: "en-US",
-        aliases: &["en", "en-US"],
-    },
-    InstallerGeneratedLocaleEntry {
         code: "fr-FR",
         aliases: &["fr", "fr-FR"],
+    },
+    InstallerGeneratedLocaleEntry {
+        code: "en-US",
+        aliases: &["en", "en-US"],
     },
     InstallerGeneratedLocaleEntry {
         code: "zh-CN",

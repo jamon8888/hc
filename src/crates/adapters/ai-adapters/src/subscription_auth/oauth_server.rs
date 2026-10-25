@@ -282,9 +282,16 @@ fn preferred_locale(request: &str) -> &'static str {
         if language.starts_with("zh") {
             return "zh-CN";
         }
+        if language.starts_with("en") {
+            return "en";
+        }
+        if language.starts_with("fr") {
+            return "fr-FR";
+        }
         break;
     }
-    "en"
+    // No language preference: use the product default locale.
+    "fr-FR"
 }
 
 fn success_page(locale: &str) -> String {
@@ -440,6 +447,15 @@ mod tests {
         assert_eq!(
             preferred_locale("GET / HTTP/1.1\r\nAccept-Language: en-US,en;q=0.9\r\n"),
             "en"
+        );
+        assert_eq!(
+            preferred_locale("GET / HTTP/1.1\r\nAccept-Language: fr-FR,fr;q=0.9\r\n"),
+            "fr-FR"
+        );
+        // Without a language preference the page uses the product default.
+        assert_eq!(
+            preferred_locale("GET / HTTP/1.1\r\nHost: localhost\r\n\r\n"),
+            "fr-FR"
         );
         assert_ne!(
             callback_messages("zh-CN").success_title,
