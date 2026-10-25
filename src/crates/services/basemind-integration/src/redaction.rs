@@ -169,6 +169,12 @@ impl RedactionStore {
     /// an error: a redaction the user cannot reveal is worse than a visible
     /// failure.
     pub fn record(&self, payload: &Value, source_format: &str) -> Result<RedactedDocument> {
+        // A truncated NER pass must not be recorded as a full redaction: the
+        // fork answers honestly (v0.34.1's coverage contract) and this store
+        // answers loudly (D7). Nothing is persisted before this check runs.
+        if let Some(message) = ner_coverage_refusal(payload) {
+            anyhow::bail!("{}", message);
+        }
         let redacted_text = payload["redacted_text"].as_str().unwrap_or("").to_string();
         let rehydration = payload["rehydration_map"]
             .as_object()
@@ -241,6 +247,30 @@ impl RedactionStore {
     pub fn reveal(&self, entity_id: &str) -> Option<String> {
         let by_entity = self.by_entity.lock().unwrap_or_else(|e| e.into_inner());
         by_entity.get(entity_id).cloned()
+    }
+}
+
+/// The coverage gap of a `redact_text` payload, if there is one.
+///
+/// From the fork's v0.34.1, the answer carries `ner_windows`, `ner_window_chars`
+/// and `ner_truncated`. `ner_truncated` means the NER pass could not read the
+/// whole text within its budget, so PII past the cut is not in the redacted
+/// answer. Our policy (D7) degrades loudly rather than silently: a caller must
+/// not treat such a payload as a full redaction, so every consumer surfaces
+/// this refusal as an error instead of recording a redaction the user trusts.
+///
+/// Field absent (a v0.34.0 sidecar) → `None`: no gap reported.
+#[cfg(feature = "basemind")]
+pub fn ner_coverage_refusal(payload: &Value) -> Option<String> {
+    if payload["ner_truncated"].as_bool() == Some(true) {
+        Some(
+            "the redaction pass could not read the whole text (ner_truncated): PII past the \
+             cut is not redacted, so the document is refused rather than shown as fully \
+             redacted. Shorten the source or retry after the sidecar recovers."
+                .to_string(),
+        )
+    } else {
+        None
     }
 }
 

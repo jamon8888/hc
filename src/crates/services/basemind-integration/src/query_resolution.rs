@@ -103,7 +103,13 @@ impl QueryResolver {
 
         for hit in hits {
             // Safety pass over the raw chunk; failure hard-fails the call (D7).
+            // The same D7 rule covers a truncated NER pass: a hit whose text
+            // was only partly read must not reach the model, because the PII
+            // past the cut would enter the redacted answer unchecked.
             let redact_result = self.client.redact_text(&hit.text, workspace_root).await?;
+            if let Some(message) = crate::redaction::ner_coverage_refusal(&redact_result) {
+                anyhow::bail!("redact_text safety pass refused a hit: {message}");
+            }
             let detections = redact_result["detections"]
                 .as_array()
                 .ok_or_else(|| anyhow::anyhow!("missing detections in redact_text safety pass"))?;

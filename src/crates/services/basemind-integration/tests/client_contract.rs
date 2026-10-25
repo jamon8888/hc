@@ -196,3 +196,57 @@ fn a_redaction_survives_a_new_store() {
         .expect("the entity must still reveal after a restart");
     assert_eq!(revealed, "jean.dupont@example.com");
 }
+
+/// A pseudonymised value (the fork's `pseudonyms` dictionary, ADR-0015) has
+/// its token replaced in the text by the code name, while the rehydration map
+/// still carries it. The store must keep the entity revealable, and must not
+/// invent occurrences the text does not carry.
+#[test]
+fn a_pseudonymised_value_stays_revealable_without_a_token_in_the_text() {
+    use openbitfun_basemind_integration::redaction::RedactionStore;
+
+    let temp = std::env::temp_dir().join("openbitfun-basemind-pseudonym-test");
+    let _ = std::fs::remove_dir_all(&temp);
+    // The text says "Orme" because the caller's dictionary renamed the true
+    // party; the map still holds the token, so the value stays reversible.
+    let payload = serde_json::json!({
+        "redacted_text": "Contact Orme today.",
+        "rehydration_map": { "[PERSON_1]": "Jean Dupont" },
+    });
+
+    let store = RedactionStore::with_passphrase(
+        temp.join("registry"),
+        temp.join("vault"),
+        "workspace".to_string(),
+        "test-passphrase".to_string(),
+    )
+    .expect("open the store");
+    let document = store.record(&payload, "txt").expect("record the redaction");
+
+    let entity = document.entities.first().expect("one entity");
+    assert_eq!(entity.entity_type, "PERSON");
+    assert_eq!(entity.occurrence_count, 0);
+    assert!(!document.markdown.contains("data-entity-id"));
+    assert_eq!(
+        store
+            .reveal(&entity.entity_id)
+            .expect("the pseudonymised value stays revealable"),
+        "Jean Dupont"
+    );
+}
+
+/// The fork's coverage contract (v0.34.1): `ner_truncated` refuses the payload
+/// as a full redaction (D7), and an older sidecar that omits the field passes.
+#[test]
+fn a_truncated_ner_pass_refuses_the_payload_but_a_v0_34_0_payload_passes() {
+    use openbitfun_basemind_integration::redaction::ner_coverage_refusal;
+
+    let truncated = serde_json::json!({ "ner_truncated": true, "ner_ran": true });
+    assert!(ner_coverage_refusal(&truncated).is_some());
+
+    let complete = serde_json::json!({ "ner_truncated": false, "ner_windows": 3 });
+    assert!(ner_coverage_refusal(&complete).is_none());
+
+    let older_sidecar = serde_json::json!({ "ner_ran": false });
+    assert!(ner_coverage_refusal(&older_sidecar).is_none());
+}

@@ -54,6 +54,17 @@ impl DocumentRedactionPort for BasemindDocumentRedactor {
                 )
             })?;
 
+        // The fork's NER coverage contract: a truncated pass means text past
+        // the cut was never redacted. A document shown as fully redacted is
+        // the one state the user must never get silently (D7), so this
+        // refusal keeps the failure loud on the surface the user sees.
+        if let Some(message) = crate::redaction::ner_coverage_refusal(&payload) {
+            return Err(DocumentRedactionError::new(
+                DocumentRedactionErrorKind::Failed,
+                message,
+            ));
+        }
+
         let rehydration = payload["rehydration_map"]
             .as_object()
             .cloned()
