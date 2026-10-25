@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { chmodSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, closeSync, existsSync, mkdirSync, openSync, readFileSync, readSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -240,12 +240,29 @@ export function ensureBasemindNerModel(options = {}) {
     throw new Error('Invalid pinned Basemind NER model file list');
   }
 
-  const validate = (file, bytes) => {
-    if (bytes.length !== file.size) {
+  // Size from file metadata and sha256 streamed in chunks: hashing the full
+  // 1.23 GB model through one Buffer would risk exhausting a memory-
+  // constrained build runner mid-prep.
+  const sameDigest = (filePath, expectedDigest) => {
+    const descriptor = openSync(filePath, 'r');
+    const chunk = Buffer.alloc(8 * 1024 * 1024);
+    try {
+      const hash = createHash('sha256');
+      for (;;) {
+        const read = readSync(descriptor, chunk, 0, chunk.length, null);
+        if (read <= 0) break;
+        hash.update(chunk.subarray(0, read));
+      }
+      return hash.digest('hex') === expectedDigest;
+    } finally {
+      closeSync(descriptor);
+    }
+  };
+  const validate = (file, filePath) => {
+    if (statSync(filePath).size !== file.size) {
       throw new Error(`Basemind NER model size mismatch: ${file.path}`);
     }
-    const digest = createHash('sha256').update(bytes).digest('hex');
-    if (digest !== file.sha256) {
+    if (!sameDigest(filePath, file.sha256)) {
       throw new Error(`Basemind NER model digest mismatch: ${file.path}`);
     }
   };
@@ -254,8 +271,7 @@ export function ensureBasemindNerModel(options = {}) {
   const states = new Map(expected.map((file) => {
     let state = 'missing';
     if (existsSync(file.downloadedPath)) {
-      const bytes = readFileSync(file.downloadedPath);
-      validate(file, bytes);
+      validate(file, file.downloadedPath);
       state = 'valid';
     }
     return [file.path, state];
@@ -274,7 +290,7 @@ export function ensureBasemindNerModel(options = {}) {
       try {
         const url = `https://huggingface.co/${pin.repo}/resolve/${pin.revision}/${encodeURIComponent(file.path)}`;
         handoff(url, tempPath);
-        validate(file, readFileSync(tempPath));
+        validate(file, tempPath);
         renameSync(tempPath, file.downloadedPath);
       } catch (error) {
         rmSync(tempPath, { force: true });
