@@ -133,6 +133,7 @@ src/apps/mobile/android/.kotlin/
 /resources/basemind/basemind
 /resources/basemind/basemind.exe
 /resources/basemind/lib/
+/resources/basemind/ner-model/
 /resources/basemind/*.dll
 /resources/basemind/*.dylib
 /resources/basemind/*.so

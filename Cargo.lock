@@ -6215,6 +6215,7 @@ dependencies = [
  "log",
  "md5",
  "openbitfun-runtime-ports",
+ "openbitfun-services-core",
  "rand 0.8.7",
  "regex",
  "reqwest",

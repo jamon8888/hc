@@ -189,3 +189,72 @@ pub fn verify_version() -> Result<()> {
          Restart the daemon with the pinned version: `basemind comms stop && basemind comms start`."
     )
 }
+
+/// Start the daemon if (and only if) none holds the comms directory.
+///
+/// `comms start` is the fork's own ensure verb: when a daemon already holds
+/// the comms directory the spawn is a no-op, and a spawn races are resolved
+/// by the fork's comms-directory lock. The HTTP front-end must be opted into
+/// with `BASEMIND_ALLOW_HTTP=1`, or the daemon serves nothing `/mcp` can
+/// reach and never writes the portfile at all.
+#[cfg(feature = "basemind")]
+fn ensure(daemon_binary: &Path) -> Result<()> {
+    use openbitfun_services_core::process_manager::create_command;
+
+    let mut command = create_command(daemon_binary);
+    command
+        .arg("comms")
+        .arg("start")
+        .stdin(std::process::Stdio::null())
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null());
+    command.env("BASEMIND_ALLOW_HTTP", "1");
+    // The fork's comms directory default matches the product's discovery
+    // resolution, but an explicit call-side override must win for the
+    // spawned daemon as well, or the ensure would start a daemon the
+    // caller cannot find.
+    if let Some(comms_dir) = std::env::var_os(COMMS_DIR_ENV) {
+        command.env(COMMS_DIR_ENV, comms_dir);
+    }
+    command
+        .spawn()
+        .map(|_| ())
+        .map_err(|error| anyhow::anyhow!("basemind daemon ensure failed to spawn: {error}"))
+}
+
+/// A daemon endpoint that is true right now.
+///
+/// The daemon may have self-terminated after its bootstrap window (the
+/// fork's design: an abandoned daemon does not linger), and it binds a fresh
+/// port on every restart, so a caller must never trust an endpoint it
+/// resolved for a previous call. When no endpoint is published and the
+/// sidecar binary is known, this brings the daemon back first: the product's
+/// PII surface stays available across daemon restarts instead of failing
+/// on an endpoint that only existed in the past.
+#[cfg(feature = "basemind")]
+pub async fn discover_or_ensure(
+    daemon_binary: Option<std::path::PathBuf>,
+    wait_seconds: u64,
+) -> Result<DaemonEndpoint> {
+    if let Ok(endpoint) = discover() {
+        return Ok(endpoint);
+    }
+    let Some(binary) = daemon_binary else {
+        return discover();
+    };
+    ensure(&binary)?;
+    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(wait_seconds);
+    loop {
+        if let Ok(endpoint) = discover() {
+            return Ok(endpoint);
+        }
+        if std::time::Instant::now() >= deadline {
+            return Err(discover().err().unwrap_or_else(|| {
+                anyhow::anyhow!(
+                    "basemind daemon did not publish its endpoint within {wait_seconds}s"
+                )
+            }));
+        }
+        tokio::time::sleep(std::time::Duration::from_millis(200)).await;
+    }
+}

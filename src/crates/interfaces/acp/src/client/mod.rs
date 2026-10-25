@@ -3,6 +3,7 @@ mod config;
 mod dsh_profile;
 mod manager;
 mod prompt;
+pub mod prompt_redaction;
 mod remote_capability_store;
 mod remote_session;
 mod remote_shell;

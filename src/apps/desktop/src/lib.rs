@@ -938,8 +938,9 @@ pub async fn run() {
                             "Basemind sidecar startup check passed: path={}",
                             path.display()
                         );
+                        record_basemind_sidecar_binary(path.clone());
                         start_bundled_basemind_daemon(&path);
-                        publish_basemind_search_port();
+                        publish_basemind_search_port(&path);
                     }
                     None => {
                         log::warn!(
@@ -2381,6 +2382,35 @@ fn resolve_bundled_basemind_binary(app: &tauri::App) -> Option<std::path::PathBu
     None
 }
 
+/// The sidecar binary the startup resolve found.
+///
+/// Composition sites other than the startup flow (the Tauri command layer)
+/// read this to build their own lazy clients and to locate the NER model
+/// directory that sits beside the sidecar.
+#[cfg(feature = "basemind")]
+static BASEMIND_SIDECAR_BINARY: std::sync::OnceLock<std::path::PathBuf> =
+    std::sync::OnceLock::new();
+
+#[cfg(feature = "basemind")]
+pub(crate) fn record_basemind_sidecar_binary(path: std::path::PathBuf) {
+    let _ = BASEMIND_SIDECAR_BINARY.set(path);
+}
+
+#[cfg(feature = "basemind")]
+pub(crate) fn basemind_sidecar_binary() -> Option<&'static std::path::Path> {
+    BASEMIND_SIDECAR_BINARY
+        .get()
+        .map(std::path::PathBuf::as_path)
+}
+
+/// The bundled GLiNER2 NER model directory, beside the sidecar binary.
+#[cfg(feature = "basemind")]
+pub(crate) fn basemind_ner_model_dir() -> Option<std::path::PathBuf> {
+    basemind_sidecar_binary()
+        .and_then(std::path::Path::parent)
+        .map(|parent| parent.join("ner-model"))
+}
+
 /// Start the bundled Basemind daemon.
 ///
 /// `comms start` is the fork's own "ensure the daemon is running" verb: it
@@ -2391,6 +2421,12 @@ fn start_bundled_basemind_daemon(path: &std::path::Path) {
     use openbitfun_core::util::process_manager::create_command;
 
     let mut command = create_command(path);
+    // The pinned fork keeps the streamable-HTTP MCP front-end opt-in: without
+    // this grant the daemon refuses to serve /mcp and never writes the
+    // http.addr portfile, so every client would time out on discovery. The
+    // product always wants the front-end; the loopback bind plus the
+    // portfile's bearer token remain the access boundary.
+    command.env("BASEMIND_ALLOW_HTTP", "1");
     command
         .arg("comms")
         .arg("start")
@@ -2427,16 +2463,88 @@ fn wait_for_basemind_endpoint() -> Option<openbitfun_basemind_integration::Daemo
     None
 }
 
+/// The ACP prompt interceptor a host publishes before its sidecar-backed
+/// pseudonymizer is ready.
+///
+/// Fail closed: a host whose basemind startup has not (yet) succeeded must
+/// refuse ACP prompts instead of letting raw personal values cross to the
+/// external agent's own model.
+#[cfg(feature = "basemind")]
+struct AcpRefusingPromptInterceptor;
+
+#[cfg(feature = "basemind")]
+#[async_trait::async_trait]
+impl openbitfun_acp::AcpPromptInterceptor for AcpRefusingPromptInterceptor {
+    async fn pseudonymize(
+        &self,
+        _prompt: &str,
+        _workspace_root: &std::path::Path,
+        _openbitfun_session_id: &str,
+    ) -> openbitfun_core::util::errors::OpenBitFunResult<String> {
+        Err(openbitfun_core::util::errors::OpenBitFunError::service(
+            "PII pseudonymization is unavailable: the basemind sidecar is not running",
+        ))
+    }
+}
+
+/// The ACP prompt interceptor backed by the basemind pseudonymization port.
+///
+/// The ACP client seam expects the OpenBitFun error type, so this adapter
+/// translates the port's failure into the fail-closed answer the ACP prompt
+/// path must give.
+#[cfg(feature = "basemind")]
+struct AcpPromptInterceptorAdapter {
+    port: std::sync::Arc<dyn openbitfun_runtime_ports::PromptPseudonymizationPort>,
+}
+
+#[cfg(feature = "basemind")]
+impl AcpPromptInterceptorAdapter {
+    fn new(port: std::sync::Arc<dyn openbitfun_runtime_ports::PromptPseudonymizationPort>) -> Self {
+        Self { port }
+    }
+}
+
+#[cfg(feature = "basemind")]
+#[async_trait::async_trait]
+impl openbitfun_acp::AcpPromptInterceptor for AcpPromptInterceptorAdapter {
+    async fn pseudonymize(
+        &self,
+        prompt: &str,
+        workspace_root: &std::path::Path,
+        openbitfun_session_id: &str,
+    ) -> openbitfun_core::util::errors::OpenBitFunResult<String> {
+        self.port
+            .pseudonymize(
+                prompt,
+                openbitfun_session_id,
+                &workspace_root.to_string_lossy(),
+            )
+            .await
+            .map(|pseudonymized| pseudonymized.text)
+            .map_err(|error| {
+                openbitfun_core::util::errors::OpenBitFunError::service(format!(
+                    "PII pseudonymization failed (basemind required): {error}"
+                ))
+            })
+    }
+}
+
 /// Publish the PII-safe workspace search port to the runtime.
 ///
 /// The host owns the composition: it builds the sidecar client, the identity
 /// registry and the session vault, and hands the pipeline to the runtime as
 /// a port. `openbitfun-core` only ever sees the port trait (D11).
 #[cfg(feature = "basemind")]
-fn publish_basemind_search_port() {
+fn publish_basemind_search_port(sidecar: &std::path::Path) {
     use openbitfun_basemind_integration::{
         BasemindClient, IdentityRegistry, RagSearchPortAdapter, RagSearchTool, SessionVault,
     };
+
+    // From here on the host has promised PII-safe prompting (SPEC §11.4,
+    // I9), so any ACP prompt must refuse until the sidecar-backed
+    // pseudonymizer is published. The refusing seat keeps that guarantee if
+    // any later startup step fails; the success path below replaces it.
+    openbitfun_acp::set_prompt_interceptor(Some(std::sync::Arc::new(AcpRefusingPromptInterceptor)));
 
     let data_dir = match openbitfun_core::infrastructure::app_paths::try_get_path_manager_arc() {
         Ok(manager) => manager.user_data_dir().join("basemind"),
@@ -2454,16 +2562,33 @@ fn publish_basemind_search_port() {
         }
     }
 
-    let endpoint = match wait_for_basemind_endpoint() {
-        Some(endpoint) => endpoint,
-        None => {
-            log::warn!(
-                "Basemind search port is not available: the daemon did not publish its endpoint"
-            );
-            return;
-        }
-    };
-    let client = BasemindClient::new(endpoint.base_url(), endpoint.token);
+    // Warm the daemon up now, but do not hold the ports hostage to it: the
+    // client re-ensures the daemon on every call, so a daemon that is slow
+    // or that dies immediately still comes back at the first use.
+    if wait_for_basemind_endpoint().is_none() {
+        log::warn!(
+            "Basemind daemon did not publish its endpoint at startup; the first redaction or search call will bring it back"
+        );
+    }
+    // The client follows the daemon instead of pinning its endpoint: the
+    // daemon self-terminates after its bootstrap window with no client, and
+    // restarts on a fresh port, so each call re-discovers (and re-ensures
+    // from the sidecar when needed). The bundled GLiNER2 model next to the
+    // sidecar plus `require_ner` makes every redaction call fail closed
+    // instead of answering pattern-only when NER cannot run.
+    let ner_model_dir = sidecar
+        .parent()
+        .map(|parent| parent.join("ner-model"))
+        .unwrap_or_else(|| std::path::PathBuf::from("ner-model"));
+    if !ner_model_dir.join("model.safetensors").is_file() {
+        log::warn!(
+            "Basemind NER model is missing at {}: redaction calls will refuse instead of degrading to pattern-only",
+            ner_model_dir.display()
+        );
+    }
+    let client = BasemindClient::lazy(Some(sidecar.to_path_buf())).with_redaction_policy(
+        openbitfun_basemind_integration::RedactionPolicy::bundled(ner_model_dir),
+    );
     let registry = match IdentityRegistry::new(registry_dir.clone()) {
         Ok(registry) => registry,
         Err(error) => {
@@ -2513,8 +2638,19 @@ fn publish_basemind_search_port() {
         ),
     );
     let port: std::sync::Arc<dyn openbitfun_runtime_ports::PromptPseudonymizationPort> =
-        pseudonymizer;
+        pseudonymizer.clone();
     openbitfun_core::service::rag_search::set_global_prompt_pseudonymization_port(Some(port));
+
+    // ACP clients (OpenCode, Claude Code, Codex, and any bundled interpreter
+    // that joins through the same client layer) get the same interception:
+    // the prompt one of them receives carries session tokens, never the
+    // personal values (SPEC §11.4, I9). The seam lives in the ACP client; the
+    // sidecar-backed implementation lives here at the composition root.
+    let acp_port: std::sync::Arc<dyn openbitfun_runtime_ports::PromptPseudonymizationPort> =
+        pseudonymizer.clone();
+    openbitfun_acp::set_prompt_interceptor(Some(std::sync::Arc::new(
+        AcpPromptInterceptorAdapter::new(acp_port),
+    )));
 
     let tool = RagSearchTool::new(client.clone(), registry, vault);
     let port = std::sync::Arc::new(RagSearchPortAdapter::new(tool));
