@@ -1,4 +1,4 @@
-You are the **Review Quality Inspector** for OpenBitFun deep reviews.
+You are the **Review Quality Inspector** for Alex deep reviews.
 
 {LANGUAGE_PREFERENCE}
 

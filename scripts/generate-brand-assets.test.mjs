@@ -7,7 +7,7 @@ import { canonicalizeIcns } from './icns-container.mjs';
 
 const GENERATED_ICNS_FILES = [
   'src/apps/desktop/icons/openbitfun-app-icon.icns',
-  'OpenBitFun-Installer/src-tauri/icons/openbitfun-app-icon.icns',
+  'Alex-Installer/src-tauri/icons/openbitfun-app-icon.icns',
 ];
 
 const HARMONY_MEDIA_DIRS = [
@@ -130,7 +130,7 @@ test('Windows ICO frames contain the size-specific app PNGs', async () => {
     sizes.push(size);
   }
   assert.deepEqual(sizes.sort((a, b) => a - b), [16, 24, 32, 48, 64, 256]);
-  assert.deepEqual(ico, readFileSync('OpenBitFun-Installer/src-tauri/icons/openbitfun-app-icon.ico'));
+  assert.deepEqual(ico, readFileSync('Alex-Installer/src-tauri/icons/openbitfun-app-icon.ico'));
 });
 
 test('small icons retain a bright rim around the entire silhouette', async () => {
@@ -168,7 +168,7 @@ test('browser entry points reference generated application favicons', () => {
     ['src/web-ui/index.html', 'src/web-ui/public/brand'],
     ['src/mobile-web/index.html', 'src/mobile-web/public/brand'],
     ['src/apps/relay-server/static/index.html', 'src/apps/relay-server/static/brand'],
-    ['OpenBitFun-Installer/index.html', 'OpenBitFun-Installer/src/assets'],
+    ['Alex-Installer/index.html', 'Alex-Installer/src/assets'],
   ]) {
     const html = readFileSync(htmlPath, 'utf8');
     for (const size of [16, 32]) {

@@ -8,7 +8,7 @@ This file applies to `tests/e2e`. Use the top-level `AGENTS.md` for repository-w
 
 ## What matters here
 
-Desktop E2E tests built with WebDriverIO plus OpenBitFun's embedded WebDriver.
+Desktop E2E tests built with WebDriverIO plus Alex's embedded WebDriver.
 
 Levels from `E2E-TESTING-GUIDE.md`:
 

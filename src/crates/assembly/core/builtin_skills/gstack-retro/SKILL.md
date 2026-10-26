@@ -10,11 +10,11 @@ description: |
 
 # /retro — Weekly Engineering Retrospective
 
-Generates a comprehensive engineering retrospective analyzing commit history, work patterns, and code quality metrics. Team-aware: identifies the user running the command, then analyzes every contributor with per-person praise and growth opportunities. Designed for a senior IC/CTO-level builder using OpenBitFun as a force multiplier.
+Generates a comprehensive engineering retrospective analyzing commit history, work patterns, and code quality metrics. Team-aware: identifies the user running the command, then analyzes every contributor with per-person praise and growth opportunities. Designed for a senior IC/CTO-level builder using Alex as a force multiplier.
 
-## OpenBitFun Dispatch
+## Alex Dispatch
 
-When this skill is invoked by OpenBitFun, this skill supplies the retrospective methodology. Use existing Task sub-agents for independent read-only analysis tracks, then keep the final retro narrative in the main session.
+When this skill is invoked by Alex, this skill supplies the retrospective methodology. Use existing Task sub-agents for independent read-only analysis tracks, then keep the final retro narrative in the main session.
 
 - Do not assume a Retro sub-agent exists. Choose only from the Task tool's available agents.
 - Prefer matching custom analytics/docs sub-agents if available; otherwise use `Explore` for repository history/work-pattern analysis and related reports or release notes.
@@ -57,7 +57,7 @@ Usage: /retro [window | compare | global]
 
 ## Prior Learnings
 
-Use only OpenBitFun in-session memory, project docs, `.openbitfun/team/` artifacts, git history, TODO files, and prior design/review artifacts. Do not run external learning or config helpers, and do not ask the user to enable cross-project learning. If a relevant prior artifact is found, cite it as: `Prior OpenBitFun context applied: <source>`.
+Use only Alex in-session memory, project docs, `.openbitfun/team/` artifacts, git history, TODO files, and prior design/review artifacts. Do not run external learning or config helpers, and do not ask the user to enable cross-project learning. If a relevant prior artifact is found, cite it as: `Prior Alex context applied: <source>`.
 
 ### Step 1: Gather Raw Data
 
@@ -284,7 +284,7 @@ If you discovered a non-obvious pattern, pitfall, or architectural insight durin
 this session, log it for future sessions:
 
 ```bash
-true # OpenBitFun has no external telemetry helper
+true # Alex has no external telemetry helper
 ```
 
 **Types:** `pattern` (reusable approach), `pitfall` (what NOT to do), `preference`
@@ -292,7 +292,7 @@ true # OpenBitFun has no external telemetry helper
 `operational` (project environment/CLI/workflow knowledge).
 
 **Sources:** `observed` (you found this in the code), `user-stated` (user told you),
-`inferred` (AI deduction), `cross-model` (both OpenBitFun and outside-voice sub-agent agree).
+`inferred` (AI deduction), `cross-model` (both Alex and outside-voice sub-agent agree).
 
 **Confidence:** 1-10. Be honest. An observed pattern you verified in the code is 8-9.
 An inference you're not sure about is 4-5. A user preference they explicitly stated is 10.
@@ -535,7 +535,7 @@ For each teammate (sorted by commits descending), write a section:
   - "Most commits land in a single burst — spacing work across the day could reduce context-switching fatigue"
   - "All commits land between 1-4am — sustainable pace matters for code quality long-term"
 
-**AI collaboration note:** If many commits have `Co-Authored-By` AI trailers (e.g., OpenBitFun, Copilot), note the AI-assisted commit percentage as a team metric. Frame it neutrally — "N% of commits were AI-assisted" — without judgment.
+**AI collaboration note:** If many commits have `Co-Authored-By` AI trailers (e.g., Alex, Copilot), note the AI-assisted commit percentage as a team metric. Frame it neutrally — "N% of commits were AI-assisted" — without judgment.
 
 ### Top 3 Team Wins
 Identify the 3 highest-impact things shipped in the window across the whole team. For each:
@@ -564,8 +564,8 @@ Same midnight-aligned logic as the regular retro. Default 7d. The second argumen
 
 ### Global Step 2: Discover sessions
 
-Use OpenBitFun's built-in session/project metadata and ordinary filesystem inspection.
-Do not locate, build, or run external `global session discovery` binaries. If OpenBitFun
+Use Alex's built-in session/project metadata and ordinary filesystem inspection.
+Do not locate, build, or run external `global session discovery` binaries. If Alex
 session metadata is unavailable, fall back to the current repository only and say
 that global session discovery is unavailable in this environment.
 
@@ -623,7 +623,7 @@ From the commit timestamps gathered in Step 3, group by date. For each date, cou
 From the discovery JSON, analyze tool usage patterns:
 - Which AI tool is used for which repos (exclusive vs. shared)
 - Session count per tool
-- Behavioral patterns (e.g., "outside-voice sub-agent used exclusively for myapp, OpenBitFun for everything else")
+- Behavioral patterns (e.g., "outside-voice sub-agent used exclusively for myapp, Alex for everything else")
 
 ### Global Step 7: Aggregate and generate narrative
 
@@ -753,7 +753,7 @@ Format:
 
 ### Tool Usage Analysis
 Per-tool breakdown with behavioral patterns:
-- OpenBitFun: N sessions across M repos — patterns observed
+- Alex: N sessions across M repos — patterns observed
 - outside-voice sub-agent: N sessions across M repos — patterns observed
 - Gemini: N sessions across M repos — patterns observed
 

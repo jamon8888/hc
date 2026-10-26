@@ -1,4 +1,4 @@
-# OpenBitFun AI Adapters
+# Alex AI Adapters
 
 Shared AI protocol adapters used by both `openbitfun-core` and the installer.
 
@@ -11,7 +11,7 @@ This crate owns the portable AI integration layer:
 - provider model discovery
 - connection health checks
 
-This crate intentionally does **not** own OpenBitFun runtime concerns such as:
+This crate intentionally does **not** own Alex runtime concerns such as:
 
 - global config services
 - client factories and caches
@@ -32,5 +32,5 @@ and re-exports this crate where convenient.
 ## Design Rule
 
 If a type or function must behave the same in both the main app and the
-installer, it belongs here. If it depends on OpenBitFun runtime state or services,
+installer, it belongs here. If it depends on Alex runtime state or services,
 it should stay outside this crate.

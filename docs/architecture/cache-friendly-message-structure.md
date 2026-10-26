@@ -1,4 +1,4 @@
-# Cache-Friendly Message Structure In OpenBitFun
+# Cache-Friendly Message Structure In Alex
 
 This document owns the model-visible request ordering and the rules for keeping
 that prefix stable. Session cache identity, persistence, cloning, invalidation,
@@ -6,7 +6,7 @@ and observability are owned by
 [`model-request-cache-reuse.md`](model-request-cache-reuse.md); changes should
 update the owning document instead of duplicating the same contract in both.
 
-This note explains the cache-friendly request shape OpenBitFun tries to preserve
+This note explains the cache-friendly request shape Alex tries to preserve
 for long-running agent sessions, where each layer is stored, and which kinds
 of changes tend to preserve or break provider-side prefix cache reuse.
 
@@ -14,7 +14,7 @@ The implementation is mostly in `src/crates/assembly/core/src/agentic/`.
 
 ## Request Shape
 
-OpenBitFun's model requests are intentionally assembled in a stable order:
+Alex's model requests are intentionally assembled in a stable order:
 
 1. `system prompt`
 2. `tool definitions`
@@ -185,7 +185,7 @@ Why there is an override file:
 - the child's later diff calculations should still use the child's own fork-time
   baseline
 
-So OpenBitFun can keep:
+So Alex can keep:
 
 - `skill-agent-baseline-override.json` as the prompt/full-listing baseline
 - child `turn-0 skill-agent snapshot` as the diff baseline for later child turns
@@ -203,7 +203,7 @@ What usually breaks reuse:
 
 Special rewrite path:
 
-- when OpenBitFun rebuilds the listing baseline to the latest snapshot, it also
+- when Alex rebuilds the listing baseline to the latest snapshot, it also
   removes old skill/agent diff reminders from live context and from pre-rebuild
   persisted context snapshots
 - this is the main non-compression exception to the normal append-only message

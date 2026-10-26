@@ -53,10 +53,10 @@ const LEGACY_APPLICATION_ASSETS = [
   'src/web-ui/public/Logo-ICON-128.png',
   'src/web-ui/public/OpenBitFun-Logo.png',
   'src/mobile-web/src/assets/Logo-ICON.png',
-  'OpenBitFun-Installer/src/Logo-ICON.png',
-  'OpenBitFun-Installer/src-tauri/icons/icon.png',
-  'OpenBitFun-Installer/src-tauri/icons/icon.ico',
-  'OpenBitFun-Installer/src-tauri/icons/icon.icns',
+  'Alex-Installer/src/Logo-ICON.png',
+  'Alex-Installer/src-tauri/icons/icon.png',
+  'Alex-Installer/src-tauri/icons/icon.ico',
+  'Alex-Installer/src-tauri/icons/icon.icns',
   'src/apps/mobile/harmonyos/AppScope/resources/base/media/openbitfun_icon.png',
   'src/apps/mobile/harmonyos/AppScope/resources/base/media/openbitfun-app-icon.png',
   'src/apps/mobile/harmonyos/AppScope/resources/base/media/background.png',
@@ -361,11 +361,11 @@ async function generateBrandAssets() {
     applicationIcon,
   );
 
-  const installerBrandDir = outputPath('OpenBitFun-Installer', 'src', 'assets');
+  const installerBrandDir = outputPath('Alex-Installer', 'src', 'assets');
   await writePng(path.join(installerBrandDir, 'openbitfun-mark-dark.png'), darkMark);
   await writePng(path.join(installerBrandDir, 'openbitfun-mark-light.png'), lightMark);
   await writePng(path.join(installerBrandDir, 'openbitfun-app-icon.png'), applicationIcon);
-  const installerIconDir = outputPath('OpenBitFun-Installer', 'src-tauri', 'icons');
+  const installerIconDir = outputPath('Alex-Installer', 'src-tauri', 'icons');
   await writePng(path.join(installerIconDir, 'openbitfun-app-icon.png'), applicationIconLarge);
   await writePng(path.join(installerIconDir, 'openbitfun-app-icon.ico'), tauriContainers.ico);
   await writePng(path.join(installerIconDir, 'openbitfun-app-icon.icns'), tauriContainers.icns);

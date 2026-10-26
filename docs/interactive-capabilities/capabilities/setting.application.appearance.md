@@ -43,20 +43,20 @@ Switch themes and languages, tune typography, and install or import appearance p
 3. 选择主题、语言或外观包
    Choose a theme, language, or appearance package
 
-入口 / Entry: OpenBitFun 设置
+入口 / Entry: Alex 设置
 
 ## 智能体可替你做什么 / What an agent can do for you
 
 | 操作 / Action | 中文说明 | English description |
 | --- | --- | --- |
-| 打开对应界面 / Open the UI | 进入 OpenBitFun 中对应的功能界面。 | Open the matching feature in OpenBitFun. |
+| 打开对应界面 / Open the UI | 进入 Alex 中对应的功能界面。 | Open the matching feature in Alex. |
 
 ## 可配置选项 / Configurable options
 
 | 选项 / Option | 可用值 / Values | 中文说明 | English description |
 | --- | --- | --- | --- |
-| 主题 / Theme | `system` / `openbitfun-light` / `openbitfun-monochrome` / `openbitfun-slate` / `openbitfun-dark` / `openbitfun-midnight` / `openbitfun-china-style` / `openbitfun-china-night` / `openbitfun-cyber` / `openbitfun-tokyo-night` | 使用系统、OpenBitFun 深色或 OpenBitFun 浅色外观。 | Use the system, OpenBitFun dark, or OpenBitFun light appearance. |
-| 界面语言 / Interface language | `zh-CN` / `en-US` / `fr-FR` / `zh-TW` | 设置 OpenBitFun 的界面语言。 | Set the OpenBitFun interface language. |
+| 主题 / Theme | `system` / `openbitfun-light` / `openbitfun-monochrome` / `openbitfun-slate` / `openbitfun-dark` / `openbitfun-midnight` / `openbitfun-china-style` / `openbitfun-china-night` / `openbitfun-cyber` / `openbitfun-tokyo-night` | 使用系统、Alex 深色或 Alex 浅色外观。 | Use the system, Alex dark, or Alex light appearance. |
+| 界面语言 / Interface language | `zh-CN` / `en-US` / `fr-FR` / `zh-TW` | 设置 Alex 的界面语言。 | Set the Alex interface language. |
 
 ## 可以直接对智能体说 / Try saying
 

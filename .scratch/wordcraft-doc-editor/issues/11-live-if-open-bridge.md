@@ -7,7 +7,7 @@
 
 Implement the live-if-open rule: when the target document is open in the visible WordCraft
 window, agent tool calls bridge to *that* session (`wordcraft-cli mcp --connect 127.0.0.1:<port>`
-with the key taken from the control-key file, read only by OpenBitFun's desktop adapter, never
+with the key taken from the control-key file, read only by Alex's desktop adapter, never
 logged, never in agent context); otherwise the headless server (ticket 10) edits the file.
 Single-writer rule per document; what happens when the visible window closes mid-batch
 (migrate to headless loudly, don't silently copy). Key + profile per ticket 05.
@@ -48,7 +48,7 @@ this crate.
 
 Implement the live-if-open rule: when the target document is open in the visible WordCraft
 window, agent tool calls bridge to *that* session (`wordcraft-cli mcp --connect 127.0.0.1:<port>`
-with the key taken from the control-key file, read only by OpenBitFun's desktop adapter, never
+with the key taken from the control-key file, read only by Alex's desktop adapter, never
 logged, never in agent context); otherwise the headless server (ticket 10) edits the file.
 Single-writer rule per document; what happens when the visible window closes mid-batch
 (migrate to headless loudly, don't silently copy). Key + profile per ticket 05. Verification:

@@ -1,6 +1,6 @@
 # Rust 构建与依赖边界
 
-本文定义 OpenBitFun Rust workspace 的 Cargo feature、第三方依赖、测试目标和验证职责边界。它是
+本文定义 Alex Rust workspace 的 Cargo feature、第三方依赖、测试目标和验证职责边界。它是
 [`product-architecture.md`](product-architecture.md) 的构建视图补充；运行时 owner、端口和产品分层仍以产品架构及最近的模块 `AGENTS.md` 为准。
 
 本文只记录长期规则，不记录当前 package 数量、重复版本数量或单次构建耗时。阶段性审计和迁移顺序保留在本地工作记录或对应 issue/PR，避免把过程文档和会变化的基线提交为可不断调高的门槛。

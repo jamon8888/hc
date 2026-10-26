@@ -12,9 +12,9 @@ Four topological decisions, all aligned with root AGENTS.md:
    ticket 04's live-if-open bridge (which needs a persistent process to connect to) and avoids
    per-turn doc-reload startup cost; spawning per tool call is rejected.
 2. **Profile isolation + key handling**: every launched WordCraft process (visible app included)
-   gets its own `WORDCRAFT_PROFILE_DIR` under OpenBitFun's state dir — isolated recovery copies,
+   gets its own `WORDCRAFT_PROFILE_DIR` under Alex's state dir — isolated recovery copies,
    no fighting the user's own WordCraft prefs. The control key file is read **only** by
-   OpenBitFun's desktop adapter for bridge auth; never logged (fresh empty per root LOGGING.md),
+   Alex's desktop adapter for bridge auth; never logged (fresh empty per root LOGGING.md),
    never exposed into agent context.
 3. **Confinement**: `--automation-read-root` = read root and `--automation-write-root` = write
    root mapped to the **active workspace folder, both**. Editing-in-place is the product need

@@ -1,4 +1,4 @@
-Analyze this OpenBitFun usage data and suggest improvements.
+Analyze this Alex usage data and suggest improvements.
 
 ## OPENBITFUN FEATURES REFERENCE (pick from these for features_to_try):
 
@@ -29,12 +29,12 @@ Analyze this OpenBitFun usage data and suggest improvements.
      ```
    - Parallel exploration: Launch multiple SubAgents to investigate different parts of the codebase simultaneously, then synthesize their findings.
 
-3. **MCP Servers**: Connect OpenBitFun to external tools, databases, and APIs via Model Context Protocol.
+3. **MCP Servers**: Connect Alex to external tools, databases, and APIs via Model Context Protocol.
    - How to use: Configure MCP servers in settings to connect to external services.
    - Good for: database queries, API integration, connecting to internal tools
    - Common integrations:
      - **Database**: Query PostgreSQL/MySQL directly from chat — `SELECT * FROM users WHERE ...`
-     - **GitHub**: Create issues, review PRs, manage releases without leaving OpenBitFun
+     - **GitHub**: Create issues, review PRs, manage releases without leaving Alex
      - **Slack/Discord**: Post messages, read channels, manage notifications
      - **Notion/Linear**: Create and update project management items
    - Example config:
@@ -60,7 +60,7 @@ Analyze this OpenBitFun usage data and suggest improvements.
    - For work with independent branches, enable or invoke the built-in `multitask` skill so the Agent can coordinate parallel subagents without changing the session's main Agent.
    - Tip: Use the Plan skill for complex tasks, then ask Standard to implement the resulting plan.
 
-5. **CLI Exec (Headless)**: Run OpenBitFun non-interactively from scripts and CI/CD pipelines.
+5. **CLI Exec (Headless)**: Run Alex non-interactively from scripts and CI/CD pipelines.
    - How to use: `openbitfun exec "fix lint errors" --tools "Edit,Read,ExecCommand"`
    - Good for: CI/CD integration, batch code fixes, automated reviews
    - CI/CD examples:

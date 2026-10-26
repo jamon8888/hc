@@ -1,15 +1,15 @@
 # Agent hooks
 
-Hooks let you run your own commands at fixed points in the OpenBitFun Agent's
+Hooks let you run your own commands at fixed points in the Alex Agent's
 lifecycle: before and after a tool call, when a permission prompt would appear,
 when a prompt is submitted, around context compaction, around subagents, and
 when a session or turn starts or ends. A hook can observe what the Agent is
 doing, add context the model will read, rewrite a tool call's arguments, or
 block an action outright.
 
-## OpenBitFun hooks are Codex hooks
+## Alex hooks are Codex hooks
 
-OpenBitFun implements **the Codex hook contract**, not a OpenBitFun dialect:
+Alex implements **the Codex hook contract**, not a Alex dialect:
 
 - the same `hooks.json` document — events, matcher groups, handler fields;
 - the same event names (`PreToolUse`, `PostToolUse`, `PermissionRequest`,
@@ -21,7 +21,7 @@ OpenBitFun implements **the Codex hook contract**, not a OpenBitFun dialect:
 - the same JSON decision schema on stdout (`permissionDecision`,
   `updatedInput`, `additionalContext`, `decision`/`reason`, …).
 
-**A Codex hook script runs in OpenBitFun unchanged, and vice versa — there is
+**A Codex hook script runs in Alex unchanged, and vice versa — there is
 nothing to port.**
 
 So this page does not restate the reference. For event semantics, the exact
@@ -30,12 +30,12 @@ documentation, which covers all of it well:
 
 **→ <https://learn.chatgpt.com/docs/hooks>**
 
-The rest of this page is only what is OpenBitFun-specific: where the files live,
-how to switch hooks on, and where OpenBitFun currently differs.
+The rest of this page is only what is Alex-specific: where the files live,
+how to switch hooks on, and where Alex currently differs.
 
-## Where OpenBitFun reads hooks
+## Where Alex reads hooks
 
-Codex reads `~/.codex/hooks.json`; OpenBitFun reads its own config directory
+Codex reads `~/.codex/hooks.json`; Alex reads its own config directory
 instead. Everything inside the file is identical.
 
 | Scope | Path |
@@ -49,7 +49,7 @@ Windows.
 
 Both layers are additive: every matching handler runs, user handlers first.
 There is no override or shadowing between them. Changes are picked up without
-restarting OpenBitFun.
+restarting Alex.
 
 ## Turning hooks on
 
@@ -77,12 +77,12 @@ that live inside a checked-out repository, so anyone who can land a commit
 could otherwise run code on your machine. Turn it on only for repositories
 you trust, and re-check the file after pulling.
 
-Codex's `[features] hooks = false` has no OpenBitFun equivalent — use
+Codex's `[features] hooks = false` has no Alex equivalent — use
 `app.hooks.enabled` instead.
 
 ## Importing Claude Code and Codex command hooks
 
-OpenBitFun can take a reviewed local snapshot of compatible `type: "command"`
+Alex can take a reviewed local snapshot of compatible `type: "command"`
 hooks discovered from Claude Code or Codex. This is an explicit copy, not a
 live mount of another product's configuration:
 
@@ -91,11 +91,11 @@ live mount of another product's configuration:
 2. Choose a source and review every effective command, Windows override,
    timeout, copied or external dependency, skipped item, and the plan
    fingerprint.
-3. Confirm that exact plan. If the source changed after review, OpenBitFun writes
+3. Confirm that exact plan. If the source changed after review, Alex writes
    nothing and returns a refreshed plan for another confirmation.
 
-User sources are copied to OpenBitFun's user-managed data. Project sources are
-copied to workspace-isolated data under OpenBitFun's project runtime area. Safe
+User sources are copied to Alex's user-managed data. Project sources are
+copied to workspace-isolated data under Alex's project runtime area. Safe
 relative script dependencies beneath a source's `.claude/hooks` or
 `.codex/hooks` directory are copied into the immutable snapshot. Absolute
 dependencies remain external and are called out during review; moving or
@@ -104,7 +104,7 @@ Dynamic paths, globs, escaping paths, links, unreadable files, and files beyond
 the fixed import limits are skipped rather than followed implicitly.
 
 An imported source can be enabled, disabled, updated, or removed independently.
-Removing it deletes only OpenBitFun's managed copy; it never edits Claude Code or
+Removing it deletes only Alex's managed copy; it never edits Claude Code or
 Codex files. Updates always require another exact-command review. Imported
 layers run in this fixed order:
 
@@ -115,7 +115,7 @@ layers run in this fixed order:
 
 Import, update, enable, disable, and remove take effect on the next matching
 Hook event; an already running Hook finishes against the snapshot it started
-with. OpenBitFun does not re-import on startup, poll, or watch Claude Code/Codex
+with. Alex does not re-import on startup, poll, or watch Claude Code/Codex
 files. Use **Refresh** or `/hooks refresh` to check for source changes, then
 review an update explicitly. The management and execution paths are local-only;
 remote workspaces return unsupported instead of running local commands against
@@ -177,7 +177,7 @@ openbitfun hooks reset <user|project> --confirm
 Import and update are preview-only without the matching fingerprint. TUI uses
 the same backend and keeps `/hooks_external` and `/hooks-external` as aliases
 for the unified `/hooks` management view. `reset` is available only as explicit
-recovery for a corrupt OpenBitFun-managed index and never changes source files.
+recovery for a corrupt Alex-managed index and never changes source files.
 
 ## Quick start
 
@@ -235,13 +235,13 @@ if "/migrations/" in payload.get("tool_input", {}).get("file_path", ""):
 sys.exit(0)
 ```
 
-## Where OpenBitFun differs from Codex
+## Where Alex differs from Codex
 
 Everything not listed here behaves as the Codex documentation describes.
 
 ### Not supported
 
-| Codex feature | OpenBitFun |
+| Codex feature | Alex |
 | --- | --- |
 | `config.toml` `[hooks]` table | not read — put hooks in `hooks.json` |
 | `[features] hooks = false` | use `app.hooks.enabled` |
@@ -310,7 +310,7 @@ every time its event fires. Treat `hooks.json` like a shell profile:
 | Plain `echo` output is not visible to the model | Only `SessionStart`, `UserPromptSubmit`, and `SubagentStart` turn plain stdout into context; elsewhere use `hookSpecificOutput.additionalContext`. |
 
 Configuration problems, non-zero exits, timeouts, and hook decisions are
-written to the OpenBitFun backend log. See
+written to the Alex backend log. See
 [`src/crates/LOGGING.md`](../../src/crates/LOGGING.md) for how to raise the
 log level.
 
@@ -318,6 +318,6 @@ log level.
 
 - CLI `/hooks` shows manual and imported layers, discovers supported external
   sources asynchronously, and owns the import management actions described
-  above. Edit `hooks.json` directly only for manual OpenBitFun layers.
+  above. Edit `hooks.json` directly only for manual Alex layers.
 - `/hooks_external` and `/hooks-external` are compatibility aliases for the
   same view; they do not create a second import or execution path.

@@ -1,4 +1,4 @@
-# OpenBitFun Mobile Design System
+# Alex Mobile Design System
 
 This directory is the source-neutral visual contract for the native HarmonyOS,
 Android, and iOS applications. It owns stable visual facts and deterministic
@@ -48,7 +48,7 @@ platform presentation primitives.
   font-size preference. HarmonyOS folds it into the generated typography roles
   (`MobileTextScale.apply` at ability start, so every role getter returns the
   scaled value); Android folds it into the theme's `Density.fontScale` so every
-  `sp` under `OpenBitFunTheme` follows. iOS is the reference and stays at 1.
+  `sp` under `AlexTheme` follows. iOS is the reference and stays at 1.
   Symbol glyph and `dp`/`vp` geometry never scale. A HUAWEI Mate X7
   (415.6 dpi at density 3.125) resolves to 0.868, so its `16` reads as 14 vp —
   the same millimetres as 16 pt on the iPhone.

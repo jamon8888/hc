@@ -1,6 +1,6 @@
-# OpenBitFun Installer
+# Alex Installer
 
-A fully custom, branded installer for OpenBitFun — built with **Tauri 2 + React** for maximum UI flexibility.
+A fully custom, branded installer for Alex — built with **Tauri 2 + React** for maximum UI flexibility.
 
 ## Why a Custom Installer?
 
@@ -60,7 +60,7 @@ pnpm run installer:build:only
 ## Architecture
 
 ```
-OpenBitFun-Installer/
+Alex-Installer/
 ├── src-tauri/                 # Tauri / Rust backend
 │   ├── src/
 │   │   ├── main.rs            # Entry point
@@ -270,7 +270,7 @@ reduced-motion preference.
 
 ### Adding Installer Payload
 
-Place the built OpenBitFun application files in `src-tauri/payload/` before building the installer. The build script handles this automatically.
+Place the built Alex application files in `src-tauri/payload/` before building the installer. The build script handles this automatically.
 During `cargo build`, the payload directory is packed into an embedded zip inside `openbitfun-installer.exe`.
 
 ## Integration with CI/CD
@@ -291,13 +291,13 @@ Add to your GitHub Actions workflow:
 
 - name: Build Installer
   run: |
-    cd OpenBitFun-Installer
+    cd Alex-Installer
     pnpm install
     pnpm run installer:build:only
 
 - name: Upload Installer
   uses: actions/upload-artifact@v6
   with:
-    name: OpenBitFun-Installer-Exe
-    path: OpenBitFun-Installer/src-tauri/target/release/openbitfun-installer.exe
+    name: Alex-Installer-Exe
+    path: Alex-Installer/src-tauri/target/release/openbitfun-installer.exe
 ```

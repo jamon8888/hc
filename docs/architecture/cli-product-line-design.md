@@ -1,4 +1,4 @@
-# OpenBitFun CLI 产品线架构
+# Alex CLI 产品线架构
 
 本文记录 CLI 产品入口的稳定边界、当前运行路径和剩余架构缺口。它不是用户手册，也不记录单个 PR 的完成日志。
 
@@ -19,7 +19,7 @@
 
 ## 1. 产品范围
 
-OpenBitFun CLI 是独立的 Agent 产品入口，覆盖：
+Alex CLI 是独立的 Agent 产品入口，覆盖：
 
 - 交互式 TUI
 - 非交互 `exec` 与结构化输出
@@ -32,7 +32,7 @@ CLI 不拥有 Session、Turn、Tool、Permission、Context、Workspace、MCP 或
 竞品对齐只用于降低用户学习成本和补齐常用工程流程：
 
 1. 等价入口优先采用 OpenCode 的命令名与交互。
-2. Codex、Claude Code 和 OpenCode 的配置或扩展格式是外部来源，不是 OpenBitFun 内部模型。
+2. Codex、Claude Code 和 OpenCode 的配置或扩展格式是外部来源，不是 Alex 内部模型。
 3. 只有存在真实消费方、安全边界和兼容测试时才增加生态专属能力。
 4. 不为“接口完整”发布没有运行路径的占位 API。
 

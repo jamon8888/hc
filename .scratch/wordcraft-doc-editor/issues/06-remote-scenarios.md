@@ -27,7 +27,7 @@ Declare-or-loud stance for all four scenarios, with one deliberate scope expansi
    `ControllerLocal` flags): visible-window launch answers `ControllerLocal`; headless agent
    editing proxied; capability ads derive from the registry.
 4. **Detached dispatch — SUPPORTED headless.** A dispatch job on a headless target edits a docx
-   through the headless MCP server, tracked changes + `OpenBitFun Agent` authorship + agent
+   through the headless MCP server, tracked changes + `Alex Agent` authorship + agent
    saves included — the exact case ticket 04's contract and ticket 05's lifecycle already cover.
    Required target capabilities (managed wordcraft component present or provisionable) must be
    advertised/negotiated, never assumed.

@@ -1,9 +1,9 @@
 ---
 name: create-agent
-description: Create or update OpenBitFun custom modes and subagents. Turn the user's needs into a role prompt and a suitable tool selection, then save an agent definition. Use for reusable roles, not ordinary delegation to an existing subagent.
+description: Create or update Alex custom modes and subagents. Turn the user's needs into a role prompt and a suitable tool selection, then save an agent definition. Use for reusable roles, not ordinary delegation to an existing subagent.
 ---
 
-# Create an OpenBitFun Agent
+# Create an Alex Agent
 
 ## Understand the role
 

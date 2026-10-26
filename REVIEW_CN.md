@@ -1,6 +1,6 @@
 # REVIEW.md
 
-评审者在一个 OpenBitFun 改动中寻找什么，以及一条发现如何被书写。
+评审者在一个 Alex 改动中寻找什么，以及一条发现如何被书写。
 它同时适用于人类评审与 Agent 评审运行（`code-review` skill、新上下文的
 subagent 审查，或任何 PR 前评审）。
 

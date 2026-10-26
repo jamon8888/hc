@@ -38,7 +38,7 @@ bash scripts/test-linux-computer-use-atspi.sh
 bash scripts/test-linux-computer-use-portal.sh
 ```
 
-Select only the dedicated **OpenBitFun Portal Fixture** window. The fixture checks
+Select only the dedicated **Alex Portal Fixture** window. The fixture checks
 real PipeWire frames, observation-only input rejection and stop revocation. It
 does not prove foreground input delivery or remote behavior.
 For headless AT-SPI verification, use

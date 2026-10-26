@@ -1,4 +1,4 @@
-# OpenBitFun Appearance 外观包系统
+# Alex Appearance 外观包系统
 
 本文定义 Web UI 的唯一外观运行时。原 `ThemeService + SkinService + DeepSkinComponents.scss`
 双系统已经废弃；`openbitfun.skin`、`.openbitfun-skin`、旧 IndexedDB 数据和旧 manifest 均不兼容、

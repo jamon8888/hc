@@ -16,9 +16,9 @@ description: |
 
 You are a QA engineer AND a bug-fix engineer. Test web applications like a real user — click everything, fill every form, check every state. When you find bugs, fix them in source code with atomic commits, then re-verify. Produce a structured report with before/after evidence.
 
-## OpenBitFun Dispatch
+## Alex Dispatch
 
-When this skill is invoked by OpenBitFun, this skill supplies the QA methodology. Use existing Task sub-agents for independent testing tracks, then keep triage and fix ownership explicit in the main session.
+When this skill is invoked by Alex, this skill supplies the QA methodology. Use existing Task sub-agents for independent testing tracks, then keep triage and fix ownership explicit in the main session.
 
 - Do not assume a QA Lead sub-agent exists. Choose only from the Task tool's available agents.
 - Prefer a matching custom QA/browser sub-agent if available; otherwise use agent-browser for browser testing, `ComputerUse` only for native desktop UI, and `Explore` for diff-aware test-scope mapping.
@@ -68,7 +68,7 @@ RECOMMENDATION: Choose A because uncommitted work should be preserved as a commi
 
 After the user chooses, execute their choice (commit or stash), then continue with setup.
 
-**Browser/desktop QA tooling:** Use agent-browser for browser QA and OpenBitFun ComputerUse only for native desktop surfaces it cannot reach. Save QA artifacts under `.openbitfun/team/qa-reports/`.
+**Browser/desktop QA tooling:** Use agent-browser for browser QA and Alex ComputerUse only for native desktop surfaces it cannot reach. Save QA artifacts under `.openbitfun/team/qa-reports/`.
 
 **Check test framework (bootstrap if needed):**
 
@@ -236,7 +236,7 @@ mkdir -p .openbitfun/team/qa-reports/screenshots
 
 ## Prior Learnings
 
-Use only OpenBitFun in-session memory, project docs, `.openbitfun/team/` artifacts, git history, TODO files, and prior design/review artifacts. Do not run external learning or config helpers, and do not ask the user to enable cross-project learning. If a relevant prior artifact is found, cite it as: `Prior OpenBitFun context applied: <source>`.
+Use only Alex in-session memory, project docs, `.openbitfun/team/` artifacts, git history, TODO files, and prior design/review artifacts. Do not run external learning or config helpers, and do not ask the user to enable cross-project learning. If a relevant prior artifact is found, cite it as: `Prior Alex context applied: <source>`.
 
 ## Test Plan Context
 
@@ -749,7 +749,7 @@ If you discovered a non-obvious pattern, pitfall, or architectural insight durin
 this session, log it for future sessions:
 
 ```bash
-true # OpenBitFun has no external telemetry helper
+true # Alex has no external telemetry helper
 ```
 
 **Types:** `pattern` (reusable approach), `pitfall` (what NOT to do), `preference`
@@ -757,7 +757,7 @@ true # OpenBitFun has no external telemetry helper
 `operational` (project environment/CLI/workflow knowledge).
 
 **Sources:** `observed` (you found this in the code), `user-stated` (user told you),
-`inferred` (AI deduction), `cross-model` (both OpenBitFun and outside-voice sub-agent agree).
+`inferred` (AI deduction), `cross-model` (both Alex and outside-voice sub-agent agree).
 
 **Confidence:** 1-10. Be honest. An observed pattern you verified in the code is 8-9.
 An inference you're not sure about is 4-5. A user preference they explicitly stated is 10.

@@ -22,7 +22,7 @@ ports；具体 runtime 行为不属于本 crate。
   seed-plan facts、marker wire format、host primitive call plan 和窄 port。
 - `function-agents` 可以拥有 function-agent DTO、prompt/domain policy、response parsing/repair rule、file-shape analysis
   和 Git/AI port trait。
-- `plugin-source` 可以拥有 OpenBitFun 插件包清单数据结构、来源标识、工作区信任记录和纯信任版本变更规则。
+- `plugin-source` 可以拥有 Alex 插件包清单数据结构、来源标识、工作区信任记录和纯信任版本变更规则。
 - `remote_surface`（默认 feature）拥有 Product Operation Registry：每个可跨宿主边界的产品操作一行，
   声明远程工作区立场、Peer Device 立场、CLI peer host 支持情况，以及类型化的 peer 能力列表和
   `src/generated/` 下的导出产物。宿主与 Web UI 从它派生各自的表，它本身不执行任何操作。

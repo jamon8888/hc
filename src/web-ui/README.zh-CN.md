@@ -1,10 +1,10 @@
-# OpenBitFun Web UI
+# Alex Web UI
 
 中文 | [English](./README.md)
 
 ## 概述
 
-本目录是 OpenBitFun 的 **Web UI**（React + TypeScript）。同一份前端代码会被复用在：
+本目录是 Alex 的 **Web UI**（React + TypeScript）。同一份前端代码会被复用在：
 
 - **Desktop**：通过 **Tauri** 加载运行
 - **Server/Web**：构建为静态资源，由后端提供访问
@@ -27,7 +27,7 @@
 
 ## 浮动会话
 
-右下角窗口默认以文字模式打开持久保存的 OpenBitFun 控制会话。将主标签栏的会话
+右下角窗口默认以文字模式打开持久保存的 Alex 控制会话。将主标签栏的会话
 拖入窗口即可继续交流；通过返回主窗口按钮或拖回主标签栏移出。带 Agent 的 MiniApp
 会自动加入对应会话标签。移动会话时保留草稿、附件、执行状态与阅读位置。
 
@@ -161,7 +161,7 @@ VITE_BUILD_TARGET=web pnpm --dir src/web-ui run build
 已保存的模型不会被删除，也可以手动填写服务商支持的模型 ID。
 
 反重力通过账号的 `fetchAvailableModels` 接口获取模型；Codex 使用订阅模型目录，
-保留公共 API 不提供的订阅专属模型。OpenCode 只需选择 Go/Zen 和模型，OpenBitFun
+保留公共 API 不提供的订阅专属模型。OpenCode 只需选择 Go/Zen 和模型，Alex
 根据账号目录自动匹配 Chat Completions、Responses 或 Messages 协议。
 xAI、Hermes 查询各自的模型接口。Hermes 所有模型（包括 `anthropic/*`）使用
 Chat Completions 和 Nous OAuth Bearer 认证，与上游在原生 Messages 缓存问题解决前的

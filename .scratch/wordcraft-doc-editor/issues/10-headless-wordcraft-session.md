@@ -8,8 +8,8 @@
 Implement the headless `wordcraft-cli mcp` session lifecycle per tickets 04/05: one server per
 workspace session with a document open, idle-reaped (~10 min) and reaped on close; spawn only
 via `openbitfun_services_core::process_manager::{create_command, create_tokio_command}` (no bare
-`Command`); per-process `WORDCRAFT_PROFILE_DIR` under OpenBitFun state; `--author
-"OpenBitFun Agent (<session>)"`; both `--automation-*-root` mapped to the active workspace.
+`Command`); per-process `WORDCRAFT_PROFILE_DIR` under Alex state; `--author
+"Alex Agent (<session>)"`; both `--automation-*-root` mapped to the active workspace.
 Register it as a managed MCP server (bridged into the runtime's MCP stack), with tool guidance
 text covering: verify-after-batch with `inspect_document`, explicit `{"value": true}` on
 tracking toggles, `paragraphs:true` on `type_text`, and the documented limits of the roots.
@@ -26,7 +26,7 @@ governance churn):
   (id: 1..64 ASCII alnum plus `-._`, no leading `-`/`.`; roots/profile: non-empty, no control
   chars) so a bad id can never smuggle CLI flags into argv.
 - `build_headless_session()` — the registry-consumable local-stdio definition: command
-  `wordcraft-cli`; args `mcp --author "OpenBitFun Agent (<id>)" --automation-read-root <ws>
+  `wordcraft-cli`; args `mcp --author "Alex Agent (<id>)" --automation-read-root <ws>
   --automation-write-root <ws>` (both roots = active workspace); env
   `WORDCRAFT_PROFILE_DIR=<state>/wordcraft/profiles/<id>` (isolated per ticket 05; deliberately
   NO `WORDCRAFT_NO_PREFS`, so crash logs live next to the isolated profile); working directory

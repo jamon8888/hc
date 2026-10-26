@@ -1,6 +1,6 @@
 # 插件运行时与 Plugin Host 设计
 
-本文定义 OpenBitFun 主应用与第三方插件代码之间的运行边界。OpenCode 的兼容范围见
+本文定义 Alex 主应用与第三方插件代码之间的运行边界。OpenCode 的兼容范围见
 [`opencode-extension-compatibility.md`](opencode-extension-compatibility.md)，生态语义与脚本接口见
 [`opencode-plugin-runtime-adapter-design.md`](opencode-plugin-runtime-adapter-design.md)，外部来源的发现、确认和状态见
 [`external-ai-work-sources-design.md`](external-ai-work-sources-design.md)。详细设计与
@@ -95,7 +95,7 @@ workspace 的逻辑实例和多个 session 的调用；这些身份必须随请�
 ### 3.2 插件之间的隔离承诺
 
 Plugin Host 的首要目的，是把第三方 JS/TS 异常与 Rust 主应用进程隔开，不是把插件彼此隔开。共享同一 Host 的
-插件会共同承担同步死循环、OOM、`process.exit`、进程级环境修改和未文档化全局状态带来的风险。OpenBitFun 可以按
+插件会共同承担同步死循环、OOM、`process.exit`、进程级环境修改和未文档化全局状态带来的风险。Alex 可以按
 插件身份归因普通异常和撤下贡献，但不承诺同一 Host 内的插件故障互不影响，也不承诺兼容插件之间依赖
 `globalThis` 或模块缓存的未文档化协作。
 

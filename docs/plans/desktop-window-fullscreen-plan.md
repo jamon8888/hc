@@ -2,11 +2,11 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add OS-level fullscreen support for the OpenBitFun Desktop main window without changing maximize, panel fullscreen, CLI/TUI rendering, or product runtime logic.
+**Goal:** Add OS-level fullscreen support for the Alex Desktop main window without changing maximize, panel fullscreen, CLI/TUI rendering, or product runtime logic.
 
 **Architecture:** Keep fullscreen as a Desktop shell capability owned by the Tauri/Web UI adapter layer. Extend the existing `useWindowControls` hook so maximize and fullscreen share focus restoration and state-sync helpers while keeping separate state, handlers, permissions, and comments.
 
-**Tech Stack:** Tauri v2 window APIs, React hooks, OpenBitFun `ShortcutManager` where appropriate, Vitest for pure shortcut helper coverage, existing locale JSON files.
+**Tech Stack:** Tauri v2 window APIs, React hooks, Alex `ShortcutManager` where appropriate, Vitest for pure shortcut helper coverage, existing locale JSON files.
 
 ---
 
@@ -14,9 +14,9 @@
 
 This feature means OS window fullscreen:
 
-- Windows/Linux: pressing `F11` asks the operating system to put the whole OpenBitFun Desktop window into fullscreen.
+- Windows/Linux: pressing `F11` asks the operating system to put the whole Alex Desktop window into fullscreen.
 - macOS: pressing `Control+Command+F` uses the platform fullscreen convention.
-- The OpenBitFun internal layout remains the same: NavBar, SceneBar, panels, chat, editor, terminal, browser, and diff surfaces continue to render.
+- The Alex internal layout remains the same: NavBar, SceneBar, panels, chat, editor, terminal, browser, and diff surfaces continue to render.
 
 This feature is not:
 

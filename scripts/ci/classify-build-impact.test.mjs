@@ -131,7 +131,7 @@ test('maps representative changes to the smallest predictive validation', () => 
       result: expected({ rustRequired: true, reason: 'rust-build-input' }),
     },
     {
-      paths: ['OpenBitFun-Installer/scripts/build-installer.cjs'],
+      paths: ['Alex-Installer/scripts/build-installer.cjs'],
       result: expected({
         rustRequired: true,
         desktopPlatforms: ['windows-x64'],
@@ -331,7 +331,7 @@ test('uses a merge-base range for pull requests and emits every workflow output'
   commit(root, 'baseline');
 
   git(root, ['switch', '-c', 'feature']);
-  const installer = path.join(root, 'OpenBitFun-Installer/scripts/build-installer.cjs');
+  const installer = path.join(root, 'Alex-Installer/scripts/build-installer.cjs');
   mkdirSync(path.dirname(installer), { recursive: true });
   writeFileSync(installer, 'export {};\n');
   const head = commit(root, 'installer change');

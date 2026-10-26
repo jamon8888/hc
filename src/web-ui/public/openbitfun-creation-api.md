@@ -1,7 +1,7 @@
-# OpenBitFun Creation UI API v1
+# Alex Creation UI API v1
 
 This is the running installed client. No source repository, compiler, Node.js,
-package install, or client rebuild is required. Use OpenBitFunControl discovery
+package install, or client rebuild is required. Use AlexControl discovery
 for existing settings and actions; use these files for persistent custom UI.
 
 ## Files and activation
@@ -34,7 +34,7 @@ ES modules, and the facade below. Do not edit generated bundles or index.html.
 - `await ui.control.configure(capabilityId, optionId, value)`: change an existing setting.
 - `await ui.control.execute(capabilityId, operationId, arguments)`: execute an existing operation.
 
-Control calls share the product owner used by GUI and OpenBitFunControl. Copy IDs
+Control calls share the product owner used by GUI and AlexControl. Copy IDs
 and argument schemas from discovery. No arbitrary Tauri invocation API is exposed.
 MiniApp CRUD is discovered under `feature.miniapps`; it operates on installed apps
 without needing workspace paths. A returned application/source is data, never an

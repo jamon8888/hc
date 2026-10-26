@@ -74,7 +74,7 @@ Host subscription:
 Map Runtime and domain failures to protocol-owned wire errors in this server
 adapter. Keep stable kinds and structured data, and do not leak Runtime
 internals. Host transport/auth/scope failures remain Host-owned; owner
-failures use helpers such as `OpenBitFunAppRuntime::runtime_error` and
+failures use helpers such as `AlexAppRuntime::runtime_error` and
 `session_runtime_error`.
 
 ## Verification

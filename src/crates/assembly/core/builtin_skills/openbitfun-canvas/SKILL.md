@@ -1,7 +1,7 @@
 ---
 name: openbitfun-canvas
 description: >-
-  A OpenBitFun Canvas is a live React app that the user can open beside the chat.
+  A Alex Canvas is a live React app that the user can open beside the chat.
   You MUST use a canvas when the agent produces a standalone analytical artifact
   — quantitative analyses, billing investigations, security audits, architecture
   reviews, data-heavy content, timelines, charts, tables, interactive
@@ -10,12 +10,12 @@ description: >-
   results where the data is the deliverable — render it in a rich canvas rather
   than dumping it into a markdown table or code block. If you catch yourself
   about to write a markdown table, stop and use a canvas instead. You MUST also
-  read this skill whenever you create, edit, or debug a OpenBitFun Canvas artifact.
+  read this skill whenever you create, edit, or debug a Alex Canvas artifact.
 metadata:
   surfaces:
     - ide
 ---
-A canvas is a single TSX source artifact that OpenBitFun compiles so the user can open it beside the chat. Follow the workflow below in order.
+A canvas is a single TSX source artifact that Alex compiles so the user can open it beside the chat. Follow the workflow below in order.
 
 ## Workflow
 
@@ -42,7 +42,7 @@ The trigger is **user intent**, not response shape. Ask: would the user benefit 
 
 ### 2. Write the canvas
 
-**Location.** OpenBitFun Canvases are session-scoped artifacts created with `CreateCanvas`. For a new canvas, always call `CreateCanvas` with a concise title and complete TSX source; do not stop after telling the user what the source would be or showing code in chat. For small targeted revisions, use `PatchCanvas` with exact unique text replacements. Use `ReadCanvas` first when you do not have the latest source in context. Use `UpdateCanvas` only for large rewrites that need a complete replacement TSX source.
+**Location.** Alex Canvases are session-scoped artifacts created with `CreateCanvas`. For a new canvas, always call `CreateCanvas` with a concise title and complete TSX source; do not stop after telling the user what the source would be or showing code in chat. For small targeted revisions, use `PatchCanvas` with exact unique text replacements. Use `ReadCanvas` first when you do not have the latest source in context. Use `UpdateCanvas` only for large rewrites that need a complete replacement TSX source.
 
 **File rules:**
 - Exactly one TSX source per canvas. Never create helper files, style files, or supporting modules.
@@ -65,7 +65,7 @@ Apply the Canvas generation policy below as you write, and complete its pre-deli
 
 ## Design guidance
 
-Be creative. The SDK gives you expressive building blocks — use them in whatever combination best serves the content. But avoid slop: no gradients, no emojis, no box-shadows, no rainbow coloring. OpenBitFun canvases are flat, minimal, and purposeful.
+Be creative. The SDK gives you expressive building blocks — use them in whatever combination best serves the content. But avoid slop: no gradients, no emojis, no box-shadows, no rainbow coloring. Alex canvases are flat, minimal, and purposeful.
 
 ### Visual hierarchy
 
@@ -94,7 +94,7 @@ Before returning canvas code, verify:
 
 ## Introducing the canvas
 
-The `openbitfun-canvas://...` artifact reference is an internal resource identifier. **Never copy it into the chat response or format it as a link.** OpenBitFun automatically collects successful Canvas tool results and renders openable Canvas cards below the completed response. Keep the returned reference only for subsequent `ReadCanvas`, `PatchCanvas`, or `UpdateCanvas` calls.
+The `openbitfun-canvas://...` artifact reference is an internal resource identifier. **Never copy it into the chat response or format it as a link.** Alex automatically collects successful Canvas tool results and renders openable Canvas cards below the completed response. Keep the returned reference only for subsequent `ReadCanvas`, `PatchCanvas`, or `UpdateCanvas` calls.
 
 When you create a canvas, add a short note in your chat response telling the user they can open it from the Canvas card below:
 

@@ -1,6 +1,6 @@
-# OpenBitFun Agent SDK 产品与宿主架构设计
+# Alex Agent SDK 产品与宿主架构设计
 
-本文定义 OpenBitFun Agent SDK 的公开产品心智、与 GUI/TUI/Headless CLI/ACP/Server 的关系、内部 SDK Host
+本文定义 Alex Agent SDK 的公开产品心智、与 GUI/TUI/Headless CLI/ACP/Server 的关系、内部 SDK Host
 边界，以及对外发布前必须满足的能力和兼容性门槛。智能体内核和 Rust crate 归属继续由
 [`agent-runtime-services-design.md`](agent-runtime-services-design.md) 定义；产品级接口边界由
 [`product-architecture.md`](product-architecture.md) 定义；CLI/TUI 体验由
@@ -10,7 +10,7 @@
 [`agent-runtime-deployment-design.md`](agent-runtime-deployment-design.md) 定义。
 
 本文只记录长期产品心智、架构边界和发布门槛。当前代码中的
-`agent-runtime::sdk` 是供 OpenBitFun 内部入口和受控 Rust 嵌入使用的低层 Rust Runtime SDK；
+`agent-runtime::sdk` 是供 Alex 内部入口和受控 Rust 嵌入使用的低层 Rust Runtime SDK；
 `interfaces/sdk-host` 与 `apps/sdk-host` 是本地协议和独立 Host 进程的实现候选；`sdk/typescript` 是仓库内私有的
 TypeScript 垂直切片，用于验证 managed Host、Query、显式 Session、取消、终态和错误语义。其 internal wire 类型与
 runtime validator 均由 Rust Host 协议生成，不构成公开 API。该切片对 Query 事件、终态聚合、JSON-RPC pending request
@@ -20,9 +20,9 @@ Unix managed client 通过独立进程组回收 Host 树。Python binding、平�
 
 ## 1. 最终决策
 
-OpenBitFun 不选择“复制 Claude”“复制 OpenCode”或“复制 Codex”中的任一条单一路线，而是按不同问题采用各自已经验证的做法：
+Alex 不选择“复制 Claude”“复制 OpenCode”或“复制 Codex”中的任一条单一路线，而是按不同问题采用各自已经验证的做法：
 
-| 问题 | 采用的成熟做法 | OpenBitFun 决策 |
+| 问题 | 采用的成熟做法 | Alex 决策 |
 |---|---|---|
 | 用户如何运行 Agent | Claude Agent SDK 的 Agent、Session、消息流、Tool、MCP、Permission、Hook 心智 | 公开 API 使用行业常见 Agent 概念，不暴露内部端口、协议和 Product Assembly |
 | 如何让多个产品入口共享能力 | OpenCode 的 Server/Core 多客户端模式，Codex App Server 的 rich-client 边界 | 所有入口调用同一 Agent Runtime API；入口是同级 adapter，不相互依赖 |
@@ -33,7 +33,7 @@ OpenBitFun 不选择“复制 Claude”“复制 OpenCode”或“复制 Codex�
 
 一句话定义：
 
-> OpenBitFun Agent SDK 是同一 OpenBitFun Agent Runtime 面向应用开发者的公开开发接口；它不是新的 Runtime，
+> Alex Agent SDK 是同一 Alex Agent Runtime 面向应用开发者的公开开发接口；它不是新的 Runtime，
 > 不是 CLI/Server 的别名，也不是 GUI/TUI 的底层依赖。
 
 最终只向普通用户和外部开发者呈现三种产品选择：
@@ -41,9 +41,9 @@ OpenBitFun 不选择“复制 Claude”“复制 OpenCode”或“复制 Codex�
 ```mermaid
 flowchart LR
   Need{"你要做什么？"}
-  Need -->|"人工交互"| Product["OpenBitFun GUI / TUI"]
+  Need -->|"人工交互"| Product["Alex GUI / TUI"]
   Need -->|"shell、一次性任务、普通 CI"| CLI["openbitfun exec"]
-  Need -->|"应用、服务、IDE、复杂自动化"| SDK["OpenBitFun Agent SDK"]
+  Need -->|"应用、服务、IDE、复杂自动化"| SDK["Alex Agent SDK"]
 ```
 
 ACP、Server、SDK Host、跨进程协议（wire protocol）和 Rust Runtime SDK 是互操作或内部工程边界，
@@ -55,17 +55,17 @@ ACP、Server、SDK Host、跨进程协议（wire protocol）和 Rust Runtime SDK
 [`2ea4bb793e`](https://github.com/anomalyco/opencode/tree/2ea4bb793ec9240251b39706fb5564039023fd79)，
 Codex 代码基线为
 [`f61b51ddd9`](https://github.com/openai/codex/tree/f61b51ddd924643514b33234816a8a2772b1aec7)。
-滚动版本的新能力不自动进入 OpenBitFun 稳定承诺；发布前必须固定对比版本和 fixture。
+滚动版本的新能力不自动进入 Alex 稳定承诺；发布前必须固定对比版本和 fixture。
 
 ### 2.1 产品与生态对比
 
-| 维度 | Claude Agent SDK | OpenCode SDK / Server | Codex SDK / App Server | Copilot SDK | 对 OpenBitFun 的启发 |
+| 维度 | Claude Agent SDK | OpenCode SDK / Server | Codex SDK / App Server | Copilot SDK | 对 Alex 的启发 |
 |---|---|---|---|---|---|
 | 公开心智 | `query()`、Session、消息流、Tool/MCP/Hook/Permission | type-safe Server client、资源和路由 | 精选 Thread/Turn SDK；rich client 使用 App Server | Session、Message、Tool，多个语言绑定 | Agent SDK 应是高层应用 API，不是内部资源目录 |
 | Runtime 交付 | Python/TS 包携带原生 Claude Code binary | SDK 可启动 PATH 中的 Server，也可连接已有 Server | TS SDK 包装 CLI JSONL；App Server 提供更完整协议 | SDK 通过 JSON-RPC 管理 CLI server；部分语言包携带 CLI | 安装 SDK 后应得到匹配 Host，但 CLI 与 SDK Host 不能混为一个产品 |
 | 能力深度 | 内置 Tool、MCP、Hook、权限、Subagent、Skill、Plugin、Session、用量 | Project/Session/File/TUI/MCP/Provider 等广泛 Server API | SDK 精简；App Server 有审批、动态工具、事件、配置和稳定/实验分层 | Session、工具、Hook、权限、事件等经协议开放 | GA 能力下限参考 Claude，协议纪律参考 Codex/Copilot |
 | 生态发展 | 官方 Python/TS SDK 和完整能力文档；生态围绕 Claude Code 配置与插件 | 开源 Core/Server、Provider/Plugin 生态及 TUI/Web/Desktop/IDE 多客户端 | 开源 Runtime/App Server 快速演进；TS SDK 走 CLI JSONL，Python SDK 绑定匹配 Runtime/App Server | 六种语言包、统一协议和各语言 registry | 首版聚焦 Python/TS，但合同从第一天按可增加语言设计；不把某一语言实现当规范 |
-| 多客户端/UI | SDK 示例为主，官方不提供通用 UI SDK | TUI/Web/Desktop/IDE 共享 Server；SDK 可控制 TUI | App、CLI、SDK 分层；App Server 面向 rich client | 面向各语言应用，无统一组件层 | OpenBitFun 第一方界面直接用 Runtime API，外部 UI 经开发者后端使用 SDK |
+| 多客户端/UI | SDK 示例为主，官方不提供通用 UI SDK | TUI/Web/Desktop/IDE 共享 Server；SDK 可控制 TUI | App、CLI、SDK 分层；App Server 面向 rich client | 面向各语言应用，无统一组件层 | Alex 第一方界面直接用 Runtime API，外部 UI 经开发者后端使用 SDK |
 | 多语言 | Python/TypeScript，部分能力存在语言时差 | 官方主要 JS/TS，OpenAPI 可生成其他客户端 | TS 与 Python 当前底层形态不同 | TS/Python/Go/.NET/Java/Rust，共用协议版本 | 不能让 Python/TS 各写一套 transport 和行为 |
 | 可定制程度 | callback、Tool、Hook、MCP、Agent/Skill/Plugin 配置 | Server 全资源控制和插件生态，最开放 | 精选 SDK 较克制，App Server 更底层 | 多语言自定义 Tool/Hook | 公开 API 保持精选；高级资源管理通过明确 capability 增量开放 |
 | 发布渠道 | npm、PyPI，包内携带 binary | npm SDK；Server 由 OpenCode 安装提供 | npm SDK、PyPI SDK/Runtime、Codex CLI | npm、PyPI、NuGet、Go module、Maven、crates.io | 语言包走原生 registry；Host 版本必须与 SDK 可验证匹配 |
@@ -77,12 +77,12 @@ Codex 代码基线为
 | Claude | 行业已形成的 Agent SDK 能力心智、第一次调用体验、语言内 callback | 包名、类名、字段名、Hook ABI 和 Claude 专属配置；不承诺 import-compatible |
 | OpenCode | 一个 Core/Server 服务多个客户端、managed/client-only 两种连接方式、OpenAPI/codegen 思路 | 全量 Server route 直接成为公开 SDK；不让浏览器或第三方拿到无界本机管理接口 |
 | Codex | 精选 SDK、Thread/Turn/Event 分层、初始化/能力协商、稳定/实验 schema | TypeScript 与 Python 使用不同底层 transport；不让公开 SDK退化成 CLI JSONL parser |
-| Copilot | 单一 JSON-RPC 合同、多语言 conformance、协议版本范围、CLI/SDK feature matrix | 不让 CLI app 成为 OpenBitFun CLI 的隐藏 SDK server；不接受不同语言安装体验长期分裂 |
+| Copilot | 单一 JSON-RPC 合同、多语言 conformance、协议版本范围、CLI/SDK feature matrix | 不让 CLI app 成为 Alex CLI 的隐藏 SDK server；不接受不同语言安装体验长期分裂 |
 | Vercel AI SDK/AI Elements | UI state/transport 分离、组件可组合、copy-source 定制 | 不把 React 组件、框架 Hook 或浏览器 transport 塞进 Agent SDK 核心包 |
 
-### 2.3 OpenBitFun 的能力基线
+### 2.3 Alex 的能力基线
 
-“至少与 Claude Agent SDK 等价”是 GA 的能力下限之一，但不是架构只能以 Claude 为中心。OpenBitFun 使用三组相互独立的门槛：
+“至少与 Claude Agent SDK 等价”是 GA 的能力下限之一，但不是架构只能以 Claude 为中心。Alex 使用三组相互独立的门槛：
 
 1. **Agent 能力门槛**：固定一个 Claude Agent SDK 稳定版本，核心稳定能力不得静默缺失。
 2. **协议与多客户端门槛**：采用 Codex/Copilot 式初始化、能力协商、schema、稳定/实验和跨语言一致性检查。
@@ -96,21 +96,21 @@ flowchart LR
   OpenCode["OpenCode Server / SDK\n单内核与多客户端"] --> Customization["定制化门槛"]
   Vercel["Vercel AI SDK / Elements\nUI 状态与 transport 分离"] --> Customization
 
-  Capability --> OpenBitFun["一个 OpenBitFun Agent SDK"]
-  Protocol --> OpenBitFun
-  Customization --> OpenBitFun
+  Capability --> Alex["一个 Alex Agent SDK"]
+  Protocol --> Alex
+  Customization --> Alex
 ```
 
 这张图表达的是决策证据来源，而不是把多个竞品 API 拼成一个超集。能力、协议和界面定制分别取证，
-最终仍统一为一套 OpenBitFun 语义和一个公开 SDK。
+最终仍统一为一套 Alex 语义和一个公开 SDK。
 
 对标状态只使用以下三个词：
 
 | 状态 | 含义 |
 |---|---|
-| 原生（native） | OpenBitFun 现有 owner 直接提供同类公开语义 |
-| 映射（translated） | 达到同一用户目标，但生命周期或命名按 OpenBitFun 语义表达；差异可查询 |
-| 增强（additive） | OpenBitFun 特有能力；不能用来替代行业基础能力 |
+| 原生（native） | Alex 现有 owner 直接提供同类公开语义 |
+| 映射（translated） | 达到同一用户目标，但生命周期或命名按 Alex 语义表达；差异可查询 |
+| 增强（additive） | Alex 特有能力；不能用来替代行业基础能力 |
 
 ## 3. 公开名词与产品边界
 
@@ -164,9 +164,9 @@ flowchart TB
 
 | 层次 | 使用者 | 状态与职责 |
 |---|---|---|
-| Agent Runtime API | OpenBitFun 各产品 adapter | 唯一 Agent loop 与应用用例边界；不是语言包 |
-| Rust Runtime SDK | OpenBitFun 内部入口、受控 Rust 嵌入 | 当前 preview；不等于公开产品 |
-| OpenBitFun Agent SDK | Python/TypeScript 应用开发者 | 一个公开产品、多个语言绑定；尚未交付 |
+| Agent Runtime API | Alex 各产品 adapter | 唯一 Agent loop 与应用用例边界；不是语言包 |
+| Rust Runtime SDK | Alex 内部入口、受控 Rust 嵌入 | 当前 preview；不等于公开产品 |
+| Alex Agent SDK | Python/TypeScript 应用开发者 | 一个公开产品、多个语言绑定；尚未交付 |
 
 Python SDK、TypeScript SDK、managed Host 和连接预启动 Host 不是四种 SDK。前两者是同一 API 的语言绑定，后两者是 SDK 内部 transport 模式。
 
@@ -230,7 +230,7 @@ ownership 和生命周期治理；Model、Skill、Subagent 和 MCP 管理暂由 
 
 ```mermaid
 flowchart LR
-  App["Developer application"] --> SDK["OpenBitFun Agent SDK"]
+  App["Developer application"] --> SDK["Alex Agent SDK"]
   SDK -->|"manage + authenticated local channel"| Host["openbitfun-sdk-host"]
   Host --> SDKAdapter["SDK Host protocol adapter"]
   SDKAdapter --> API["Agent Runtime API"]
@@ -384,7 +384,7 @@ dispose/context-manager 语法关闭本地句柄，提前离开流则按 `close(
 | Usage/Trace | token、cost、cache、duration、调用关联 | Event/usage 模块；低基数和默认脱敏 |
 
 Goal、Deep Review、Harness、Remote execution 和 Mini App 可以作为 additive 能力出现，但不能替代上表的基础能力，
-也不能迫使第一次使用 SDK 的用户先学习 OpenBitFun 特有概念。
+也不能迫使第一次使用 SDK 的用户先学习 Alex 特有概念。
 
 ### 6.3 Capability 而不是猜测
 
@@ -400,9 +400,9 @@ Agent SDK 不等于 UI SDK。外部开发者需要基础界面时，采用以下
 flowchart LR
   Browser["Browser UI\ncustom or reference components"]
   Backend["Developer backend / BFF\nauth · tenancy · policy · secrets"]
-  SDK["OpenBitFun Agent SDK"]
+  SDK["Alex Agent SDK"]
   Host["Managed SDK Host"]
-  Runtime["OpenBitFun Agent Runtime"]
+  Runtime["Alex Agent Runtime"]
 
   Browser <-->|"application-specific HTTPS / stream"| Backend
   Backend --> SDK --> Host --> Runtime
@@ -410,10 +410,10 @@ flowchart LR
 
 安全和职责边界：
 
-- BFF 指面向该界面的开发者后端（Backend for Frontend），不是 OpenBitFun 新增的公共服务。
-- 浏览器不直接启动或连接本机 SDK Host，不持有 Provider/MCP/OpenBitFun Host 凭据。
+- BFF 指面向该界面的开发者后端（Backend for Frontend），不是 Alex 新增的公共服务。
+- 浏览器不直接启动或连接本机 SDK Host，不持有 Provider/MCP/Alex Host 凭据。
 - 开发者后端负责用户认证、租户隔离、速率限制，并把公开 SDK 事件转换为自己的前端协议。
-- OpenBitFun SDK 负责 Agent 能力；它不负责 React 状态、路由、主题、组件或业务认证。
+- Alex SDK 负责 Agent 能力；它不负责 React 状态、路由、主题、组件或业务认证。
 - 第一方 `src/web-ui` 不作为 npm SDK 发布；它包含 Desktop/Server 产品假设和内部命令，直接复用会固化私有 ABI。
 
 SDK Preview 提供最小参考应用，证明浏览器认证后端、流式 Query、取消，以及无法继续时显示 `action_required`；
@@ -643,7 +643,7 @@ flowchart LR
 |---|---|---|
 | Agent SDK | 公开对象、语言绑定、Host 生命周期、协议转换和 callback 传输 | 生态配置解析、第一方 UI、Runtime 业务状态 |
 | 生态 adapter | 来源发现、宿主语义映射、兼容诊断和 fixture | 公开 SDK transport、通用 Hook 调度、Runtime owner |
-| 外部应用/BFF | 认证、租户、应用策略、界面状态和自定义交互 | 直连本机 Host、复制 Agent loop、保存 OpenBitFun 凭据 |
+| 外部应用/BFF | 认证、租户、应用策略、界面状态和自定义交互 | 直连本机 Host、复制 Agent loop、保存 Alex 凭据 |
 | Agent Runtime API | 跨入口共享的 Query/Session/Turn 应用用例 | 语言包、renderer、生态私有 payload |
 | Tool/MCP/Permission/Hook owner | 最终业务事实、顺序、权限、审计和生命周期 | 为某一 SDK 或生态复制专用实现 |
 | UserInput interaction owner | 问题身份、可见范围、回答提交、取消和最终状态 | 把输入 callback 当作 Permission 或提供默认答案 |
@@ -677,7 +677,7 @@ GA 必须同时满足：
 - 不发布多个互不兼容的“本地 SDK”“远程 SDK”“UI SDK”。
 - 不让 CLI、GUI/TUI、ACP 或 Server 依赖公开 Python/TypeScript SDK 或 SDK Host。
 - 不把 `stream-json`、ACP 或 HTTP Server 全量路由冒充正式 Agent SDK。
-- 不发布 OpenBitFun 第一方 React UI 作为稳定 SDK ABI。
+- 不发布 Alex 第一方 React UI 作为稳定 SDK ABI。
 - 不把 OpenCode/Claude/Codex 原始插件对象、Hook payload 或配置类型带入 Runtime 公共合同。
 - 不在没有真实消费者、owner 和失败语义时建立通用工作流、HookBus、远程 SDK transport 或公共 Capability SDK。
 

@@ -1,11 +1,11 @@
-# OpenBitFun 可配置开发体验产品需求
+# Alex 可配置开发体验产品需求
 
-> 范围：定义 OpenBitFun 加载任意外部目标项目后的产品定位、目标用户、核心体验、产品规格、关键边界、平台入口差异、功能需求和成功指标。
+> 范围：定义 Alex 加载任意外部目标项目后的产品定位、目标用户、核心体验、产品规格、关键边界、平台入口差异、功能需求和成功指标。
 > 关联文档：[external-research.md](research/external-research.md) 提供外部证据，[design.md](design.md) 承接总体架构设计，[../architecture/review-lifecycle.md](../architecture/review-lifecycle.md) 定义版本化 Review 生命周期，[implementation-plan.md](implementation-plan.md) 承接阶段落地，[traceability-matrix.md](traceability-matrix.md) 承接覆盖关系检查。
 
 ## 1. 背景
 
-AI 编码工具正在从代码补全、单轮问答和单点审查，演进为覆盖理解、修改、验证、审查、发布和复盘的智能体开发体验。OpenBitFun 需要同时服务两类场景：
+AI 编码工具正在从代码补全、单轮问答和单点审查，演进为覆盖理解、修改、验证、审查、发布和复盘的智能体开发体验。Alex 需要同时服务两类场景：
 
 - 质量保障要求较低的任务、探索性改动、演示原型和文档改动：默认简洁快速。
 - 团队协作、核心路径、权限、网络、发布、迁移、合规和受管项目：按配置、风险和阶段显露证据、审查、门禁、风险接受和审计。

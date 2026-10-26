@@ -1,4 +1,4 @@
-# OpenBitFun Core 拆解与运行时迁移计划
+# Alex Core 拆解与运行时迁移计划
 
 本文件只维护 Core 边界债务、迁移顺序和退出条件。稳定架构以
 [产品运行时架构](../architecture/product-architecture.md)为准；Agent Runtime、产品定制和 OpenCode 扩展分别由
@@ -26,7 +26,7 @@
 | Server | 当前生产路由只形成 health/info/ping 基线 | 没有插件状态或独立产品组装完整流程 |
 | Server / Remote / Web / Mobile Web / SDK profile | 当前为空计划、未接入入口或仅有 preview 测试 | 不得据枚举值宣称产品能力已交付 |
 | Agent Runtime SDK | 已有无 `openbitfun-core` 依赖的 v9 preview 接口和 smoke test；未接入真实执行路径的通用 Harness registry 已删除 | 发布边界仍需真实嵌入方证明 |
-| 插件运行时 | 现有路径只覆盖 OpenBitFun 原生包和 OpenCode custom tool 静态名称预览 | 不能据通用消息结构或静态候选扩张稳定 ABI |
+| 插件运行时 | 现有路径只覆盖 Alex 原生包和 OpenCode custom tool 静态名称预览 | 不能据通用消息结构或静态候选扩张稳定 ABI |
 | Relay | room/device 状态、account/sync 存储、asset store 与 HTTP/WebSocket router 已归属 `services/relay-service`，standalone 与 embedded 入口同向消费；embedded bind、静态 fallback 和任务生命周期由 Desktop 窄宿主端口持有 | Cargo metadata 门禁覆盖 workspace、独立 manifest、normal/build/dev 依赖及 optional/target 变体；宿主归位已完成并由生命周期与边界测试保护 |
 | CLI CI | 独立 Linux job 运行 CLI test，通用三平台 workspace check 覆盖 CLI 编译；Linux PTY 与 Windows ConPTY 有启动页生命周期及本地确定性流式模型夹具驱动的活动 turn 进程测试，发布归档上传前校验 SHA-256 并解压执行 | 参数/序列化/前置失败和组装已有 focused contract；本地模型 HTTP 403 授权拒绝、流中断后的重试失败、Linux PTY/Windows ConPTY Chat resize/取消、`exec` Ctrl+C 及 Patch I/O 失败已有分层回归，真实供应商审批交互、macOS 活动 PTY 与 OS 级终端故障注入仍需补齐 |
 

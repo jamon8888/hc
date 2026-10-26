@@ -1,4 +1,4 @@
-# OpenBitFun 产品架构演进计划
+# Alex 产品架构演进计划
 
 本文把现有架构债务整理为可独立验收的工作流。稳定边界见
 [产品运行时架构](../architecture/product-architecture.md)，专项细节见
@@ -93,7 +93,7 @@ App 保持不变。
 3. Subagent 安全子集经模型、工具和同名冲突确认后接入现有 Subagent owner，仅支持 fresh single-run。
 
 已实现路径已经收敛运行时依赖与配置失败：Node.js 在当前进程首次检查时不可用时，只提示修复、刷新和可继续使用其他功能；
-当前宿主没有可靠的刷新前后证据，因此不主动建议或触发重启。读取 OpenBitFun 模型配置失败时阻止外部 Subagent 激活并显示独立原因，不能伪装成
+当前宿主没有可靠的刷新前后证据，因此不主动建议或触发重启。读取 Alex 模型配置失败时阻止外部 Subagent 激活并显示独立原因，不能伪装成
 “请求模型不存在”。同名冲突的待选择和当前选择保持可见，TUI 通过通用 `/tools` 与 `/agents` 入口按能力和来源分组；
 `/agents` 同时容纳主 Agent、Subagent 和外部来源管理，不再创建 `/subagents` 或 `external-*` 平行命令。随后只有官方 import 型 tool、
 package plugin、Hook 或 TUI contribution 的真实样例证明当前 owner/契约不足时，才增加对应的最小切片。原始
@@ -121,7 +121,7 @@ HarmonyOS 手机 Remote App 不在该平台执行范围内。
 
 ## 8. 工作流六：能力对外复用从一个真实消费者开始
 
-本工作流不与前五项绑定成一次性交付。启动条件是某项现有 OpenBitFun 能力已经有清楚 owner、稳定调用路径，以及
+本工作流不与前五项绑定成一次性交付。启动条件是某项现有 Alex 能力已经有清楚 owner、稳定调用路径，以及
 一个具名仓库外试点消费者、具体用例、验收 owner 和冻结宿主版本；不能为了“未来 SDK”先创建全量 Memory、
 Context、Workflow、Subagent 或 Scheduler 接口。
 
@@ -131,7 +131,7 @@ Context、Workflow、Subagent 或 Scheduler 接口。
 2. 优先通过 MCP/Skill/sidecar 接入一个宿主；只有该用例确实需要生命周期拦截时，才增加一个版本锁定的 Host Hook/
    Plugin adapter。
 3. 为该宿主冻结分发单元、注册作用域，以及 install/register、enable、disable、uninstall、升级和失败恢复语义；
-   物理安装状态以宿主为准，OpenBitFun 不伪造成功。
+   物理安装状态以宿主为准，Alex 不伪造成功。
 4. 证明身份映射、权限上限、取消、Generation、事件损失、成本归属和降级后，再评估第二个宿主或第二项能力。
 5. 只有非 `openbitfun-core` 嵌入方能在最小依赖下稳定运行，才冻结和发布 Agent Runtime SDK 子接口。
 

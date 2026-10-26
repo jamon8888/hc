@@ -1,6 +1,6 @@
 # 自建发信服务维护手册
 
-OpenBitFun 的验证码邮件可以通过同机 Postfix 直接投递给收件方 MX，
+Alex 的验证码邮件可以通过同机 Postfix 直接投递给收件方 MX，
 OpenDKIM 为邮件签名。不需要部署 IMAP、POP3、用户邮箱或公网收信入口。
 认证服务负责生成验证码及本地化邮件模板；Postfix 负责签名接入、队列和投递。
 
@@ -39,7 +39,7 @@ SMTP_HOST=172.19.0.1
 SMTP_PORT=25
 SMTP_USERNAME=hello@openbitfun.com
 SMTP_PASSWORD=
-SMTP_FROM_NAME=OpenBitFun
+SMTP_FROM_NAME=Alex
 ```
 
 示例 IP 必须替换成该实例的实际网桥地址。`SMTP_USERNAME` 在此模式中是发件地址，

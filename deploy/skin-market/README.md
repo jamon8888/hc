@@ -1,4 +1,4 @@
-# OpenBitFun Skin market deployment
+# Alex Skin market deployment
 
 This directory deploys the Appearance package catalog exposed to users as the
 **Skin market** at `https://market.openbitfun.com/skin/`.

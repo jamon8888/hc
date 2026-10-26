@@ -6,7 +6,7 @@
 
 ## Background
 
-Long OpenBitFun sessions can include model streaming, tool execution, Git operations, file writes, Skills, MCP calls, context compression, subagents, retries, user confirmation waits, and file diffs. The chat transcript shows what happened, but it does not yet answer the user's operational questions:
+Long Alex sessions can include model streaming, tool execution, Git operations, file writes, Skills, MCP calls, context compression, subagents, retries, user confirmation waits, and file diffs. The chat transcript shows what happened, but it does not yet answer the user's operational questions:
 
 - What recorded runtime spans are available for the session, and where are they approximate?
 - Which models contributed token usage when a session used multiple models?
@@ -23,11 +23,11 @@ References:
 - [OpenAI Agents SDK usage](https://openai.github.io/openai-agents-python/usage/)
 - [OpenAI Agents SDK tracing](https://openai.github.io/openai-agents-python/tracing/)
 
-External reference check: as of 2026-05-11, these sources support a narrow usage-report scope. Claude Code frames `/usage` around understanding session usage and managing context; GitHub Copilot exposes session progress, token usage, session count, session length, and logs; OpenAI Agents SDK separates per-run/request token usage from deeper span tracing. Treat these as product references, not compatibility requirements. OpenBitFun's boundary is intentionally narrower than a full tracing dashboard: it reports the current session's recorded runtime facts, their coverage, and safe navigation points back to the transcript or existing diff surfaces.
+External reference check: as of 2026-05-11, these sources support a narrow usage-report scope. Claude Code frames `/usage` around understanding session usage and managing context; GitHub Copilot exposes session progress, token usage, session count, session length, and logs; OpenAI Agents SDK separates per-run/request token usage from deeper span tracing. Treat these as product references, not compatibility requirements. Alex's boundary is intentionally narrower than a full tracing dashboard: it reports the current session's recorded runtime facts, their coverage, and safe navigation points back to the transcript or existing diff surfaces.
 
 ## Product Direction
 
-OpenBitFun should support a Claude-like `/usage` command and a richer Desktop runtime report using the same underlying data.
+Alex should support a Claude-like `/usage` command and a richer Desktop runtime report using the same underlying data.
 
 The key product decision is:
 
@@ -165,7 +165,7 @@ The Chat-bottom entry should never compete with the title/header row. It must pr
 
 ## Current Reusable Capabilities
 
-OpenBitFun can reuse several existing surfaces.
+Alex can reuse several existing surfaces.
 
 ### Current code anchors
 

@@ -1,7 +1,7 @@
 ---
 name: agent-eval-canvas
 description: >-
-  Create a OpenBitFun Canvas for single-case agent evaluation and trajectory
+  Create a Alex Canvas for single-case agent evaluation and trajectory
   diagnosis. Use when the user asks to analyze one agent run, trace, case,
   benchmark item, failure trajectory, eval result, or critical failure step,
   and wants an incident-review style report covering verdict, step timeline,
@@ -11,7 +11,7 @@ description: >-
 
 # Agent Eval Canvas
 
-Use this skill to produce a session-scoped OpenBitFun Canvas for a **single agent
+Use this skill to produce a session-scoped Alex Canvas for a **single agent
 case**. The report should read like an incident review or clinical diagnosis,
 not like an aggregate benchmark summary. Its job is to explain what happened in
 one run, which step determined success or failure, why, and what to fix next.
@@ -214,5 +214,5 @@ Before calling `CreateCanvas`, verify:
 
 Call `CreateCanvas` with a concise title and the complete TSX source. In the
 final response, mention the Canvas title and trace or case source used, but do
-not print the internal `openbitfun-canvas://...` reference; OpenBitFun renders its
+not print the internal `openbitfun-canvas://...` reference; Alex renders its
 openable card automatically below the response.

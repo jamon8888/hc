@@ -1,6 +1,6 @@
-# OpenBitFun Native Mobile Apps
+# Alex Native Mobile Apps
 
-This directory contains the native mobile product surfaces for OpenBitFun:
+This directory contains the native mobile product surfaces for Alex:
 
 - `android/`: Android application code and resources.
 - `ios/`: iOS application code and resources.

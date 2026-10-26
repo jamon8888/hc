@@ -1,9 +1,9 @@
-# Open Interpreter as an OpenBitFun agentic backend — investigation
+# Open Interpreter as an Alex agentic backend — investigation
 
 Date: 2026-10-19
 Status: **investigation complete; additive integration implemented** (see §6)
 Target: <https://github.com/openinterpreter/openinterpreter>
-Question: can it replace, or be used to replace, the existing OpenBitFun agentic backend?
+Question: can it replace, or be used to replace, the existing Alex agentic backend?
 
 ---
 
@@ -26,9 +26,9 @@ Three findings drive this:
    at **0.0.43**, based on upstream Codex `rust-v0.154.0`, roughly four months old and moving
    fast. There is no library to import. "Using it as the backend" necessarily means spawning
    a subprocess and speaking a protocol to it — which is *exactly* the integration pattern
-   OpenBitFun already ships for Claude Code, Codex, OpenCode, omp, and dsh.
+   Alex already ships for Claude Code, Codex, OpenCode, omp, and dsh.
 
-3. **OpenBitFun already has the seam.** `src/crates/interfaces/acp` (13.3k LOC) spawns
+3. **Alex already has the seam.** `src/crates/interfaces/acp` (13.3k LOC) spawns
    external agent processes over ACP and re-emits the **same `agentic://` event stream** the
    Web UI consumes. The UI contract is the event stream, not the core loop. Adding Open
    Interpreter is a new `BuiltinAcpClientPreset` entry — a few lines plus tests — not an
@@ -113,7 +113,7 @@ None of this makes it a bad tool. It makes it a **bad thing to bet your own agen
 
 ---
 
-## 2. What the OpenBitFun agentic backend actually is
+## 2. What the Alex agentic backend actually is
 
 (Condensed from a full survey of `src/crates/`, see the layer map below.)
 
@@ -186,16 +186,16 @@ externally-routed agents (`coordinator.rs:7199`).
 
 ---
 
-## 3. Can Open Interpreter replace the OpenBitFun backend?
+## 3. Can Open Interpreter replace the Alex backend?
 
 ### 3.1 Full replacement — **No**
 
 | # | Blocking reason |
 |---|---|
 | 1 | **No embeddable artifact.** The Python library is gone. The Rust version is a CLI + protocols. "Replacement" can only mean "subprocess + protocol," i.e. an ACP integration — which is §3.2, not a replacement. |
-| 2 | **Scope mismatch.** OpenBitFun's kernel owns sessions, fork/revert/restore, compaction, permission policy + delegation, 48 tools, subagents/swarm, hooks, worktrees, canvas/miniapps, and remote operation. Open Interpreter's ACP surface explicitly gives the *client* the UI and keeps only "model selection, provider transport, instructions, tools, approvals, sandboxing, and session state" for itself. You would lose almost everything above the loop. |
+| 2 | **Scope mismatch.** Alex's kernel owns sessions, fork/revert/restore, compaction, permission policy + delegation, 48 tools, subagents/swarm, hooks, worktrees, canvas/miniapps, and remote operation. Open Interpreter's ACP surface explicitly gives the *client* the UI and keeps only "model selection, provider transport, instructions, tools, approvals, sandboxing, and session state" for itself. You would lose almost everything above the loop. |
 | 3 | **It would regress all four remote scenarios.** No equivalent to the Product Operation Registry, the permission mailbox, the event journal/replay, peer-device capability advertisement, or detached dispatch's durable-job ownership. Per repo rules, "a capability that assumes UI, process, and filesystem share one machine is incomplete." |
-| 4 | **Session/state incompatibility.** Open Interpreter persists under `~/.openinterpreter`; OpenBitFun's transcript, undo, fork, relay, and restore all read `sessions/<id>/turns/*.json`. An external loop that doesn't write it loses history and remote replay. |
+| 4 | **Session/state incompatibility.** Open Interpreter persists under `~/.openinterpreter`; Alex's transcript, undo, fork, relay, and restore all read `sessions/<id>/turns/*.json`. An external loop that doesn't write it loses history and remote replay. |
 | 5 | **Maturity risk.** Betting a 195k-LOC product kernel — and your users' sessions — on a four-month-old 0.0.x fork of a fast-moving upstream, with a documented recent hang regression, is a poor trade. |
 | 6 | **You'd trade your own fork problem for someone else's.** Open Interpreter is a Codex fork still tracking upstream closely (its own `AGENTS.md` says "resist adding code to `codex-core`"). Adopting it wholesale means inheriting *their* upstream-merge burden instead of owning your own loop. |
 
@@ -226,15 +226,15 @@ BuiltinAcpClientPreset {
   and relay paths light up for free.
 - Open Interpreter's ACP docs confirm it speaks plain stdio ACP and expects the client to own
   the UI — the exact contract `AcpClientService` was written against.
-- `install_package: None` matches the `omp` precedent: OpenBitFun detects `interpreter` on
+- `install_package: None` matches the `omp` precedent: Alex detects `interpreter` on
   PATH and launches it; the user runs
   `curl -fsSL https://www.openinterpreter.com/install | sh`. (No npm package exists, so a
   one-click installer is not possible — same situation as omp's bun-based install.)
 
 **What a user actually gains by enabling it:** Open Interpreter's harness emulation —
 `kimi-code`, `qwen-code`, `deepseek-tui`, `zcode`, `swe-agent`, `claude-code-bare` — as
-selectable agents inside OpenBitFun's UI, with OpenBitFun's sessions, events, remote surfaces,
-and tool cards intact. That is a real capability OpenBitFun does not have today: **getting
+selectable agents inside Alex's UI, with Alex's sessions, events, remote surfaces,
+and tool cards intact. That is a real capability Alex does not have today: **getting
 genuine work out of cheap local/open models** by matching the harness they were tuned on.
 
 **Cost estimate:** one preset struct + a round of the existing `builtin_*` tests + a docs row.
@@ -247,7 +247,7 @@ existing `cargo test -p openbitfun-acp`.
   *policy*, no loop detection, no interrupted-turn recovery for external routes). This is
   already true for the other five agents; it is not a new regression.
 - Open Interpreter is 0.0.x. Pin/document a known-good version and treat the preset as
-  user-managed so an upstream regression is the user's to roll back, not OpenBitFun's.
+  user-managed so an upstream regression is the user's to roll back, not Alex's.
 - Remote-workspace stance: Open Interpreter's sandbox/approval config lives in its own
   `config.toml`, so if this preset should support remote workspaces it needs a row in the
   **Product Operation Registry** like any other desktop Tauri surface — but note the ACP
@@ -256,7 +256,7 @@ existing `cargo test -p openbitfun-acp`.
 
 ### 3.3 The other direction — **already exists**
 
-OpenBitFun already exposes *itself* as an ACP agent (`interfaces/acp/src/server.rs` +
+Alex already exposes *itself* as an ACP agent (`interfaces/acp/src/server.rs` +
 `runtime/**`, `DeliveryProfile::Acp`) to hosts like Zed. Open Interpreter does the same
 (`interpreter acp`). **The two products already meet at the protocol boundary**; they don't
 need to converge architecturally to interoperate.
@@ -267,7 +267,7 @@ need to converge architecturally to interoperate.
 
 This is the highest-value part of the investigation, independent of whether you adopt the tool.
 
-OpenBitFun's provider layer has a **closed** wire-format enum:
+Alex's provider layer has a **closed** wire-format enum:
 
 ```rust
 // src/crates/adapters/ai-adapters/src/client/format.rs
@@ -286,7 +286,7 @@ per model family, while the *same* runtime executes the tools. `kimi-code` isn't
 it's "send Chat Completions in the shape Kimi K3 was RL-tuned against, but run the resulting
 tool calls in our own runtime."
 
-**What this could look like in OpenBitFun:**
+**What this could look like in Alex:**
 
 - The repo already has the *precedent in a different layer*: `claude-code-adapter`,
   `codex-adapter`, `opencode-adapter` import external agent **definitions** (instructions,
@@ -295,12 +295,12 @@ tool calls in our own runtime."
 - Concretely: a `HarnessProfile { system_prompt, tool_schema_shaping, message_conversion,
   response_handling }` selected by model family, applied at the `build_ai_messages_for_send` /
   `RoundContext` boundary in `execution_engine.rs`, orthogonal to `ApiFormat`.
-- This keeps the OpenBitFun runtime (tools, permissions, hooks, compaction, remote) intact —
+- This keeps the Alex runtime (tools, permissions, hooks, compaction, remote) intact —
   the exact thing Open Interpreter's harness doc says it does ("tool calls still run inside
   Open Interpreter's native Rust runtime").
 
 **Caveat:** this is a real design effort, not a port. Open Interpreter's harness profiles are
-tuned against its own tool set and prompts; you'd be re-deriving them for OpenBitFun's 48
+tuned against its own tool set and prompts; you'd be re-deriving them for Alex's 48
 tools and prompt scaffolding. It is also the part most likely to churn as vendors ship new
 model-tuned surfaces. Treat it as a design topic with its own port/provider review, per
 `docs/architecture/product-architecture.md`.
@@ -310,11 +310,11 @@ model-tuned surfaces. Treat it as a design topic with its own port/provider revi
 ## 5. Recommendation
 
 1. **Do not replace the native agent kernel.** Open Interpreter is a product, not a runtime,
-   and OpenBitFun's kernel owns far more than the turn loop — especially everything the four
+   and Alex's kernel owns far more than the turn loop — especially everything the four
    remote scenarios depend on.
 2. **Do add it as a sixth ACP external-agent backend** (`interpreter acp`, user-managed
    install), mirroring the `omp` preset. Small, safe, reversible, and it gives users
-   Open Interpreter's low-cost-model harnesses inside OpenBitFun's existing UI and remote
+   Open Interpreter's low-cost-model harnesses inside Alex's existing UI and remote
    surfaces.
 3. **Pursue harness emulation as a separate design topic** for the native loop. That is the
    durable strategic value here — it addresses a real, identified weakness (closed `ApiFormat`,
@@ -367,7 +367,7 @@ The additive integration (§3.2) is **implemented**. The native agent kernel is 
    showed only the command name and a PATH reminder — no link, no install command, for
    `interpreter` or for the pre-existing `omp`. Now the action opens the vendor's own install
    documentation (the vendor owns those pages, so they stay correct across platforms and
-   release channels) while the toast keeps the OpenBitFun-side guidance.
+   release channels) while the toast keeps the Alex-side guidance.
 
 ### 6.3 Remote-workspace stance — decided
 
@@ -418,7 +418,7 @@ in `src/crates/interfaces/acp/AGENTS.md`, not a regression from this change.
 ### 6.5 Still open
 
 - **Runtime smoke test** against a real `interpreter` binary — needs the CLI installed and a
-  provider key. The agent must also be configured by the user, because OpenBitFun ships no
+  provider key. The agent must also be configured by the user, because Alex ships no
   installer for it.
 - **User-facing documentation** — there is no canonical user-facing page listing the
   supported ACP external agents today; the only list is the generated capability doc, which
@@ -471,7 +471,7 @@ Tauri bundle as a resource, and resolved from the product's resource directory a
 | Interfaces | `src/crates/interfaces/acp/src/client/builtin_clients.rs` | `bundled_tool` on the preset. |
 | Build | `scripts/prepare-interpreter-resource.mjs` | Download, verify, extract, and write the package manifest. |
 | Build | `scripts/desktop-tauri-build.mjs` | Inject the package as a Tauri resource; sign every executable in it on macOS. |
-| Packaging | `OpenBitFun-Installer/scripts/build-installer.cjs` | Carry the package into the Windows payload and validate its entrypoint. |
+| Packaging | `Alex-Installer/scripts/build-installer.cjs` | Carry the package into the Windows payload and validate its entrypoint. |
 
 ### 7.3 Decisions worth recording
 
@@ -483,10 +483,10 @@ Tauri bundle as a resource, and resolved from the product's resource directory a
    tag matches the machine it is running on. The tag follows the **target**, not the build
    host, so a cross-compiled package is labelled for the machine it will run on.
 3. **The packaged copy is a default, not an override.** A client whose command the user
-   changed keeps the user's command. The packaged binary is what OpenBitFun ships and
+   changed keeps the user's command. The packaged binary is what Alex ships and
    tested; it does not shadow a deliberate choice.
 4. **Remote workspaces are not provisioned.** The packaged copy serves the machine running
-   OpenBitFun. A remote SSH workspace runs the agent on the remote host, which needs its
+   Alex. A remote SSH workspace runs the agent on the remote host, which needs its
    own installation; the remote launch error says exactly that. Uploading a ~500 MB
    package per remote host is a different feature, not a packaging detail.
 5. **The CLI distribution does not carry it.** The CLI ships no packaged binaries today
@@ -531,7 +531,7 @@ A Standards and Spec review ran against the diff before the pull request was ope
 | # | Axis | Severity | Finding | Resolution |
 |---|---|---|---|---|
 | 1 | Spec | Important | The packaged macOS `zsh` helper (`codex-resources/zsh/bin/zsh`) was never signed, because the executable list was hardcoded. An unsigned nested binary fails notarization. | **Fixed.** The executable list is now derived from the upstream package descriptor — the entrypoint, its directory, and the `pathDir`/`resourcesDir` the upstream names. Verified against the real package: the list now includes `codex-resources/zsh/bin/zsh`, and the data files do not. |
-| 2 | Spec | Important | The remote "missing agent" error told every self-managed agent that OpenBitFun packages a copy — false for `omp`, which is not packaged. | **Fixed.** The message now mentions the packaged copy only for an agent that has one, and says plainly what to do otherwise. Covered by a test for both cases. |
+| 2 | Spec | Important | The remote "missing agent" error told every self-managed agent that Alex packages a copy — false for `omp`, which is not packaged. | **Fixed.** The message now mentions the packaged copy only for an agent that has one, and says plainly what to do otherwise. Covered by a test for both cases. |
 | 3 | Spec | Important | Every desktop build downloaded 220–260 MB, including debug builds. | **Fixed.** A debug build does not pull the package, and `OPENBITFUN_SKIP_INTERPRETER_PACKAGE=1` opts a release build out. Release and installer builds still carry the package. |
 | 4 | Standards | Important | The executable set was hardcoded while the entrypoint was dynamic, so a rename upstream would leave the entrypoint unsigned and unexecutable. | **Fixed** with finding 1. |
 | 5 | Standards | Nit | `copyDirectory` marked every copied file executable, including the license and the package descriptor. | **Fixed.** The mode now travels with the file. |
@@ -580,5 +580,5 @@ agent.
 - <https://raw.githubusercontent.com/openinterpreter/openinterpreter/main/docs/portability.md>
 - <https://agents-oss.com/projects/openinterpreter> (third-party maturity notes, #1875)
 - <https://github.com/endolith/open-interpreter> (the retired Python project's community fork)
-- OpenBitFun survey: `src/crates/assembly/core/src/agentic/`, `src/crates/interfaces/acp/`,
+- Alex survey: `src/crates/assembly/core/src/agentic/`, `src/crates/interfaces/acp/`,
   `src/crates/adapters/ai-adapters/`, `src/crates/execution/agent-runtime/`

@@ -1,8 +1,8 @@
 **中文** | [English](E2E-TESTING-GUIDE.md)
 
-# OpenBitFun E2E 测试指南
+# Alex E2E 测试指南
 
-使用 WebDriverIO + OpenBitFun 内嵌 WebDriver 进行 OpenBitFun 项目的端到端测试完整指南。
+使用 WebDriverIO + Alex 内嵌 WebDriver 进行 Alex 项目的端到端测试完整指南。
 
 ## 目录
 
@@ -16,7 +16,7 @@
 
 ## 测试理念
 
-OpenBitFun E2E 测试专注于**用户旅程**和**关键路径**，确保桌面应用从用户角度正常工作。我们使用分层测试方法来平衡覆盖率和执行速度。
+Alex E2E 测试专注于**用户旅程**和**关键路径**，确保桌面应用从用户角度正常工作。我们使用分层测试方法来平衡覆盖率和执行速度。
 
 ### 核心原则
 
@@ -28,7 +28,7 @@ OpenBitFun E2E 测试专注于**用户旅程**和**关键路径**，确保桌面
 
 ## 测试级别
 
-OpenBitFun 使用三级测试分类系统：
+Alex 使用三级测试分类系统：
 
 ### L0 - 冒烟测试（关键路径）
 
@@ -171,7 +171,7 @@ Debug build detected, checking dev server...
 
 **核心原理**: 功能 E2E 默认使用 `target/debug/openbitfun-desktop.exe`。性能 E2E 需要显式设置 `OPENBITFUN_E2E_APP_MODE=release-fast`，并先执行 `pnpm run desktop:build:release-fast`。
 
-不要直接手工启动 `target/release-fast/openbitfun-desktop.exe` 做性能验证。直接启动会使用普通用户 profile，除非手动提供隔离存储环境变量。E2E launcher 会自动设置 `OPENBITFUN_USER_ROOT`、`OPENBITFUN_HOME` 和 `OPENBITFUN_E2E_STORAGE_GUARD=1`，确保性能测试不会静默写入真实 OpenBitFun profile。
+不要直接手工启动 `target/release-fast/openbitfun-desktop.exe` 做性能验证。直接启动会使用普通用户 profile，除非手动提供隔离存储环境变量。E2E launcher 会自动设置 `OPENBITFUN_USER_ROOT`、`OPENBITFUN_HOME` 和 `OPENBITFUN_E2E_STORAGE_GUARD=1`，确保性能测试不会静默写入真实 Alex profile。
 
 ### 5. 启动和长 Session 性能 E2E
 
@@ -402,7 +402,7 @@ await waitForStreamingComplete('[data-testid="model-response"]', 2000, 30000);
 3. **不要测试内部实现** - 专注于用户可见的行为
 4. **不要忽略不稳定的测试** - 修复或标记为跳过并说明原因
 5. **不要使用复杂的选择器** - 优先使用 data-testid
-6. **不要测试第三方代码** - 只测试 OpenBitFun 功能
+6. **不要测试第三方代码** - 只测试 Alex 功能
 7. **不要混合测试级别** - 保持 L0/L1/L2 分离
 
 ### 条件测试
@@ -434,7 +434,7 @@ it('当工作区打开时应测试功能', async function () {
 # 构建 debug 桌面应用
 cargo build -p openbitfun-desktop
 
-# 用 debug 模式运行测试，OpenBitFun 会在进程内启动 WebDriver
+# 用 debug 模式运行测试，Alex 会在进程内启动 WebDriver
 OPENBITFUN_E2E_APP_MODE=debug pnpm --dir tests/e2e run test:l0:protocol
 
 # 确认应用进程可以监听 127.0.0.1:4445
@@ -658,7 +658,7 @@ jobs:
 - [WebDriverIO 文档](https://webdriver.io/)
 - [Tauri 测试指南](https://tauri.app/v1/guides/testing/)
 - [Page Object 模式](https://webdriver.io/docs/pageobjects/)
-- [OpenBitFun 项目结构](../../AGENTS.md)
+- [Alex 项目结构](../../AGENTS.md)
 
 ## 贡献
 

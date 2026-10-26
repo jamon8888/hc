@@ -5,7 +5,7 @@
 
 ## Question
 
-How does OpenBitFun obtain, pin, and ship WordCraft? Compare: (a) vendoring the key upstream
+How does Alex obtain, pin, and ship WordCraft? Compare: (a) vendoring the key upstream
 crates (`wordcraft-doc/docx/layout/engine/mcp`) into the workspace, (b) shipping prebuilt
 `wordcraft-cli`/`wordcraft` release binaries from upstream GitHub releases, (c) a runtime-fetched
 binary (the npx-at-runtime model, like univer's decision). For each: per-platform artifact

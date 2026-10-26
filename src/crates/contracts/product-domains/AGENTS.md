@@ -32,7 +32,7 @@ policies, and narrow ports; concrete runtime behavior belongs outside this crate
   facts, marker wire formats, host primitive call plans, and narrow ports.
 - `function-agents` may own function-agent DTOs, prompt/domain policies,
   response parsing and repair rules, file-shape analysis, and Git/AI port traits.
-- `plugin-source` may own OpenBitFun package manifest shapes, source identity,
+- `plugin-source` may own Alex package manifest shapes, source identity,
   fixed package input data, workspace trust records, and pure trust epoch
   transitions.
 - `remote_surface` (default feature) owns the Product Operation Registry: one

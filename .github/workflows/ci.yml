@@ -311,7 +311,7 @@ jobs:
       # so the workspace check above cannot catch drift in its shared Rust APIs.
       - name: Check installer compilation
         if: runner.os == 'Windows'
-        run: cargo check --manifest-path OpenBitFun-Installer/src-tauri/Cargo.toml
+        run: cargo check --manifest-path Alex-Installer/src-tauri/Cargo.toml
 
       - name: Run core library tests
         if: runner.os != 'Linux'

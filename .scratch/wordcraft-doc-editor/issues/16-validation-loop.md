@@ -67,7 +67,7 @@ are recorded as owed above with their owners (same carry pattern ticket 07 used 
 
 - Real docx round trip (16.1): `node tests/e2e/scripts/wordcraft-doc-roundtrip.mjs --cli
   <spike-cached 0.7.0 binary> --session validation-loop --strict` → **PASS**: tracked
-  insertions authored `OpenBitFun Agent (validation-loop)`, bold run present in OOXML,
+  insertions authored `Alex Agent (validation-loop)`, bold run present in OOXML,
   independent `text` read-back, outside-write-root refusal. No fake success anywhere.
 - Agent e2e + loud-unavailable (16.2): covered by the round trip (headless session loop) plus
   the web-ui state tests — `FileTabManager.test.ts` "refuses a not-installed capability loudly

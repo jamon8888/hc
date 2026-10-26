@@ -1,4 +1,4 @@
-# OpenBitFun MiniApp Market Service
+# Alex MiniApp Market Service
 
 这里是 MiniApp 市场后端的主要业务实现。Axum 可执行入口位于
 `../../../apps/miniapp-market-server/`，生产部署文件位于
@@ -184,7 +184,7 @@ copy of the application icon; do not recolor it or add a CSS placeholder backgro
 The market web build publishes the same icon separately for the sign-in page.
 
 Email clients cannot consume CSS variables or theme packages. The template's
-small inline palette is an email-specific snapshot of the existing OpenBitFun
+small inline palette is an email-specific snapshot of the existing Alex
 reference scales: neutral 0/70/75/200/350/650/800/850/900/950/1000 and cyan 500 from
 `design-system/packages/theme-openbitfun/src/reference.tokens.json`. Preserve
 those source mappings when updating the template; do not add a separate brand

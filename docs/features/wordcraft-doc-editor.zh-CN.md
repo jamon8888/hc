@@ -1,8 +1,8 @@
 # WordCraft 文档编辑器
 
 WordCraft（上游 [storytold/wordcraft](https://github.com/storytold/wordcraft)，MIT/Apache-2.0）
-是 OpenBitFun 的 Word/docx 编辑器。Agent 会在用户提示下编辑文档；修订（tracked changes）
-始终以 `OpenBitFun Agent (<session>)` 署名。设计决策的原始记录位于
+是 Alex 的 Word/docx 编辑器。Agent 会在用户提示下编辑文档；修订（tracked changes）
+始终以 `Alex Agent (<session>)` 署名。设计决策的原始记录位于
 `.scratch/wordcraft-doc-editor/`（map + ticket Answer）；本文仅沉淀稳定的产品契约。
 
 ## 能力记录（唯一事实来源）
@@ -27,7 +27,7 @@ WordCraft（上游 [storytold/wordcraft](https://github.com/storytold/wordcraft)
   - 启动参数带空闲回环控制端口（`--control`）与隔离的 `WORDCRAFT_PROFILE_DIR`
     （`user data/wordcraft/profiles/<stem>-<fingerprint>`）；每次启动的控制密钥
     （`control-key.local-<port>`）只存放在该 profile 中，永不写日志、永不暴露给 Agent。
-  - 编辑器**不在托管子进程树内**：它是面向用户的窗口，生命周期长于 OpenBitFun；应用退出
+  - 编辑器**不在托管子进程树内**：它是面向用户的窗口，生命周期长于 Alex；应用退出
     不得杀掉用户的编辑器。
   - 仅有 `wordcraft-cli` 的安装会拒绝弹窗（提示 Agent 编辑仍可用），可见编辑器需要 `wordcraft` 应用。
 - 注册表立场（`remote_surface/table.rs`）：两个命令均为 `LocalOnly`、`ControllerLocal`；
@@ -41,7 +41,7 @@ WordCraft（上游 [storytold/wordcraft](https://github.com/storytold/wordcraft)
 
 路由（`mcp::server::wordcraft_session::wordcraft_route_session`）执行单一写者规则：
 
-- **Headless（主通道）**：`wordcraft-cli mcp --author "OpenBitFun Agent (<session>)"
+- **Headless（主通道）**：`wordcraft-cli mcp --author "Alex Agent (<session>)"
   --automation-read-root <workspace> --automation-write-root <workspace>`，隔离 profile，
   cwd=工作区。写根之外的保存被上游自动化门禁拒绝（可读错误、文档不变）。
   空闲回收 `wordcraft_session_idle_reap_due`（10 分钟）适用于桌面 headless 会话。

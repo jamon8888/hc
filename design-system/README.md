@@ -1,18 +1,18 @@
-# OpenBitFun Design System
+# Alex Design System
 
-This directory is an independently buildable and publishable design-system boundary inside the OpenBitFun monorepo.
+This directory is an independently buildable and publishable design-system boundary inside the Alex monorepo.
 
 It deliberately does not depend on Web UI routes, stores, locale catalogs, Tauri APIs, or product-domain state. Applications consume only package exports.
 
 ## Packages
 
 - `@openbitfun/design-tokens`: token contract, system scales, density modes, and generated CSS/TypeScript artifacts.
-- `@openbitfun/theme-openbitfun`: replaceable OpenBitFun light, dark, and high-contrast theme values.
+- `@openbitfun/theme-openbitfun`: replaceable Alex light, dark, and high-contrast theme values.
 - `@openbitfun/ui`: theme-independent React primitives and components.
 - `@openbitfun/token-engine`: private build-time token resolver shared by packages and authoring tools.
 - `@openbitfun/design-lab`: private standalone preview and token-authoring application.
 
-The OpenBitFun theme uses a two-layer color model. Foundational colors use named numeric scales such as `ref.color.neutral.50` and `ref.color.blue.500`; mode-specific semantic colors map those values to UI roles. Reference colors are available to authoring tools as data, but emit no runtime CSS variables and are never a component styling contract.
+The Alex theme uses a two-layer color model. Foundational colors use named numeric scales such as `ref.color.neutral.50` and `ref.color.blue.500`; mode-specific semantic colors map those values to UI roles. Reference colors are available to authoring tools as data, but emit no runtime CSS variables and are never a component styling contract.
 
 Design Lab exposes an Overview, a searchable component catalog with interactive component-detail workbenches, a Design Tokens workbench for non-color contracts, and a dedicated Colors reference page. Colors reads the generated semantic theme catalog and foundational reference scales directly from `@openbitfun/theme-openbitfun`, compares Light, Dark, High Contrast Light, and High Contrast Dark values in one table, and documents scale, palette, and resolved mapping relationships without duplicating source values. The Design Tokens workbench keeps typography, spacing, geometry, motion, layer, opacity, and shadow authoring separate, combines a selectable token table with a focused inspector, renders token-driven previews, and can filter the catalog by component ownership. Edits are scoped to the active density and theme modes, update the effect preview immediately, persist as a local draft, and can be exported. In local development, its loopback-only authoring bridge validates changes, writes the owning token source document, rebuilds the package, and rolls back the source if validation fails.
 

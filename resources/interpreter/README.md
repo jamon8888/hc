@@ -1,6 +1,6 @@
 # Open Interpreter binary distribution
 
-OpenBitFun packages the Open Interpreter coding agent with the product, so a
+Alex packages the Open Interpreter coding agent with the product, so a
 user does not have to install it before an ACP session can use it. The agent
 speaks ACP natively (`interpreter acp`), so it needs no ACP adapter package.
 
@@ -56,9 +56,9 @@ The digests are the `digest` field GitHub publishes for each release asset.
 
 ## Remote workspaces
 
-The packaged copy serves the machine that runs OpenBitFun. A remote SSH
+The packaged copy serves the machine that runs Alex. A remote SSH
 workspace runs the agent on the remote host, so that host needs its own
-Open Interpreter; OpenBitFun does not upload a copy there, and says so when
+Open Interpreter; Alex does not upload a copy there, and says so when
 the agent is missing.
 
 ## Focused verification

@@ -390,7 +390,7 @@ test('keeps Rust CI independent, restore-only on PRs, and target-focused', () =>
   assert.equal(installerCheck?.if, "runner.os == 'Windows'");
   assert.equal(
     installerCheck?.run,
-    'cargo check --manifest-path OpenBitFun-Installer/src-tauri/Cargo.toml',
+    'cargo check --manifest-path Alex-Installer/src-tauri/Cargo.toml',
   );
   const coreLibraryTests = rustJob.steps.find(
     (step) => step.name === 'Run core library tests',
@@ -843,7 +843,7 @@ test('nightly validates generated inputs and projected lockfiles before packagin
   assert.equal(steps[installerI18nIndex].if, "runner.os == 'Windows'");
   assert.equal(
     steps[installerI18nIndex].run,
-    'pnpm --dir OpenBitFun-Installer run sync:i18n',
+    'pnpm --dir Alex-Installer run sync:i18n',
   );
   assert.equal(steps[tauriAlignmentIndex].if, "runner.os == 'Windows'");
   assert.match(

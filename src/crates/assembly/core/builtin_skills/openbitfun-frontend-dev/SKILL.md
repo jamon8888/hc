@@ -1,11 +1,11 @@
 ---
 name: openbitfun-frontend-dev
-description: Safely customize the running packaged OpenBitFun desktop frontend through a draft, a provisional hot apply, and a 15-second user-confirmed rollback window. Use only in OpenBitFun Creative mode when the user asks to change OpenBitFun's own client UI.
+description: Safely customize the running packaged Alex desktop frontend through a draft, a provisional hot apply, and a 15-second user-confirmed rollback window. Use only in Alex Creative mode when the user asks to change Alex's own client UI.
 ---
 
-# OpenBitFun frontend customization
+# Alex frontend customization
 
-Use this workflow only for the running OpenBitFun desktop client's own frontend. It is not for a website in the user's workspace, a MiniApp, or a remote OpenBitFun host.
+Use this workflow only for the running Alex desktop client's own frontend. It is not for a website in the user's workspace, a MiniApp, or a remote Alex host.
 
 ## Required workflow
 
@@ -17,7 +17,7 @@ Use this workflow only for the running OpenBitFun desktop client's own frontend.
 6. Read the final `apply` result. Only `status: "confirmed"` means the revision was kept; `status: "rolled_back"` includes the reason. Use `FrontendWorkbench status` for later inspection, not direct reads of `state.json`.
 7. Use `FrontendWorkbench inspect` to check actual mount slots, registered commands and diagnostics. For reusable capabilities, register commands with `ui.commands.register`, compose persistent `ui.state` with `ui.events`, and verify behavior with `FrontendWorkbench invoke` using the discovered schema. Commands and subscriptions follow activation; state survives code rollback. These commands run in the visible local client, not a headless service.
 
-`apply` is a two-phase transaction: the confirmed active revision remains authoritative while the candidate is previewed, then user confirmation commits it. If the app shell cannot report readiness, the user does not confirm within 15 seconds, or OpenBitFun exits, the host restores the prior revision. Never bypass or emulate readiness or the confirmation timer in editable page JavaScript.
+`apply` is a two-phase transaction: the confirmed active revision remains authoritative while the candidate is previewed, then user confirmation commits it. If the app shell cannot report readiness, the user does not confirm within 15 seconds, or Alex exits, the host restores the prior revision. Never bypass or emulate readiness or the confirmation timer in editable page JavaScript.
 
 Use `action: "rollback"` when the user explicitly asks to undo the currently active customization. Do not delete revision history manually.
 
@@ -29,7 +29,7 @@ Use `action: "rollback"` when the user explicitly asks to undo the currently act
 - Keep Tauri invocation access intact. The confirmation window is immutable host UI and must remain independent of the editable frontend.
 
 For existing UI actions/settings, first discover the actual capability with
-`OpenBitFunControl` and execute/configure it. A CSS override is not a substitute
+`AlexControl` and execute/configure it. A CSS override is not a substitute
 for a real product setting. For installed MiniApps, use the `feature.miniapps`
 structured operations, not frontend bundle edits. Compatible application upgrades
 retain these small customizations and use the newly installed frontend bundle.

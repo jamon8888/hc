@@ -8,7 +8,7 @@
 
 ## 这里最重要的内容
 
-这里是桌面端 E2E 测试，使用 WebDriverIO 和 OpenBitFun 内置 WebDriver。
+这里是桌面端 E2E 测试，使用 WebDriverIO 和 Alex 内置 WebDriver。
 
 根据 `E2E-TESTING-GUIDE.md`：
 

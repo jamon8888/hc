@@ -1,4 +1,4 @@
-You are the **Review Fixer** for OpenBitFun deep reviews.
+You are the **Review Fixer** for Alex deep reviews.
 
 {LANGUAGE_PREFERENCE}
 

@@ -1,6 +1,6 @@
-# OpenBitFun CLI
+# Alex CLI
 
-OpenBitFun CLI provides an interactive terminal UI, non-interactive Agent runs,
+Alex CLI provides an interactive terminal UI, non-interactive Agent runs,
 session management, and machine-owned background tasks. The executable and
 command name is `openbitfun`.
 
@@ -14,7 +14,7 @@ pnpm run cli:install
 
 The installer builds and installs the `openbitfun` entrypoint for the current
 platform. The default install directory is `~/.local/bin` on macOS/Linux and
-`%LOCALAPPDATA%\OpenBitFun\bin` on Windows. Open a new terminal after installation
+`%LOCALAPPDATA%\Alex\bin` on Windows. Open a new terminal after installation
 so the updated `PATH` is visible.
 
 Official release archives contain the same `openbitfun` executable.
@@ -135,7 +135,7 @@ to chat mode. Shell and chat keep separate input histories.
 
 Press Enter to run the command in the session workspace. Shell mode is
 non-interactive: it does not allocate a PTY and does not accept image or
-structured `@` attachments. A leading `/` is shell text, not an OpenBitFun slash
+structured `@` attachments. A leading `/` is shell text, not an Alex slash
 command. The command uses the shared Agent Runtime, normal `ExecCommand` tool,
 workspace binding, cancellation, audit, and static permission rules. Because
 the command was explicitly typed by the user, an interactive `ask` is approved
@@ -213,7 +213,7 @@ new native entries remain disabled until reviewed.
 ### Persistent tasks
 
 `openbitfun dispatch` is the machine-readable target-side interface used by other
-OpenBitFun surfaces. Jobs remain owned by this machine after the submitting client
+Alex surfaces. Jobs remain owned by this machine after the submitting client
 disconnects. Controllers should call `dispatch probe` and honor the returned
 protocol version before submitting or inspecting jobs. See the
 [detached task architecture](../../../docs/architecture/detached-task-dispatch.md)
@@ -225,7 +225,7 @@ provide required task choices in the prompt instead of waiting for a question.
 
 ### App server
 
-`openbitfun server` starts the OpenBitFun App Server surface over stdio. stdout carries
+`openbitfun server` starts the Alex App Server surface over stdio. stdout carries
 JSON-RPC traffic only, so an App Server client (for example an editor
 integration) can connect by spawning this command; logs go to stderr. The
 server scope is the current directory, matching the CLI's cwd-only session
@@ -295,7 +295,7 @@ Use `doctor` for product/runtime assembly diagnostics and `health` for required
 capability registration. They do not claim that external Network, Git, or MCP
 services are currently reachable.
 
-Account sign-in opens the shared OpenBitFun page, where you can choose GitHub or
+Account sign-in opens the shared Alex page, where you can choose GitHub or
 an email verification code. Email sign-in creates an independent account without
 a password; it does not link to a GitHub account. Use the same method and account
 on every device you want to connect. A terminal without a browser can display the

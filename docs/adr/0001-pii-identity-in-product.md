@@ -4,7 +4,7 @@ Status: accepted
 
 ## Context
 
-OpenBitFun integrates basemind as a sidecar for PII detection, redaction, indexing, and retrieval. The product guarantee is that no PII reaches any LLM — cloud *or* local — while the user's view stays fully rehydrated, including across turns ("Jean Dupont's chronology").
+Alex integrates basemind as a sidecar for PII detection, redaction, indexing, and retrieval. The product guarantee is that no PII reaches any LLM — cloud *or* local — while the user's view stays fully rehydrated, including across turns ("Jean Dupont's chronology").
 
 basemind v0.33.0 provides **no cross-document PII identity**:
 

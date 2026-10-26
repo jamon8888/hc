@@ -209,9 +209,9 @@
 
 ---
 
-## 七、与 OpenBitFun 工具型 MiniApp 的契合度
+## 七、与 Alex 工具型 MiniApp 的契合度
 
-绝大多数 OpenBitFun 用户产出的小应用是**工具型**（regex 调试 / git 视图 / 编码自拍 / 计算器…），它们的设计调性应当：
+绝大多数 Alex 用户产出的小应用是**工具型**（regex 调试 / git 视图 / 编码自拍 / 计算器…），它们的设计调性应当：
 
 - 信息密度高、操作路径短
 - 配色冷静（首选 `--openbitfun-*` 主题）
@@ -251,4 +251,4 @@
 - `references/examples/demo-git-graph/` — 复杂应用拆模块的范例（`source/ui/components`, `source/ui/panels`, `source/ui/services`）
 - `references/examples/demo-icon-design-system/` — 设计系统型应用范例
 
-读它们的 `style.css` 顶部注释和 `meta.json` 的 `i18n` 块，是最快理解"OpenBitFun 味道"的方式。
+读它们的 `style.css` 顶部注释和 `meta.json` 的 `i18n` 块，是最快理解"Alex 味道"的方式。

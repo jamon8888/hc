@@ -26,7 +26,7 @@ Prefer a frame near the visual climax for still artwork. Keep source composition
 | `preview.webp` | one frame | package preview | representative full frame |
 | `asset-preview-sheet.png` | generated report | outside the package | labeled overview of all six static roles |
 
-Keep `background.webm` at or below 64 MiB, every ordinary image at or below 16 MiB, `preview.webp` at or below 4 MiB, and the archive at or below 96 MiB. The host also limits background video to 60 seconds, 4096 pixels per side, and 9 million pixels. Prefer WebM for cross-platform codec availability; final OpenBitFun import verifies actual media metadata and host playback support.
+Keep `background.webm` at or below 64 MiB, every ordinary image at or below 16 MiB, `preview.webp` at or below 4 MiB, and the archive at or below 96 MiB. The host also limits background video to 60 seconds, 4096 pixels per side, and 9 million pixels. Prefer WebM for cross-platform codec availability; final Alex import verifies actual media metadata and host playback support.
 
 ## Surface matrix
 

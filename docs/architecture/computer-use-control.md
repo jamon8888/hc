@@ -19,7 +19,7 @@ that contract must be visible. Foreground takeover requires explicit user
 permission; approval of a message's content and recipient does not authorize it.
 A generated agent plan cannot widen the original user's authorization.
 
-The operating system owns privacy/sharing indicators. OpenBitFun neither imitates
+The operating system owns privacy/sharing indicators. Alex neither imitates
 macOS's Sharing menu on other systems nor suppresses native capture borders.
 Product feedback adds target, mode, action, preview and Stop without claiming to
 replace system consent or system Stop Sharing.

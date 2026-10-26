@@ -1,7 +1,7 @@
 # DeepSeek Harness (dsh) Adapter
 
 This crate owns the static, runtime-free projection of DeepSeek Harness (`dsh`)
-plugin package sources. It reads a OpenBitFun-managed package whose
+plugin package sources. It reads a Alex-managed package whose
 `openbitfun.plugin.json` declares `adapter: "dsh_compatible"`, parses the package's
 `package.json` `dsh` declaration, and projects the discovered bundle entries
 (`dsh.bundle.patch` -> `cordis.patch.yml` rows) and/or profile bundle references
@@ -22,7 +22,7 @@ Preserve launch-relative cwd, the 60-second default tool timeout, and disabled
 OAuth discovery. Dynamic YAML, partial patches and scoped lifecycle behavior remain unsupported.
 Direct compatibility activation rejects explicit reconnect/startup policies;
 explicit snapshot import accepts valid literal reconnect and failOnStartupError
-settings with a disclosure that OpenBitFun owns lifecycle after import. Source
+settings with a disclosure that Alex owns lifecycle after import. Source
 disabled state does not block import. Keep the discovery revision when preparing
 the import so status relaxation cannot break or bypass stale-plan checks. Never
 evaluate Cordis or install packages during discovery. Environment and headers stay private to the
@@ -33,7 +33,7 @@ user-local `dsh` CLI. Execution of dsh bundles belongs to future Plugin Host /
 external-ACP work, not this adapter boundary.
 
 If executable dsh support is added, the dsh adapter may project capabilities
-whose OpenBitFun owner semantics have been verified through the provider-neutral
+whose Alex owner semantics have been verified through the provider-neutral
 plugin capability contract. Cordis source parsing, execution handles, Host
 protocol, and lifecycle remain dsh-owned and must not reuse the OpenCode Config
 Hook or OpenCode Plugin Host composition path. The current configured Skill-root
@@ -50,7 +50,7 @@ requires its own consumer evidence before that path is shared.
   `PluginSourceRef` / `PluginStatusSnapshot` / `PluginDiagnostic` DTOs; do not
   expose raw dsh YAML or JSON as product contracts.
 - Cordis rows may mount services that register model-facing tools when dsh runs
-  them, but static row metadata is not an executable OpenBitFun provider candidate.
+  them, but static row metadata is not an executable Alex provider candidate.
   `load_dsh_package_adapter` therefore returns no provider dispatch targets.
   Unsupported or unparsable content must produce typed invalid projections and
   diagnostics, never silent success.

@@ -287,7 +287,7 @@ function isFullPackageInput(file) {
   ) {
     return true;
   }
-  if (name === 'Cargo.toml' && !file.startsWith('OpenBitFun-Installer/')) {
+  if (name === 'Cargo.toml' && !file.startsWith('Alex-Installer/')) {
     return true;
   }
   if (
@@ -313,7 +313,7 @@ function isFrontendOnlyInput(file) {
 }
 
 function isWindowsPackageInput(file) {
-  return file.startsWith('OpenBitFun-Installer/')
+  return file.startsWith('Alex-Installer/')
     || file === 'scripts/cli/package-windows.ps1'
     || file.startsWith('scripts/windows/')
     || file.includes('/windows/')

@@ -1,4 +1,4 @@
-# OpenBitFun CLI Agent Guide
+# Alex CLI Agent Guide
 
 Scope: `src/apps/cli`.
 

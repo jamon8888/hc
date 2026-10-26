@@ -6,7 +6,7 @@
 
 Bundled, working integration of [storytold/wordcraft](https://github.com/storytold/wordcraft) —
 the open-source clean-room Word reimplementation (pure Rust, MIT OR Apache-2.0) — into
-OpenBitFun: users can open and edit `.docx` documents in a WordCraft-backed editor surface, and
+Alex: users can open and edit `.docx` documents in a WordCraft-backed editor surface, and
 the agent can read, edit, and verify that document in response to user prompts, with the
 architecture contract (distribution shape, editor surface, agent channels, process topology,
 capability gate, remote stance) recorded the way `univer-cli-integration` did.
@@ -39,7 +39,7 @@ capability gate, remote stance) recorded the way `univer-cli-integration` did.
 ## Decisions so far
 
 - [agent-channels](issues/02-agent-channels.md) — two channels over one ~270-command id space:
-  headless `wordcraft-cli mcp` (primary agent channel; OpenBitFun already bridges MCP) and
+  headless `wordcraft-cli mcp` (primary agent channel; Alex already bridges MCP) and
   loopback JSON control protocol with key-file auth (secondary, for a live visible editor);
   tracked-changes author naming + `inspect_document` give the reviewable, screenshot-free agent
   editing loop.
@@ -54,10 +54,10 @@ capability gate, remote stance) recorded the way `univer-cli-integration` did.
   silent viewer fallback.
 - [agent-interaction-contract](issues/04-agent-interaction-contract.md) — managed `wordcraft-cli
   mcp` server per workspace (unavailable → capability record verbatim); tracked changes always on
-  authored `OpenBitFun Agent (<session>)`; live-if-open (MCP `--connect` bridge) else headless;
+  authored `Alex Agent (<session>)`; live-if-open (MCP `--connect` bridge) else headless;
   agent saves after each batch.
 - [process-topology](issues/05-process-topology.md) — headless server per workspace session with
-  idle reap; per-process `WORDCRAFT_PROFILE_DIR` under OpenBitFun state + adapter-only key; both
+  idle reap; per-process `WORDCRAFT_PROFILE_DIR` under Alex state + adapter-only key; both
   automation roots = active workspace; spawns only via `process_manager`;
   explicit path → PATH → managed component discovery.
 - [remote-scenarios](issues/06-remote-scenarios.md) — remote workspace SUPPORTED (headless server
@@ -66,7 +66,7 @@ capability gate, remote stance) recorded the way `univer-cli-integration` did.
   rules; detached dispatch supported via the headless path with capability ads.
 - [e2e-spike](issues/07-e2e-spike.md) — PROVEN headless loop end to end on v0.7.0 (MCP handshake →
   track ON → type/select/bold → save → inspect; outside-root save refused; OOXML `w:ins` authored
-  "OpenBitFun Agent"; independent CLI read-back). Visible-app leg environment-blocked (no GPU
+  "Alex Agent"; independent CLI read-back). Visible-app leg environment-blocked (no GPU
   surface here) → real-device validation owed to 08; web zip is a static wasm hosting bundle
   (licenses, COOP/COEP headers, no control channel) — live embed probe still owed.
 - [implementation-breakdown](issues/08-implementation-breakdown.md) — ticket set 09–16: capability

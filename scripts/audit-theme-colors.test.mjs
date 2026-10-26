@@ -20,7 +20,7 @@ import {
 
 const root = process.cwd();
 const SOURCE_OWNER_ROOTS = [
-  'OpenBitFun-Installer/src',
+  'Alex-Installer/src',
   'design-system/packages/design-tokens/src',
   'design-system/packages/theme-openbitfun/src',
   'src/apps/mobile/design-system/preview',
@@ -30,7 +30,7 @@ const SOURCE_OWNER_ROOTS = [
 const NEAR_PAIR_DECISION_AUDIT_ROOTS = [
   { root: 'src/web-ui', args: ['--json', '--no-baseline', '--top', '0'] },
   { root: 'src/mobile-web/src', args: ['--root', 'src/mobile-web/src', '--json', '--no-baseline', '--top', '0'] },
-  { root: 'OpenBitFun-Installer/src', args: ['--root', 'OpenBitFun-Installer/src', '--json', '--no-baseline', '--top', '0'] },
+  { root: 'Alex-Installer/src', args: ['--root', 'Alex-Installer/src', '--json', '--no-baseline', '--top', '0'] },
 ];
 
 function contractOwnerHasKnownSource(owner) {

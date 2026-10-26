@@ -1,6 +1,6 @@
 # Subagent avatars
 
-These twenty authored SVGs are the OpenBitFun joystick family, refined for
+These twenty authored SVGs are the Alex joystick family, refined for
 small avatars on 2026-09-19. They preserve the existing characters, body and
 knob palettes, and expressions; light eyes share one warm ivory color. Do not
 apply hue rotation or a generic icon stroke to them.

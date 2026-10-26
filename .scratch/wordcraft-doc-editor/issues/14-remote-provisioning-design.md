@@ -178,7 +178,7 @@ Two decisions amend the sections above:
      re-validate identity — same pinned version, same workspace roots (read/write), same
      author — and refuse loudly on mismatch instead of silently sharing another workspace's
      daemon.
-   - The daemon **survives session closes and OpenBitFun restarts** (upgrade-compatibility
+   - The daemon **survives session closes and Alex restarts** (upgrade-compatibility
      rule: nothing user-reaching is killed to recover from a parse/connect failure). Its
      lifetime ends only by host reboot, an explicit stop action, or a version-bump install
      that the user confirms (old daemon explicitly stopped during upgrade start — never

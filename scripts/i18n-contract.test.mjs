@@ -14,9 +14,9 @@ const expectedGeneratedFiles = [
   'src/web-ui/src/infrastructure/i18n/presets/generatedLocaleContract.ts',
   'src/web-ui/index.html',
   'src/mobile-web/src/i18n/generatedLocaleContract.ts',
-  'OpenBitFun-Installer/src/i18n/generatedLocaleContract.ts',
+  'Alex-Installer/src/i18n/generatedLocaleContract.ts',
   'src/crates/assembly/core/src/service/i18n/generated_locale_contract.rs',
-  'OpenBitFun-Installer/src-tauri/src/installer/generated_locale_contract.rs',
+  'Alex-Installer/src-tauri/src/installer/generated_locale_contract.rs',
 ];
 const expectedGeneratedJsonFiles = [
   'src/apps/relay-server/static/homepage/i18n.shared.json',
@@ -224,7 +224,7 @@ test('shared i18n terms are consumed by each product surface runtime', () => {
   const mobileMessagesSource = readText('src/mobile-web/src/i18n/messages.ts');
   assert.match(mobileMessagesSource, /SHARED_TERMS_BY_LOCALE/, 'mobile-web should expose shared terms through its message tree');
 
-  const installerLanguagesSource = readText('OpenBitFun-Installer/src/i18n/languages.ts');
+  const installerLanguagesSource = readText('Alex-Installer/src/i18n/languages.ts');
   assert.match(installerLanguagesSource, /SHARED_TERMS_BY_APP_LANGUAGE/, 'installer should merge shared terms into its i18next resources');
 
   const coreServiceSource = readText('src/crates/assembly/core/src/service/i18n/service.rs');
@@ -250,7 +250,7 @@ test('frontend runtimes use generated locale defaults and fallback chains', () =
     'mobile-web translate should not fall back directly to the surface default only',
   );
 
-  const installerI18nSource = readText('OpenBitFun-Installer/src/i18n/index.ts');
+  const installerI18nSource = readText('Alex-Installer/src/i18n/index.ts');
   assert.match(installerI18nSource, /DEFAULT_INSTALLER_UI_LANGUAGE/, 'installer i18next should use the generated default UI language');
   assert.match(installerI18nSource, /getInstallerUiFallbackChain/, 'installer i18next should use the generated locale fallback chain');
 });
@@ -833,11 +833,11 @@ auditIntegrationTest('web-ui uses shared terms for stable navigation and feature
 });
 
 test('installer uses the shared product name for titlebar defaults', { concurrency: false }, () => {
-  const appSource = readText('OpenBitFun-Installer/src/App.tsx');
+  const appSource = readText('Alex-Installer/src/App.tsx');
   const localePaths = [
-    'OpenBitFun-Installer/src/i18n/locales/en.json',
-    'OpenBitFun-Installer/src/i18n/locales/zh.json',
-    'OpenBitFun-Installer/src/i18n/locales/zh-TW.json',
+    'Alex-Installer/src/i18n/locales/en.json',
+    'Alex-Installer/src/i18n/locales/zh.json',
+    'Alex-Installer/src/i18n/locales/zh-TW.json',
   ];
 
   assert.match(

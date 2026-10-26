@@ -23,7 +23,7 @@ Product-source boundary:
   Skill paths are current read-only live sources. Configured Skill URLs remain
   unsupported and must never be fetched. Full plugin directories and package specs
   remain target work rather than executable production sources. Source files need
-  no OpenBitFun import. Low-risk declarative results follow the
+  no Alex import. Low-risk declarative results follow the
   user's auto-apply/ask preference; executable sources require a source, plugin,
   and execution-domain
   decision before first import. Broader pre-import execution permissions and
@@ -132,7 +132,7 @@ MCP discovery keeps V1 and V2 parsing in separate private modules. V1 uses
 startup/catalog/execution timeout defaults. Reject mixed-version layers
 explicitly. Keep valid V1 servers named `servers` discoverable. Source disablement
 blocks direct activation, but valid declarations remain eligible for explicit
-native import; OpenBitFun source suppression and revision fencing still apply.
+native import; Alex source suppression and revision fencing still apply.
 
 ## Verification
 

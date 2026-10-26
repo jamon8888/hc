@@ -1,6 +1,6 @@
 # 主题与颜色 Token 治理
 
-本文定义 OpenBitFun 全部前端的颜色所有权、运行时投影和防回退契约。目标不是在旧变量之上再包一层，
+本文定义 Alex 全部前端的颜色所有权、运行时投影和防回退契约。目标不是在旧变量之上再包一层，
 而是让设计系统成为普通 UI 颜色的唯一公共来源：组件只消费 canonical `--openbitfun-*`，产品层只选择、
 组合和投影这些 Token，不再维护第二套别名体系。
 
@@ -24,8 +24,8 @@
 
 | 层级 | 唯一职责 | 不拥有的内容 |
 |---|---|---|
-| `@openbitfun/design-tokens` | 主题无关的命名、系统尺度和基础 Token 契约 | OpenBitFun 具体 light/dark 值、产品状态、route 或运行时选择 |
-| `@openbitfun/theme-openbitfun` | OpenBitFun 的 reference/semantic 主题值、canonical CSS 变量映射和 `default.css` | Web UI Appearance 包、产品 store、组件内部状态 |
+| `@openbitfun/design-tokens` | 主题无关的命名、系统尺度和基础 Token 契约 | Alex 具体 light/dark 值、产品状态、route 或运行时选择 |
+| `@openbitfun/theme-openbitfun` | Alex 的 reference/semantic 主题值、canonical CSS 变量映射和 `default.css` | Web UI Appearance 包、产品 store、组件内部状态 |
 | `@openbitfun/ui` | 消费 semantic/system Token 的公共组件 anatomy、行为和无障碍契约 | 具体主题值、Appearance schema、旧 Web UI 变量 |
 | Web UI Appearance | 选择和组合主题，生成 schema v2 包，并投影 canonical root/scoped Token 与显式 product domain/component Token | 公共 Token 的第二套命名、兼容双写、组件私有 palette |
 | 产品前端 | 选择主题、设置设计系统 root 属性并消费 canonical Token | 复制 `theme-openbitfun` palette、随组件新增 raw color |
@@ -58,7 +58,7 @@ Desktop bootstrap 和产品前端也不能反向定义公共主题值。
    组件差异；必须在 `appearanceTokenContract.ts` 中登记。
 3. **Product domain**：`--openbitfun-domain-*`。用于 Git lane、语言身份、syntax、inspector、工具类别等明确的
    专用语义；不得当作普通 UI 的备用色板。
-4. **Renderer payload**：Monaco、xterm、Mermaid、OpenBitFun Canvas 等第三方或专用渲染器的显式配置。
+4. **Renderer payload**：Monaco、xterm、Mermaid、Alex Canvas 等第三方或专用渲染器的显式配置。
    它们有各自格式，不进入普通组件 CSS。
 
 Primitive/reference 色值只存在于主题 authoring、明确的主题 preset 或专用 renderer owner 中。普通组件

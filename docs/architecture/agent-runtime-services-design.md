@@ -7,7 +7,7 @@ crate 内部结构和行为保护要求。本文件记录设计约束，不记�
 结果见 [`product-customization-blueprint.md`](product-customization-blueprint.md)；CLI 入口、配置兼容和
 CLI Agent 体验边界见 [`cli-product-line-design.md`](cli-product-line-design.md)；能力 Provider 如何装配、对外能力接口与
 多宿主 adapter 的状态、权限、并发和兼容边界见
-[`capability-runtime-integration-design.md`](extensions/capability-runtime-integration-design.md)；公开 OpenBitFun Agent SDK 的
+[`capability-runtime-integration-design.md`](extensions/capability-runtime-integration-design.md)；公开 Alex Agent SDK 的
 用户心智、SDK Host、Headless CLI/ACP/Server 关系、竞品基线和能力发布门槛见
 [`agent-sdk-product-architecture.md`](agent-sdk-product-architecture.md)；第一方 GUI/TUI/Remote 多实例、Headless CLI Embedded、
 Shared Agent Runtime 与 Plugin Host 的进程关系见
@@ -15,7 +15,7 @@ Shared Agent Runtime 与 Plugin Host 的进程关系见
 
 本文中的接口片段只说明依赖方向和职责，不自动构成当前 API 或实施承诺。当前接口名称、字段和消费方以代码为准；
 新增公共类型前必须有真实生产调用方、版本边界和验证路径。现有 `agent-runtime::sdk` 是
-Rust Runtime SDK（当前 preview），不是公开 Python/TypeScript OpenBitFun Agent SDK。CLI、ACP、
+Rust Runtime SDK（当前 preview），不是公开 Python/TypeScript Alex Agent SDK。CLI、ACP、
 Desktop 仍复用 `openbitfun-core` 的兼容 owner；只有 Desktop 与本机兼容 Server Host 选择 `product-full`。CLI 与 CLI 托管的 ACP server 已消费各自的产品组装结果；
 Desktop 主交互只消费由现有 Core 归属模块构造的少量应用接口，尚未组装完整 Desktop profile。这些接入都不等于
 协调器、调度器、持久化或工具执行 owner 已迁移；ACP 的完整持久化历史、模型/模式目录与提供方配置、MCP、客户端路径与
@@ -41,13 +41,13 @@ Desktop 的其余入口仍保留明确的兼容边界，活动会话的模型/�
 ### 1.1 Rust Runtime SDK（当前 preview）与公开 Agent SDK
 
 当前 `agent-runtime::sdk` 是低层 **Rust Runtime SDK**，成熟度为 preview：它通过 Rust 类型化端口服务 Desktop、CLI、
-ACP 等现有入口，也可用于受控 Rust 嵌入。它不是 Python/TypeScript **OpenBitFun Agent SDK**。两者调用同一个
+ACP 等现有入口，也可用于受控 Rust 嵌入。它不是 Python/TypeScript **Alex Agent SDK**。两者调用同一个
 Agent Runtime，不形成两套 Agent loop。
 
 | 入口 | 面向谁 | 主要接口 | 不暴露 |
 |---|---|---|---|
-| Rust Runtime SDK | OpenBitFun 内部入口、低层 Rust 嵌入 | Query/Session/Turn/事件等类型化 Rust 用例；builder 和 registry 仅用于内部装配 | Tauri/React、具体 manager、生态原始对象 |
-| OpenBitFun Agent SDK | Python/TypeScript 应用开发者 | `AgentClient`、query/session、async Message/Event/Result、typed callback | builder、port、registry、Product Assembly、SDK Host protocol |
+| Rust Runtime SDK | Alex 内部入口、低层 Rust 嵌入 | Query/Session/Turn/事件等类型化 Rust 用例；builder 和 registry 仅用于内部装配 | Tauri/React、具体 manager、生态原始对象 |
+| Alex Agent SDK | Python/TypeScript 应用开发者 | `AgentClient`、query/session、async Message/Event/Result、typed callback | builder、port、registry、Product Assembly、SDK Host protocol |
 
 公开 Agent SDK 必须覆盖以下用户用例，而不是要求调用方自行装配 Runtime：
 
@@ -56,7 +56,7 @@ Agent Runtime，不形成两套 Agent loop。
 | 运行 Agent | `client.query()`、异步流、结构化 Result、取消和执行上限 |
 | 管理上下文 | Session create/resume/fork/close；Query start/cancel/steer；Turn 只承载只读身份与已提交事实 |
 | 使用能力 | 内置 Tool、既有 MCP、Subagent、Skill 和明确的来源状态 |
-| 控制副作用 | Permission 与 Hook callback；最终策略仍由 OpenBitFun owner 决定 |
+| 控制副作用 | Permission 与 Hook callback；最终策略仍由 Alex owner 决定 |
 | 扩展应用 | Python/TypeScript 函数 Tool 和用户输入 callback |
 | 运维 | 类型化错误、用量/成本/缓存、trace、checkpoint/恢复事实和 capability 状态 |
 
@@ -133,11 +133,11 @@ v10 让 Turn settlement 返回 Runtime 确认的终态、最终回答和结束�
 | 接口边界 | 本文件补充的内容 | 不在本文件重复定义 |
 |---|---|---|
 | 前后端能力接口 | 智能体内核如何产出会话、事件、权限和诊断事实 | 宿主协议 DTO、插件状态视图字段、产品形态状态词 |
-| OpenBitFun 与插件接口 | 插件贡献如何进入内核、执行层和安全模块 | 具体生态接口、未预算界面贡献字段、OpenCode 原始 payload |
+| Alex 与插件接口 | 插件贡献如何进入内核、执行层和安全模块 | 具体生态接口、未预算界面贡献字段、OpenCode 原始 payload |
 | 插件运行时接口 | `PluginRuntimeBinding` 如何注入 Agent Runtime 内部 builder | `PluginRuntimeClient`、dispatch/read schema、进程边界；这些由插件运行时文档和 `runtime-ports` 代码定义 |
 | 外部生态兼容接口 | 不进入 Agent Runtime API 或公开 SDK；各生态 adapter 只作为来源或宿主边界的翻译边界 | OpenCode client/server facade、Claude/Codex/Trae Hook 细节、配置导入细节、跨生态稳定 payload |
 
-OpenCode 适配器、ACP 桥接和未来插件运行时必须先映射到主架构定义的接口边界，再由产品组装注册。它们不能直接写智能体内核权威状态；通过插件兼容接口、Tool Runtime 或界面宿主调用的 OpenBitFun 能力必须经过相应权限与审计路径。插件脚本直接使用 Bun 文件、网络或进程接口产生的副作用不在这项保证内：没有可执行的操作系统隔离时，严格策略必须禁用相应插件或明确报告 `policy-limited`，不能宣称已被沙箱拦截。
+OpenCode 适配器、ACP 桥接和未来插件运行时必须先映射到主架构定义的接口边界，再由产品组装注册。它们不能直接写智能体内核权威状态；通过插件兼容接口、Tool Runtime 或界面宿主调用的 Alex 能力必须经过相应权限与审计路径。插件脚本直接使用 Bun 文件、网络或进程接口产生的副作用不在这项保证内：没有可执行的操作系统隔离时，严格策略必须禁用相应插件或明确报告 `policy-limited`，不能宣称已被沙箱拦截。
 
 当前 Agentic 前端事件视图属于事件归属子接口：智能体内核产生提供方无关 `AgenticEvent`，`events` 层只为
 现有 Desktop Tauri 和 peer host 只转换 `event_name` 与 `payload`，不定义跨协议的事件类型、版本、回放或保留语义。
@@ -369,7 +369,7 @@ pub trait SecurityDecisionPort: Send + Sync {
 约束：
 
 - UI 只展示 decision 和 user options，不成为最终授权来源。
-- 插件通过 OpenBitFun 兼容接口请求的能力/副作用必须声明，未知或超声明调用默认受限；脚本运行时的直接副作用不能靠该声明推断为已拦截。
+- 插件通过 Alex 兼容接口请求的能力/副作用必须声明，未知或超声明调用默认受限；脚本运行时的直接副作用不能靠该声明推断为已拦截。
 - `allow_in_sandbox` 只能在实际 sandbox 或隔离路径存在时返回。
 - 远程、ACP、MCP、插件、browser/desktop 和 cloud task 必须携带执行域。
 - 模型输出只能辅助解释和候选判断，不能直接写权限、审计或策略状态。
@@ -886,10 +886,10 @@ Provider 装配同样按需增加，不提前为 Memory、Context、Workflow、S
 - Agent Runtime 只接收 `PluginRuntimeBinding`，不创建 Plugin Host、不发现插件来源、不加载 OpenCode 适配器。
 - `PluginRuntimeClient` 是 Agent Runtime 内部可调用边界，不进入 Agent Runtime API、公开 SDK、能力服务接口或产品入口 DTO。
 - OpenCode 适配层位于 `PluginRuntimeClient` 与 Plugin Host 的边界；Agent Runtime 不依赖 `openbitfun-opencode-adapter`，也不按具体生态类型分支。
-- 插件贡献进入 Agent Runtime 前必须已经转换成 OpenBitFun 类型化工具、Hook 输入/输出、诊断或明确不支持；
+- 插件贡献进入 Agent Runtime 前必须已经转换成 Alex 类型化工具、Hook 输入/输出、诊断或明确不支持；
   OpenCode 原始对象不能进入业务状态。
 - 工具贡献必须复用工具 ABI；事件订阅必须复用事件清单；权限候选必须复用安全模块。
-- OpenBitFun 能力输出到外部宿主时不反向经过 `PluginRuntimeClient`。对外能力接口调用现有 owner，再由 MCP、Skill、
+- Alex 能力输出到外部宿主时不反向经过 `PluginRuntimeClient`。对外能力接口调用现有 owner，再由 MCP、Skill、
   Plugin、Hook、SDK 或 Server adapter 映射；只有需要运行第三方代码的 import 路径才使用 Plugin Host。
 
 本文件不定义 `UiContributionDescriptor`、OpenCode client/server facade、泛 hook registry、来源发现接口或多生态能力矩阵。这些能力只有在存在真实产品消费方、公开接口预算和安全评审后，才允许进入对应归属文档和代码。
@@ -898,7 +898,7 @@ Provider 装配同样按需增加，不提前为 Memory、Context、Workflow、S
 
 | 风险 | 保护方式 |
 |---|---|
-| 外部生态接口反向成为内部归属模块 | OpenCode adapter 只作边界转换，输出 OpenBitFun 接口对象或诊断 |
+| 外部生态接口反向成为内部归属模块 | OpenCode adapter 只作边界转换，输出 Alex 接口对象或诊断 |
 | Agent Runtime 直接感知具体适配器 | Agent Runtime 只依赖 `PluginRuntimeBinding` / `PluginRuntimeClient` |
 | 插件越权修改权限或状态 | Hook 可按 OpenCode 语义变换允许字段；最终校验、策略上限、审计和状态写入由归属模块完成 |
 | 工具 ABI 与内置/MCP/插件分裂 | custom tool 统一进入可调用工具集合、提供方身份和权限/副作用过滤路径 |

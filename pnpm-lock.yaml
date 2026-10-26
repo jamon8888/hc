@@ -57,7 +57,7 @@ importers:
         specifier: ^7.0.4
         version: 7.3.1(@types/node@22.19.7)(jiti@2.6.1)(sass@1.97.3)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
 
-  OpenBitFun-Installer:
+  Alex-Installer:
     dependencies:
       '@openbitfun/theme-openbitfun':
         specifier: workspace:^

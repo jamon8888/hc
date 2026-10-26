@@ -130,7 +130,7 @@
       "label": "OpenBitFun Installer",
       "kind": "canonical-web",
       "owner": "@openbitfun/theme-openbitfun with the installer preset owner",
-      "root": "OpenBitFun-Installer",
+      "root": "Alex-Installer",
       "audit": {
         "engine": "theme",
         "baseline": "scripts/theme-color-governance-baseline.installer.json"

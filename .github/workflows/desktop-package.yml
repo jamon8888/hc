@@ -384,7 +384,7 @@ jobs:
           pnpm run installer:build:only
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           if ($env:WINDOWS_CERTIFICATE_THUMBPRINT) {
-            & ./scripts/ci/sign-windows.ps1 -Path 'OpenBitFun-Installer/src-tauri/target/release/openbitfun-installer.exe'
+            & ./scripts/ci/sign-windows.ps1 -Path 'Alex-Installer/src-tauri/target/release/openbitfun-installer.exe'
           }
 
       - name: Verify Apple signature and notarization
@@ -406,7 +406,7 @@ jobs:
             target/*/release/bundle
             target/release/bundle
             src/apps/desktop/target/release/bundle
-            OpenBitFun-Installer/src-tauri/target/release/openbitfun-installer.exe
+            Alex-Installer/src-tauri/target/release/openbitfun-installer.exe
 
   linux-binaries:
     name: Linux CLI and Relay Server

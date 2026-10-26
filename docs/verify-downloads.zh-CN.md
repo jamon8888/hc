@@ -1,16 +1,16 @@
 **中文** | [English](./verify-downloads.md)
 
-# 校验 OpenBitFun 下载文件
+# 校验 Alex 下载文件
 
-带签名的 OpenBitFun Release 会为覆盖到的桌面安装包或 CLI 归档提供独立的
+带签名的 Alex Release 会为覆盖到的桌面安装包或 CLI 归档提供独立的
 `<文件名>.sig`。例如，`v1.0.0` 已为桌面端和 CLI 下载文件提供签名。
 
-OpenBitFun 固定使用以下 minisign 公钥：
+Alex 固定使用以下 minisign 公钥：
 
 - Key ID：`50F47CBE6CC0A376`
 - 公钥：`RWR2o8Bsvnz0UOBc3NoTVW06wdiGM7pLP3LpiL4A3Sp4nxkBsWlJRTxn`
 
-带签名的 Release 还会发布包含同一把公钥的 `minisign.pub`，OpenBitFun 官方更新
+带签名的 Release 还会发布包含同一把公钥的 `minisign.pub`，Alex 官方更新
 路径也内置了这把公钥。下面的命令直接固定公钥，避免仅仅因为签名和公钥来自
 同一个下载位置就同时信任两者。
 
@@ -42,7 +42,7 @@ tag 和文件名：
 
 ```powershell
 $Version = "v1.0.0"
-$Asset = "OpenBitFun_1.0.0_windows-x86_64-setup.exe"
+$Asset = "Alex_1.0.0_windows-x86_64-setup.exe"
 $Base = "https://github.com/GCWing/OpenBitFun/releases/download/$Version"
 $PublicKey = "RWR2o8Bsvnz0UOBc3NoTVW06wdiGM7pLP3LpiL4A3Sp4nxkBsWlJRTxn"
 
@@ -51,17 +51,17 @@ Invoke-WebRequest "$Base/${Asset}.sig" -OutFile "${Asset}.sig"
 $EncodedSignature = (Get-Content "${Asset}.sig" -Raw).Trim()
 [IO.File]::WriteAllBytes("${Asset}.minisig", [Convert]::FromBase64String($EncodedSignature))
 minisign -Vm $Asset -P $PublicKey -x "${Asset}.minisig"
-if ($LASTEXITCODE -ne 0) { throw "OpenBitFun 下载文件签名校验失败" }
+if ($LASTEXITCODE -ne 0) { throw "Alex 下载文件签名校验失败" }
 ```
 
 ## `.sig` 文件代表什么
 
-OpenBitFun Release 的 `.sig` 是经过一层 base64 包装的 **minisign 签名**。交给
+Alex Release 的 `.sig` 是经过一层 base64 包装的 **minisign 签名**。交给
 minisign 命令行工具之前，需要像上面的命令一样先解码一层。校验成功表示文件的
-每个字节都与 OpenBitFun 固定发布公钥对应的签名一致；哪怕只修改一个字节，校验也会
+每个字节都与 Alex 固定发布公钥对应的签名一致；哪怕只修改一个字节，校验也会
 失败。
 
-这不是操作系统级代码签名。OpenBitFun 的 `.sig` 既不是 Apple Developer ID 签名或
+这不是操作系统级代码签名。Alex 的 `.sig` 既不是 Apple Developer ID 签名或
 公证票据，也不是 Windows Authenticode。因此，即使 minisign 校验成功，Gatekeeper
 或 SmartScreen 仍可能独立显示提示。签名校验也不能替代你对软件及其依赖的正常
 审查。

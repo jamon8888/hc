@@ -216,7 +216,7 @@
     },
     {
       "key": "installer-shell",
-      "owner": "OpenBitFun-Installer/src/theme; OpenBitFun-Installer/src/pages; OpenBitFun-Installer/src/styles",
+      "owner": "Alex-Installer/src/theme; Alex-Installer/src/pages; Alex-Installer/src/styles",
       "platforms": ["installer"],
       "formFactors": ["desktop", "narrow"],
       "themes": ["dark", "light", "system", "openbitfun-dark", "openbitfun-light", "openbitfun-midnight", "openbitfun-china-style", "openbitfun-china-night", "openbitfun-cyber", "openbitfun-slate", "openbitfun-tokyo-night"],

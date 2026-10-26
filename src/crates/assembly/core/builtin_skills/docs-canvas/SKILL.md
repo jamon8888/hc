@@ -1,7 +1,7 @@
 ---
 name: docs-canvas
 description: >-
-  Render a documentation-style OpenBitFun Canvas that organizes architecture
+  Render a documentation-style Alex Canvas that organizes architecture
   notes, API references, walkthroughs, runbooks, and how-tos into a navigable
   layout with sections, tables of contents, diagrams, and cross-references.
   Use when the user asks for a docs canvas, documentation overview,

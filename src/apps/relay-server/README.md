@@ -1,8 +1,8 @@
-# OpenBitFun Relay Server
+# Alex Relay Server
 
 The official Relay connects devices signed in to the same GitHub identity.
 GitHub identity is shared with the marketplaces. Users sign in
-from OpenBitFun; they do not create a Relay account or deploy a server.
+from Alex; they do not create a Relay account or deploy a server.
 
 The official endpoint is `https://remote.openbitfun.com/v/1.0.2`. This release is deployed with
 its own process, database, assets, and reverse-proxy location. An existing
@@ -82,7 +82,7 @@ shared HTTP/WebSocket implementation lives in `src/crates/services/relay-service
 
 Set `RELAY_DB_PATH` to a persistent SQLite database before starting the service.
 Startup fails if it is missing; anonymous public relay mode is unsupported.
-The service validates OpenBitFun access tokens against the fixed GitHub identity
+The service validates Alex access tokens against the fixed GitHub identity
 authority at `https://auth.openbitfun.com/api/v1/me`.
 
 ```bash

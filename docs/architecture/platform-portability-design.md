@@ -1,6 +1,6 @@
 # HarmonyOS PC 原生 CLI/TUI 平台规约
 
-本文只定义 OpenBitFun 面向 HarmonyOS PC 的产品边界、已知问题、后续工作域、风险与证据口径。稳定产品和运行时边界以
+本文只定义 Alex 面向 HarmonyOS PC 的产品边界、已知问题、后续工作域、风险与证据口径。稳定产品和运行时边界以
 [产品运行时架构](product-architecture.md)为准，CLI 产品语义以
 [CLI 产品线设计](cli-product-line-design.md)为准。
 
@@ -9,7 +9,7 @@
 
 ## 1. 产品裁决
 
-HarmonyOS PC 是 OpenBitFun CLI/TUI 的目标平台之一，TUI 优先于 HarmonyOS PC GUI。目标产品是用户在
+HarmonyOS PC 是 Alex CLI/TUI 的目标平台之一，TUI 优先于 HarmonyOS PC GUI。目标产品是用户在
 HarmonyOS PC 真实系统终端中安装并本地执行的原生 `openbitfun`：
 
 - TUI 直接使用真实 TTY；

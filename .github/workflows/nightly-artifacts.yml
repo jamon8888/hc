@@ -170,14 +170,14 @@ jobs:
 
       - name: Verify Installer i18n projection
         if: runner.os == 'Windows'
-        run: pnpm --dir OpenBitFun-Installer run sync:i18n
+        run: pnpm --dir Alex-Installer run sync:i18n
 
       - name: Verify Installer Tauri package alignment
         if: runner.os == 'Windows'
         shell: bash
         run: |
           set -euo pipefail
-          info="$(pnpm --dir OpenBitFun-Installer exec tauri info 2>&1)"
+          info="$(pnpm --dir Alex-Installer exec tauri info 2>&1)"
           printf '%s\n' "$info"
           if grep -Fq 'Error: Found version mismatched Tauri packages.' <<<"$info"; then
             exit 1
@@ -331,7 +331,7 @@ jobs:
               test -s "${cli_archives[0]}.sha256"
               ;;
             windows-x64)
-              test -s OpenBitFun-Installer/src-tauri/target/release/openbitfun-installer.exe
+              test -s Alex-Installer/src-tauri/target/release/openbitfun-installer.exe
               ;;
             *)
               echo "Unsupported package platform: ${{ matrix.platform }}" >&2
@@ -350,7 +350,7 @@ jobs:
             target/*/release/bundle
             target/release/bundle
             src/apps/desktop/target/release/bundle
-            OpenBitFun-Installer/src-tauri/target/release/openbitfun-installer.exe
+            Alex-Installer/src-tauri/target/release/openbitfun-installer.exe
             openbitfun-cli-*-apple-darwin.tar.gz
             openbitfun-cli-*-apple-darwin.tar.gz.sha256
             openbitfun-cli-*-apple-darwin.tar.gz.sig

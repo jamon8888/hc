@@ -2,11 +2,11 @@
 
 [中文版](./SECURITY_CN.md)
 
-OpenBitFun is a desktop-grade Agent runtime (Rust core + Tauri shell) that runs on your own machine with broad capabilities—filesystem, terminal, Git, MCP, and remote control. Because of this reach, we take security reports seriously and appreciate the community's help in keeping users safe.
+Alex is a desktop-grade Agent runtime (Rust core + Tauri shell) that runs on your own machine with broad capabilities—filesystem, terminal, Git, MCP, and remote control. Because of this reach, we take security reports seriously and appreciate the community's help in keeping users safe.
 
 ## Supported Versions
 
-OpenBitFun starts a new stable product line at `1.0.0` and ships as a rolling release. Security fixes land on the latest release; older versions are not patched separately.
+Alex starts a new stable product line at `1.0.0` and ships as a rolling release. Security fixes land on the latest release; older versions are not patched separately.
 
 | Version | Supported |
 | ------- | --------- |
@@ -44,11 +44,11 @@ To help us triage quickly, please include where you can:
 
 In scope:
 
-- The OpenBitFun runtime, official Agents, desktop/CLI/server apps, web UI, and the mobile-web pairing/remote-control flow in this repository.
+- The Alex runtime, official Agents, desktop/CLI/server apps, web UI, and the mobile-web pairing/remote-control flow in this repository.
 
 Out of scope:
 
-- Issues in third-party dependencies (please report those upstream; let us know if an OpenBitFun update is needed).
+- Issues in third-party dependencies (please report those upstream; let us know if an Alex update is needed).
 - Vulnerabilities that require a pre-compromised machine, physical access, or already-elevated privileges.
 - Risks inherent to running an autonomous Agent with capabilities you explicitly grant it (e.g., a tool you authorized acting within its granted permissions).
 
@@ -56,4 +56,4 @@ Out of scope:
 
 We will not pursue or support legal action against researchers who, in good faith, discover and report vulnerabilities in accordance with this policy and who avoid privacy violations, data destruction, and service disruption during testing.
 
-Thank you for helping keep OpenBitFun and its users safe.
+Thank you for helping keep Alex and its users safe.

@@ -28,7 +28,7 @@ internal const val DEFAULT_APP_LANGUAGE_TAG = "${contract.surfaceDefaults.androi
     generate: generateMobileLocaleContract,
   },
   {
-    path: path.join(root, 'OpenBitFun-Installer', 'src', 'i18n', 'generatedLocaleContract.ts'),
+    path: path.join(root, 'Alex-Installer', 'src', 'i18n', 'generatedLocaleContract.ts'),
     generate: generateInstallerLocaleContract,
   },
   {
@@ -40,7 +40,7 @@ internal const val DEFAULT_APP_LANGUAGE_TAG = "${contract.surfaceDefaults.androi
     generate: generateConfigContractsRustLocaleContract,
   },
   {
-    path: path.join(root, 'OpenBitFun-Installer', 'src-tauri', 'src', 'installer', 'generated_locale_contract.rs'),
+    path: path.join(root, 'Alex-Installer', 'src-tauri', 'src', 'installer', 'generated_locale_contract.rs'),
     generate: generateInstallerRustLocaleContract,
   },
   {

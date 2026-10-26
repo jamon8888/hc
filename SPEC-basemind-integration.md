@@ -1,7 +1,7 @@
-# Spec — OpenBitFun + Basemind Integration (Cross-Platform Ready)
+# Spec — Alex + Basemind Integration (Cross-Platform Ready)
 
 **Status:** Draft Technical Specification  
-**Scope:** Complete integration of Basemind (jamon8888/basemind fork, PR in review) as the document extraction/redaction/RAG engine across all OpenBitFun surfaces (Desktop, CLI, Web UI, Mobile Web, Remote Connect). Models download locally on first use and are configurable in Settings.
+**Scope:** Complete integration of Basemind (jamon8888/basemind fork, PR in review) as the document extraction/redaction/RAG engine across all Alex surfaces (Desktop, CLI, Web UI, Mobile Web, Remote Connect). Models download locally on first use and are configurable in Settings.
 
 ---
 
@@ -945,7 +945,7 @@ Operation Registry rows.
 - [ ] **Basemind OCR ready?** Determines §5 Option A vs B.
 - [ ] **Redact filenames in `read_dir`?** (§2.1) — currently only content redacted.
 - [x] **Exact Basemind IPC protocol** — **resolved (issue 01):** MCP Streamable HTTP on
-  loopback with bearer token (`http://127.0.0.1:<port>/mcp`); OpenBitFun is an MCP
+  loopback with bearer token (`http://127.0.0.1:<port>/mcp`); Alex is an MCP
   client. Agent Comms (msgpack/UDS) is agent-loop-only and irrelevant to the PII
   pipeline.
 - [ ] **Cache strategy** — reuse `DocumentCache` or dedicated Basemind cache (redaction latency higher)?

@@ -1,9 +1,9 @@
-# OpenBitFun Data Migrator
+# Alex Data Migrator
 
 [中文](README.zh-CN.md)
 
 A separate, optional desktop utility for importing old **BitFun** data into
-**OpenBitFun**.
+**Alex**.
 
 ## Download and run
 
@@ -20,18 +20,18 @@ Windows needs the Microsoft Edge WebView2 runtime. macOS uses the system WebView
 Linux packages are built on Ubuntu 22.04. No login or network connection is
 needed for migration. ARM Windows/Linux packages are not currently produced.
 
-1. Close BitFun, OpenBitFun, their CLI instances, and background data writers.
+1. Close BitFun, Alex, their CLI instances, and background data writers.
 2. Open Data Migrator. Check the **source and destination** directories.
 3. Select the data groups, scan, then run the preflight plan.
 4. Review the destination, scope, and conflicts, then start migration. If known writers
    remain open, the tool waits for them to stop; it does not terminate them.
 5. Read the report. Sign in again or repair paths where indicated, close the
-   tool, and open OpenBitFun yourself.
+   tool, and open Alex yourself.
 
 ## Data and compatibility
 
 Supported sources are **stable BitFun releases 0.2.17–0.2.19**, targeting
-**OpenBitFun 1.0**. Direct migration from 0.2.16 or earlier is not supported;
+**Alex 1.0**. Direct migration from 0.2.16 or earlier is not supported;
 upgrade BitFun first, launch it, and verify that your existing data is accessible.
 
 Scanning isolates errors in individual sessions, runtime event logs, Skills,
@@ -43,7 +43,7 @@ If a domain fails during execution, it is rolled back before independent domains
 continue. Execution stops if rollback cannot complete safely. Review warnings
 and the migration report before retrying.
 
-The destination is OpenBitFun: configuration schema **1**, workspace registry
+The destination is Alex: configuration schema **1**, workspace registry
 format **1**, coordination database schema **2**, and the session, memory,
 extension, and connection formats accepted by the shared storage owners in
 this source revision. Unknown product/configuration schemas and newer SQLite
@@ -94,27 +94,27 @@ importing stored connection records does not connect to or migrate a remote host
 
 **Migration finishes, but workspaces or sessions are empty, or some data is missing**
 
-If you have already launched OpenBitFun or run a migration, existing destination data may take precedence and remain unchanged during retries.
+If you have already launched Alex or run a migration, existing destination data may take precedence and remain unchanged during retries.
 
-If OpenBitFun contains no new data you need to keep, you can clear its destination data and retry:
+If Alex contains no new data you need to keep, you can clear its destination data and retry:
 
-1. Fully quit BitFun, OpenBitFun, and the migrator.
-2. Back up the following directories, then delete them. **This removes existing OpenBitFun settings, sessions, and other local data.**
-3. Run the migrator again, then launch OpenBitFun after migration finishes.
+1. Fully quit BitFun, Alex, and the migrator.
+2. Back up the following directories, then delete them. **This removes existing Alex settings, sessions, and other local data.**
+3. Run the migrator again, then launch Alex after migration finishes.
 
 Windows destination directories:
 
 ```text
 %APPDATA%\openbitfun
 %USERPROFILE%\.openbitfun
-%LOCALAPPDATA%\OpenBitFun
+%LOCALAPPDATA%\Alex
 ```
 
 **The issue persists after retrying**
 
 Open a report in [GitHub Issues](https://github.com/GCWing/OpenBitFun/issues) or share your feedback in the OpenBitFun user WeChat group. Include:
 
-- Your operating system and the BitFun, OpenBitFun, and migrator versions.
+- Your operating system and the BitFun, Alex, and migrator versions.
 - Steps to reproduce, the expected result, and the actual result.
 - The workspace and session name or ID associated with missing data.
 - Migration logs from the affected run.

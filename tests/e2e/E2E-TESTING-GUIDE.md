@@ -1,8 +1,8 @@
 [中文](E2E-TESTING-GUIDE.zh-CN.md) | **English**
 
-# OpenBitFun E2E Testing Guide
+# Alex E2E Testing Guide
 
-Complete guide for E2E testing in OpenBitFun project using WebDriverIO + OpenBitFun embedded WebDriver.
+Complete guide for E2E testing in Alex project using WebDriverIO + Alex embedded WebDriver.
 
 ## Table of Contents
 
@@ -16,7 +16,7 @@ Complete guide for E2E testing in OpenBitFun project using WebDriverIO + OpenBit
 
 ## Testing Philosophy
 
-OpenBitFun E2E tests focus on **user journeys** and **critical paths** to ensure the desktop application works correctly from the user's perspective. We use a layered testing approach to balance coverage and execution speed.
+Alex E2E tests focus on **user journeys** and **critical paths** to ensure the desktop application works correctly from the user's perspective. We use a layered testing approach to balance coverage and execution speed.
 
 ### Key Principles
 
@@ -28,7 +28,7 @@ OpenBitFun E2E tests focus on **user journeys** and **critical paths** to ensure
 
 ## Test Levels
 
-OpenBitFun uses a 3-tier test classification system:
+Alex uses a 3-tier test classification system:
 
 ### L0 - Smoke Tests (Critical Path)
 
@@ -184,7 +184,7 @@ Do not manually start `target/release-fast/openbitfun-desktop.exe` for performan
 validation. A direct launch uses the normal user profile unless isolated storage
 environment variables are provided. The E2E launcher sets `OPENBITFUN_USER_ROOT`,
 `OPENBITFUN_HOME`, and `OPENBITFUN_E2E_STORAGE_GUARD=1` automatically so performance
-runs cannot silently write into the real OpenBitFun profile.
+runs cannot silently write into the real Alex profile.
 
 ### 5. Startup and Long-Session Performance E2E
 
@@ -449,7 +449,7 @@ await waitForStreamingComplete('[data-testid="model-response"]', 2000, 30000);
 3. **Don't test internal implementation** - Focus on user-visible behavior
 4. **Don't ignore flaky tests** - Fix or mark as skipped with reason
 5. **Don't use complex selectors** - Prefer data-testid
-6. **Don't test third-party code** - Only test OpenBitFun functionality
+6. **Don't test third-party code** - Only test Alex functionality
 7. **Don't mix test levels** - Keep L0/L1/L2 separate
 
 ### Conditional Tests
@@ -481,7 +481,7 @@ it('should test feature when workspace is open', async function () {
 # Build the debug desktop app
 cargo build -p openbitfun-desktop
 
-# Run tests in debug mode so the embedded driver starts inside OpenBitFun
+# Run tests in debug mode so the embedded driver starts inside Alex
 OPENBITFUN_E2E_APP_MODE=debug pnpm --dir tests/e2e run test:l0:protocol
 
 # Verify the app process is allowed to bind 127.0.0.1:4445
@@ -705,7 +705,7 @@ jobs:
 - [WebDriverIO Documentation](https://webdriver.io/)
 - [Tauri Testing Guide](https://tauri.app/v1/guides/testing/)
 - [Page Object Model Pattern](https://webdriver.io/docs/pageobjects/)
-- [OpenBitFun Project Structure](../../AGENTS.md)
+- [Alex Project Structure](../../AGENTS.md)
 
 ## Contributing
 

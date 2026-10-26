@@ -1,4 +1,4 @@
-Analyze this OpenBitFun session and extract structured facets.
+Analyze this Alex session and extract structured facets.
 
 CRITICAL GUIDELINES:
 

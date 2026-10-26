@@ -1,7 +1,7 @@
-# OpenBitFun MiniApp Market 生产部署手册
+# Alex MiniApp Market 生产部署手册
 
 这份 Runbook 用于更新 `ssh lwb` 上的 MiniApp 市场网页和后端。它同时面向人工
-操作和 AI Agent，命令默认从 OpenBitFun 仓库根目录执行。
+操作和 AI Agent，命令默认从 Alex 仓库根目录执行。
 
 相关源码说明：
 
@@ -40,8 +40,8 @@ Skin 市场复用本服务的 GitHub OAuth、桌面 token 和 Web 会话别名�
 
 服务器上另外两个仓库有需要保留的状态：
 
-- `/root/repos/OpenBitFun` 可能包含 Relay 的未跟踪 `.env`；
-- `/root/repos/OpenBitFun-Website` 可能是 dirty worktree。
+- `/root/repos/Alex` 可能包含 Relay 的未跟踪 `.env`；
+- `/root/repos/Alex-Website` 可能是 dirty worktree。
 
 市场使用独立 checkout `/srv/openbitfun-miniapp-market/app`。任何部署都不得在上述
 两个现有仓库运行 `git clean`、`git reset --hard`、强制 checkout 或部署脚本。
@@ -281,7 +281,7 @@ curl -fsS https://market.openbitfun.com/miniapp/ >/dev/null
 ```
 
 生产 `/config` 应返回 `"webSubmissionsEnabled":false`。此开关关闭时，Web
-投稿写请求由后端拒绝，网页仅保留“我的投稿”历史；OpenBitFun Desktop 的 Bearer
+投稿写请求由后端拒绝，网页仅保留“我的投稿”历史；Alex Desktop 的 Bearer
 投稿和 Web 管理员审核继续可用。未来重新开放网页投稿时，必须先完成对应安全
 回归，再显式修改 root-only `market.env` 并仅 recreate 市场容器。
 环境变量缺失时后端也默认关闭，但生产 `market.env` 应显式保留
@@ -292,7 +292,7 @@ curl -fsS https://market.openbitfun.com/miniapp/ >/dev/null
 - `/miniapp/` 能加载，刷新子页面不会 404；
 - `MARKET_PUBLIC_BROWSE=false` 时匿名目录按预期关闭；
 - `MARKET_WEB_SUBMISSIONS_ENABLED=false` 时投稿/更新/撤回按钮不可见，直接访问
-  `/miniapp/submit` 提示改用 OpenBitFun Desktop，“我的投稿”仍可读取；
+  `/miniapp/submit` 提示改用 Alex Desktop，“我的投稿”仍可读取；
 - OAuth 已配置时，GitHub 登录 callback 正常；
 - 与本次改动有关的浏览、下载、投稿、审核、安装或更新流程正常；
 - Relay、New API 和官网仍可用，且它们的容器/vhost 没被重启或改写。

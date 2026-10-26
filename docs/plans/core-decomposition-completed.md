@@ -1,4 +1,4 @@
-# OpenBitFun Core 拆解已完成内容归档
+# Alex Core 拆解已完成内容归档
 
 本文件记录已完成事实摘要。后续执行路径以
 [`core-decomposition-plan.md`](core-decomposition-plan.md) 为准；稳定架构目标以
@@ -8,7 +8,7 @@
 
 本文件保留完成当时的代码名和迁移术语，仅用于说明历史实现，不能作为当前扩展架构的需求或命名依据。历史的
 “受管包”、`ProjectionOnlyPluginRuntimeClient`（仅提供静态视图，不提供 runtime read/dispatch）、`idempotency_key` 和
-请求携带的项目、信任、策略和工具目录版本只描述 OpenBitFun 原生包的当时状态；OpenCode 的来源、执行、
+请求携带的项目、信任、策略和工具目录版本只描述 Alex 原生包的当时状态；OpenCode 的来源、执行、
 权限和更新语义以 [`opencode-extension-compatibility.md`](../architecture/extensions/opencode-extension-compatibility.md)
 及其细分架构设计为准，交付顺序与退出条件见
 [`opencode-extension-compatibility-plan.md`](opencode-extension-compatibility-plan.md)。

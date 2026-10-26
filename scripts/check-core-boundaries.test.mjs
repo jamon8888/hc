@@ -1417,7 +1417,7 @@ test('explicit product entrypoint openbitfun-core feature selections pass', () =
   const consumers = [
     packageAt('app', 'src/apps/example/Cargo.toml'),
     packageAt('interface', 'src/crates/interfaces/acp/Cargo.toml'),
-    packageAt('installer', 'OpenBitFun-Installer/src-tauri/Cargo.toml'),
+    packageAt('installer', 'Alex-Installer/src-tauri/Cargo.toml'),
   ].map((pkg) => ({
     ...pkg,
     dependencies: [pathDependency('src/crates/assembly/core', {
@@ -2945,7 +2945,7 @@ test('direct Reqwest clients reject extra decoded dependency and package feature
   const installerMessages = findReqwestDependencyFeatureViolations([{
     ...pkg,
     name: 'openbitfun-installer',
-    manifest_path: join(TEST_ROOT, 'OpenBitFun-Installer', 'src-tauri', 'Cargo.toml'),
+    manifest_path: join(TEST_ROOT, 'Alex-Installer', 'src-tauri', 'Cargo.toml'),
   }]).map((violation) => violation.message).join('\n');
   assert.match(installerMessages, /openbitfun-installer.*missing a reviewed owner profile/);
 });
@@ -3435,7 +3435,7 @@ test('Cargo metadata Tokio policy catches table-style and renamed full dependenc
   const installerViolations = findTokioDependencyFeatureViolations([{
     ...pkg,
     name: 'openbitfun-installer',
-    manifest_path: join(TEST_ROOT, 'OpenBitFun-Installer', 'src-tauri', 'Cargo.toml'),
+    manifest_path: join(TEST_ROOT, 'Alex-Installer', 'src-tauri', 'Cargo.toml'),
   }]);
   assert.equal(installerViolations.length, 1);
   assert.match(installerViolations[0].message, /openbitfun-installer must not enable tokio\/full/);
@@ -3549,7 +3549,7 @@ test('cargo layer checker rejects repository packages without a known layer', ()
 test('cargo metadata collection scans standalone manifests not covered by the workspace', () => {
   const workspaceManifest = join(TEST_ROOT, 'Cargo.toml');
   const memberManifest = join(TEST_ROOT, 'src', 'apps', 'example', 'Cargo.toml');
-  const installerManifest = join(TEST_ROOT, 'OpenBitFun-Installer', 'src-tauri', 'Cargo.toml');
+  const installerManifest = join(TEST_ROOT, 'Alex-Installer', 'src-tauri', 'Cargo.toml');
   const calls = [];
 
   const packages = collectCargoMetadataPackages({
@@ -3562,7 +3562,7 @@ test('cargo metadata collection scans standalone manifests not covered by the wo
         return { packages: [entry], workspace_members: [entry.id] };
       }
       if (manifestPath === installerManifest) {
-        return { packages: [packageAt('installer', 'OpenBitFun-Installer/src-tauri/Cargo.toml')] };
+        return { packages: [packageAt('installer', 'Alex-Installer/src-tauri/Cargo.toml')] };
       }
       throw new Error(`workspace member metadata should not be loaded twice: ${manifestPath}`);
     },

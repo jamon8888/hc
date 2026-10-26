@@ -1,4 +1,4 @@
-# OpenBitFun 可配置开发体验追踪矩阵
+# Alex 可配置开发体验追踪矩阵
 
 > 范围：把产品需求、架构设计、功能规格、执行阶段和测试方法连起来，避免关键体验只停留在单份文档中。
 > 上游文档：[product-requirements.md](product-requirements.md)、[design.md](design.md)、[implementation-plan.md](implementation-plan.md)

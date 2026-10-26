@@ -70,7 +70,7 @@ dispatch.
     and cached with the transcript, so the automatic action remains visible
     after replay or controller restart.
 12. The signed prebuilt release is the only way a target gets a runner. The
-    controller never compiles OpenBitFun on someone else's machine, so a target no
+    controller never compiles Alex on someone else's machine, so a target no
     published binary fits is reported as unusable rather than offered a build.
 13. Account devices use encrypted request/response RPC and distinct
    `dispatch_target_*` commands. They never attach Peer Device Mode and an

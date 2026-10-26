@@ -49,6 +49,6 @@ Keep reports, source files, and contact sheets outside the importable `package/`
 
 ## 7. Inspect at runtime
 
-Import the archive into OpenBitFun and inspect every intentionally styled owner plus representative unchanged owners. Include detached windows, long content, dialogs, renderer surfaces, interaction states, reduced motion, and bright/dark background frames where relevant.
+Import the archive into Alex and inspect every intentionally styled owner plus representative unchanged owners. Include detached windows, long content, dialogs, renderer surfaces, interaction states, reduced motion, and bright/dark background frames where relevant.
 
 Compiler validation and runtime visual inspection are separate completion conditions.

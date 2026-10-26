@@ -37,9 +37,9 @@ subjective decisions.
 - Bump VERSION without asking — always use AskUserQuestion for version changes
 - Use `Write` tool on CHANGELOG.md — always use `Edit` with exact `old_string` matches
 
-## OpenBitFun Dispatch
+## Alex Dispatch
 
-When this skill is invoked by OpenBitFun, this skill supplies the documentation-release methodology. Use existing Task sub-agents for read-only doc drift discovery, then keep edits in the main session.
+When this skill is invoked by Alex, this skill supplies the documentation-release methodology. Use existing Task sub-agents for read-only doc drift discovery, then keep edits in the main session.
 
 - Do not assume a Technical Writer sub-agent exists. Choose only from the Task tool's available agents.
 - Prefer matching custom docs/writing sub-agents if available; otherwise use `Explore` for diff-to-doc mapping and locating impacted docs.

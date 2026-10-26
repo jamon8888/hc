@@ -145,7 +145,7 @@ test('requires semantic roles in the complete component library and every React 
 
   for (const productPath of [
     'src/mobile-web/src/styles/LegacyLabel.scss',
-    'OpenBitFun-Installer/src/styles/LegacyLabel.css',
+    'Alex-Installer/src/styles/LegacyLabel.css',
     'design-system/apps/design-lab/src/LegacyLabel.css',
   ]) {
     const productCodes = codesFor(`
@@ -196,7 +196,7 @@ test('requires semantic roles in product frontend inline styles and embedded CSS
 
   for (const productPath of [
     'src/mobile-web/src/fixture.tsx',
-    'OpenBitFun-Installer/src/fixture.tsx',
+    'Alex-Installer/src/fixture.tsx',
   ]) {
     const productCodes = codesFor(`
       const style = { fontSize: 'var(--openbitfun-font-size-sm)' };

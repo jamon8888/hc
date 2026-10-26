@@ -1,4 +1,4 @@
-# OpenBitFun application brand assets
+# Alex application brand assets
 
 `source/openbitfun-mark.svg` is the transparent vector master for the current
 fine-line Logo used by startup and in-product brand surfaces. Its fifteen rounded

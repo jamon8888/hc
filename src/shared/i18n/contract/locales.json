@@ -55,7 +55,7 @@
       "loading": "surface-minimal"
     },
     "installer": {
-      "resourceRoot": "OpenBitFun-Installer/src/i18n/locales",
+      "resourceRoot": "Alex-Installer/src/i18n/locales",
       "loading": "surface-minimal"
     },
     "core": {

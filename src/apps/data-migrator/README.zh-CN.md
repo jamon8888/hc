@@ -1,8 +1,8 @@
-# OpenBitFun 独立数据迁移器
+# Alex 独立数据迁移器
 
 [English](README.md)
 
-这是一个可选的独立桌面工具，用于将旧版 **BitFun** 数据导入 **OpenBitFun**。
+这是一个可选的独立桌面工具，用于将旧版 **BitFun** 数据导入 **Alex**。
 
 ## 下载和使用
 
@@ -18,15 +18,15 @@
 Windows 需要 Microsoft Edge WebView2；macOS 使用系统 WebView，Linux 包以 Ubuntu 22.04
 为构建基线。迁移不需要登录或联网，目前不产出 Windows/Linux ARM 安装包。
 
-1. 关闭 BitFun、OpenBitFun、CLI 实例及其后台数据写入进程。
+1. 关闭 BitFun、Alex、CLI 实例及其后台数据写入进程。
 2. 启动迁移器，检查**来源和目标目录**。
 3. 选择迁移范围，扫描数据，再运行预检。
 4. 确认目标、范围和冲突后开始迁移。发现已知写入进程时会等待其退出，不会强制终止进程。
-5. 查看结果，根据提示重新登录或修复路径，关闭迁移器，再自行打开 OpenBitFun。
+5. 查看结果，根据提示重新登录或修复路径，关闭迁移器，再自行打开 Alex。
 
 ## 支持范围与数据保护
 
-支持来源为 **BitFun 0.2.17～0.2.19 正式版**，目标为 **OpenBitFun 1.0**。
+支持来源为 **BitFun 0.2.17～0.2.19 正式版**，目标为 **Alex 1.0**。
 暂不支持直接迁移 0.2.16 及更早版本；请先升级旧版 BitFun，并启动确认原有数据正常。
 
 扫描会按单个会话、运行事件日志、Skill、MiniApp 和 Agent 定义隔离异常；有效条目继续迁移，
@@ -34,7 +34,7 @@ Windows 需要 Microsoft Edge WebView2；macOS 使用系统 WebView，Linux 包�
 整个数据域不可用时，只跳过该域及依赖它的域。执行时某域失败会先回滚，再继续无依赖的数据域；
 无法安全回滚时仍会停止。请在重试前查看警告与迁移报告。
 
-目标是 OpenBitFun：配置 schema **1**、工作区格式 **1**、任务协调数据库 schema **2**，
+目标是 Alex：配置 schema **1**、工作区格式 **1**、任务协调数据库 schema **2**，
 以及此源码版本共享存储模块支持的会话、记忆、扩展和连接格式。未知产品/配置格式以及
 超出支持范围的数据库、会话版本会被拒绝。
 
@@ -70,27 +70,27 @@ Windows 需要 Microsoft Edge WebView2；macOS 使用系统 WebView，Linux 包�
 
 **迁移完成，但工作区或会话为空、部分数据缺失**
 
-如果之前已经启动过 OpenBitFun 或执行过迁移，目标目录中的已有数据可能被优先保留，重试时不会覆盖。
+如果之前已经启动过 Alex 或执行过迁移，目标目录中的已有数据可能被优先保留，重试时不会覆盖。
 
-如果 OpenBitFun 中没有需要保留的新数据，可以清空目标数据后重新迁移：
+如果 Alex 中没有需要保留的新数据，可以清空目标数据后重新迁移：
 
-1. 完全退出 BitFun、OpenBitFun 和迁移器。
-2. 备份以下目录，然后删除它们。**这会清除 OpenBitFun 的现有配置、会话及其他本地数据。**
-3. 重新运行迁移器，完成后再启动 OpenBitFun。
+1. 完全退出 BitFun、Alex 和迁移器。
+2. 备份以下目录，然后删除它们。**这会清除 Alex 的现有配置、会话及其他本地数据。**
+3. 重新运行迁移器，完成后再启动 Alex。
 
 Windows 目标目录：
 
 ```text
 %APPDATA%\openbitfun
 %USERPROFILE%\.openbitfun
-%LOCALAPPDATA%\OpenBitFun
+%LOCALAPPDATA%\Alex
 ```
 
 **重试后仍然异常**
 
 请在 [GitHub Issues](https://github.com/GCWing/OpenBitFun/issues) 提交问题，或在 OpenBitFun 用户微信群中反馈，并提供：
 
-- 操作系统、BitFun 版本、OpenBitFun 版本和迁移器版本。
+- 操作系统、BitFun 版本、Alex 版本和迁移器版本。
 - 操作步骤、预期结果及实际结果。
 - 缺失数据所属的工作区、会话名称或 ID。
 - 对应运行的迁移日志。

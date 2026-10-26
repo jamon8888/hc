@@ -1,6 +1,6 @@
 # REVIEW.md
 
-What a reviewer looks for in a change to OpenBitFun, and how the finding gets
+What a reviewer looks for in a change to Alex, and how the finding gets
 written up. It applies to human reviewers and to agent review runs (the
 `code-review` skill, a fresh-context subagent pass, or any pre-PR review).
 

@@ -1,6 +1,6 @@
 # Media quality policy
 
-Preserve the user's source file. Generated package assets are derivatives selected to satisfy OpenBitFun package limits and runtime compatibility.
+Preserve the user's source file. Generated package assets are derivatives selected to satisfy Alex package limits and runtime compatibility.
 
 ## Default video policy
 

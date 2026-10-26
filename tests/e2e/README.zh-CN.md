@@ -1,8 +1,8 @@
 **中文** | [English](README.md)
 
-# OpenBitFun E2E 测试
+# Alex E2E 测试
 
-使用 WebDriverIO + OpenBitFun 内置 WebDriver 的 E2E 测试框架。
+使用 WebDriverIO + Alex 内置 WebDriver 的 E2E 测试框架。
 
 > 完整文档请参阅 [E2E-TESTING-GUIDE.zh-CN.md](E2E-TESTING-GUIDE.zh-CN.md)
 
@@ -55,7 +55,7 @@ tests/e2e/
 
 ### 内置 WebDriver 未就绪
 
-测试启动器会直接拉起 OpenBitFun，并等待 `127.0.0.1:4445` 上的内置 WebDriver 服务就绪。
+测试启动器会直接拉起 Alex，并等待 `127.0.0.1:4445` 上的内置 WebDriver 服务就绪。
 
 ### 应用未构建
 
@@ -70,4 +70,4 @@ Debug 构建启动较慢，可在配置中调整超时时间。
 ## 更多信息
 
 - [完整测试指南](E2E-TESTING-GUIDE.zh-CN.md) - 测试编写规范、最佳实践、测试计划
-- [OpenBitFun 项目结构](../../AGENTS.md)
+- [Alex 项目结构](../../AGENTS.md)

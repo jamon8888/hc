@@ -57,7 +57,7 @@ Runtime 事件通过 App Server connection 交付，不属于 client 侧 Host �
 
 在本 server adapter 中把 Runtime/domain failure 映射到 protocol-owned wire error。保持稳定
 kind 和结构化 data，不泄露 Runtime 内部细节。Host transport/auth/scope failure 仍由 Host
-负责；owner failure 使用 `OpenBitFunAppRuntime::runtime_error`、`session_runtime_error` 等 helper。
+负责；owner failure 使用 `AlexAppRuntime::runtime_error`、`session_runtime_error` 等 helper。
 
 ## 验证
 

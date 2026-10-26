@@ -12,7 +12,7 @@ only (keep artifacts in here, not the repo):
 2. Headless: `wordcraft-cli mcp` with `--automation-*-root` on a sample `.docx` copied into a
    scratch workspace; drive it from an MCP client (or raw stdio JSON) to `open_document`,
    `batch` (`select_text` + `format.bold` + `review.trackChanges {"value": true}` typed edits
-   authored as "OpenBitFun Agent"), `inspect_document`, `save_document`; reopen the docx to
+   authored as "Alex Agent"), `inspect_document`, `save_document`; reopen the docx to
    confirm tracked changes survive.
 3. Visible: `wordcraft --control <port>`, auth via key file, `engine.execute` a couple of
    commands and `ui.screenshot`; confirm the failed-command-unchanged claim.
@@ -27,7 +27,7 @@ binary from upstream release `v0.7.0` (MIT/Apache + font OFL licenses ship in th
 validating ticket 01's attribution claim).
 
 Witnessed (script lives in `/private/var/folders/…/T/opencode/wordcraft-0.7.0/`, throwaway):
-`wordcraft-cli mcp --author "OpenBitFun Agent (e2e-spike)" --automation-read-root WS
+`wordcraft-cli mcp --author "Alex Agent (e2e-spike)" --automation-read-root WS
 --automation-write-root WS` driven by a stdlib JSON-RPC client:
 
 - Handshake `initialize`/`notifications/initialized`/`tools/list` — ~270-command instructions
@@ -38,7 +38,7 @@ Witnessed (script lives in `/private/var/folders/…/T/opencode/wordcraft-0.7.0/
   offset. A `save_document` to `/tmp/outside-demo.docx` was refused exactly as documented:
   `automation path rejected: outside the write root …` (proving ticket 04/05 confinement claims).
 - **Tracked changes in the file**: unzipping `workspace/demo.docx`, `word/document.xml` has 3
-  `w:ins` revisions authored `OpenBitFun Agent (e2e-spike)`, bold `<w:b/>` present; the
+  `w:ins` revisions authored `Alex Agent (e2e-spike)`, bold `<w:b/>` present; the
   independent `wordcraft-cli text demo.docx` read-back proves the screenshot-free
   verify loop works through two different binaries.
 - Noted for the contract: `type_text` with a `\n` did NOT split paragraphs (one block, len 55);

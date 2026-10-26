@@ -6,7 +6,7 @@
 ## Question
 
 What are the exact machine channels upstream WordCraft exposes for driving a document, and which
-ones can OpenBitFun's agent use to read, edit, and verify a document on user prompt?
+ones can Alex's agent use to read, edit, and verify a document on user prompt?
 
 ## Answer
 
@@ -49,7 +49,7 @@ Relevant protocol facts:
 - **Web app**: separate wasm build (`apps/wordcraft-web`, `trunk serve`, port 8771). Unverified
   for embedding (round-trip fidelity, control channel in browsers) — belongs to ticket 03.
 
-Conclusion for the agent loop: the headless MCP server is the primary agent channel (OpenBitFun
+Conclusion for the agent loop: the headless MCP server is the primary agent channel (Alex
 already bridges MCP servers per docs/agent-tools.md, and inspect_document gives a
 screenshot-free verification loop); the loopback control channel is the secondary channel for a
 live, visible editor. Author naming + `inspect_document` are the user-facing "the agent touched

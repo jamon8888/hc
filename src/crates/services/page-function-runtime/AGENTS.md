@@ -1,6 +1,6 @@
 # Page Function Runtime
 
-This crate owns the embedded JavaScript runtime used to execute OpenBitFun Page
+This crate owns the embedded JavaScript runtime used to execute Alex Page
 Functions (rquickjs).
 
 ## Ownership

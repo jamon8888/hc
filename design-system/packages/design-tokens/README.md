@@ -1,6 +1,6 @@
 # @openbitfun/design-tokens
 
-Framework-neutral token contract and system scales for OpenBitFun UI packages.
+Framework-neutral token contract and system scales for Alex UI packages.
 
 This package intentionally contains no concrete brand palette. Install a theme package such as `@openbitfun/theme-openbitfun` alongside it.
 

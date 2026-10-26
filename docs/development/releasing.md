@@ -1,6 +1,6 @@
 # Release Channels
 
-OpenBitFun packages use an immutable build-time release channel. End users do not
+Alex packages use an immutable build-time release channel. End users do not
 switch channels at runtime.
 
 ## Stable
@@ -91,7 +91,7 @@ With `upload_to_release` disabled, the workflow keeps CLI/Relay archives in
 Actions artifacts and validates the runtime image build without pushing it.
 The explicit `relay_image_only` backfill mode remains a publishing operation.
 It resolves the same immutable tag as the existing archives, rather than the
-current workflow commit. Releases predating the current OpenBitFun artifact
+current workflow commit. Releases predating the current Alex artifact
 layout are not image-rebuild inputs.
 
 Install Beta CLI archives manually and deploy the Relay with an explicit Beta
@@ -131,7 +131,7 @@ OPENBITFUN_RELEASE_CHANNEL=beta scripts/openbitfun-release-sync.sh
 The beta invocation writes below `/release/beta` and intentionally skips the
 stable-only CLI and Relay floating manifests.
 
-Production cron must run this in-repo script from the OpenBitFun checkout. Do not
+Production cron must run this in-repo script from the Alex checkout. Do not
 create a detached copy. Host paths, Nginx, and the rest of the origin restore
 steps live in [`deploy/openbitfun-host/README.md`](../../deploy/openbitfun-host/README.md).
 The sync resolves the exact release directory from the updater manifest once;
@@ -178,7 +178,7 @@ These checks exercise release conditions, image tag selection, Beta manifest
 generation, and asset collection with fixtures; they do not build or publish packages.
 
 The inaugural public `1.0.0-beta` release supports marketplace packages declaring
-minimum OpenBitFun `1.0.0`. This is an explicit product compatibility exception;
+minimum Alex `1.0.0`. This is an explicit product compatibility exception;
 numbered beta and RC builds retain their normal SemVer ordering, and updater
 version comparisons are unchanged. Requirements above `1.0.0` still reject this
 release. The shared policy lives in `product-domains::product_release`.

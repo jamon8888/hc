@@ -27,7 +27,7 @@ Peer Device Mode (same-account remote full client) is documented in
 `docs/architecture/peer-device-mode.md`. Frontend invariants:
 `src/infrastructure/peer-device/README.md`. Do not reintroduce nested
 sessions/chat shells; enter peer mode from the device list (Remote Connect →
-My OpenBitFun) instead.
+My Alex) instead.
 
 Remote Connect uses the global GitHub account and the official versioned Relay.
 Account controls use the shared account-identity service; do not expose a separate

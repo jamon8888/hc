@@ -1,8 +1,8 @@
 # WordCraft document editor
 
 WordCraft ([storytold/wordcraft](https://github.com/storytold/wordcraft), MIT/Apache-2.0
-upstream) is OpenBitFun's Word/docx editor. The agent edits documents **on user prompt**;
-tracked changes are always authored `OpenBitFun Agent (<session>)`. Design decisions live in
+upstream) is Alex's Word/docx editor. The agent edits documents **on user prompt**;
+tracked changes are always authored `Alex Agent (<session>)`. Design decisions live in
 `.scratch/wordcraft-doc-editor/` (map + ticket answers) — this document records the stable
 product contract only.
 
@@ -35,7 +35,7 @@ probe owed before that path commits.
     per-launch control key file (`control-key.local-<port>`) lives in that profile and is
     never logged or exposed to the agent.
   - The editor is spawned **outside the managed child tree**: it is user-facing and outlives
-    OpenBitFun; app teardown must not kill the user's editor.
+    Alex; app teardown must not kill the user's editor.
   - CLI-only installations refuse the window with "agent editing still works" — the visible
     editor needs the `wordcraft` app binary, not just `wordcraft-cli`.
 - Registry stances (`remote_surface/table.rs`): both commands `LocalOnly`, `ControllerLocal`;
@@ -51,7 +51,7 @@ probe owed before that path commits.
 Routing (`mcp::server::wordcraft_session::wordcraft_route_session`) follows the single-writer
 rule:
 
-- **Headless (primary)**: `wordcraft-cli mcp --author "OpenBitFun Agent (<session>)"
+- **Headless (primary)**: `wordcraft-cli mcp --author "Alex Agent (<session>)"
   --automation-read-root <workspace> --automation-write-root <workspace>`, isolated profile,
   cwd = workspace. Saves outside the roots are refused by upstream's automation gate (readable
   error, document unchanged). Idle reap: `wordcraft_session_idle_reap_due` (10 min policy)

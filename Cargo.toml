@@ -55,7 +55,7 @@ members = [
 ]
 
 exclude = [
-    "OpenBitFun-Installer/src-tauri",
+    "Alex-Installer/src-tauri",
     "third_party/eioc",
 ]
 

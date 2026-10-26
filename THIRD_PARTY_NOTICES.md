@@ -1,7 +1,7 @@
 # Third-Party Notices
 
-OpenBitFun redistributes selected material and links libraries from the following
-third-party projects. These notices are included with OpenBitFun's Desktop and CLI
+Alex redistributes selected material and links libraries from the following
+third-party projects. These notices are included with Alex's Desktop and CLI
 release packages.
 
 ## HarmonyOS Sans Fonts
@@ -11,7 +11,7 @@ release packages.
 - License: HarmonyOS Sans Fonts License Agreement
 - Copyright: Copyright 2021 Huawei Device Co., Ltd.
 
-Non-Apple OpenBitFun GUI distributions bundle unmodified copies of the Base and
+Non-Apple Alex GUI distributions bundle unmodified copies of the Base and
 Simplified Chinese Regular, Medium, and Bold fonts. They do not bundle the
 Traditional Chinese font family. Apple GUI distributions and Traditional
 Chinese UI text use platform system fonts instead.
@@ -26,7 +26,7 @@ the non-Apple frontend artifact under `third-party/fonts/harmonyos-sans/`.
 - License: Apache-2.0
 - Copyright: Copyright (c) 2026 Open Interpreter contributors
 
-OpenBitFun redistributes the Open Interpreter coding agent with its Desktop
+Alex redistributes the Open Interpreter coding agent with its Desktop
 release packages, so a user does not have to install it before an ACP session
 can use it. The redistributed code is a fork of OpenAI Codex
 (https://github.com/openai/codex), Copyright 2025 OpenAI, and includes code
@@ -42,7 +42,7 @@ NOTICE are included with the packaged agent under `interpreter/LICENSE` and
 - License: MIT
 - Copyright: Copyright (c) 2025 models.dev
 
-OpenBitFun includes a curated, reasoning-only fallback derived from the models.dev
+Alex includes a curated, reasoning-only fallback derived from the models.dev
 catalog. It is used when a newer cached catalog is unavailable. The precise
 source revision, retrieval metadata, transformation, and content hashes are
 recorded in `models-dev.provenance.json`, which is shipped as
@@ -70,7 +70,7 @@ that runs Linux, redrawn at row icon size by narrowing its view box.
 - License: MIT
 - Copyright: Copyright (c) 2026 Sideguide Technologies Inc.
 
-OpenBitFun links anydoc to convert supported office documents, OpenDocument files,
+Alex links anydoc to convert supported office documents, OpenDocument files,
 RTF, EPUB, CSV, and PDFs into Markdown for the Agent Read tool.
 
 MIT License

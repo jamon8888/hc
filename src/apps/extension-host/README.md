@@ -1,6 +1,6 @@
 # OpenCode extension host
 
-This directory is OpenBitFun's standalone Bun process for running established OpenCode Server plugins outside the OpenCode server. It targets the public `@opencode-ai/plugin` and `@opencode-ai/sdk` contract at version `1.17.18` and is supervised by the Rust backend.
+This directory is Alex's standalone Bun process for running established OpenCode Server plugins outside the OpenCode server. It targets the public `@opencode-ai/plugin` and `@opencode-ai/sdk` contract at version `1.17.18` and is supervised by the Rust backend.
 
 The host is a compatibility process, not an OpenCode server. Rust owns application state, persistence, HTTP behavior, lifecycle timing, and process supervision. The Bun process owns plugin resolution, JavaScript execution, and the function-valued capabilities that cannot cross a JSON boundary.
 

@@ -1,4 +1,4 @@
-# OpenBitFun MiniApp Market Server
+# Alex MiniApp Market Server
 
 这里是 MiniApp 市场 HTTP 服务的 Axum 入口。生产服务同时提供
 `/miniapp/api/v1` API 和已经构建好的 MiniApp 市场网页。

@@ -1,10 +1,10 @@
 # PPT Live MiniApp — Developer Guide
 
-PPT Live 是 OpenBitFun 的内置 MiniApp，用于 AI 驱动的 PPT 生成、编辑和导出。
+PPT Live 是 Alex 的内置 MiniApp，用于 AI 驱动的 PPT 生成、编辑和导出。
 
 ## Agentic MiniApp 样板间：复用悬浮会话气泡
 
-PPT Live 同时是 OpenBitFun **Agentic MiniApp** 的样板间：它自己**没有输入框，也没有
+PPT Live 同时是 Alex **Agentic MiniApp** 的样板间：它自己**没有输入框，也没有
 过程显示**——右侧栏只有样式设置和一张引导卡。用户在右下角的悬浮会话气泡里描述
 需求，链路如下：
 
@@ -87,7 +87,7 @@ ppt-live/
     ├── export-html.js            # HTML 导出
     ├── export-format-icons.js    # 导出格式图标
     ├── flat-select.js            # 自定义下拉组件
-    └── openbitfun-backend-adapter.js # OpenBitFun 后端适配器
+    └── openbitfun-backend-adapter.js # Alex 后端适配器
 ```
 
 ## 构建

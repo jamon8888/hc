@@ -13,7 +13,7 @@ Agent/权限/Plugin Tool/Skill 投影，以及 Command、standalone Tool 和 Sub
 - 当前 `load_opencode_package_adapter` 在 OC-R1/OC-R2 替换其生产角色前仍只做静态预览；不得把这一 P0
   入口继续扩成另一种 OpenCode 受管包格式。
 - 当前已将 OpenCode Command、standalone Tool 和 Subagent 的标准配置与目录作为只读实时来源；完整插件目录和
-  package spec 仍是后续目标，不是可执行的生产来源。源文件无需导入 OpenBitFun。低风险声明式结果按用户的自动应用/
+  package spec 仍是后续目标，不是可执行的生产来源。源文件无需导入 Alex。低风险声明式结果按用户的自动应用/
   先询问偏好处理；可执行来源首次 import 前按来源、插件身份和执行域
   决策。import 前可见的运行条件扩大和 import 后贡献扩大是两个独立门槛，不对每个内部生命周期状态重复审批。代码
   更新只有在来源身份/完整性、来源更新策略和当前运行条件仍允许时才能自动准备。

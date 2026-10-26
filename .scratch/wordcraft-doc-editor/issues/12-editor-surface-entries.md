@@ -10,7 +10,7 @@ OS window via `process_manager` with isolated `WORDCRAFT_PROFILE_DIR`, opened as
 *ControllerLocal* for the entry points — **"Open in WordCraft"** on `.docx` (`.odt`/`.rtf` later)
 in the file tree, and a **"New Docx document"** create entry. Entries visible-but-gated on the
 capability record (reason + remediation + Recheck; loud unsupported on no GPU/binary). No new
-panel type, no theme tokens (WordCraft owns its chrome), no OpenBitFun i18n keys. Touch points:
+panel type, no theme tokens (WordCraft owns its chrome), no Alex i18n keys. Touch points:
 web-ui file-tree context menu + creation flow (see
 `src/web-ui/src/shared/types/panelContent.ts` / PanelController context), desktop adapter for
 the spawn. State which remote scenarios were exercised (peer-device: launch is
@@ -49,8 +49,8 @@ Landed in two halves — the desktop spawn command and the web-ui entries.
      never logged, never exposed to the agent.
   6. Spawn via `openbitfun_core::util::process_manager::create_command`
      (CREATE_NO_WINDOW-safe façade, per repo policy) *outside* the managed
-     child tree: the editor window is user-facing and outlives OpenBitFun;
-     killing OpenBitFun must not kill the user's editor.
+     child tree: the editor window is user-facing and outlives Alex;
+     killing Alex must not kill the user's editor.
 - Registry rows (ticket 15 seam): `wordcraft_open_document_command` =
   `LocalOnly`, `ControllerLocal`, `REFUSED` (CLI peer never spawns a window);
   `wordcraft_status_command` = `LocalOnly`, `ControllerLocal`,

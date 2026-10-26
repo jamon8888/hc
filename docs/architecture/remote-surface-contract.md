@@ -1,6 +1,6 @@
-# OpenBitFun 远程表面契约（Product Operation Registry）
+# Alex 远程表面契约（Product Operation Registry）
 
-本文定义 OpenBitFun 所有"远程"场景共享的产品操作契约：一个操作在哪里执行、在每种远程
+本文定义 Alex 所有"远程"场景共享的产品操作契约：一个操作在哪里执行、在每种远程
 场景下是否可用、需要协商什么能力。它只描述稳定所有权与运行约束；具体的行、
 理由和生成投影由 `openbitfun_product_domains::remote_surface` 承载。
 
@@ -10,7 +10,7 @@
 
 ## 1. 问题
 
-OpenBitFun 只有一套 Agent Runtime，但有多条到达它的路径：本机 Desktop 窗口、SSH/Docker
+Alex 只有一套 Agent Runtime，但有多条到达它的路径：本机 Desktop 窗口、SSH/Docker
 远程工作区、Peer Device 控制端驱动 Desktop 或 CLI 宿主、Detached Dispatch。在引入本
 契约之前，"一个命令在这些场景下允许做什么"没有唯一 owner，而是分散在多份手工副本里：
 
@@ -26,7 +26,7 @@ OpenBitFun 只有一套 Agent Runtime，但有多条到达它的路径：本机 
 
 ## 2. 不变量
 
-OpenBitFun 对每个可跨宿主边界的产品操作只允许一个契约 owner：**Product Operation Registry**
+Alex 对每个可跨宿主边界的产品操作只允许一个契约 owner：**Product Operation Registry**
 （`src/crates/contracts/product-domains/src/remote_surface/`）。它是 behavior-light 的
 contracts 层模块，不执行任何操作，也不依赖运行时 crate。
 
@@ -79,7 +79,7 @@ controller-owned → 宿主不支持 → 执行 → 未知命令。所有线上�
 | ControllerLocal / OperatorOnly | `command '<c>' is local-only and cannot run on peer` |
 | Retired | `command '<c>' is unsupported because <reason>` |
 | HostUnsupported | `command '<c>' is not supported on <CLI|desktop> peer host: <reason>` |
-| UnknownToHost | `command '<c>' is unknown to this OpenBitFun <host> peer host version; …` |
+| UnknownToHost | `command '<c>' is unknown to this Alex <host> peer host version; …` |
 
 前端 `LOCAL_ONLY` 集合 = `{ControllerLocal, HostControlPlane} ∩ TauriCommand`，由生成物
 `src/web-ui/src/infrastructure/api/generated/remoteSurface.ts` 提供；宿主拒绝集合 =

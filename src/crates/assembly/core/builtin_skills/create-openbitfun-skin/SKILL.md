@@ -1,11 +1,11 @@
 ---
 name: create-openbitfun-skin
-description: Inspect the current OpenBitFun Appearance contract and author, repair, package, or validate sparse .openbitfun-appearance skins. Use when Codex needs to discover registered scenes/components/parts/states/facets, check Style IR properties or renderer tokens, initialize or inspect a package, diagnose import failures, verify a skin against a OpenBitFun checkout, or choose a bundled style example for design-specific guidance.
+description: Inspect the current Alex Appearance contract and author, repair, package, or validate sparse .openbitfun-appearance skins. Use when Codex needs to discover registered scenes/components/parts/states/facets, check Style IR properties or renderer tokens, initialize or inspect a package, diagnose import failures, verify a skin against a Alex checkout, or choose a bundled style example for design-specific guidance.
 ---
 
-# OpenBitFun Appearance Authoring
+# Alex Appearance Authoring
 
-Use this Skill as the authority for what a OpenBitFun skin may change and how that change is represented. Let the user's assets, product direction, and the selected example determine the visual design.
+Use this Skill as the authority for what a Alex skin may change and how that change is represented. Let the user's assets, product direction, and the selected example determine the visual design.
 
 The bundled registry and package references define capabilities. Files under `examples/` define optional style choices; they never expand the contract or prescribe coverage for another skin.
 
@@ -16,7 +16,7 @@ The bundled registry and package references define capabilities. Files under `ex
 - For generated video or WebP assets, also read [media-quality-policy.md](references/media-quality-policy.md).
 - For a style-specific design, load only the closest example after reading the parent workflow.
 - For import failures, inspect the issue path, query that surface, and repair the sparse manifest instead of copying another package.
-- For OpenBitFun contract changes, synchronize the registry before changing examples or skins.
+- For Alex contract changes, synchronize the registry before changing examples or skins.
 
 ## Discover the exposed surface
 
@@ -57,7 +57,7 @@ Initialize the smallest valid overlay:
 python scripts/openbitfun_appearance.py init <project-dir> --id <id> --name "<name>" --mode <light-or-dark>
 ```
 
-Edit `<project-dir>/appearance.json` and declare only the values the skin needs to change. OpenBitFun merges the package over its built-in light or dark Appearance.
+Edit `<project-dir>/appearance.json` and declare only the values the skin needs to change. Alex merges the package over its built-in light or dark Appearance.
 
 Packages may contain PNG, JPEG, WebP, and GIF images. MP4 or WebM is allowed only through top-level `backgroundMedia`, and every video requires an image poster. CSS files, selectors, markup, scripts, fonts, remote URLs, SVG, and executable content are unsupported.
 
@@ -80,7 +80,7 @@ python scripts/openbitfun_appearance.py validate <skin>.openbitfun-appearance
 python scripts/openbitfun_appearance.py inspect <project-or-archive>
 ```
 
-When a OpenBitFun checkout is available, verify with the production registry, Validator, Compiler, and packaged-video display-dimension probe:
+When a Alex checkout is available, verify with the production registry, Validator, Compiler, and packaged-video display-dimension probe:
 
 ```powershell
 python scripts/verify_host.py <openbitfun-repo> <skin>.openbitfun-appearance --report <host-verification.json> --strict-warnings
@@ -105,9 +105,9 @@ Treat the bundled registry as the offline authority. Confirm it before targeting
 python scripts/sync_registry.py <openbitfun-repo> --check
 ```
 
-The check compares the exported Appearance contract, not provenance-only commit or timestamp fields. Unrelated OpenBitFun commits do not invalidate a compatible snapshot.
+The check compares the exported Appearance contract, not provenance-only commit or timestamp fields. Unrelated Alex commits do not invalidate a compatible snapshot.
 
-Refresh it only from a clean checkout after OpenBitFun changes Appearance descriptors:
+Refresh it only from a clean checkout after Alex changes Appearance descriptors:
 
 ```powershell
 python scripts/sync_registry.py <openbitfun-repo>

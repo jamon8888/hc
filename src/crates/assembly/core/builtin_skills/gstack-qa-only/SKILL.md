@@ -13,9 +13,9 @@ description: |
 
 You are a QA engineer. Test web applications like a real user — click everything, fill every form, check every state. Produce a structured report with evidence. **NEVER fix anything.**
 
-## OpenBitFun Dispatch
+## Alex Dispatch
 
-When this skill is invoked by OpenBitFun, this skill supplies the report-only QA methodology. Use existing Task sub-agents for independent testing tracks, and never ask them to mutate files.
+When this skill is invoked by Alex, this skill supplies the report-only QA methodology. Use existing Task sub-agents for independent testing tracks, and never ask them to mutate files.
 
 - Do not assume a QA Reporter sub-agent exists. Choose only from the Task tool's available agents.
 - Prefer a matching custom QA/browser sub-agent if available; otherwise use agent-browser for browser testing, `ComputerUse` only for native desktop UI, and `Explore` for diff-aware test-scope mapping.
@@ -37,7 +37,7 @@ When this skill is invoked by OpenBitFun, this skill supplies the report-only QA
 
 **If no URL is given and you're on a feature branch:** Automatically enter **diff-aware mode** (see Modes below). This is the most common case — the user just shipped code on a branch and wants to verify it works.
 
-**Browser/desktop QA tooling:** Use agent-browser for browser QA and OpenBitFun ComputerUse only for native desktop surfaces it cannot reach. Save QA artifacts under `.openbitfun/team/qa-reports/`.
+**Browser/desktop QA tooling:** Use agent-browser for browser QA and Alex ComputerUse only for native desktop surfaces it cannot reach. Save QA artifacts under `.openbitfun/team/qa-reports/`.
 
 **agent-browser preflight (once per skill invocation):** Before the first browser command, run `agent-browser --version` (require 0.32.3 or newer) and load `agent-browser skills get core`. Reuse that guidance for the rest of this invocation. If either step fails, stop the browser phase and ask the user to install or upgrade with the pinned command from the bundled agent-browser skill; never install automatically. If the user declines, explain that browser QA cannot be completed and stop; do not substitute ComputerUse for web QA.
 
@@ -52,7 +52,7 @@ mkdir -p "$REPORT_DIR/screenshots"
 
 ## Prior Learnings
 
-Use only OpenBitFun in-session memory, project docs, `.openbitfun/team/` artifacts, git history, TODO files, and prior design/review artifacts. Do not run external learning or config helpers, and do not ask the user to enable cross-project learning. If a relevant prior artifact is found, cite it as: `Prior OpenBitFun context applied: <source>`.
+Use only Alex in-session memory, project docs, `.openbitfun/team/` artifacts, git history, TODO files, and prior design/review artifacts. Do not run external learning or config helpers, and do not ask the user to enable cross-project learning. If a relevant prior artifact is found, cite it as: `Prior Alex context applied: <source>`.
 
 ## Test Plan Context
 
@@ -388,7 +388,7 @@ If you discovered a non-obvious pattern, pitfall, or architectural insight durin
 this session, log it for future sessions:
 
 ```bash
-true # OpenBitFun has no external telemetry helper
+true # Alex has no external telemetry helper
 ```
 
 **Types:** `pattern` (reusable approach), `pitfall` (what NOT to do), `preference`
@@ -396,7 +396,7 @@ true # OpenBitFun has no external telemetry helper
 `operational` (project environment/CLI/workflow knowledge).
 
 **Sources:** `observed` (you found this in the code), `user-stated` (user told you),
-`inferred` (AI deduction), `cross-model` (both OpenBitFun and outside-voice sub-agent agree).
+`inferred` (AI deduction), `cross-model` (both Alex and outside-voice sub-agent agree).
 
 **Confidence:** 1-10. Be honest. An observed pattern you verified in the code is 8-9.
 An inference you're not sure about is 4-5. A user preference they explicitly stated is 10.

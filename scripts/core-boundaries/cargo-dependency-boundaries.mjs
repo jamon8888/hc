@@ -62,7 +62,7 @@ function layerForManifest(manifestPath, { root, crateLayoutRules }) {
   }
   const cratePath = repoManifestPath.replace(/\/Cargo\.toml$/, '');
 
-  if (cratePath.startsWith('src/apps/') || cratePath === 'OpenBitFun-Installer/src-tauri') {
+  if (cratePath.startsWith('src/apps/') || cratePath === 'Alex-Installer/src-tauri') {
     return 'apps';
   }
 

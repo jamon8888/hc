@@ -14,7 +14,7 @@ const SOURCE_GROUPS = Object.freeze({
   'web-ui': [
     'src/web-ui/src',
     'src/mobile-web/src',
-    'OpenBitFun-Installer/src',
+    'Alex-Installer/src',
   ],
 });
 
@@ -43,14 +43,14 @@ const SEMANTIC_ROLE_COMPONENT_STYLE_EXCEPTIONS = new Set([
 const SEMANTIC_ROLE_PRODUCT_STYLE_ROOTS = [
   'src/web-ui/src/',
   'src/mobile-web/src/',
-  'OpenBitFun-Installer/src/',
+  'Alex-Installer/src/',
   'design-system/apps/design-lab/src/',
 ];
 
 const COMPLETE_PRODUCT_STYLE_ROOTS = [
   'src/web-ui/src/',
   'src/mobile-web/src/',
-  'OpenBitFun-Installer/src/',
+  'Alex-Installer/src/',
 ];
 
 const TYPOGRAPHY_PROPERTIES = new Set([

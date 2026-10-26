@@ -23,7 +23,7 @@ The basemind sidecar exposes **two distinct transport layers**:
 | **Agent Comms** | msgpack over Unix socket (UDS) / named pipe (Windows) | `crates/basemind-agent-ipc/src/server.rs:152` `serve_connection()` | `AgentClient` trait: `next_event()` + `send_command(AgentCommand)` — only `UserMessage`, `Cancel`, `Shutdown`, `PermissionDecision`, `RoomPost`, `RoomLeave` |
 | **MCP Server** | Streamable HTTP (rmcp 3.0) at `http://127.0.0.1:<port>/mcp?root=...&agent=...` + **in-process CLI shims** | `src/comms/http_frontend.rs`, `src/cli/redact.rs:93` `server.redact_text_cli()` | Named MCP tools: `redact_text`, `memory`, `vault`, `shell`, `registry`, `web`, `graph`, `git`, `admin`, `comms` |
 
-**OpenBitFun connects as an MCP client** — the sidecar is started as a long-lived HTTP daemon (`basemind comms daemon`) and the UI talks to `http://127.0.0.1:<port>/mcp`. The CLI shims (`redact_text_cli`, `vault_cli`) are thin wrappers used by `basemind redact` and `basemind vault` commands; they call the *same* internal handlers the HTTP server routes to.
+**Alex connects as an MCP client** — the sidecar is started as a long-lived HTTP daemon (`basemind comms daemon`) and the UI talks to `http://127.0.0.1:<port>/mcp`. The CLI shims (`redact_text_cli`, `vault_cli`) are thin wrappers used by `basemind redact` and `basemind vault` commands; they call the *same* internal handlers the HTTP server routes to.
 
 ---
 

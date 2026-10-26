@@ -1,4 +1,4 @@
-# OpenBitFun Agent SDK for TypeScript
+# Alex Agent SDK for TypeScript
 
 This package is a repository-internal vertical slice. It is private, reports
 `not_delivered` through the Host handshake, and must not be published or
@@ -43,7 +43,7 @@ existing `agent-runtime::sdk` API.
 ## Repository usage
 
 Build the private SDK and `openbitfun-sdk-host`, then stage that already-built Host
-into the local package. This does not install OpenBitFun or publish anything:
+into the local package. This does not install Alex or publish anything:
 
 ```bash
 cargo build -p openbitfun-sdk-host-app
@@ -145,7 +145,7 @@ locally verified for this slice. Bun uses the same ESM build but remains a
 release-verification target when a Bun runner is available; neither runtime is
 a bundled executable or a final minimum-version policy. `pnpm --dir sdk/typescript pack`
 can produce a local tarball containing the staged Host. An application installs
-that tarball as an ordinary dependency; it does not install OpenBitFun or a CLI
+that tarball as an ordinary dependency; it does not install Alex or a CLI
 separately. This PR does not publish the package. A future registry release
 still needs platform packages, signing, and release verification.
 

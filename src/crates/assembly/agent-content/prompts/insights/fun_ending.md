@@ -1,4 +1,4 @@
-Analyze this OpenBitFun usage data and find a memorable moment.
+Analyze this Alex usage data and find a memorable moment.
 
 RESPOND WITH ONLY A VALID JSON OBJECT:
 {

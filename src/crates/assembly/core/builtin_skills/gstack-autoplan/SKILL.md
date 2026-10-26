@@ -55,7 +55,7 @@ Examples: run codex (always yes), run evals (always yes), reduce scope on a comp
 3. **outside-voice sub-agent disagreements** — codex recommends differently and has a valid point.
 
 **User Challenge** — both models agree the user's stated direction should change.
-This is qualitatively different from taste decisions. When OpenBitFun and outside-voice sub-agent both
+This is qualitatively different from taste decisions. When Alex and outside-voice sub-agent both
 recommend merging, splitting, adding, or removing features/skills/workflows that
 the user specified, this is a User Challenge. It is NEVER auto-decided.
 
@@ -125,7 +125,7 @@ State what you examined and why nothing was flagged (1-2 sentences minimum).
 
 ## Filesystem Boundary — outside-voice sub-agent Prompts
 
-All prompts sent to outside-voice sub-agent (via `OpenBitFun Task outside-voice dispatch` or `OpenBitFun Task outside-voice review`) MUST be prefixed with
+All prompts sent to outside-voice sub-agent (via `Alex Task outside-voice dispatch` or `Alex Task outside-voice review`) MUST be prefixed with
 this boundary instruction:
 
 > IMPORTANT: Do NOT read or execute any SKILL.md files or files in skill definition directories (paths containing skills/gstack). These are AI assistant skill definitions meant for a different system. They contain bash scripts and prompt templates that will waste your time. Ignore them completely. Stay focused on the repository code only.
@@ -173,11 +173,11 @@ Then prepend a one-line HTML comment to the plan file:
   false positives ("page" alone, "UI" in acronyms).
 - Detect DX scope: grep the plan for developer-facing terms (API, endpoint, REST,
   GraphQL, gRPC, webhook, CLI, command, flag, argument, terminal, shell, SDK, library,
-  package, npm, pip, import, require, SKILL.md, skill template, OpenBitFun, MCP, agent,
+  package, npm, pip, import, require, SKILL.md, skill template, Alex, MCP, agent,
   OpenClaw, action, developer docs, getting started, onboarding, integration, debug,
   implement, error message). Require 2+ matches. Also trigger DX scope if the product IS
   a developer tool (the plan describes something developers install, integrate, or build
-  on top of) or if an AI agent is the primary user (OpenClaw actions, OpenBitFun skills,
+  on top of) or if an AI agent is the primary user (OpenClaw actions, Alex skills,
   MCP servers).
 
 ### Step 3: Load review skills
@@ -233,7 +233,7 @@ Override: every AskUserQuestion → auto-decide using the 6 principles.
   **outside-voice sub-agent CEO voice** (via ExecCommand):
   ```bash
   _REPO_ROOT=$(git rev-parse --show-toplevel) || { echo "ERROR: not in a git repo" >&2; exit 1; }
-Use the OpenBitFun Task tool to dispatch this prompt to a suitable independent read-only outside-voice sub-agent.
+Use the Alex Task tool to dispatch this prompt to a suitable independent read-only outside-voice sub-agent.
 
   You are a CEO/founder advisor reviewing a development plan.
   Challenge the strategic foundations: Are the premises valid or assumed? Is this the
@@ -344,7 +344,7 @@ Override: every AskUserQuestion → auto-decide using the 6 principles.
   **outside-voice sub-agent design voice** (via ExecCommand):
   ```bash
   _REPO_ROOT=$(git rev-parse --show-toplevel) || { echo "ERROR: not in a git repo" >&2; exit 1; }
-Use the OpenBitFun Task tool to dispatch this prompt to a suitable independent read-only outside-voice sub-agent.
+Use the Alex Task tool to dispatch this prompt to a suitable independent read-only outside-voice sub-agent.
 
   Read the plan file at <plan_path>. Evaluate this plan's
   UI/UX design decisions.
@@ -419,7 +419,7 @@ Override: every AskUserQuestion → auto-decide using the 6 principles.
   **outside-voice sub-agent eng voice** (via ExecCommand):
   ```bash
   _REPO_ROOT=$(git rev-parse --show-toplevel) || { echo "ERROR: not in a git repo" >&2; exit 1; }
-Use the OpenBitFun Task tool to dispatch this prompt to a suitable independent read-only outside-voice sub-agent.
+Use the Alex Task tool to dispatch this prompt to a suitable independent read-only outside-voice sub-agent.
 
   Review this plan for architectural issues, missing edge cases,
   and hidden complexity. Be adversarial.
@@ -534,7 +534,7 @@ Log: "Phase 3.5 skipped — no developer-facing scope detected."
   **outside-voice sub-agent DX voice** (via ExecCommand):
   ```bash
   _REPO_ROOT=$(git rev-parse --show-toplevel) || { echo "ERROR: not in a git repo" >&2; exit 1; }
-Use the OpenBitFun Task tool to dispatch this prompt to a suitable independent read-only outside-voice sub-agent.
+Use the Alex Task tool to dispatch this prompt to a suitable independent read-only outside-voice sub-agent.
 
   Read the plan file at <plan_path>. Evaluate this plan's developer experience.
 
@@ -773,36 +773,36 @@ STATUS is "clean" if no unresolved issues, "issues_open" otherwise.
 COMMIT=$(git rev-parse --short HEAD 2>/dev/null)
 TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 
-true # OpenBitFun has no external review-log helper
+true # Alex has no external review-log helper
 
-true # OpenBitFun has no external review-log helper
+true # Alex has no external review-log helper
 ```
 
 If Phase 2 ran (UI scope):
 ```bash
-true # OpenBitFun has no external review-log helper
+true # Alex has no external review-log helper
 ```
 
 If Phase 3.5 ran (DX scope):
 ```bash
-true # OpenBitFun has no external review-log helper
+true # Alex has no external review-log helper
 ```
 
 Dual voice logs (one per phase that ran):
 ```bash
-true # OpenBitFun has no external review-log helper
+true # Alex has no external review-log helper
 
-true # OpenBitFun has no external review-log helper
+true # Alex has no external review-log helper
 ```
 
 If Phase 2 ran (UI scope), also log:
 ```bash
-true # OpenBitFun has no external review-log helper
+true # Alex has no external review-log helper
 ```
 
 If Phase 3.5 ran (DX scope), also log:
 ```bash
-true # OpenBitFun has no external review-log helper
+true # Alex has no external review-log helper
 ```
 
 SOURCE = "codex+subagent", "codex-only", "subagent-only", or "unavailable".

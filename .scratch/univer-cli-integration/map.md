@@ -4,7 +4,7 @@
 
 ## Destination
 
-Bundled, working integration: univer-cli — **Apache-licensed parts only, no `@univerjs-pro`** — ships inside OpenBitFun's codebase and builds together with a managed Node 24 runtime, delivering document view/edit/create end to end, plus the architecture contract recording how it works (capability gate, formats, surfaces, daemon, remote stance). Execution is on this map; the earlier "contract only, no implementation" stance was superseded when the destination was redrawn.
+Bundled, working integration: univer-cli — **Apache-licensed parts only, no `@univerjs-pro`** — ships inside Alex's codebase and builds together with a managed Node 24 runtime, delivering document view/edit/create end to end, plus the architecture contract recording how it works (capability gate, formats, surfaces, daemon, remote stance). Execution is on this map; the earlier "contract only, no implementation" stance was superseded when the destination was redrawn.
 
 ## Notes
 

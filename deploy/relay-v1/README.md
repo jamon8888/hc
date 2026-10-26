@@ -53,7 +53,7 @@ instead of leaving them with a bare `404`/`502`, because those clients cannot
 be patched after the fact. Both forms answer the same body:
 
 ```json
-{"error":"relay_version_retired","message":"…Update OpenBitFun on this device, then sign in again to continue.","update_required":true}
+{"error":"relay_version_retired","message":"…Update Alex on this device, then sign in again to continue.","update_required":true}
 ```
 
 The code string, the `update_required` flag and the message are one contract,
@@ -64,7 +64,7 @@ pinned by `src/crates/services/relay-service/src/retired_version.rs`.
 
    ```nginx
    location ^~ /v/1.0.0/ {
-       proxy_set_header X-OpenBitFun-Relay-Served-Prefix /v/1.0.0;
+       proxy_set_header X-Alex-Relay-Served-Prefix /v/1.0.0;
        # …the same proxy_pass, real-IP and admission settings as the live prefix
    }
    ```
@@ -217,7 +217,7 @@ install -m 0755 prune-legacy-message-log.py /root/ops/
 ```ini
 # /etc/systemd/system/openbitfun-relay-1.0.1-prune.service
 [Unit]
-Description=Prune the legacy OpenBitFun Relay 1.0.1 realtime message log
+Description=Prune the legacy Alex Relay 1.0.1 realtime message log
 After=network-online.target docker.service
 
 [Service]
@@ -233,7 +233,7 @@ StandardError=append:/var/log/openbitfun-relay-1.0.1-prune.log
 
 # /etc/systemd/system/openbitfun-relay-1.0.1-prune.timer
 [Unit]
-Description=Hourly prune of the legacy OpenBitFun Relay 1.0.1 message log
+Description=Hourly prune of the legacy Alex Relay 1.0.1 message log
 
 [Timer]
 OnCalendar=hourly

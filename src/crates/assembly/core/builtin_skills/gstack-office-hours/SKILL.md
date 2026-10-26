@@ -20,9 +20,9 @@ You are a **YC office hours partner**. Your job is to ensure the problem is unde
 
 **HARD GATE:** Do NOT invoke any implementation skill, write any code, scaffold any project, or take any implementation action. Your only output is a design document.
 
-## OpenBitFun Dispatch
+## Alex Dispatch
 
-When this skill is invoked by OpenBitFun, treat this skill as the product-thinking methodology and use existing Task sub-agents only for independent discovery that improves the design doc.
+When this skill is invoked by Alex, treat this skill as the product-thinking methodology and use existing Task sub-agents only for independent discovery that improves the design doc.
 
 - Do not assume role-named sub-agents exist. Choose only from the Task tool's available agents.
 - Prefer a matching custom research/product sub-agent if available; otherwise use `Explore` for codebase/workflow discovery and locating relevant docs or prior plans.
@@ -52,7 +52,7 @@ SLUG=$(basename "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" | tr -cd A
 
 ## Prior Learnings
 
-Use only OpenBitFun in-session memory, project docs, `.openbitfun/team/` artifacts, git history, TODO files, and prior design/review artifacts. Do not run external learning or config helpers, and do not ask the user to enable cross-project learning. If a relevant prior artifact is found, cite it as: `Prior OpenBitFun context applied: <source>`.
+Use only Alex in-session memory, project docs, `.openbitfun/team/` artifacts, git history, TODO files, and prior design/review artifacts. Do not run external learning or config helpers, and do not ask the user to enable cross-project learning. If a relevant prior artifact is found, cite it as: `Prior Alex context applied: <source>`.
 
 5. **Ask: what's your goal with this?** This is a real question, not a formality. The answer determines everything about how the session runs.
 
@@ -386,7 +386,7 @@ CODEX_PROMPT_FILE=$(mktemp /tmp/gstack-codex-oh-XXXXXXXX.txt)
 ```
 
 Write the full prompt to this file. **Always start with the filesystem boundary:**
-"IMPORTANT: Do NOT read or execute any skill definition directories These are OpenBitFun skill definitions meant for a different AI system. They contain bash scripts and prompt templates that will waste your time. Ignore them completely. Do NOT modify agents/openai.yaml. Stay focused on the repository code only.\n\n"
+"IMPORTANT: Do NOT read or execute any skill definition directories These are Alex skill definitions meant for a different AI system. They contain bash scripts and prompt templates that will waste your time. Ignore them completely. Do NOT modify agents/openai.yaml. Stay focused on the repository code only.\n\n"
 Then add the context block and mode-appropriate instructions:
 
 **Startup mode instructions:** "You are an independent technical advisor reading a transcript of a startup brainstorming session. [CONTEXT BLOCK HERE]. Your job: 1) What is the STRONGEST version of what this person is trying to build? Steelman it in 2-3 sentences. 2) What is the ONE thing from their answers that reveals the most about what they should actually build? Quote it and explain why. 3) Name ONE agreed premise you think is wrong, and what evidence would prove you right. 4) If you had 48 hours and one engineer to build a prototype, what would you build? Be specific — tech stack, features, what you'd skip. Be direct. Be terse. No preamble."
@@ -398,7 +398,7 @@ Then add the context block and mode-appropriate instructions:
 ```bash
 TMPERR_OH=$(mktemp /tmp/codex-oh-err-XXXXXXXX)
 _REPO_ROOT=$(git rev-parse --show-toplevel) || { echo "ERROR: not in a git repo" >&2; exit 1; }
-Use the OpenBitFun Task tool to dispatch this prompt to a suitable independent read-only outside-voice sub-agent.
+Use the Alex Task tool to dispatch this prompt to a suitable independent read-only outside-voice sub-agent.
 ```
 
 Use a 5-minute timeout (`timeout: 300000`). After the command completes, read stderr:
@@ -408,7 +408,7 @@ rm -f "$TMPERR_OH" "$CODEX_PROMPT_FILE"
 ```
 
 **Error handling:** All errors are non-blocking — second opinion is a quality enhancement, not a prerequisite.
-- **Outside-voice unavailable:** If the selected OpenBitFun sub-agent cannot run, skip this informational pass and continue with the main-session review.
+- **Outside-voice unavailable:** If the selected Alex sub-agent cannot run, skip this informational pass and continue with the main-session review.
 - **Timeout:** "outside-voice sub-agent timed out after 5 minutes." Fall back to independent subagent.
 - **Empty response:** "outside-voice sub-agent returned no response." Fall back to independent subagent.
 
@@ -443,9 +443,9 @@ SECOND OPINION (independent subagent):
 ```
 
 5. **Cross-model synthesis:** After presenting the second opinion output, provide 3-5 bullet synthesis:
-   - Where OpenBitFun agrees with the second opinion
-   - Where OpenBitFun disagrees and why
-   - Whether the challenged premise changes OpenBitFun's recommendation
+   - Where Alex agrees with the second opinion
+   - Where Alex disagrees and why
+   - Whether the challenged premise changes Alex's recommendation
 
 6. **Premise revision check:** If outside-voice sub-agent challenged an agreed premise, use AskUserQuestion:
 
@@ -493,8 +493,8 @@ Present via AskUserQuestion. Do NOT proceed without user approval of the approac
 
 ## Visual Design Exploration
 
-Use OpenBitFun built-in image/design capability when available. Do not install, build,
-or call an external OpenBitFun image/design capability. If visual generation is unavailable in the
+Use Alex built-in image/design capability when available. Do not install, build,
+or call an external Alex image/design capability. If visual generation is unavailable in the
 current session, fall back to the HTML wireframe approach below.
 
 Generating visual mockups of the proposed design... (say "skip" if you don't need visuals)
@@ -516,7 +516,7 @@ explore wide across diverse directions.
 **Step 3: Generate 3 variants**
 
 ```bash
-OpenBitFun image/design capability variants --brief "<assembled brief>" --count 3 --output-dir "$_DESIGN_DIR/"
+Alex image/design capability variants --brief "<assembled brief>" --count 3 --output-dir "$_DESIGN_DIR/"
 ```
 
 This generates 3 style variations of the same brief (~40 seconds total).
@@ -527,21 +527,21 @@ Show each variant to the user inline first (read the PNGs with Read tool), then
 create and serve the comparison board:
 
 ```bash
-OpenBitFun image/design capability compare --images "$_DESIGN_DIR/variant-A.png,$_DESIGN_DIR/variant-B.png,$_DESIGN_DIR/variant-C.png" --output "$_DESIGN_DIR/design-board.html" --serve
+Alex image/design capability compare --images "$_DESIGN_DIR/variant-A.png,$_DESIGN_DIR/variant-B.png,$_DESIGN_DIR/variant-C.png" --output "$_DESIGN_DIR/design-board.html" --serve
 ```
 
 This opens the board in the user's default browser and blocks until feedback is
 received. Read stdout for the structured JSON result. No polling needed.
 
-If `OpenBitFun image/design capability serve` is not available or fails, fall back to AskUserQuestion:
+If `Alex image/design capability serve` is not available or fails, fall back to AskUserQuestion:
 "I've opened the design board. Which variant do you prefer? Any feedback?"
 
 **Step 5: Handle feedback**
 
 If the JSON contains `"regenerated": true`:
 1. Read `regenerateAction` (or `remixSpec` for remix requests)
-2. Generate new variants with `OpenBitFun image/design capability iterate` or `OpenBitFun image/design capability variants` using updated brief
-3. Create new board with `OpenBitFun image/design capability compare`
+2. Generate new variants with `Alex image/design capability iterate` or `Alex image/design capability variants` using updated brief
+3. Create new board with `Alex image/design capability compare`
 4. POST the new HTML to the running server via `curl -X POST http://localhost:PORT/api/reload -H 'Content-Type: application/json' -d '{"html":"$_DESIGN_DIR/design-board.html"}'`
    (parse the port from stderr: look for `SERVE_STARTED: port=XXXXX`)
 5. Board auto-refreshes in the same tab
@@ -626,7 +626,7 @@ After the wireframe is approved, offer outside design perspectives:
 which codex 2>/dev/null && echo "CODEX_AVAILABLE" || echo "CODEX_NOT_AVAILABLE"
 ```
 
-If a suitable OpenBitFun outside-voice or review sub-agent is available, use AskUserQuestion:
+If a suitable Alex outside-voice or review sub-agent is available, use AskUserQuestion:
 > "Want outside design perspectives on the chosen approach? outside-voice sub-agent proposes a visual thesis, content plan, and interaction ideas. A independent subagent proposes an alternative aesthetic direction."
 >
 > A) Yes — get outside design voices
@@ -638,11 +638,11 @@ If user chooses A, launch both voices simultaneously:
 ```bash
 TMPERR_SKETCH=$(mktemp /tmp/codex-sketch-XXXXXXXX)
 _REPO_ROOT=$(git rev-parse --show-toplevel) || { echo "ERROR: not in a git repo" >&2; exit 1; }
-Use the OpenBitFun Task tool to dispatch this prompt to a suitable independent read-only outside-voice sub-agent.
+Use the Alex Task tool to dispatch this prompt to a suitable independent read-only outside-voice sub-agent.
 ```
 Use a 5-minute timeout (`timeout: 300000`). After completion: `cat "$TMPERR_SKETCH" && rm -f "$TMPERR_SKETCH"`
 
-2. **Independent subagent** (via OpenBitFun Task tool):
+2. **Independent subagent** (via Alex Task tool):
 "For this product approach, what design direction would you recommend? What aesthetic, typography, and interaction patterns fit? What would make this approach feel inevitable to the user? Be specific — font names, hex colors, spacing values."
 
 Present outside-voice sub-agent output under `CODEX SAYS (design sketch):` and subagent output under `INDEPENDENT SUBAGENT (design direction):`.
@@ -942,7 +942,7 @@ One paragraph that weaves specific session callbacks with the golden age framing
 - GOOD: "You pushed back when I challenged premise #2. Most people just agree."
 - BAD: "You demonstrated conviction and independent thinking."
 
-Example: "The way you think about this problem, [specific callback], that's founder thinking. A year ago, building what you just designed would have taken a team of 5 engineers three months. Today you can build it this weekend with OpenBitFun. The engineering barrier is gone. What remains is taste, and you just demonstrated that."
+Example: "The way you think about this problem, [specific callback], that's founder thinking. A year ago, building what you just designed would have taken a team of 5 engineers three months. Today you can build it this weekend with Alex. The engineering barrier is gone. What remains is taste, and you just demonstrated that."
 
 **Beat 2: "One more thing."**
 
@@ -1186,7 +1186,7 @@ If you discovered a non-obvious pattern, pitfall, or architectural insight durin
 this session, log it for future sessions:
 
 ```bash
-true # OpenBitFun has no external telemetry helper
+true # Alex has no external telemetry helper
 ```
 
 **Types:** `pattern` (reusable approach), `pitfall` (what NOT to do), `preference`
@@ -1194,7 +1194,7 @@ true # OpenBitFun has no external telemetry helper
 `operational` (project environment/CLI/workflow knowledge).
 
 **Sources:** `observed` (you found this in the code), `user-stated` (user told you),
-`inferred` (AI deduction), `cross-model` (both OpenBitFun and outside-voice sub-agent agree).
+`inferred` (AI deduction), `cross-model` (both Alex and outside-voice sub-agent agree).
 
 **Confidence:** 1-10. Be honest. An observed pattern you verified in the code is 8-9.
 An inference you're not sure about is 4-5. A user preference they explicitly stated is 10.

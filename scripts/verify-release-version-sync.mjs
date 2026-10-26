@@ -6,8 +6,8 @@ const expected = args.version || readJsonVersion('package.json');
 const versions = new Map([
   ['package.json', readJsonVersion('package.json')],
   ['Cargo.toml', readTomlVersion('Cargo.toml', /version = "([^"]+)" # x-release-please-version/)],
-  ['OpenBitFun-Installer/package.json', readJsonVersion('OpenBitFun-Installer/package.json')],
-  ['OpenBitFun-Installer/src-tauri/Cargo.toml', readTomlVersion('OpenBitFun-Installer/src-tauri/Cargo.toml', /^version = "([^"]+)"/m)],
+  ['Alex-Installer/package.json', readJsonVersion('Alex-Installer/package.json')],
+  ['Alex-Installer/src-tauri/Cargo.toml', readTomlVersion('Alex-Installer/src-tauri/Cargo.toml', /^version = "([^"]+)"/m)],
   ['src/web-ui/package.json', readJsonVersion('src/web-ui/package.json')],
   ['src/mobile-web/package.json', readJsonVersion('src/mobile-web/package.json')],
   ['src/miniapp-market-web/package.json', readJsonVersion('src/miniapp-market-web/package.json')],

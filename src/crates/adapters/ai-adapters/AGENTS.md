@@ -47,7 +47,7 @@ Compared on 2026-09-08 against [OpenCode v1.18.29](https://github.com/anomalyco/
   Portal native Messages cache issue is unresolved. Preserve the Nous bearer
   and `x-nous-refresh-token` refresh contract, including rotated-token storage.
 - Subscription credentials own authentication and account headers regardless
-  of saved replace mode or header casing. Use OpenBitFun attribution for Codex;
+  of saved replace mode or header casing. Use Alex attribution for Codex;
   retain provider-required compatibility headers for xAI and
   Antigravity. Public API-key configurations retain their authentication policy.
 - Additional subscription request policy is enabled only by an explicit runtime

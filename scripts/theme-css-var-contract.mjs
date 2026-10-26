@@ -100,7 +100,7 @@ export const COLOR_EXTENSIONS = new Set([
 ]);
 
 export const TOKEN_PATH_PARTS = [
-  'OpenBitFun-Installer/src/theme',
+  'Alex-Installer/src/theme',
   'design-system/packages/design-tokens/src',
   'design-system/packages/theme-openbitfun/src',
 ];
@@ -110,7 +110,7 @@ export const TOKEN_ALIAS_SOURCE_PATH_PARTS = [
 ];
 
 export const CONTRACT_VAR_DEFINITION_PATH_PARTS = [
-  'OpenBitFun-Installer/src/theme/installerThemeRuntime.ts',
+  'Alex-Installer/src/theme/installerThemeRuntime.ts',
   'design-system/packages/design-tokens/src',
   'design-system/packages/theme-openbitfun/src',
   'infrastructure/appearance',
@@ -126,7 +126,7 @@ export const STATIC_CONTRACT_VAR_DEFINITION_PATH_PARTS = [
 ];
 
 export const RUNTIME_CONTRACT_VAR_DEFINITION_PATH_PARTS = [
-  'OpenBitFun-Installer/src/theme/installerThemeRuntime.ts',
+  'Alex-Installer/src/theme/installerThemeRuntime.ts',
   'infrastructure/appearance',
 ];
 
@@ -153,7 +153,7 @@ export const COLOR_DOMAIN_RULES = [
   {
     key: 'themePreset',
     label: 'Appearance palettes',
-    pathParts: ['OpenBitFun-Installer/src/theme', 'infrastructure/appearance/builtins', 'theme/presets'],
+    pathParts: ['Alex-Installer/src/theme', 'infrastructure/appearance/builtins', 'theme/presets'],
   },
   {
     key: 'themeRuntime',
@@ -245,7 +245,7 @@ export const COLOR_DOMAIN_CONTRACTS = [
   },
   {
     key: 'themePreset',
-    owner: 'src/web-ui/src/infrastructure/appearance/builtins; OpenBitFun-Installer/src/theme',
+    owner: 'src/web-ui/src/infrastructure/appearance/builtins; Alex-Installer/src/theme',
     reason: 'Builtin appearances own primitive palette mapping and must keep per-appearance personality instead of being folded into shared app tokens.',
     mergePolicy: 'Only merge exact duplicate primitive values after confirming the theme still exposes distinct semantic roles.',
   },

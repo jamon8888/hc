@@ -1,6 +1,6 @@
 # Deploy runbooks
 
-Production origin restore and product deploys for the current OpenBitFun host
+Production origin restore and product deploys for the current Alex host
 (`ssh lwb`).
 
 | Directory | Use |

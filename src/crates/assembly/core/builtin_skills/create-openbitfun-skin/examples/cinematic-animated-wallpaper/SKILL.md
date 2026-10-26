@@ -1,6 +1,6 @@
 ---
 name: create-openbitfun-cinematic-wallpaper-skin
-description: Apply the cinematic animated-wallpaper style recipe to a OpenBitFun Appearance skin. Use after loading the parent create-openbitfun-skin Skill when the user provides animated character artwork and wants a host-managed video background, source-derived glass materials, image-led cards, illustrated dialogs, reproducible builds, or cinematic drift checks.
+description: Apply the cinematic animated-wallpaper style recipe to a Alex Appearance skin. Use after loading the parent create-openbitfun-skin Skill when the user provides animated character artwork and wants a host-managed video background, source-derived glass materials, image-led cards, illustrated dialogs, reproducible builds, or cinematic drift checks.
 ---
 
 # Cinematic animated-wallpaper recipe
