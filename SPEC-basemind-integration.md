@@ -512,8 +512,12 @@ Source viewer (`PdfViewer`) is **visual only** — never used as text source for
 time and verified, rather than committed to the repository:
 
 - `resources/basemind/VERSION.json` pins the release (`jamon8888/basemind`,
-  `v0.34.0`) and, per platform, the SHA-256 and size of both the release
-  archive and the binary inside it.
+  `v0.35.0`) and, per platform, the SHA-256 and size of both the release
+  archive and the binary inside it. The optional `noavx2` x86_64 Linux
+  archive (v0.35.0 added it for hosts without AVX2) is pinned too and
+  selected by `OPENBITFUN_BASEMIND_NOAVX2=1` at bundle time — an explicit
+  opt-in, because the build host must not decide for every user of the
+  binary it produces.
 - `scripts/prepare-basemind-resource.mjs` downloads the archive for the
   build target, refuses an archive that does not match the pin, extracts the
   binary with the shared libraries it loads relative to itself, and verifies
@@ -1056,25 +1060,33 @@ Fails at **compile time** if upstream signature changes — better than silent p
 
 ## 17. Dependencies on Basemind Fork (jamon8888/basemind)
 
-**Pinned version:** `jamon8888/basemind` **v0.34.0** (2026-10-19), recorded in code as
+**Pinned version:** `jamon8888/basemind` **v0.35.0** (2026-10-25), recorded in code as
 `openbitfun_basemind_integration::BASEMIND_VERSION` and checked against the running
 daemon's published version before the first call. All PII/identity evidence in this spec
 (issues 01–02, ADR 0001) was gathered at v0.33.0.
 
-v0.34.0 is the upstream sync of `Goldziher/basemind` v0.29.3 into the fork (1,202
+v0.34.0 was the upstream sync of `Goldziher/basemind` v0.29.3 into the fork (1,202
 commits). The sync keeps the fork's PII, redaction and vault features end to end, so the
 evidence in issues 01–02 still holds; the MCP surface it measured was re-verified against a
-live v0.34.0 daemon, which serves `redact_text`, `memory`, `vault`, `code`, `git`,
-`graph`, `shell`, `web`, `admin`, `agents` and `workspace`. Bundle v0.34.0: it ships the
+live daemon, which serves `redact_text`, `memory`, `vault`, `code`, `git`,
+`graph`, `shell`, `web`, `admin`, `agents` and `workspace`. Bundle v0.35.0: it ships the
 `aarch64-unknown-linux-gnu` binary §8.1 requires. The upstream `Goldziher/basemind`
 v0.29.x line is a **diverged numbering stream** (released after our tag, lower
 numbers) and is not the integration target — do not reconcile its changelog entries
 with ours.
 
-**Upgrade note:** v0.34.0 advances the fork's release minor from 33 to 34, and the
+**Upgrade note:** v0.34.0 advanced the fork's release minor from 33 to 34, and the
 persisted blob, index and git-cache schema versions derive from it. The first scan after
-upgrading resets each view in place and rebuilds it once. The product's own state — the
+that upgrade resets each view in place and rebuilds it once. The product's own state — the
 identity registry and the session vault — carries its own schema and is unaffected.
+v0.35.0 turns the privacy gateway on (§18): a `safe/` mirror makes a workspace protected,
+and the marker this product sets on its own daemon re-opens `redact_text` and `vault`
+there. v0.35.0 also folds in v0.34.1's NER windowing and coverage report, which the
+product's `ner_coverage_refusal` contract already enforces. A daemon the previous build
+left running is stopped and relaunched at the pinned version by the client itself
+(`discover_or_ensure`), so the in-place upgrade does not hand the user a restart
+instruction; whether a hand-started daemon carries the gateway marker stays the
+residual risk §18 records.
 
 **Transport:** the daemon serves MCP over streamable HTTP at `POST /mcp?root=<abs
 workspace path>`, on the loopback address published in `<comms_dir>/http.addr` (line 1:
@@ -1099,14 +1111,14 @@ treat the list as the original expectation, not as an open dependency.
 
 ---
 
-## 18. Gateway Wiring Pre-Staged for the Fork's v0.35 (ADR-0015, PR #93)
+## 18. Gateway Wiring, Live at the Fork's v0.35 Pin (ADR-0015, PR #93)
 
-The fork's next release moves the privacy gateway into basemind (ADR-0015): a
-workspace carrying a `safe/` mirror is **protected** — `redact_text` and `vault`
-are withheld from the agent surface, and re-opened only for a basemind process
-marked with `BASEMIND_GATEWAY_TOKEN`. The product **is** the gateway, so the
-following is pre-staged now, against the v0.34.0 pin, and needs no further code
-when v0.35 lands beyond the pin flip (§12 / `daemon::BASEMIND_VERSION` +
+The fork's v0.35.0 (2026-10-25) moved the privacy gateway into basemind
+(ADR-0015): a workspace carrying a `safe/` mirror is **protected** —
+`redact_text` and `vault` are withheld from the agent surface, and re-opened
+only for a basemind process marked with `BASEMIND_GATEWAY_TOKEN`. The product
+**is** the gateway. The wiring below was pre-staged against the v0.34.0 pin and
+went live with the v0.35.0 pin flip (§17 / `daemon::BASEMIND_VERSION` +
 `resources/basemind/VERSION.json`):
 
 - **Gateway capability** (`gateway.rs`): the token constant, a per-launch
@@ -1130,10 +1142,10 @@ when v0.35 lands beyond the pin flip (§12 / `daemon::BASEMIND_VERSION` +
   `category_of_token`; the Web UI tone (`RevealableEntityBadge`) and the
   `entityTypes.TAX_ID` i18n keys already exist in all runtime locales.
 
-Still pending the v0.35 landing:
+Pending follow-ups from the v0.35 landing:
 
-- [ ] Flip the pin: `daemon::BASEMIND_VERSION`, `resources/basemind/VERSION.json`
-      tag + checksums (`scripts/prepare-basemind-resource.mjs`).
+- [x] Flip the pin: `daemon::BASEMIND_VERSION`, `resources/basemind/VERSION.json`
+      tag + checksums (`scripts/prepare-basemind-resource.mjs`). Done at v0.35.0.
 - [ ] Decide whether `redact_text` calls should set `require_ner` (only safe
       once the NER model dir is confirmed present on first-use machines).
 - [ ] Adopt the native `pseudonyms` field in place of the product's own
@@ -1143,6 +1155,13 @@ Still pending the v0.35 landing:
       carries no marker; our own `redact_text`/`vault` refs would then be
       refused in a protected workspace. If that surfaces in practice, surface
       a state, do not retry silently.
+- [ ] The v0.35.0 daemon's first NER-backed call loads the model lazily and
+      takes ~20s on the reference Mac before it answers; the client's 30s
+      request timeout sits close to that on a cold daemon. Measured live at
+      the pin flip (a fresh workspace's `memory mode=documents` reported
+      `elapsed_us ≈ 2.0e7`). If first-call latency surfaces in practice,
+      consider a warmup call at daemon start or a longer first-request
+      budget before raising the global timeout.
 
 ---
 
