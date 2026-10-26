@@ -1,4 +1,4 @@
-import { createOverlayPortal, Icon, IconButton, Tooltip } from '@openbitfun/ui';
+import { createOverlayPortal, Icon, IconButton, Tooltip } from '@alex/ui';
 import { useLayoutEffect, useRef, useState } from 'react';
 import { useI18n } from '@/infrastructure/i18n';
 import { getAppearanceOverlayHost } from '@/infrastructure/appearance/runtime/AppearanceOverlayHost';
@@ -40,21 +40,21 @@ export function UpdateDownloadIndicator() {
   const installLabel = t('update.installAndRestart');
 
   return (
-    <div className="openbitfun-update-download" data-testid="nav-update-download"
-      data-openbitfun-component="update" data-openbitfun-part="downloadControl" data-download-status={status}>
+    <div className="alex-update-download" data-testid="nav-update-download"
+      data-alex-component="update" data-alex-part="downloadControl" data-download-status={status}>
       <Tooltip content={status === 'ready' ? installLabel : label} placement="top">
-        <IconButton ref={buttonRef} size="sm" shape="circle" variant="quiet" className="openbitfun-update-download__button"
+        <IconButton ref={buttonRef} size="sm" shape="circle" variant="quiet" className="alex-update-download__button"
           aria-label={status === 'ready' ? installLabel : t('update.openDownloadDetails', { status: label })} aria-haspopup="dialog"
           disabled={status === 'installing'} onClick={status === 'ready' ? state.requestInstall : state.showNotice}
           data-testid="nav-update-download-button"
           icon={(
-            <span ref={vesselRef} className="openbitfun-update-download__vessel" data-download-status={status}
-              data-openbitfun-component="update" data-openbitfun-part="downloadVessel">
-              {status === 'downloading' && <span className="openbitfun-update-download__fill"
+            <span ref={vesselRef} className="alex-update-download__vessel" data-download-status={status}
+              data-alex-component="update" data-alex-part="downloadVessel">
+              {status === 'downloading' && <span className="alex-update-download__fill"
                 style={fraction == null ? undefined : { transform: `translateY(${(1 - fraction) * 100}%)` }}
-                data-openbitfun-component="update" data-openbitfun-part="downloadFill"
-                data-openbitfun-state={fraction == null ? 'indeterminate' : undefined} />}
-              {(status === 'ready' || status === 'installing') && <Icon name="check-line" size="xs" className="openbitfun-update-download__complete" />}
+                data-alex-component="update" data-alex-part="downloadFill"
+                data-alex-state={fraction == null ? 'indeterminate' : undefined} />}
+              {(status === 'ready' || status === 'installing') && <Icon name="check-line" size="xs" className="alex-update-download__complete" />}
             </span>
           )} />
       </Tooltip>
@@ -63,8 +63,8 @@ export function UpdateDownloadIndicator() {
           aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent ?? undefined} aria-valuetext={label} />
       ) : <span className="sr-only" role="status">{label}</span>}
       {status === 'downloading' && createOverlayPortal(
-        <span ref={setTransferElement} className="openbitfun-update-download__transfer" aria-hidden="true"
-          data-openbitfun-component="update" data-openbitfun-part="downloadTransfer" />,
+        <span ref={setTransferElement} className="alex-update-download__transfer" aria-hidden="true"
+          data-alex-component="update" data-alex-part="downloadTransfer" />,
         getAppearanceOverlayHost(),
         state.startedAt,
         { passive: true, ownerRef: transferOwnerRef },

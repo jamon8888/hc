@@ -1,16 +1,16 @@
-@layer openbitfun.components {
+@layer alex.components {
   .switch {
     position: relative;
     display: inline-flex;
     flex: 0 0 auto;
-    inline-size: var(--openbitfun-control-switch-track-width);
-    block-size: var(--openbitfun-control-switch-track-height);
+    inline-size: var(--alex-control-switch-track-width);
+    block-size: var(--alex-control-switch-track-height);
     vertical-align: middle;
   }
 
   .input {
     position: absolute;
-    z-index: var(--openbitfun-layer-content);
+    z-index: var(--alex-layer-content);
     inset: 0;
     inline-size: 100%;
     block-size: 100%;
@@ -25,39 +25,39 @@
     inline-size: 100%;
     block-size: 100%;
     overflow: hidden;
-    border-radius: var(--openbitfun-radius-pill);
-    background: var(--openbitfun-color-control-switch-track);
+    border-radius: var(--alex-radius-pill);
+    background: var(--alex-color-control-switch-track);
     pointer-events: none;
-    transition: background-color var(--openbitfun-motion-duration-fast) var(--openbitfun-motion-easing-standard);
+    transition: background-color var(--alex-motion-duration-fast) var(--alex-motion-easing-standard);
   }
 
   .thumb {
     position: absolute;
-    inset-block-start: var(--openbitfun-control-switch-thumb-inset);
-    inset-inline-start: var(--openbitfun-control-switch-thumb-inset);
-    inline-size: var(--openbitfun-control-switch-thumb-size);
-    block-size: var(--openbitfun-control-switch-thumb-size);
-    border-radius: var(--openbitfun-radius-pill);
-    background: var(--openbitfun-color-control-switch-thumb);
+    inset-block-start: var(--alex-control-switch-thumb-inset);
+    inset-inline-start: var(--alex-control-switch-thumb-inset);
+    inline-size: var(--alex-control-switch-thumb-size);
+    block-size: var(--alex-control-switch-thumb-size);
+    border-radius: var(--alex-radius-pill);
+    background: var(--alex-color-control-switch-thumb);
     transform: translateX(0);
-    transition: transform var(--openbitfun-motion-duration-fast) var(--openbitfun-motion-easing-standard);
+    transition: transform var(--alex-motion-duration-fast) var(--alex-motion-easing-standard);
   }
 
   .input:checked + .track {
-    background: var(--openbitfun-color-control-switch-track-checked);
+    background: var(--alex-color-control-switch-track-checked);
   }
 
   .input:checked + .track .thumb {
-    transform: translateX(var(--openbitfun-control-switch-thumb-travel));
+    transform: translateX(var(--alex-control-switch-thumb-travel));
   }
 
   .switch:dir(rtl) .input:checked + .track .thumb {
-    transform: translateX(var(--openbitfun-control-switch-thumb-travel-reverse));
+    transform: translateX(var(--alex-control-switch-thumb-travel-reverse));
   }
 
   .input:focus-visible + .track {
-    outline: var(--openbitfun-focus-width) solid var(--openbitfun-color-focus-ring);
-    outline-offset: var(--openbitfun-focus-offset);
+    outline: var(--alex-focus-width) solid var(--alex-color-focus-ring);
+    outline-offset: var(--alex-focus-offset);
   }
 
   .input:disabled {
@@ -65,12 +65,12 @@
   }
 
   .input:disabled + .track {
-    opacity: var(--openbitfun-opacity-disabled);
+    opacity: var(--alex-opacity-disabled);
   }
 
   @media (forced-colors: active) {
     .track {
-      border: var(--openbitfun-border-width-default) solid ButtonText;
+      border: var(--alex-border-width-default) solid ButtonText;
       background: Canvas;
     }
 

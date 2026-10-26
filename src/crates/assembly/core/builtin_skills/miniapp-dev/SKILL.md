@@ -220,7 +220,7 @@ await app.fs.readFile(...)
 - `meta.json` 带 `i18n.locales`
 - 静态文案可重渲染
 - 动态文案走 `app.t(...)` 或自有 `I18N` 表
-- 样式优先使用 `--openbitfun-*`
+- 样式优先使用 `--alex-*`
 - 测试 light/dark + zh/en
 
 ### 9. 先做核心体验，不补假内容

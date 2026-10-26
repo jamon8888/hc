@@ -6,9 +6,9 @@ type Event = {type:'ready'|'resync'} | {type:'input';data:string} | {type:'resiz
 type Theme = {background:string;foreground:string;cursor?:string};
 type Frame = {epoch:string;revision:number;reset:boolean;data:string;theme?:Theme};
 declare global { interface Window {
-  OpenBitFunTerminalHost?:{postMessage:(message:string)=>void};
-  webkit?:{messageHandlers?:{openbitfunTerminal?:{postMessage:(event:Event)=>void}}};
-  OpenBitFunTerminal:{connect:()=>void;setTheme:(theme:Theme)=>void;accept:(frame:Frame)=>void};
+  AlexTerminalHost?:{postMessage:(message:string)=>void};
+  webkit?:{messageHandlers?:{alexTerminal?:{postMessage:(event:Event)=>void}}};
+  AlexTerminal:{connect:()=>void;setTheme:(theme:Theme)=>void;accept:(frame:Frame)=>void};
 } }
 const terminal = new Terminal({cursorBlink:true,scrollback:5000,convertEol:false,fontSize:14});
 const fit = new FitAddon();terminal.loadAddon(fit);terminal.open(document.getElementById('terminal')!);
@@ -48,13 +48,13 @@ function drain(){
   terminal.write(frame.data,()=>{writing=false;drain();});
 }
 function send(event:Event) {
-  if(window.OpenBitFunTerminalHost)window.OpenBitFunTerminalHost.postMessage(JSON.stringify(event));
-  else window.webkit?.messageHandlers?.openbitfunTerminal?.postMessage(event);
+  if(window.AlexTerminalHost)window.AlexTerminalHost.postMessage(JSON.stringify(event));
+  else window.webkit?.messageHandlers?.alexTerminal?.postMessage(event);
 }
 terminal.onData(data=>send({type:'input',data}));
 terminal.onResize(({cols,rows})=>send({type:'resize',cols,rows}));
 new ResizeObserver(()=>fit.fit()).observe(document.getElementById('terminal')!);
-window.OpenBitFunTerminal={
+window.AlexTerminal={
   setTheme:applyTheme,
   connect(){fit.fit();send({type:'ready'});send({type:'resize',cols:terminal.cols,rows:terminal.rows});},
   accept(frame){
@@ -65,4 +65,4 @@ window.OpenBitFunTerminal={
     pending.push(frame);revision=frame.revision;drain();
   },
 };
-window.OpenBitFunTerminal.connect();
+window.AlexTerminal.connect();

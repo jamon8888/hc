@@ -1,4 +1,4 @@
-import { subscribeOverlayInteraction, createOverlayPortal, ActionItem } from '@openbitfun/ui';
+import { subscribeOverlayInteraction, createOverlayPortal, ActionItem } from '@alex/ui';
 import {
   Button,
   ConfirmDialog,
@@ -14,7 +14,7 @@ import {
   DialogHeading,
   DialogTitle,
   OverflowText,
-} from '@openbitfun/ui';
+} from '@alex/ui';
 import React, { lazy, Suspense, useCallback, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { FolderOpen, FolderSearch, RotateCcw, FileText, ListChecks, ShieldCheck, Network, Server } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -226,7 +226,7 @@ const WorkspaceItem: React.FC<WorkspaceItemProps> = ({
         setWorkspaceSearchEnabled(nextSettings.enable_workspace_search);
       });
     }, {
-      signalName: 'openbitfun:interactive-shell-ready',
+      signalName: 'alex:interactive-shell-ready',
       fallbackTimeoutMs: 10000,
       frameCount: 1,
     });
@@ -324,7 +324,7 @@ const WorkspaceItem: React.FC<WorkspaceItemProps> = ({
       tone = 'green';
     }
 
-    // The daemon says `needs_index` both while OpenBitFun's auto-index policy is still evaluating the
+    // The daemon says `needs_index` both while Alex's auto-index policy is still evaluating the
     // workspace and after it deliberately declined, so without the policy's own decision the UI
     // can only hedge. When the decision is known it replaces the hedged wording with the reason.
     const autoIndex = workspaceSearchIndex.indexStatus?.autoIndex ?? null;
@@ -510,12 +510,12 @@ const WorkspaceItem: React.FC<WorkspaceItemProps> = ({
     };
 
     void loadAcpClients();
-    window.addEventListener('openbitfun:acp-clients-changed', loadAcpClients);
-    window.addEventListener('openbitfun:acp-requirements-changed', loadAcpClients);
+    window.addEventListener('alex:acp-clients-changed', loadAcpClients);
+    window.addEventListener('alex:acp-requirements-changed', loadAcpClients);
     return () => {
       cancelled = true;
-      window.removeEventListener('openbitfun:acp-clients-changed', loadAcpClients);
-      window.removeEventListener('openbitfun:acp-requirements-changed', loadAcpClients);
+      window.removeEventListener('alex:acp-clients-changed', loadAcpClients);
+      window.removeEventListener('alex:acp-requirements-changed', loadAcpClients);
     };
   }, [menuOpen, workspace]);
 
@@ -791,17 +791,17 @@ const WorkspaceItem: React.FC<WorkspaceItemProps> = ({
   if (workspace.workspaceKind === WorkspaceKind.Assistant) {
     return (
       <div className={[
-        'openbitfun-nav-panel__assistant-item',
+        'alex-nav-panel__assistant-item',
         isActive && 'is-active',
         isDragging && 'is-dragging',
         menuOpen && 'is-menu-open',
         sessionsCollapsed && 'is-sessions-collapsed',
         isSingle && 'is-single',
       ].filter(Boolean).join(' ')}
-      data-openbitfun-product-component="workspace-item"
-      data-openbitfun-product-part="root"
-      data-openbitfun-variant="assistant"
-      data-openbitfun-state={[
+      data-alex-product-component="workspace-item"
+      data-alex-product-part="root"
+      data-alex-variant="assistant"
+      data-alex-state={[
         isActive && 'active',
         isDragging && 'dragging',
         sessionsCollapsed && 'collapsed',
@@ -814,10 +814,10 @@ const WorkspaceItem: React.FC<WorkspaceItemProps> = ({
       data-workspace-kind={workspace.workspaceKind}
       data-workspace-active={isActive ? 'true' : 'false'}>
         <div
-          data-openbitfun-product-component="workspace-item"
-          data-openbitfun-product-part="card"
+          data-alex-product-component="workspace-item"
+          data-alex-product-part="card"
           ref={cardRef}
-          className="openbitfun-nav-panel__assistant-item-card"
+          className="alex-nav-panel__assistant-item-card"
           draggable={draggable}
           onDragStart={onDragStart}
           onDragEnd={onDragEnd}
@@ -828,48 +828,48 @@ const WorkspaceItem: React.FC<WorkspaceItemProps> = ({
           data-workspace-id={workspace.id}
         >
           <button
-            data-openbitfun-product-component="workspace-item"
-            data-openbitfun-product-part="collapse"
+            data-alex-product-component="workspace-item"
+            data-alex-product-part="collapse"
             type="button"
-            className="openbitfun-nav-panel__assistant-item-collapse-btn"
+            className="alex-nav-panel__assistant-item-collapse-btn"
             onClick={e => { e.stopPropagation(); handleCollapseToggle(); }}
             aria-label={sessionsCollapsed ? t('nav.workspaces.expandSessions') : t('nav.workspaces.collapseSessions')}
             aria-expanded={!sessionsCollapsed}
             data-testid="nav-workspace-sessions-toggle"
             data-workspace-id={workspace.id}
           >
-            <span className="openbitfun-nav-panel__assistant-item-avatar is-group-icon" data-openbitfun-product-component="workspace-item" data-openbitfun-product-part="icon" aria-hidden="true">
-              <span className="openbitfun-nav-panel__assistant-item-group-icon">
+            <span className="alex-nav-panel__assistant-item-avatar is-group-icon" data-alex-product-component="workspace-item" data-alex-product-part="icon" aria-hidden="true">
+              <span className="alex-nav-panel__assistant-item-group-icon">
                 <Icon name="user" size="sm" />
               </span>
-              <span className="openbitfun-nav-panel__assistant-item-icon-toggle">
+              <span className="alex-nav-panel__assistant-item-icon-toggle">
                 <Icon name={sessionDisclosureIcon} size="sm" />
               </span>
             </span>
           </button>
           <Tooltip content={workspace.rootPath} placement="right" followCursor>
             <ActionItem data-overflow-trigger
-              data-openbitfun-product-component="workspace-item"
-              data-openbitfun-product-part="name"
+              data-alex-product-component="workspace-item"
+              data-alex-product-part="name"
               type="button"
-              className="openbitfun-nav-panel__assistant-item-name-action"
-              triggerClassName="openbitfun-nav-panel__assistant-item-name-btn"
+              className="alex-nav-panel__assistant-item-name-action"
+              triggerClassName="alex-nav-panel__assistant-item-name-btn"
               labelBehavior="static"
               onClick={e => { e.stopPropagation(); handleCollapseToggle(); }}
               data-testid="nav-workspace-name-btn"
               data-workspace-id={workspace.id}
             >
-              <OverflowText className="openbitfun-nav-panel__assistant-item-label" data-openbitfun-product-component="workspace-item" data-openbitfun-product-part="label">{workspaceDisplayName}</OverflowText>
+              <OverflowText className="alex-nav-panel__assistant-item-label" data-alex-product-component="workspace-item" data-alex-product-part="label">{workspaceDisplayName}</OverflowText>
             </ActionItem>
           </Tooltip>
 
-          <div className="openbitfun-nav-panel__assistant-item-menu" data-openbitfun-product-component="workspace-item" data-openbitfun-product-part="menu" ref={menuRef} onClick={e => e.stopPropagation()}>
+          <div className="alex-nav-panel__assistant-item-menu" data-alex-product-component="workspace-item" data-alex-product-part="menu" ref={menuRef} onClick={e => e.stopPropagation()}>
             <Tooltip content={t('nav.workspaces.actions.newSession')} placement="right" followCursor>
               <button
-                data-openbitfun-product-component="workspace-item"
-                data-openbitfun-product-part="action"
+                data-alex-product-component="workspace-item"
+                data-alex-product-part="action"
                 type="button"
-                className="openbitfun-nav-panel__assistant-item-menu-trigger"
+                className="alex-nav-panel__assistant-item-menu-trigger"
                 onClick={() => { void handleCreateSession(); }}
                 aria-label={t('nav.workspaces.actions.newSession')}
                 data-testid="nav-workspace-new-session-btn"
@@ -880,10 +880,10 @@ const WorkspaceItem: React.FC<WorkspaceItemProps> = ({
             </Tooltip>
             <Tooltip content={t('nav.resources.title')} placement="right" followCursor>
               <button
-                data-openbitfun-product-component="workspace-item"
-                data-openbitfun-product-part="action"
+                data-alex-product-component="workspace-item"
+                data-alex-product-part="action"
                 type="button"
-                className="openbitfun-nav-panel__assistant-item-menu-trigger"
+                className="alex-nav-panel__assistant-item-menu-trigger"
                 onClick={() => { void handleOpenFiles(); }}
                 data-testid="nav-workspace-files-btn"
                 data-workspace-id={workspace.id}
@@ -893,10 +893,10 @@ const WorkspaceItem: React.FC<WorkspaceItemProps> = ({
             </Tooltip>
             <div ref={menuAnchorRef}>
               <button
-                data-openbitfun-product-component="workspace-item"
-                data-openbitfun-product-part="action"
+                data-alex-product-component="workspace-item"
+                data-alex-product-part="action"
                 type="button"
-                className={`openbitfun-nav-panel__assistant-item-menu-trigger${menuOpen ? ' is-open' : ''}`}
+                className={`alex-nav-panel__assistant-item-menu-trigger${menuOpen ? ' is-open' : ''}`}
                 onClick={handleMenuTriggerClick}
                 data-testid="nav-workspace-menu-btn"
                 data-workspace-id={workspace.id}
@@ -908,7 +908,7 @@ const WorkspaceItem: React.FC<WorkspaceItemProps> = ({
             {menuOpen && createOverlayPortal(
               <Menu
                 ref={menuPopoverRef}
-                className="openbitfun-nav-panel__workspace-item-menu-popover"
+                className="alex-nav-panel__workspace-item-menu-popover"
                 inlineSize="content"
                 style={{
                   top: menuPosition?.top ?? 0,
@@ -1002,9 +1002,9 @@ const WorkspaceItem: React.FC<WorkspaceItemProps> = ({
         </div>
 
         <div
-          data-openbitfun-product-component="workspace-item"
-          data-openbitfun-product-part="sessions"
-          className={`openbitfun-nav-panel__assistant-item-sessions${sessionsCollapsed ? ' is-collapsed' : ''}`}
+          data-alex-product-component="workspace-item"
+          data-alex-product-part="sessions"
+          className={`alex-nav-panel__assistant-item-sessions${sessionsCollapsed ? ' is-collapsed' : ''}`}
           data-testid="nav-workspace-session-region"
           data-workspace-id={workspace.id}
         >
@@ -1090,17 +1090,17 @@ const WorkspaceItem: React.FC<WorkspaceItemProps> = ({
 
   return (
     <div className={[
-      'openbitfun-nav-panel__workspace-item',
+      'alex-nav-panel__workspace-item',
       isActive && 'is-active',
       isDragging && 'is-dragging',
       menuOpen && 'is-menu-open',
       sessionsCollapsed && 'is-sessions-collapsed',
       isSingle && 'is-single',
     ].filter(Boolean).join(' ')}
-    data-openbitfun-product-component="workspace-item"
-    data-openbitfun-product-part="root"
-    data-openbitfun-variant="workspace"
-    data-openbitfun-state={[
+    data-alex-product-component="workspace-item"
+    data-alex-product-part="root"
+    data-alex-variant="workspace"
+    data-alex-state={[
       isActive && 'active',
       isDragging && 'dragging',
       sessionsCollapsed && 'collapsed',
@@ -1113,10 +1113,10 @@ const WorkspaceItem: React.FC<WorkspaceItemProps> = ({
     data-workspace-kind={workspace.workspaceKind}
     data-workspace-active={isActive ? 'true' : 'false'}>
       <div
-        data-openbitfun-product-component="workspace-item"
-        data-openbitfun-product-part="card"
+        data-alex-product-component="workspace-item"
+        data-alex-product-part="card"
         ref={cardRef}
-        className="openbitfun-nav-panel__workspace-item-card"
+        className="alex-nav-panel__workspace-item-card"
         draggable={draggable}
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
@@ -1127,57 +1127,57 @@ const WorkspaceItem: React.FC<WorkspaceItemProps> = ({
         data-workspace-id={workspace.id}
       >
         <button
-          data-openbitfun-product-component="workspace-item"
-          data-openbitfun-product-part="collapse"
+          data-alex-product-component="workspace-item"
+          data-alex-product-part="collapse"
           type="button"
-          className="openbitfun-nav-panel__workspace-item-collapse-btn"
+          className="alex-nav-panel__workspace-item-collapse-btn"
           onClick={e => { e.stopPropagation(); handleCollapseToggle(); }}
           aria-label={sessionsCollapsed ? t('nav.workspaces.expandSessions') : t('nav.workspaces.collapseSessions')}
           aria-expanded={!sessionsCollapsed}
           data-testid="nav-workspace-sessions-toggle"
           data-workspace-id={workspace.id}
         >
-          <span className="openbitfun-nav-panel__workspace-item-icon" data-openbitfun-product-component="workspace-item" data-openbitfun-product-part="icon" aria-hidden="true">
-            <span className="openbitfun-nav-panel__workspace-item-icon-default">
+          <span className="alex-nav-panel__workspace-item-icon" data-alex-product-component="workspace-item" data-alex-product-part="icon" aria-hidden="true">
+            <span className="alex-nav-panel__workspace-item-icon-default">
               {workspaceIsRemote ? (
                 <Icon glyph={Server} size="sm" />
               ) : (
                 <Icon name="folder" size="sm" />
               )}
             </span>
-            <span className="openbitfun-nav-panel__workspace-item-icon-toggle">
+            <span className="alex-nav-panel__workspace-item-icon-toggle">
               <Icon name={sessionDisclosureIcon} size="sm" />
             </span>
           </span>
         </button>
-        <div className="openbitfun-nav-panel__workspace-item-name-cluster">
-          <div className="openbitfun-nav-panel__workspace-item-name-stack">
-            <div className="openbitfun-nav-panel__workspace-item-name-row">
+        <div className="alex-nav-panel__workspace-item-name-cluster">
+          <div className="alex-nav-panel__workspace-item-name-stack">
+            <div className="alex-nav-panel__workspace-item-name-row">
               <Tooltip content={workspace.rootPath} placement="right" followCursor>
                 <ActionItem
-                  data-openbitfun-product-component="workspace-item"
-                  data-openbitfun-product-part="name"
+                  data-alex-product-component="workspace-item"
+                  data-alex-product-part="name"
                   data-overflow-trigger
                   type="button"
-                  className="openbitfun-nav-panel__workspace-item-name-action"
-                  triggerClassName="openbitfun-nav-panel__workspace-item-name-btn"
+                  className="alex-nav-panel__workspace-item-name-action"
+                  triggerClassName="alex-nav-panel__workspace-item-name-btn"
                   labelBehavior="static"
                   onClick={e => { e.stopPropagation(); handleCollapseToggle(); }}
                   data-testid="nav-workspace-name-btn"
                   data-workspace-id={workspace.id}
                 >
-                  <span className="openbitfun-nav-panel__workspace-item-name-line">
+                  <span className="alex-nav-panel__workspace-item-name-line">
                     <OverflowText
                       behavior="marquee"
-                      className="openbitfun-nav-panel__workspace-item-label"
-                      data-openbitfun-product-component="workspace-item"
-                      data-openbitfun-product-part="label"
+                      className="alex-nav-panel__workspace-item-label"
+                      data-alex-product-component="workspace-item"
+                      data-alex-product-part="label"
                       title=""
                     >
                       {workspaceDisplayName}
                     </OverflowText>
                     {relatedPathCount > 0 ? (
-                      <span className="openbitfun-nav-panel__workspace-item-badge" data-openbitfun-product-component="workspace-item" data-openbitfun-product-part="badge">
+                      <span className="alex-nav-panel__workspace-item-badge" data-alex-product-component="workspace-item" data-alex-product-part="badge">
                         {t('nav.workspaces.relatedPaths.badge', { count: relatedPathCount })}
                       </span>
                     ) : null}
@@ -1196,10 +1196,10 @@ const WorkspaceItem: React.FC<WorkspaceItemProps> = ({
                     })}
                   >
                     <button
-                      data-openbitfun-product-component="workspace-item"
-                      data-openbitfun-product-part="indexIndicator"
+                      data-alex-product-component="workspace-item"
+                      data-alex-product-part="indexIndicator"
                       type="button"
-                      className={`openbitfun-nav-panel__workspace-index-indicator is-${searchIndexIndicator.tone}`}
+                      className={`alex-nav-panel__workspace-index-indicator is-${searchIndexIndicator.tone}`}
                       aria-label={searchIndexIndicator.ariaLabel}
                       aria-expanded={searchIndexModalOpen}
                       onClick={e => {
@@ -1222,41 +1222,41 @@ const WorkspaceItem: React.FC<WorkspaceItemProps> = ({
                       <DialogClose />
                     </DialogHeader>
                     <DialogBody>
-                      <div className="openbitfun-nav-panel__workspace-index-modal-content">
-                    <div className={`openbitfun-nav-panel__workspace-index-tooltip is-${searchIndexIndicator.tone}`} data-openbitfun-product-component="workspace-item" data-openbitfun-product-part="indexPanel">
-                      <div className="openbitfun-nav-panel__workspace-index-tooltip-header">
-                        <div className="openbitfun-nav-panel__workspace-index-tooltip-heading">
-                          <span className={`openbitfun-nav-panel__workspace-index-tooltip-dot is-${searchIndexIndicator.tone}`} aria-hidden="true" />
-                          <div className="openbitfun-nav-panel__workspace-index-tooltip-title-wrap">
-                            <span className="openbitfun-nav-panel__workspace-index-tooltip-title">
+                      <div className="alex-nav-panel__workspace-index-modal-content">
+                    <div className={`alex-nav-panel__workspace-index-tooltip is-${searchIndexIndicator.tone}`} data-alex-product-component="workspace-item" data-alex-product-part="indexPanel">
+                      <div className="alex-nav-panel__workspace-index-tooltip-header">
+                        <div className="alex-nav-panel__workspace-index-tooltip-heading">
+                          <span className={`alex-nav-panel__workspace-index-tooltip-dot is-${searchIndexIndicator.tone}`} aria-hidden="true" />
+                          <div className="alex-nav-panel__workspace-index-tooltip-title-wrap">
+                            <span className="alex-nav-panel__workspace-index-tooltip-title">
                               {searchIndexIndicator.title}
                             </span>
-                            <span className="openbitfun-nav-panel__workspace-index-tooltip-phase">
+                            <span className="alex-nav-panel__workspace-index-tooltip-phase">
                               {searchIndexIndicator.activeTaskLabel ?? searchIndexIndicator.phaseLabel}
                             </span>
                           </div>
                         </div>
-                        <span className={`openbitfun-nav-panel__workspace-index-tooltip-badge is-${searchIndexIndicator.tone}`}>
+                        <span className={`alex-nav-panel__workspace-index-tooltip-badge is-${searchIndexIndicator.tone}`}>
                           {searchIndexIndicator.phaseLabel}
                         </span>
                       </div>
-                      <div className="openbitfun-nav-panel__workspace-index-tooltip-summary">
+                      <div className="alex-nav-panel__workspace-index-tooltip-summary">
                         {searchIndexIndicator.activeTaskMessage ?? searchIndexIndicator.summary}
                       </div>
                       {searchIndexIndicator.progressLabel ? (
-                        <div className="openbitfun-nav-panel__workspace-index-tooltip-progress">
-                          <div className="openbitfun-nav-panel__workspace-index-tooltip-progress-head">
+                        <div className="alex-nav-panel__workspace-index-tooltip-progress">
+                          <div className="alex-nav-panel__workspace-index-tooltip-progress-head">
                             <span>{searchIndexIndicator.progressLabel}</span>
                             {searchIndexIndicator.progressPercentLabel ? (
-                              <span className="openbitfun-nav-panel__workspace-index-tooltip-progress-value">
+                              <span className="alex-nav-panel__workspace-index-tooltip-progress-value">
                                 {searchIndexIndicator.progressPercentLabel}
                               </span>
                             ) : null}
                           </div>
                           {typeof searchIndexIndicator.progressPercent === 'number' ? (
-                            <div className="openbitfun-nav-panel__workspace-index-tooltip-progress-bar" aria-hidden="true">
+                            <div className="alex-nav-panel__workspace-index-tooltip-progress-bar" aria-hidden="true">
                               <span
-                                className={`openbitfun-nav-panel__workspace-index-tooltip-progress-fill is-${searchIndexIndicator.tone}`}
+                                className={`alex-nav-panel__workspace-index-tooltip-progress-fill is-${searchIndexIndicator.tone}`}
                                 style={{ width: `${searchIndexIndicator.progressPercent}%` }}
                               />
                             </div>
@@ -1264,34 +1264,34 @@ const WorkspaceItem: React.FC<WorkspaceItemProps> = ({
                         </div>
                       ) : null}
                       {searchIndexIndicator.dirtyFilesLabel ? (
-                        <div className="openbitfun-nav-panel__workspace-index-tooltip-meta">
+                        <div className="alex-nav-panel__workspace-index-tooltip-meta">
                           {searchIndexIndicator.dirtyFilesLabel}
                         </div>
                       ) : null}
                       {searchIndexIndicator.workspaceProbePending ? (
-                        <div className="openbitfun-nav-panel__workspace-index-tooltip-meta">
+                        <div className="alex-nav-panel__workspace-index-tooltip-meta">
                           {tFiles('search.index.indicator.probePending')}
                         </div>
                       ) : null}
                       {searchIndexIndicator.baseAdvanceInProgress ? (
-                        <div className="openbitfun-nav-panel__workspace-index-tooltip-meta is-warning">
+                        <div className="alex-nav-panel__workspace-index-tooltip-meta is-warning">
                           {tFiles('search.index.indicator.baseAdvancing')}
                         </div>
                       ) : null}
                       {!searchIndexIndicator.probeHealthy ? (
-                        <div className="openbitfun-nav-panel__workspace-index-tooltip-meta is-warning">
+                        <div className="alex-nav-panel__workspace-index-tooltip-meta is-warning">
                           {tFiles('search.index.indicator.probeDegraded')}
                         </div>
                       ) : null}
                       {searchIndexIndicator.errorText ? (
-                        <div className="openbitfun-nav-panel__workspace-index-tooltip-error">
+                        <div className="alex-nav-panel__workspace-index-tooltip-error">
                           {searchIndexIndicator.errorText}
                         </div>
                       ) : null}
                       {canRebuildSearchIndex ? (
-                        <div className="openbitfun-nav-panel__workspace-index-tooltip-actions">
+                        <div className="alex-nav-panel__workspace-index-tooltip-actions">
                           <Button
-                            className="openbitfun-nav-panel__workspace-index-tooltip-action"
+                            className="alex-nav-panel__workspace-index-tooltip-action"
                             size="sm"
                             variant="outline"
                             onClick={() => {
@@ -1318,23 +1318,23 @@ const WorkspaceItem: React.FC<WorkspaceItemProps> = ({
               {remoteMeta && (
                 <Tooltip content={remoteMeta.tooltip} placement="right" followCursor>
                   <span
-                    data-openbitfun-product-component="workspace-item"
-                    data-openbitfun-product-part="remoteStatus"
-                    className={`openbitfun-nav-panel__workspace-item-remote is-${remoteMeta.status}`}
+                    data-alex-product-component="workspace-item"
+                    data-alex-product-part="remoteStatus"
+                    className={`alex-nav-panel__workspace-item-remote is-${remoteMeta.status}`}
                     role="img"
                     aria-label={remoteMeta.ariaLabel}
                     data-testid="nav-workspace-remote-meta"
                     data-remote-status={remoteMeta.status}
                   >
                     <span
-                      className={`openbitfun-nav-panel__workspace-item-status-dot is-${remoteMeta.status}`}
+                      className={`alex-nav-panel__workspace-item-status-dot is-${remoteMeta.status}`}
                       aria-hidden="true"
                     />
-                    <span className="openbitfun-nav-panel__workspace-item-remote-host">
+                    <span className="alex-nav-panel__workspace-item-remote-host">
                       {remoteMeta.connectionLabel}
                     </span>
                     {remoteMeta.showStatusText ? (
-                      <span className="openbitfun-nav-panel__workspace-item-remote-status">
+                      <span className="alex-nav-panel__workspace-item-remote-status">
                         {remoteMeta.statusLabel}
                       </span>
                     ) : null}
@@ -1345,14 +1345,14 @@ const WorkspaceItem: React.FC<WorkspaceItemProps> = ({
           </div>
         </div>
 
-        <div className="openbitfun-nav-panel__workspace-item-actions" onClick={e => e.stopPropagation()}>
-          <div className="openbitfun-nav-panel__workspace-item-menu" data-openbitfun-product-component="workspace-item" data-openbitfun-product-part="menu" ref={menuRef}>
+        <div className="alex-nav-panel__workspace-item-actions" onClick={e => e.stopPropagation()}>
+          <div className="alex-nav-panel__workspace-item-menu" data-alex-product-component="workspace-item" data-alex-product-part="menu" ref={menuRef}>
             <Tooltip content={t('nav.sessions.newSession')} placement="right" followCursor>
               <button
-                data-openbitfun-product-component="workspace-item"
-                data-openbitfun-product-part="action"
+                data-alex-product-component="workspace-item"
+                data-alex-product-part="action"
                 type="button"
-                className="openbitfun-nav-panel__workspace-item-menu-trigger"
+                className="alex-nav-panel__workspace-item-menu-trigger"
                 onClick={handleCreateProjectSession}
                 aria-label={t('nav.sessions.newSession')}
                 data-testid="nav-workspace-new-session-btn"
@@ -1363,11 +1363,11 @@ const WorkspaceItem: React.FC<WorkspaceItemProps> = ({
             </Tooltip>
             <Tooltip content={t('nav.resources.title')} placement="right" followCursor>
               <button
-                data-openbitfun-product-component="workspace-item"
-                data-openbitfun-product-part="menuTrigger"
-                data-openbitfun-state={menuOpen ? 'open' : undefined}
+                data-alex-product-component="workspace-item"
+                data-alex-product-part="menuTrigger"
+                data-alex-state={menuOpen ? 'open' : undefined}
                 type="button"
-                className="openbitfun-nav-panel__workspace-item-menu-trigger"
+                className="alex-nav-panel__workspace-item-menu-trigger"
                 onClick={() => { void handleOpenFiles(); }}
                 data-testid="nav-workspace-files-btn"
                 data-workspace-id={workspace.id}
@@ -1377,11 +1377,11 @@ const WorkspaceItem: React.FC<WorkspaceItemProps> = ({
             </Tooltip>
             <div ref={menuAnchorRef}>
               <button
-                data-openbitfun-product-component="workspace-item"
-                data-openbitfun-product-part="menuTrigger"
-                data-openbitfun-state={menuOpen ? 'open' : undefined}
+                data-alex-product-component="workspace-item"
+                data-alex-product-part="menuTrigger"
+                data-alex-state={menuOpen ? 'open' : undefined}
                 type="button"
-                className={`openbitfun-nav-panel__workspace-item-menu-trigger${menuOpen ? ' is-open' : ''}`}
+                className={`alex-nav-panel__workspace-item-menu-trigger${menuOpen ? ' is-open' : ''}`}
                 onClick={handleMenuTriggerClick}
                 data-testid="nav-workspace-menu-btn"
                 data-workspace-id={workspace.id}
@@ -1393,7 +1393,7 @@ const WorkspaceItem: React.FC<WorkspaceItemProps> = ({
             {menuOpen && createOverlayPortal(
               <Menu
                 ref={menuPopoverRef}
-                className="openbitfun-nav-panel__workspace-item-menu-popover"
+                className="alex-nav-panel__workspace-item-menu-popover"
                 inlineSize="content"
                 style={{
                   top: menuPosition?.top ?? 0,
@@ -1508,9 +1508,9 @@ const WorkspaceItem: React.FC<WorkspaceItemProps> = ({
       </div>
 
       <div
-        data-openbitfun-product-component="workspace-item"
-        data-openbitfun-product-part="sessions"
-        className={`openbitfun-nav-panel__workspace-item-sessions${sessionsCollapsed ? ' is-collapsed' : ''}`}
+        data-alex-product-component="workspace-item"
+        data-alex-product-part="sessions"
+        className={`alex-nav-panel__workspace-item-sessions${sessionsCollapsed ? ' is-collapsed' : ''}`}
         data-testid="nav-workspace-session-region"
         data-workspace-id={workspace.id}
       >

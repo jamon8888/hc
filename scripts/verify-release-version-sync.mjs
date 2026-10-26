@@ -16,7 +16,7 @@ const versions = new Map([
   ['src/crates/services/relay-service/Cargo.toml', readTomlVersion('src/crates/services/relay-service/Cargo.toml', /^version = "([^"]+)"/m)],
   ['src/crates/services/page-function-runtime/Cargo.toml', readTomlVersion('src/crates/services/page-function-runtime/Cargo.toml', /^version = "([^"]+)"/m)],
   ['src/apps/mobile/android/app/build.gradle.kts', readTextVersion('src/apps/mobile/android/app/build.gradle.kts', /versionName\s*=\s*"([^"]+)"/)],
-  ['src/apps/mobile/ios/OpenBitFun/Info.plist', readTextVersion('src/apps/mobile/ios/OpenBitFun/Info.plist', /<key>CFBundleShortVersionString<\/key>\s*<string>([^<]+)<\/string>/)],
+  ['src/apps/mobile/ios/Alex/Info.plist', readTextVersion('src/apps/mobile/ios/Alex/Info.plist', /<key>CFBundleShortVersionString<\/key>\s*<string>([^<]+)<\/string>/)],
   ['src/apps/mobile/harmonyos/AppScope/app.json5', readTextVersion('src/apps/mobile/harmonyos/AppScope/app.json5', /"versionName"\s*:\s*"([^"]+)"/)],
 ]);
 

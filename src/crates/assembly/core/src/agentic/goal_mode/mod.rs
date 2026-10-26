@@ -10,9 +10,9 @@ pub(crate) use token_accounting::record_thread_goal_token_usage;
 
 use crate::agentic::core::{InternalReminderKind, Message};
 use crate::agentic::session::SessionManager;
-use crate::util::errors::{OpenBitFunError, OpenBitFunResult};
+use crate::util::errors::{AlexError, AlexResult};
 use log::{info, warn};
-pub use openbitfun_agent_runtime::thread_goal::{
+pub use alex_agent_runtime::thread_goal::{
     billable_tokens_from_counts, build_objective_updated_plan, build_thread_goal_continuation_plan,
     clear_thread_goal_patch, completion_budget_report, continuation_prompt,
     effective_subagent_timeout_seconds, goal_continuation_submit_retry_delay_ms,
@@ -21,10 +21,10 @@ pub use openbitfun_agent_runtime::thread_goal::{
     thread_goal_status_is_resumable, ThreadGoalContinuationFacts, ThreadGoalRuntime,
     GOAL_CONTINUATION_SUBMIT_RETRY_BASE_DELAY_MS, GOAL_CONTINUATION_SUBMIT_RETRY_MAX_DELAY_MS,
 };
-use openbitfun_agent_runtime::thread_goal::{
+use alex_agent_runtime::thread_goal::{
     build_set_thread_goal_result, is_usage_limit_message, SetThreadGoalRequest,
 };
-pub use openbitfun_runtime_ports::{
+pub use alex_runtime_ports::{
     validate_thread_goal_objective, SetThreadGoalResult, ThreadGoal, ThreadGoalContinuationPlan,
     ThreadGoalStatus, ThreadGoalToolResponse, GOAL_MODE_METADATA_KEY, MAX_CONTEXT_SUMMARY_CHARS,
     MAX_GOAL_CONTINUATIONS, MAX_THREAD_GOAL_AUTO_CONTINUATIONS, MAX_THREAD_GOAL_OBJECTIVE_CHARS,
@@ -51,14 +51,14 @@ pub fn now_epoch_seconds() -> i64 {
 pub fn thread_goal_from_custom_metadata(
     custom_metadata: Option<&serde_json::Value>,
 ) -> Option<ThreadGoal> {
-    openbitfun_agent_runtime::thread_goal::thread_goal_from_custom_metadata(
+    alex_agent_runtime::thread_goal::thread_goal_from_custom_metadata(
         custom_metadata,
         Uuid::new_v4().to_string(),
         now_epoch_seconds(),
     )
 }
 
-pub fn is_usage_limit_error(error: &OpenBitFunError) -> bool {
+pub fn is_usage_limit_error(error: &AlexError) -> bool {
     is_usage_limit_message(&error.to_string())
 }
 
@@ -83,7 +83,7 @@ impl<'a> ThreadGoalStore<'a> {
         &self,
         session_id: &str,
         workspace_path: &Path,
-    ) -> OpenBitFunResult<Option<serde_json::Value>> {
+    ) -> AlexResult<Option<serde_json::Value>> {
         Ok(self
             .session_manager
             .load_session_metadata(workspace_path, session_id)
@@ -95,7 +95,7 @@ impl<'a> ThreadGoalStore<'a> {
         &self,
         session_id: &str,
         workspace_path: &Path,
-    ) -> OpenBitFunResult<Option<ThreadGoal>> {
+    ) -> AlexResult<Option<ThreadGoal>> {
         let metadata = self.load_metadata(session_id, workspace_path).await?;
         Ok(thread_goal_from_custom_metadata(metadata.as_ref()))
     }
@@ -105,7 +105,7 @@ impl<'a> ThreadGoalStore<'a> {
         session_id: &str,
         _workspace_path: &Path,
         goal: Option<ThreadGoal>,
-    ) -> OpenBitFunResult<()> {
+    ) -> AlexResult<()> {
         let patch = match goal {
             Some(goal) => thread_goal_patch(&goal),
             None => clear_thread_goal_patch(),
@@ -119,7 +119,7 @@ impl<'a> ThreadGoalStore<'a> {
         &self,
         session_id: &str,
         workspace_path: &Path,
-    ) -> OpenBitFunResult<()> {
+    ) -> AlexResult<()> {
         self.persist_thread_goal(session_id, workspace_path, None)
             .await
     }
@@ -132,7 +132,7 @@ impl<'a> ThreadGoalStore<'a> {
         status: Option<ThreadGoalStatus>,
         token_budget: Option<Option<i64>>,
         replace_existing: bool,
-    ) -> OpenBitFunResult<SetThreadGoalResult> {
+    ) -> AlexResult<SetThreadGoalResult> {
         let existing = self.get_thread_goal(session_id, workspace_path).await?;
 
         let result = build_set_thread_goal_result(SetThreadGoalRequest {
@@ -146,11 +146,11 @@ impl<'a> ThreadGoalStore<'a> {
             new_goal_id: Uuid::new_v4().to_string(),
         })
         .map_err(|error| match error {
-            openbitfun_agent_runtime::thread_goal::ThreadGoalRuntimeError::Validation(message) => {
-                OpenBitFunError::Validation(message)
+            alex_agent_runtime::thread_goal::ThreadGoalRuntimeError::Validation(message) => {
+                AlexError::Validation(message)
             }
-            openbitfun_agent_runtime::thread_goal::ThreadGoalRuntimeError::NotFound(message) => {
-                OpenBitFunError::NotFound(message)
+            alex_agent_runtime::thread_goal::ThreadGoalRuntimeError::NotFound(message) => {
+                AlexError::NotFound(message)
             }
         })?;
 
@@ -166,13 +166,13 @@ impl<'a> ThreadGoalStore<'a> {
         workspace_path: &Path,
         objective: String,
         token_budget: Option<i64>,
-    ) -> OpenBitFunResult<ThreadGoal> {
+    ) -> AlexResult<ThreadGoal> {
         if self
             .get_thread_goal(session_id, workspace_path)
             .await?
             .is_some()
         {
-            return Err(OpenBitFunError::Validation(format!(
+            return Err(AlexError::Validation(format!(
                 "cannot create a new goal because session {session_id} already has a goal"
             )));
         }
@@ -198,7 +198,7 @@ pub async fn maybe_build_continuation_after_turn(
     turn_id: &str,
     turn_tokens: usize,
     turn_completed: bool,
-) -> OpenBitFunResult<Option<ThreadGoalContinuationPlan>> {
+) -> AlexResult<Option<ThreadGoalContinuationPlan>> {
     let Some(goal) = store.get_thread_goal(session_id, workspace_path).await? else {
         return Ok(None);
     };
@@ -240,12 +240,12 @@ pub async fn maybe_build_continuation_after_turn(
     Ok(outcome.plan)
 }
 
-pub fn user_facing_thread_goal_error(error: OpenBitFunError) -> OpenBitFunError {
+pub fn user_facing_thread_goal_error(error: AlexError) -> AlexError {
     match error {
-        OpenBitFunError::Validation(_) | OpenBitFunError::NotFound(_) => error,
+        AlexError::Validation(_) | AlexError::NotFound(_) => error,
         other => {
             warn!("Thread goal operation failed: {other}");
-            OpenBitFunError::Validation(
+            AlexError::Validation(
                 "Thread goal operation failed. Check session state and try again.".to_string(),
             )
         }
@@ -367,10 +367,10 @@ mod tests {
 
     #[test]
     fn usage_limit_error_detects_quota_messages() {
-        assert!(is_usage_limit_error(&OpenBitFunError::AIClient(
+        assert!(is_usage_limit_error(&AlexError::AIClient(
             "insufficient_quota: billing hard limit".to_string()
         )));
-        assert!(!is_usage_limit_error(&OpenBitFunError::Validation(
+        assert!(!is_usage_limit_error(&AlexError::Validation(
             "tool failed".to_string()
         )));
     }

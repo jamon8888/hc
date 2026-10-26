@@ -65,7 +65,7 @@ describe('ChatInputImagePreview', () => {
 
   it('previews the resolved thumbnail and closes the overlay on demand', async () => {
     await render(<ChatInputImagePreview image={{ ...image, dataUrl: 'data:image/png;base64,AA==' }} surfaceEpoch={1} />);
-    const trigger = container.querySelector<HTMLButtonElement>('.openbitfun-chat-input__image-chip-preview')!;
+    const trigger = container.querySelector<HTMLButtonElement>('.alex-chat-input__image-chip-preview')!;
     expect(trigger.getAttribute('aria-label')).toBe('components:imageLightbox.label');
     expect(document.querySelector('.image-lightbox')).toBeNull();
 

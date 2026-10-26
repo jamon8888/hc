@@ -22,7 +22,7 @@ const exchange: VoiceExchange = {
   surfaceId: 'local', sessionId: 'conversation', workspaceId: 'workspace-remote',
   exchangeId: 'exchange-1', userText: 'Remember blue', assistantText: 'Okay',
 };
-const key = (request: VoiceExchange) => 'openbitfun-voice-exchange:'
+const key = (request: VoiceExchange) => 'alex-voice-exchange:'
   + JSON.stringify([request.surfaceId, request.sessionId, request.exchangeId]);
 
 describe('voice history recovery', () => {

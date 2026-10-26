@@ -117,8 +117,8 @@ vi.mock('./DeepReviewActionBar', () => ({
   ReviewActionBar: () => <div data-testid="review-action-bar" />,
 }));
 
-vi.mock('@openbitfun/ui', async importOriginal => ({
-  ...await importOriginal<typeof import('@openbitfun/ui')>(),
+vi.mock('@alex/ui', async importOriginal => ({
+  ...await importOriginal<typeof import('@alex/ui')>(),
   IconButton: ({
     children,
     onClick,
@@ -813,12 +813,12 @@ describe('BtwSessionPanel review action bar integration', () => {
     });
 
     const avatar = container.querySelector<HTMLElement>(
-      '[data-openbitfun-component="subagent-avatar"][data-openbitfun-avatar-id]',
+      '[data-alex-component="subagent-avatar"][data-alex-avatar-id]',
     );
     expect(avatar).toBeTruthy();
-    expect(avatar?.hasAttribute('data-openbitfun-name-id')).toBe(false);
-    expect(container.querySelector('[data-openbitfun-part="subagentName"]')).toBeNull();
-    expect(container.querySelector('[data-openbitfun-part="badge"]')?.textContent).toBe('Agent');
+    expect(avatar?.hasAttribute('data-alex-name-id')).toBe(false);
+    expect(container.querySelector('[data-alex-part="subagentName"]')).toBeNull();
+    expect(container.querySelector('[data-alex-part="badge"]')?.textContent).toBe('Agent');
   });
 
   it('shows a Review-check loading state instead of an empty thread', async () => {

@@ -22,13 +22,13 @@ export const remoteConnectDialogAppearanceDescriptor: AppearanceSurfaceDescripto
     { id: 'error' },
   ],
   facets: [
-    { id: 'view', attribute: 'data-openbitfun-view', values: ['overview', 'network', 'bot', 'account'] },
-    { id: 'group', attribute: 'data-openbitfun-group', values: ['network', 'bot', 'account'] },
+    { id: 'view', attribute: 'data-alex-view', values: ['overview', 'network', 'bot', 'account'] },
+    { id: 'group', attribute: 'data-alex-group', values: ['network', 'bot', 'account'] },
   ],
   states: [
-    { id: 'authenticated', selector: { kind: 'self', suffix: '[data-openbitfun-state~="authenticated"]' } },
-    { id: 'connected', selector: { kind: 'self', suffix: '[data-openbitfun-state~="connected"]' } },
-    { id: 'disabled', selector: { kind: 'self', suffix: '[data-openbitfun-state~="disabled"]' } },
+    { id: 'authenticated', selector: { kind: 'self', suffix: '[data-alex-state~="authenticated"]' } },
+    { id: 'connected', selector: { kind: 'self', suffix: '[data-alex-state~="connected"]' } },
+    { id: 'disabled', selector: { kind: 'self', suffix: '[data-alex-state~="disabled"]' } },
   ],
 };
 
@@ -45,11 +45,11 @@ export const remoteAccountPanelAppearanceDescriptor: AppearanceSurfaceDescriptor
     { id: 'deviceCard' },
   ],
   facets: [
-    { id: 'view', attribute: 'data-openbitfun-view', values: ['login', 'devices'] },
+    { id: 'view', attribute: 'data-alex-view', values: ['login', 'devices'] },
   ],
   states: [
-    { id: 'offline', selector: { kind: 'self', suffix: '[data-openbitfun-state~="offline"]' } },
-    { id: 'current', selector: { kind: 'self', suffix: '[data-openbitfun-state~="current"]' } },
-    { id: 'syncing', selector: { kind: 'self', suffix: '[data-openbitfun-state~="syncing"]' } },
+    { id: 'offline', selector: { kind: 'self', suffix: '[data-alex-state~="offline"]' } },
+    { id: 'current', selector: { kind: 'self', suffix: '[data-alex-state~="current"]' } },
+    { id: 'syncing', selector: { kind: 'self', suffix: '[data-alex-state~="syncing"]' } },
   ],
 };

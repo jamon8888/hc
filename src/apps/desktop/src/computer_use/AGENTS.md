@@ -32,7 +32,7 @@ Run the real native portal fixture in the desktop user's Ubuntu session (require
 `python3-gi`, GTK 3, GStreamer PipeWire/base/good plugins and portal services):
 
 ```bash
-cargo check --locked -p openbitfun-desktop --tests
+cargo check --locked -p alex-desktop --tests
 node scripts/test-linux-computer-use-native.mjs -- --test-threads=1
 bash scripts/test-linux-computer-use-atspi.sh
 bash scripts/test-linux-computer-use-portal.sh
@@ -98,7 +98,7 @@ algorithms or native-host mocks. Cargo dependencies must already be cached
 
 ```bash
 node scripts/test-computer-use-context.mjs
-cargo test -p openbitfun-desktop --lib context_integrity_tests
+cargo test -p alex-desktop --lib context_integrity_tests
 ```
 
 Native black-box fixtures use only a dedicated test window / rendered image:
@@ -151,8 +151,8 @@ Observation invariants:
   when text rendering is disabled; focused controls survive budget selection.
 
 ```bash
-cargo test -p openbitfun-desktop --lib computer_use
-cargo build -p openbitfun-desktop
+cargo test -p alex-desktop --lib computer_use
+cargo build -p alex-desktop
 ```
 
 Windows-only paths (`windows_wgc_capture`, UIA) compile on CI (`windows-latest`).

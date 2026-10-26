@@ -1,13 +1,13 @@
-use openbitfun_opencode_adapter::load_opencode_package_adapter;
-use openbitfun_plugin_runtime_client::DefaultPluginRuntimeClient;
-use openbitfun_product_domains::plugin_source::{PluginActivationAuthority, PluginPackageInput};
-use openbitfun_runtime_ports::{
+use alex_opencode_adapter::load_opencode_package_adapter;
+use alex_plugin_runtime_client::DefaultPluginRuntimeClient;
+use alex_product_domains::plugin_source::{PluginActivationAuthority, PluginPackageInput};
+use alex_runtime_ports::{
     PluginCapabilityRef, PluginDataClassification, PluginDispatchEnvelope, PluginOwnerKind,
     PluginOwnerRef, PluginPayloadRedaction, PluginPayloadRef, PluginPermissionGate,
     PluginRuntimeAvailability, PluginRuntimeClient, PluginRuntimeEpochs, PluginRuntimeReadRequest,
     PluginRuntimeUnavailableReason, PluginStatusKind, PluginTrustLevel,
 };
-use openbitfun_services_integrations::plugin_source::{
+use alex_services_integrations::plugin_source::{
     ManagedPluginSourceService, ManagedPluginTrustDecision,
 };
 use sha2::{Digest, Sha256};
@@ -42,12 +42,12 @@ impl ManagedPackageFixture {
             .expect("system time")
             .as_nanos();
         let root = std::env::temp_dir().join(format!(
-            "openbitfun-opencode-managed-{name}-{}-{nonce}",
+            "alex-opencode-managed-{name}-{}-{nonce}",
             process::id()
         ));
         let workspace = root.join("workspace");
         let user_data = root.join("user");
-        let package = workspace.join(".openbitfun/plugins/acme.demo");
+        let package = workspace.join(".alex/plugins/acme.demo");
         let plugin_path = package.join(relative_path.replace('/', std::path::MAIN_SEPARATOR_STR));
         fs::create_dir_all(plugin_path.parent().expect("plugin parent")).expect("create package");
         fs::create_dir_all(user_data.join("plugins")).expect("create user package root");
@@ -65,7 +65,7 @@ impl ManagedPackageFixture {
             }]
         });
         fs::write(
-            package.join("openbitfun.plugin.json"),
+            package.join("alex.plugin.json"),
             serde_json::to_vec_pretty(&manifest).expect("serialize manifest"),
         )
         .expect("write manifest");
@@ -73,7 +73,7 @@ impl ManagedPackageFixture {
         let service = ManagedPluginSourceService::new(
             user_data.join("plugins"),
             user_data.clone(),
-            workspace.join(".openbitfun/plugins"),
+            workspace.join(".alex/plugins"),
             workspace.clone(),
             user_data.join("runtime/plugin-trust.json"),
         );
@@ -96,7 +96,7 @@ impl ManagedPackageFixture {
         fs::create_dir_all(file_path.parent().expect("declared file parent"))
             .expect("create declared file parent");
         fs::write(&file_path, content).expect("write declared file");
-        let manifest_path = self.package.join("openbitfun.plugin.json");
+        let manifest_path = self.package.join("alex.plugin.json");
         let mut manifest: serde_json::Value =
             serde_json::from_slice(&fs::read(&manifest_path).expect("read plugin manifest"))
                 .expect("parse plugin manifest");
@@ -119,7 +119,7 @@ impl ManagedPackageFixture {
 
     async fn approved_input(
         &self,
-    ) -> openbitfun_product_domains::plugin_source::PluginPackageInput {
+    ) -> alex_product_domains::plugin_source::PluginPackageInput {
         self.service.refresh(&self.workspace).await;
         self.service
             .set_trust(
@@ -432,7 +432,7 @@ async fn activated_package_projects_permission_required_candidate_through_client
     assert!(response
         .effects
         .iter()
-        .all(|effect| effect.risk_level == openbitfun_runtime_ports::PluginRiskLevel::High));
+        .all(|effect| effect.risk_level == alex_runtime_ports::PluginRiskLevel::High));
 }
 
 #[tokio::test]
@@ -913,12 +913,12 @@ fn read_request_for(
     }
 }
 
-fn dispatch_envelope(source: openbitfun_runtime_ports::PluginSourceRef) -> PluginDispatchEnvelope {
+fn dispatch_envelope(source: alex_runtime_ports::PluginSourceRef) -> PluginDispatchEnvelope {
     dispatch_envelope_for(source, "project-1", "workspace-1", 20)
 }
 
 fn dispatch_envelope_for(
-    source: openbitfun_runtime_ports::PluginSourceRef,
+    source: alex_runtime_ports::PluginSourceRef,
     project_domain_id: &str,
     workspace_id: &str,
     trust_epoch: u64,

@@ -144,8 +144,8 @@ describe('BranchQuickSwitch', () => {
       root.render(<Harness onSwitchSuccess={vi.fn()} />);
     });
 
-    const searchField = document.querySelector('[data-openbitfun-component="search-field"]');
-    const fieldSurface = searchField?.querySelector('[data-openbitfun-component="input"]');
+    const searchField = document.querySelector('[data-alex-component="search-field"]');
+    const fieldSurface = searchField?.querySelector('[data-alex-component="input"]');
     const input = searchField?.querySelector<HTMLInputElement>('input[type="search"]');
 
     expect(searchField).not.toBeNull();
@@ -166,7 +166,7 @@ describe('BranchQuickSwitch', () => {
       '[data-testid="branch-quick-switch-option-main"]',
     );
     expect(currentBranch?.getAttribute('aria-selected')).toBe('true');
-    expect(currentBranch?.dataset.openbitfunState).toBe('current');
+    expect(currentBranch?.dataset.alexState).toBe('current');
     expect(currentBranch?.disabled).toBe(false);
   });
 

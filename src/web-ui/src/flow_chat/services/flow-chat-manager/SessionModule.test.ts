@@ -146,7 +146,7 @@ function createSession(overrides: Partial<Session> = {}): Session {
     historyState: 'metadata-only',
     todos: [],
     mode: 'Standard',
-    workspacePath: 'D:/workspace/OpenBitFun',
+    workspacePath: 'D:/workspace/Alex',
     sessionKind: 'normal',
     parentSessionId: undefined,
     parentToolCallId: undefined,
@@ -1564,7 +1564,7 @@ describe('SessionModule historical session coordination', () => {
     expect(agentApiMocks.createSession).not.toHaveBeenCalled();
   });
 
-  it('does not recreate a session that another OpenBitFun instance is writing', async () => {
+  it('does not recreate a session that another Alex instance is writing', async () => {
     const { context } = createContext(createSession({
       isHistorical: false,
       historyState: 'ready',

@@ -1,4 +1,4 @@
-import { themes, type ThemeDataName, type ThemeTokenName } from '@openbitfun/theme-openbitfun';
+import { themes, type ThemeDataName, type ThemeTokenName } from '@alex/theme-alex';
 import type { ThemeId } from '../types/installer';
 
 type BackgroundColors = InstallerTheme['colors']['background'];
@@ -101,7 +101,7 @@ const DARK_TONE = createTone('dark');
 const LIGHT_TONE = createTone('light');
 
 function createBuiltinInstallerTheme(
-  id: Extract<ThemeId, 'openbitfun-dark' | 'openbitfun-light'>,
+  id: Extract<ThemeId, 'alex-dark' | 'alex-light'>,
   name: string,
   type: Extract<ThemeDataName, 'dark' | 'light'>,
 ): InstallerTheme {
@@ -147,45 +147,45 @@ function createInstallerTheme(seed: ThemeSeed): InstallerTheme {
 }
 
 export const THEMES: InstallerTheme[] = [
-  createBuiltinInstallerTheme('openbitfun-dark', 'Dark', 'dark'),
-  createBuiltinInstallerTheme('openbitfun-light', 'Light', 'light'),
+  createBuiltinInstallerTheme('alex-dark', 'Dark', 'dark'),
+  createBuiltinInstallerTheme('alex-light', 'Light', 'light'),
   createInstallerTheme({
-    id: 'openbitfun-midnight',
+    id: 'alex-midnight',
     name: 'Midnight',
     type: 'dark',
     background: { primary: MIDNIGHT_CARD_BACKGROUND, secondary: DARK_CARD_SURFACE },
     accent: DEFAULT_BLUE,
   }),
   createInstallerTheme({
-    id: 'openbitfun-china-style',
+    id: 'alex-china-style',
     name: 'Ink Charm',
     type: 'light',
     background: { primary: '#faf8f0', secondary: '#f5f3e8' },
     accent: '#2e5e8a',
   }),
   createInstallerTheme({
-    id: 'openbitfun-china-night',
+    id: 'alex-china-night',
     name: 'Ink Night',
     type: 'dark',
     background: { primary: '#1a1814', secondary: DARK_CARD_SURFACE },
     accent: '#73a5cc',
   }),
   createInstallerTheme({
-    id: 'openbitfun-cyber',
+    id: 'alex-cyber',
     name: 'Cyber',
     type: 'dark',
     background: { primary: '#0e0e10', secondary: DARK_CARD_SURFACE },
     accent: '#00e6ff',
   }),
   createInstallerTheme({
-    id: 'openbitfun-tokyo-night',
+    id: 'alex-tokyo-night',
     name: 'Tokyo Night',
     type: 'dark',
     background: { primary: '#1a1b26', secondary: DARK_CARD_SURFACE },
     accent: '#7aa2f7',
   }),
   createInstallerTheme({
-    id: 'openbitfun-slate',
+    id: 'alex-slate',
     name: 'Slate',
     type: 'dark',
     background: { primary: DARK_CARD_SURFACE },
@@ -194,18 +194,18 @@ export const THEMES: InstallerTheme[] = [
 ];
 
 export const THEME_DISPLAY_ORDER: ThemeId[] = [
-  'openbitfun-light',
-  'openbitfun-slate',
-  'openbitfun-dark',
-  'openbitfun-midnight',
-  'openbitfun-china-style',
-  'openbitfun-china-night',
-  'openbitfun-cyber',
-  'openbitfun-tokyo-night',
+  'alex-light',
+  'alex-slate',
+  'alex-dark',
+  'alex-midnight',
+  'alex-china-style',
+  'alex-china-night',
+  'alex-cyber',
+  'alex-tokyo-night',
 ];
 
 export function findInstallerThemeById(id: ThemeId): InstallerTheme {
   return THEMES.find((theme) => theme.id === id)
-    ?? THEMES.find((theme) => theme.id === 'openbitfun-light')
+    ?? THEMES.find((theme) => theme.id === 'alex-light')
     ?? THEMES[0];
 }

@@ -18,7 +18,7 @@ import com.openbitfun.mobile.app.R
 import com.openbitfun.mobile.app.ui.chat.ComposerBar
 import com.openbitfun.mobile.app.ui.common.AdaptiveModalSurface
 import com.openbitfun.mobile.app.ui.common.CircleControl
-import com.openbitfun.mobile.app.ui.theme.OpenBitFunTheme
+import com.openbitfun.mobile.app.ui.theme.AlexTheme
 import com.openbitfun.mobile.core.feature.connection.ConnectionPhase
 import com.openbitfun.mobile.core.feature.layout.SettingsPlacementPolicy
 import com.openbitfun.mobile.core.feature.layout.SettingsSheetKind
@@ -65,10 +65,10 @@ private fun previewComposer(
     )
 }
 
-@Preview(name = "OpenBitFun Mobile · Composer Focused", showBackground = true)
+@Preview(name = "Alex Mobile · Composer Focused", showBackground = true)
 @Composable
 internal fun MobilePreviewComposerFocused(dark: Boolean = false) {
-    OpenBitFunTheme(dark = dark) {
+    AlexTheme(dark = dark) {
         Column(
             modifier = Modifier.fillMaxSize().testTag(MOBILE_PREVIEW_COMPOSER_FOCUSED_TEST_TAG),
         ) {
@@ -81,10 +81,10 @@ internal fun MobilePreviewComposerFocused(dark: Boolean = false) {
     }
 }
 
-@Preview(name = "OpenBitFun Mobile · Composer Attachments", showBackground = true)
+@Preview(name = "Alex Mobile · Composer Attachments", showBackground = true)
 @Composable
 internal fun MobilePreviewComposerAttachments(dark: Boolean = false) {
-    OpenBitFunTheme(dark = dark) {
+    AlexTheme(dark = dark) {
         Column(
             modifier = Modifier.fillMaxSize().testTag(MOBILE_PREVIEW_COMPOSER_ATTACHMENTS_TEST_TAG),
         ) {
@@ -97,10 +97,10 @@ internal fun MobilePreviewComposerAttachments(dark: Boolean = false) {
     }
 }
 
-@Preview(name = "OpenBitFun Mobile · Modal Busy", showBackground = true)
+@Preview(name = "Alex Mobile · Modal Busy", showBackground = true)
 @Composable
 internal fun MobilePreviewModalBusy(dark: Boolean = false) {
-    OpenBitFunTheme(dark = dark) {
+    AlexTheme(dark = dark) {
         AdaptiveModalSurface(
             visible = true,
             placement = SettingsPlacementPolicy.compactBottom(SettingsSheetKind.SETTINGS),
@@ -119,10 +119,10 @@ internal fun MobilePreviewModalBusy(dark: Boolean = false) {
     }
 }
 
-@Preview(name = "OpenBitFun Mobile · Modal Error", showBackground = true)
+@Preview(name = "Alex Mobile · Modal Error", showBackground = true)
 @Composable
 internal fun MobilePreviewModalError(dark: Boolean = false) {
-    OpenBitFunTheme(dark = dark) {
+    AlexTheme(dark = dark) {
         AdaptiveModalSurface(
             visible = true,
             placement = SettingsPlacementPolicy.compactBottom(SettingsSheetKind.SETTINGS),
@@ -152,10 +152,10 @@ internal fun MobilePreviewModalError(dark: Boolean = false) {
     }
 }
 
-@Preview(name = "OpenBitFun Mobile · Circle States", showBackground = true)
+@Preview(name = "Alex Mobile · Circle States", showBackground = true)
 @Composable
 internal fun MobilePreviewCircleStates(dark: Boolean = false) {
-    OpenBitFunTheme(dark = dark) {
+    AlexTheme(dark = dark) {
         Row(
             modifier = Modifier
                 .fillMaxSize()

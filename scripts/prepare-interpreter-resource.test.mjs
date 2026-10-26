@@ -135,7 +135,7 @@ test('a verified download is extracted into a package the product can read', () 
 
     // The product reads this manifest, not the upstream descriptor.
     const packageManifest = JSON.parse(
-      readFileSync(join(packageDirectory, 'openbitfun-bundled-tool.json'), 'utf8'),
+      readFileSync(join(packageDirectory, 'alex-bundled-tool.json'), 'utf8'),
     );
     assert.equal(packageManifest.toolId, 'interpreter');
     assert.equal(packageManifest.version, '0.0.56');
@@ -158,7 +158,7 @@ test('a verified download is extracted into a package the product can read', () 
       'codex-path/rg',
       'codex-resources/zsh/bin/zsh',
     ]);
-    for (const dataFile of ['LICENSE', 'NOTICE', 'codex-package.json', 'openbitfun-bundled-tool.json']) {
+    for (const dataFile of ['LICENSE', 'NOTICE', 'codex-package.json', 'alex-bundled-tool.json']) {
       assert.ok(
         !packageManifest.executables.includes(dataFile),
         `${dataFile} is a data file, not code`,
@@ -197,7 +197,7 @@ test('a download that does not match the pinned digest never becomes a package',
       }),
       /mismatch/,
     );
-    assert.equal(existsSync(join(resourceDir, target, 'openbitfun-bundled-tool.json')), false);
+    assert.equal(existsSync(join(resourceDir, target, 'alex-bundled-tool.json')), false);
   } finally {
     rmSync(workspace, { recursive: true, force: true });
   }

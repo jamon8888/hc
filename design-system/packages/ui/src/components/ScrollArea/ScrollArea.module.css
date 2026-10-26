@@ -1,33 +1,33 @@
-@layer openbitfun.components {
+@layer alex.components {
   .root {
     min-inline-size: 0;
     min-block-size: 0;
     overscroll-behavior: contain;
   }
 
-  .root[data-openbitfun-orientation="vertical"] {
+  .root[data-alex-orientation="vertical"] {
     overflow-x: hidden;
     overflow-y: auto;
   }
 
-  .root[data-openbitfun-orientation="horizontal"] {
+  .root[data-alex-orientation="horizontal"] {
     overflow-x: auto;
     overflow-y: hidden;
   }
 
-  .root[data-openbitfun-orientation="both"] {
+  .root[data-alex-orientation="both"] {
     overflow: auto;
   }
 
-  .root[data-openbitfun-orientation="vertical"][data-openbitfun-scrollbar-visibility="always"] {
+  .root[data-alex-orientation="vertical"][data-alex-scrollbar-visibility="always"] {
     overflow-y: scroll;
   }
 
-  .root[data-openbitfun-orientation="horizontal"][data-openbitfun-scrollbar-visibility="always"] {
+  .root[data-alex-orientation="horizontal"][data-alex-scrollbar-visibility="always"] {
     overflow-x: scroll;
   }
 
-  .root[data-openbitfun-orientation="both"][data-openbitfun-scrollbar-visibility="always"] {
+  .root[data-alex-orientation="both"][data-alex-scrollbar-visibility="always"] {
     overflow: scroll;
   }
 }

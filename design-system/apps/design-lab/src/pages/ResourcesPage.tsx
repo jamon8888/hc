@@ -1,6 +1,6 @@
-import { Icon as CatalogIcon, type IconName } from "@openbitfun/ui";
+import { Icon as CatalogIcon, type IconName } from "@alex/ui";
 import { BookOpen, Boxes, FileCode2, FileText, ShieldCheck } from "lucide-react";
-import { componentRegistry } from "@openbitfun/ui/registry";
+import { componentRegistry } from "@alex/ui/registry";
 import { useI18n, type MessageKey } from "../i18n";
 import { editableTokenCatalog } from "../token-editor/catalog";
 
@@ -32,7 +32,7 @@ const resources: readonly {
   },
   {
     description: "resources.themeDescription",
-    href: `${repositoryBase}/packages/theme-openbitfun/README.md`,
+    href: `${repositoryBase}/packages/theme-alex/README.md`,
     icon: "palette",
     title: "resources.themeTitle",
   },

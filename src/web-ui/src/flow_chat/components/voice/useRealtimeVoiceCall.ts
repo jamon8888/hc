@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { VoiceParticleAudioReader } from '@openbitfun/ui';
+import type { VoiceParticleAudioReader } from '@alex/ui';
 import { useTranslation } from 'react-i18next';
 import {
   DEFAULT_REALTIME_OUTPUT_SAMPLE_RATE,
@@ -22,7 +22,7 @@ import { createLogger } from '@/shared/utils/logger';
 import { RealtimePcmPlayer } from './realtimeVoiceAudio';
 import { applyRealtimeAsrSnapshot } from './realtimeVoiceTranscript';
 import {
-  runOpenBitFunVoiceTask,
+  runAlexVoiceTask,
   runBoundVoiceTask,
   runMiniAppVoiceTask,
   summarizeVoiceTaskConclusion,
@@ -144,10 +144,10 @@ interface ActiveVoiceTask {
 }
 
 function parseFunctionCall(call: SpeechRealtimeFunctionCall): VoiceFunctionCommand {
-  if (call.name === 'get_openbitfun_client_context') {
+  if (call.name === 'get_alex_client_context') {
     return { kind: 'get_client_context' };
   }
-  if (call.name === 'stop_openbitfun_task') {
+  if (call.name === 'stop_alex_task') {
     return { kind: 'stop_task' };
   }
   const rawArguments = JSON.parse(call.arguments || '{}') as unknown;
@@ -158,13 +158,13 @@ function parseFunctionCall(call: SpeechRealtimeFunctionCall): VoiceFunctionComma
     workspace_id?: unknown;
     activate_workspace?: unknown;
   };
-  if (call.name === 'switch_openbitfun_workspace') {
+  if (call.name === 'switch_alex_workspace') {
     if (typeof parsed.workspace_id !== 'string' || !parsed.workspace_id.trim()) {
       throw new Error('Workspace switch did not include an exact workspace_id');
     }
     return { kind: 'switch_workspace', workspaceReference: parsed.workspace_id.trim() };
   }
-  if (call.name !== 'run_openbitfun_task') {
+  if (call.name !== 'run_alex_task') {
     throw new Error(`Unsupported realtime voice function: ${call.name}`);
   }
   if (!parsed || typeof parsed.task !== 'string' || !parsed.task.trim()) {
@@ -288,10 +288,10 @@ export function useRealtimeVoiceCallController(disabled = false): RealtimeVoiceC
       else load();
     };
     load();
-    window.addEventListener('openbitfun:realtime-voice-config-changed', handleConfigChanged);
+    window.addEventListener('alex:realtime-voice-config-changed', handleConfigChanged);
     return () => {
       active = false;
-      window.removeEventListener('openbitfun:realtime-voice-config-changed', handleConfigChanged);
+      window.removeEventListener('alex:realtime-voice-config-changed', handleConfigChanged);
     };
   }, []);
 
@@ -642,7 +642,7 @@ export function useRealtimeVoiceCallController(disabled = false): RealtimeVoiceC
               workspacePath: miniAppTarget.workspacePath,
             }, signal),
           })
-        : await runOpenBitFunVoiceTask(taskCommand.task, {
+        : await runAlexVoiceTask(taskCommand.task, {
             ...observerOptions,
             workspace: workspace!,
             showSession: taskCommand.activateWorkspace,

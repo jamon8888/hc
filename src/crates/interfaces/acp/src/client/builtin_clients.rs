@@ -14,25 +14,25 @@ pub(crate) struct BuiltinAcpClientPreset {
     pub(crate) command: &'static str,
     pub(crate) args: &'static [&'static str],
     pub(crate) tool_command: &'static str,
-    /// npm package OpenBitFun can install on the user's behalf. `None` means the
-    /// agent is user-managed (OpenBitFun only provides the integration, the user
+    /// npm package Alex can install on the user's behalf. `None` means the
+    /// agent is user-managed (Alex only provides the integration, the user
     /// installs the CLI themselves) — the UI then shows no one-click installer.
     pub(crate) install_package: Option<&'static str>,
     pub(crate) adapter_package: Option<&'static str>,
     pub(crate) adapter_bin: Option<&'static str>,
-    /// A profile directory OpenBitFun ships and copies into the agent's own home
+    /// A profile directory Alex ships and copies into the agent's own home
     /// before launching it. `None` — every preset but dsh — means the CLI is
     /// self-contained and the command runs as-is.
     pub(crate) bundled_profile: Option<&'static str>,
-    /// A tool package that ships with the OpenBitFun product, resolved at
+    /// A tool package that ships with the Alex product, resolved at
     /// runtime instead of from the user's PATH. `None` means the agent's CLI
     /// comes from the user's machine.
     pub(crate) bundled_tool: Option<&'static str>,
 }
 
-/// The profile directory OpenBitFun materializes for DeepSeek Harness. See
-/// `dsh_profile.rs`: the bridge ships with OpenBitFun, the harness does not.
-pub(crate) const DSH_BUNDLED_PROFILE: &str = "openbitfun-acp";
+/// The profile directory Alex materializes for DeepSeek Harness. See
+/// `dsh_profile.rs`: the bridge ships with Alex, the harness does not.
+pub(crate) const DSH_BUNDLED_PROFILE: &str = "alex-acp";
 
 /// The bundled tool package that carries the Open Interpreter agent. The id
 /// matches the directory the build step packages it under, under
@@ -52,9 +52,9 @@ const BUILTIN_ACP_CLIENT_PRESETS: &[BuiltinAcpClientPreset] = &[
         bundled_tool: None,
     },
     // DeepSeek Harness (dsh) — the harness has no ACP entry point of its own,
-    // so OpenBitFun ships one as a dsh PROFILE (packages/dsh-acp) and launches it
+    // so Alex ships one as a dsh PROFILE (packages/dsh-acp) and launches it
     // through the user's own installation. The model and the API key stay in
-    // dsh, where the user configured them; OpenBitFun stores neither. Installable
+    // dsh, where the user configured them; Alex stores neither. Installable
     // from npm like codex, hence install_package; native ACP, hence no adapter.
     BuiltinAcpClientPreset {
         id: "dsh",
@@ -70,8 +70,8 @@ const BUILTIN_ACP_CLIENT_PRESETS: &[BuiltinAcpClientPreset] = &[
     // Oh My Pi (omp) — a terminal coding agent that speaks ACP natively via
     // `omp acp` (no adapter needed, like opencode). User-managed: omp targets
     // the bun runtime (installed via `bun install -g @oh-my-pi/pi-coding-agent`
-    // or `curl -fsSL https://omp.sh/install | sh`), which OpenBitFun's npm-based
-    // installer cannot provide — so install_package is None and OpenBitFun only
+    // or `curl -fsSL https://omp.sh/install | sh`), which Alex's npm-based
+    // installer cannot provide — so install_package is None and Alex only
     // detects `omp` on PATH and launches it. https://github.com/can1357/oh-my-pi
     BuiltinAcpClientPreset {
         id: "omp",
@@ -86,7 +86,7 @@ const BUILTIN_ACP_CLIENT_PRESETS: &[BuiltinAcpClientPreset] = &[
     },
     // Open Interpreter — a Rust coding agent (an OpenAI Codex fork, Apache-2.0)
     // that speaks ACP natively via `interpreter acp` (no adapter needed, like
-    // opencode and omp). OpenBitFun packages it with the product
+    // opencode and omp). Alex packages it with the product
     // (resources/interpreter), so a user does not have to install it first;
     // there is no npm package, so install_package is None and there is no
     // one-click installer to offer. Its draw is harness emulation — swapping the
@@ -205,7 +205,7 @@ mod tests {
         // Native ACP — no adapter package/bin, like opencode.
         assert!(preset.adapter_package.is_none());
         assert!(preset.adapter_bin.is_none());
-        // User-managed: OpenBitFun provides no installer for omp.
+        // User-managed: Alex provides no installer for omp.
         assert!(preset.install_package.is_none());
 
         let config = default_config_for_builtin_client("omp").expect("omp config");
@@ -234,11 +234,11 @@ mod tests {
     }
 
     #[test]
-    fn dsh_preset_launches_the_openbitfun_profile() {
+    fn dsh_preset_launches_the_alex_profile() {
         let preset = builtin_acp_client_preset("dsh").expect("dsh preset registered");
         assert_eq!(preset.command, "dsh");
         assert_eq!(preset.tool_command, "dsh");
-        // The launch IS the profile: OpenBitFun ships the bridge, dsh runs it.
+        // The launch IS the profile: Alex ships the bridge, dsh runs it.
         assert_eq!(preset.args, &["--profile", DSH_BUNDLED_PROFILE]);
         assert_eq!(preset.bundled_profile, Some(DSH_BUNDLED_PROFILE));
         // Native ACP — the bridge is the profile, not a separate adapter.

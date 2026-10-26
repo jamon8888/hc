@@ -6,8 +6,8 @@ use agent_client_protocol::schema::{
     ToolCallContent, ToolCallStatus, ToolCallUpdate,
 };
 use agent_client_protocol::util::MatchDispatch;
-use openbitfun_core::util::errors::{OpenBitFunError, OpenBitFunResult};
-use openbitfun_events::ToolEventData;
+use alex_core::util::errors::{AlexError, AlexResult};
+use alex_events::ToolEventData;
 
 use super::session_options::{AcpAvailableCommand, AcpPlanEntry, AcpSessionContextUsage};
 use super::tool_card_bridge::{acp_tool_name, normalize_tool_params, normalize_tool_result};
@@ -118,7 +118,7 @@ impl AcpStreamRoundTracker {
 pub(super) async fn acp_dispatch_to_stream_events_with_tracker(
     dispatch: agent_client_protocol::Dispatch,
     tracker: &mut AcpToolCallTracker,
-) -> OpenBitFunResult<Vec<AcpClientStreamEvent>> {
+) -> AlexResult<Vec<AcpClientStreamEvent>> {
     let mut events = Vec::new();
     MatchDispatch::new(dispatch)
         .if_notification(async |notification: SessionNotification| {
@@ -257,7 +257,7 @@ fn acp_tool_call_events(
     );
 
     let mut events = vec![AcpClientStreamEvent::ToolEvent(ToolEventData::Started {
-        identity: openbitfun_events::ToolEventIdentity::direct(tool_id.clone(), tool_name.clone()),
+        identity: alex_events::ToolEventIdentity::direct(tool_id.clone(), tool_name.clone()),
         params,
         timeout_seconds: None,
     })];
@@ -271,7 +271,7 @@ fn acp_tool_call_events(
                 Some(tool_call.locations),
             );
             events.push(AcpClientStreamEvent::ToolEvent(ToolEventData::Completed {
-                identity: openbitfun_events::ToolEventIdentity::direct(tool_id, tool_name),
+                identity: alex_events::ToolEventIdentity::direct(tool_id, tool_name),
                 result,
                 result_for_assistant: None,
                 image_attachments: None,
@@ -284,7 +284,7 @@ fn acp_tool_call_events(
         }
         ToolCallStatus::Failed => {
             events.push(AcpClientStreamEvent::ToolEvent(ToolEventData::Failed {
-                identity: openbitfun_events::ToolEventIdentity::direct(tool_id, tool_name),
+                identity: alex_events::ToolEventIdentity::direct(tool_id, tool_name),
                 error_detail: None,
                 error: acp_tool_error_text(tool_call.raw_output, tool_call.content),
                 duration_ms: None,
@@ -319,7 +319,7 @@ fn acp_tool_call_update_events(
             let mut events = Vec::new();
             if let Some(raw_input) = snapshot.raw_input {
                 events.push(AcpClientStreamEvent::ToolEvent(ToolEventData::Started {
-                    identity: openbitfun_events::ToolEventIdentity::direct(
+                    identity: alex_events::ToolEventIdentity::direct(
                         tool_id.clone(),
                         tool_name.clone(),
                     ),
@@ -334,7 +334,7 @@ fn acp_tool_call_update_events(
                 update.fields.locations,
             );
             events.push(AcpClientStreamEvent::ToolEvent(ToolEventData::Completed {
-                identity: openbitfun_events::ToolEventIdentity::direct(tool_id, tool_name),
+                identity: alex_events::ToolEventIdentity::direct(tool_id, tool_name),
                 result,
                 result_for_assistant: None,
                 image_attachments: None,
@@ -350,7 +350,7 @@ fn acp_tool_call_update_events(
             let mut events = Vec::new();
             if let Some(raw_input) = snapshot.raw_input {
                 events.push(AcpClientStreamEvent::ToolEvent(ToolEventData::Started {
-                    identity: openbitfun_events::ToolEventIdentity::direct(
+                    identity: alex_events::ToolEventIdentity::direct(
                         tool_id.clone(),
                         tool_name.clone(),
                     ),
@@ -359,7 +359,7 @@ fn acp_tool_call_update_events(
                 }));
             }
             events.push(AcpClientStreamEvent::ToolEvent(ToolEventData::Failed {
-                identity: openbitfun_events::ToolEventIdentity::direct(tool_id, tool_name),
+                identity: alex_events::ToolEventIdentity::direct(tool_id, tool_name),
                 error_detail: None,
                 error: acp_tool_error_text(
                     update.fields.raw_output,
@@ -386,7 +386,7 @@ fn acp_tool_call_update_events(
                     }),
             );
             vec![AcpClientStreamEvent::ToolEvent(ToolEventData::Started {
-                identity: openbitfun_events::ToolEventIdentity::direct(tool_id, tool_name),
+                identity: alex_events::ToolEventIdentity::direct(tool_id, tool_name),
                 params,
                 timeout_seconds: None,
             })]
@@ -396,7 +396,7 @@ fn acp_tool_call_update_events(
             .map(|params| {
                 let params = normalize_tool_params(&tool_name, materialize_raw_input(params));
                 vec![AcpClientStreamEvent::ToolEvent(ToolEventData::Started {
-                    identity: openbitfun_events::ToolEventIdentity::direct(tool_id, tool_name),
+                    identity: alex_events::ToolEventIdentity::direct(tool_id, tool_name),
                     params,
                     timeout_seconds: None,
                 })]
@@ -451,8 +451,8 @@ fn value_to_display_text(value: &serde_json::Value) -> String {
     }
 }
 
-fn protocol_error(error: impl std::fmt::Display) -> OpenBitFunError {
-    OpenBitFunError::service(format!("ACP protocol error: {}", error))
+fn protocol_error(error: impl std::fmt::Display) -> AlexError {
+    AlexError::service(format!("ACP protocol error: {}", error))
 }
 
 #[cfg(test)]
@@ -463,7 +463,7 @@ mod tests {
 
     fn tool_event(id: &str) -> AcpClientStreamEvent {
         AcpClientStreamEvent::ToolEvent(ToolEventData::Started {
-            identity: openbitfun_events::ToolEventIdentity::direct(id, "ExecCommand"),
+            identity: alex_events::ToolEventIdentity::direct(id, "ExecCommand"),
             params: json!({ "cmd": "echo ok" }),
             timeout_seconds: None,
         })

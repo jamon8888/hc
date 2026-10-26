@@ -9,11 +9,11 @@
 //! runtime client.
 
 use async_trait::async_trait;
-use openbitfun_plugin_runtime_client::PluginRuntimeAdapter;
-use openbitfun_product_domains::plugin_source::{
+use alex_plugin_runtime_client::PluginRuntimeAdapter;
+use alex_product_domains::plugin_source::{
     PluginActivationAuthority, PluginPackageInput, PluginPackageSourceIdentity,
 };
-use openbitfun_runtime_ports::{
+use alex_runtime_ports::{
     PluginAuditRef, PluginConfigValidationIssue, PluginConfigValidationState,
     PluginConfigValidationStatus, PluginDiagnostic, PluginDiagnosticDetail,
     PluginDiagnosticSeverity, PluginDispatchEnvelope, PluginManifestRef, PluginResponseEnvelope,
@@ -313,10 +313,10 @@ pub fn load_dsh_package_adapter(
     Vec<(
         PluginSourceRef,
         String,
-        openbitfun_runtime_ports::PluginCapabilityRef,
+        alex_runtime_ports::PluginCapabilityRef,
         Vec<(
-            openbitfun_runtime_ports::PluginTargetRef,
-            openbitfun_runtime_ports::PluginRiskLevel,
+            alex_runtime_ports::PluginTargetRef,
+            alex_runtime_ports::PluginRiskLevel,
         )>,
     )>,
 )> {
@@ -327,7 +327,7 @@ pub fn load_dsh_package_adapter(
         None => DshPluginRuntimeAdapter::from_package(input, observed_at_ms)?,
     };
     // Cordis rows can mount services that later register model-facing tools in
-    // dsh, but static row metadata is not a safe executable OpenBitFun provider
+    // dsh, but static row metadata is not a safe executable Alex provider
     // candidate. This runtime-free adapter therefore exposes no dispatch target.
     Ok((Arc::new(adapter), Vec::new()))
 }
@@ -413,10 +413,10 @@ impl DshEntryKind {
     fn diagnostic_message(self) -> &'static str {
         match self {
             Self::Bundle => {
-                "dsh bundle entry is discovered from cordis.patch.yml but is not installed or executed by OpenBitFun"
+                "dsh bundle entry is discovered from cordis.patch.yml but is not installed or executed by Alex"
             }
             Self::ProfileBundle => {
-                "dsh profile bundle reference is discovered from package.json but is not installed or executed by OpenBitFun"
+                "dsh profile bundle reference is discovered from package.json but is not installed or executed by Alex"
             }
         }
     }

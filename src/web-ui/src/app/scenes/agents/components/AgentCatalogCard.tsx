@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, OverflowText, type CardProps } from '@openbitfun/ui';
+import { Card, OverflowText, type CardProps } from '@alex/ui';
 import { useI18n } from '@/infrastructure/i18n/hooks/useI18n';
 import type { AgentWithCapabilities } from '../agentsStore';
 

@@ -70,15 +70,15 @@ const StickySectionHeader: React.FC<StickySectionHeaderProps> = ({
     <>
       <span
         ref={sentinelRef}
-        className="openbitfun-nav-panel__sticky-section-sentinel"
+        className="alex-nav-panel__sticky-section-sentinel"
         aria-hidden="true"
       />
       <div
         ref={headerRef}
-        className={`openbitfun-nav-panel__sticky-section-header${isStuck ? ' is-stuck' : ''}`}
-        data-openbitfun-component="nav-panel"
-        data-openbitfun-part="stickySectionHeader"
-        data-openbitfun-state={isStuck ? 'stuck' : undefined}
+        className={`alex-nav-panel__sticky-section-header${isStuck ? ' is-stuck' : ''}`}
+        data-alex-component="nav-panel"
+        data-alex-part="stickySectionHeader"
+        data-alex-state={isStuck ? 'stuck' : undefined}
         data-testid="nav-sessions-sticky-header"
       >
         {children}

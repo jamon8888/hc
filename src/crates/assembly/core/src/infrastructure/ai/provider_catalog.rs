@@ -1,7 +1,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 
-use openbitfun_ai_adapters::models_dev::{ModelsDevCatalog, ModelsDevModelFacts};
-use openbitfun_core_types::{
+use alex_ai_adapters::models_dev::{ModelsDevCatalog, ModelsDevModelFacts};
+use alex_core_types::{
     ProviderCatalog, ProviderCatalogEndpoint, ProviderCatalogModel,
     ProviderCatalogModelCapabilities, ProviderCatalogModelSource, ProviderCatalogProvider,
     ProviderCatalogSource, ProviderCatalogUpstreamProvider,
@@ -120,7 +120,7 @@ pub(crate) fn builtin_provider_catalog_identity(
 }
 
 /// A models.dev snapshot that contributes provider bindings makes the catalog
-/// mixed even when the caller passed the OpenBitFun-only source.
+/// mixed even when the caller passed the Alex-only source.
 fn promoted_catalog_source(
     overlay: &ProviderOverlayDocument,
     models_dev: Option<&ModelsDevCatalog>,
@@ -134,7 +134,7 @@ fn promoted_catalog_source(
                 .any(|provider_id| catalog.provider_facts(provider_id).is_some())
         })
     });
-    if has_bound_catalog_data && source == ProviderCatalogSource::OpenBitFun {
+    if has_bound_catalog_data && source == ProviderCatalogSource::Alex {
         ProviderCatalogSource::Mixed
     } else {
         source
@@ -143,7 +143,7 @@ fn promoted_catalog_source(
 
 fn resolved_catalog_revision(source_revision: &str) -> String {
     let mut digest = Sha256::new();
-    digest.update(b"openbitfun-provider-catalog-v1\0");
+    digest.update(b"alex-provider-catalog-v1\0");
     digest.update(BUILTIN_PROVIDER_OVERLAY.as_bytes());
     digest.update(b"\0models-dev\0");
     digest.update(source_revision.as_bytes());
@@ -540,7 +540,7 @@ fn curated_model_fallback(
         display_name: None,
         description: None,
         recommended,
-        source: ProviderCatalogModelSource::OpenBitFun,
+        source: ProviderCatalogModelSource::Alex,
         catalog_provider_ids: provider.catalog_provider_ids.clone(),
         endpoint_ids: provider
             .endpoints
@@ -576,10 +576,10 @@ fn normalize_base_url(url: &str) -> String {
 
 #[cfg(test)]
 mod tests {
-    use openbitfun_core_types::{ProviderCatalogModelSource, ProviderCatalogSource};
+    use alex_core_types::{ProviderCatalogModelSource, ProviderCatalogSource};
 
     use super::{parse_overlay, resolve_builtin_provider_catalog, trusted_models_dev_binding};
-    use openbitfun_ai_adapters::models_dev::ModelsDevCatalog;
+    use alex_ai_adapters::models_dev::ModelsDevCatalog;
 
     #[test]
     fn trusted_urls_allow_distinct_protocols_only_within_one_provider() {
@@ -622,17 +622,17 @@ mod tests {
             .providers
             .iter()
             .any(|provider| provider.id == "opencode-zen" || provider.id == "opencode"));
-        let openbitfun = overlay
+        let alex = overlay
             .providers
             .iter()
-            .find(|provider| provider.id == "openbitfun")
-            .expect("openbitfun");
+            .find(|provider| provider.id == "alex")
+            .expect("alex");
         assert_eq!(
-            openbitfun.model_policy.curated_models,
+            alex.model_policy.curated_models,
             ["glm-5.2", "deepseek-v4-flash", "deepseek-v4-pro"]
         );
         assert_eq!(
-            openbitfun
+            alex
                 .endpoints
                 .iter()
                 .map(|endpoint| (
@@ -759,7 +759,7 @@ mod tests {
         let unavailable = resolve_builtin_provider_catalog(
             None,
             "none".to_string(),
-            ProviderCatalogSource::OpenBitFun,
+            ProviderCatalogSource::Alex,
         );
         let qwen = unavailable
             .providers
@@ -772,9 +772,9 @@ mod tests {
                 .map(|model| (model.id.as_str(), model.source))
                 .collect::<Vec<_>>(),
             [
-                ("qwen3.7-plus", ProviderCatalogModelSource::OpenBitFun),
-                ("qwen3.7-max", ProviderCatalogModelSource::OpenBitFun),
-                ("qwen3.6-flash", ProviderCatalogModelSource::OpenBitFun),
+                ("qwen3.7-plus", ProviderCatalogModelSource::Alex),
+                ("qwen3.7-max", ProviderCatalogModelSource::Alex),
+                ("qwen3.6-flash", ProviderCatalogModelSource::Alex),
             ]
         );
 
@@ -796,7 +796,7 @@ mod tests {
         assert!(qwen
             .models
             .iter()
-            .all(|model| model.source == ProviderCatalogModelSource::OpenBitFun));
+            .all(|model| model.source == ProviderCatalogModelSource::Alex));
     }
 
     #[test]
@@ -824,7 +824,7 @@ mod tests {
             .models
             .iter()
             .any(|model| model.id == "qwen-early-access"
-                && model.source == ProviderCatalogModelSource::OpenBitFun
+                && model.source == ProviderCatalogModelSource::Alex
                 && !model.recommended));
         assert!(!resolved
             .models

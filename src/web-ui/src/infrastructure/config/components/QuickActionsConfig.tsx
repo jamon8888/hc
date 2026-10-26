@@ -15,7 +15,7 @@ import { OverflowText,
   DialogHeading,
   DialogTitle,
   ConfirmDialog,
-} from '@openbitfun/ui';
+} from '@alex/ui';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Zap, GitPullRequest } from 'lucide-react';
@@ -136,16 +136,16 @@ const ActionFormModal: React.FC<ActionFormModalProps> = ({ isOpen, target, onClo
         <DialogClose disabled={saving} />
       </DialogHeader>
       <DialogBody>
-      <div className="quick-actions-config__modal-body" onKeyDown={handleKeyDown} data-openbitfun-component="quick-actions-config" data-openbitfun-part="dialog">
+      <div className="quick-actions-config__modal-body" onKeyDown={handleKeyDown} data-alex-component="quick-actions-config" data-alex-part="dialog">
         {target && (
-          <div data-openbitfun-component="quick-actions-config" data-openbitfun-part="dialogIcon" className="quick-actions-config__modal-icon-preview">
+          <div data-alex-component="quick-actions-config" data-alex-part="dialogIcon" className="quick-actions-config__modal-icon-preview">
             <div className="quick-actions-config__modal-action-icon">
               {getActionIcon(target.id, 18)}
             </div>
           </div>
         )}
 
-        <div data-openbitfun-component="quick-actions-config" data-openbitfun-part="field" className="quick-actions-config__modal-field">
+        <div data-alex-component="quick-actions-config" data-alex-part="field" className="quick-actions-config__modal-field">
           <label className="quick-actions-config__modal-label" htmlFor="qa-label">
             {t('modal.labelField')}
           </label>
@@ -159,7 +159,7 @@ const ActionFormModal: React.FC<ActionFormModalProps> = ({ isOpen, target, onClo
           />
         </div>
 
-        <div data-openbitfun-component="quick-actions-config" data-openbitfun-part="field" className="quick-actions-config__modal-field">
+        <div data-alex-component="quick-actions-config" data-alex-part="field" className="quick-actions-config__modal-field">
           <label className="quick-actions-config__modal-label" htmlFor="qa-prompt">
             {t('modal.promptField')}
           </label>
@@ -180,8 +180,8 @@ const ActionFormModal: React.FC<ActionFormModalProps> = ({ isOpen, target, onClo
       </DialogBody>
       <DialogFooter
         separator
-        data-openbitfun-component="quick-actions-config"
-        data-openbitfun-part="dialogFooter"
+        data-alex-component="quick-actions-config"
+        data-alex-part="dialogFooter"
         className="quick-actions-config__modal-footer"
       >
           <Button variant="fill" size="sm" onClick={requestClose} disabled={saving}>
@@ -219,17 +219,17 @@ const ActionRow: React.FC<ActionRowProps> = ({ action, onToggle, onEdit, onDelet
   const actionText = resolveQuickActionText(action, t);
 
   return (
-    <div className="quick-actions-config__row" data-openbitfun-component="quick-actions-config" data-openbitfun-part="row">
-      <div data-openbitfun-component="quick-actions-config" data-openbitfun-part="rowIcon" className="quick-actions-config__row-icon">
+    <div className="quick-actions-config__row" data-alex-component="quick-actions-config" data-alex-part="row">
+      <div data-alex-component="quick-actions-config" data-alex-part="rowIcon" className="quick-actions-config__row-icon">
         {getActionIcon(action.id)}
       </div>
 
-      <div data-openbitfun-component="quick-actions-config" data-openbitfun-part="rowBody" className="quick-actions-config__row-body">
+      <div data-alex-component="quick-actions-config" data-alex-part="rowBody" className="quick-actions-config__row-body">
         <div className="quick-actions-config__row-label">{actionText.label}</div>
         <div className="quick-actions-config__row-prompt"><OverflowText>{actionText.prompt}</OverflowText></div>
       </div>
 
-      <div data-openbitfun-component="quick-actions-config" data-openbitfun-part="rowControls" className="quick-actions-config__row-controls">
+      <div data-alex-component="quick-actions-config" data-alex-part="rowControls" className="quick-actions-config__row-controls">
         <Switch
           checked={action.enabled}
           onChange={() => onToggle(action.id)}
@@ -361,7 +361,7 @@ const QuickActionsConfig: React.FC = () => {
 
   if (loading || loadFailed) {
     return (
-      <ConfigPageLayout className="quick-actions-config" data-openbitfun-component="quick-actions-config" data-openbitfun-part="root">
+      <ConfigPageLayout className="quick-actions-config" data-alex-component="quick-actions-config" data-alex-part="root">
         <ConfigPageHeader title={t('page.title')} subtitle={t('page.subtitle')} />
         <ConfigPageContent>
           {loading ? (
@@ -382,14 +382,14 @@ const QuickActionsConfig: React.FC = () => {
   const customActions = actions.filter(a => !BUILTIN_IDS.has(a.id));
 
   return (
-    <ConfigPageLayout className="quick-actions-config" data-openbitfun-component="quick-actions-config" data-openbitfun-part="root">
+    <ConfigPageLayout className="quick-actions-config" data-alex-component="quick-actions-config" data-alex-part="root">
       <ConfigPageHeader title={t('page.title')} subtitle={t('page.subtitle')} />
 
-      <ConfigPageContent data-openbitfun-component="quick-actions-config" data-openbitfun-part="content" className="quick-actions-config__content">
+      <ConfigPageContent data-alex-component="quick-actions-config" data-alex-part="content" className="quick-actions-config__content">
 
         {/* ── Built-in actions ──────────────────────────────────────────── */}
         <ConfigPageSection title={t('sections.builtin.title')}>
-          <div data-openbitfun-component="quick-actions-config" data-openbitfun-part="list" className="quick-actions-config__list">
+          <div data-alex-component="quick-actions-config" data-alex-part="list" className="quick-actions-config__list">
             {builtinActions.map(action => (
               <ActionRow
                 key={action.id}
@@ -421,9 +421,9 @@ const QuickActionsConfig: React.FC = () => {
             </Button>
           }
         >
-          <div data-openbitfun-component="quick-actions-config" data-openbitfun-part="list" className="quick-actions-config__list">
+          <div data-alex-component="quick-actions-config" data-alex-part="list" className="quick-actions-config__list">
             {customActions.length === 0 ? (
-              <div data-openbitfun-component="quick-actions-config" data-openbitfun-part="empty" data-openbitfun-state="empty" className="quick-actions-config__empty">
+              <div data-alex-component="quick-actions-config" data-alex-part="empty" data-alex-state="empty" className="quick-actions-config__empty">
                 <Empty
                   icon={<Zap aria-hidden />}
                   description={t('sections.custom.empty')}

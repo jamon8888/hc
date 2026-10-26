@@ -7,7 +7,7 @@ class ModelLabelPolicyTest {
     @Test
     fun theVendorPrefixIsNotPartOfTheName() {
         assertEquals("claude-opus-4", ModelLabelPolicy.cleanLabel("anthropic/claude-opus-4"))
-        assertEquals("claude-opus-4", ModelLabelPolicy.cleanLabel("openbitfun:claude-opus-4"))
+        assertEquals("claude-opus-4", ModelLabelPolicy.cleanLabel("alex:claude-opus-4"))
         assertEquals("gpt-5", ModelLabelPolicy.cleanLabel("  openai/gpt-5  "))
     }
 
@@ -87,7 +87,7 @@ class ModelLabelPolicyTest {
 
     @Test
     fun everyKnownVendorIsRejectedAsALabel() {
-        listOf("openbitfun", "Anthropic", "OPENAI", "google", "azure").forEach {
+        listOf("alex", "Anthropic", "OPENAI", "google", "azure").forEach {
             assertEquals(false, ModelLabelPolicy.isSpecificLabel(it), it)
         }
         assertEquals(true, ModelLabelPolicy.isSpecificLabel("claude-opus-4"))

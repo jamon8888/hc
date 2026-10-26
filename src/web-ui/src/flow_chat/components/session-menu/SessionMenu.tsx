@@ -11,8 +11,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { subscribeOverlayInteraction, createOverlayPortal, OverflowText, Menu, MenuItem, MenuList, MenuSeparator } from '@openbitfun/ui';
-import { Tooltip, Icon } from '@openbitfun/ui';
+import { subscribeOverlayInteraction, createOverlayPortal, OverflowText, Menu, MenuItem, MenuList, MenuSeparator } from '@alex/ui';
+import { Tooltip, Icon } from '@alex/ui';
 import { getAppearanceOverlayHost } from '@/infrastructure/appearance/runtime/AppearanceOverlayHost';
 import { useAnchoredPopoverPosition } from '@/shared/utils/useAnchoredPopoverPosition';
 import { activateMainSession } from '../../services/sessionActivation';
@@ -94,10 +94,10 @@ export const SessionMenu: React.FC<SessionMenuProps> = ({ onOpenChange }) => {
   return (
     <div
       ref={rootRef}
-      className="openbitfun-session-menu"
-      data-openbitfun-component="session-menu"
-      data-openbitfun-part="root"
-      data-openbitfun-state={isMenuOpen ? 'open' : undefined}
+      className="alex-session-menu"
+      data-alex-component="session-menu"
+      data-alex-part="root"
+      data-alex-state={isMenuOpen ? 'open' : undefined}
       onKeyDown={handleKeyDown}
     >
       <Tooltip content={t('toolCards.toolbar.openSessionMenu')}>
@@ -105,11 +105,11 @@ export const SessionMenu: React.FC<SessionMenuProps> = ({ onOpenChange }) => {
           ref={triggerRef}
           type="button"
           className={[
-            'openbitfun-session-menu__trigger',
-            isMenuOpen ? 'openbitfun-session-menu__trigger--open' : '',
+            'alex-session-menu__trigger',
+            isMenuOpen ? 'alex-session-menu__trigger--open' : '',
           ].filter(Boolean).join(' ')}
-          data-openbitfun-component="session-menu"
-          data-openbitfun-part="trigger"
+          data-alex-component="session-menu"
+          data-alex-part="trigger"
           onClick={toggleMenu}
           aria-expanded={isMenuOpen}
           aria-haspopup="listbox"
@@ -120,10 +120,10 @@ export const SessionMenu: React.FC<SessionMenuProps> = ({ onOpenChange }) => {
 
       {isMenuOpen && createOverlayPortal(
         <Menu
-          className="openbitfun-session-menu__dropdown"
-          data-openbitfun-component="session-menu"
-          data-openbitfun-part="dropdown"
-          data-openbitfun-placement={dropdownLayout?.placement ?? 'bottom'}
+          className="alex-session-menu__dropdown"
+          data-alex-component="session-menu"
+          data-alex-part="dropdown"
+          data-alex-placement={dropdownLayout?.placement ?? 'bottom'}
           ref={dropdownRef}
           style={{
             top: `${dropdownLayout?.top ?? 0}px`,
@@ -132,36 +132,36 @@ export const SessionMenu: React.FC<SessionMenuProps> = ({ onOpenChange }) => {
           }}
           onMouseDown={(e) => e.stopPropagation()}
         >
-          <MenuList className="openbitfun-session-menu__actions" data-openbitfun-component="session-menu" data-openbitfun-part="actions">
+          <MenuList className="alex-session-menu__actions" data-alex-component="session-menu" data-alex-part="actions">
             <MenuItem data-overflow-trigger
               type="button"
-              className="openbitfun-session-menu__item-row openbitfun-session-menu__item-row--new openbitfun-session-menu__item--new"
-              data-openbitfun-component="session-menu"
-              data-openbitfun-part="item"
-              data-openbitfun-item-kind="create"
-              data-openbitfun-session-kind="unified"
+              className="alex-session-menu__item-row alex-session-menu__item-row--new alex-session-menu__item--new"
+              data-alex-component="session-menu"
+              data-alex-part="item"
+              data-alex-item-kind="create"
+              data-alex-session-kind="unified"
               onMouseDown={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 createSession();
               }}
               leading={(
-                <span className="openbitfun-session-menu__item-icon" data-openbitfun-component="session-menu" data-openbitfun-part="itemIcon">
+                <span className="alex-session-menu__item-icon" data-alex-component="session-menu" data-alex-part="itemIcon">
                   <Icon name="plus" size="lg" style={{ width: 13, height: 13 }} />
                 </span>
               )}
             >
-              <OverflowText className="openbitfun-session-menu__item-label" data-openbitfun-component="session-menu" data-openbitfun-part="itemLabel">
+              <OverflowText className="alex-session-menu__item-label" data-alex-component="session-menu" data-alex-part="itemLabel">
                 {t('toolCards.toolbar.newSessionItem')}
               </OverflowText>
             </MenuItem>
-            <MenuSeparator className="openbitfun-session-menu__divider" data-openbitfun-component="session-menu" data-openbitfun-part="divider" />
+            <MenuSeparator className="alex-session-menu__divider" data-alex-component="session-menu" data-alex-part="divider" />
           </MenuList>
 
           <MenuList
-            className="openbitfun-session-menu__scroll"
-            data-openbitfun-component="session-menu"
-            data-openbitfun-part="scroll"
+            className="alex-session-menu__scroll"
+            data-alex-component="session-menu"
+            data-alex-part="scroll"
             aria-label={t('session.switchSession')}
           >
             {sessions.map((session) => {
@@ -173,13 +173,13 @@ export const SessionMenu: React.FC<SessionMenuProps> = ({ onOpenChange }) => {
                   role="menuitemradio"
                   checked={session.sessionId === activeSessionId}
                   className={[
-                    'openbitfun-session-menu__item-row',
-                    session.sessionId === activeSessionId ? 'openbitfun-session-menu__item-row--active' : '',
+                    'alex-session-menu__item-row',
+                    session.sessionId === activeSessionId ? 'alex-session-menu__item-row--active' : '',
                   ].filter(Boolean).join(' ')}
-                  data-openbitfun-component="session-menu"
-                  data-openbitfun-part="item"
-                  data-openbitfun-item-kind="session"
-                  data-openbitfun-state={session.sessionId === activeSessionId ? 'active' : undefined}
+                  data-alex-component="session-menu"
+                  data-alex-part="item"
+                  data-alex-item-kind="session"
+                  data-alex-state={session.sessionId === activeSessionId ? 'active' : undefined}
                   // Root cause: the index used to be a MenuItem child, which ActionItem
                   // nests inside the label's own overflow slot. That slot is a block box,
                   // so a wider index wrapped onto its own line and jammed against the row

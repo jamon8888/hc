@@ -1,5 +1,5 @@
 import React from 'react';
-import { Portal } from '@openbitfun/ui';
+import { Portal } from '@alex/ui';
 import { useAnnouncementStore } from '../store/announcementStore';
 import AnnouncementToastItem from './AnnouncementToastItem';
 import '../styles/AnnouncementToast.scss';
@@ -20,14 +20,14 @@ const AnnouncementToastStack: React.FC = () => {
 
   return (
     <Portal passive key={activeToast.id}>
-    <div className="announcement-toast-stack" aria-label="Announcements" data-openbitfun-component="announcement" data-openbitfun-part="stack">
-      <div className="announcement-toast-deck" data-openbitfun-component="announcement" data-openbitfun-part="deck">
+    <div className="announcement-toast-stack" aria-label="Announcements" data-alex-component="announcement" data-alex-part="stack">
+      <div className="announcement-toast-deck" data-alex-component="announcement" data-alex-part="deck">
         {/* Ghost layers: rendered before active card = lower in DOM = behind */}
         {ghostCount >= 2 && (
-          <div className="announcement-toast-ghost announcement-toast-ghost--2" aria-hidden data-openbitfun-component="announcement" data-openbitfun-part="ghost" data-openbitfun-depth="2" />
+          <div className="announcement-toast-ghost announcement-toast-ghost--2" aria-hidden data-alex-component="announcement" data-alex-part="ghost" data-alex-depth="2" />
         )}
         {ghostCount >= 1 && (
-          <div className="announcement-toast-ghost announcement-toast-ghost--1" aria-hidden data-openbitfun-component="announcement" data-openbitfun-part="ghost" data-openbitfun-depth="1" />
+          <div className="announcement-toast-ghost announcement-toast-ghost--1" aria-hidden data-alex-component="announcement" data-alex-part="ghost" data-alex-depth="1" />
         )}
         <AnnouncementToastItem card={activeToast} />
       </div>

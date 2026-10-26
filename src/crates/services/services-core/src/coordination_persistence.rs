@@ -8,12 +8,12 @@ use rusqlite::Connection;
 
 pub const COORDINATION_SCHEMA_VERSION: i64 = 2;
 
-pub fn initialize_coordination_schema(connection: &Connection) -> OpenBitFunResult<()> {
+pub fn initialize_coordination_schema(connection: &Connection) -> AlexResult<()> {
     let version = connection
         .query_row("PRAGMA user_version", [], |row| row.get::<_, i64>(0))
         .map_err(db_error)?;
     if version > COORDINATION_SCHEMA_VERSION {
-        return Err(OpenBitFunError::service(format!(
+        return Err(AlexError::service(format!(
             "Agent coordination database schema {version} is newer than supported schema {COORDINATION_SCHEMA_VERSION}"
         )));
     }
@@ -107,7 +107,7 @@ PRAGMA user_version = 2;
 /// schema v1. A retired build could nevertheless leave a database stamped as
 /// v2 without those additive columns. Keep the repair keyed to the physical
 /// shape so reopening such a database is safe and idempotent.
-fn ensure_v2_additive_columns(connection: &Connection) -> OpenBitFunResult<()> {
+fn ensure_v2_additive_columns(connection: &Connection) -> AlexResult<()> {
     for (column, declaration) in [
         ("delivered_at_ms", "INTEGER"),
         ("delivered_parent_dialog_turn_id", "TEXT"),
@@ -137,7 +137,7 @@ pub fn coordination_table_has_column(
     connection: &Connection,
     table: &str,
     expected_column: &str,
-) -> OpenBitFunResult<bool> {
+) -> AlexResult<bool> {
     let mut statement = connection
         .prepare(&format!("PRAGMA table_info({table})"))
         .map_err(db_error)?;
@@ -152,7 +152,7 @@ pub fn coordination_table_has_column(
     Ok(false)
 }
 
-pub fn validate_coordination_agent_id(agent_id: &str) -> OpenBitFunResult<()> {
+pub fn validate_coordination_agent_id(agent_id: &str) -> AlexResult<()> {
     let valid = !agent_id.is_empty()
         && agent_id.len() <= 32
         && agent_id
@@ -166,12 +166,12 @@ pub fn validate_coordination_agent_id(agent_id: &str) -> OpenBitFunResult<()> {
     if valid {
         Ok(())
     } else {
-        Err(OpenBitFunError::tool(
+        Err(AlexError::tool(
             "agent_id must match [a-z][a-z0-9_-]{0,31}".to_string(),
         ))
     }
 }
 
-fn db_error(error: rusqlite::Error) -> OpenBitFunError {
-    OpenBitFunError::io(format!("Agent coordination database error: {error}"))
+fn db_error(error: rusqlite::Error) -> AlexError {
+    AlexError::io(format!("Agent coordination database error: {error}"))
 }

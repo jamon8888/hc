@@ -5,9 +5,9 @@ use crate::service::instruction_context::{
     load_local_conditional_instruction_files, load_local_conditional_instruction_files_with_fs,
     load_workspace_conditional_instruction_files_with_fs, render_instruction_documents,
 };
-use crate::util::errors::OpenBitFunResult;
+use crate::util::errors::AlexResult;
 use log::warn;
-use openbitfun_services_core::workspace_instructions::{
+use alex_services_core::workspace_instructions::{
     WorkspaceInstructionFile, WorkspaceInstructionPathMatcher,
 };
 use std::collections::HashSet;
@@ -32,7 +32,7 @@ pub(crate) async fn build_conditional_instruction_reminder(
     messages: &[Message],
     turn_id: &str,
     round_id: &str,
-) -> OpenBitFunResult<Option<Message>> {
+) -> AlexResult<Option<Message>> {
     Ok(
         ConditionalInstructionCatalog::load(workspace, workspace_services)
             .await?
@@ -44,7 +44,7 @@ impl ConditionalInstructionCatalog {
     pub(crate) async fn load(
         workspace: &WorkspaceBinding,
         workspace_services: Option<&WorkspaceServices>,
-    ) -> OpenBitFunResult<Self> {
+    ) -> AlexResult<Self> {
         let files = if workspace.is_remote() {
             let Some(services) = workspace_services else {
                 warn!(
@@ -224,7 +224,7 @@ mod tests {
     use crate::agentic::WorkspaceBinding;
     #[cfg(feature = "external-sources")]
     use crate::instruction_sources::test_support::{lock_environment, EnvironmentGuard};
-    use openbitfun_services_core::workspace_instructions::WorkspaceInstructionFile;
+    use alex_services_core::workspace_instructions::WorkspaceInstructionFile;
     use serde_json::json;
 
     fn conditional_file(name: &str, patterns: &[&str], content: &str) -> WorkspaceInstructionFile {

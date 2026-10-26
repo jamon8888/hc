@@ -3,9 +3,9 @@
  */
 
 import React from 'react';
-import { Icon, type IconName } from '@openbitfun/ui';
+import { Icon, type IconName } from '@alex/ui';
 import { Loader2, XCircle, AlertCircle, type LucideIcon } from 'lucide-react';
-import { ToolProcessingDots } from '@openbitfun/ui/flow-chat';
+import { ToolProcessingDots } from '@alex/ui/flow-chat';
 import type { ToolExecutionStatus } from '../../shared/types/tool-events';
 
 interface ToolStatusIndicatorProps {

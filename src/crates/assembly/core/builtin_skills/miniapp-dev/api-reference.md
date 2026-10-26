@@ -102,7 +102,7 @@ const crypto = require('crypto');
 ## 标准浏览器 API
 
 MiniApp 运行在 iframe 中，完整支持:
-- DOM、CSS（含 CSS 变量 `--openbitfun-bg`, `--openbitfun-text`, `--openbitfun-accent` 等）
+- DOM、CSS（含 CSS 变量 `--alex-bg`, `--alex-text`, `--alex-accent` 等）
 - Canvas 2D / WebGL
 - Web Audio
 - LocalStorage / SessionStorage（iframe 级隔离）
@@ -325,7 +325,7 @@ const text = await app.clipboard.readText();
 app.onActivate(() => { /* Tab 变为活跃状态 */ });
 app.onDeactivate(() => { /* Tab 切走 */ });
 app.onAppearanceChange((payload) => {
-  // payload: { mode: 'dark'|'light', vars: { '--openbitfun-bg': '...', ... } }
+  // payload: { mode: 'dark'|'light', vars: { '--alex-bg': '...', ... } }
 });
 app.onLocaleChange((locale) => {
   // locale: 新的语言 ID 字符串（如 'zh-CN' / 'en-US'）

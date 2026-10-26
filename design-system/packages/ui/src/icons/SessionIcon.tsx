@@ -10,5 +10,5 @@ export const SessionIcon = forwardRef<SVGSVGElement, SessionIconProps>(function 
   height, size = 24, width, style, ...props
 }, ref) {
   return <MessageCircle {...props} ref={ref} width={width ?? size} height={height ?? size}
-    strokeWidth="var(--openbitfun-control-icon-stroke-width)" style={{ opacity: "var(--openbitfun-opacity-icon-artwork)", ...style }} />;
+    strokeWidth="var(--alex-control-icon-stroke-width)" style={{ opacity: "var(--alex-opacity-icon-artwork)", ...style }} />;
 });

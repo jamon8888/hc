@@ -7,31 +7,31 @@ use crate::server::response::WebDriverErrorResponse;
 use crate::server::AppState;
 
 pub(crate) fn perform_actions() -> &'static str {
-    "async (actions) => { await window.__openbitfunWd.performActions(actions); return null; }"
+    "async (actions) => { await window.__alexWd.performActions(actions); return null; }"
 }
 
 pub(crate) fn release_actions() -> &'static str {
-    "async (pressedKeys, pressedButtons) => { await window.__openbitfunWd.releaseActions(pressedKeys, pressedButtons); return null; }"
+    "async (pressedKeys, pressedButtons) => { await window.__alexWd.releaseActions(pressedKeys, pressedButtons); return null; }"
 }
 
 pub(crate) fn dismiss_alert() -> &'static str {
-    "() => window.__openbitfunWd.closeAlert(false)"
+    "() => window.__alexWd.closeAlert(false)"
 }
 
 pub(crate) fn accept_alert() -> &'static str {
-    "() => window.__openbitfunWd.closeAlert(true)"
+    "() => window.__alexWd.closeAlert(true)"
 }
 
 pub(crate) fn alert_text() -> &'static str {
-    "() => window.__openbitfunWd.getAlertText()"
+    "() => window.__alexWd.getAlertText()"
 }
 
 pub(crate) fn send_alert_text() -> &'static str {
-    "(text) => window.__openbitfunWd.sendAlertText(text)"
+    "(text) => window.__alexWd.sendAlertText(text)"
 }
 
 pub(crate) fn take_logs() -> &'static str {
-    "() => window.__openbitfunWd.takeLogs()"
+    "() => window.__alexWd.takeLogs()"
 }
 
 pub(crate) async fn exec_perform_actions(

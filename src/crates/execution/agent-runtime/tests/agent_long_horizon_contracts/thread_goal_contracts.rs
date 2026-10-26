@@ -1,4 +1,4 @@
-use openbitfun_agent_runtime::thread_goal::{
+use alex_agent_runtime::thread_goal::{
     billable_tokens_from_counts, build_objective_updated_plan, build_set_thread_goal_result,
     build_thread_goal_continuation_plan, clear_thread_goal_patch,
     goal_continuation_submit_retry_delay_ms, goal_tool_response, is_usage_limit_message,
@@ -7,7 +7,7 @@ use openbitfun_agent_runtime::thread_goal::{
     thread_goal_patch, thread_goal_status_is_resumable, SetThreadGoalRequest,
     ThreadGoalContinuationFacts, ThreadGoalRuntime, ThreadGoalTokenUsageFacts,
 };
-use openbitfun_runtime_ports::{
+use alex_runtime_ports::{
     ThreadGoal, ThreadGoalStatus, MAX_GOAL_CONTINUATIONS, MAX_THREAD_GOAL_AUTO_CONTINUATIONS,
     THREAD_GOAL_METADATA_KEY,
 };
@@ -354,7 +354,7 @@ fn turn_filtering_and_retry_policies_preserve_goal_mode_semantics() {
 
 #[test]
 fn plain_goal_prompts_parse_objectives_and_drive_continuation() {
-    use openbitfun_agent_runtime::thread_goal::goal_objective_from_prompt;
+    use alex_agent_runtime::thread_goal::goal_objective_from_prompt;
     for (prompt, expected) in [
         ("/goal fix bug", "fix bug"),
         ("  /GOAL  ship feature  ", "ship feature"),
@@ -486,7 +486,7 @@ fn resumed_blocked_goal_gets_a_fresh_continuation_window_without_resetting_usage
 
 #[test]
 fn headless_goal_run_follows_only_its_continuations_until_goal_completion() {
-    use openbitfun_agent_runtime::thread_goal::{
+    use alex_agent_runtime::thread_goal::{
         ThreadGoalRunDisposition as D, ThreadGoalRunTracker,
     };
     let active = goal(ThreadGoalStatus::Active);
@@ -512,7 +512,7 @@ fn headless_goal_run_follows_only_its_continuations_until_goal_completion() {
 
 #[test]
 fn headless_goal_run_reports_stops_and_waits_for_one_budget_wrap_up() {
-    use openbitfun_agent_runtime::thread_goal::{
+    use alex_agent_runtime::thread_goal::{
         ThreadGoalRunDisposition as D, ThreadGoalRunTracker,
     };
     for status in [
@@ -540,7 +540,7 @@ fn headless_goal_run_reports_stops_and_waits_for_one_budget_wrap_up() {
 
 #[test]
 fn delayed_goal_continuation_is_fenced_by_identity_objective_attempt_and_status() {
-    use openbitfun_agent_runtime::thread_goal::goal_continuation_matches;
+    use alex_agent_runtime::thread_goal::goal_continuation_matches;
     let active = goal(ThreadGoalStatus::Active);
     let metadata = build_thread_goal_continuation_plan(&active).user_message_metadata;
     assert!(goal_continuation_matches(&active, &metadata));
@@ -560,7 +560,7 @@ fn delayed_goal_continuation_is_fenced_by_identity_objective_attempt_and_status(
 
 #[test]
 fn goal_prompts_preserve_literal_objectives_and_share_the_completion_contract() {
-    use openbitfun_agent_runtime::thread_goal::{
+    use alex_agent_runtime::thread_goal::{
         budget_limit_prompt, continuation_prompt, objective_updated_prompt,
     };
     let mut current = goal(ThreadGoalStatus::Active);

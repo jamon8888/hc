@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { Menu } from '@openbitfun/ui';
+import { Menu } from '@alex/ui';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import common from '@/locales/en-US/common.json';
 import { UpdateMenuItems } from './UpdateMenuItems';

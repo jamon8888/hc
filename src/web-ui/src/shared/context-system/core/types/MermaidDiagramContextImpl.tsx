@@ -1,7 +1,7 @@
  
 
 import React from 'react';
-import { OverflowText, Icon } from '@openbitfun/ui';
+import { OverflowText, Icon } from '@alex/ui';
 import { Network } from 'lucide-react';
 import type { MermaidDiagramContext, ValidationResult, RenderOptions } from '../../../types/context';
 import type { 
@@ -103,20 +103,20 @@ export class MermaidDiagramCardRenderer implements ContextCardRenderer<'mermaid-
     const { compact = false, interactive = true } = options || {};
     
     return (
-      <div className={`openbitfun-context-card openbitfun-context-card--mermaid ${compact ? 'openbitfun-context-card--compact' : ''}`}>
-        <div className="openbitfun-context-card__icon">
+      <div className={`alex-context-card alex-context-card--mermaid ${compact ? 'alex-context-card--compact' : ''}`}>
+        <div className="alex-context-card__icon">
           <Network size={compact ? 16 : 20} />
         </div>
         
-        <div className="openbitfun-context-card__content">
-          <div className="openbitfun-context-card__title"><OverflowText>
+        <div className="alex-context-card__content">
+          <div className="alex-context-card__title"><OverflowText>
             {context.diagramTitle || i18nService.t('components:contextSystem.diagram.defaultTitle')}
           </OverflowText></div>
           
           {!compact && (
-            <div className="openbitfun-context-card__subtitle"><OverflowText behavior="marquee">
+            <div className="alex-context-card__subtitle"><OverflowText behavior="marquee">
               {this.getDiagramTypeLabel(context.diagramType)}
-              <span className="openbitfun-context-card__meta">
+              <span className="alex-context-card__meta">
                 {' • '}{this.formatCodeSize(context.diagramCode.length)}
               </span>
             </OverflowText></div>
@@ -124,7 +124,7 @@ export class MermaidDiagramCardRenderer implements ContextCardRenderer<'mermaid-
         </div>
         
         {interactive && (
-          <div className="openbitfun-context-card__actions">
+          <div className="alex-context-card__actions">
             {this.renderValidationIndicator(context)}
           </div>
         )}
@@ -159,8 +159,8 @@ export class MermaidDiagramCardRenderer implements ContextCardRenderer<'mermaid-
     
     
     return (
-      <div className="openbitfun-context-card__status">
-        <Icon name="check-circle" size="md" className="openbitfun-context-card__status-icon--success" />
+      <div className="alex-context-card__status">
+        <Icon name="check-circle" size="md" className="alex-context-card__status-icon--success" />
       </div>
     );
   }

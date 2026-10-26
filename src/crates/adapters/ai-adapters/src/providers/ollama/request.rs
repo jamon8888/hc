@@ -110,7 +110,7 @@ fn try_build_request_body_with_context(
         request_body["response_format"] = serde_json::json!({
             "type": "json_schema",
             "json_schema": {
-                "name": "openbitfun_output",
+                "name": "alex_output",
                 "strict": true,
                 "schema": schema
             }
@@ -351,7 +351,7 @@ mod tests {
     fn applies_reasoning_effort_for_generic_preset() {
         use crate::types::{ReasoningPresetAction, ReasoningPresetDescriptor};
         use crate::providers::shared::GENERIC_REASONING_PROVIDER_ID;
-use openbitfun_core_types::ReasoningPresetSource;
+use alex_core_types::ReasoningPresetSource;
         
         let mut client = make_test_client();
         client.model_reasoning_preset = Some(ReasoningPresetDescriptor {

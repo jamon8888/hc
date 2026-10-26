@@ -3,8 +3,8 @@ use crate::local_source_paths::{
     find_project_root, local_source_plan, LocalConfigDocument, LocalSourcePlanItem,
     OpenCodeLocalConfigOptions,
 };
-use openbitfun_product_domains::external_sources::ExternalSourceScope;
-use openbitfun_services_core::bounded_fs::BoundedTextRead;
+use alex_product_domains::external_sources::ExternalSourceScope;
+use alex_services_core::bounded_fs::BoundedTextRead;
 use serde_json::Value;
 use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};

@@ -10,7 +10,7 @@ async fn first_remote_path<'a>(
     paths: impl Iterator<Item = &'a str>,
 ) -> Result<Option<String>, String> {
     for path in paths {
-        if openbitfun_core::service::workspace::remote_io_for_legacy_or_id(
+        if alex_core::service::workspace::remote_io_for_legacy_or_id(
             workspace_id,
             controller_local,
             path.trim(),
@@ -253,7 +253,7 @@ mod linux_clipboard {
     use super::parse_uri_list;
 
     fn read_xclip_uri_list() -> Option<String> {
-        let output = openbitfun_core::util::process_manager::create_command("xclip")
+        let output = alex_core::util::process_manager::create_command("xclip")
             .args(["-selection", "clipboard", "-t", "text/uri-list", "-o"])
             .output()
             .ok()?;
@@ -266,7 +266,7 @@ mod linux_clipboard {
     }
 
     fn read_wl_paste_uri_list() -> Option<String> {
-        let output = openbitfun_core::util::process_manager::create_command("wl-paste")
+        let output = alex_core::util::process_manager::create_command("wl-paste")
             .args(["-t", "text/uri-list"])
             .output()
             .ok()?;
@@ -377,7 +377,7 @@ fn read_clipboard_image_internal() -> ClipboardImageRead {
     /// `Ok(None)` = the tool ran and reported no such payload;
     /// `Err` = the tool could not be run at all.
     let read_target = |program: &str, args: &[&str]| -> Result<Option<Vec<u8>>, String> {
-        let output = openbitfun_core::util::process_manager::create_command(program)
+        let output = alex_core::util::process_manager::create_command(program)
             .args(args)
             .output()
             .map_err(|error| {
@@ -717,7 +717,7 @@ mod tests {
     #[test]
     fn copy_directory_recursive_copies_nested_binary_files() {
         let root = std::env::temp_dir().join(format!(
-            "openbitfun-directory-copy-test-{}",
+            "alex-directory-copy-test-{}",
             uuid::Uuid::new_v4()
         ));
         let source = root.join("source");
@@ -746,7 +746,7 @@ mod tests {
 #[cfg(test)]
 mod remote_guard_tests {
     use super::{paste_files, PasteFilesRequest};
-    use openbitfun_core::service::remote_ssh::workspace_state::init_remote_workspace_manager;
+    use alex_core::service::remote_ssh::workspace_state::init_remote_workspace_manager;
 
     const REMOTE_ROOT: &str = "/remote-audit-paste";
     const CONNECTION_ID: &str = "remote-audit-paste-connection";
@@ -762,9 +762,9 @@ mod remote_guard_tests {
             )
             .await;
 
-        let source = std::env::temp_dir().join("openbitfun-remote-audit-paste-source.txt");
+        let source = std::env::temp_dir().join("alex-remote-audit-paste-source.txt");
         std::fs::write(&source, b"local bytes").expect("write controller source");
-        let sentinel = std::env::temp_dir().join("openbitfun-remote-audit-paste-source.txt.copy");
+        let sentinel = std::env::temp_dir().join("alex-remote-audit-paste-source.txt.copy");
         let _ = std::fs::remove_file(&sentinel);
 
         let error = paste_files(PasteFilesRequest {

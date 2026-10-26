@@ -1,6 +1,6 @@
 .flow-chat-tool-gallery-theme {
   display: block;
-  color: var(--openbitfun-color-content-primary);
+  color: var(--alex-color-content-primary);
   background: transparent;
 }
 
@@ -13,7 +13,7 @@
 .flow-chat-tool-sequence {
   display: grid;
   min-inline-size: 0;
-  gap: var(--openbitfun-space-5);
+  gap: var(--alex-space-5);
 }
 
 .flow-chat-tool-sequence__rows {
@@ -21,18 +21,18 @@
 }
 
 .flow-chat-tool-sequence__rows > * + * {
-  margin-block-start: var(--openbitfun-control-flow-chat-flow-item-gap);
+  margin-block-start: var(--alex-control-flow-chat-flow-item-gap);
 }
 
-.flow-chat-tool-sequence__rows > [data-openbitfun-component='flow-chat-tool-card'][data-openbitfun-attention='ambient'][data-openbitfun-expanded-shell='false']
-  + [data-openbitfun-component='flow-chat-tool-card'][data-openbitfun-attention='ambient'][data-openbitfun-expanded-shell='false'] {
+.flow-chat-tool-sequence__rows > [data-alex-component='flow-chat-tool-card'][data-alex-attention='ambient'][data-alex-expanded-shell='false']
+  + [data-alex-component='flow-chat-tool-card'][data-alex-attention='ambient'][data-alex-expanded-shell='false'] {
   margin-block-start: 0;
 }
 
 .flow-chat-tool-gallery > .component-catalog-section-heading {
   margin-block: 0 -8px;
   padding-top: 34px;
-  border-top: var(--openbitfun-border-width-default) solid var(--openbitfun-color-border-subtle);
+  border-top: var(--alex-border-width-default) solid var(--alex-color-border-subtle);
 }
 
 .flow-chat-tool-group {
@@ -44,19 +44,19 @@
   display: flex;
   align-items: end;
   justify-content: space-between;
-  gap: var(--openbitfun-space-5);
+  gap: var(--alex-space-5);
 }
 
 .flow-chat-tool-group__heading > div {
   display: grid;
-  gap: var(--openbitfun-space-1);
+  gap: var(--alex-space-1);
 }
 
 .flow-chat-tool-group__attention {
-  color: var(--openbitfun-color-content-muted);
-  font-size: var(--openbitfun-type-body-xs-font-size);
-  font-weight: var(--openbitfun-type-label-lg-font-weight);
-  letter-spacing: var(--openbitfun-type-modifier-tracking-wider-letter-spacing);
+  color: var(--alex-color-content-muted);
+  font-size: var(--alex-type-body-xs-font-size);
+  font-weight: var(--alex-type-label-lg-font-weight);
+  letter-spacing: var(--alex-type-modifier-tracking-wider-letter-spacing);
   text-transform: uppercase;
 }
 
@@ -66,42 +66,42 @@
 }
 
 .flow-chat-tool-group__heading h3 {
-  color: var(--openbitfun-color-content-primary);
-  font-size: var(--openbitfun-type-flow-section-title-font-size);
+  color: var(--alex-color-content-primary);
+  font-size: var(--alex-type-flow-section-title-font-size);
 }
 
 .flow-chat-tool-group__heading p,
 .flow-chat-tool-group__heading > button {
-  color: var(--openbitfun-color-content-muted);
-  font-size: var(--openbitfun-type-body-xs-font-size);
+  color: var(--alex-color-content-muted);
+  font-size: var(--alex-type-body-xs-font-size);
 }
 
 .flow-chat-tool-group__heading > button {
   display: inline-flex;
   flex: 0 0 auto;
   align-items: center;
-  gap: var(--openbitfun-space-2);
+  gap: var(--alex-space-2);
   margin: 0;
-  padding: var(--openbitfun-space-2) var(--openbitfun-space-3);
+  padding: var(--alex-space-2) var(--alex-space-3);
   border: 0;
-  border-radius: var(--openbitfun-radius-md);
+  border-radius: var(--alex-radius-md);
   background: transparent;
   cursor: pointer;
 }
 
 .flow-chat-tool-group__heading > button:hover {
-  color: var(--openbitfun-color-content-primary);
-  background: var(--openbitfun-color-action-neutral-surface);
+  color: var(--alex-color-content-primary);
+  background: var(--alex-color-action-neutral-surface);
 }
 
 .flow-chat-tool-group__heading > button:focus-visible {
-  outline: var(--openbitfun-focus-width) solid var(--openbitfun-color-focus-ring);
-  outline-offset: var(--openbitfun-focus-offset);
+  outline: var(--alex-focus-width) solid var(--alex-color-focus-ring);
+  outline-offset: var(--alex-focus-offset);
 }
 
 .flow-chat-tool-group__heading > button > svg {
-  inline-size: var(--openbitfun-font-size-base);
-  block-size: var(--openbitfun-font-size-base);
+  inline-size: var(--alex-font-size-base);
+  block-size: var(--alex-font-size-base);
 }
 
 .flow-chat-tool-grid {
@@ -113,61 +113,61 @@
 .flow-chat-tool-specimen {
   display: grid;
   align-content: start;
-  gap: var(--openbitfun-space-3);
+  gap: var(--alex-space-3);
   min-width: 0;
-  padding: var(--openbitfun-space-4);
-  border: var(--openbitfun-border-width-default) solid var(--openbitfun-color-border-subtle);
-  border-radius: var(--openbitfun-radius-lg);
-  background: var(--openbitfun-color-surface-panel);
+  padding: var(--alex-space-4);
+  border: var(--alex-border-width-default) solid var(--alex-color-border-subtle);
+  border-radius: var(--alex-radius-lg);
+  background: var(--alex-color-surface-panel);
 }
 
 .flow-chat-tool-specimen__heading {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--openbitfun-space-3);
+  gap: var(--alex-space-3);
 }
 
 .flow-chat-tool-specimen__heading code {
   overflow: hidden;
   min-width: 0;
-  color: var(--openbitfun-color-content-primary);
-  font-family:var(--openbitfun-type-code-md-font-family);
-  font-size: var(--openbitfun-type-body-sm-font-size);
+  color: var(--alex-color-content-primary);
+  font-family:var(--alex-type-code-md-font-family);
+  font-size: var(--alex-type-body-sm-font-size);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .flow-chat-tool-specimen__heading span {
   flex: 0 0 auto;
-  color: var(--openbitfun-color-content-muted);
-  font-size: var(--openbitfun-type-body-xs-font-size);
+  color: var(--alex-color-content-muted);
+  font-size: var(--alex-type-body-xs-font-size);
 }
 
 .flow-chat-dedicated-note {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: var(--openbitfun-space-4);
-  padding: var(--openbitfun-space-4);
-  border: var(--openbitfun-border-width-default) solid var(--openbitfun-color-border-subtle);
-  border-radius: var(--openbitfun-radius-lg);
-  color: var(--openbitfun-color-content-secondary);
-  background: var(--openbitfun-color-surface-subtle);
+  gap: var(--alex-space-4);
+  padding: var(--alex-space-4);
+  border: var(--alex-border-width-default) solid var(--alex-color-border-subtle);
+  border-radius: var(--alex-radius-lg);
+  color: var(--alex-color-content-secondary);
+  background: var(--alex-color-surface-subtle);
 }
 
 .flow-chat-dedicated-note > svg {
-  inline-size: var(--openbitfun-control-height-sm);
-  block-size: var(--openbitfun-control-height-sm);
-  padding: var(--openbitfun-space-2);
-  border-radius: var(--openbitfun-radius-md);
-  color: var(--openbitfun-color-content-primary);
-  background: var(--openbitfun-color-surface-panel);
+  inline-size: var(--alex-control-height-sm);
+  block-size: var(--alex-control-height-sm);
+  padding: var(--alex-space-2);
+  border-radius: var(--alex-radius-md);
+  color: var(--alex-color-content-primary);
+  background: var(--alex-color-surface-panel);
 }
 
 .flow-chat-dedicated-note > div {
   display: grid;
-  gap: var(--openbitfun-space-1);
+  gap: var(--alex-space-1);
 }
 
 .flow-chat-dedicated-note strong,
@@ -176,20 +176,20 @@
 }
 
 .flow-chat-dedicated-note strong {
-  color: var(--openbitfun-color-content-primary);
-  font-size: var(--openbitfun-type-body-sm-font-size);
+  color: var(--alex-color-content-primary);
+  font-size: var(--alex-type-body-sm-font-size);
 }
 
 .flow-chat-dedicated-note p,
 .flow-chat-dedicated-note code {
-  font-size: var(--openbitfun-type-body-xs-font-size);
+  font-size: var(--alex-type-body-xs-font-size);
 }
 
 .flow-chat-dedicated-note code {
   max-inline-size: 360px;
-  color: var(--openbitfun-color-content-muted);
-  font-family:var(--openbitfun-type-code-md-font-family);
-  line-height: var(--openbitfun-type-body-md-line-height);
+  color: var(--alex-color-content-muted);
+  font-family:var(--alex-type-code-md-font-family);
+  line-height: var(--alex-type-body-md-line-height);
   text-align: end;
 }
 

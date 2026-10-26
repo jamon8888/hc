@@ -9,7 +9,7 @@ import React, {
 } from 'react';
 import { FolderGit2, Laptop, Loader2, MonitorSmartphone, Server } from 'lucide-react';
 
-import { subscribeOverlayInteraction, createOverlayPortal, OverflowText, Icon, Menu, MenuItem, MenuSection, MenuSeparator, Tooltip } from '@openbitfun/ui';
+import { subscribeOverlayInteraction, createOverlayPortal, OverflowText, Icon, Menu, MenuItem, MenuSection, MenuSeparator, Tooltip } from '@alex/ui';
 import { SSHConnectionDialog } from '@/features/ssh-remote/SSHConnectionDialog';
 import { useAccountLoginState } from '@/infrastructure/account/useAccountLoginState';
 import { getAppearanceOverlayHost } from '@/infrastructure/appearance/runtime/AppearanceOverlayHost';
@@ -143,9 +143,9 @@ export const DispatchTargetPicker: React.FC<DispatchTargetPickerProps> = ({
     <Menu
       ref={menuRef}
       className="dispatch-target-picker__menu"
-      data-openbitfun-component="dispatch-target-picker"
-      data-openbitfun-part="menu"
-      data-openbitfun-placement={menuLayout?.placement ?? 'top'}
+      data-alex-component="dispatch-target-picker"
+      data-alex-part="menu"
+      data-alex-placement={menuLayout?.placement ?? 'top'}
       style={{
         top: `${menuLayout?.top ?? 0}px`,
         left: `${menuLayout?.left ?? 0}px`,
@@ -164,8 +164,8 @@ export const DispatchTargetPicker: React.FC<DispatchTargetPickerProps> = ({
             role="menuitemradio"
             checked={localDirectorySelected}
             className="dispatch-target-picker__option-row"
-            data-openbitfun-component="dispatch-target-picker"
-            data-openbitfun-part="option"
+            data-alex-component="dispatch-target-picker"
+            data-alex-part="option"
             data-testid="dispatch-target-local-option"
             disabled={localWorktreeControl?.locked}
             leading={<Laptop size={15} aria-hidden />}
@@ -183,8 +183,8 @@ export const DispatchTargetPicker: React.FC<DispatchTargetPickerProps> = ({
               role="menuitemradio"
               checked={localWorktreeSelected}
               className="dispatch-target-picker__option-row"
-              data-openbitfun-component="dispatch-target-picker"
-              data-openbitfun-part="option"
+              data-alex-component="dispatch-target-picker"
+              data-alex-part="option"
               data-testid="dispatch-target-new-worktree-option"
               disabled={localWorktreeControl.locked}
               leading={<FolderGit2 size={15} aria-hidden />}
@@ -316,16 +316,16 @@ export const DispatchTargetPicker: React.FC<DispatchTargetPickerProps> = ({
       <div
         ref={rootRef}
         className="dispatch-target-picker"
-        data-openbitfun-component="dispatch-target-picker"
-        data-openbitfun-part="root"
+        data-alex-component="dispatch-target-picker"
+        data-alex-part="root"
       >
         <Tooltip content={tooltip} placement="top">
           <button data-overflow-trigger
             ref={triggerRef}
             type="button"
             className="dispatch-target-picker__trigger"
-            data-openbitfun-component="dispatch-target-picker"
-            data-openbitfun-part="trigger"
+            data-alex-component="dispatch-target-picker"
+            data-alex-part="trigger"
             aria-haspopup="menu"
             aria-expanded={open}
             aria-label={tooltip}

@@ -3,7 +3,7 @@ use super::{
     detect_remote_mime_type, RemoteWorkspaceFileChunk, RemoteWorkspaceFileContent,
     RemoteWorkspaceFileInfo, REMOTE_FILE_MAX_CHUNK_BYTES,
 };
-use openbitfun_runtime_ports::{WorkspaceFileSystem, WorkspaceMetadata, WorkspacePathKind};
+use alex_runtime_ports::{WorkspaceFileSystem, WorkspaceMetadata, WorkspacePathKind};
 use std::{path::Path, sync::Arc};
 use tokio::io::{AsyncReadExt, AsyncSeekExt};
 
@@ -263,7 +263,7 @@ impl SessionFileTarget {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use openbitfun_runtime_ports::{WorkspaceDirEntry, WorkspaceReader};
+    use alex_runtime_ports::{WorkspaceDirEntry, WorkspaceReader};
     use std::sync::{
         atomic::{AtomicBool, Ordering},
         Mutex,

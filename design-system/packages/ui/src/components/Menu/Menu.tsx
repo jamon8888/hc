@@ -41,7 +41,7 @@ export interface MenuItemProps
 /** A row stack for custom scroll or animation wrappers inside a Menu. */
 export interface MenuListProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
-  "data-openbitfun-part"?: string;
+  "data-alex-part"?: string;
 }
 
 export interface MenuSectionAction {
@@ -72,7 +72,7 @@ function assignRef<T>(ref: ForwardedRef<T>, value: T | null) {
 
 function getEnabledItems(root: HTMLElement) {
   return Array.from(
-    root.querySelectorAll<HTMLButtonElement>("[data-openbitfun-menu-item]"),
+    root.querySelectorAll<HTMLButtonElement>("[data-alex-menu-item]"),
   ).filter((item) => item.closest('[role="menu"]') === root && !item.disabled && item.getAttribute("aria-disabled") !== "true");
 }
 
@@ -91,15 +91,15 @@ function setActiveItem(items: readonly HTMLButtonElement[], index: number, focus
 
 export const MenuList = forwardRef<HTMLDivElement, MenuListProps>(function MenuList({
   className,
-  "data-openbitfun-part": part = "items",
+  "data-alex-part": part = "items",
   ...props
 }, ref) {
   return (
     <div
       {...props}
       className={classNames(styles.items, className)}
-      data-openbitfun-menu-list=""
-      data-openbitfun-part={part}
+      data-alex-menu-list=""
+      data-alex-part={part}
       ref={ref}
     />
   );
@@ -149,7 +149,7 @@ export const Menu = forwardRef<HTMLDivElement, MenuProps>(function Menu({
     if (event.defaultPrevented) return;
 
     const target = (event.target as Element).closest
-      ? (event.target as Element).closest<HTMLButtonElement>("[data-openbitfun-menu-item]")
+      ? (event.target as Element).closest<HTMLButtonElement>("[data-alex-menu-item]")
       : null;
     if (!target || !event.currentTarget.contains(target)) return;
 
@@ -163,7 +163,7 @@ export const Menu = forwardRef<HTMLDivElement, MenuProps>(function Menu({
     if (event.defaultPrevented || isImeOwnedKeyboardEvent(event)) return;
 
     const target = (event.target as Element).closest
-      ? (event.target as Element).closest<HTMLButtonElement>("[data-openbitfun-menu-item]")
+      ? (event.target as Element).closest<HTMLButtonElement>("[data-alex-menu-item]")
       : null;
     if (!target || !event.currentTarget.contains(target)) return;
 
@@ -214,8 +214,8 @@ export const Menu = forwardRef<HTMLDivElement, MenuProps>(function Menu({
     <div
       {...props}
       className={classNames(styles.root, className)}
-      data-openbitfun-component="menu"
-      data-openbitfun-inline-size={inlineSize}
+      data-alex-component="menu"
+      data-alex-inline-size={inlineSize}
       onFocusCapture={handleFocusCapture}
       onKeyDown={handleKeyDown}
       ref={setRootRef}
@@ -226,7 +226,7 @@ export const Menu = forwardRef<HTMLDivElement, MenuProps>(function Menu({
         orientation="vertical"
         scrollbarVisibility={scrollbarVisibility}
       >
-        <MenuList className={styles.list} data-openbitfun-part="list">{children}</MenuList>
+        <MenuList className={styles.list} data-alex-part="list">{children}</MenuList>
       </ScrollArea>
     </div>
   );
@@ -244,7 +244,7 @@ export const MenuItem = forwardRef<HTMLButtonElement, MenuItemProps>(function Me
       {...props}
       aria-checked={role === "menuitem" ? undefined : checked}
       className={classNames(styles.item, className)}
-      data-openbitfun-menu-item=""
+      data-alex-menu-item=""
       ref={ref}
       role={role}
       tabIndex={tabIndex}
@@ -271,20 +271,20 @@ export const MenuSection = forwardRef<HTMLDivElement, MenuSectionProps>(function
       aria-label={ariaLabel}
       aria-labelledby={resolvedLabelledBy}
       className={classNames(styles.section, className)}
-      data-openbitfun-part="section"
+      data-alex-part="section"
       ref={ref}
       role="group"
     >
       {headingId && (
-        <div className={styles.heading} data-openbitfun-part="heading" id={headingId}>
-          <OverflowText className={styles.headingLabel} data-openbitfun-part="heading-label">{title}</OverflowText>
+        <div className={styles.heading} data-alex-part="heading" id={headingId}>
+          <OverflowText className={styles.headingLabel} data-alex-part="heading-label">{title}</OverflowText>
           {actions.length > 0 && (
-            <span className={styles.headingActions} data-openbitfun-part="heading-actions">
+            <span className={styles.headingActions} data-alex-part="heading-actions">
               {actions.map((action) => (
                 <IconButton
                   aria-label={action.label}
                   className={styles.headingAction}
-                  data-openbitfun-menu-item=""
+                  data-alex-menu-item=""
                   disabled={action.disabled}
                   icon={action.icon}
                   key={action.id}
@@ -300,7 +300,7 @@ export const MenuSection = forwardRef<HTMLDivElement, MenuSectionProps>(function
           )}
         </div>
       )}
-      <MenuList data-openbitfun-part="section-items">
+      <MenuList data-alex-part="section-items">
         {children}
       </MenuList>
     </div>
@@ -313,7 +313,7 @@ export const MenuSeparator = forwardRef<HTMLDivElement, MenuSeparatorProps>(
       <div
         {...props}
         className={classNames(styles.separator, className)}
-        data-openbitfun-part="separator"
+        data-alex-part="separator"
         ref={ref}
         role="separator"
       />

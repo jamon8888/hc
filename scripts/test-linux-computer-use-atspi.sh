@@ -6,13 +6,13 @@ if [[ $(uname -s) != Linux || -z ${DBUS_SESSION_BUS_ADDRESS:-} ]]; then
   exit 1
 fi
 fixture_ready=$(mktemp)
-export OPENBITFUN_ATSPI_FIXTURE_READY="$fixture_ready"
+export ALEX_ATSPI_FIXTURE_READY="$fixture_ready"
 python3 - <<'PY' &
 import gi
 import os
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, GLib
-window = Gtk.Window(title='OpenBitFun AT-SPI Fixture')
+window = Gtk.Window(title='Alex AT-SPI Fixture')
 window.set_default_size(480, 240)
 window.connect('destroy', Gtk.main_quit)
 box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=16)
@@ -33,14 +33,14 @@ box.add(entry)
 window.add(box)
 window.show_all()
 def ready():
-    with open(os.environ['OPENBITFUN_ATSPI_FIXTURE_READY'], 'w') as stream:
+    with open(os.environ['ALEX_ATSPI_FIXTURE_READY'], 'w') as stream:
         stream.write('ready')
     return False
 GLib.timeout_add(1000, ready)
 Gtk.main()
 PY
 fixture_pid=$!
-export OPENBITFUN_ATSPI_FIXTURE_PID="$fixture_pid"
+export ALEX_ATSPI_FIXTURE_PID="$fixture_pid"
 trap 'kill "$fixture_pid" 2>/dev/null || true; rm -f "$fixture_ready"' EXIT
 for attempt in {1..100}; do
   [[ -s "$fixture_ready" ]] && break

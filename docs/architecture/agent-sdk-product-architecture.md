@@ -27,7 +27,7 @@ Alex 不选择“复制 Claude”“复制 OpenCode”或“复制 Codex”中�
 | 用户如何运行 Agent | Claude Agent SDK 的 Agent、Session、消息流、Tool、MCP、Permission、Hook 心智 | 公开 API 使用行业常见 Agent 概念，不暴露内部端口、协议和 Product Assembly |
 | 如何让多个产品入口共享能力 | OpenCode 的 Server/Core 多客户端模式，Codex App Server 的 rich-client 边界 | 所有入口调用同一 Agent Runtime API；入口是同级 adapter，不相互依赖 |
 | SDK 如何保持简洁 | Codex SDK 的精选 Thread/Turn 用例，而不是全量管理 API | 公开 SDK 只提供 Agent 应用所需的高层用例，不直接镜像内部或 Server 全部路由 |
-| 本地 Runtime 如何交付 | Claude/Copilot SDK 管理匹配原生 runtime，Codex App Server 的握手与 schema 纪律 | SDK 默认管理匹配的本地 `openbitfun-sdk-host`；用户不需要安装 CLI |
+| 本地 Runtime 如何交付 | Claude/Copilot SDK 管理匹配原生 runtime，Codex App Server 的握手与 schema 纪律 | SDK 默认管理匹配的本地 `alex-sdk-host`；用户不需要安装 CLI |
 | 多语言如何一致 | Copilot SDK 的单协议、多语言包、协议版本范围和 codegen drift check | Python/TypeScript 是同一 SDK 的语言绑定，共用一个 Host 协议和一致性套件 |
 | 外部开发者如何定制界面 | Vercel AI SDK UI 的状态/transport 分离与 AI Elements 的 copy-source 组件 | Preview 提供最小参考应用；有真实复用后再抽取可选组件层，不形成第二套“UI SDK” |
 
@@ -231,7 +231,7 @@ ownership 和生命周期治理；Model、Skill、Subagent 和 MCP 管理暂由 
 ```mermaid
 flowchart LR
   App["Developer application"] --> SDK["Alex Agent SDK"]
-  SDK -->|"manage + authenticated local channel"| Host["openbitfun-sdk-host"]
+  SDK -->|"manage + authenticated local channel"| Host["alex-sdk-host"]
   Host --> SDKAdapter["SDK Host protocol adapter"]
   SDKAdapter --> API["Agent Runtime API"]
   API --> Runtime["Single Agent Runtime and owners"]
@@ -246,7 +246,7 @@ flowchart LR
 |---|---|---|
 | `openbitfun` CLI | 依赖共享 Runtime/Application 能力 | 依赖 SDK Host app、SDK protocol 或公开语言包 |
 | GUI/TUI | 依赖共享应用用例和各自平台 adapter | 经公开 SDK 绕行 Runtime；共享 renderer/protocol |
-| `openbitfun-sdk-host` | 独立组装入口，选择 SDK profile | 依赖 CLI crate；成为第二个 Server 或 Runtime |
+| `alex-sdk-host` | 独立组装入口，选择 SDK profile | 依赖 CLI crate；成为第二个 Server 或 Runtime |
 | SDK Host adapter | 协议、能力协商、连接/Query 资源清理责任和 DTO 转换 | stdin/stdout 入口、Agent 业务状态、Tool/MCP 注册表 |
 | Python/TypeScript SDK | 管理或连接匹配 Host，提供一致公开 API | 要求用户安装 `openbitfun` CLI；暴露内部 wire DTO |
 | `CoreRuntimeOwnership` | 第一方 Rust 入口选择 Embedded/Shared，并把本机 workspace lease 注入 Coordinator | 进入公开 SDK/wire；成为 Session 单写或 Server 路由 owner |
@@ -551,7 +551,7 @@ flowchart LR
   PyRelease["PyPI package\nSDK API semver"] --> SDK2["Python binding"]
   SDK --> Range["Supported Host protocol range"]
   SDK2 --> Range
-  Host["Matched openbitfun-sdk-host\nprotocol version"] --> Negotiate{"initialize + negotiate"}
+  Host["Matched alex-sdk-host\nprotocol version"] --> Negotiate{"initialize + negotiate"}
   Range --> Negotiate
   Runtime["Runtime capability set"] --> Negotiate
   Negotiate -->|"range overlaps"| Ready["Typed capabilities\nenabled per feature"]
@@ -570,7 +570,7 @@ SDK 安装后必须能定位匹配 Host。TypeScript 可使用平台可选包，
 |---|---|---|
 | TypeScript Agent SDK | npm | 公开 curated API；只有 GA stable namespace 承诺长期兼容，Preview/Beta 与 experimental 按阶段策略演进 |
 | Python Agent SDK | PyPI | 公开 curated API；只有 GA stable namespace 承诺长期兼容，Preview/Beta 与 experimental 按阶段策略演进 |
-| `openbitfun-sdk-host` | 随 SDK 平台包/wheel 或受签名下载器提供 | 不是用户 API；协议是版本化兼容边界 |
+| `alex-sdk-host` | 随 SDK 平台包/wheel 或受签名下载器提供 | 不是用户 API；协议是版本化兼容边界 |
 | JSON/TypeScript schema | 构建产物和协议测试 fixture | wire 合同，不等于公开语言 API |
 | Reference UI / components | 独立示例仓库或可选 registry | 示例或组件级版本，不绑定 SDK 主包 |
 

@@ -24,10 +24,10 @@ export const aboutDialogAppearanceDescriptor: AppearanceSurfaceDescriptor = {
     { id: 'copyright', propertyProfile: 'paint', visualRole: 'content' },
   ],
   states: [
-    { id: 'checking', selector: { kind: 'ancestorPart', part: 'updateCard', suffix: '[data-openbitfun-state~="checking"]' } },
-    { id: 'latest', selector: { kind: 'ancestorPart', part: 'updateCard', suffix: '[data-openbitfun-state~="latest"]' } },
-    { id: 'downloading', selector: { kind: 'ancestorPart', part: 'updateCard', suffix: '[data-openbitfun-state~="downloading"]' } },
-    { id: 'installed', selector: { kind: 'ancestorPart', part: 'updateCard', suffix: '[data-openbitfun-state~="installed"]' } },
-    { id: 'error', selector: { kind: 'ancestorPart', part: 'updateCard', suffix: '[data-openbitfun-state~="error"]' } },
+    { id: 'checking', selector: { kind: 'ancestorPart', part: 'updateCard', suffix: '[data-alex-state~="checking"]' } },
+    { id: 'latest', selector: { kind: 'ancestorPart', part: 'updateCard', suffix: '[data-alex-state~="latest"]' } },
+    { id: 'downloading', selector: { kind: 'ancestorPart', part: 'updateCard', suffix: '[data-alex-state~="downloading"]' } },
+    { id: 'installed', selector: { kind: 'ancestorPart', part: 'updateCard', suffix: '[data-alex-state~="installed"]' } },
+    { id: 'error', selector: { kind: 'ancestorPart', part: 'updateCard', suffix: '[data-alex-state~="error"]' } },
   ],
 };

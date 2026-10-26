@@ -15,7 +15,7 @@ use crate::agentic::tools::ToolRuntimeRestrictions;
 use crate::agentic::WorkspaceBinding;
 use crate::service::remote_ssh::workspace_state::WorkspaceSessionIdentity;
 use async_trait::async_trait;
-use openbitfun_runtime_ports::DelegationPolicy;
+use alex_runtime_ports::DelegationPolicy;
 use serde_json::json;
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -98,7 +98,7 @@ fn test_tool_context(agent_type: &str) -> ToolUseContext {
         custom_data: HashMap::new(),
         computer_use_host: None,
         runtime_tool_restrictions: ToolRuntimeRestrictions::default(),
-        runtime_handles: openbitfun_runtime_ports::ToolRuntimeHandles::default(),
+        runtime_handles: alex_runtime_ports::ToolRuntimeHandles::default(),
     }
 }
 
@@ -553,7 +553,7 @@ async fn adaptive_review_delegation_is_hidden_for_remote_workspaces() {
         "connection-1".to_string(),
         "remote".to_string(),
         WorkspaceSessionIdentity {
-            workspace_kind: openbitfun_core_types::WorkspaceKind::Remote,
+            workspace_kind: alex_core_types::WorkspaceKind::Remote,
             hostname: "remote.example".to_string(),
             logical_workspace_path: "/workspace/project".to_string(),
             remote_connection_id: Some("connection-1".to_string()),
@@ -1147,7 +1147,7 @@ async fn call_impl_rejects_nested_subagent_delegation() {
         ]),
         computer_use_host: None,
         runtime_tool_restrictions: ToolRuntimeRestrictions::default(),
-        runtime_handles: openbitfun_runtime_ports::ToolRuntimeHandles::default(),
+        runtime_handles: alex_runtime_ports::ToolRuntimeHandles::default(),
     };
 
     let error = TaskTool::new()
@@ -1283,7 +1283,7 @@ async fn description_with_context_filters_restricted_subagents_by_parent_agent()
         custom_data: HashMap::new(),
         computer_use_host: None,
         runtime_tool_restrictions: ToolRuntimeRestrictions::default(),
-        runtime_handles: openbitfun_runtime_ports::ToolRuntimeHandles::default(),
+        runtime_handles: alex_runtime_ports::ToolRuntimeHandles::default(),
     };
     let deep_review_context = ToolUseContext {
         agent_type: Some("DeepReview".to_string()),
@@ -1340,7 +1340,7 @@ async fn prompt_stability_description_with_context_renders_available_agents_in_s
         custom_data: HashMap::new(),
         computer_use_host: None,
         runtime_tool_restrictions: ToolRuntimeRestrictions::default(),
-        runtime_handles: openbitfun_runtime_ports::ToolRuntimeHandles::default(),
+        runtime_handles: alex_runtime_ports::ToolRuntimeHandles::default(),
     };
 
     let builtin_a = "AAAPromptOrderBuiltin";
@@ -2135,7 +2135,7 @@ fn deep_review_provider_capacity_error_builds_capacity_skipped_payload_and_lower
     use crate::agentic::deep_review_policy::{
         deep_review_effective_concurrency_snapshot, DeepReviewConcurrencyPolicy,
     };
-    use crate::util::OpenBitFunError;
+    use crate::util::AlexError;
 
     let policy = DeepReviewConcurrencyPolicy {
         max_parallel_instances: 3,
@@ -2147,7 +2147,7 @@ fn deep_review_provider_capacity_error_builds_capacity_skipped_payload_and_lower
     };
     let turn_id = "turn-provider-capacity-skip";
     let decision = LaunchReviewAgentTool::deep_review_capacity_decision_for_provider_error(
-        &OpenBitFunError::ai(
+        &AlexError::ai(
             "Provider error: provider=openai, code=429, message=rate limit exceeded",
         ),
     );
@@ -2179,10 +2179,10 @@ fn deep_review_provider_capacity_error_builds_capacity_skipped_payload_and_lower
 
 #[test]
 fn deep_review_provider_quota_error_is_not_capacity_skipped() {
-    use crate::util::OpenBitFunError;
+    use crate::util::AlexError;
 
     let decision = LaunchReviewAgentTool::deep_review_capacity_decision_for_provider_error(
-        &OpenBitFunError::ai("Provider error: provider=glm, code=1113, message=insufficient quota"),
+        &AlexError::ai("Provider error: provider=glm, code=1113, message=insufficient quota"),
     );
 
     assert!(

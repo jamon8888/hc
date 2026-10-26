@@ -1,7 +1,7 @@
 /* Regex Playground — developer-tool theme.
  * Design system reference:
- *   palette  ─ Inherits OpenBitFun host theme (--openbitfun-* tokens) so it reads
- *              as a native panel under both openbitfun-dark and openbitfun-light.
+ *   palette  ─ Inherits Alex host theme (--alex-* tokens) so it reads
+ *              as a native panel under both alex-dark and alex-light.
  *              Local --rx-* tokens are derived from the required host vars;
  *              the host contract owns first-paint defaults.
  *   accent   ─ host primary (cool blue / slate) for focus & active states;
@@ -22,49 +22,49 @@ body, html { margin: 0; padding: 0; height: 100%; }
 :root {
   color-scheme: dark;
   /* Surfaces — drive everything off host bg tokens so the playground tracks
-   * OpenBitFun light/dark automatically. Fallbacks mirror the default dark theme. */
-  --rx-bg:        var(--openbitfun-bg);
-  --rx-bg-2:      var(--openbitfun-bg-tertiary);
-  --rx-surface:   var(--openbitfun-bg-secondary);
-  --rx-surface-2: var(--openbitfun-element-bg);
-  --rx-surface-3: var(--openbitfun-element-hover);
+   * Alex light/dark automatically. Fallbacks mirror the default dark theme. */
+  --rx-bg:        var(--alex-bg);
+  --rx-bg-2:      var(--alex-bg-tertiary);
+  --rx-surface:   var(--alex-bg-secondary);
+  --rx-surface-2: var(--alex-element-bg);
+  --rx-surface-3: var(--alex-element-hover);
 
-  --rx-border:        var(--openbitfun-border-subtle);
-  --rx-border-strong: var(--openbitfun-border);
-  --rx-border-bright: var(--openbitfun-border);
+  --rx-border:        var(--alex-border-subtle);
+  --rx-border-strong: var(--alex-border);
+  --rx-border-bright: var(--alex-border);
 
-  --rx-text:      var(--openbitfun-text);
-  --rx-text-soft: var(--openbitfun-text-secondary);
-  --rx-text-mute: var(--openbitfun-text-muted);
-  --rx-text-dim:  var(--openbitfun-text-muted);
+  --rx-text:      var(--alex-text);
+  --rx-text-soft: var(--alex-text-secondary);
+  --rx-text-mute: var(--alex-text-muted);
+  --rx-text-dim:  var(--alex-text-muted);
 
   /* Accent — follows host primary (blue in dark, slate in light) instead of
-   * the previous saturated "run green" which clashed with OpenBitFun's neutral palette. */
-  --rx-accent:        var(--openbitfun-accent);
-  --rx-accent-strong: var(--openbitfun-accent-hover);
+   * the previous saturated "run green" which clashed with Alex's neutral palette. */
+  --rx-accent:        var(--alex-accent);
+  --rx-accent-strong: var(--alex-accent-hover);
   --rx-accent-soft:   color-mix(in srgb, var(--rx-accent) 14%, transparent);
 
-  /* Semantic colors — pulled from host so they harmonize with the rest of OpenBitFun. */
-  --rx-match:      var(--openbitfun-warning);            /* warm match highlight */
+  /* Semantic colors — pulled from host so they harmonize with the rest of Alex. */
+  --rx-match:      var(--alex-warning);            /* warm match highlight */
   --rx-match-soft: color-mix(in srgb, var(--rx-match) 18%, transparent);
-  --rx-error:      var(--openbitfun-error);
-  --rx-info:       var(--openbitfun-info);
-  --rx-group:      var(--openbitfun-accent-secondary);              /* capture-group accent */
-  --rx-string:     var(--openbitfun-success);
+  --rx-error:      var(--alex-error);
+  --rx-info:       var(--alex-info);
+  --rx-group:      var(--alex-accent-secondary);              /* capture-group accent */
+  --rx-string:     var(--alex-success);
 
-  --rx-radius:    var(--openbitfun-radius);
+  --rx-radius:    var(--alex-radius);
   --rx-radius-sm: 6px;
-  --rx-shadow-card: var(--openbitfun-shadow-card);
-  --rx-shadow-elevated: var(--openbitfun-shadow-overlay);
+  --rx-shadow-card: var(--alex-shadow-card);
+  --rx-shadow-elevated: var(--alex-shadow-overlay);
 
-  --rx-mono: var(--openbitfun-font-mono);
-  --rx-sans: var(--openbitfun-font-sans);
+  --rx-mono: var(--alex-font-mono);
+  --rx-sans: var(--alex-font-sans);
 
   --rx-dur: 200ms;
   --rx-ease: cubic-bezier(.2,.8,.2,1);
 }
 
-[data-openbitfun-appearance-mode="light"] {
+[data-alex-appearance-mode="light"] {
   color-scheme: light;
 }
 
@@ -651,11 +651,11 @@ button, input, textarea, select { font-family: inherit; color: inherit; }
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: var(--openbitfun-scrollbar-thumb);
+  background: var(--alex-scrollbar-thumb);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--openbitfun-scrollbar-thumb-hover);
+  background: var(--alex-scrollbar-thumb-hover);
 }
 
 /* ── Reduced motion ─────────────────────────────────── */
@@ -695,10 +695,10 @@ button, input, textarea, select { font-family: inherit; color: inherit; }
   .match__groups { margin-left: 40px; }
 }
 
-[data-openbitfun-appearance-mode="light"] .topbar {
+[data-alex-appearance-mode="light"] .topbar {
   background: color-mix(in srgb, var(--rx-bg) 85%, transparent);
   border-bottom-color: var(--rx-border);
 }
-[data-openbitfun-appearance-mode="light"] .pattern-error {
+[data-alex-appearance-mode="light"] .pattern-error {
   color: var(--rx-error);
 }

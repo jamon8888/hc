@@ -21,7 +21,7 @@
 //! - **Version impact**: Minor. Adding an interceptor method or changing the
 //!   trait is a breaking change for implementing hosts and must not land
 //!   without a replacement surface first.
-//! - **Verification command**: `cargo test -p openbitfun-acp --lib
+//! - **Verification command**: `cargo test -p alex-acp --lib
 //!   acp_prompt_interception` and `pnpm run check:core-boundaries` (the seam
 //!   must stay free of upward dependencies).
 //! - **Removal condition**: removable only once no composition root installs
@@ -39,7 +39,7 @@
 use std::path::Path;
 use std::sync::Arc;
 
-use openbitfun_core::util::errors::OpenBitFunResult;
+use alex_core::util::errors::AlexResult;
 
 /// The seam the composition root fills when it ships PII-safe prompting.
 #[async_trait::async_trait]
@@ -53,8 +53,8 @@ pub trait AcpPromptInterceptor: Send + Sync {
         &self,
         prompt: &str,
         workspace_root: &Path,
-        openbitfun_session_id: &str,
-    ) -> OpenBitFunResult<String>;
+        alex_session_id: &str,
+    ) -> AlexResult<String>;
 }
 
 static PROMPT_INTERCEPTOR: std::sync::OnceLock<
@@ -88,12 +88,12 @@ fn prompt_interceptor() -> Option<Arc<dyn AcpPromptInterceptor>> {
 pub async fn apply_prompt_interceptor(
     prompt: String,
     workspace_root: &Path,
-    openbitfun_session_id: &str,
-) -> OpenBitFunResult<String> {
+    alex_session_id: &str,
+) -> AlexResult<String> {
     match prompt_interceptor() {
         Some(interceptor) => {
             interceptor
-                .pseudonymize(&prompt, workspace_root, openbitfun_session_id)
+                .pseudonymize(&prompt, workspace_root, alex_session_id)
                 .await
         }
         None => Ok(prompt),

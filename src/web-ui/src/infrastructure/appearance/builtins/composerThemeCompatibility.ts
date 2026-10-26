@@ -5,8 +5,8 @@ export function withLegacyComposerTokens(
 ): Partial<Record<AppearanceThemeTokenName, string>> {
   const result = { ...tokens };
   for (const [next, previous] of [
-    ['--openbitfun-color-composer-border', '--openbitfun-color-field-border'],
-    ['--openbitfun-color-composer-context-background', '--openbitfun-color-surface-subtle'],
+    ['--alex-color-composer-border', '--alex-color-field-border'],
+    ['--alex-color-composer-context-background', '--alex-color-surface-subtle'],
   ] as const) {
     if (result[next] === undefined && tokens?.[previous] !== undefined) result[next] = tokens[previous];
   }

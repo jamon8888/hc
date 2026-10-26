@@ -3,7 +3,7 @@
 //! Uses the official `rmcp` Rust SDK to implement the MCP Streamable HTTP client transport.
 
 use super::types::{
-    InitializeResult as OpenBitFunInitializeResult, MCPToolResult, PromptsGetResult,
+    InitializeResult as AlexInitializeResult, MCPToolResult, PromptsGetResult,
     PromptsListResult, ResourcesListResult, ResourcesReadResult, ToolsListResult,
 };
 use crate::mcp::auth::build_authorization_manager;
@@ -49,11 +49,11 @@ use tokio::sync::Mutex;
 use sse_stream::{Sse, SseStream};
 
 #[derive(Clone)]
-struct OpenBitFunRmcpClientHandler {
+struct AlexRmcpClientHandler {
     info: ClientInfo,
 }
 
-impl ClientHandler for OpenBitFunRmcpClientHandler {
+impl ClientHandler for AlexRmcpClientHandler {
     fn get_info(&self) -> ClientInfo {
         self.info.clone()
     }
@@ -107,20 +107,20 @@ impl ClientHandler for OpenBitFunRmcpClientHandler {
 
 enum ClientState {
     Connecting {
-        transport: Option<StreamableHttpClientTransport<OpenBitFunStreamableHttpClient>>,
+        transport: Option<StreamableHttpClientTransport<AlexStreamableHttpClient>>,
     },
     Ready {
-        service: Arc<RunningService<RoleClient, OpenBitFunRmcpClientHandler>>,
+        service: Arc<RunningService<RoleClient, AlexRmcpClientHandler>>,
     },
 }
 
 #[derive(Clone)]
-struct OpenBitFunStreamableHttpClient {
+struct AlexStreamableHttpClient {
     client: reqwest::Client,
     oauth_manager: Option<Arc<Mutex<AuthorizationManager>>>,
 }
 
-impl OpenBitFunStreamableHttpClient {
+impl AlexStreamableHttpClient {
     async fn resolve_auth_token(
         &self,
         auth_token: Option<String>,
@@ -148,7 +148,7 @@ fn apply_custom_headers(
     request_builder
 }
 
-impl StreamableHttpClient for OpenBitFunStreamableHttpClient {
+impl StreamableHttpClient for AlexStreamableHttpClient {
     type Error = reqwest::Error;
 
     async fn get_stream(
@@ -385,7 +385,7 @@ impl RemoteMCPTransport {
         if !header_map.contains_key(USER_AGENT) {
             header_map.insert(
                 USER_AGENT,
-                HeaderValue::from_static("OpenBitFun-MCP-Client/1.0"),
+                HeaderValue::from_static("Alex-MCP-Client/1.0"),
             );
         }
 
@@ -432,7 +432,7 @@ impl RemoteMCPTransport {
             });
 
         let transport = StreamableHttpClientTransport::with_client(
-            OpenBitFunStreamableHttpClient {
+            AlexStreamableHttpClient {
                 client: http_client,
                 oauth_manager: oauth_manager.clone(),
             },
@@ -490,7 +490,7 @@ impl RemoteMCPTransport {
 
     async fn service(
         &self,
-    ) -> MCPRuntimeResult<Arc<RunningService<RoleClient, OpenBitFunRmcpClientHandler>>> {
+    ) -> MCPRuntimeResult<Arc<RunningService<RoleClient, AlexRmcpClientHandler>>> {
         let guard = self.state.lock().await;
         match &*guard {
             ClientState::Ready { service } => Ok(Arc::clone(service)),
@@ -505,7 +505,7 @@ impl RemoteMCPTransport {
         &self,
         client_name: &str,
         client_version: &str,
-    ) -> MCPRuntimeResult<OpenBitFunInitializeResult> {
+    ) -> MCPRuntimeResult<AlexInitializeResult> {
         let mut guard = self.state.lock().await;
         match &mut *guard {
             ClientState::Ready { service } => {
@@ -521,7 +521,7 @@ impl RemoteMCPTransport {
                     ));
                 };
 
-                let handler = OpenBitFunRmcpClientHandler {
+                let handler = AlexRmcpClientHandler {
                     info: create_mcp_client_info(client_name, client_version),
                 };
 

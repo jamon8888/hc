@@ -20,7 +20,7 @@ export const redactedDocumentTabsAppearanceDescriptor: AppearanceSurfaceDescript
     { id: 'notice' },
   ],
   states: [
-    { id: 'loading', selector: { kind: 'self', suffix: '[data-openbitfun-state~="loading"]' } },
-    { id: 'error', selector: { kind: 'self', suffix: '[data-openbitfun-state~="error"]' } },
+    { id: 'loading', selector: { kind: 'self', suffix: '[data-alex-state~="loading"]' } },
+    { id: 'error', selector: { kind: 'self', suffix: '[data-alex-state~="error"]' } },
   ],
 };

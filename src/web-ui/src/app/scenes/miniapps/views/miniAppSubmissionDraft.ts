@@ -9,7 +9,7 @@ export function createEmptyMarketSubmissionDraft(): MarketSubmissionDraftRequest
     icon: 'box',
     category: 'other',
     tags: [],
-    minOpenBitFunVersion: '',
+    minAlexVersion: '',
     changelog: '',
     license: { spdxExpression: 'MIT' },
   };
@@ -19,11 +19,11 @@ export function applyCurrentClientVersionDefault(
   draft: MarketSubmissionDraftRequest,
   currentClientVersion: string,
 ): MarketSubmissionDraftRequest {
-  if (draft.minOpenBitFunVersion.trim() || !currentClientVersion.trim()) {
+  if (draft.minAlexVersion.trim() || !currentClientVersion.trim()) {
     return draft;
   }
   return {
     ...draft,
-    minOpenBitFunVersion: currentClientVersion.trim(),
+    minAlexVersion: currentClientVersion.trim(),
   };
 }

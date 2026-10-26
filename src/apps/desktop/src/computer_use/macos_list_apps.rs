@@ -8,8 +8,8 @@ use core_foundation::dictionary::CFDictionary;
 use core_foundation::number::CFNumber;
 use core_foundation::string::CFString;
 use objc2_app_kit::{NSApplicationActivationPolicy, NSWorkspace};
-use openbitfun_core::agentic::tools::computer_use_host::AppInfo;
-use openbitfun_core::util::errors::{OpenBitFunError, OpenBitFunResult};
+use alex_core::agentic::tools::computer_use_host::AppInfo;
+use alex_core::util::errors::{AlexError, AlexResult};
 use std::collections::HashSet;
 use std::ffi::c_void;
 
@@ -29,7 +29,7 @@ fn number(dictionary: &Dictionary, key: &str) -> Option<f64> {
     unsafe { CFNumber::wrap_under_get_rule(value.cast()) }.to_f64()
 }
 
-fn window_owners() -> OpenBitFunResult<HashSet<i32>> {
+fn window_owners() -> AlexResult<HashSet<i32>> {
     #[link(name = "CoreGraphics", kind = "framework")]
     unsafe extern "C" {
         fn CGWindowListCopyWindowInfo(
@@ -41,7 +41,7 @@ fn window_owners() -> OpenBitFunResult<HashSet<i32>> {
     // application's hidden state rather than whichever Space is visible.
     let raw = unsafe { CGWindowListCopyWindowInfo(16, 0) };
     if raw.is_null() {
-        return Err(OpenBitFunError::tool(
+        return Err(AlexError::tool(
             "APP_DISCOVERY_UNAVAILABLE: WindowServer application inventory is unavailable",
         ));
     }
@@ -85,7 +85,7 @@ fn include_application(
         && (include_hidden || !hidden)
 }
 
-pub(super) fn list_running_apps(include_hidden: bool) -> OpenBitFunResult<Vec<AppInfo>> {
+pub(super) fn list_running_apps(include_hidden: bool) -> AlexResult<Vec<AppInfo>> {
     let owners = window_owners()?;
     let applications = NSWorkspace::sharedWorkspace().runningApplications();
     let mut apps = Vec::new();

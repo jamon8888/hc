@@ -21,7 +21,7 @@ pub const WORDCRAFT_CLI_COMMAND: &str = "wordcraft-cli";
 pub const WORDCRAFT_IDLE_REAP: Duration = Duration::from_secs(10 * 60);
 
 /// Author name embedded into tracked changes; never contains secrets.
-pub const WORDCRAFT_AUTHOR_PREFIX: &str = "OpenBitFun Agent";
+pub const WORDCRAFT_AUTHOR_PREFIX: &str = "Alex Agent";
 
 /// Valid session-id shape: ASCII alphanumeric plus `-`, `_`, `.`.
 pub const WORDCRAFT_SESSION_ID_MAX_LEN: usize = 64;
@@ -34,7 +34,7 @@ pub struct WordcraftSessionSpec {
     session_id: String,
     /// Active workspace folder — both automation roots (read = write).
     workspace_root: String,
-    /// Isolated WordCraft profile dir under OpenBitFun state
+    /// Isolated WordCraft profile dir under Alex state
     /// (isolated recovery copies; never the user's own WordCraft profile).
     profile_dir: String,
 }
@@ -321,7 +321,7 @@ mod tests {
     fn builds_author_and_server_id() {
         let s = spec();
         assert_eq!(s.server_id(), "wordcraft-ws-a1b2");
-        assert_eq!(s.author(), "OpenBitFun Agent (ws-a1b2)");
+        assert_eq!(s.author(), "Alex Agent (ws-a1b2)");
     }
 
     #[test]
@@ -333,7 +333,7 @@ mod tests {
             vec![
                 "mcp",
                 "--author",
-                "OpenBitFun Agent (ws-a1b2)",
+                "Alex Agent (ws-a1b2)",
                 "--automation-read-root",
                 "/work/projects/demo",
                 "--automation-write-root",

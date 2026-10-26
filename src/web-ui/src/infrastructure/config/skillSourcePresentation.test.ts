@@ -3,7 +3,7 @@ import type { ModeSkillInfo, SkillInfo } from './types';
 import {
   buildSkillCoverageSourceMap,
   canDeleteSkill,
-  isOpenBitFunManagedSkill,
+  isAlexManagedSkill,
   findSkillByKey,
   formatSkillOrigin,
   getModeSkillRuntimeStatus,
@@ -14,13 +14,13 @@ import {
 
 function skill(overrides: Partial<SkillInfo> = {}): SkillInfo {
   return {
-    key: 'project::openbitfun::pdf',
+    key: 'project::alex::pdf',
     name: 'pdf',
     description: 'PDF workflow',
-    path: '/workspace/.openbitfun/skills/pdf',
+    path: '/workspace/.alex/skills/pdf',
     level: 'project',
-    sourceSlot: 'openbitfun',
-    sourceId: 'openbitfun',
+    sourceSlot: 'alex',
+    sourceId: 'alex',
     sourceLabel: 'Alex',
     dirName: 'pdf',
     isBuiltin: false,
@@ -42,11 +42,11 @@ function modeSkill(overrides: Partial<ModeSkillInfo> = {}): ModeSkillInfo {
 
 describe('skill source presentation', () => {
   it('keeps legacy native and imported copies while excluding external identities from native management', () => {
-    expect(isOpenBitFunManagedSkill(skill({ sourceId: undefined, sourceSlot: 'openbitfun-user' }))).toBe(true);
-    expect(isOpenBitFunManagedSkill(skill({ installationSource: 'github:example/external-skill' }))).toBe(true);
-    expect(isOpenBitFunManagedSkill(skill({ sourceId: undefined, sourceSlot: 'home.codex' }))).toBe(false);
-    expect(isOpenBitFunManagedSkill(skill({ sourceId: 'claude-code', sourceLabel: 'Alex' }))).toBe(false);
-    expect(isOpenBitFunManagedSkill(skill({ isBuiltin: true }))).toBe(true);
+    expect(isAlexManagedSkill(skill({ sourceId: undefined, sourceSlot: 'alex-user' }))).toBe(true);
+    expect(isAlexManagedSkill(skill({ installationSource: 'github:example/external-skill' }))).toBe(true);
+    expect(isAlexManagedSkill(skill({ sourceId: undefined, sourceSlot: 'home.codex' }))).toBe(false);
+    expect(isAlexManagedSkill(skill({ sourceId: 'claude-code', sourceLabel: 'Alex' }))).toBe(false);
+    expect(isAlexManagedSkill(skill({ isBuiltin: true }))).toBe(true);
   });
 
   it('normalizes legacy discovery slots without using paths or display labels as group identity', () => {
@@ -56,8 +56,8 @@ describe('skill source presentation', () => {
     expect(getSkillSourceId(skill({ sourceId: '', sourceSlot: 'home.pi' }))).toBe('pi');
     expect(getSkillSourceId(skill({ sourceId: '', sourceSlot: 'home.agents' }))).toBe('agent-skills');
     expect(getSkillSourceId(skill({ sourceId: '', sourceSlot: 'config.opencode.custom-root' }))).toBe('opencode');
-    expect(getSkillSourceId(skill({ sourceId: '', sourceSlot: 'openbitfun-system' }))).toBe('openbitfun');
-    expect(getSkillSourceId(skill({ sourceId: '', sourceSlot: '' }))).toBe('openbitfun');
+    expect(getSkillSourceId(skill({ sourceId: '', sourceSlot: 'alex-system' }))).toBe('alex');
+    expect(getSkillSourceId(skill({ sourceId: '', sourceSlot: '' }))).toBe('alex');
     expect(getSkillSourceId(skill({ sourceId: 'future-agent', sourceLabel: 'Codex' }))).toBe('future-agent');
   });
 
@@ -67,7 +67,7 @@ describe('skill source presentation', () => {
     expect(getSkillSourceLabel(skill({ sourceLabel: '', sourceId: 'deepseek-harness' }))).toBe('DeepSeek Harness');
     expect(getSkillSourceLabel(skill({ sourceLabel: '', sourceId: '', sourceSlot: 'home.pi' }))).toBe('PI');
     expect(getSkillSourceLabel(skill({ sourceLabel: '', sourceId: '', sourceSlot: 'home.codex' }))).toBe('Codex');
-    expect(getSkillSourceLabel(skill({ sourceLabel: '', sourceId: '', sourceSlot: 'openbitfun-system' }))).toBe('Alex');
+    expect(getSkillSourceLabel(skill({ sourceLabel: '', sourceId: '', sourceSlot: 'alex-system' }))).toBe('Alex');
     expect(getSkillSourceLabel(skill({ sourceLabel: '', sourceId: '', sourceSlot: 'future' }), '其他来源')).toBe('其他来源');
     expect(getSkillSourceLabelFromIdentity('', '', 'home.codex')).toBe('Codex');
   });
@@ -75,7 +75,7 @@ describe('skill source presentation', () => {
   it('only allows Alex-owned non-builtin skills to be deleted', () => {
     expect(canDeleteSkill(skill())).toBe(true);
     expect(canDeleteSkill(skill({ isBuiltin: true }))).toBe(false);
-    expect(canDeleteSkill(skill({ sourceId: 'openbitfun-system', isBuiltin: false }))).toBe(true);
+    expect(canDeleteSkill(skill({ sourceId: 'alex-system', isBuiltin: false }))).toBe(true);
     expect(canDeleteSkill(skill({ sourceId: 'opencode' }))).toBe(false);
     expect(canDeleteSkill(skill({ sourceId: '', sourceSlot: 'home.codex' }))).toBe(false);
     expect(canDeleteSkill(skill({ sourceId: '', sourceSlot: 'future' }))).toBe(false);

@@ -4,7 +4,7 @@ import { remoteNetworkMethod, selectRemoteNetworkConnection, invitationRelayUrl 
 
 const official = 'https://remote.openbitfun.com/v/1.0.2';
 const lan = 'http://192.168.1.2:9700';
-const method = (url: string): RemoteConnectionMethod => url === official ? 'openbitfun_server' : { lan: { ip: '192.168.1.2' } };
+const method = (url: string): RemoteConnectionMethod => url === official ? 'alex_server' : { lan: { ip: '192.168.1.2' } };
 const status = (url: string): RemoteConnectStatus => ({
   relay_connected: true, relay_url: url, active_method: method(url), clients: [], bot_connected: null, bot_verbose_mode: false,
 });
@@ -28,7 +28,7 @@ describe('one account device connection contract', () => {
   });
   it('accepts only canonical typed methods', () => {
     expect(remoteNetworkMethod({ lan: { ip: '192.168.1.2' } })).toBe('lan');
-    expect(remoteNetworkMethod('openbitfun_server')).toBe('openbitfun_server');
+    expect(remoteNetworkMethod('alex_server')).toBe('alex_server');
     expect(remoteNetworkMethod('bot_feishu')).toBe(null);
   });
   it('does not infer connectivity from a missing or invalid endpoint', () => {

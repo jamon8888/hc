@@ -1,4 +1,4 @@
-import { Icon } from '@openbitfun/ui';
+import { Icon } from '@alex/ui';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { RotateCcw, SkipForward } from 'lucide-react';

@@ -3,16 +3,16 @@
 //! Deliberately *local-only* on this host (map ticket 06): the visible editor is
 //! a `ControllerLocal` surface, and documents living in remote workspaces are
 //! refused loudly until the remote provisioning design lands. Status reporting
-//! is the single factual record from `openbitfun-services-core::wordcraft`
+//! is the single factual record from `alex-services-core::wordcraft`
 //! (explicit path -> system PATH -> managed component), so UI entries and the
 //! agent derive the same answer; a missing or unusable binary degrades loudly
 //! with remediation the user can act on — never a silent local fallback.
 
 use crate::api::app_state::AppState;
 use crate::api::path_target::{resolve_desktop_path_target, DesktopPathTarget};
-use openbitfun_core::infrastructure::get_path_manager_arc;
-use openbitfun_core::util::process_manager;
-use openbitfun_services_core::wordcraft::{WordcraftCapability, WordcraftProbe, WordcraftStatus};
+use alex_core::infrastructure::get_path_manager_arc;
+use alex_core::util::process_manager;
+use alex_services_core::wordcraft::{WordcraftCapability, WordcraftProbe, WordcraftStatus};
 use serde::{Deserialize, Serialize};
 use std::net::TcpListener;
 use std::path::{Path, PathBuf};
@@ -69,7 +69,7 @@ pub struct WordcraftOpenDocumentResponse {
     pub control_host: String,
     pub control_port: u16,
     /// Isolated WordCraft profile dir; the control key file lands inside it as
-    /// `control-key.local-<port>` (read only by OpenBitFun's desktop adapter,
+    /// `control-key.local-<port>` (read only by Alex's desktop adapter,
     /// never logged, never exposed to the agent).
     pub profile_dir: String,
 }
@@ -214,7 +214,7 @@ fn wordcraft_session_profile_dir(document_path: Option<&str>) -> Result<PathBuf,
             seed.push_str("start-screen");
         }
         let seq = SESSION_SEQ.fetch_add(1, Ordering::Relaxed);
-        let digest = openbitfun_services_core::wordcraft::session_fingerprint(&[
+        let digest = alex_services_core::wordcraft::session_fingerprint(&[
             seed.as_bytes(),
             std::process::id().to_le_bytes().as_slice(),
             seq.to_le_bytes().as_slice(),
@@ -275,7 +275,7 @@ pub async fn wordcraft_open_document_command(
         .to_string();
     command.env("WORDCRAFT_PROFILE_DIR", &profile_dir);
 
-    // The editor window is user-facing and outlives OpenBitFun; it is spawned
+    // The editor window is user-facing and outlives Alex; it is spawned
     // detached from the managed child tree and never killed by app teardown.
     command
         .spawn()
@@ -292,8 +292,8 @@ pub async fn wordcraft_open_document_command(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use openbitfun_core::service::runtime::RuntimeSource;
-    use openbitfun_services_core::managed_runtime::ResolvedCommand;
+    use alex_core::service::runtime::RuntimeSource;
+    use alex_services_core::managed_runtime::ResolvedCommand;
 
     fn capability(
         status: WordcraftStatus,
@@ -380,7 +380,7 @@ mod tests {
     #[test]
     fn local_document_paths_are_validated() {
         let extension =
-            validate_local_document(Path::new("definitely-missing-openbitfun-path.docx"))
+            validate_local_document(Path::new("definitely-missing-alex-path.docx"))
                 .expect_err("missing file refused");
         assert!(
             extension.contains("does not exist"),
@@ -388,7 +388,7 @@ mod tests {
         );
 
         let dir = std::env::temp_dir().join(format!(
-            "openbitfun-wordcraft-api-{}-{}",
+            "alex-wordcraft-api-{}-{}",
             std::process::id(),
             std::time::SystemTime::now()
                 .duration_since(std::time::UNIX_EPOCH)

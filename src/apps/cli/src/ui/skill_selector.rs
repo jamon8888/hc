@@ -46,7 +46,7 @@ impl SkillItem {
         }
 
         match self.source_slot.trim().trim_start_matches("home.") {
-            "openbitfun" | "openbitfun-system" => "Alex",
+            "alex" | "alex-system" => "Alex",
             "claude" => "Claude Code",
             "codex" => "Codex",
             "cursor" => "Cursor",
@@ -539,7 +539,7 @@ mod tests {
             name: "pdf".to_string(),
             description: String::new(),
             level: "project".to_string(),
-            source_slot: "openbitfun".to_string(),
+            source_slot: "alex".to_string(),
             source_label: source_label.to_string(),
             enabled: true,
             selected_for_runtime: true,
@@ -552,7 +552,7 @@ mod tests {
 
     #[test]
     fn skill_invocation_text_uses_the_shared_inline_token_without_inserting_the_hint() {
-        let mut skill = skill_item("project::openbitfun::pdf", "OpenBitFun");
+        let mut skill = skill_item("project::alex::pdf", "OpenBitFun");
         skill.argument_hint = Some("[file] [focus]".to_string());
 
         assert_eq!(skill.invocation_text(), "[$pdf] ");
@@ -560,7 +560,7 @@ mod tests {
 
     #[test]
     fn skill_coverage_uses_winner_source_label() {
-        let winner = skill_item("project::openbitfun::pdf", "OpenBitFun");
+        let winner = skill_item("project::alex::pdf", "OpenBitFun");
         let mut covered = skill_item("user::home.codex::pdf", "Codex");
         covered.is_shadowed = true;
         covered.shadowed_by_key = Some(winner.key.clone());
@@ -575,7 +575,7 @@ mod tests {
 
     #[test]
     fn covered_enabled_skill_uses_an_indeterminate_checkbox_marker() {
-        let selected = skill_item("project::openbitfun::pdf", "OpenBitFun");
+        let selected = skill_item("project::alex::pdf", "OpenBitFun");
         let mut covered = skill_item("user::home.codex::pdf", "Codex");
         covered.selected_for_runtime = false;
         covered.is_shadowed = true;
@@ -591,7 +591,7 @@ mod tests {
 
     #[test]
     fn narrow_configuration_popup_keeps_name_and_coverage_visible() {
-        let selected = skill_item("project::openbitfun::pdf", "OpenBitFun");
+        let selected = skill_item("project::alex::pdf", "OpenBitFun");
         let mut covered = skill_item("user::home.claude::pdf", "Claude Code");
         covered.level = "user".to_string();
         covered.selected_for_runtime = false;
@@ -635,7 +635,7 @@ mod tests {
     #[test]
     fn too_small_fallback_disables_hidden_selection() {
         let mut state = SkillSelectorState::new();
-        state.show_list(vec![skill_item("project::openbitfun::pdf", "OpenBitFun")]);
+        state.show_list(vec![skill_item("project::alex::pdf", "OpenBitFun")]);
         let mut terminal = Terminal::new(TestBackend::new(10, 3)).expect("test terminal");
         terminal
             .draw(|frame| state.render(frame, frame.area(), &Theme::dark_ansi16()))
@@ -648,7 +648,7 @@ mod tests {
 
     #[test]
     fn compact_boundary_uses_two_line_height_for_render_and_mouse_hit_testing() {
-        let first = skill_item("project::openbitfun::pdf", "OpenBitFun");
+        let first = skill_item("project::alex::pdf", "OpenBitFun");
         let second = skill_item("user::home.claude::pdf", "Claude Code");
         let mut state = SkillSelectorState::new();
         state.show_config(vec![first, second]);

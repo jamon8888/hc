@@ -16,7 +16,7 @@ case**. The report should read like an incident review or clinical diagnosis,
 not like an aggregate benchmark summary. Its job is to explain what happened in
 one run, which step determined success or failure, why, and what to fix next.
 
-Read and follow `openbitfun-canvas` first. It defines the Canvas tool workflow,
+Read and follow `alex-canvas` first. It defines the Canvas tool workflow,
 source rules, SDK surface, design constraints, and final response requirements.
 
 ## Inputs
@@ -208,11 +208,11 @@ Before calling `CreateCanvas`, verify:
 - Tool, evidence, cost, and safety sections are present when relevant.
 - The repair plan is specific enough to implement or test.
 - The first screen is diagnostic, not just descriptive metadata.
-- The design passes the `openbitfun-canvas` slop-pattern check.
+- The design passes the `alex-canvas` slop-pattern check.
 
 ## Output
 
 Call `CreateCanvas` with a concise title and the complete TSX source. In the
 final response, mention the Canvas title and trace or case source used, but do
-not print the internal `openbitfun-canvas://...` reference; Alex renders its
+not print the internal `alex-canvas://...` reference; Alex renders its
 openable card automatically below the response.

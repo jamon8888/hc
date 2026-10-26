@@ -24,7 +24,7 @@ describe('global motion ownership', () => {
     element.setAttribute('role', role);
     const matches = entranceRules(element);
     expect(matches).toHaveLength(1);
-    expect(matches[0].style.animation).toContain('openbitfun-motion-dialog-enter');
+    expect(matches[0].style.animation).toContain('alex-motion-dialog-enter');
   });
 
   it.each(['dialog', 'alertdialog', 'menu', 'listbox', 'tooltip'])(

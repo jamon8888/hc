@@ -7,7 +7,7 @@
 //! session token before it can reach the LLM (D3/I1).
 //!
 //! This crate owns only the portable search pipeline; the `Tool` trait lives in
-//! `openbitfun-core` (`tools-rag`), whose `rag_search_tool.rs` wraps
+//! `alex-core` (`tools-rag`), whose `rag_search_tool.rs` wraps
 //! [`RagSearchTool`] through the `RagSearchPort` seam (D11).
 
 #[cfg(feature = "basemind")]
@@ -96,7 +96,7 @@ impl RagSearchTool {
 /// `RagSearchPort` adapter over [`RagSearchTool`] (D11).
 ///
 /// The host constructs this at the composition root and injects it through
-/// `ToolRuntimeHandles::with_rag_search_port`; `openbitfun-core` only ever sees
+/// `ToolRuntimeHandles::with_rag_search_port`; `alex-core` only ever sees
 /// the port trait. The mutex serializes access because the pipeline mutates
 /// the identity registry and session vault per search.
 #[cfg(feature = "basemind")]
@@ -115,15 +115,15 @@ impl RagSearchPortAdapter {
 
 #[cfg(feature = "basemind")]
 #[async_trait::async_trait]
-impl openbitfun_runtime_ports::RagSearchPort for RagSearchPortAdapter {
+impl alex_runtime_ports::RagSearchPort for RagSearchPortAdapter {
     async fn search(
         &self,
-        request: openbitfun_runtime_ports::RagSearchRequest,
-    ) -> Result<openbitfun_runtime_ports::RagSearchResponse, openbitfun_runtime_ports::RagSearchError>
+        request: alex_runtime_ports::RagSearchRequest,
+    ) -> Result<alex_runtime_ports::RagSearchResponse, alex_runtime_ports::RagSearchError>
     {
         if request.query.trim().is_empty() {
-            return Err(openbitfun_runtime_ports::RagSearchError::new(
-                openbitfun_runtime_ports::RagSearchErrorKind::InvalidRequest,
+            return Err(alex_runtime_ports::RagSearchError::new(
+                alex_runtime_ports::RagSearchErrorKind::InvalidRequest,
                 "query must not be empty",
             ));
         }
@@ -139,24 +139,24 @@ impl openbitfun_runtime_ports::RagSearchPort for RagSearchPortAdapter {
             .map_err(|e| {
                 // D7: the pipeline hard-fails (session payload, sidecar, or
                 // safety pass); the message names the failing stage.
-                openbitfun_runtime_ports::RagSearchError::new(
-                    openbitfun_runtime_ports::RagSearchErrorKind::Failed,
+                alex_runtime_ports::RagSearchError::new(
+                    alex_runtime_ports::RagSearchErrorKind::Failed,
                     e.to_string(),
                 )
             })?;
 
-        Ok(openbitfun_runtime_ports::RagSearchResponse {
+        Ok(alex_runtime_ports::RagSearchResponse {
             hits: output
                 .hits
                 .into_iter()
-                .map(|hit| openbitfun_runtime_ports::RagSearchHit {
+                .map(|hit| alex_runtime_ports::RagSearchHit {
                     chunk: hit.text,
                     source_doc: hit.source_doc,
                     score: hit.score,
                     entities: hit
                         .entities
                         .into_iter()
-                        .map(|entity| openbitfun_runtime_ports::RagSearchEntity {
+                        .map(|entity| alex_runtime_ports::RagSearchEntity {
                             category: entity.category,
                             token: entity.token,
                         })

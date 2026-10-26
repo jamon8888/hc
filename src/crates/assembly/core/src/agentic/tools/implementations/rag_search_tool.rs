@@ -1,20 +1,20 @@
 //! `rag_search` tool — PII-safe search over the indexed workspace.
 //!
-//! The tool wrapper is the only part of the RAG surface `openbitfun-core`
+//! The tool wrapper is the only part of the RAG surface `alex-core`
 //! owns. It never sees the basemind client: it takes the real `session_id`
 //! from the tool context, asks the injected `RagSearchPort` for the hits,
 //! and returns them. The concrete pipeline — query resolution through the
 //! session vault, the basemind search, and the re-tokenization of every hit
 //! value into an opaque session token — lives in
-//! `openbitfun-basemind-integration` (D11, SPEC §4).
+//! `alex-basemind-integration` (D11, SPEC §4).
 //!
 //! The hits that reach the model carry session tokens, never the underlying
 //! values, so the PII guarantee holds at the LLM boundary (I1, D3).
 
 use crate::agentic::tools::framework::{Tool, ToolRenderOptions, ToolResult, ToolUseContext};
-use crate::util::errors::OpenBitFunResult;
+use crate::util::errors::AlexResult;
 use async_trait::async_trait;
-use openbitfun_runtime_ports::{RagSearchError, RagSearchErrorKind, RagSearchRequest};
+use alex_runtime_ports::{RagSearchError, RagSearchErrorKind, RagSearchRequest};
 use serde_json::{json, Value};
 
 /// Default number of hits the tool asks for.
@@ -43,7 +43,7 @@ impl Tool for RagSearchTool {
         "rag_search"
     }
 
-    async fn description(&self) -> OpenBitFunResult<String> {
+    async fn description(&self) -> AlexResult<String> {
         Ok(r#"Search the indexed workspace and answer from what it finds.
 
 Use this tool to look up facts about the current repository — how a subsystem works, where a symbol lives, what a file contains — before reading files one by one. It searches the workspace index, so it answers from a map of the code rather than from raw file bodies.
@@ -106,14 +106,14 @@ Every personal value in the results is replaced by an opaque token, so a result 
         &self,
         input: &Value,
         context: &ToolUseContext,
-    ) -> OpenBitFunResult<Vec<ToolResult>> {
+    ) -> AlexResult<Vec<ToolResult>> {
         let query = input
             .get("query")
             .and_then(Value::as_str)
             .map(str::trim)
             .filter(|query| !query.is_empty())
             .ok_or_else(|| {
-                crate::util::errors::OpenBitFunError::validation("query must not be empty")
+                crate::util::errors::AlexError::validation("query must not be empty")
             })?;
         let top_k = input
             .get("top_k")
@@ -125,7 +125,7 @@ Every personal value in the results is replaced by an opaque token, so a result 
         // session's vault payload with it, and a wrong id would resolve
         // against the wrong salt.
         let session_id = context.session_id.clone().ok_or_else(|| {
-            crate::util::errors::OpenBitFunError::validation(
+            crate::util::errors::AlexError::validation(
                 "rag_search needs a session to scope the rehydration map",
             )
         })?;
@@ -133,7 +133,7 @@ Every personal value in the results is replaced by an opaque token, so a result 
             .workspace_root()
             .map(|root| root.to_string_lossy().to_string())
             .ok_or_else(|| {
-                crate::util::errors::OpenBitFunError::validation(
+                crate::util::errors::AlexError::validation(
                     "rag_search needs an open workspace to search",
                 )
             })?;
@@ -143,7 +143,7 @@ Every personal value in the results is replaced by an opaque token, so a result 
             .rag_search_port()
             .cloned()
             .ok_or_else(|| {
-                crate::util::errors::OpenBitFunError::service(
+                crate::util::errors::AlexError::service(
                     "rag_search is not available in this runtime: no search backend is configured",
                 )
             })?;
@@ -172,26 +172,26 @@ Every personal value in the results is replaced by an opaque token, so a result 
 /// A missing session payload is a hard failure rather than an empty result:
 /// the port refuses to answer with raw text when it cannot resolve the
 /// session's tokens (D7), and the tool must not paper over that.
-fn rag_search_error(error: RagSearchError) -> crate::util::errors::OpenBitFunError {
-    use crate::util::errors::OpenBitFunError;
+fn rag_search_error(error: RagSearchError) -> crate::util::errors::AlexError {
+    use crate::util::errors::AlexError;
     match error.kind {
         RagSearchErrorKind::InvalidRequest => {
-            OpenBitFunError::validation(format!("rag_search: {}", error.message))
+            AlexError::validation(format!("rag_search: {}", error.message))
         }
-        RagSearchErrorKind::SessionUnavailable => OpenBitFunError::service(format!(
+        RagSearchErrorKind::SessionUnavailable => AlexError::service(format!(
             "rag_search could not resolve the session: {}",
             error.message
         )),
-        RagSearchErrorKind::Transport => OpenBitFunError::service(format!(
+        RagSearchErrorKind::Transport => AlexError::service(format!(
             "rag_search could not reach the index: {}",
             error.message
         )),
-        RagSearchErrorKind::InvalidResponse => OpenBitFunError::service(format!(
+        RagSearchErrorKind::InvalidResponse => AlexError::service(format!(
             "rag_search got an unusable answer from the index: {}",
             error.message
         )),
         RagSearchErrorKind::Failed => {
-            OpenBitFunError::service(format!("rag_search failed: {}", error.message))
+            AlexError::service(format!("rag_search failed: {}", error.message))
         }
     }
 }
@@ -201,7 +201,7 @@ mod tests {
     use super::*;
     use crate::agentic::tools::framework::{Tool, ToolUseContext};
     use async_trait::async_trait;
-    use openbitfun_runtime_ports::{
+    use alex_runtime_ports::{
         RagSearchError, RagSearchErrorKind, RagSearchHit, RagSearchPort, RagSearchResponse,
     };
     use std::collections::HashMap;
@@ -225,7 +225,7 @@ mod tests {
     }
 
     fn test_context(port: Option<Arc<dyn RagSearchPort>>) -> ToolUseContext {
-        let mut handles = openbitfun_runtime_ports::ToolRuntimeHandles::default();
+        let mut handles = alex_runtime_ports::ToolRuntimeHandles::default();
         handles = handles.with_rag_search_port(port);
         ToolUseContext {
             tool_call_id: None,

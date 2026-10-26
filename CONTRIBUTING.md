@@ -25,7 +25,7 @@ says otherwise. After switching from an older Node.js version, rerun
 
 #### Build Prerequisites Check
 
-When `cargo check --workspace`, `cargo check -p openbitfun-desktop`, or pnpm build
+When `cargo check --workspace`, `cargo check -p alex-desktop`, or pnpm build
 commands fail with confusing errors (e.g., "resource path doesn't exist" or
 sherpa-onnx download failures), run the preflight check to identify missing
 prerequisites and get actionable fix commands:
@@ -39,8 +39,8 @@ The check detects:
 
 - Missing `node_modules` (fix: `pnpm install`)
 - Missing `src/mobile-web/dist` (fix: `pnpm run prepare:mobile-web` — the
-  openbitfun-desktop Tauri build script references this directory as a resource,
-  so `cargo check -p openbitfun-desktop` and `cargo check --workspace` fail
+  alex-desktop Tauri build script references this directory as a resource,
+  so `cargo check -p alex-desktop` and `cargo check --workspace` fail
   without it)
 - Missing sherpa-onnx prebuilt libs (the sherpa-onnx-sys build script
   downloads from GitHub at build time; if the download fails on poor
@@ -183,7 +183,7 @@ Common local checks:
 | Frontend runtime or UI | `pnpm run check:web`, plus the nearest focused test when behavior changed |
 | Mobile web | `pnpm --dir src/mobile-web run type-check` |
 | Rust shared runtime or services | Follow the nearest module `AGENTS.md`: one package/test target and the minimum required features |
-| Desktop/Tauri integration | `cargo check -p openbitfun-desktop` |
+| Desktop/Tauri integration | `cargo check -p alex-desktop` |
 | i18n resources or contract | use the matching i18n row in `AGENTS.md` |
 
 For UI changes, include screenshots or a short recording when helpful. If you

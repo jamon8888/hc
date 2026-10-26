@@ -340,8 +340,8 @@ export function projectDeviceInterconnectionOverview(
 
   let backgroundTaskCount = 0;
   for (const job of input.dispatchJobs) {
-    // SSH is a remote-workspace / transport concern, not a OpenBitFun device.
-    // Only a same-account OpenBitFun host belongs in this overview.
+    // SSH is a remote-workspace / transport concern, not a Alex device.
+    // Only a same-account Alex host belongs in this overview.
     if (!ACTIVE_DISPATCH_STATES.has(job.state) || job.target.kind !== 'device') {
       continue;
     }

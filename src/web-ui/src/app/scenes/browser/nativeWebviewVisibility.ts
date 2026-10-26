@@ -1,11 +1,11 @@
 // Native child views are outside the document's CSS stacking contexts.
 // Keep legacy selectors while shared and custom floating surfaces adopt the marker.
 export const NATIVE_WEBVIEW_OCCLUSION_SELECTOR = [
-  '[data-openbitfun-native-webview-occlusion]',
-  "[data-openbitfun-component='dialog'][data-openbitfun-part='overlay']",
-  "[data-openbitfun-component='sheet'][data-openbitfun-part='overlay']",
+  '[data-alex-native-webview-occlusion]',
+  "[data-alex-component='dialog'][data-alex-part='overlay']",
+  "[data-alex-component='sheet'][data-alex-part='overlay']",
   '.canvas-mission-control',
-  "[data-openbitfun-product-component='context-menu'][data-openbitfun-product-part='root']",
+  "[data-alex-product-component='context-menu'][data-alex-product-part='root']",
 ].join(', ');
 
 type Rectangle = Pick<DOMRectReadOnly, 'left' | 'top' | 'right' | 'bottom'>;

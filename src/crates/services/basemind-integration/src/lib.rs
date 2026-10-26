@@ -1,7 +1,7 @@
 //! Basemind integration crate.
 //!
 //! Isolates all Basemind sidecar logic (PII detection, redaction, RAG, identity registry,
-//! vault, prompt pseudonymization) from upstream OpenBitFun code. Communicates with the
+//! vault, prompt pseudonymization) from upstream Alex code. Communicates with the
 //! Basemind sidecar via MCP over HTTP; the sidecar is a separate process (`basemind comms daemon`).
 
 #![cfg_attr(feature = "basemind", allow(unused_imports))]

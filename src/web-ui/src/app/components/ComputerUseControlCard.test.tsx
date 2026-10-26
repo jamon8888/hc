@@ -15,7 +15,7 @@ vi.mock('@/infrastructure/peer-device/deviceSurface', () => ({
   onSurfaceActivated: (fn: () => void) => { mocks.listeners.add(fn); return () => mocks.listeners.delete(fn); },
 }));
 vi.mock('@/infrastructure/i18n', () => ({ useI18n: () => ({ t: (key: string) => key }) }));
-vi.mock('@openbitfun/ui', () => ({
+vi.mock('@alex/ui', () => ({
   Button: ({ children, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement>) => <button {...props}>{children}</button>,
   Card: ({ children }: React.PropsWithChildren) => <div>{children}</div>,
   CardHeader: ({ children }: React.PropsWithChildren) => <div>{children}</div>,
@@ -91,13 +91,13 @@ it('renders a retained click even when the instantaneous pointer is already up',
   const preview = [...container.querySelectorAll('button')].find(b => b.textContent === 'computerControl.showPreview')!;
   await act(async () => preview.click());
   await act(async () => vi.advanceTimersByTime(1000));
-  const ring = container.querySelector<HTMLElement>('[data-openbitfun-part="click"]');
+  const ring = container.querySelector<HTMLElement>('[data-alex-part="click"]');
   expect(ring?.style.left).toBe('25%');
   expect(ring?.style.top).toBe('50%');
   await act(async () => vi.advanceTimersByTime(300));
-  expect(container.querySelector('[data-openbitfun-part="click"]')).toBeNull();
+  expect(container.querySelector('[data-alex-part="click"]')).toBeNull();
   await act(async () => vi.advanceTimersByTime(1000));
-  expect(container.querySelector('[data-openbitfun-part="click"]')).toBeNull();
+  expect(container.querySelector('[data-alex-part="click"]')).toBeNull();
 });
 
 
@@ -125,12 +125,12 @@ it('keeps the session arrow after click feedback expires and clears it on stop',
   await act(async () => [...container.querySelectorAll('button')].find(b => b.textContent === 'computerControl.showPreview')!.click());
   await act(async () => vi.advanceTimersByTime(1000));
   await act(async () => vi.advanceTimersByTime(2000));
-  const arrow = container.querySelector<HTMLElement>('[data-openbitfun-part="pointer"]');
+  const arrow = container.querySelector<HTMLElement>('[data-alex-part="pointer"]');
   expect(arrow?.querySelector('svg path')).not.toBeNull();
   expect(arrow?.style.left).toBe('40%');
   expect(arrow?.style.top).toBe('60%');
   await act(async () => [...container.querySelectorAll('button')].find(b => b.textContent === 'computerControl.stop')!.click());
-  expect(container.querySelector('[data-openbitfun-part="pointer"]')).toBeNull();
+  expect(container.querySelector('[data-alex-part="pointer"]')).toBeNull();
 });
 
 
@@ -141,10 +141,10 @@ it('removes the old target pointer while waiting for the new target preview', as
   await act(async () => root.render(<ComputerUseControlCard />));
   await act(async () => [...container.querySelectorAll('button')].find(b => b.textContent === 'computerControl.showPreview')!.click());
   await act(async () => vi.advanceTimersByTime(1000));
-  expect(container.querySelector('[data-openbitfun-part="pointer"]')).not.toBeNull();
+  expect(container.querySelector('[data-alex-part="pointer"]')).not.toBeNull();
   mocks.status.mockResolvedValue(active('Window B'));
   mocks.preview.mockReturnValue(new Promise(() => {}));
   await act(async () => vi.advanceTimersByTime(1000));
-  expect(container.querySelector('[data-openbitfun-part="pointer"]')).toBeNull();
+  expect(container.querySelector('[data-alex-part="pointer"]')).toBeNull();
   expect(container.querySelector('img')).toBeNull();
 });

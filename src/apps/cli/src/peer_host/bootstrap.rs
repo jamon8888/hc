@@ -3,12 +3,12 @@
 use std::sync::Arc;
 
 use anyhow::{Context, Result};
-use openbitfun_agent_runtime::sdk::SessionEventJournal;
-use openbitfun_core::service::filesystem::FileSystemServiceFactory;
-use openbitfun_core::service::session_projection_store::{
+use alex_agent_runtime::sdk::SessionEventJournal;
+use alex_core::service::filesystem::FileSystemServiceFactory;
+use alex_core::service::session_projection_store::{
     runtime_event_log_dir, FileSessionProjectionStore,
 };
-use openbitfun_core::service::workspace::{self, WorkspaceService};
+use alex_core::service::workspace::{self, WorkspaceService};
 
 use crate::runtime::CliRuntimeContext;
 
@@ -37,7 +37,7 @@ pub(crate) async fn ensure_peer_host_ready(runtime: &CliRuntimeContext) -> Resul
     // Same log the Desktop Host uses: either can own this Session at different
     // times, and a Turn left running by one must be replayable by the other.
     let session_event_journal = Arc::new(
-        match openbitfun_core::infrastructure::try_get_path_manager_arc() {
+        match alex_core::infrastructure::try_get_path_manager_arc() {
             Ok(path_manager) => SessionEventJournal::new().with_store(Arc::new(
                 FileSessionProjectionStore::new(runtime_event_log_dir(&path_manager)),
             )),

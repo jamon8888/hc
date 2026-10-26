@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { Toolbar, ToolbarSeparator } from '@openbitfun/ui';
+import { Toolbar, ToolbarSeparator } from '@alex/ui';
 import { WindowControls } from '@/app/components/WindowControls';
 import { startNativeWindowDragging, supportsNativeWindowDragging } from '@/infrastructure/runtime';
 import { createLogger } from '@/shared/utils/logger';
@@ -22,7 +22,7 @@ function blocksWindowChromeInteraction(
   }
 
   // The whole tab, including item padding, belongs to tab interaction.
-  if (target.closest('[data-openbitfun-component="tab-group"] [data-openbitfun-part="item"]')) {
+  if (target.closest('[data-alex-component="tab-group"] [data-alex-part="item"]')) {
     return true;
   }
   return target.closest(INTERACTIVE_SELECTOR) !== null;
@@ -64,26 +64,26 @@ const SceneTopBar: React.FC<SceneTopBarProps> = ({
   return (
     <Toolbar
       bordered={hasTabs}
-      className={`openbitfun-scene-top-bar ${className}`.trim()}
+      className={`alex-scene-top-bar ${className}`.trim()}
       onMouseDown={handleMouseDown}
       onDoubleClick={handleDoubleClick}
-      data-openbitfun-scene="workbench"
-      data-openbitfun-part="topBar"
+      data-alex-scene="workbench"
+      data-alex-part="topBar"
       leading={<SceneBar />}
       size="md"
       trailing={<>
         <SceneChromeHost
-          className="openbitfun-scene-top-bar__actions"
-          data-openbitfun-scene="workbench"
-          data-openbitfun-part="sceneActions"
+          className="alex-scene-top-bar__actions"
+          data-alex-scene="workbench"
+          data-alex-part="sceneActions"
         />
         {hasWindowControls ? (
           <>
-            <ToolbarSeparator className="openbitfun-scene-top-bar__actions-divider" />
+            <ToolbarSeparator className="alex-scene-top-bar__actions-divider" />
             <div
-              className="openbitfun-scene-top-bar__window-controls"
-              data-openbitfun-component="scene-bar"
-              data-openbitfun-part="controls"
+              className="alex-scene-top-bar__window-controls"
+              data-alex-component="scene-bar"
+              data-alex-part="controls"
             >
               <WindowControls
                 onMinimize={onMinimize!}

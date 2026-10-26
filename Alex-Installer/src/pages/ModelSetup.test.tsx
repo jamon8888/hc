@@ -12,7 +12,7 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string, options?: { defaultValue?: string }) => options?.defaultValue || key }),
 }));
 const initial: InstallOptions = {
-  installPath: 'D:\\OpenBitFun', desktopShortcut: false, startMenu: true,
+  installPath: 'D:\\Alex', desktopShortcut: false, startMenu: true,
   launchAfterInstall: false, appLanguage: 'en-US', themePreference: 'system', modelConfig: null,
 };
 let container: HTMLDivElement;
@@ -45,9 +45,9 @@ function option(label: string) {
 it('uses the shared popup for provider selection and restores focus after Escape', async () => {
   await render();
   const provider = trigger('model.providerLabel');
-  expect(provider.closest('[data-openbitfun-component="select"]')).not.toBeNull();
+  expect(provider.closest('[data-alex-component="select"]')).not.toBeNull();
   await act(async () => provider.click());
-  expect(document.querySelector('[data-openbitfun-component="select-popup"]')).not.toBeNull();
+  expect(document.querySelector('[data-alex-component="select-popup"]')).not.toBeNull();
   await act(async () => option('model.customProvider').click());
   expect(trigger('model.form.provider')).not.toBeNull();
   expect(changed.mock.lastCall![0](initial).modelConfig.provider).toBe('custom');
@@ -56,7 +56,7 @@ it('uses the shared popup for provider selection and restores focus after Escape
   expect(changed.mock.lastCall![0](initial).modelConfig.format).toBe('responses');
   await act(async () => provider.click());
   await act(async () => document.activeElement!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })));
-  expect(document.querySelector('[data-openbitfun-component="select-popup"]')).toBeNull();
+  expect(document.querySelector('[data-alex-component="select-popup"]')).toBeNull();
   expect(document.activeElement).toBe(provider);
 });
 
@@ -81,7 +81,7 @@ it('keeps the model popup open while loading and lets the returned model be sele
   await render({ ...initial, modelConfig });
   await act(async () => trigger('model.form.modelSelection').click());
   expect(mocks.invoke).toHaveBeenCalledTimes(1);
-  expect(document.querySelector('[data-openbitfun-component="select-popup"]')).not.toBeNull();
+  expect(document.querySelector('[data-alex-component="select-popup"]')).not.toBeNull();
   await act(async () => resolve([{ id: 'new-remote-model' }]));
   await act(async () => option('new-remote-model').click());
   expect(changed.mock.lastCall![0](initial).modelConfig.modelName).toBe('new-remote-model');
@@ -91,6 +91,6 @@ it('keeps native preview from fetching remote models', async () => {
   const modelConfig = { ...createModelConfigFromTemplate(PROVIDER_TEMPLATES.deepseek, null), apiKey: 'test-key' };
   await render({ ...initial, modelConfig }, true);
   await act(async () => trigger('model.form.modelSelection').click());
-  expect(document.querySelector('[data-openbitfun-component="select-popup"]')).not.toBeNull();
+  expect(document.querySelector('[data-alex-component="select-popup"]')).not.toBeNull();
   expect(mocks.invoke).not.toHaveBeenCalled();
 });

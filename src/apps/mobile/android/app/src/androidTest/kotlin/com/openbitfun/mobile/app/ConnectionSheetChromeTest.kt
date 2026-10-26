@@ -11,7 +11,7 @@ import androidx.compose.ui.unit.dp
 import com.openbitfun.mobile.app.ui.common.connectionSheetTextStyle
 import com.openbitfun.mobile.app.ui.common.ConnectionSheetHeader
 import com.openbitfun.mobile.app.ui.common.ConnectionSheetFooter
-import com.openbitfun.mobile.app.ui.theme.OpenBitFunTheme
+import com.openbitfun.mobile.app.ui.theme.AlexTheme
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -23,7 +23,7 @@ class ConnectionSheetChromeTest {
         var closed = false
         var manual = false
         composeRule.setContent {
-            OpenBitFunTheme(dark = false) {
+            AlexTheme(dark = false) {
                 Column(Modifier.requiredSize(360.dp, 700.dp)) {
                     ConnectionSheetHeader { closed = true }
                     Spacer(Modifier.weight(1f))
@@ -40,7 +40,7 @@ class ConnectionSheetChromeTest {
     }
     @Test fun chineseSheetTextUsesTheReferenceLineBoxes() {
         composeRule.setContent {
-            OpenBitFunTheme(dark = false) {
+            AlexTheme(dark = false) {
                 Column {
                     androidx.compose.material3.Text("扫描桌面端二维码",
                         style = androidx.compose.material3.MaterialTheme.typography.displayMedium.connectionSheetTextStyle())
@@ -60,7 +60,7 @@ class ConnectionSheetChromeTest {
     @Test fun compactLoginKeepsContentGeometryAtPhoneAndWideWidths() {
         var width by androidx.compose.runtime.mutableStateOf(386.dp)
         composeRule.setContent {
-            OpenBitFunTheme(dark = false) {
+            AlexTheme(dark = false) {
                 com.openbitfun.mobile.app.ui.account.AccountLoginPage(
                     state = com.openbitfun.mobile.core.feature.account.AccountUiState.SignedOut,
                     onBack = {}, onLogin = {},

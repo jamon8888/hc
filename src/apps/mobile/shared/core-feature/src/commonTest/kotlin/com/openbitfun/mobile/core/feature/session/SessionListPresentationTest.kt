@@ -11,7 +11,7 @@ class SessionListPresentationTest {
     private val now = 1_754_726_400_000L // 2025-08-09T08:00:00Z
 
     private val workspace = SessionWorkspaceContext(
-        selectedPath = "/work/openbitfun",
+        selectedPath = "/work/alex",
         selectedName = "OpenBitFun",
         selectedKind = "normal",
         recent = listOf(
@@ -51,7 +51,7 @@ class SessionListPresentationTest {
             nowMs = now,
         )
         val project = view.sections.filterIsInstance<SessionListSection.Project>()
-            .first { it.path == "/work/openbitfun" }
+            .first { it.path == "/work/alex" }
         assertEquals(listOf("a"), project.sessions.map { it.id })
     }
 
@@ -142,7 +142,7 @@ class SessionListPresentationTest {
     fun anEmptyProjectKeepsItsHeadingUntilAFilterIsOn() {
         val unfiltered = SessionListPresentation.view(emptyList(), workspace, defaults, now)
         assertEquals(
-            listOf("/work/openbitfun", "/work/other"),
+            listOf("/work/alex", "/work/other"),
             unfiltered.sections.filterIsInstance<SessionListSection.Project>().map { it.path },
         )
         // The assistant workspace is never a project heading.
@@ -176,7 +176,7 @@ class SessionListPresentationTest {
         assertEquals(listOf("cowork"), ids(defaults.copy(query = "  COWORK ")))
         // A chat session has no project, so filtering by the selected workspace
         // must not sweep it in.
-        assertEquals(listOf("code"), ids(defaults.copy(workspaceFilter = "/work/openbitfun")))
+        assertEquals(listOf("code"), ids(defaults.copy(workspaceFilter = "/work/alex")))
     }
 
     @Test
@@ -195,7 +195,7 @@ class SessionListPresentationTest {
         // its last path segment when the desktop sent no name.
         val options = SessionListPresentation.workspaceOptions(sessions, workspace)
         assertEquals(
-            listOf("/work/openbitfun", "/work/other", "/work/chat", "/work/elsewhere"),
+            listOf("/work/alex", "/work/other", "/work/chat", "/work/elsewhere"),
             options.map { it.path },
         )
         assertEquals("elsewhere", options.last().name)
@@ -311,7 +311,7 @@ class SessionListPresentationTest {
         status: String = "idle",
         updatedAt: String = "1754726400000",
         createdAt: String = "1754726400000",
-        path: String? = "/work/openbitfun",
+        path: String? = "/work/alex",
         workspaceId: String? = null,
         remoteConnectionId: String? = null,
     ) = if (workspaceId == null && remoteConnectionId == null) RemoteSession(

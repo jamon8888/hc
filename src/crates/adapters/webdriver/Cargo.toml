@@ -1,9 +1,9 @@
 [package]
-name = "openbitfun-webdriver"
+name = "alex-webdriver"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
-description = "Embedded WebDriver server for OpenBitFun desktop"
+description = "Embedded WebDriver server for Alex desktop"
 
 [features]
 default = []

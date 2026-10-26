@@ -50,11 +50,11 @@ const AssistantAvatar: React.FC<AssistantAvatarProps> = ({
   return (
     <span
       className={classes}
-      data-openbitfun-component="assistant-avatar"
-      data-openbitfun-part="root"
-      data-openbitfun-family={usesPreset ? preset.family : 'emoji'}
-      data-openbitfun-preset={usesPreset ? preset.id : undefined}
-      data-openbitfun-state={[active && 'active', status !== 'idle' && status].filter(Boolean).join(' ') || undefined}
+      data-alex-component="assistant-avatar"
+      data-alex-part="root"
+      data-alex-family={usesPreset ? preset.family : 'emoji'}
+      data-alex-preset={usesPreset ? preset.id : undefined}
+      data-alex-state={[active && 'active', status !== 'idle' && status].filter(Boolean).join(' ') || undefined}
       data-size={semanticSize}
       style={customSize
         ? { '--assistant-avatar-size': customSize } as React.CSSProperties

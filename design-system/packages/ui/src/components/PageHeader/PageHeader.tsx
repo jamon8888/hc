@@ -39,34 +39,34 @@ export const PageHeader = forwardRef<HTMLDivElement, PageHeaderProps>(function P
       {...props}
       className={classNames(styles.root, className)}
       data-align={align}
-      data-openbitfun-component="page-header"
+      data-alex-component="page-header"
       data-level={level}
       data-required={required ? "true" : "false"}
       data-size={size}
       ref={ref}
     >
       {leading !== undefined && leading !== null && (
-        <span className={styles.leading} data-openbitfun-part="leading">
+        <span className={styles.leading} data-alex-part="leading">
           {leading}
         </span>
       )}
-      <span className={styles.content} data-openbitfun-part="content">
-        <Heading className={styles.heading} data-openbitfun-part="heading">
+      <span className={styles.content} data-alex-part="content">
+        <Heading className={styles.heading} data-alex-part="heading">
           {title}
           {required && (
-            <span aria-hidden="true" className={styles.required} data-openbitfun-part="required">
+            <span aria-hidden="true" className={styles.required} data-alex-part="required">
               *
             </span>
           )}
         </Heading>
         {description !== undefined && description !== null && (
-          <span className={styles.description} data-openbitfun-part="description">
+          <span className={styles.description} data-alex-part="description">
             {description}
           </span>
         )}
       </span>
       {action !== undefined && action !== null && (
-        <span className={styles.action} data-openbitfun-part="action">
+        <span className={styles.action} data-alex-part="action">
           {action}
         </span>
       )}

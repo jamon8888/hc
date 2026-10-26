@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "owner": "OpenBitFun subagent joystick character family",
+  "owner": "Alex subagent joystick character family",
   "consumer": "src/web-ui/src/flow_chat/subagent-identity/catalog.ts",
   "reason": "These fixed artwork colors preserve twenty existing character identities across light and dark themes. Semantic and status tokens describe UI states and would recolor the characters; they remain owned by the surrounding avatar component.",
   "characters": [

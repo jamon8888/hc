@@ -96,7 +96,7 @@ Fog: ticket re-scope detail.
 
 **Resolved 2026-10-16.** Both bodies rewritten in `.scratch/basemind-integration/issues/`:
 
-- **06 `rag_search tool + registration`** — three-layer split (port in runtime-ports + `openbitfun-core` `Tool` wrapper + `basemind-integration` pipeline, the pipeline itself already implemented), vault-based query resolution against the raw index, mint-on-hit re-tokenization with session-vault upsert, D7 hard-fail, `tools-rag` + ProductToolPlan registration. **Status: ready-for-agent.**
+- **06 `rag_search tool + registration`** — three-layer split (port in runtime-ports + `alex-core` `Tool` wrapper + `basemind-integration` pipeline, the pipeline itself already implemented), vault-based query resolution against the raw index, mint-on-hit re-tokenization with session-vault upsert, D7 hard-fail, `tools-rag` + ProductToolPlan registration. **Status: ready-for-agent.**
 - **16 `PromptPseudonymizer + SessionVault + Identity Registry`** — redact_text → registry alias → HMAC session token flow, the three components + keychain (all compiling), seeded session map, `rehydrate()` gap and tests listed as remaining. **Status: ready-for-agent.**
 
 **Corrections vs the draft bodies above:** token format is `[<CATEGORY>_<H16>]` with
@@ -107,7 +107,7 @@ instead of the non-existent `basemind::vault` path; query resolution resolves ec
 tokens through the **vault map** against the **raw** index (D6 amended) instead of
 de-salting and aliasing — the index stores neither aliases nor salt; `rag_search` is
 exposed as `RagSearchPort` (`contracts/runtime-ports`, feature `rag-search`), the
-`Tool` wrapper lives in `openbitfun-core`, and that crate must not depend on
+`Tool` wrapper lives in `alex-core`, and that crate must not depend on
 `basemind-integration` (injection at the host composition root); the tool payload
 carries `{category, token}` only — no workspace alias in model context. Side effects of
 D2: ticket 15 is **superseded** and tickets 17/18 are re-scoped (issue 09).

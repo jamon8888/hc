@@ -6,17 +6,17 @@ use zip::write::FileOptions;
 use zip::{CompressionMethod, ZipWriter};
 
 const REQUIRED_PAYLOAD_FILES: [&str; 7] = [
-    "openbitfun-desktop.exe",
+    "alex-desktop.exe",
     "frontend/dist/index.html",
     "mobile-web/dist/index.html",
     "resources/ext-host/extension-host.js",
     "resources/worker_host.js",
     "flashgrep/flashgrep-x86_64-pc-windows-msvc.exe",
-    "interpreter/openbitfun-bundled-tool.json",
+    "interpreter/alex-bundled-tool.json",
 ];
 
 fn main() {
-    println!("cargo:rerun-if-env-changed=OPENBITFUN_RELEASE_CHANNEL");
+    println!("cargo:rerun-if-env-changed=ALEX_RELEASE_CHANNEL");
     if let Err(err) = build_embedded_payload() {
         panic!("failed to build embedded payload: {err}");
     }

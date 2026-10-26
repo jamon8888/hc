@@ -1,6 +1,6 @@
 import React from 'react';
 import { useI18n } from '@/infrastructure/i18n';
-import { Icon, IconButton, Tooltip } from '@openbitfun/ui';
+import { Icon, IconButton, Tooltip } from '@alex/ui';
 import { List, ListTree } from 'lucide-react';
 import {
   getNextWorkspaceSessionGrouping,
@@ -22,7 +22,7 @@ const WorkspaceSessionGroupingToggle: React.FC = () => {
       followCursor
     >
       <IconButton
-        className="openbitfun-nav-panel__section-action openbitfun-nav-panel__session-view-toggle"
+        className="alex-nav-panel__section-action alex-nav-panel__session-view-toggle"
         aria-label={actionTooltip}
         aria-pressed={isAll}
         icon={(
@@ -34,10 +34,10 @@ const WorkspaceSessionGroupingToggle: React.FC = () => {
         )}
         size="xs"
         variant="quiet"
-        data-openbitfun-action="toggle-session-view"
-        data-openbitfun-component="session-navigation"
-        data-openbitfun-part="viewToggle"
-        data-openbitfun-state={grouping}
+        data-alex-action="toggle-session-view"
+        data-alex-component="session-navigation"
+        data-alex-part="viewToggle"
+        data-alex-state={grouping}
         data-testid="nav-workspace-session-view-toggle"
         data-view-mode={grouping}
         onClick={() => setGrouping(getNextWorkspaceSessionGrouping(grouping))}

@@ -19,7 +19,7 @@ import {
   DialogHeader,
   DialogHeading,
   DialogTitle,
-} from '@openbitfun/ui';
+} from '@alex/ui';
 import React, { useMemo, useState } from 'react';
 
 import { useI18n, type UseI18nReturn } from '@/infrastructure/i18n/hooks/useI18n';
@@ -285,9 +285,9 @@ const GroupManagerModal: React.FC<GroupManagerModalProps> = ({
         <DialogClose />
       </DialogHeader>
       <DialogBody>
-        <div className="tool-group-manager" data-openbitfun-product-component="tool-group-picker" data-openbitfun-product-part="manager">
+        <div className="tool-group-manager" data-alex-product-component="tool-group-picker" data-alex-product-part="manager">
           {isEditing ? (
-            <div className="tool-group-manager__editor" data-openbitfun-product-component="tool-group-picker" data-openbitfun-product-part="managerEditor">
+            <div className="tool-group-manager__editor" data-alex-product-component="tool-group-picker" data-alex-product-part="managerEditor">
               <Field
                 label={t('agentsOverview.toolGroups.groupName')}
                 error={nameError ? t('agentsOverview.toolGroups.validation.nameRequired') : undefined}
@@ -305,7 +305,7 @@ const GroupManagerModal: React.FC<GroupManagerModalProps> = ({
                 />
               </Field>
               <FormSection headingAs="h4" title={t('agentsOverview.toolGroups.groupTools')}>
-                <div className="tool-group-manager__token-grid" data-openbitfun-product-component="tool-group-picker" data-openbitfun-product-part="tokenGrid">
+                <div className="tool-group-manager__token-grid" data-alex-product-component="tool-group-picker" data-alex-product-part="tokenGrid">
                   {selectableTools.map((tool) => {
                     const selected = toolNames.has(tool.name);
                     const tooltipFields = toolTooltipFields(tool, t);
@@ -320,8 +320,8 @@ const GroupManagerModal: React.FC<GroupManagerModalProps> = ({
                       >
                         <AgentCapabilityOption
                           className="tool-group-manager__token"
-                          data-openbitfun-product-component="tool-group-picker" data-openbitfun-product-part="token"
-                          data-openbitfun-state={selected ? 'selected' : undefined}
+                          data-alex-product-component="tool-group-picker" data-alex-product-part="token"
+                          data-alex-state={selected ? 'selected' : undefined}
                           checked={selected}
                           label={tool.name}
                           onCheckedChange={(checked) => setToolSelected(tool.name, checked)}
@@ -352,11 +352,11 @@ const GroupManagerModal: React.FC<GroupManagerModalProps> = ({
               {groups.length === 0 ? (
                 <p className="tool-group-manager__empty">{t('agentsOverview.toolGroups.noUserGroups')}</p>
               ) : (
-                <FieldGroup className="tool-group-manager__list" data-openbitfun-product-component="tool-group-picker" data-openbitfun-product-part="managerList">
+                <FieldGroup className="tool-group-manager__list" data-alex-product-component="tool-group-picker" data-alex-product-part="managerList">
                   {groups.map((group, index) => {
                     const unavailable = unavailableUserToolNames(group, tools);
                     return (
-                      <FieldRow key={group.id} data-openbitfun-product-component="tool-group-picker" data-openbitfun-product-part="managerGroup">
+                      <FieldRow key={group.id} data-alex-product-component="tool-group-picker" data-alex-product-part="managerGroup">
                         <div className="tool-group-manager__group-row">
                           <div className="tool-group-manager__group-copy">
                             <OverflowText className="tool-group-manager__group-name">{group.name}</OverflowText>
@@ -367,7 +367,7 @@ const GroupManagerModal: React.FC<GroupManagerModalProps> = ({
                                 : ''}
                             </span>
                           </div>
-                          <div className="tool-group-manager__group-actions" data-openbitfun-product-component="tool-group-picker" data-openbitfun-product-part="groupActions">
+                          <div className="tool-group-manager__group-actions" data-alex-product-component="tool-group-picker" data-alex-product-part="groupActions">
                             <Tooltip content={t('agentsOverview.toolGroups.moveUp')}>
                               <IconButton
                                 size="sm"
@@ -456,9 +456,9 @@ export const ToolGroupPicker: React.FC<ToolGroupPickerProps> = ({
   }, [groups, t]);
 
   return (
-    <div data-openbitfun-product-component="tool-group-picker" data-openbitfun-product-part="root" className="tool-group-picker" data-testid={testId}>
+    <div data-alex-product-component="tool-group-picker" data-alex-product-part="root" className="tool-group-picker" data-testid={testId}>
       <Toolbar
-        data-openbitfun-product-component="tool-group-picker" data-openbitfun-product-part="head"
+        data-alex-product-component="tool-group-picker" data-alex-product-part="head"
         bordered={false}
         leading={(
           <span className="tool-group-picker__selected-count">
@@ -478,20 +478,20 @@ export const ToolGroupPicker: React.FC<ToolGroupPickerProps> = ({
           </Button>
         )}
       />
-      <div className="tool-group-picker__sections" data-openbitfun-product-component="tool-group-picker" data-openbitfun-product-part="sections">
+      <div className="tool-group-picker__sections" data-alex-product-component="tool-group-picker" data-alex-product-part="sections">
         {sections.map(([sectionLabel, sectionGroups]) => (
           <FormSection
             key={sectionLabel}
             headingAs="h4"
             title={sectionLabel}
-            data-openbitfun-product-component="tool-group-picker" data-openbitfun-product-part="section"
+            data-alex-product-component="tool-group-picker" data-alex-product-part="section"
           >
             {sectionGroups.map((group) => {
               const selectedInGroup = selectedGroupToolCount(group, selectedToolNames);
               const allSelected = isGroupEnabled(group, selectedToolNames);
               return (
-                <FieldGroup key={group.id} data-openbitfun-product-component="tool-group-picker" data-openbitfun-product-part="group">
-                  <FieldRow data-openbitfun-product-component="tool-group-picker" data-openbitfun-product-part="groupHeader">
+                <FieldGroup key={group.id} data-alex-product-component="tool-group-picker" data-alex-product-part="group">
+                  <FieldRow data-alex-product-component="tool-group-picker" data-alex-product-part="groupHeader">
                     <div className="tool-group-picker__group-head">
                       <div className="tool-group-picker__group-title-wrap">
                         <OverflowText className="tool-group-picker__group-name">{group.label}</OverflowText>
@@ -499,7 +499,7 @@ export const ToolGroupPicker: React.FC<ToolGroupPickerProps> = ({
                           {formatNumber(selectedInGroup)}/{formatNumber(group.tools.length)}
                         </span>
                       </div>
-                      <div className="tool-group-picker__group-actions" data-openbitfun-product-component="tool-group-picker" data-openbitfun-product-part="groupActions">
+                      <div className="tool-group-picker__group-actions" data-alex-product-component="tool-group-picker" data-alex-product-part="groupActions">
                         {selectedInGroup > 0 && !allSelected ? (
                           <Button
                             variant="text"
@@ -529,7 +529,7 @@ export const ToolGroupPicker: React.FC<ToolGroupPickerProps> = ({
                     </div>
                   </FieldRow>
                   <FieldRow align="start">
-                    <div className="tool-group-picker__token-grid" data-openbitfun-product-component="tool-group-picker" data-openbitfun-product-part="tokenGrid">
+                    <div className="tool-group-picker__token-grid" data-alex-product-component="tool-group-picker" data-alex-product-part="tokenGrid">
                       {group.tools.map((tool) => {
                         const selected = selectedToolNames.includes(tool.name);
                         const tooltipFields = toolTooltipFields(tool, t);
@@ -544,8 +544,8 @@ export const ToolGroupPicker: React.FC<ToolGroupPickerProps> = ({
                           >
                             <AgentCapabilityOption
                               className="tool-group-picker__token"
-                              data-openbitfun-product-component="tool-group-picker" data-openbitfun-product-part="token"
-                              data-openbitfun-state={selected ? 'selected' : undefined}
+                              data-alex-product-component="tool-group-picker" data-alex-product-part="token"
+                              data-alex-state={selected ? 'selected' : undefined}
                               checked={selected}
                               label={tool.name}
                               onCheckedChange={(checked) => onSelectionChange(
@@ -588,13 +588,13 @@ export const ToolGroupSummary: React.FC<ToolGroupSummaryProps> = ({
   );
 
   if (groups.length === 0) {
-    return <span data-openbitfun-product-component="tool-group-picker" data-openbitfun-product-part="empty" className="tool-group-summary__empty">{t('agentsOverview.toolGroups.noEnabledTools')}</span>;
+    return <span data-alex-product-component="tool-group-picker" data-alex-product-part="empty" className="tool-group-summary__empty">{t('agentsOverview.toolGroups.noEnabledTools')}</span>;
   }
 
   return (
-    <div data-openbitfun-product-component="tool-group-picker" data-openbitfun-product-part="summary" className="tool-group-summary">
+    <div data-alex-product-component="tool-group-picker" data-alex-product-part="summary" className="tool-group-summary">
       {groups.map((group) => (
-        <FormSection key={group.id} headingAs="h4" title={group.label} data-openbitfun-product-component="tool-group-picker" data-openbitfun-product-part="summaryGroup">
+        <FormSection key={group.id} headingAs="h4" title={group.label} data-alex-product-component="tool-group-picker" data-alex-product-part="summaryGroup">
           <div className="tool-group-summary__tools">
             {group.tools.map((tool) => {
               const tooltipFields = toolTooltipFields(tool, t);

@@ -24,6 +24,6 @@
 
 - interface crate 可以依赖 `assembly/core` 暴露选定交付形态。
 - 可移植的 `sdk-host` 协议 crate 边界更窄：只能依赖稳定 Runtime/合同，不得依赖
-  `openbitfun-core`、`terminal-core`、具体 service、SDK Host app 或 CLI；具体 Host 组装保留在
+  `alex-core`、`terminal-core`、具体 service、SDK Host app 或 CLI；具体 Host 组装保留在
   `src/apps/sdk-host`。
 - interface crate 不拥有产品策略、可复用服务、协议传输内部实现或执行原语。

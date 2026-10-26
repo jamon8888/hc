@@ -1,7 +1,7 @@
 import { refreshDeviceDirectory, isDeviceControllable, deviceClientVersion } from '@/infrastructure/account/deviceDirectory';
 /** Account login and authenticated device connections. */
 
-import { OverflowText, Alert, Avatar, Button, Icon, IconButton, Input, ScrollArea, StatusPill } from '@openbitfun/ui';
+import { OverflowText, Alert, Avatar, Button, Icon, IconButton, Input, ScrollArea, StatusPill } from '@alex/ui';
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useI18n } from '@/infrastructure/i18n';
 import {
@@ -149,7 +149,7 @@ const FailureBanner: React.FC<FailureBannerProps> = ({ failure, t, busy, onClose
     ? failure.action
     : null;
   return (
-    <div className="account-panel__error-banner" data-openbitfun-component="remote-account-panel" data-openbitfun-part="error">
+    <div className="account-panel__error-banner" data-alex-component="remote-account-panel" data-alex-part="error">
       <Alert
         tone="error"
         message={failure.message}
@@ -805,7 +805,7 @@ export const AccountPanel: React.FC<AccountPanelProps> = ({
 
   return (
     <>
-      <div data-openbitfun-component="remote-account-panel" data-openbitfun-part="root" data-openbitfun-view={view} className="account-panel">
+      <div data-alex-component="remote-account-panel" data-alex-part="root" data-alex-view={view} className="account-panel">
         {error && (
           <FailureBanner
             failure={error}
@@ -817,25 +817,25 @@ export const AccountPanel: React.FC<AccountPanelProps> = ({
         )}
 
         {updateNotice && (
-          <div className="account-panel__error-banner" data-openbitfun-component="remote-account-panel" data-openbitfun-part="error">
+          <div className="account-panel__error-banner" data-alex-component="remote-account-panel" data-alex-part="error">
             <Alert tone="info" message={updateNotice} closable onClose={() => setUpdateNotice(null)} />
           </div>
         )}
 
         {loading && view === 'devices' && (
-          <div className="account-panel__loading-overlay" data-openbitfun-component="remote-account-panel" data-openbitfun-part="loading">
+          <div className="account-panel__loading-overlay" data-alex-component="remote-account-panel" data-alex-part="loading">
             <Icon name="refresh" size="lg" className="spinning" style={{ width: 20, height: 20 }} />
             <span>{t('accountLogin.processing')}</span>
           </div>
         )}
 
         {view === 'login' && (
-          <ScrollArea className="account-panel__scroll" data-openbitfun-component="remote-account-panel" data-openbitfun-part="scroll">
-            <div className="account-panel__login-card" data-openbitfun-component="remote-account-panel" data-openbitfun-part="form">
+          <ScrollArea className="account-panel__scroll" data-alex-component="remote-account-panel" data-alex-part="scroll">
+            <div className="account-panel__login-card" data-alex-component="remote-account-panel" data-alex-part="form">
               <span className="account-panel__login-icon" aria-hidden="true"><Icon name="user" size="lg" /></span>
               <p className="account-panel__value-prop">{t('accountLogin.loginValueProp')}</p>
               <p className="account-panel__security-note">{t('accountLogin.securityNote')}</p>
-              <div className="account-panel__actions" data-openbitfun-component="remote-account-panel" data-openbitfun-part="actions">
+              <div className="account-panel__actions" data-alex-component="remote-account-panel" data-alex-part="actions">
                 <Button variant="primary" size="sm" leadingIcon={<LogIn />} onClick={handleLogin} loading={loading && identity.status !== 'authorizing'}>
                   {identity.status === 'authorizing' ? t('accountLogin.reopen') : loading ? t('accountLogin.processing') : t('accountLogin.login')}
                 </Button>
@@ -845,7 +845,7 @@ export const AccountPanel: React.FC<AccountPanelProps> = ({
         )}
 
         {view === 'devices' && (
-          <ScrollArea className="account-panel__scroll" data-openbitfun-component="remote-account-panel" data-openbitfun-part="scroll">
+          <ScrollArea className="account-panel__scroll" data-alex-component="remote-account-panel" data-alex-part="scroll">
             <div className="account-panel__identity-line">
               <Avatar key={username} size="md" src={identity.me?.user.avatarUrl} alt={username} aria-label={username}>
                 {username.trim().charAt(0).toUpperCase() || <Icon name="user" />}
@@ -870,7 +870,7 @@ export const AccountPanel: React.FC<AccountPanelProps> = ({
               {relayFailure && (
                 <FailureBanner failure={relayFailure} t={t} busy={loading} onAction={runFailureAction} />
               )}
-              <div className="account-panel__device-list" data-openbitfun-component="remote-account-panel" data-openbitfun-part="deviceList">
+              <div className="account-panel__device-list" data-alex-component="remote-account-panel" data-alex-part="deviceList">
                 {!relayFailure && devicesReady && devices.length === 0 && (
                   <div className="account-panel__empty">{t('accountLogin.noDevices')}</div>
                 )}
@@ -912,8 +912,8 @@ export const AccountPanel: React.FC<AccountPanelProps> = ({
                   };
                   const DeviceEntry = isSelectable && editingDeviceId !== d.device_id ? 'button' : 'div';
                   return (
-                  <div data-openbitfun-component="remote-account-panel" data-openbitfun-part="deviceCard" key={d.device_id}
-                    data-openbitfun-state={[
+                  <div data-alex-component="remote-account-panel" data-alex-part="deviceCard" key={d.device_id}
+                    data-alex-state={[
                       !d.online && 'offline',
                       isLocal && 'current',
                     ].filter(Boolean).join(' ') || undefined}
@@ -970,7 +970,7 @@ export const AccountPanel: React.FC<AccountPanelProps> = ({
                           </span>
                         )}
                         <span className="account-panel__device-meta">
-                          <span className="account-panel__device-status" data-openbitfun-state={d.online ? 'online' : 'offline'}>{d.online
+                          <span className="account-panel__device-status" data-alex-state={d.online ? 'online' : 'offline'}>{d.online
                             ? t('accountLogin.online')
                             : d.last_seen_at
                               ? t('accountLogin.lastSeen', { time: formatRelativeTime(d.last_seen_at * 1000) })

@@ -2,14 +2,14 @@
 
 The owner guide is [Relay Server](../../src/apps/relay-server/README.md).
 Use this independent Compose project for `/v/1.0.2/`. Keep the `/v/1.0.1/` Compose project
-(`openbitfun-relay-v1.0.1`, port `19701`, `/srv/openbitfun-relay-v1.0.1`) running with its own
+(`alex-relay-v1.0.1`, port `19701`, `/srv/alex-relay-v1.0.1`) running with its own
 container, image, database, assets, and proxy location: clients built for 1.0.1 keep using it,
 and the two releases do not share a credential database.
 
-Deploy from a committed checkout at `/srv/openbitfun-relay-v1.0.2/app`. Set
+Deploy from a committed checkout at `/srv/alex-relay-v1.0.2/app`. Set
 `RELAY_GIT_COMMIT` to that checkout's verified full commit. Build mobile web
 from the same checkout with `pnpm run build:mobile-web` and stage its `dist`
-contents into `/srv/openbitfun-relay-v1.0.2/static`. Create `data` and `assets`
+contents into `/srv/alex-relay-v1.0.2/static`. Create `data` and `assets`
 under that root owned by UID/GID 10001 before starting Compose.
 
 The Linux host network plus explicit `127.0.0.1:19702` listener lets the service
@@ -175,11 +175,11 @@ freed pages in its freelist and reuses them, which stops the growth but leaves
 the file at its high-water mark. Either reclaim in a short window:
 
 ```bash
-docker stop openbitfun-relay-v1.0.1
+docker stop alex-relay-v1.0.1
 # Keep the previous file (plus its -wal/-shm) until the new one is verified.
-sqlite3 /srv/openbitfun-relay-v1.0.1/data/relay.db \
+sqlite3 /srv/alex-relay-v1.0.1/data/relay.db \
   "PRAGMA auto_vacuum=INCREMENTAL; PRAGMA journal_mode=WAL; VACUUM;"
-docker start openbitfun-relay-v1.0.1
+docker start alex-relay-v1.0.1
 ```
 
 or compact online first and swap inside the window, which is what turned a
@@ -215,7 +215,7 @@ install -m 0755 prune-legacy-message-log.py /root/ops/
 ```
 
 ```ini
-# /etc/systemd/system/openbitfun-relay-1.0.1-prune.service
+# /etc/systemd/system/alex-relay-1.0.1-prune.service
 [Unit]
 Description=Prune the legacy Alex Relay 1.0.1 realtime message log
 After=network-online.target docker.service
@@ -228,10 +228,10 @@ IOSchedulingPriority=6
 ExecStart=/usr/bin/python3 /root/ops/prune-legacy-message-log.py --apply \
   --keep-hours 24 --safety-minutes 60 --max-msgs 5000 --min-keep 200 \
   --batch-rows 500 --sleep-ms 25 --incremental-vacuum-pages 2000
-StandardOutput=append:/var/log/openbitfun-relay-1.0.1-prune.log
-StandardError=append:/var/log/openbitfun-relay-1.0.1-prune.log
+StandardOutput=append:/var/log/alex-relay-1.0.1-prune.log
+StandardError=append:/var/log/alex-relay-1.0.1-prune.log
 
-# /etc/systemd/system/openbitfun-relay-1.0.1-prune.timer
+# /etc/systemd/system/alex-relay-1.0.1-prune.timer
 [Unit]
 Description=Hourly prune of the legacy Alex Relay 1.0.1 message log
 
@@ -239,13 +239,13 @@ Description=Hourly prune of the legacy Alex Relay 1.0.1 message log
 OnCalendar=hourly
 RandomizedDelaySec=300
 Persistent=true
-Unit=openbitfun-relay-1.0.1-prune.service
+Unit=alex-relay-1.0.1-prune.service
 
 [Install]
 WantedBy=timers.target
 ```
 
-`systemctl enable --now openbitfun-relay-1.0.1-prune.timer`. The steady-state run
+`systemctl enable --now alex-relay-1.0.1-prune.timer`. The steady-state run
 is cheap: hourly traffic moves past the window in seconds, versus 455 seconds
 for the first pass over 2.17 M rows. Pruning and retiring are separate steps —
 pruning only buys time until the version reaches the retirement switch above.

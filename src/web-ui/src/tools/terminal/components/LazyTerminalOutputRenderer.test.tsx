@@ -10,10 +10,10 @@ import { getTypographyTokenValue } from '@/infrastructure/design-system/typograp
 
 it('resolves the active output font at use time rather than module import time', () => {
   const style = document.documentElement.style;
-  const property = '--openbitfun-font-family-mono';
+  const property = '--alex-font-family-mono';
   const previous = style.getPropertyValue(property);
   try {
-    const family = '"Fira Code", "OpenBitFun HarmonyOS Sans SC", monospace';
+    const family = '"Fira Code", "Alex HarmonyOS Sans SC", monospace';
     style.setProperty(property, family);
     expect(readTerminalOutputFontFamily()).toBe(family);
     style.removeProperty(property);
@@ -55,8 +55,8 @@ describe('TerminalOutputFallback', () => {
     const fallback = container.querySelector<HTMLPreElement>('pre.terminal-output-pre');
     expect(fallback).not.toBeNull();
     expect(fallback?.textContent).toBe('three\nfour');
-    expect(fallback?.dataset.openbitfunComponent).toBe('terminal-tool');
-    expect(fallback?.dataset.openbitfunPart).toBe('output');
+    expect(fallback?.dataset.alexComponent).toBe('terminal-tool');
+    expect(fallback?.dataset.alexPart).toBe('output');
     expect(fallback?.style.height).toBe('34px');
     expect(fallback?.style.overflow).toBe('hidden');
   });

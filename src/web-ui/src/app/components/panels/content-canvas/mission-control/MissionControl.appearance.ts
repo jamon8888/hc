@@ -6,9 +6,9 @@ export const missionControlAppearanceDescriptor: AppearanceSurfaceDescriptor = {
     { id: 'filters' }, { id: 'search' }, { id: 'groupFilters' }, { id: 'filter' },
     { id: 'grid' }, { id: 'empty' }, { id: 'footer' }, { id: 'separator' },
   ],
-  facets: [{ id: 'group', attribute: 'data-openbitfun-group', values: ['primary', 'secondary', 'tertiary'] }],
+  facets: [{ id: 'group', attribute: 'data-alex-group', values: ['primary', 'secondary', 'tertiary'] }],
   states: [
-    { id: 'open', selector: { kind: 'self', suffix: '[data-openbitfun-state~="open"]' } },
-    { id: 'active', selector: { kind: 'self', suffix: '[data-openbitfun-state~="active"]' } },
+    { id: 'open', selector: { kind: 'self', suffix: '[data-alex-state~="open"]' } },
+    { id: 'active', selector: { kind: 'self', suffix: '[data-alex-state~="active"]' } },
   ],
 };

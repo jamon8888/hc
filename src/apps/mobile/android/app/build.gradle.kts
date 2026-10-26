@@ -5,10 +5,10 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
-val releaseKeystorePath = providers.environmentVariable("OPENBITFUN_ANDROID_KEYSTORE").orNull
-val releaseKeystorePassword = providers.environmentVariable("OPENBITFUN_ANDROID_KEYSTORE_PASSWORD").orNull
-val releaseKeyAlias = providers.environmentVariable("OPENBITFUN_ANDROID_KEY_ALIAS").orNull
-val releaseKeyPassword = providers.environmentVariable("OPENBITFUN_ANDROID_KEY_PASSWORD").orNull
+val releaseKeystorePath = providers.environmentVariable("ALEX_ANDROID_KEYSTORE").orNull
+val releaseKeystorePassword = providers.environmentVariable("ALEX_ANDROID_KEYSTORE_PASSWORD").orNull
+val releaseKeyAlias = providers.environmentVariable("ALEX_ANDROID_KEY_ALIAS").orNull
+val releaseKeyPassword = providers.environmentVariable("ALEX_ANDROID_KEY_PASSWORD").orNull
 val hasReleaseSigning = listOf(
     releaseKeystorePath,
     releaseKeystorePassword,

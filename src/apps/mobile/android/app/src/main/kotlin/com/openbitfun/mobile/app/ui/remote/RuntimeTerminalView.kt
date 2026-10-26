@@ -44,10 +44,10 @@ internal fun RuntimeTerminalView(state: RuntimeTerminalUiState, onInput: (String
             }
             val adapter = TerminalBridge(this, { latestInput(it) }, { cols, rows -> latestResize(cols, rows) })
             bridge = adapter
-            addJavascriptInterface(adapter, "OpenBitFunTerminalHost")
+            addJavascriptInterface(adapter, "AlexTerminalHost")
             webViewClient = object : WebViewClient() {
                 override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean = request?.url?.toString() != "file:///android_asset/index.html"
-                override fun onPageFinished(view: WebView?, url: String?) { evaluateJavascript("window.OpenBitFunTerminal.connect()", null) }
+                override fun onPageFinished(view: WebView?, url: String?) { evaluateJavascript("window.AlexTerminal.connect()", null) }
             }
             loadUrl("file:///android_asset/index.html")
         }
@@ -66,7 +66,7 @@ private class TerminalBridge(private val view: WebView, private val input: (Stri
         renderTheme()
     }
     private fun renderTheme() {
-        if (ready && !disposed) theme?.let { view.evaluateJavascript("window.OpenBitFunTerminal.setTheme($it)", null) }
+        if (ready && !disposed) theme?.let { view.evaluateJavascript("window.AlexTerminal.setTheme($it)", null) }
     }
     private var state: RuntimeTerminalUiState? = null
     private var ready = false
@@ -80,7 +80,7 @@ private class TerminalBridge(private val view: WebView, private val input: (Stri
         if (!ready || disposed || (!force && id == epoch && revision == value.revision)) return
         val reset = force || id != epoch || value.reset || value.revision != revision + 1
         val frame = JSONObject().put("epoch", id).put("revision", value.revision).put("reset", reset).put("data", if (reset) value.output else value.chunk)
-        view.evaluateJavascript("window.OpenBitFunTerminal.accept($frame)", null)
+        view.evaluateJavascript("window.AlexTerminal.accept($frame)", null)
         epoch = id; revision = value.revision
     }
     @JavascriptInterface fun postMessage(message: String) {
@@ -95,5 +95,5 @@ private class TerminalBridge(private val view: WebView, private val input: (Stri
             }
         }
     }
-    fun dispose() { disposed = true; view.removeJavascriptInterface("OpenBitFunTerminalHost"); view.destroy() }
+    fun dispose() { disposed = true; view.removeJavascriptInterface("AlexTerminalHost"); view.destroy() }
 }

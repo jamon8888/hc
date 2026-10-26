@@ -19,8 +19,8 @@ describe('ModelSelector portal layer', () => {
 
     expect(component).toContain('createOverlayPortal(');
     expect(component).not.toContain('document.body');
-    expect(dropdownBlock).toContain('z-index: var(--openbitfun-layer-popover);');
-    expect(dropdownBlock).not.toContain('z-index: var(--openbitfun-layer-dropdown);');
+    expect(dropdownBlock).toContain('z-index: var(--alex-layer-popover);');
+    expect(dropdownBlock).not.toContain('z-index: var(--alex-layer-dropdown);');
   });
 
   it('keeps every model and reasoning menu in the shared overlay host', () => {

@@ -19,16 +19,16 @@ test("SegmentedControl exposes radiogroup semantics with a roving selected segme
     }),
   );
 
-  assert.match(markup, /data-openbitfun-component="segmented-control"/);
+  assert.match(markup, /data-alex-component="segmented-control"/);
   assert.match(markup, /role="radiogroup"/);
   assert.match(markup, /aria-label="Conversation mode"/);
   assert.equal((markup.match(/role="radio"/g) ?? []).length, 2);
-  assert.match(markup, /aria-checked="false"[^>]*data-openbitfun-value="chat"/);
-  assert.match(markup, /aria-checked="true"[^>]*data-openbitfun-value="agent"/);
+  assert.match(markup, /aria-checked="false"[^>]*data-alex-value="chat"/);
+  assert.match(markup, /aria-checked="true"[^>]*data-alex-value="agent"/);
   assert.match(markup, /aria-checked="true"[^>]*tabindex="0"/);
   assert.match(markup, /aria-checked="false"[^>]*tabindex="-1"/);
-  assert.match(markup, /data-openbitfun-part="icon"/);
-  assert.match(markup, /data-openbitfun-part="label"[^>]*data-overflow-behavior="marquee"[^>]*><span[^>]*>Chat<\/span><\/span>/);
+  assert.match(markup, /data-alex-part="icon"/);
+  assert.match(markup, /data-alex-part="label"[^>]*data-overflow-behavior="marquee"[^>]*><span[^>]*>Chat<\/span><\/span>/);
 });
 
 test("SegmentedControl falls back to the first enabled option when the candidate is disabled", () => {
@@ -42,8 +42,8 @@ test("SegmentedControl falls back to the first enabled option when the candidate
     }),
   );
 
-  assert.match(markup, /aria-checked="true"[^>]*data-openbitfun-value="chat"/);
-  assert.match(markup, /aria-checked="false"[^>]*data-openbitfun-value="agent"[^>]*disabled=""/);
+  assert.match(markup, /aria-checked="true"[^>]*data-alex-value="chat"/);
+  assert.match(markup, /aria-checked="false"[^>]*data-alex-value="agent"[^>]*disabled=""/);
 });
 
 test("SegmentedControl disables every segment as one contract", () => {
@@ -76,22 +76,22 @@ test("SegmentedControl exposes stable layout and visual variants", () => {
 test("SegmentedControl styles bind pill geometry and shared action tokens", async () => {
   const styles = await readFile(new URL("../dist/styles.css", import.meta.url), "utf8");
 
-  assert.match(styles, /--openbitfun-control-segmented-control-padding/);
-  assert.match(styles, /--openbitfun-control-segmented-control-segment-height/);
-  assert.match(styles, /--openbitfun-control-segmented-control-segment-height-md/);
-  assert.match(styles, /--openbitfun-control-segmented-control-pill-segment-height/);
-  assert.match(styles, /--openbitfun-control-segmented-control-segment-padding-inline/);
-  assert.match(styles, /--openbitfun-control-segmented-control-icon-size/);
-  assert.match(styles, /--openbitfun-control-height-md/);
-  assert.match(styles, /--openbitfun-radius-pill/);
-  assert.match(styles, /--openbitfun-space-4/);
-  assert.match(styles, /--openbitfun-type-meta-font-size/);
-  assert.match(styles, /--openbitfun-color-action-neutral-surface/);
-  assert.match(styles, /--openbitfun-color-surface-raised/);
-  assert.match(styles, /--openbitfun-color-action-neutral-surface-hover/);
-  assert.match(styles, /--openbitfun-color-action-neutral-surface-pressed/);
-  assert.match(styles, /--openbitfun-color-action-neutral-content-disabled/);
-  assert.match(styles, /--openbitfun-color-focus-ring/);
+  assert.match(styles, /--alex-control-segmented-control-padding/);
+  assert.match(styles, /--alex-control-segmented-control-segment-height/);
+  assert.match(styles, /--alex-control-segmented-control-segment-height-md/);
+  assert.match(styles, /--alex-control-segmented-control-pill-segment-height/);
+  assert.match(styles, /--alex-control-segmented-control-segment-padding-inline/);
+  assert.match(styles, /--alex-control-segmented-control-icon-size/);
+  assert.match(styles, /--alex-control-height-md/);
+  assert.match(styles, /--alex-radius-pill/);
+  assert.match(styles, /--alex-space-4/);
+  assert.match(styles, /--alex-type-meta-font-size/);
+  assert.match(styles, /--alex-color-action-neutral-surface/);
+  assert.match(styles, /--alex-color-surface-raised/);
+  assert.match(styles, /--alex-color-action-neutral-surface-hover/);
+  assert.match(styles, /--alex-color-action-neutral-surface-pressed/);
+  assert.match(styles, /--alex-color-action-neutral-content-disabled/);
+  assert.match(styles, /--alex-color-focus-ring/);
   assert.match(styles, /data-distribution=fill/);
   assert.match(styles, /data-tone=neutral/);
   assert.match(styles, /data-variant=pills/);

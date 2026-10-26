@@ -131,7 +131,7 @@ test('Desktop builds prepare and bundle the OpenCode extension Host', () => {
 });
 
 test('macOS release signing covers the bundled flashgrep executable', () => {
-  const fixture = join(tmpdir(), `openbitfun-flashgrep-signing-${process.pid}-${Date.now()}`);
+  const fixture = join(tmpdir(), `alex-flashgrep-signing-${process.pid}-${Date.now()}`);
   const desktopDir = join(fixture, 'src', 'apps', 'desktop');
   const source = join(fixture, 'flashgrep-aarch64-apple-darwin');
   const calls = [];
@@ -166,7 +166,7 @@ test('macOS release signing covers the bundled flashgrep executable', () => {
 });
 
 test('macOS release signing covers every executable in the bundled Open Interpreter package', () => {
-  const fixture = join(tmpdir(), `openbitfun-interpreter-signing-${process.pid}-${Date.now()}`);
+  const fixture = join(tmpdir(), `alex-interpreter-signing-${process.pid}-${Date.now()}`);
   const desktopDir = join(fixture, 'src', 'apps', 'desktop');
   const source = join(fixture, 'resources', 'interpreter', 'aarch64-apple-darwin');
   const calls = [];
@@ -178,7 +178,7 @@ test('macOS release signing covers every executable in the bundled Open Interpre
   writeFileSync(join(source, 'codex-path', 'rg'), 'ripgrep');
   writeFileSync(join(source, 'codex-package.json'), '{}');
   writeFileSync(
-    join(source, 'openbitfun-bundled-tool.json'),
+    join(source, 'alex-bundled-tool.json'),
     JSON.stringify({
       toolId: 'interpreter',
       version: '0.0.56',
@@ -219,11 +219,11 @@ test('macOS release signing covers every executable in the bundled Open Interpre
 });
 
 test('interpreter executables from the manifest are validated before the signing step uses them', () => {
-  const fixture = join(tmpdir(), `openbitfun-interpreter-manifest-${process.pid}-${Date.now()}`);
+  const fixture = join(tmpdir(), `alex-interpreter-manifest-${process.pid}-${Date.now()}`);
   const root = join(fixture, 'aarch64-apple-darwin');
   mkdirSync(root, { recursive: true });
   writeFileSync(
-    join(root, 'openbitfun-bundled-tool.json'),
+    join(root, 'alex-bundled-tool.json'),
     JSON.stringify({ executables: ['bin/interpreter'] }),
   );
 
@@ -237,7 +237,7 @@ test('interpreter executables from the manifest are validated before the signing
       ['an absolute path', ['/etc/passwd']],
     ]) {
       writeFileSync(
-        join(root, 'openbitfun-bundled-tool.json'),
+        join(root, 'alex-bundled-tool.json'),
         JSON.stringify({ executables }),
       );
       assert.throws(
@@ -276,14 +276,14 @@ test('unsigned and non-macOS builds keep the original Open Interpreter package',
 });
 
 test('the signing step refuses a manifest path that escapes the package', () => {
-  const fixture = join(tmpdir(), `openbitfun-interpreter-escape-${process.pid}-${Date.now()}`);
+  const fixture = join(tmpdir(), `alex-interpreter-escape-${process.pid}-${Date.now()}`);
   const desktopDir = join(fixture, 'src', 'apps', 'desktop');
   const source = join(fixture, 'resources', 'interpreter', 'aarch64-apple-darwin');
   mkdirSync(join(source, 'bin'), { recursive: true });
   mkdirSync(desktopDir, { recursive: true });
   writeFileSync(join(source, 'bin', 'interpreter'), 'agent');
   writeFileSync(
-    join(source, 'openbitfun-bundled-tool.json'),
+    join(source, 'alex-bundled-tool.json'),
     JSON.stringify({
       toolId: 'interpreter',
       version: '0.0.56',
@@ -319,7 +319,7 @@ test('a debug build does not pull the packaged Open Interpreter agent', () => {
   assert.equal(shouldPackageInterpreter([], {}), true);
   // A release build can opt out too.
   assert.equal(
-    shouldPackageInterpreter([], { OPENBITFUN_SKIP_INTERPRETER_PACKAGE: '1' }),
+    shouldPackageInterpreter([], { ALEX_SKIP_INTERPRETER_PACKAGE: '1' }),
     false,
   );
 });
@@ -342,7 +342,7 @@ test('unsigned and non-macOS builds keep the original flashgrep executable', () 
 });
 
 test('macOS packaging fails when bundled flashgrep signing fails', () => {
-  const fixture = join(tmpdir(), `openbitfun-flashgrep-signing-failure-${process.pid}-${Date.now()}`);
+  const fixture = join(tmpdir(), `alex-flashgrep-signing-failure-${process.pid}-${Date.now()}`);
   const desktopDir = join(fixture, 'src', 'apps', 'desktop');
   const source = join(fixture, 'flashgrep-x86_64-apple-darwin');
   mkdirSync(desktopDir, { recursive: true });
@@ -363,7 +363,7 @@ test('macOS packaging fails when bundled flashgrep signing fails', () => {
 });
 
 function retryFixture() {
-  const root = join(tmpdir(), `openbitfun-dmg-retry-${process.pid}-${Date.now()}`);
+  const root = join(tmpdir(), `alex-dmg-retry-${process.pid}-${Date.now()}`);
   const desktopDir = join(root, 'src', 'apps', 'desktop');
   const targetDir = join(root, 'target');
   const appDir = join(
@@ -372,10 +372,10 @@ function retryFixture() {
     'release',
     'bundle',
     'macos',
-    'OpenBitFun.app'
+    'Alex.app'
   );
   const executableDir = join(appDir, 'Contents', 'MacOS');
-  const executablePath = join(executableDir, 'openbitfun-desktop');
+  const executablePath = join(executableDir, 'alex-desktop');
   mkdirSync(desktopDir, { recursive: true });
   mkdirSync(executableDir, { recursive: true });
   writeFileSync(executablePath, 'test executable');
@@ -475,7 +475,7 @@ test('does not retry failures outside the narrow DMG bundling boundary', () => {
 });
 
 test('Desktop Tauri projection consumes only the resolved member identity', () => {
-  const fixture = join(tmpdir(), `openbitfun-tauri-product-${process.pid}-${Date.now()}`);
+  const fixture = join(tmpdir(), `alex-tauri-product-${process.pid}-${Date.now()}`);
   mkdirSync(fixture, { recursive: true });
   const baseConfig = join(fixture, 'tauri.conf.json');
   writeFileSync(baseConfig, JSON.stringify({
@@ -505,7 +505,7 @@ test('Desktop Tauri projection consumes only the resolved member identity', () =
 });
 
 test('Desktop packaging includes only the selected Flashgrep target', () => {
-  const fixture = join(tmpdir(), `openbitfun-without-flashgrep-${process.pid}-${Date.now()}`);
+  const fixture = join(tmpdir(), `alex-without-flashgrep-${process.pid}-${Date.now()}`);
   mkdirSync(fixture, { recursive: true });
   const baseConfig = join(fixture, 'tauri.conf.json');
   writeFileSync(baseConfig, JSON.stringify({
@@ -528,7 +528,7 @@ test('Desktop packaging includes only the selected Flashgrep target', () => {
 });
 
 test('Desktop packaging includes the packaged Open Interpreter directory', () => {
-  const fixture = join(tmpdir(), `openbitfun-with-interpreter-${process.pid}-${Date.now()}`);
+  const fixture = join(tmpdir(), `alex-with-interpreter-${process.pid}-${Date.now()}`);
   const packageDirectory = join(fixture, 'resources', 'interpreter', 'aarch64-apple-darwin');
   mkdirSync(packageDirectory, { recursive: true });
   const baseConfig = join(fixture, 'tauri.conf.json');
@@ -558,7 +558,7 @@ test('Desktop packaging includes the packaged Open Interpreter directory', () =>
 });
 
 test('Desktop packaging without a prepared Open Interpreter package adds no resource', () => {
-  const fixture = join(tmpdir(), `openbitfun-without-interpreter-${process.pid}-${Date.now()}`);
+  const fixture = join(tmpdir(), `alex-without-interpreter-${process.pid}-${Date.now()}`);
   mkdirSync(fixture, { recursive: true });
   const baseConfig = join(fixture, 'tauri.conf.json');
   writeFileSync(baseConfig, JSON.stringify({ bundle: { resources: {} } }));
@@ -579,13 +579,13 @@ test('Desktop packaging without a prepared Open Interpreter package adds no reso
 });
 
 test('Windows updater installs NSIS packages without showing its progress window', () => {
-  const fixture = join(tmpdir(), `openbitfun-tauri-updater-${process.pid}-${Date.now()}`);
+  const fixture = join(tmpdir(), `alex-tauri-updater-${process.pid}-${Date.now()}`);
   const baseConfig = join(fixture, 'tauri.conf.json');
   const updaterEnv = {
-    OPENBITFUN_ENABLE_UPDATER_ARTIFACTS: process.env.OPENBITFUN_ENABLE_UPDATER_ARTIFACTS,
-    OPENBITFUN_RELEASE_CHANNEL: process.env.OPENBITFUN_RELEASE_CHANNEL,
-    OPENBITFUN_UPDATER_FALLBACK_ENDPOINT: process.env.OPENBITFUN_UPDATER_FALLBACK_ENDPOINT,
-    OPENBITFUN_UPDATER_PRIMARY_ENDPOINT: process.env.OPENBITFUN_UPDATER_PRIMARY_ENDPOINT,
+    ALEX_ENABLE_UPDATER_ARTIFACTS: process.env.ALEX_ENABLE_UPDATER_ARTIFACTS,
+    ALEX_RELEASE_CHANNEL: process.env.ALEX_RELEASE_CHANNEL,
+    ALEX_UPDATER_FALLBACK_ENDPOINT: process.env.ALEX_UPDATER_FALLBACK_ENDPOINT,
+    ALEX_UPDATER_PRIMARY_ENDPOINT: process.env.ALEX_UPDATER_PRIMARY_ENDPOINT,
     TAURI_SIGNING_PRIVATE_KEY: process.env.TAURI_SIGNING_PRIVATE_KEY,
     TAURI_UPDATER_ENDPOINT: process.env.TAURI_UPDATER_ENDPOINT,
     TAURI_UPDATER_FALLBACK_ENDPOINT: process.env.TAURI_UPDATER_FALLBACK_ENDPOINT,
@@ -593,7 +593,7 @@ test('Windows updater installs NSIS packages without showing its progress window
   };
   mkdirSync(fixture, { recursive: true });
   writeFileSync(baseConfig, JSON.stringify({ bundle: { resources: {} } }));
-  process.env.OPENBITFUN_ENABLE_UPDATER_ARTIFACTS = 'true';
+  process.env.ALEX_ENABLE_UPDATER_ARTIFACTS = 'true';
   process.env.TAURI_SIGNING_PRIVATE_KEY = 'test-private-key';
   process.env.TAURI_UPDATER_PUBKEY = 'test-public-key';
 
@@ -618,13 +618,13 @@ test('Windows updater installs NSIS packages without showing its progress window
 });
 
 test('beta Desktop artifacts compile and bundle only beta updater endpoints', () => {
-  const fixture = join(tmpdir(), `openbitfun-tauri-beta-${process.pid}-${Date.now()}`);
+  const fixture = join(tmpdir(), `alex-tauri-beta-${process.pid}-${Date.now()}`);
   const baseConfig = join(fixture, 'tauri.conf.json');
   const names = [
-    'OPENBITFUN_ENABLE_UPDATER_ARTIFACTS',
-    'OPENBITFUN_RELEASE_CHANNEL',
-    'OPENBITFUN_UPDATER_FALLBACK_ENDPOINT',
-    'OPENBITFUN_UPDATER_PRIMARY_ENDPOINT',
+    'ALEX_ENABLE_UPDATER_ARTIFACTS',
+    'ALEX_RELEASE_CHANNEL',
+    'ALEX_UPDATER_FALLBACK_ENDPOINT',
+    'ALEX_UPDATER_PRIMARY_ENDPOINT',
     'TAURI_SIGNING_PRIVATE_KEY',
     'TAURI_UPDATER_ENDPOINT',
     'TAURI_UPDATER_FALLBACK_ENDPOINT',
@@ -633,8 +633,8 @@ test('beta Desktop artifacts compile and bundle only beta updater endpoints', ()
   const previous = Object.fromEntries(names.map((name) => [name, process.env[name]]));
   mkdirSync(fixture, { recursive: true });
   writeFileSync(baseConfig, JSON.stringify({ bundle: { resources: {} } }));
-  process.env.OPENBITFUN_ENABLE_UPDATER_ARTIFACTS = 'true';
-  process.env.OPENBITFUN_RELEASE_CHANNEL = 'beta';
+  process.env.ALEX_ENABLE_UPDATER_ARTIFACTS = 'true';
+  process.env.ALEX_RELEASE_CHANNEL = 'beta';
   process.env.TAURI_SIGNING_PRIVATE_KEY = 'test-private-key';
   process.env.TAURI_UPDATER_PUBKEY = 'test-public-key';
   delete process.env.TAURI_UPDATER_ENDPOINT;
@@ -655,11 +655,11 @@ test('beta Desktop artifacts compile and bundle only beta updater endpoints', ()
       'https://openbitfun.com/release/beta/latest-v1.json',
     );
     assert.equal(
-      process.env.OPENBITFUN_UPDATER_PRIMARY_ENDPOINT,
+      process.env.ALEX_UPDATER_PRIMARY_ENDPOINT,
       config.plugins.updater.endpoints[0],
     );
     assert.equal(
-      process.env.OPENBITFUN_UPDATER_FALLBACK_ENDPOINT,
+      process.env.ALEX_UPDATER_FALLBACK_ENDPOINT,
       config.plugins.updater.endpoints[1],
     );
   } finally {
@@ -685,7 +685,7 @@ test('static desktop Tauri configs do not require the DeepSeek profile at compil
 });
 
 test('official packaging injects the DeepSeek profile resource', () => {
-  const fixture = join(tmpdir(), `openbitfun-tauri-dsh-${process.pid}-${Date.now()}`);
+  const fixture = join(tmpdir(), `alex-tauri-dsh-${process.pid}-${Date.now()}`);
   mkdirSync(fixture, { recursive: true });
   const baseConfig = join(fixture, 'tauri.conf.json');
   writeFileSync(baseConfig, JSON.stringify({

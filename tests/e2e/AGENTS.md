@@ -26,7 +26,7 @@ Core rules:
 ## Commands
 
 ```bash
-cargo build -p openbitfun-desktop
+cargo build -p alex-desktop
 pnpm --dir tests/e2e install
 pnpm --dir tests/e2e run test:l0
 pnpm --dir tests/e2e run test:l0:all
@@ -69,7 +69,7 @@ After building Desktop, verify the public Huawei endpoint through settings,
 health checks, document search, and document retrieval with isolated storage:
 
 ```bash
-OPENBITFUN_E2E_HUAWEI_MCP=1 OPENBITFUN_E2E_STORAGE_ROOT="$(mktemp -d /tmp/openbitfun-huawei-e2e.XXXXXX)" pnpm --dir tests/e2e exec wdio run ./config/wdio.conf.ts --spec "./specs/l1-mcp-huawei-health.spec.ts"
+OPENBITFUN_E2E_HUAWEI_MCP=1 OPENBITFUN_E2E_STORAGE_ROOT="$(mktemp -d /tmp/alex-huawei-e2e.XXXXXX)" pnpm --dir tests/e2e exec wdio run ./config/wdio.conf.ts --spec "./specs/l1-mcp-huawei-health.spec.ts"
 ```
 
 The spec is skipped by default, uses no account credentials, and restores the

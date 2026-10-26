@@ -18,9 +18,9 @@ function readDesignSystemTokenDocument(relativePath) {
 const designSystemTokens = resolveTokens(readDesignSystemTokenDocument(
   'design-system/packages/design-tokens/src/system.tokens.json',
 ));
-const openbitfunThemeTokens = resolveTokens(mergeTokenDocuments(
-  readDesignSystemTokenDocument('design-system/packages/theme-openbitfun/src/reference.tokens.json'),
-  readDesignSystemTokenDocument('design-system/packages/theme-openbitfun/src/light.tokens.json'),
+const alexThemeTokens = resolveTokens(mergeTokenDocuments(
+  readDesignSystemTokenDocument('design-system/packages/theme-alex/src/reference.tokens.json'),
+  readDesignSystemTokenDocument('design-system/packages/theme-alex/src/light.tokens.json'),
 ));
 const publicThemePrefixes = [
   'color.',
@@ -34,14 +34,14 @@ const publicThemePrefixes = [
 export const PACKAGE_CSS_VAR_DEFINITION_CONTRACTS = Object.freeze([
   Object.freeze({
     owner: 'design-system/packages/design-tokens/src/system.tokens.json',
-    packageName: '@openbitfun/design-tokens',
+    packageName: '@alex/design-tokens',
     variables: Object.freeze(Object.keys(designSystemTokens).map(name => tokenNameToCssVariable(name))),
   }),
   Object.freeze({
-    owner: 'design-system/packages/theme-openbitfun/src/light.tokens.json',
-    packageName: '@openbitfun/theme-openbitfun',
+    owner: 'design-system/packages/theme-alex/src/light.tokens.json',
+    packageName: '@alex/theme-alex',
     variables: Object.freeze(
-      Object.keys(openbitfunThemeTokens)
+      Object.keys(alexThemeTokens)
         .filter(name => publicThemePrefixes.some(prefix => name.startsWith(prefix)))
         .map(name => tokenNameToCssVariable(name)),
     ),
@@ -54,7 +54,7 @@ export const PACKAGE_CSS_VAR_DEFINITION_CONTRACTS = Object.freeze([
  * the canonical token package after the Web UI Sass token owner is removed.
  */
 export const CANONICAL_THEME_COLOR_TOKENS = Object.freeze(
-  Object.entries(openbitfunThemeTokens)
+  Object.entries(alexThemeTokens)
     .filter(([name, token]) => (
       publicThemePrefixes.some(prefix => name.startsWith(prefix))
       && token.type === 'color'
@@ -69,16 +69,16 @@ export const CANONICAL_THEME_COLOR_TOKENS = Object.freeze(
 
 export const PACKAGE_CSS_VAR_IMPORT_CONTRACTS = Object.freeze([
   Object.freeze({
-    specifier: '@openbitfun/design-tokens/tokens.css',
-    packageNames: Object.freeze(['@openbitfun/design-tokens']),
+    specifier: '@alex/design-tokens/tokens.css',
+    packageNames: Object.freeze(['@alex/design-tokens']),
   }),
   Object.freeze({
-    specifier: '@openbitfun/theme-openbitfun/default.css',
-    packageNames: Object.freeze(['@openbitfun/design-tokens', '@openbitfun/theme-openbitfun']),
+    specifier: '@alex/theme-alex/default.css',
+    packageNames: Object.freeze(['@alex/design-tokens', '@alex/theme-alex']),
   }),
   Object.freeze({
-    specifier: '@openbitfun/theme-openbitfun/themes.css',
-    packageNames: Object.freeze(['@openbitfun/theme-openbitfun']),
+    specifier: '@alex/theme-alex/themes.css',
+    packageNames: Object.freeze(['@alex/theme-alex']),
   }),
 ]);
 
@@ -102,26 +102,26 @@ export const COLOR_EXTENSIONS = new Set([
 export const TOKEN_PATH_PARTS = [
   'Alex-Installer/src/theme',
   'design-system/packages/design-tokens/src',
-  'design-system/packages/theme-openbitfun/src',
+  'design-system/packages/theme-alex/src',
 ];
 
 export const TOKEN_ALIAS_SOURCE_PATH_PARTS = [
-  'design-system/packages/theme-openbitfun/src',
+  'design-system/packages/theme-alex/src',
 ];
 
 export const CONTRACT_VAR_DEFINITION_PATH_PARTS = [
   'Alex-Installer/src/theme/installerThemeRuntime.ts',
   'design-system/packages/design-tokens/src',
-  'design-system/packages/theme-openbitfun/src',
+  'design-system/packages/theme-alex/src',
   'infrastructure/appearance',
   'src/mobile-web/src/styles/global.scss',
-  'tools/openbitfun-canvas/runtime/styles',
+  'tools/alex-canvas/runtime/styles',
   'tools/generative-widget/appearancePayload.ts',
 ];
 
 export const STATIC_CONTRACT_VAR_DEFINITION_PATH_PARTS = [
   'design-system/packages/design-tokens/src',
-  'design-system/packages/theme-openbitfun/src',
+  'design-system/packages/theme-alex/src',
   'src/mobile-web/src/styles/global.scss',
 ];
 
@@ -163,7 +163,7 @@ export const COLOR_DOMAIN_RULES = [
   {
     key: 'tokenContract',
     label: 'Token contracts',
-    pathParts: ['design-system/packages/design-tokens', 'design-system/packages/theme-openbitfun'],
+    pathParts: ['design-system/packages/design-tokens', 'design-system/packages/theme-alex'],
   },
   {
     key: 'generatedWidget',
@@ -171,9 +171,9 @@ export const COLOR_DOMAIN_RULES = [
     pathParts: ['tools/generative-widget'],
   },
   {
-    key: 'openbitfunCanvas',
-    label: 'OpenBitFun Canvas',
-    pathParts: ['tools/openbitfun-canvas'],
+    key: 'alexCanvas',
+    label: 'Alex Canvas',
+    pathParts: ['tools/alex-canvas'],
   },
   {
     key: 'mermaid',
@@ -257,7 +257,7 @@ export const COLOR_DOMAIN_CONTRACTS = [
   },
   {
     key: 'tokenContract',
-    owner: 'design-system/packages/design-tokens/src; design-system/packages/theme-openbitfun/src',
+    owner: 'design-system/packages/design-tokens/src; design-system/packages/theme-alex/src',
     reason: 'Independent token packages own canonical system scales and semantic theme values for every product surface.',
     mergePolicy: 'Keep token values in their canonical package and reject Web UI aliases or surface-local duplicate definitions.',
   },
@@ -268,9 +268,9 @@ export const COLOR_DOMAIN_CONTRACTS = [
     mergePolicy: 'Derive fallback values from a builtin Appearance package and keep iframe payload keys canonical.',
   },
   {
-    key: 'openbitfunCanvas',
-    owner: 'src/web-ui/src/tools/openbitfun-canvas',
-    reason: 'OpenBitFun Canvas renders generated TSX inside a dedicated iframe runtime with an SDK palette that must stay isolated from app chrome tokens.',
+    key: 'alexCanvas',
+    owner: 'src/web-ui/src/tools/alex-canvas',
+    reason: 'Alex Canvas renders generated TSX inside a dedicated iframe runtime with an SDK palette that must stay isolated from app chrome tokens.',
     mergePolicy: 'Keep Canvas iframe and SDK colors in the Canvas Appearance contract; promote only reusable host chrome roles to shared app tokens.',
   },
   {
@@ -333,17 +333,17 @@ export const SURFACE_TOKEN_RENAME_CONTRACTS = [];
 
 export const DYNAMIC_VAR_FAMILY_CONTRACTS = [
   {
-    prefix: '--openbitfun-appearance-asset-',
+    prefix: '--alex-appearance-asset-',
     owner: 'src/web-ui/src/infrastructure/appearance/compiler/AppearanceCompiler.ts; src/web-ui/src/infrastructure/appearance/runtime/AppearanceRuntime.ts',
     reason: 'Appearance package image ids are validated by the package schema, then projected to host-created blob URL variables for registered component parts.',
   },
   {
-    prefix: '--openbitfun-canvas-',
-    owner: 'src/web-ui/src/tools/openbitfun-canvas/runtime/canvasRuntimeInstaller.ts; src/web-ui/src/tools/openbitfun-canvas/runtime/styles/canvas-runtime.scss',
-    reason: 'OpenBitFun Canvas iframe runtime receives host Appearance values through a scoped CSS variable family that must stay isolated from app root tokens.',
+    prefix: '--alex-canvas-',
+    owner: 'src/web-ui/src/tools/alex-canvas/runtime/canvasRuntimeInstaller.ts; src/web-ui/src/tools/alex-canvas/runtime/styles/canvas-runtime.scss',
+    reason: 'Alex Canvas iframe runtime receives host Appearance values through a scoped CSS variable family that must stay isolated from app root tokens.',
   },
   {
-    prefix: '--openbitfun-font-size-',
+    prefix: '--alex-font-size-',
     owner: 'src/web-ui/src/infrastructure/font-preference/core/FontPreferenceService.ts',
     reason: 'Font preference runtime overrides the canonical design-system font-size primitives so every semantic role follows one global scale.',
   },

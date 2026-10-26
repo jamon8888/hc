@@ -5,10 +5,10 @@ use std::path::{Path, PathBuf};
 
 use super::MAIN_APP_EXE;
 
-const SHORTCUT_NAME: &str = "OpenBitFun.lnk";
+const SHORTCUT_NAME: &str = "Alex.lnk";
 const NESTED_START_MENU_DIR: &str = "OpenBitFun";
 
-/// Create a desktop shortcut for OpenBitFun.
+/// Create a desktop shortcut for Alex.
 pub(super) fn create_desktop_shortcut(install_path: &Path) -> Result<()> {
     let desktop = dirs::desktop_dir().with_context(|| "Cannot find Desktop directory")?;
     let shortcut_path = desktop.join(SHORTCUT_NAME);
@@ -19,7 +19,7 @@ pub(super) fn create_desktop_shortcut(install_path: &Path) -> Result<()> {
     Ok(())
 }
 
-/// Create a Start Menu shortcut for OpenBitFun.
+/// Create a Start Menu shortcut for Alex.
 pub(super) fn create_start_menu_shortcut(install_path: &Path) -> Result<()> {
     let start_menu = get_start_menu_dir()?;
     remove_nested_start_menu_shortcut(&start_menu)?;

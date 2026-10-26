@@ -10,7 +10,7 @@ const args = process.argv.slice(2);
 assert.ok(args.length === 0 || (args.length === 1 && args[0] === '--locked') || (args.length === 2 && args[0] === '--app-pid' && /^[1-9][0-9]*$/.test(args[1])),
   'Usage: node scripts/test-macos-control-capture.mjs [--app-pid PID | --locked]');
 const root = fileURLToPath(new URL('../', import.meta.url));
-const directory = await mkdtemp(join(tmpdir(), 'openbitfun-window-capture-'));
+const directory = await mkdtemp(join(tmpdir(), 'alex-window-capture-'));
 function run(command, args) {
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, { cwd: root, stdio: 'inherit', windowsHide: true });

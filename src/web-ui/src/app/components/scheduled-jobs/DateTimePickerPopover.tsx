@@ -11,7 +11,7 @@
  * and the text field already accepts it.
  */
 
-import { subscribeOverlayInteraction, createOverlayPortal, Button, Icon, IconButton } from '@openbitfun/ui';
+import { subscribeOverlayInteraction, createOverlayPortal, Button, Icon, IconButton } from '@alex/ui';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { getAppearanceOverlayHost } from '@/infrastructure/appearance/runtime/AppearanceOverlayHost';
@@ -132,15 +132,15 @@ const DateTimePickerPopover: React.FC<DateTimePickerPopoverProps> = ({
   return createOverlayPortal(
     <div
       ref={popoverRef}
-      className="openbitfun-datetime-picker"
-      data-openbitfun-component="datetime-picker"
-      data-openbitfun-part="root"
+      className="alex-datetime-picker"
+      data-alex-component="datetime-picker"
+      data-alex-part="root"
       data-testid="datetime-picker"
       role="dialog"
       aria-label={t('dateTimeField.pickerLabel')}
       style={{ top: position.top, left: position.left }}
     >
-      <header className="openbitfun-datetime-picker__head" data-openbitfun-component="datetime-picker" data-openbitfun-part="head">
+      <header className="alex-datetime-picker__head" data-alex-component="datetime-picker" data-alex-part="head">
         <IconButton
           type="button"
           size="sm"
@@ -148,7 +148,7 @@ const DateTimePickerPopover: React.FC<DateTimePickerPopoverProps> = ({
           icon={<Icon name="chevron-left" size="lg" />}
           onClick={() => shiftMonth(-1)}
         />
-        <span className="openbitfun-datetime-picker__month">
+        <span className="alex-datetime-picker__month">
           {formatDate(anchorDate, { year: 'numeric', month: 'long' })}
         </span>
         <IconButton
@@ -160,13 +160,13 @@ const DateTimePickerPopover: React.FC<DateTimePickerPopoverProps> = ({
         />
       </header>
 
-      <div className="openbitfun-datetime-picker__weekdays" aria-hidden="true">
+      <div className="alex-datetime-picker__weekdays" aria-hidden="true">
         {weekdayLabels.map((label, index) => (
-          <span key={index} className="openbitfun-datetime-picker__weekday">{label}</span>
+          <span key={index} className="alex-datetime-picker__weekday">{label}</span>
         ))}
       </div>
 
-      <div className="openbitfun-datetime-picker__grid" role="grid" data-openbitfun-component="datetime-picker" data-openbitfun-part="grid">
+      <div className="alex-datetime-picker__grid" role="grid" data-alex-component="datetime-picker" data-alex-part="grid">
         {grid.map(day => {
           const isCurrentMonth = day.getMonth() === anchorDate.getMonth();
           const isSelected = selected != null && isSameDay(day, selected);
@@ -178,14 +178,14 @@ const DateTimePickerPopover: React.FC<DateTimePickerPopoverProps> = ({
               type="button"
               role="gridcell"
               className={[
-                'openbitfun-datetime-picker__day',
-                isCurrentMonth ? '' : 'openbitfun-datetime-picker__day--outside',
-                isToday ? 'openbitfun-datetime-picker__day--today' : '',
-                isSelected ? 'openbitfun-datetime-picker__day--selected' : '',
+                'alex-datetime-picker__day',
+                isCurrentMonth ? '' : 'alex-datetime-picker__day--outside',
+                isToday ? 'alex-datetime-picker__day--today' : '',
+                isSelected ? 'alex-datetime-picker__day--selected' : '',
               ].filter(Boolean).join(' ')}
-              data-openbitfun-component="datetime-picker"
-              data-openbitfun-part="day"
-              data-openbitfun-state={isSelected ? 'selected' : isToday ? 'today' : undefined}
+              data-alex-component="datetime-picker"
+              data-alex-part="day"
+              data-alex-state={isSelected ? 'selected' : isToday ? 'today' : undefined}
               aria-pressed={isSelected}
               aria-label={formatDate(day, { year: 'numeric', month: 'long', day: 'numeric' })}
               onClick={() => onSelect(day)}
@@ -196,7 +196,7 @@ const DateTimePickerPopover: React.FC<DateTimePickerPopoverProps> = ({
         })}
       </div>
 
-      <footer className="openbitfun-datetime-picker__foot" data-openbitfun-component="datetime-picker" data-openbitfun-part="foot">
+      <footer className="alex-datetime-picker__foot" data-alex-component="datetime-picker" data-alex-part="foot">
         <Button size="sm" variant="outline" onClick={() => onSelect(new Date())}>
           {t('dateTimeField.now')}
         </Button>

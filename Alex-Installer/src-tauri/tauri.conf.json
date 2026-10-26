@@ -12,9 +12,9 @@
     "active": true,
     "targets": ["nsis"],
     "icon": [
-      "icons/openbitfun-app-icon.icns",
-      "icons/openbitfun-app-icon.ico",
-      "icons/openbitfun-app-icon.png"
+      "icons/alex-app-icon.icns",
+      "icons/alex-app-icon.ico",
+      "icons/alex-app-icon.png"
     ],
     "windows": {
       "webviewInstallMode": {
@@ -32,7 +32,7 @@
     "windows": [
       {
         "label": "installer",
-        "title": "Install OpenBitFun",
+        "title": "Install Alex",
         "width": 760,
         "height": 560,
         "minWidth": 700,

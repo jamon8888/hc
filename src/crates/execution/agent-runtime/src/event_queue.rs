@@ -2,8 +2,8 @@
 
 use crate::event_bus::EventBusResult;
 use log::{debug, trace, warn};
-use openbitfun_agent_stream::StreamEventSink;
-use openbitfun_events::{
+use alex_agent_stream::StreamEventSink;
+use alex_events::{
     AgenticEvent, AgenticEventEnvelope as EventEnvelope, AgenticEventPriority as EventPriority,
 };
 use std::collections::{BinaryHeap, HashMap};
@@ -660,7 +660,7 @@ impl StreamEventSink for EventQueue {
 #[cfg(test)]
 mod tests {
     use super::{EventQueue, EventQueueConfig};
-    use openbitfun_events::{AgenticEvent, AgenticEventPriority};
+    use alex_events::{AgenticEvent, AgenticEventPriority};
     use std::sync::{Arc, Barrier};
     use std::time::Duration;
 

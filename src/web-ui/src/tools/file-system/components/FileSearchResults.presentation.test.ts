@@ -20,38 +20,38 @@ describe('file search result presentation', () => {
     expect(filesPanelSource).toContain('limitNotice={searchLimitNotice}');
     expect(filesPanelSource).toContain("t('search.limitReachedContentCompact'");
     expect(filesPanelSource).toContain("t('search.limitReachedFilesCompact'");
-    expect(filesPanelSource).not.toContain('className="openbitfun-files-panel__search-limit-notice"');
+    expect(filesPanelSource).not.toContain('className="alex-files-panel__search-limit-notice"');
     expect(componentSource).toContain("t('search.resultsSummaryCompact'");
     expect(componentSource).toContain("t('search.resultsShowingCompact'");
     expect(componentSource).toContain("join(' · ')");
     expect(componentSource).toMatch(
-      /<OverflowText[\s\S]*?behavior="fade"[\s\S]*?className="openbitfun-search-results__count"[\s\S]*?\{headerText\}[\s\S]*?<\/OverflowText>/,
+      /<OverflowText[\s\S]*?behavior="fade"[\s\S]*?className="alex-search-results__count"[\s\S]*?\{headerText\}[\s\S]*?<\/OverflowText>/,
     );
     expect(componentSource).toContain('overflowStyle="ellipsis"');
-    expect(componentSource).not.toContain('openbitfun-search-results__limit-notice');
+    expect(componentSource).not.toContain('alex-search-results__limit-notice');
   });
 
   it('insets the divider below the results header evenly', () => {
     expect(stylesheet).toMatch(
-      /\.openbitfun-search-results__header\s*\{[^}]*position:\s*relative;[\s\S]*?&::after\s*\{[^}]*inset-inline:\s*var\(--openbitfun-space-2\);[^}]*bottom:\s*0;[^}]*z-index:\s*var\(--openbitfun-layer-decoration\);[^}]*height:\s*1px;[^}]*background:\s*var\(--openbitfun-color-border-default\);/s,
+      /\.alex-search-results__header\s*\{[^}]*position:\s*relative;[\s\S]*?&::after\s*\{[^}]*inset-inline:\s*var\(--alex-space-2\);[^}]*bottom:\s*0;[^}]*z-index:\s*var\(--alex-layer-decoration\);[^}]*height:\s*1px;[^}]*background:\s*var\(--alex-color-border-default\);/s,
     );
     expect(stylesheet).not.toMatch(
-      /\.openbitfun-search-results__header\s*\{[^}]*border-bottom:/s,
+      /\.alex-search-results__header\s*\{[^}]*border-bottom:/s,
     );
   });
 
   it('uses the FlowChat cyan treatment and scopes marquees to the hovered text line', () => {
     expect(componentSource).toContain('behavior="marquee" marqueeTrigger="interaction"');
-    expect(filesPanelSource).not.toMatch(/<div data-overflow-trigger\s+data-openbitfun-component="files-panel"/);
-    expect(componentSource).not.toMatch(/<button data-overflow-trigger[\s\S]*?className="openbitfun-search-results__file-main"/);
+    expect(filesPanelSource).not.toMatch(/<div data-overflow-trigger\s+data-alex-component="files-panel"/);
+    expect(componentSource).not.toMatch(/<button data-overflow-trigger[\s\S]*?className="alex-search-results__file-main"/);
     expect(componentSource).toMatch(
-      /className="openbitfun-search-results__file-name"\s+data-overflow-trigger/,
+      /className="alex-search-results__file-name"\s+data-overflow-trigger/,
     );
     expect(componentSource).toMatch(
-      /className="openbitfun-search-results__file-path"\s+data-overflow-trigger\s+marqueeTrigger="interaction"/,
+      /className="alex-search-results__file-path"\s+data-overflow-trigger\s+marqueeTrigger="interaction"/,
     );
     expect(stylesheet).toMatch(
-      /\.openbitfun-search-results__highlight\s*\{[^}]*background:\s*color-mix\(in srgb, var\(--openbitfun-component-conversation-excerpt-accent\) 30%, transparent\);[^}]*color:\s*var\(--openbitfun-component-conversation-excerpt-accent\);/s,
+      /\.alex-search-results__highlight\s*\{[^}]*background:\s*color-mix\(in srgb, var\(--alex-component-conversation-excerpt-accent\) 30%, transparent\);[^}]*color:\s*var\(--alex-component-conversation-excerpt-accent\);/s,
     );
   });
 
@@ -62,12 +62,12 @@ describe('file search result presentation', () => {
   });
 
   it('places the match count before the disclosure chevron', () => {
-    const toggleStart = componentSource.indexOf('className="openbitfun-search-results__file-toggle"');
+    const toggleStart = componentSource.indexOf('className="alex-search-results__file-toggle"');
     const toggleEnd = componentSource.indexOf('</button>', toggleStart);
     const toggleSource = componentSource.slice(toggleStart, toggleEnd);
 
-    expect(toggleSource.indexOf('openbitfun-search-results__file-toggle-count')).toBeGreaterThan(-1);
-    expect(toggleSource.indexOf('openbitfun-search-results__file-toggle-count'))
+    expect(toggleSource.indexOf('alex-search-results__file-toggle-count')).toBeGreaterThan(-1);
+    expect(toggleSource.indexOf('alex-search-results__file-toggle-count'))
       .toBeLessThan(toggleSource.indexOf("name=\"chevron-down\""));
   });
 });

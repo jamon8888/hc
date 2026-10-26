@@ -65,7 +65,7 @@ describe('projectDeviceInterconnectionOverview', () => {
         ...disconnectedStatus,
         relay_connected: true,
         relay_url: 'https://remote.openbitfun.com/v/1.0.2',
-        active_method: 'openbitfun_server' as const,
+        active_method: 'alex_server' as const,
         clients: [{ id: 'mobile-user', name: 'My iPhone' }],
       },
     }));
@@ -238,7 +238,7 @@ describe('selectActivityFacts', () => {
     ...disconnectedStatus,
     relay_connected: true,
         relay_url: 'https://remote.openbitfun.com/v/1.0.2',
-        active_method: 'openbitfun_server' as const,
+        active_method: 'alex_server' as const,
         clients: [{ id: 'mobile-user', name: 'My iPhone' }],
   };
 
@@ -318,7 +318,7 @@ describe('selectAttachedGroups', () => {
         ...disconnectedStatus,
         relay_connected: true,
         relay_url: 'https://remote.openbitfun.com/v/1.0.2',
-        active_method: 'openbitfun_server' as const,
+        active_method: 'alex_server' as const,
         clients: [{ id: 'mobile-user', name: 'My iPhone' }],
         bot_connected: 'Weixin (family group)',
       },
@@ -381,7 +381,7 @@ describe('device display names', () => {
         ...disconnectedStatus,
         relay_connected: true,
         relay_url: 'https://remote.openbitfun.com/v/1.0.2',
-        active_method: 'openbitfun_server' as const,
+        active_method: 'alex_server' as const,
         clients: [{ id: 'mobile-user', name: 'Pixel.lan' }],
       },
       dispatchJobs: [
@@ -403,7 +403,7 @@ describe('device display names', () => {
 });
 
 describe('connection service classification', () => {
-  it('only classifies the canonical OpenBitFun relay host as official', () => {
+  it('only classifies the canonical Alex relay host as official', () => {
     expect(classifyAccountRelayUrl('https://remote.openbitfun.com/relay')).toBe('official-relay');
     expect(classifyAccountRelayUrl('https://relay.example.com')).toBe('self-hosted-relay');
     expect(classifyAccountRelayUrl('not a url')).toBe('unknown');

@@ -1,6 +1,6 @@
 package com.openbitfun.mobile.core.crypto
 
-import com.openbitfun.mobile.core.crypto.argon2.openbitfun_argon2id_raw
+import com.openbitfun.mobile.core.crypto.argon2.alex_argon2id_raw
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.UByteVar
@@ -24,7 +24,7 @@ public actual object PlatformArgon2id {
                     output.usePinned { outputPinned ->
                         val passwordPointer: CPointer<UByteVar>? =
                             if (passwordBytes.isEmpty()) null else passwordPinned.addressOf(0).reinterpret()
-                        val result = openbitfun_argon2id_raw(
+                        val result = alex_argon2id_raw(
                             passwordPointer, passwordBytes.size.toULong(),
                             saltPinned.addressOf(0).reinterpret(), salt.size.toULong(),
                             params.memoryKiB.toUInt(), params.iterations.toUInt(), params.parallelism.toUInt(),

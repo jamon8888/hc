@@ -1,11 +1,11 @@
 //! The PII-safe workspace search port, as the product sees it.
 //!
-//! `openbitfun-core` never talks to the basemind sidecar: it asks the
+//! `alex-core` never talks to the basemind sidecar: it asks the
 //! injected `RagSearchPort` for hits and gets back chunks whose personal
 //! values are opaque session tokens (D11, SPEC §4). The concrete pipeline —
 //! query resolution through the session vault, the sidecar search, and the
 //! re-tokenization of every hit — lives in
-//! `openbitfun-basemind-integration` and is built by the host at the
+//! `alex-basemind-integration` and is built by the host at the
 //! composition root.
 //!
 //! The port is published through a process global because the tool context
@@ -13,7 +13,7 @@
 //! registers the port once at startup and every tool context picks it up.
 
 #[cfg(feature = "tools-rag")]
-use openbitfun_runtime_ports::{DocumentRedactionPort, PromptPseudonymizationPort, RagSearchPort};
+use alex_runtime_ports::{DocumentRedactionPort, PromptPseudonymizationPort, RagSearchPort};
 #[cfg(feature = "tools-rag")]
 use std::sync::{OnceLock, RwLock};
 

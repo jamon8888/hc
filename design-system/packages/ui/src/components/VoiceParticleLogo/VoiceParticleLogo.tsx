@@ -29,7 +29,7 @@ export function VoiceParticleLogo({ readAudio, active = true, formation = 1, cla
     const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
     const colors = getComputedStyle(canvas);
     let foreground = colors.color;
-    let background = colors.getPropertyValue("--openbitfun-color-content-on-light").trim();
+    let background = colors.getPropertyValue("--alex-color-content-on-light").trim();
     const renderer = createVoiceParticleRenderer(
       canvas,
       foreground,
@@ -54,7 +54,7 @@ export function VoiceParticleLogo({ readAudio, active = true, formation = 1, cla
         if (formationRef.current.moving) {
           const current = getComputedStyle(canvas);
           const nextForeground = current.color;
-          const nextBackground = current.getPropertyValue("--openbitfun-color-content-on-light").trim();
+          const nextBackground = current.getPropertyValue("--alex-color-content-on-light").trim();
           if (foreground !== nextForeground || background !== nextBackground) {
             foreground = nextForeground;
             background = nextBackground;
@@ -91,7 +91,7 @@ export function VoiceParticleLogo({ readAudio, active = true, formation = 1, cla
     const updateTheme = () => {
       const current = getComputedStyle(canvas);
       const nextForeground = current.color;
-      const nextBackground = current.getPropertyValue("--openbitfun-color-content-on-light").trim();
+      const nextBackground = current.getPropertyValue("--alex-color-content-on-light").trim();
       if (foreground === nextForeground && background === nextBackground) return;
       foreground = nextForeground;
       background = nextBackground;
@@ -103,7 +103,7 @@ export function VoiceParticleLogo({ readAudio, active = true, formation = 1, cla
       if (event.propertyName === "color" && event.target instanceof Element && event.target.contains(canvas)) updateTheme();
     };
     for (let ancestor: HTMLElement | null = canvas; ancestor; ancestor = ancestor.parentElement) {
-      theme.observe(ancestor, { attributes: true, attributeFilter: ["style", "class", "data-color-scheme", "data-contrast", "data-openbitfun-state", "data-openbitfun-communication-mode"] });
+      theme.observe(ancestor, { attributes: true, attributeFilter: ["style", "class", "data-color-scheme", "data-contrast", "data-alex-state", "data-alex-communication-mode"] });
     }
     const updateProjection = () => {
       renderer.resize(width, height, window.devicePixelRatio || 1);
@@ -134,5 +134,5 @@ export function VoiceParticleLogo({ readAudio, active = true, formation = 1, cla
   }, [active, formation]);
 
   return <canvas {...props} ref={canvasRef} className={classNames(styles.root, className)}
-    data-openbitfun-component="voice-particle-logo" data-openbitfun-part="root" aria-hidden="true" />;
+    data-alex-component="voice-particle-logo" data-alex-part="root" aria-hidden="true" />;
 }

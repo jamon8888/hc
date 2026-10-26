@@ -82,13 +82,13 @@ export const SearchField = forwardRef<HTMLInputElement, SearchFieldProps>(functi
       );
 
   return (
-    <span className={classNames(styles.root, className)} data-openbitfun-component="search-field" data-variant={variant} data-size={size}>
+    <span className={classNames(styles.root, className)} data-alex-component="search-field" data-variant={variant} data-size={size}>
       <Input
         {...props}
         className={classNames(styles.field, hasTrailingAction && styles.fieldWithAction)}
         disabled={disabled}
         leading={leadingIcon === undefined ? undefined : (
-          <span aria-hidden="true" className={styles.icon} data-openbitfun-icon-slot="true" data-openbitfun-part="icon">{leadingIcon}</span>
+          <span aria-hidden="true" className={styles.icon} data-alex-icon-slot="true" data-alex-part="icon">{leadingIcon}</span>
         )}
         onKeyDown={handleKeyDown}
         ref={ref}
@@ -98,7 +98,7 @@ export const SearchField = forwardRef<HTMLInputElement, SearchFieldProps>(functi
         type="search"
       />
       {variant === "panel" && footer != null && (
-        <span className={styles.footer} data-openbitfun-part="footer">{footer}</span>
+        <span className={styles.footer} data-alex-part="footer">{footer}</span>
       )}
     </span>
   );

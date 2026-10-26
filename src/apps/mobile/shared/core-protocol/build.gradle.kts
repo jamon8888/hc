@@ -20,7 +20,7 @@ val generateRelayContractFixtures = tasks.register("generateRelayContractFixture
     outputs.dir(outputDir).withPropertyName("generatedSources")
     doLast {
         val target = outputDir.get().asFile
-            .resolve("com/openbitfun/mobile/core/protocol/RelayContractFixtures.kt")
+            .resolve("com/alex/mobile/core/protocol/RelayContractFixtures.kt")
         target.parentFile.mkdirs()
         val fixtures = inputDir.listFiles { file -> file.extension == "json" }
             .orEmpty()

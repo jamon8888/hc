@@ -15,7 +15,7 @@ const excerpt: ConversationExcerptContext = {
   source: { surfaceId: 'local', sessionId: 'main', sessionName: 'Main' },
   fragments: [{ turnId: 'turn', flowItemId: 'text', text: 'selected', start: 0, end: 8, prefix: '', suffix: '' }],
 };
-const name = 'openbitfun-flowchat-annotations';
+const name = 'alex-flowchat-annotations';
 
 describe('persistent annotation highlights', () => {
   let container: HTMLDivElement;
@@ -91,10 +91,10 @@ describe('persistent annotation highlights', () => {
 
   it('cleans up on unmount without clearing temporary locate highlights', () => {
     const temporary = new Set<Range>();
-    highlights.set('openbitfun-flowchat-excerpt', temporary);
+    highlights.set('alex-flowchat-excerpt', temporary);
     render([excerpt]);
     act(() => root.render(null));
     expect(highlights.has(name)).toBe(false);
-    expect(highlights.get('openbitfun-flowchat-excerpt')).toBe(temporary);
+    expect(highlights.get('alex-flowchat-excerpt')).toBe(temporary);
   });
 });

@@ -100,7 +100,7 @@ Relevant code:
   `src/crates/assembly/core/src/agentic/session/session_manager.rs`
 
 The old core path `src/crates/assembly/core/src/agentic/session/prompt_cache.rs` is now
-a compatibility facade that re-exports the owner types from `openbitfun-agent-runtime`.
+a compatibility facade that re-exports the owner types from `alex-agent-runtime`.
 
 ### 2. Tool definitions
 

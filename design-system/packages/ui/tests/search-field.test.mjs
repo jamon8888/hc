@@ -15,7 +15,7 @@ test("SearchField composes search semantics with icon and shortcut slots", () =>
     }),
   );
 
-  assert.match(markup, /data-openbitfun-component="search-field"/);
+  assert.match(markup, /data-alex-component="search-field"/);
   assert.match(markup, /type="search"/);
   assert.match(markup, /data-icon="search"/);
   assert.match(markup, /Ctrl K/);
@@ -39,7 +39,7 @@ test("SearchField supports embedded composition without leaking its variant onto
     size: "sm",
     variant: "embedded",
   }));
-  assert.match(markup, /data-openbitfun-component="search-field" data-variant="embedded"/);
+  assert.match(markup, /data-alex-component="search-field" data-variant="embedded"/);
   assert.doesNotMatch(markup, /<input[^>]*variant=/);
   assert.match(markup, /type="search"/);
 
@@ -77,14 +77,14 @@ test("SearchField only exposes its footer in the panel variant and preserves inp
     value: "device",
   };
   const panel = renderToStaticMarkup(createElement(SearchField, { ...props, variant: "panel" }));
-  assert.match(panel, /data-openbitfun-component="search-field" data-variant="panel"/);
+  assert.match(panel, /data-alex-component="search-field" data-variant="panel"/);
   assert.match(panel, /<input[^>]*aria-label="Search messages"[^>]*type="search"[^>]*value="device"/);
-  assert.match(panel, /data-openbitfun-part="footer"><span role="status">1 \/ 7 results<\/span>/);
+  assert.match(panel, /data-alex-part="footer"><span role="status">1 \/ 7 results<\/span>/);
   assert.doesNotMatch(panel, /<input[^>]*(?:footer|variant)=/);
 
   for (const variant of ["default", "embedded"]) {
     const markup = renderToStaticMarkup(createElement(SearchField, { ...props, variant }));
-    assert.doesNotMatch(markup, /data-openbitfun-part="footer"|1 \/ 7 results/);
+    assert.doesNotMatch(markup, /data-alex-part="footer"|1 \/ 7 results/);
   }
 });
 
@@ -99,8 +99,8 @@ test("SearchField sizes both row and panel while retaining tooltip-wrapped termi
           createElement(IconButton, { "aria-label": "Close", icon: "X", size: "xs", shape: "square" })),
         clearLabel: "Clear", onClear() {},
       }));
-      assert.match(markup, new RegExp(`data-openbitfun-component="search-field" data-variant="${variant}" data-size="${size}"`));
-      assert.match(markup, new RegExp(`data-openbitfun-component="input"[^>]*data-size="${size}"`));
+      assert.match(markup, new RegExp(`data-alex-component="search-field" data-variant="${variant}" data-size="${size}"`));
+      assert.match(markup, new RegExp(`data-alex-component="input"[^>]*data-size="${size}"`));
       assert.ok(markup.indexOf("Matches") < markup.indexOf("Ctrl K"));
       assert.ok(markup.indexOf("Ctrl K") < markup.indexOf('aria-label="Close"'));
       assert.ok(markup.indexOf('aria-label="Close"') < markup.indexOf('aria-label="Clear"'));
@@ -114,10 +114,10 @@ test("SearchField panel uses canonical frosted tokens with an opaque reduced-tra
     new URL("../src/components/SearchField/SearchField.module.css", import.meta.url),
     "utf8",
   );
-  assert.match(styles, /border-radius: var\(--openbitfun-radius-lg\)/);
-  assert.match(styles, /@supports[^}]+background: color-mix\(in srgb, var\(--openbitfun-color-surface-raised\) 80%, transparent\)/s);
-  assert.match(styles, /backdrop-filter: var\(--openbitfun-effect-blur-medium\)/);
-  assert.match(styles, /@media \(prefers-reduced-transparency: reduce\)[^}]+background: var\(--openbitfun-color-surface-raised\)[^}]+backdrop-filter: none/s);
+  assert.match(styles, /border-radius: var\(--alex-radius-lg\)/);
+  assert.match(styles, /@supports[^}]+background: color-mix\(in srgb, var\(--alex-color-surface-raised\) 80%, transparent\)/s);
+  assert.match(styles, /backdrop-filter: var\(--alex-effect-blur-medium\)/);
+  assert.match(styles, /@media \(prefers-reduced-transparency: reduce\)[^}]+background: var\(--alex-color-surface-raised\)[^}]+backdrop-filter: none/s);
 });
 
 test("SearchField exposes a labeled clear action without hiding it from assistive technology", () => {
@@ -131,8 +131,8 @@ test("SearchField exposes a labeled clear action without hiding it from assistiv
   );
 
   assert.match(markup, /aria-label="Clear search"/);
-  assert.match(markup, /data-openbitfun-component="icon-button"/);
-  assert.match(markup, /data-openbitfun-shape="square"/);
+  assert.match(markup, /data-alex-component="icon-button"/);
+  assert.match(markup, /data-alex-shape="square"/);
   assert.match(markup, /data-size="xs"/);
 });
 
@@ -146,7 +146,7 @@ test("SearchField keeps its clear action quiet and focus-preserving", async () =
     const markup = renderToStaticMarkup(createElement(SearchField, {
       "aria-label": "Search", clearLabel: "Clear", onClear() {}, ...state,
     }));
-    assert.match(markup, /data-openbitfun-variant="quiet"/);
+    assert.match(markup, /data-alex-variant="quiet"/);
     assert.equal(/<button[^>]*disabled=""/.test(markup), Boolean(state.disabled || state.readOnly));
   }
 });
@@ -154,9 +154,9 @@ test("SearchField keeps its clear action quiet and focus-preserving", async () =
 test("SearchField owns pill composition while reusing Input behavior", async () => {
   const styles = await readFile(new URL("../dist/styles.css", import.meta.url), "utf8");
 
-  assert.match(styles, /border-radius:var\(--openbitfun-radius-pill\)/);
-  assert.match(styles, /--openbitfun-type-label-md-font-size/);
-  assert.match(styles, /--openbitfun-type-meta-font-size/);
+  assert.match(styles, /border-radius:var\(--alex-radius-pill\)/);
+  assert.match(styles, /--alex-type-label-md-font-size/);
+  assert.match(styles, /--alex-type-meta-font-size/);
 });
 
 test("SearchField owns a quiet single-border focus without changing Input's focus contract", async () => {
@@ -176,13 +176,13 @@ test("SearchField owns a quiet single-border focus without changing Input's focu
   )?.[1];
 
   assert.ok(searchFocusRule);
-  assert.match(searchFocusRule, /outline-color: var\(--openbitfun-color-border-default\)/);
+  assert.match(searchFocusRule, /outline-color: var\(--alex-color-border-default\)/);
   assert.doesNotMatch(searchFocusRule, /box-shadow|border-width|outline-width|outline-offset/);
   assert.ok(panelFocusRule);
-  assert.match(panelFocusRule, /outline-color: var\(--openbitfun-color-border-default\)/);
+  assert.match(panelFocusRule, /outline-color: var\(--alex-color-border-default\)/);
   assert.ok(focusRule);
-  assert.match(focusRule, /border-color: var\(--openbitfun-color-field-border-active\)/);
-  assert.doesNotMatch(inputStyles, /--openbitfun-color-field-border-focus|\.field[^{}]*:focus-visible/);
+  assert.match(focusRule, /border-color: var\(--alex-color-field-border-active\)/);
+  assert.doesNotMatch(inputStyles, /--alex-color-field-border-focus|\.field[^{}]*:focus-visible/);
   assert.match(focusRule, /box-shadow: none/);
   assert.doesNotMatch(focusRule, /border-width|outline/);
 });

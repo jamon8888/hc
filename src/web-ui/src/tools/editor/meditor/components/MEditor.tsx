@@ -132,8 +132,8 @@ const MEditorSourceFallback = forwardRef<EditorInstance, MEditorProps>((props, r
   return (
     <div
       className={`m-editor m-editor-mode-source-fallback ${className}`}
-      data-openbitfun-component="m-editor"
-      data-openbitfun-part="root"
+      data-alex-component="m-editor"
+      data-alex-part="root"
       data-m-editor-fallback="true"
       style={containerStyle}
       onKeyDown={(event) => {
@@ -144,7 +144,7 @@ const MEditorSourceFallback = forwardRef<EditorInstance, MEditorProps>((props, r
         }
       }}
     >
-      <div className="m-editor-notice" data-openbitfun-component="m-editor" data-openbitfun-part="notice" role="status">
+      <div className="m-editor-notice" data-alex-component="m-editor" data-alex-part="notice" role="status">
         {t('editor.markdownEditor.notice.sourcePreviewFallback')}
       </div>
       <textarea
@@ -419,19 +419,19 @@ const MEditorInner = forwardRef<EditorInstance, MEditorProps>((props, ref) => {
     <div
       ref={containerRef}
       className={`m-editor ${modeClass} ${className}`}
-      data-openbitfun-component="m-editor"
-      data-openbitfun-part="root"
+      data-alex-component="m-editor"
+      data-alex-part="root"
       style={containerStyle}
       onKeyDown={handleKeyDown}
       onFocusCapture={handleFocusCapture}
       onBlurCapture={handleBlurCapture}
       tabIndex={-1}
     >
-      {toolbar && <div data-openbitfun-component="m-editor" data-openbitfun-part="toolbar" className="m-editor-toolbar">{t('editor.meditor.toolbarPlaceholder')}</div>}
+      {toolbar && <div data-alex-component="m-editor" data-alex-part="toolbar" className="m-editor-toolbar">{t('editor.meditor.toolbarPlaceholder')}</div>}
       
-      <div data-openbitfun-component="m-editor" data-openbitfun-part="content" className="m-editor-content">
+      <div data-alex-component="m-editor" data-alex-part="content" className="m-editor-content">
         {effectiveMode === 'edit' && (
-          <div data-openbitfun-component="m-editor" data-openbitfun-part="editPanel" className="m-editor-edit-panel">
+          <div data-alex-component="m-editor" data-alex-part="editPanel" className="m-editor-edit-panel">
             <EditArea
               ref={textareaRef}
               value={value}
@@ -446,7 +446,7 @@ const MEditorInner = forwardRef<EditorInstance, MEditorProps>((props, ref) => {
         )}
 
         {effectiveMode === 'ir' && (
-          <div data-openbitfun-component="m-editor" data-openbitfun-part="irPanel" className="m-editor-ir-panel">
+          <div data-alex-component="m-editor" data-alex-part="irPanel" className="m-editor-ir-panel">
             <TiptapEditor
               ref={tiptapEditorRef}
               value={value}

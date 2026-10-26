@@ -149,7 +149,7 @@ mod tests {
     use crate::agentic::tools::framework::{
         DynamicMcpToolInfo, DynamicToolInfo, Tool, ToolExposure, ToolResult,
     };
-    use crate::util::errors::OpenBitFunResult;
+    use crate::util::errors::AlexResult;
     use serde_json::{json, Value};
     use std::sync::Arc;
 
@@ -163,7 +163,7 @@ mod tests {
         fn name(&self) -> &str {
             self.name
         }
-        async fn description(&self) -> OpenBitFunResult<String> {
+        async fn description(&self) -> AlexResult<String> {
             Ok("Search documents".into())
         }
         fn short_description(&self) -> String {
@@ -193,7 +193,7 @@ mod tests {
             &self,
             _input: &Value,
             _context: &ToolUseContext,
-        ) -> OpenBitFunResult<Vec<ToolResult>> {
+        ) -> AlexResult<Vec<ToolResult>> {
             panic!("catalog must never execute a tool")
         }
     }
@@ -223,7 +223,7 @@ mod tests {
         let catalog = project_chat_mcp_catalog(&snapshot, &allowed, &context)
             .await
             .unwrap();
-        let manifest = openbitfun_agent_tools::resolve_contextual_tool_manifest(
+        let manifest = alex_agent_tools::resolve_contextual_tool_manifest(
             &snapshot,
             &allowed,
             &Default::default(),

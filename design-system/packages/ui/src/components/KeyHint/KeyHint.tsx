@@ -20,15 +20,15 @@ export const KeyHint = forwardRef<HTMLElement, KeyHintProps>(function KeyHint({
     <kbd
       {...props}
       className={classNames(styles.root, className)}
-      data-openbitfun-component="key-hint"
+      data-alex-component="key-hint"
       ref={ref}
     >
       {icon !== undefined && icon !== null && (
-        <span aria-hidden="true" className={styles.icon} data-openbitfun-icon-slot="true" data-openbitfun-part="icon">
+        <span aria-hidden="true" className={styles.icon} data-alex-icon-slot="true" data-alex-part="icon">
           {icon}
         </span>
       )}
-      <span className={styles.label} data-openbitfun-part="label">{children}</span>
+      <span className={styles.label} data-alex-part="label">{children}</span>
     </kbd>
   );
 });

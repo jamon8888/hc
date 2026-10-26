@@ -1,0 +1,6 @@
+{
+  "name": "libalex_crypto.so",
+  "types": "./index.d.ts",
+  "version": "1.0.0",
+  "description": "Alex Argon2id NAPI bindings."
+}

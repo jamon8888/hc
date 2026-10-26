@@ -217,7 +217,7 @@ pub struct AnnouncementCard {
 
 /// Persisted state for the announcement system.
 ///
-/// Stored at `~/.config/openbitfun/config/announcement-state.json`.
+/// Stored at `~/.config/alex/config/announcement-state.json`.
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct AnnouncementState {
     /// Version string recorded when the state was last saved.

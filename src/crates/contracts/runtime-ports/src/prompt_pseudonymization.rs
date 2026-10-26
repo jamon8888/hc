@@ -1,10 +1,10 @@
 //! PII-safe prompt pseudonymization port.
 //!
-//! The only shape `openbitfun-core` ever sees for prompt interception
+//! The only shape `alex-core` ever sees for prompt interception
 //! (SPEC §11.4, invariant I9): the prompt the model receives carries
 //! opaque session tokens, never the personal values.
 //!
-//! The concrete pseudonymizer lives in `openbitfun-basemind-integration` and
+//! The concrete pseudonymizer lives in `alex-basemind-integration` and
 //! is published by the host at the composition root, the same way the
 //! `RagSearchPort` and the `DocumentRedactionPort` are published (D11).
 

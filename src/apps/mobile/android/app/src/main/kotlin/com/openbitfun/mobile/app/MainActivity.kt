@@ -27,7 +27,7 @@ import com.openbitfun.mobile.app.platform.StartupRevealPreference
 import com.openbitfun.mobile.app.platform.AppLocaleController
 import com.openbitfun.mobile.app.ui.preview.MobileDesignGallery
 import com.openbitfun.mobile.app.ui.preview.mobileDesignScenario
-import com.openbitfun.mobile.app.ui.theme.OpenBitFunTheme
+import com.openbitfun.mobile.app.ui.theme.AlexTheme
 import com.openbitfun.mobile.app.viewmodel.AppSettingsViewModel
 import com.openbitfun.mobile.app.viewmodel.AppThemeMode
 
@@ -57,7 +57,7 @@ class MainActivity : ComponentActivity() {
                 AppThemeMode.LIGHT -> false
                 AppThemeMode.DARK -> true
             }
-            OpenBitFunTheme(dark = dark) {
+            AlexTheme(dark = dark) {
                 val target = remember { mutableStateOf<androidx.compose.ui.geometry.Rect?>(null) }
                 var origin by remember { mutableStateOf(Offset.Zero) }
                 Box(Modifier.onGloballyPositioned { origin = it.positionInRoot() }) {
@@ -104,7 +104,7 @@ class MainActivity : ComponentActivity() {
 
     private companion object {
         var processLaunchClaimed = false
-        const val DESIGN_PREVIEW_EXTRA = "openbitfun.design_preview"
-        const val DESIGN_SCENARIO_EXTRA = "openbitfun.design_scenario"
+        const val DESIGN_PREVIEW_EXTRA = "alex.design_preview"
+        const val DESIGN_SCENARIO_EXTRA = "alex.design_scenario"
     }
 }

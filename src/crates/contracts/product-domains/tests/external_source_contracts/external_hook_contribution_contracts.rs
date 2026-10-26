@@ -1,4 +1,4 @@
-use openbitfun_product_domains::external_hook_contributions::{
+use alex_product_domains::external_hook_contributions::{
     ExternalHookContributionDeclaration, ExternalHookContributionId, ExternalHookPoint,
     ExternalHookRiskCapability, ExternalHookSafetyDeclaration,
 };

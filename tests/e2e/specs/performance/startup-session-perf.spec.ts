@@ -47,14 +47,14 @@ type LongSessionPostVisibleInteraction =
   | 'resize-window'
   | 'resize-window-width';
 
-function defaultOpenBitFunHome(): string {
-  if (process.env.OPENBITFUN_E2E_HOME) {
-    return process.env.OPENBITFUN_E2E_HOME;
+function defaultAlexHome(): string {
+  if (process.env.ALEX_E2E_HOME) {
+    return process.env.ALEX_E2E_HOME;
   }
-  if (process.env.OPENBITFUN_E2E_USE_REAL_PROFILE === '1') {
-    return process.env.OPENBITFUN_HOME || path.join(os.homedir(), '.openbitfun');
+  if (process.env.ALEX_E2E_USE_REAL_PROFILE === '1') {
+    return process.env.ALEX_HOME || path.join(os.homedir(), '.alex');
   }
-  return path.resolve(__dirname, '..', '..', '.openbitfun', 'runtime', 'home');
+  return path.resolve(__dirname, '..', '..', '.alex', 'runtime', 'home');
 }
 
 type LongSessionWindowRect = {
@@ -625,8 +625,8 @@ async function assertReleaseFastPerfRuntime(): Promise<{
     runtimeUrl: window.location.href,
     runtimeHostname: window.location.hostname,
   }));
-  const appMode = (process.env.OPENBITFUN_E2E_APP_MODE ?? '').toLowerCase();
-  const allowDevServer = process.env.OPENBITFUN_E2E_ALLOW_RELEASE_FAST_DEV_SERVER === '1';
+  const appMode = (process.env.ALEX_E2E_APP_MODE ?? '').toLowerCase();
+  const allowDevServer = process.env.ALEX_E2E_ALLOW_RELEASE_FAST_DEV_SERVER === '1';
   const isDevServerRuntime =
     runtime.runtimeHostname === 'localhost' || runtime.runtimeHostname === '127.0.0.1';
 
@@ -634,7 +634,7 @@ async function assertReleaseFastPerfRuntime(): Promise<{
     throw new Error(
       `release-fast perf run loaded a dev-server URL: ${runtime.runtimeUrl}. ` +
         'Build with pnpm run desktop:build:release-fast, or set ' +
-        'OPENBITFUN_E2E_ALLOW_RELEASE_FAST_DEV_SERVER=1 only for explicit dev-server diagnostics.',
+        'ALEX_E2E_ALLOW_RELEASE_FAST_DEV_SERVER=1 only for explicit dev-server diagnostics.',
     );
   }
 
@@ -787,7 +787,7 @@ async function findSessionItem(sessionId: string): Promise<ReturnType<typeof $> 
       break;
     }
   }
-  if (process.env.OPENBITFUN_E2E_PERF_VERBOSE_REPORT === '1') {
+  if (process.env.ALEX_E2E_PERF_VERBOSE_REPORT === '1') {
     console.log('[Perf] visible session ids while locating target', JSON.stringify({
       target: sessionId,
       visibleSessionIds: lastVisibleSessionIds.slice(0, 40),
@@ -857,7 +857,7 @@ async function readLongSessionMetadata(sessionId: string): Promise<LongSessionMe
 }
 
 async function findLongSessionMetadataPath(sessionId: string): Promise<string | null> {
-  const openbitfunHome = defaultOpenBitFunHome();
+  const alexHome = defaultAlexHome();
   const workspaceCandidates = Array.from(new Set([
     process.env.E2E_TEST_WORKSPACE,
     path.resolve(process.cwd(), '..', '..'),
@@ -867,7 +867,7 @@ async function findLongSessionMetadataPath(sessionId: string): Promise<string | 
   for (const workspacePath of workspaceCandidates) {
     try {
       const metadataPath = path.join(
-        openbitfunHome,
+        alexHome,
         'projects',
         projectRuntimeSlug(workspacePath),
         'sessions',
@@ -882,7 +882,7 @@ async function findLongSessionMetadataPath(sessionId: string): Promise<string | 
   }
 
   try {
-    const projectsDir = path.join(openbitfunHome, 'projects');
+    const projectsDir = path.join(alexHome, 'projects');
     const projectEntries = await fs.readdir(projectsDir, { withFileTypes: true });
     for (const entry of projectEntries) {
       if (!entry.isDirectory()) {
@@ -1040,7 +1040,7 @@ async function readLongSessionViewportState(expectedLatestTurnId?: string | null
       ) ?? [])
       : [];
     const scrollerRect = scroller?.getBoundingClientRect() ?? null;
-    const inputOverlay = document.querySelector<HTMLElement>('.openbitfun-chat-input-drop-zone');
+    const inputOverlay = document.querySelector<HTMLElement>('.alex-chat-input-drop-zone');
     const inputOverlayRect = inputOverlay?.getBoundingClientRect() ?? null;
     const historyPlaceholder = document.querySelector<HTMLElement>(
       '.modern-flowchat-container__messages .history-session-placeholder',
@@ -1249,58 +1249,58 @@ async function startLongSessionViewportTimelineRecorder(
 ): Promise<void> {
   await browser.execute((targetTurnId, clickTime, shouldEnableRenderProfile) => {
     const globalWindow = window as typeof window & {
-      __openbitfunLongSessionViewportTimeline?: LongSessionViewportTimelineSample[];
-      __openbitfunLongSessionMainThreadTasks?: LongSessionMainThreadTask[];
-      __openbitfunLongSessionMutationEvents?: LongSessionDomMutationEvent[];
-      __openbitfunLongSessionVisualStateEvents?: LongSessionVisualStateEvent[];
-      __openbitfunLongSessionLayoutShiftEvents?: LongSessionLayoutShiftEvent[];
-      __openbitfunLongSessionViewportTimelineTimer?: number;
-      __openbitfunLongSessionVisualFrameRequest?: number;
-      __openbitfunLongSessionVisualProbeTimers?: number[];
-      __openbitfunLongSessionLongTaskObserver?: PerformanceObserver;
-      __openbitfunLongSessionLayoutShiftObserver?: PerformanceObserver;
-      __openbitfunLongSessionMutationObserver?: MutationObserver;
-      __openbitfunLongSessionOpenIntentAt?: number;
-      __openbitfunLongSessionOpenIntentSessionId?: string | null;
-      __openbitfunLongSessionOpenIntentHandler?: EventListener;
-      __openbitfunLongSessionUserInteractionHandler?: EventListener;
-      __OPENBITFUN_RENDER_PROFILE_ENABLED__?: boolean;
+      __alexLongSessionViewportTimeline?: LongSessionViewportTimelineSample[];
+      __alexLongSessionMainThreadTasks?: LongSessionMainThreadTask[];
+      __alexLongSessionMutationEvents?: LongSessionDomMutationEvent[];
+      __alexLongSessionVisualStateEvents?: LongSessionVisualStateEvent[];
+      __alexLongSessionLayoutShiftEvents?: LongSessionLayoutShiftEvent[];
+      __alexLongSessionViewportTimelineTimer?: number;
+      __alexLongSessionVisualFrameRequest?: number;
+      __alexLongSessionVisualProbeTimers?: number[];
+      __alexLongSessionLongTaskObserver?: PerformanceObserver;
+      __alexLongSessionLayoutShiftObserver?: PerformanceObserver;
+      __alexLongSessionMutationObserver?: MutationObserver;
+      __alexLongSessionOpenIntentAt?: number;
+      __alexLongSessionOpenIntentSessionId?: string | null;
+      __alexLongSessionOpenIntentHandler?: EventListener;
+      __alexLongSessionUserInteractionHandler?: EventListener;
+      __ALEX_RENDER_PROFILE_ENABLED__?: boolean;
     };
-    globalWindow.__OPENBITFUN_RENDER_PROFILE_ENABLED__ = shouldEnableRenderProfile;
-    if (globalWindow.__openbitfunLongSessionViewportTimelineTimer !== undefined) {
-      window.clearInterval(globalWindow.__openbitfunLongSessionViewportTimelineTimer);
+    globalWindow.__ALEX_RENDER_PROFILE_ENABLED__ = shouldEnableRenderProfile;
+    if (globalWindow.__alexLongSessionViewportTimelineTimer !== undefined) {
+      window.clearInterval(globalWindow.__alexLongSessionViewportTimelineTimer);
     }
-    if (globalWindow.__openbitfunLongSessionVisualFrameRequest !== undefined) {
-      window.cancelAnimationFrame(globalWindow.__openbitfunLongSessionVisualFrameRequest);
+    if (globalWindow.__alexLongSessionVisualFrameRequest !== undefined) {
+      window.cancelAnimationFrame(globalWindow.__alexLongSessionVisualFrameRequest);
     }
-    for (const timerId of globalWindow.__openbitfunLongSessionVisualProbeTimers ?? []) {
+    for (const timerId of globalWindow.__alexLongSessionVisualProbeTimers ?? []) {
       window.clearTimeout(timerId);
     }
-    globalWindow.__openbitfunLongSessionVisualProbeTimers = [];
-    globalWindow.__openbitfunLongSessionLongTaskObserver?.disconnect();
-    globalWindow.__openbitfunLongSessionLayoutShiftObserver?.disconnect();
-    globalWindow.__openbitfunLongSessionMutationObserver?.disconnect();
-    if (globalWindow.__openbitfunLongSessionOpenIntentHandler) {
+    globalWindow.__alexLongSessionVisualProbeTimers = [];
+    globalWindow.__alexLongSessionLongTaskObserver?.disconnect();
+    globalWindow.__alexLongSessionLayoutShiftObserver?.disconnect();
+    globalWindow.__alexLongSessionMutationObserver?.disconnect();
+    if (globalWindow.__alexLongSessionOpenIntentHandler) {
       window.removeEventListener(
         'flowchat:history-session-open-intent',
-        globalWindow.__openbitfunLongSessionOpenIntentHandler,
+        globalWindow.__alexLongSessionOpenIntentHandler,
       );
     }
-    if (globalWindow.__openbitfunLongSessionUserInteractionHandler) {
+    if (globalWindow.__alexLongSessionUserInteractionHandler) {
       window.removeEventListener(
-        'openbitfun:e2e-long-session-user-interaction',
-        globalWindow.__openbitfunLongSessionUserInteractionHandler,
+        'alex:e2e-long-session-user-interaction',
+        globalWindow.__alexLongSessionUserInteractionHandler,
       );
     }
-    globalWindow.__openbitfunLongSessionOpenIntentAt = undefined;
-    globalWindow.__openbitfunLongSessionOpenIntentSessionId = undefined;
+    globalWindow.__alexLongSessionOpenIntentAt = undefined;
+    globalWindow.__alexLongSessionOpenIntentSessionId = undefined;
     const handleOpenIntent: EventListener = event => {
       const detail =
         event instanceof CustomEvent && typeof event.detail?.sessionId === 'string'
           ? event.detail
           : null;
-      globalWindow.__openbitfunLongSessionOpenIntentAt = performance.now();
-      globalWindow.__openbitfunLongSessionOpenIntentSessionId = detail?.sessionId ?? null;
+      globalWindow.__alexLongSessionOpenIntentAt = performance.now();
+      globalWindow.__alexLongSessionOpenIntentSessionId = detail?.sessionId ?? null;
       recordMutationEvent('history-open-intent');
       recordVisualStateEvent('history-open-intent', true);
       for (const delayMs of [100, 250, 500, 1_000]) {
@@ -1308,10 +1308,10 @@ async function startLongSessionViewportTimelineRecorder(
           () => recordVisualStateEvent(`history-open-intent-probe-${delayMs}ms`, true),
           delayMs,
         );
-        globalWindow.__openbitfunLongSessionVisualProbeTimers?.push(timerId);
+        globalWindow.__alexLongSessionVisualProbeTimers?.push(timerId);
       }
     };
-    globalWindow.__openbitfunLongSessionOpenIntentHandler = handleOpenIntent;
+    globalWindow.__alexLongSessionOpenIntentHandler = handleOpenIntent;
     window.addEventListener('flowchat:history-session-open-intent', handleOpenIntent);
     const handleUserInteraction: EventListener = event => {
       const interactionType =
@@ -1326,8 +1326,8 @@ async function startLongSessionViewportTimelineRecorder(
         );
       }
     };
-    globalWindow.__openbitfunLongSessionUserInteractionHandler = handleUserInteraction;
-    window.addEventListener('openbitfun:e2e-long-session-user-interaction', handleUserInteraction);
+    globalWindow.__alexLongSessionUserInteractionHandler = handleUserInteraction;
+    window.addEventListener('alex:e2e-long-session-user-interaction', handleUserInteraction);
     const samples: LongSessionViewportTimelineSample[] = [];
     const mainThreadTasks: LongSessionMainThreadTask[] = [];
     const mutationEvents: LongSessionDomMutationEvent[] = [];
@@ -1426,8 +1426,8 @@ async function startLongSessionViewportTimelineRecorder(
     const LOADING_SURFACE_SELECTORS = [
       '.modern-flowchat-container__history-overlay',
       '.history-session-placeholder',
-      '.openbitfun-scene-viewport__lazy-fallback',
-      '.openbitfun-assistant-scene__loading',
+      '.alex-scene-viewport__lazy-fallback',
+      '.alex-assistant-scene__loading',
       '[role="status"][aria-busy="true"]',
     ];
     const OBSERVED_MUTATION_SELECTOR = [
@@ -1556,8 +1556,8 @@ async function startLongSessionViewportTimelineRecorder(
       Boolean(
         element.closest('.modern-flowchat-container__history-overlay') ||
         element.closest('.history-session-placeholder') ||
-        element.closest('.openbitfun-scene-viewport__lazy-fallback') ||
-        element.closest('.openbitfun-assistant-scene__loading') ||
+        element.closest('.alex-scene-viewport__lazy-fallback') ||
+        element.closest('.alex-assistant-scene__loading') ||
         element.closest('[role="status"][aria-busy="true"]'),
       );
 
@@ -1630,7 +1630,7 @@ async function startLongSessionViewportTimelineRecorder(
         };
       }
 
-      if (element.closest('.openbitfun-chat-input-drop-zone')) {
+      if (element.closest('.alex-chat-input-drop-zone')) {
         return {
           category: 'input-overlay',
           itemType: null,
@@ -1822,7 +1822,7 @@ async function startLongSessionViewportTimelineRecorder(
       const atMs = performance.now();
       const messages = document.querySelector<HTMLElement>('.modern-flowchat-container__messages');
       const container = document.querySelector<HTMLElement>('.modern-flowchat-container');
-      const inputOverlay = document.querySelector<HTMLElement>('.openbitfun-chat-input-drop-zone');
+      const inputOverlay = document.querySelector<HTMLElement>('.alex-chat-input-drop-zone');
       const placeholders = Array.from(
         messages?.querySelectorAll<HTMLElement>('.history-session-placeholder') ?? []
       );
@@ -1974,7 +1974,7 @@ async function startLongSessionViewportTimelineRecorder(
           style.animationPlayState,
         ].join(':'))
         .join(',');
-      const inputOverlay = document.querySelector<HTMLElement>('.openbitfun-chat-input-drop-zone');
+      const inputOverlay = document.querySelector<HTMLElement>('.alex-chat-input-drop-zone');
       const scrollerRect = scroller?.getBoundingClientRect() ?? null;
       const inputOverlayRect = inputOverlay?.getBoundingClientRect() ?? null;
       const historyPlaceholderRect = placeholders[0]?.getBoundingClientRect() ?? null;
@@ -2104,7 +2104,7 @@ async function startLongSessionViewportTimelineRecorder(
         completedToolTransitionSignature,
         latestContentVisuallyVisible ? 'latest-visible' : 'latest-hidden',
         latestModelRoundTextLength > 0 ? 'latest-text' : 'latest-no-text',
-        globalWindow.__openbitfunLongSessionOpenIntentSessionId ?? 'no-open-intent-session',
+        globalWindow.__alexLongSessionOpenIntentSessionId ?? 'no-open-intent-session',
         roundMetric(scrollTop),
         roundMetric(scrollHeight),
         roundMetric(clientHeight),
@@ -2126,10 +2126,10 @@ async function startLongSessionViewportTimelineRecorder(
       return {
         atMs,
         sinceClickMs: atMs - clickTime,
-        sinceHistoryOpenIntentMs: typeof globalWindow.__openbitfunLongSessionOpenIntentAt === 'number'
-          ? atMs - globalWindow.__openbitfunLongSessionOpenIntentAt
+        sinceHistoryOpenIntentMs: typeof globalWindow.__alexLongSessionOpenIntentAt === 'number'
+          ? atMs - globalWindow.__alexLongSessionOpenIntentAt
           : null,
-        historyOpenIntentSessionId: globalWindow.__openbitfunLongSessionOpenIntentSessionId ?? null,
+        historyOpenIntentSessionId: globalWindow.__alexLongSessionOpenIntentSessionId ?? null,
         frame: visualFrame,
         reason,
         signature,
@@ -2216,12 +2216,12 @@ async function startLongSessionViewportTimelineRecorder(
     const recordAnimationFrame = () => {
       visualFrame += 1;
       recordVisualStateEvent('raf');
-      globalWindow.__openbitfunLongSessionVisualFrameRequest =
+      globalWindow.__alexLongSessionVisualFrameRequest =
         window.requestAnimationFrame(recordAnimationFrame);
     };
-    globalWindow.__openbitfunLongSessionVisualFrameRequest =
+    globalWindow.__alexLongSessionVisualFrameRequest =
       window.requestAnimationFrame(recordAnimationFrame);
-    globalWindow.__openbitfunLongSessionVisualProbeTimers = [
+    globalWindow.__alexLongSessionVisualProbeTimers = [
       500,
       1_000,
       2_000,
@@ -2284,7 +2284,7 @@ async function startLongSessionViewportTimelineRecorder(
         'role',
       ],
     });
-    globalWindow.__openbitfunLongSessionMutationObserver = mutationObserver;
+    globalWindow.__alexLongSessionMutationObserver = mutationObserver;
     try {
       if (PerformanceObserver.supportedEntryTypes.includes('longtask')) {
         const observer = new PerformanceObserver(list => {
@@ -2302,10 +2302,10 @@ async function startLongSessionViewportTimelineRecorder(
           }
         });
         observer.observe({ entryTypes: ['longtask'] });
-        globalWindow.__openbitfunLongSessionLongTaskObserver = observer;
+        globalWindow.__alexLongSessionLongTaskObserver = observer;
       }
     } catch {
-      globalWindow.__openbitfunLongSessionLongTaskObserver = undefined;
+      globalWindow.__alexLongSessionLongTaskObserver = undefined;
     }
     try {
       if (PerformanceObserver.supportedEntryTypes.includes('layout-shift')) {
@@ -2340,10 +2340,10 @@ async function startLongSessionViewportTimelineRecorder(
           }
         });
         observer.observe({ type: 'layout-shift', buffered: true });
-        globalWindow.__openbitfunLongSessionLayoutShiftObserver = observer;
+        globalWindow.__alexLongSessionLayoutShiftObserver = observer;
       }
     } catch {
-      globalWindow.__openbitfunLongSessionLayoutShiftObserver = undefined;
+      globalWindow.__alexLongSessionLayoutShiftObserver = undefined;
     }
     const readSample = (): LongSessionViewportTimelineSample => {
       const messages = document.querySelector<HTMLElement>('.modern-flowchat-container__messages');
@@ -2353,7 +2353,7 @@ async function startLongSessionViewportTimelineRecorder(
       const scroller = root?.querySelector<HTMLElement>(
         '[data-flowchat-scroller]',
       ) ?? null;
-      const inputOverlay = document.querySelector<HTMLElement>('.openbitfun-chat-input-drop-zone');
+      const inputOverlay = document.querySelector<HTMLElement>('.alex-chat-input-drop-zone');
       const scrollerRect = scroller?.getBoundingClientRect() ?? null;
       const inputOverlayRect = inputOverlay?.getBoundingClientRect() ?? null;
       const historyPlaceholder = document.querySelector<HTMLElement>(
@@ -2503,8 +2503,8 @@ async function startLongSessionViewportTimelineRecorder(
         ? Math.max(0, effectiveScrollerBottom - scrollerRect.top)
         : null;
       const atMs = performance.now();
-      const historyOpenIntentAtMs = globalWindow.__openbitfunLongSessionOpenIntentAt ?? null;
-      const historyOpenIntentSessionId = globalWindow.__openbitfunLongSessionOpenIntentSessionId ?? null;
+      const historyOpenIntentAtMs = globalWindow.__alexLongSessionOpenIntentAt ?? null;
+      const historyOpenIntentSessionId = globalWindow.__alexLongSessionOpenIntentSessionId ?? null;
 
       return {
         atMs,
@@ -2558,79 +2558,79 @@ async function startLongSessionViewportTimelineRecorder(
       }
     };
 
-    globalWindow.__openbitfunLongSessionViewportTimeline = samples;
-    globalWindow.__openbitfunLongSessionMainThreadTasks = mainThreadTasks;
-    globalWindow.__openbitfunLongSessionMutationEvents = mutationEvents;
-    globalWindow.__openbitfunLongSessionVisualStateEvents = visualStateEvents;
-    globalWindow.__openbitfunLongSessionLayoutShiftEvents = layoutShiftEvents;
+    globalWindow.__alexLongSessionViewportTimeline = samples;
+    globalWindow.__alexLongSessionMainThreadTasks = mainThreadTasks;
+    globalWindow.__alexLongSessionMutationEvents = mutationEvents;
+    globalWindow.__alexLongSessionVisualStateEvents = visualStateEvents;
+    globalWindow.__alexLongSessionLayoutShiftEvents = layoutShiftEvents;
     record();
-    globalWindow.__openbitfunLongSessionViewportTimelineTimer = window.setInterval(record, 50);
+    globalWindow.__alexLongSessionViewportTimelineTimer = window.setInterval(record, 50);
   }, expectedLatestTurnId, clickedAtMs, enableRenderProfile);
 }
 
 async function stopLongSessionViewportTimelineRecorder(): Promise<LongSessionViewportTimeline> {
   return browser.execute(() => {
     const globalWindow = window as typeof window & {
-      __openbitfunLongSessionViewportTimeline?: LongSessionViewportTimelineSample[];
-      __openbitfunLongSessionMainThreadTasks?: LongSessionMainThreadTask[];
-      __openbitfunLongSessionMutationEvents?: LongSessionDomMutationEvent[];
-      __openbitfunLongSessionVisualStateEvents?: LongSessionVisualStateEvent[];
-      __openbitfunLongSessionLayoutShiftEvents?: LongSessionLayoutShiftEvent[];
-      __openbitfunLongSessionViewportTimelineTimer?: number;
-      __openbitfunLongSessionVisualFrameRequest?: number;
-      __openbitfunLongSessionVisualProbeTimers?: number[];
-      __openbitfunLongSessionLongTaskObserver?: PerformanceObserver;
-      __openbitfunLongSessionLayoutShiftObserver?: PerformanceObserver;
-      __openbitfunLongSessionMutationObserver?: MutationObserver;
-      __openbitfunLongSessionOpenIntentAt?: number;
-      __openbitfunLongSessionOpenIntentHandler?: EventListener;
-      __openbitfunLongSessionUserInteractionHandler?: EventListener;
-      __OPENBITFUN_RENDER_PROFILE_ENABLED__?: boolean;
+      __alexLongSessionViewportTimeline?: LongSessionViewportTimelineSample[];
+      __alexLongSessionMainThreadTasks?: LongSessionMainThreadTask[];
+      __alexLongSessionMutationEvents?: LongSessionDomMutationEvent[];
+      __alexLongSessionVisualStateEvents?: LongSessionVisualStateEvent[];
+      __alexLongSessionLayoutShiftEvents?: LongSessionLayoutShiftEvent[];
+      __alexLongSessionViewportTimelineTimer?: number;
+      __alexLongSessionVisualFrameRequest?: number;
+      __alexLongSessionVisualProbeTimers?: number[];
+      __alexLongSessionLongTaskObserver?: PerformanceObserver;
+      __alexLongSessionLayoutShiftObserver?: PerformanceObserver;
+      __alexLongSessionMutationObserver?: MutationObserver;
+      __alexLongSessionOpenIntentAt?: number;
+      __alexLongSessionOpenIntentHandler?: EventListener;
+      __alexLongSessionUserInteractionHandler?: EventListener;
+      __ALEX_RENDER_PROFILE_ENABLED__?: boolean;
     };
-    if (globalWindow.__openbitfunLongSessionViewportTimelineTimer !== undefined) {
-      window.clearInterval(globalWindow.__openbitfunLongSessionViewportTimelineTimer);
-      globalWindow.__openbitfunLongSessionViewportTimelineTimer = undefined;
+    if (globalWindow.__alexLongSessionViewportTimelineTimer !== undefined) {
+      window.clearInterval(globalWindow.__alexLongSessionViewportTimelineTimer);
+      globalWindow.__alexLongSessionViewportTimelineTimer = undefined;
     }
-    if (globalWindow.__openbitfunLongSessionVisualFrameRequest !== undefined) {
-      window.cancelAnimationFrame(globalWindow.__openbitfunLongSessionVisualFrameRequest);
-      globalWindow.__openbitfunLongSessionVisualFrameRequest = undefined;
+    if (globalWindow.__alexLongSessionVisualFrameRequest !== undefined) {
+      window.cancelAnimationFrame(globalWindow.__alexLongSessionVisualFrameRequest);
+      globalWindow.__alexLongSessionVisualFrameRequest = undefined;
     }
-    for (const timerId of globalWindow.__openbitfunLongSessionVisualProbeTimers ?? []) {
+    for (const timerId of globalWindow.__alexLongSessionVisualProbeTimers ?? []) {
       window.clearTimeout(timerId);
     }
-    globalWindow.__openbitfunLongSessionVisualProbeTimers = undefined;
-    globalWindow.__openbitfunLongSessionLongTaskObserver?.disconnect();
-    globalWindow.__openbitfunLongSessionLongTaskObserver = undefined;
-    globalWindow.__openbitfunLongSessionLayoutShiftObserver?.disconnect();
-    globalWindow.__openbitfunLongSessionLayoutShiftObserver = undefined;
-    globalWindow.__openbitfunLongSessionMutationObserver?.disconnect();
-    globalWindow.__openbitfunLongSessionMutationObserver = undefined;
-    if (globalWindow.__openbitfunLongSessionOpenIntentHandler) {
+    globalWindow.__alexLongSessionVisualProbeTimers = undefined;
+    globalWindow.__alexLongSessionLongTaskObserver?.disconnect();
+    globalWindow.__alexLongSessionLongTaskObserver = undefined;
+    globalWindow.__alexLongSessionLayoutShiftObserver?.disconnect();
+    globalWindow.__alexLongSessionLayoutShiftObserver = undefined;
+    globalWindow.__alexLongSessionMutationObserver?.disconnect();
+    globalWindow.__alexLongSessionMutationObserver = undefined;
+    if (globalWindow.__alexLongSessionOpenIntentHandler) {
       window.removeEventListener(
         'flowchat:history-session-open-intent',
-        globalWindow.__openbitfunLongSessionOpenIntentHandler,
+        globalWindow.__alexLongSessionOpenIntentHandler,
       );
-      globalWindow.__openbitfunLongSessionOpenIntentHandler = undefined;
+      globalWindow.__alexLongSessionOpenIntentHandler = undefined;
     }
-    if (globalWindow.__openbitfunLongSessionUserInteractionHandler) {
+    if (globalWindow.__alexLongSessionUserInteractionHandler) {
       window.removeEventListener(
-        'openbitfun:e2e-long-session-user-interaction',
-        globalWindow.__openbitfunLongSessionUserInteractionHandler,
+        'alex:e2e-long-session-user-interaction',
+        globalWindow.__alexLongSessionUserInteractionHandler,
       );
-      globalWindow.__openbitfunLongSessionUserInteractionHandler = undefined;
+      globalWindow.__alexLongSessionUserInteractionHandler = undefined;
     }
-    globalWindow.__openbitfunLongSessionOpenIntentAt = undefined;
-    const samples = globalWindow.__openbitfunLongSessionViewportTimeline ?? [];
-    const mainThreadTasks = globalWindow.__openbitfunLongSessionMainThreadTasks ?? [];
-    const mutationEvents = globalWindow.__openbitfunLongSessionMutationEvents ?? [];
-    const visualStateEvents = globalWindow.__openbitfunLongSessionVisualStateEvents ?? [];
-    const layoutShiftEvents = globalWindow.__openbitfunLongSessionLayoutShiftEvents ?? [];
-    globalWindow.__openbitfunLongSessionViewportTimeline = undefined;
-    globalWindow.__openbitfunLongSessionMainThreadTasks = undefined;
-    globalWindow.__openbitfunLongSessionMutationEvents = undefined;
-    globalWindow.__openbitfunLongSessionVisualStateEvents = undefined;
-    globalWindow.__openbitfunLongSessionLayoutShiftEvents = undefined;
-    globalWindow.__OPENBITFUN_RENDER_PROFILE_ENABLED__ = false;
+    globalWindow.__alexLongSessionOpenIntentAt = undefined;
+    const samples = globalWindow.__alexLongSessionViewportTimeline ?? [];
+    const mainThreadTasks = globalWindow.__alexLongSessionMainThreadTasks ?? [];
+    const mutationEvents = globalWindow.__alexLongSessionMutationEvents ?? [];
+    const visualStateEvents = globalWindow.__alexLongSessionVisualStateEvents ?? [];
+    const layoutShiftEvents = globalWindow.__alexLongSessionLayoutShiftEvents ?? [];
+    globalWindow.__alexLongSessionViewportTimeline = undefined;
+    globalWindow.__alexLongSessionMainThreadTasks = undefined;
+    globalWindow.__alexLongSessionMutationEvents = undefined;
+    globalWindow.__alexLongSessionVisualStateEvents = undefined;
+    globalWindow.__alexLongSessionLayoutShiftEvents = undefined;
+    globalWindow.__ALEX_RENDER_PROFILE_ENABLED__ = false;
     return { samples, mainThreadTasks, mutationEvents, visualStateEvents, layoutShiftEvents };
   });
 }
@@ -2769,7 +2769,7 @@ function getLongSessionScrollTransitionDistanceFromBottom(
 }
 
 async function maybeSavePerfScreenshot(name: string): Promise<string | null> {
-  if (process.env.OPENBITFUN_E2E_PERF_SCREENSHOTS !== '1') {
+  if (process.env.ALEX_E2E_PERF_SCREENSHOTS !== '1') {
     return null;
   }
 
@@ -3718,7 +3718,7 @@ type RapidLongSessionSwitchMeasurement = {
 function readPostVisibleInteractionOption(
   options: LongSessionOpenMeasurementOptions,
 ): LongSessionPostVisibleInteraction | null {
-  const envValue = process.env.OPENBITFUN_E2E_PERF_POST_VISIBLE_INTERACTION;
+  const envValue = process.env.ALEX_E2E_PERF_POST_VISIBLE_INTERACTION;
   if (
     envValue === 'first-scroll' ||
     envValue === 'scroll-down' ||
@@ -3745,7 +3745,7 @@ function getWebDriverSessionId(): string {
 }
 
 function webDriverEndpoint(pathname: string): string {
-  const port = Number(process.env.OPENBITFUN_E2E_WEBDRIVER_PORT || 4445);
+  const port = Number(process.env.ALEX_E2E_WEBDRIVER_PORT || 4445);
   return `http://127.0.0.1:${port}${pathname}`;
 }
 
@@ -3826,7 +3826,7 @@ async function recordLongSessionPostVisibleInteraction(
   detail: LongSessionPostVisibleInteractionResult,
 ): Promise<void> {
   await browser.execute((eventDetail) => {
-    window.dispatchEvent(new CustomEvent('openbitfun:e2e-long-session-user-interaction', {
+    window.dispatchEvent(new CustomEvent('alex:e2e-long-session-user-interaction', {
       detail: eventDetail,
     }));
   }, detail);
@@ -3899,7 +3899,7 @@ async function performLongSessionPostVisibleInteraction(
     }));
     scroller.scrollTop = Math.max(0, Math.min(maxScrollTop, beforeScrollTop + deltaY));
     scroller.dispatchEvent(new Event('scroll', { bubbles: true }));
-    window.dispatchEvent(new CustomEvent('openbitfun:e2e-long-session-user-interaction', {
+    window.dispatchEvent(new CustomEvent('alex:e2e-long-session-user-interaction', {
       detail: {
         type: interactionType,
         beforeScrollTop,
@@ -3929,7 +3929,7 @@ async function restoreLongSessionPostVisibleInteraction(
 }
 
 function readRapidSwitchSessionIds(): string[] {
-  const raw = process.env.OPENBITFUN_E2E_PERF_RAPID_SWITCH_SESSION_IDS;
+  const raw = process.env.ALEX_E2E_PERF_RAPID_SWITCH_SESSION_IDS;
   const sessionIds = (raw ?? 'perf-rapid-a-000,perf-rapid-b-000,perf-rapid-c-000')
     .split(',')
     .map(value => value.trim())
@@ -3942,7 +3942,7 @@ async function readActiveSessionNavId(): Promise<string | null> {
     const active = document.querySelector<HTMLElement>(
       '[data-testid="session-nav-item"].is-active, ' +
       '[data-testid="nav-session-item"].is-active, ' +
-      '.openbitfun-nav-panel__inline-item.is-active[data-session-id]',
+      '.alex-nav-panel__inline-item.is-active[data-session-id]',
     );
     return active?.getAttribute('data-session-id') ?? null;
   });
@@ -4014,7 +4014,7 @@ async function collectRapidLongSessionSwitchMeasurement(
   await startLongSessionViewportTimelineRecorder(
     expectedLatestTurnId,
     clickedAtMs,
-    process.env.OPENBITFUN_E2E_RENDER_PROFILE === '1',
+    process.env.ALEX_E2E_RENDER_PROFILE === '1',
   );
 
   for (let index = 0; index < sessionIds.length; index += 1) {
@@ -4040,7 +4040,7 @@ async function collectRapidLongSessionSwitchMeasurement(
     clickPlanEntry.clickDurationMs = nodePerformance.now() - clickStartedAtRunnerMs;
     clickPlan[index] = clickPlanEntry;
     if (index < sessionIds.length - 1) {
-      const delayMs = numericEnv('OPENBITFUN_E2E_PERF_RAPID_SWITCH_DELAY_MS') ?? 75;
+      const delayMs = numericEnv('ALEX_E2E_PERF_RAPID_SWITCH_DELAY_MS') ?? 75;
       const pauseStartedAtRunnerMs = nodePerformance.now();
       await browser.pause(Math.max(0, delayMs));
       clickPlanEntry.pauseDurationMs = nodePerformance.now() - pauseStartedAtRunnerMs;
@@ -4051,8 +4051,8 @@ async function collectRapidLongSessionSwitchMeasurement(
   const latestVisible = await waitForLatestLongSessionTurnVisible(5000, expectedLatestTurnId);
   const latestUsable = await waitForLatestLongSessionViewportUsable(5000, expectedLatestTurnId);
   const postVisibleObserveMs =
-    numericEnv('OPENBITFUN_E2E_PERF_RAPID_SWITCH_OBSERVE_MS') ??
-    numericEnv('OPENBITFUN_E2E_PERF_POST_VISIBLE_OBSERVE_MS') ??
+    numericEnv('ALEX_E2E_PERF_RAPID_SWITCH_OBSERVE_MS') ??
+    numericEnv('ALEX_E2E_PERF_POST_VISIBLE_OBSERVE_MS') ??
     DEFAULT_POST_VISIBLE_OBSERVE_MS;
   const observeRemainingMs = latestUsable.usableAtMs + postVisibleObserveMs - await readPerformanceNow();
   if (observeRemainingMs > 0) {
@@ -4132,10 +4132,10 @@ async function collectRapidLongSessionSwitchMeasurement(
       sessionOpen: summarizeSessionOpen(sessionEvents, entry.clickedAtMs),
     };
   });
-  const verboseTimelineReport = process.env.OPENBITFUN_E2E_PERF_VERBOSE_REPORT === '1';
+  const verboseTimelineReport = process.env.ALEX_E2E_PERF_VERBOSE_REPORT === '1';
 
   return {
-    appMode: process.env.OPENBITFUN_E2E_APP_MODE ?? 'auto',
+    appMode: process.env.ALEX_E2E_APP_MODE ?? 'auto',
     requestedSessionIds,
     sessionIds,
     activeSessionIdAtStart,
@@ -4276,7 +4276,7 @@ async function collectLongSessionOpenMeasurement(
   await startLongSessionViewportTimelineRecorder(
     expectedLatestTurnId,
     clickedAtMs,
-    process.env.OPENBITFUN_E2E_RENDER_PROFILE === '1',
+    process.env.ALEX_E2E_RENDER_PROFILE === '1',
   );
 
   await item.click();
@@ -4329,7 +4329,7 @@ async function collectLongSessionOpenMeasurement(
   latestVisible ??= await latestVisiblePromise;
   latestUsable ??= await latestUsablePromise;
   const postVisibleObserveMs =
-    numericEnv('OPENBITFUN_E2E_PERF_POST_VISIBLE_OBSERVE_MS') ?? DEFAULT_POST_VISIBLE_OBSERVE_MS;
+    numericEnv('ALEX_E2E_PERF_POST_VISIBLE_OBSERVE_MS') ?? DEFAULT_POST_VISIBLE_OBSERVE_MS;
   const observeRemainingMs = latestUsable.usableAtMs + postVisibleObserveMs - await readPerformanceNow();
   if (observeRemainingMs > 0) {
     await browser.pause(Math.ceil(observeRemainingMs));
@@ -4357,7 +4357,7 @@ async function collectLongSessionOpenMeasurement(
     viewportTimelineSummary,
     sessionId,
   );
-  const verboseTimelineReport = process.env.OPENBITFUN_E2E_PERF_VERBOSE_REPORT === '1';
+  const verboseTimelineReport = process.env.ALEX_E2E_PERF_VERBOSE_REPORT === '1';
   const finalSnapshot = await readStartupTraceSnapshot()
     .catch(() => [
       afterFrameSnapshot,
@@ -4384,7 +4384,7 @@ async function collectLongSessionOpenMeasurement(
   const screenshotPath = await maybeSavePerfScreenshot(`long-session-${sessionId}`);
 
   const measurement: LongSessionOpenMeasurement = {
-    appMode: process.env.OPENBITFUN_E2E_APP_MODE ?? 'auto',
+    appMode: process.env.ALEX_E2E_APP_MODE ?? 'auto',
     sessionId,
     fixtureScenario,
     expectedLatestTurnId,
@@ -4512,7 +4512,7 @@ async function clearLongSessionPendingQueue(sessionId: string): Promise<void> {
 
   await browser.waitUntil(async () => {
     const pendingQueueCount = await browser.execute(() =>
-      document.querySelectorAll('[data-testid="pending-queue-panel"] .openbitfun-pending-queue-panel__item').length
+      document.querySelectorAll('[data-testid="pending-queue-panel"] .alex-pending-queue-panel__item').length
     );
     return pendingQueueCount === 0;
   }, {
@@ -4527,7 +4527,7 @@ async function setLongSessionChatInputValue(message: string): Promise<void> {
     const input = document.querySelector<HTMLElement>(
       '.rich-text-input[contenteditable="true"], ' +
       '[data-testid="chat-input-textarea"], ' +
-      '.openbitfun-chat-input [contenteditable="true"]',
+      '.alex-chat-input [contenteditable="true"]',
     );
     if (!input) {
       throw new Error('Chat input was not found');
@@ -4550,7 +4550,7 @@ async function setLongSessionChatInputValue(message: string): Promise<void> {
   }, message);
 
   await browser.waitUntil(async () => {
-    const button = await $('[data-testid="chat-input-send-btn"], button.openbitfun-chat-input__send-button');
+    const button = await $('[data-testid="chat-input-send-btn"], button.alex-chat-input__send-button');
     if (!await button.isExisting()) {
       return false;
     }
@@ -4565,11 +4565,11 @@ async function setLongSessionChatInputValue(message: string): Promise<void> {
 }
 
 async function clickLongSessionSendButton(): Promise<void> {
-  const button = await $('[data-testid="chat-input-send-btn"], button.openbitfun-chat-input__send-button');
+  const button = await $('[data-testid="chat-input-send-btn"], button.alex-chat-input__send-button');
   await button.waitForExist({ timeout: 3000 });
   await button.click();
   await browser.execute(() => {
-    window.dispatchEvent(new CustomEvent('openbitfun:e2e-long-session-user-interaction', {
+    window.dispatchEvent(new CustomEvent('alex:e2e-long-session-user-interaction', {
       detail: { type: 'send-message' },
     }));
   });
@@ -4595,7 +4595,7 @@ async function collectLongSessionSendAfterOpenMeasurement(
   await startLongSessionViewportTimelineRecorder(
     previousLatestTurnId,
     clickedAtMs,
-    process.env.OPENBITFUN_E2E_RENDER_PROFILE === '1',
+    process.env.ALEX_E2E_RENDER_PROFILE === '1',
   );
 
   await clickLongSessionSendButton();
@@ -4617,7 +4617,7 @@ async function collectLongSessionSendAfterOpenMeasurement(
     timeoutMsg: 'Send did not change the active session message state',
   }).catch(() => undefined);
 
-  const postSendObserveMs = numericEnv('OPENBITFUN_E2E_PERF_SEND_AFTER_OPEN_OBSERVE_MS') ?? 2000;
+  const postSendObserveMs = numericEnv('ALEX_E2E_PERF_SEND_AFTER_OPEN_OBSERVE_MS') ?? 2000;
   if (postSendObserveMs > 0) {
     await browser.pause(postSendObserveMs);
   }
@@ -4641,7 +4641,7 @@ async function collectLongSessionSendAfterOpenMeasurement(
     viewportTimelineSummary,
     sessionId,
   );
-  const verboseTimelineReport = process.env.OPENBITFUN_E2E_PERF_VERBOSE_REPORT === '1';
+  const verboseTimelineReport = process.env.ALEX_E2E_PERF_VERBOSE_REPORT === '1';
   const finalSnapshot = await readStartupTraceSnapshot();
   const events = finalSnapshot.phases.events.filter(event =>
     event.atMs >= clickedAtMs &&
@@ -4659,7 +4659,7 @@ async function collectLongSessionSendAfterOpenMeasurement(
   const screenshotPath = await maybeSavePerfScreenshot(`long-session-send-${sessionId}`);
 
   return {
-    appMode: process.env.OPENBITFUN_E2E_APP_MODE ?? 'auto',
+    appMode: process.env.ALEX_E2E_APP_MODE ?? 'auto',
     sessionId,
     fixtureScenario,
     previousLatestTurnId,
@@ -4907,10 +4907,10 @@ describe('Performance telemetry', () => {
     const breakdown = summarizeStartupBreakdown(snapshot);
     const apiSegments = summarizeApiCommandSegments(snapshot);
     const resourceTiming = await readStartupResourceTimingSummary(startup.interactiveShellReadyMs);
-    const maxInteractiveMs = numericEnv('OPENBITFUN_E2E_PERF_MAX_INTERACTIVE_MS');
+    const maxInteractiveMs = numericEnv('ALEX_E2E_PERF_MAX_INTERACTIVE_MS');
 
     console.log('[Perf] startup', JSON.stringify({
-      appMode: process.env.OPENBITFUN_E2E_APP_MODE ?? 'auto',
+      appMode: process.env.ALEX_E2E_APP_MODE ?? 'auto',
       ...runtime,
       traceId: snapshot.traceId,
       startup,
@@ -4919,7 +4919,7 @@ describe('Performance telemetry', () => {
       native: snapshot.native,
     }));
     await writeReport('startup', {
-      appMode: process.env.OPENBITFUN_E2E_APP_MODE ?? 'auto',
+      appMode: process.env.ALEX_E2E_APP_MODE ?? 'auto',
       ...runtime,
       traceId: snapshot.traceId,
       startup,
@@ -4941,7 +4941,7 @@ describe('Performance telemetry', () => {
   it('collects first-open timing for a generated long session', async function () {
     await ensurePerformanceWorkspace(startupPage);
 
-    const sessionId = process.env.OPENBITFUN_E2E_PERF_SESSION_ID || DEFAULT_PERF_SESSION_ID;
+    const sessionId = process.env.ALEX_E2E_PERF_SESSION_ID || DEFAULT_PERF_SESSION_ID;
     const expectedLatestTurnId = await readExpectedLatestTurnId(sessionId);
     const postVisibleInteraction = readPostVisibleInteractionOption({});
     const requireFrameTrace = postVisibleInteraction === null;
@@ -4958,7 +4958,7 @@ describe('Performance telemetry', () => {
       this.skip();
       return;
     }
-    const maxLatestFrameMs = numericEnv('OPENBITFUN_E2E_PERF_MAX_SESSION_FRAME_MS');
+    const maxLatestFrameMs = numericEnv('ALEX_E2E_PERF_MAX_SESSION_FRAME_MS');
 
     console.log('[Perf] long-session-first-open', JSON.stringify({
       appMode: measurement.appMode,
@@ -4977,7 +4977,7 @@ describe('Performance telemetry', () => {
   it('collects warm-reopen timing for a generated long session', async function () {
     await ensurePerformanceWorkspace(startupPage);
 
-    const sessionId = process.env.OPENBITFUN_E2E_PERF_SESSION_ID || DEFAULT_PERF_SESSION_ID;
+    const sessionId = process.env.ALEX_E2E_PERF_SESSION_ID || DEFAULT_PERF_SESSION_ID;
     const expectedLatestTurnId = await readExpectedLatestTurnId(sessionId);
     const measurement = await collectLongSessionOpenMeasurement(
       sessionId,
@@ -4992,7 +4992,7 @@ describe('Performance telemetry', () => {
       this.skip();
       return;
     }
-    const maxLatestFrameMs = numericEnv('OPENBITFUN_E2E_PERF_MAX_SESSION_FRAME_MS');
+    const maxLatestFrameMs = numericEnv('ALEX_E2E_PERF_MAX_SESSION_FRAME_MS');
 
     console.log('[Perf] long-session-warm-reopen', JSON.stringify({
       appMode: measurement.appMode,
@@ -5011,7 +5011,7 @@ describe('Performance telemetry', () => {
   it('keeps a generated long session visible after sending a new message', async function () {
     await ensurePerformanceWorkspace(startupPage);
 
-    const sessionId = process.env.OPENBITFUN_E2E_PERF_SESSION_ID || DEFAULT_PERF_SESSION_ID;
+    const sessionId = process.env.ALEX_E2E_PERF_SESSION_ID || DEFAULT_PERF_SESSION_ID;
     const expectedLatestTurnId = await readExpectedLatestTurnId(sessionId);
     if (!expectedLatestTurnId) {
       console.log(`[Perf] Session ${sessionId} not found; generate it before running this spec.`);

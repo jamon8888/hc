@@ -218,7 +218,7 @@ private val OUTDATED_MARKERS = listOf(
     "incompatible client build",
     "requires matching client versions",
     "update the controlling app",
-    "update openbitfun on every device",
+    "update alex on every device",
 )
 
 /**

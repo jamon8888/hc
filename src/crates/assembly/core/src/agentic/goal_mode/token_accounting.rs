@@ -3,7 +3,7 @@
 use crate::agentic::coordination::get_global_coordinator;
 use crate::agentic::events::AgenticEvent;
 use log::debug;
-use openbitfun_agent_runtime::thread_goal::{
+use alex_agent_runtime::thread_goal::{
     should_record_thread_goal_token_usage, ThreadGoalTokenUsageFacts,
 };
 

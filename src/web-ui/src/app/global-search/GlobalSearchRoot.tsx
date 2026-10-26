@@ -18,7 +18,7 @@ import { OverflowText,
   ScrollArea,
   Dialog,
   DialogBody,
-} from '@openbitfun/ui';
+} from '@alex/ui';
 import { BarChart3, Blocks, CheckSquare2, FileText, Keyboard, MessageSquareText, MessagesSquare, Network, Users } from 'lucide-react';
 import { useShortcut } from '@/infrastructure/hooks/useShortcut';
 import { useI18n } from '@/infrastructure/i18n';
@@ -353,8 +353,8 @@ export const GlobalSearchContent: React.FC<GlobalSearchContentProps> = ({
   return (
       <div
         className={`global-search global-search--${variant}`}
-        data-openbitfun-component="global-search"
-        data-openbitfun-part="root"
+        data-alex-component="global-search"
+        data-alex-part="root"
         data-search-surface={variant}
         data-search-view={drilldownGroup ?? 'overview'}
         data-testid={variant === 'embedded' ? 'embedded-global-search' : undefined}
@@ -363,8 +363,8 @@ export const GlobalSearchContent: React.FC<GlobalSearchContentProps> = ({
         <header className="global-search__header">
           <div
             className="global-search__query-system-shell"
-            data-openbitfun-component="global-search"
-            data-openbitfun-part="query"
+            data-alex-component="global-search"
+            data-alex-part="query"
           >
             <SearchField
               ref={inputRef}
@@ -406,7 +406,7 @@ export const GlobalSearchContent: React.FC<GlobalSearchContentProps> = ({
             />
           </div>
 
-          <div className="global-search__scope-bar" data-openbitfun-component="global-search" data-openbitfun-part="scopeBar">
+          <div className="global-search__scope-bar" data-alex-component="global-search" data-alex-part="scopeBar">
             <TabGroup
               className="global-search__scopes"
               size="sm"
@@ -430,8 +430,8 @@ export const GlobalSearchContent: React.FC<GlobalSearchContentProps> = ({
           className="global-search__results"
           role="listbox"
           aria-label={tCommon('nav.search.resultsLabel')}
-          data-openbitfun-component="global-search"
-          data-openbitfun-part="results"
+          data-alex-component="global-search"
+          data-alex-part="results"
           data-search-state={parsedQuery.query ? 'query' : 'default'}
           data-search-view={drilldownGroup ?? 'overview'}
         >
@@ -454,8 +454,8 @@ export const GlobalSearchContent: React.FC<GlobalSearchContentProps> = ({
                 className={`global-search__group global-search__group--${groupId}${groupDetailPage ? ' global-search__group--detail' : ''}`}
                 role="group"
                 aria-labelledby={labelId}
-                data-openbitfun-component="global-search"
-                data-openbitfun-part="group"
+                data-alex-component="global-search"
+                data-alex-part="group"
                 data-search-group={groupId}
                 data-testid={groupDetailPage
                   ? `${testIdPrefix}-group-page-${groupId}`
@@ -537,7 +537,7 @@ export const GlobalSearchContent: React.FC<GlobalSearchContentProps> = ({
                           aria-selected={selected}
                           className="global-search__action-card"
                           onClick={() => void activateItem(item)}
-                          data-openbitfun-state={selected ? 'selected' : undefined}
+                          data-alex-state={selected ? 'selected' : undefined}
                           description={item.subtitle && !defaultActionGroup ? item.subtitle : undefined}
                           leading={(
                             <Icon
@@ -567,7 +567,7 @@ export const GlobalSearchContent: React.FC<GlobalSearchContentProps> = ({
                           aria-selected={selected}
                           className="global-search__action-card"
                           onClick={() => void activateItem(item)}
-                          data-openbitfun-state={selected ? 'selected' : undefined}
+                          data-alex-state={selected ? 'selected' : undefined}
                           description={item.subtitle}
                           leading={<Icon {...itemIcon} />}
                           selected={selected}
@@ -591,9 +591,9 @@ export const GlobalSearchContent: React.FC<GlobalSearchContentProps> = ({
                         aria-selected={selected}
                         className={`global-search__result global-search__result--${itemVariant}${selected ? ' is-selected' : ''}`}
                         onClick={() => void activateItem(item)}
-                        data-openbitfun-component="global-search"
-                        data-openbitfun-part="result"
-                        data-openbitfun-state={selected ? 'selected' : undefined}
+                        data-alex-component="global-search"
+                        data-alex-part="result"
+                        data-alex-state={selected ? 'selected' : undefined}
                       >
                         <span className="global-search__result-icon" aria-hidden="true">
                           <Icon {...itemIcon} size="md" />
@@ -614,7 +614,7 @@ export const GlobalSearchContent: React.FC<GlobalSearchContentProps> = ({
         {(Boolean(parsedQuery.query)
           || Boolean(drilldownGroup)
           || snapshot.diagnostics.length > 0) ? (
-        <footer className="global-search__footer" data-openbitfun-component="global-search" data-openbitfun-part="footer">
+        <footer className="global-search__footer" data-alex-component="global-search" data-alex-part="footer">
           {snapshot.diagnostics.length > 0 ? (
             <OverflowText
               className="global-search__footer-status"

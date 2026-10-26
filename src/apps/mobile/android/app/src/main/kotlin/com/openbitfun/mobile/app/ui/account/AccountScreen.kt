@@ -195,7 +195,7 @@ private fun AccountProfilePage(
         Surface(color = MaterialTheme.colorScheme.surface, shape = AccountCardShape, modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp)) {
             Column(Modifier.padding(horizontal = 18.dp, vertical = 16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    Text(stringResource(R.string.account_openbitfun_account), fontSize = 17.sp, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.account_alex_account), fontSize = 17.sp, fontWeight = FontWeight.Bold)
                     Spacer(Modifier.weight(1f))
                     Text(stringResource(R.string.remote_settings_account_signed_in), fontSize = 14.sp, color = com.openbitfun.mobile.app.ui.theme.openBitFunColors.statusSuccess)
                 }

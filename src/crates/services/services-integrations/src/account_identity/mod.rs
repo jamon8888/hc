@@ -1,4 +1,4 @@
-//! Shared GitHub identity used by every OpenBitFun product surface.
+//! Shared GitHub identity used by every Alex product surface.
 mod credentials;
 mod flow;
 pub use credentials::{
@@ -6,7 +6,7 @@ pub use credentials::{
     StoredMarketCredentials,
 };
 pub use flow::{poll_auth_flow, start_auth_flow};
-use openbitfun_product_domains::account::GitHubUser;
+use alex_product_domains::account::GitHubUser;
 use reqwest::{RequestBuilder, Response, StatusCode};
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
@@ -139,8 +139,8 @@ impl AccountIdentityClient {
     }
 
     pub async fn from_environment() -> Result<Self, MarketClientError> {
-        let base_url = std::env::var("OPENBITFUN_ACCOUNT_API_URL")
-            .or_else(|_| std::env::var("OPENBITFUN_MINIAPP_MARKET_API_URL"))
+        let base_url = std::env::var("ALEX_ACCOUNT_API_URL")
+            .or_else(|_| std::env::var("ALEX_MINIAPP_MARKET_API_URL"))
             .unwrap_or_else(|_| DEFAULT_ACCOUNT_API_URL.to_string());
         Self::new(base_url).await
     }
@@ -160,7 +160,7 @@ impl AccountIdentityClient {
             ));
         }
         let client = crate::reqwest_client_builder()
-            .user_agent(format!("OpenBitFun/{}", env!("CARGO_PKG_VERSION")))
+            .user_agent(format!("Alex/{}", env!("CARGO_PKG_VERSION")))
             .redirect(reqwest::redirect::Policy::none())
             .build()
             .map_err(|error| local_error("market_client_init_failed", error.to_string()))?;

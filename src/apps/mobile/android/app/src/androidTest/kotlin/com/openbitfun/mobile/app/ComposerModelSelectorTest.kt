@@ -9,7 +9,7 @@ import com.openbitfun.mobile.app.ui.chat.ComposerBar
 import com.openbitfun.mobile.app.ui.chat.MODEL_CONTROL_TEST_TAG
 import com.openbitfun.mobile.app.ui.chat.MODEL_SELECTOR_OPTION_TEST_TAG_PREFIX
 import com.openbitfun.mobile.app.ui.chat.MODEL_SELECTOR_TEST_TAG
-import com.openbitfun.mobile.app.ui.theme.OpenBitFunTheme
+import com.openbitfun.mobile.app.ui.theme.AlexTheme
 import com.openbitfun.mobile.core.feature.connection.ConnectionPhase
 import com.openbitfun.mobile.core.feature.session.ChatComposerCapabilities
 import com.openbitfun.mobile.core.feature.session.ModelOption
@@ -29,7 +29,7 @@ class ComposerModelSelectorTest {
             ModelOption("account-fast", "Fast", "Account model", false),
         )
         composeRule.setContent {
-            OpenBitFunTheme(dark = false) {
+            AlexTheme(dark = false) {
                 ComposerBar(
                     draft = "",
                     images = emptyList(),

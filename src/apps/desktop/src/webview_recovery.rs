@@ -248,17 +248,17 @@ mod windows {
             .message(
                 "OpenBitFun's display stopped responding and automatic recovery was paused to avoid a restart loop. Restart OpenBitFun now?",
             )
-            .title("OpenBitFun display recovery")
+            .title("Alex display recovery")
             .kind(MessageDialogKind::Error)
             .buttons(MessageDialogButtons::OkCancelCustom(
-                "Restart OpenBitFun".to_string(),
+                "Restart Alex".to_string(),
                 "Exit".to_string(),
             ))
             .show_with_result(move |result| match result {
                 MessageDialogResult::Ok | MessageDialogResult::Yes => {
                     request_user_restart(&app)
                 }
-                MessageDialogResult::Custom(label) if label == "Restart OpenBitFun" => {
+                MessageDialogResult::Custom(label) if label == "Restart Alex" => {
                     request_user_restart(&app)
                 }
                 _ => {

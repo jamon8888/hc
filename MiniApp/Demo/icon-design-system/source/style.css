@@ -1,35 +1,35 @@
 /* ── Theme token aliases ────────────────────────────────────────────────────── */
-/* Map --openbitfun-* host variables to local names so every rule auto-adapts.    */
+/* Map --alex-* host variables to local names so every rule auto-adapts.    */
 :root {
-  --bg:           var(--openbitfun-bg);
-  --bg2:          var(--openbitfun-bg-secondary);
-  --bg3:          var(--openbitfun-bg-tertiary);
-  --bg-el:        var(--openbitfun-element-bg);
-  --bg-hover:     var(--openbitfun-element-hover);
-  --text:         var(--openbitfun-text);
-  --text2:        var(--openbitfun-text-secondary);
-  --text3:        var(--openbitfun-text-muted);
-  --accent:       var(--openbitfun-accent);
-  --accent2:      var(--openbitfun-accent-hover);
-  --success:      var(--openbitfun-success);
-  --warning:      var(--openbitfun-warning);
-  --danger:       var(--openbitfun-error);
-  --info:         var(--openbitfun-info);
-  --border:       var(--openbitfun-border);
-  --border2:      var(--openbitfun-border-subtle);
-  --radius:       var(--openbitfun-radius);
-  --radius-lg:    var(--openbitfun-radius-lg);
-  --font:         var(--openbitfun-font-sans);
-  --font-mono:    var(--openbitfun-font-mono);
-  --scrollbar:    var(--openbitfun-scrollbar-thumb);
+  --bg:           var(--alex-bg);
+  --bg2:          var(--alex-bg-secondary);
+  --bg3:          var(--alex-bg-tertiary);
+  --bg-el:        var(--alex-element-bg);
+  --bg-hover:     var(--alex-element-hover);
+  --text:         var(--alex-text);
+  --text2:        var(--alex-text-secondary);
+  --text3:        var(--alex-text-muted);
+  --accent:       var(--alex-accent);
+  --accent2:      var(--alex-accent-hover);
+  --success:      var(--alex-success);
+  --warning:      var(--alex-warning);
+  --danger:       var(--alex-error);
+  --info:         var(--alex-info);
+  --border:       var(--alex-border);
+  --border2:      var(--alex-border-subtle);
+  --radius:       var(--alex-radius);
+  --radius-lg:    var(--alex-radius-lg);
+  --font:         var(--alex-font-sans);
+  --font-mono:    var(--alex-font-mono);
+  --scrollbar:    var(--alex-scrollbar-thumb);
 
   /* Derived semantic tokens */
-  --on-accent:    var(--openbitfun-text-on-accent);
-  --on-danger:    var(--openbitfun-text-on-accent);
-  --on-success:   var(--openbitfun-text-on-accent);
+  --on-accent:    var(--alex-text-on-accent);
+  --on-danger:    var(--alex-text-on-accent);
+  --on-success:   var(--alex-text-on-accent);
 }
 
-/* On-accent and danger text use the registered --openbitfun-text-on-accent projection. */
+/* On-accent and danger text use the registered --alex-text-on-accent projection. */
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 

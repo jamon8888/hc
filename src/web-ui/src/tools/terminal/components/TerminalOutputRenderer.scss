@@ -3,20 +3,20 @@
   margin: 0 !important;
   border: 0 !important;
   outline: 0 !important;
-  color: var(--openbitfun-color-content-secondary);
+  color: var(--alex-color-content-secondary);
   background: transparent !important;
   box-shadow: none !important;
-  font-family:var(--openbitfun-type-code-md-font-family);
-  font-size: var(--openbitfun-type-flow-control-font-size);
-  line-height: var(--openbitfun-type-flow-code-line-height);
+  font-family:var(--alex-type-code-md-font-family);
+  font-size: var(--alex-type-flow-control-font-size);
+  line-height: var(--alex-type-flow-code-line-height);
   white-space: pre-wrap;
   word-break: break-word;
 }
 
 .terminal-output-renderer {
   overflow: hidden;
-  border-radius: var(--openbitfun-radius-sm);
-  background: var(--openbitfun-color-surface-scene);
+  border-radius: var(--alex-radius-sm);
+  background: var(--alex-color-surface-scene);
 
   .xterm {
     height: 100%;
@@ -27,7 +27,7 @@
     }
 
     &:not(.allow-transparency) .xterm-viewport {
-      background-color: var(--openbitfun-color-surface-scene);
+      background-color: var(--alex-color-surface-scene);
     }
 
     .xterm-screen {

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
-import { Button, Card, CardBody, CardFooter, CardHeader, OverlayLayer, OverflowText } from '@openbitfun/ui';
+import { Button, Card, CardBody, CardFooter, CardHeader, OverlayLayer, OverflowText } from '@alex/ui';
 import { useI18n } from '@/infrastructure/i18n';
 import { getActiveSurfaceScope, onSurfaceActivated } from '@/infrastructure/peer-device/deviceSurface';
 import {
@@ -119,25 +119,25 @@ export function ComputerUseControlCard() {
     : snapshot.mode === 'foreground' ? t('computerControl.foreground') : t('computerControl.background');
 
   return <OverlayLayer passive>
-    <div className="computer-control-card" data-openbitfun-component="computer-control" data-openbitfun-part="root">
+    <div className="computer-control-card" data-alex-component="computer-control" data-alex-part="root">
     <Card appearance="raised" padding="md" gap="sm" radius="md"
-      data-openbitfun-native-webview-occlusion>
+      data-alex-native-webview-occlusion>
       <CardHeader>{t('computerControl.title')}</CardHeader>
       <CardBody>
-        <p role="status" className="computer-control-card__status" data-openbitfun-component="computer-control" data-openbitfun-part="status">
+        <p role="status" className="computer-control-card__status" data-alex-component="computer-control" data-alex-part="status">
           {current?.error ? t('computerControl.unavailable') : active ? mode : t('computerControl.stopped')}
         </p>
         {snapshot.target && <OverflowText>{snapshot.target}</OverflowText>}
-        {expanded && current?.frame && <div className="computer-control-card__preview" data-openbitfun-component="computer-control" data-openbitfun-part="preview">
+        {expanded && current?.frame && <div className="computer-control-card__preview" data-alex-component="computer-control" data-alex-part="preview">
           <img src={`data:${current.frame.mime_type};base64,${current.frame.image_base64}`}
             alt={t('computerControl.previewAlt')} />
           {pointer && <span className="computer-control-card__pointer"
-            data-openbitfun-component="computer-control" data-openbitfun-part="pointer"
+            data-alex-component="computer-control" data-alex-part="pointer"
             style={{ left: `${pointer.x * 100}%`, top: `${pointer.y * 100}%` }} aria-hidden="true">
             <svg viewBox="0 0 40 40" focusable="false"><path d="M8 8 C6 10 7 12 8 15 L14 31 C15.5 35 19 35 20.5 31.5 L23 26 C23.6 24.5 24.5 23.6 26 23 L31.5 20.5 C35 19 35 15.5 31 14 L15 8 C12 7 10 6 8 8 Z" /></svg>
           </span>}
           {clickFeedback && <span className="computer-control-card__click"
-            data-openbitfun-component="computer-control" data-openbitfun-part="click"
+            data-alex-component="computer-control" data-alex-part="click"
             style={{ left: `${clickFeedback.x * 100}%`, top: `${clickFeedback.y * 100}%` }} aria-hidden="true" />}
         </div>}
         {expanded && !current?.frame && <p role="status">{t('computerControl.previewUnavailable')}</p>}

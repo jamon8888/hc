@@ -27,7 +27,7 @@ describe('WorkspaceBody presentation contract', () => {
 
   it('shares the split-view content-panel curvature with its resize feedback edge', () => {
     expect(stylesheet).toContain(
-      '--_scene-surface-radius: var(--openbitfun-layout-split-view-content-panel-radius);',
+      '--_scene-surface-radius: var(--alex-layout-split-view-content-panel-radius);',
     );
     expect(stylesheet.match(
       /border-radius: var\(--_scene-surface-radius\) 0 0 var\(--_scene-surface-radius\);/g,
@@ -46,11 +46,11 @@ describe('WorkspaceBody presentation contract', () => {
   });
 
   it('keeps navigation and scene tabs on the same toolbar row with the viewport attached below', () => {
-    expect(stylesheet).toContain('$_nav-bar-height: var(--openbitfun-layout-toolbar-md-height);');
-    expect(stylesheet).toContain('padding: 0 var(--openbitfun-space-4);');
+    expect(stylesheet).toContain('$_nav-bar-height: var(--alex-layout-toolbar-md-height);');
+    expect(stylesheet).toContain('padding: 0 var(--alex-space-4);');
     expect(stylesheet).toMatch(
-      /\.openbitfun-workspace-body__scene-surface\s*\{[^}]*gap:\s*0;/s,
+      /\.alex-workspace-body__scene-surface\s*\{[^}]*gap:\s*0;/s,
     );
-    expect(navBarStylesheet).toContain('height: var(--openbitfun-layout-toolbar-md-height);');
+    expect(navBarStylesheet).toContain('height: var(--alex-layout-toolbar-md-height);');
   });
 });

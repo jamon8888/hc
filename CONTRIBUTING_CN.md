@@ -24,7 +24,7 @@ GitHub Actions 升级使用的是兼容 Node.js 24 的 action runtime，但项�
 
 #### 构建前置检查
 
-当 `cargo check --workspace`、`cargo check -p openbitfun-desktop` 或 pnpm 构建
+当 `cargo check --workspace`、`cargo check -p alex-desktop` 或 pnpm 构建
 命令报出难以理解的错误（如 "resource path doesn't exist" 或 sherpa-onnx
 下载失败）时，运行前置检查以识别缺失的依赖并获取可操作的修复命令：
 
@@ -37,8 +37,8 @@ pnpm run check:build-prereqs -- --fix  # 尝试自动修复缺失的前置依赖
 
 - 缺少 `node_modules`（修复：`pnpm install`）
 - 缺少 `src/mobile-web/dist`（修复：`pnpm run prepare:mobile-web` —
-  openbitfun-desktop 的 Tauri 构建脚本将该目录作为资源引用，缺失时
-  `cargo check -p openbitfun-desktop` 和 `cargo check --workspace` 会失败）
+  alex-desktop 的 Tauri 构建脚本将该目录作为资源引用，缺失时
+  `cargo check -p alex-desktop` 和 `cargo check --workspace` 会失败）
 - 缺少 sherpa-onnx 预编译库（sherpa-onnx-sys 构建脚本会在构建时从
   GitHub 下载；若网络连通性差导致下载失败，设置
   `SHERPA_ONNX_LIB_DIR` 指向 `target/sherpa-onnx-prebuilt/` 下的预编译
@@ -168,7 +168,7 @@ Repository Object Sizes 检查会拒绝超过 5 MiB 的 Git 文件对象，包�
 | 前端运行时或 UI | `pnpm run check:web`；行为变化时再加最近的 focused test |
 | Mobile web | `pnpm --dir src/mobile-web run type-check` |
 | Rust 共享 runtime 或 services | 遵循最近模块的 `AGENTS.md`，选择单个包/测试目标和最小所需 feature |
-| Desktop/Tauri 集成 | `cargo check -p openbitfun-desktop` |
+| Desktop/Tauri 集成 | `cargo check -p alex-desktop` |
 | i18n 资源或契约 | 使用 `AGENTS.md` 中匹配的 i18n 验证行 |
 
 UI 改动在有帮助时附截图或短录屏。无法运行相关检查时，在 PR 中说明原因，并提供风险更低的手动验证路径。

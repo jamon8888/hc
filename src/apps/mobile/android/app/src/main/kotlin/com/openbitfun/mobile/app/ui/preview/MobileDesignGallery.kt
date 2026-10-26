@@ -28,7 +28,7 @@ import com.openbitfun.mobile.app.ui.chat.ConversationHeader
 import com.openbitfun.mobile.app.ui.preview.generated.MobilePreviewMessage
 import com.openbitfun.mobile.app.ui.preview.generated.MobilePreviewScenario
 import com.openbitfun.mobile.app.ui.preview.generated.MobilePreviewScenarios
-import com.openbitfun.mobile.app.ui.theme.OpenBitFunTheme
+import com.openbitfun.mobile.app.ui.theme.AlexTheme
 import com.openbitfun.mobile.app.ui.theme.generated.MobileDesignGeometry
 import com.openbitfun.mobile.core.feature.connection.ConnectionPhase
 import com.openbitfun.mobile.core.feature.session.ChatComposerCapabilities
@@ -44,7 +44,7 @@ internal const val MOBILE_DESIGN_GALLERY_TIMELINE_TEST_TAG: String = "mobile-des
 
 @Composable
 internal fun MobileDesignGallery(scenario: MobilePreviewScenario, dark: Boolean) {
-    OpenBitFunTheme(dark = dark) {
+    AlexTheme(dark = dark) {
         Column(
             modifier = Modifier
                 .fillMaxSize()

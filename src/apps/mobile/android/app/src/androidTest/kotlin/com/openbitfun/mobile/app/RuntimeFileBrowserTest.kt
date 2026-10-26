@@ -8,7 +8,7 @@ import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.test.platform.app.InstrumentationRegistry
 import com.openbitfun.mobile.app.ui.remote.RuntimeFilesDialog
-import com.openbitfun.mobile.app.ui.theme.OpenBitFunTheme
+import com.openbitfun.mobile.app.ui.theme.AlexTheme
 import com.openbitfun.mobile.core.feature.workspace.*
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -23,7 +23,7 @@ class RuntimeFileBrowserTest {
         val files = RuntimeFilesUiState("/repo", entries, false, null, "", false, false)
         val state = mutableStateOf(RemoteWorkspaceUiState.Ready(emptyList(), emptyList(), null, RemoteFilePreviewUiState.None, false, RemoteFileDownloadUiState.None).copy(files = files))
         compose.setContent {
-            OpenBitFunTheme(dark = false) { RuntimeFilesDialog(state.value, onBack = {}, onIntent = {}) }
+            AlexTheme(dark = false) { RuntimeFilesDialog(state.value, onBack = {}, onIntent = {}) }
         }
         compose.onNode(hasScrollToIndexAction()).performScrollToIndex(30)
         compose.onNodeWithText("entry-30").assertIsDisplayed()
@@ -54,7 +54,7 @@ class RuntimeFileBrowserTest {
         val state = mutableStateOf(RemoteWorkspaceUiState.Ready(emptyList(), emptyList(), null, RemoteFilePreviewUiState.None, false, RemoteFileDownloadUiState.None).copy(files = files))
         val intents = mutableListOf<RemoteWorkspaceIntent>()
         compose.setContent {
-            OpenBitFunTheme(dark = false) {
+            AlexTheme(dark = false) {
                 RuntimeFilesDialog(state.value, onBack = {}, onIntent = { intent ->
                     intents += intent
                     if (intent is RemoteWorkspaceIntent.RenameFileEntry) {

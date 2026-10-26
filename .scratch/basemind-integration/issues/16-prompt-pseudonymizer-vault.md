@@ -12,7 +12,7 @@
 
 **Design authority:** corrected SPEC §11 (model-agnostic), ADR 0001, decisions D2/D3/D4/D8/D9/D10.
 
-**State:** the three components are implemented and compile (`cargo check -p openbitfun-basemind-integration`). Remaining: `rehydrate()`, the interception wiring (ticket 17), and tests.
+**State:** the three components are implemented and compile (`cargo check -p alex-basemind-integration`). Remaining: `rehydrate()`, the interception wiring (ticket 17), and tests.
 
 **PromptPseudonymizer flow (`prompt_pseudonym.rs` — implemented):**
 

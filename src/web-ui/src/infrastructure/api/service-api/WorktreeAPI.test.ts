@@ -82,7 +82,7 @@ describe('WorktreeAPI', () => {
 
     await expect(
       api.bindSession('history-1', true, 'request-3', {
-        projectWorkspacePath: 'D:\\workspace\\OpenBitFun',
+        projectWorkspacePath: 'D:\\workspace\\Alex',
       }),
     ).rejects.toMatchObject({
       name: 'WorktreeCommandError',

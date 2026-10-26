@@ -9,7 +9,7 @@
 ## Pet source verification
 
 ```bash
-cargo test -p openbitfun-codex-adapter --lib pet_source
+cargo test -p alex-codex-adapter --lib pet_source
 # Optional read-only verification on a host with the Codex desktop app installed:
-cargo test -p openbitfun-codex-adapter --lib installed_builtin_pet_catalog -- --ignored --nocapture
+cargo test -p alex-codex-adapter --lib installed_builtin_pet_catalog -- --ignored --nocapture
 ```

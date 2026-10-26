@@ -12,7 +12,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.openbitfun.mobile.app.ui.chat.*
 import com.openbitfun.mobile.app.ui.chat.tool.*
 import com.openbitfun.mobile.app.ui.miniapps.BuiltinMiniAppBridge
-import com.openbitfun.mobile.app.ui.theme.OpenBitFunTheme
+import com.openbitfun.mobile.app.ui.theme.AlexTheme
 import com.openbitfun.mobile.core.feature.connection.ConnectionPhase
 import com.openbitfun.mobile.core.feature.session.*
 import org.json.JSONObject
@@ -27,7 +27,7 @@ class MobileParityTest {
         var sent = 0
         var stopped = 0
         rule.setContent {
-            OpenBitFunTheme(dark = true) {
+            AlexTheme(dark = true) {
                 ComposerBar(draft = "Add tests", images = emptyList(), busy = false, streaming = true,
                     phase = ConnectionPhase.CONNECTED, model = null, capabilities = ChatComposerCapabilities.RemoteChat,
                     placeholder = "Message", onDraftChange = {}, onRemoveImage = {}, onAttach = {}, onVoice = {},
@@ -42,7 +42,7 @@ class MobileParityTest {
     @Test fun unsupportedPlanIsVisibleButCannotExecute() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         rule.setContent {
-            OpenBitFunTheme(dark = false) {
+            AlexTheme(dark = false) {
                 ToolStatusRow(plan(), true, {}, {}, {}, {}, {}, { _, _ -> }, Modifier)
             }
         }
@@ -55,7 +55,7 @@ class MobileParityTest {
         var built = ""
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         rule.setContent {
-            OpenBitFunTheme(dark = false) {
+            AlexTheme(dark = false) {
                 CompositionLocalProvider(LocalPlanActions provides PlanActions(true, true, { built = it.path })) {
                     ToolStatusRow(plan(), true, {}, {}, {}, {}, {}, { path, _ -> opened = path }, Modifier)
                 }
@@ -138,7 +138,7 @@ class MobileParityTest {
         val context = instrumentation.targetContext
         val locale = if (context.resources.configuration.locales[0].language == "zh") "zh-CN" else "en-US"
         val catalog = org.json.JSONArray(context.assets.open("miniapps/catalog.json").bufferedReader().use { it.readText() })
-        rule.setContent { OpenBitFunTheme(dark = false) { com.openbitfun.mobile.app.ui.miniapps.MiniAppsButton() } }
+        rule.setContent { AlexTheme(dark = false) { com.openbitfun.mobile.app.ui.miniapps.MiniAppsButton() } }
         rule.onNodeWithText(context.getString(R.string.miniapps_title)).performClick()
         run {
             val app = catalog.getJSONObject(index)

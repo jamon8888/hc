@@ -16,7 +16,7 @@ export interface UseDismissibleLayerOptions {
 
 /** Adds interaction policy to the painted layer; never allocates another z-index. */
 export function useDismissibleLayer(options: UseDismissibleLayerOptions): symbol {
-  const identityRef = useRef(Symbol("openbitfun-overlay-dismissal"));
+  const identityRef = useRef(Symbol("alex-overlay-dismissal"));
   const latest = useRef(options);
   latest.current = options;
   const { enabled, layerRef, ownerDocument, scope } = options;

@@ -77,7 +77,7 @@ export class MessageFileReferenceProjector {
       if (inline.type === 'code') {
         return;
       }
-      const found: string[] = inline.text.match(/(?:computer|file|openbitfun):\/\/[^\s)\]}>"']+/g) || [];
+      const found: string[] = inline.text.match(/(?:computer|file|alex):\/\/[^\s)\]}>"']+/g) || [];
       found.forEach((reference: string) => {
         if (references.length < limit) {
           MessageFileReferenceProjector.add(reference, references, seenRemotePaths);

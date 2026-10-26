@@ -45,7 +45,7 @@ const ALL_PACKAGE_INPUTS = new Set([
   'scripts/generate-linux-binaries-manifest.mjs',
   'scripts/generate-tauri-latest-json.mjs',
   'scripts/generate-version.cjs',
-  'scripts/openbitfun-release-sync.sh',
+  'scripts/alex-release-sync.sh',
   'scripts/prepare-windows-installer-asset.mjs',
   'scripts/release-channel.mjs',
   'scripts/set-build-version.mjs',

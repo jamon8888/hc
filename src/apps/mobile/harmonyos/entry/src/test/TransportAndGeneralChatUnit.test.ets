@@ -954,7 +954,7 @@ export default function transportAndGeneralChatUnitTest() {
         failedAssistant
       ]);
 
-      expect(markdown).assertEqual('# 发布计划\n\n## 用户\n\n帮我整理发布计划\n\n## OpenBitFun\n\n先检查发布清单。\n');
+      expect(markdown).assertEqual('# 发布计划\n\n## 用户\n\n帮我整理发布计划\n\n## Alex\n\n先检查发布清单。\n');
       expect(markdown.indexOf('secret retry context')).assertEqual(-1);
     });
 
@@ -974,7 +974,7 @@ export default function transportAndGeneralChatUnitTest() {
         chatMessage('assistant-1', 'assistant', '你好！有什么我可以帮你的吗？')
       ]);
 
-      expect(markdown).assertEqual('## 用户\n\n你好你好。\n\n## OpenBitFun\n\n你好！有什么我可以帮你的吗？\n');
+      expect(markdown).assertEqual('## 用户\n\n你好你好。\n\n## Alex\n\n你好！有什么我可以帮你的吗？\n');
     });
   });
 
@@ -1626,8 +1626,8 @@ export default function transportAndGeneralChatUnitTest() {
       expect(openAiText).assertEqual('Hello');
     });
 
-    it('places the OpenBitFun system prompt in both request formats', 0, () => {
-      const messages: ModelProviderMessage[] = [{ role: 'user', content: 'OpenBitFun 是什么？' }];
+    it('places the Alex system prompt in both request formats', 0, () => {
+      const messages: ModelProviderMessage[] = [{ role: 'user', content: 'Alex 是什么？' }];
       const anthropicBody = ModelProviderGeneralChatAdapter.buildRequestBody(
         'model-a',
         messages,
@@ -1963,8 +1963,8 @@ export default function transportAndGeneralChatUnitTest() {
         mime_type: 'image/png'
       }]), '{"cmd":"steer_turn","session_id":"s1","turn_id":"turn-1","content":"continue","display_content":"continue","image_contexts":[{"id":"img1","data_url":"data:image/png;base64,abc","mime_type":"image/png"}]}');
       expectCommandJson(
-        RemoteCommandFactory.buildPlan('s1', '/repo/.openbitfun/plans/mobile.plan.md', 'Mobile plan', 'code'),
-        '{"cmd":"build_plan","session_id":"s1","plan_file_path":"/repo/.openbitfun/plans/mobile.plan.md","plan_name":"Mobile plan","agent_type":"code"}'
+        RemoteCommandFactory.buildPlan('s1', '/repo/.alex/plans/mobile.plan.md', 'Mobile plan', 'code'),
+        '{"cmd":"build_plan","session_id":"s1","plan_file_path":"/repo/.alex/plans/mobile.plan.md","plan_name":"Mobile plan","agent_type":"code"}'
       );
       expectCommandJson(RemoteCommandFactory.getSessionMessages('s1'), '{"cmd":"get_session_messages","session_id":"s1"}');
       expectCommandJson(RemoteCommandFactory.pollSession('s1', 7, 3, 2), '{"cmd":"poll_session","session_id":"s1","since_version":7,"known_msg_count":3,"known_model_catalog_version":2}');

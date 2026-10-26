@@ -5,7 +5,7 @@ use crate::agentic::tools::framework::{
 };
 use crate::agentic::tools::parse_i64_value;
 use crate::service::config::get_global_config_service;
-use crate::util::errors::OpenBitFunResult;
+use crate::util::errors::AlexResult;
 use async_trait::async_trait;
 use serde::Deserialize;
 use serde_json::{json, Value};
@@ -55,20 +55,20 @@ impl GenerativeUITool {
         "Architecture/codebase widget reminder: if the widget is a repo map, README architecture view, or module diagram, clickable nodes must carry verified file metadata on the clickable element itself. Use `data-file-path` for a REAL existing file and `data-line` for the exact definition line when the node represents code. Do not attach file metadata to abstract grouping nodes, package containers, or directories. If a node is conceptual or cannot be verified, leave it non-clickable."
     }
 
-    fn openbitfun_design_system_reminder() -> &'static str {
-        "OpenBitFun design-system reminder: when the widget should feel native to the host OpenBitFun app, compose the provided `openbitfun-*` scaffold classes first and use host-projected canonical tokens instead of hard-coded design values. Prefer CSS variables such as `var(--openbitfun-color-surface-canvas)`, `var(--openbitfun-color-surface-panel)`, `var(--openbitfun-color-surface-scene)`, `var(--openbitfun-color-surface-raised)`, `var(--openbitfun-color-content-primary)`, `var(--openbitfun-color-content-secondary)`, `var(--openbitfun-color-content-muted)`, `var(--openbitfun-color-accent-default)`, `var(--openbitfun-color-accent-hover)`, `var(--openbitfun-color-border-subtle)`, `var(--openbitfun-color-border-default)`, `var(--openbitfun-color-border-strong)`, `var(--openbitfun-color-action-neutral-surface)`, `var(--openbitfun-color-action-neutral-surface-hover)`, `var(--openbitfun-color-action-quiet-hover)`, `var(--openbitfun-shadow-*)`, `var(--openbitfun-motion-duration-*)`, `var(--openbitfun-motion-easing-*)`, `var(--openbitfun-font-family-sans)`, and `var(--openbitfun-font-family-mono)`. Radius, spacing, font-size, and font-weight variables are iframe-local scaffold values rather than host appearance extension points. Support both `openbitfun-dark` and `openbitfun-light`; do not assume dark-only, purple-only, or landing-page styling. Favor compact desktop workbench layouts, panel/card surfaces, strong information hierarchy, and reusable OpenBitFun component patterns. Avoid hard-coded colors, arbitrary spacing, giant hero sections, fake mobile chrome, and full marketing-page shells; prefer understated, premium UI with layered surfaces, restrained contrast, subtle borders, and do not use thick left-accent emphasis blocks."
+    fn alex_design_system_reminder() -> &'static str {
+        "Alex design-system reminder: when the widget should feel native to the host Alex app, compose the provided `alex-*` scaffold classes first and use host-projected canonical tokens instead of hard-coded design values. Prefer CSS variables such as `var(--alex-color-surface-canvas)`, `var(--alex-color-surface-panel)`, `var(--alex-color-surface-scene)`, `var(--alex-color-surface-raised)`, `var(--alex-color-content-primary)`, `var(--alex-color-content-secondary)`, `var(--alex-color-content-muted)`, `var(--alex-color-accent-default)`, `var(--alex-color-accent-hover)`, `var(--alex-color-border-subtle)`, `var(--alex-color-border-default)`, `var(--alex-color-border-strong)`, `var(--alex-color-action-neutral-surface)`, `var(--alex-color-action-neutral-surface-hover)`, `var(--alex-color-action-quiet-hover)`, `var(--alex-shadow-*)`, `var(--alex-motion-duration-*)`, `var(--alex-motion-easing-*)`, `var(--alex-font-family-sans)`, and `var(--alex-font-family-mono)`. Radius, spacing, font-size, and font-weight variables are iframe-local scaffold values rather than host appearance extension points. Support both `alex-dark` and `alex-light`; do not assume dark-only, purple-only, or landing-page styling. Favor compact desktop workbench layouts, panel/card surfaces, strong information hierarchy, and reusable Alex component patterns. Avoid hard-coded colors, arbitrary spacing, giant hero sections, fake mobile chrome, and full marketing-page shells; prefer understated, premium UI with layered surfaces, restrained contrast, subtle borders, and do not use thick left-accent emphasis blocks."
     }
 
-    fn openbitfun_widget_scaffold_reminder() -> &'static str {
-        "OpenBitFun widget scaffold reminder: the host iframe already provides reusable utility classes. Prefer these host classes before inventing a new visual language: `openbitfun-root`, `openbitfun-stack`, `openbitfun-row`, `openbitfun-row-wrap`, `openbitfun-toolbar`, `openbitfun-section`, `openbitfun-section-header`, `openbitfun-title`, `openbitfun-subtitle`, `openbitfun-eyebrow`, `openbitfun-card`, `openbitfun-panel`, `openbitfun-card-accent`, `openbitfun-grid`, `openbitfun-kpi`, `openbitfun-kpi-label`, `openbitfun-kpi-value`, `openbitfun-kpi-meta`, `openbitfun-badge`, `openbitfun-badge-accent`, `openbitfun-badge-success`, `openbitfun-badge-warning`, `openbitfun-badge-error`, `openbitfun-button`, `openbitfun-button-primary`, `openbitfun-input`, `openbitfun-textarea`, `openbitfun-select`, `openbitfun-list`, `openbitfun-list-item`, `openbitfun-table-wrap`, `openbitfun-table`, `openbitfun-empty`, `openbitfun-divider`, `openbitfun-code`, and `openbitfun-mono`. Generate markup that composes these classes first, and only add small local CSS when the scaffold is insufficient."
+    fn alex_widget_scaffold_reminder() -> &'static str {
+        "Alex widget scaffold reminder: the host iframe already provides reusable utility classes. Prefer these host classes before inventing a new visual language: `alex-root`, `alex-stack`, `alex-row`, `alex-row-wrap`, `alex-toolbar`, `alex-section`, `alex-section-header`, `alex-title`, `alex-subtitle`, `alex-eyebrow`, `alex-card`, `alex-panel`, `alex-card-accent`, `alex-grid`, `alex-kpi`, `alex-kpi-label`, `alex-kpi-value`, `alex-kpi-meta`, `alex-badge`, `alex-badge-accent`, `alex-badge-success`, `alex-badge-warning`, `alex-badge-error`, `alex-button`, `alex-button-primary`, `alex-input`, `alex-textarea`, `alex-select`, `alex-list`, `alex-list-item`, `alex-table-wrap`, `alex-table`, `alex-empty`, `alex-divider`, `alex-code`, and `alex-mono`. Generate markup that composes these classes first, and only add small local CSS when the scaffold is insufficient."
     }
 
     fn combined_reminder() -> String {
         format!(
             "{} {} {}",
             Self::architecture_widget_reminder(),
-            Self::openbitfun_design_system_reminder(),
-            Self::openbitfun_widget_scaffold_reminder()
+            Self::alex_design_system_reminder(),
+            Self::alex_widget_scaffold_reminder()
         )
     }
 
@@ -139,21 +139,21 @@ impl GenerativeUITool {
 
         if selected_appearance_id == "system" {
             return Some(format!(
-                "OpenBitFun active appearance selection: system. Exact runtime resolution is host-dependent, so do not assume one palette. {}",
+                "Alex active appearance selection: system. Exact runtime resolution is host-dependent, so do not assume one palette. {}",
                 Self::baseline_appearance_context()
             ));
         }
 
         if let Some(snapshot) = Self::builtin_appearance_snapshot(&selected_appearance_id) {
             return Some(format!(
-                "OpenBitFun active appearance snapshot: {}. {}",
+                "Alex active appearance snapshot: {}. {}",
                 Self::format_appearance_snapshot(snapshot),
                 Self::baseline_appearance_context()
             ));
         }
 
         Some(format!(
-            "OpenBitFun active appearance selection: {}. Backend does not have an exact built-in snapshot for this appearance, so use OpenBitFun CSS variables strictly and avoid hard-coded fallback palettes. {}",
+            "Alex active appearance selection: {}. Backend does not have an exact built-in snapshot for this appearance, so use Alex CSS variables strictly and avoid hard-coded fallback palettes. {}",
             selected_appearance_id,
             Self::baseline_appearance_context()
         ))
@@ -172,7 +172,7 @@ impl Tool for GenerativeUITool {
         "GenerativeUI"
     }
 
-    async fn description(&self) -> OpenBitFunResult<String> {
+    async fn description(&self) -> AlexResult<String> {
         Ok(format!(
             r#"Use GenerativeUI to render visual HTML or SVG content.
 
@@ -211,16 +211,16 @@ Input rules:
 25. For charts, give charts a fixed-height wrapper and keep legends or summary numbers outside the canvas when possible.
 26. For mockups, use compact spacing and clear hierarchy. Avoid building full app chrome unless the chrome itself is the point.
 27. For lightweight generative art, prefer SVG and keep the output deterministic and performant.
-28. If the widget is meant to match OpenBitFun's product UI, apply these reminders strictly: {} {}"#,
-            Self::openbitfun_design_system_reminder(),
-            Self::openbitfun_widget_scaffold_reminder()
+28. If the widget is meant to match Alex's product UI, apply these reminders strictly: {} {}"#,
+            Self::alex_design_system_reminder(),
+            Self::alex_widget_scaffold_reminder()
         ))
     }
 
     async fn description_with_context(
         &self,
         _context: Option<&ToolUseContext>,
-    ) -> OpenBitFunResult<String> {
+    ) -> AlexResult<String> {
         let mut description = self.description().await?;
         if let Some(appearance_context) = self.build_appearance_prompt_context().await {
             description.push_str("\n\n");
@@ -254,7 +254,7 @@ Input rules:
                 "widget_code": {
                     "type": "string",
                     "description": format!(
-                        "Raw HTML fragment or raw SVG. No Markdown code fences. For HTML: no <!DOCTYPE>, <html>, <head>, or <body>. The 260-line / 28KB guideline is a soft reliability threshold. For larger widgets, use data-driven loops, shared CSS classes, and simpler markup rather than truncating required behavior. {} If the widget should match OpenBitFun, rely on `openbitfun-*` scaffold classes plus host-projected color, surface, status, border, shadow, motion, and font-family variables instead of hard-coded colors or custom chrome. Treat radius, spacing, font-size, and font-weight variables as iframe-local scaffold values, not host appearance extension points. If the user asked for file navigation, do not finish this field until each clickable node has verified file metadata or is intentionally non-clickable.",
+                        "Raw HTML fragment or raw SVG. No Markdown code fences. For HTML: no <!DOCTYPE>, <html>, <head>, or <body>. The 260-line / 28KB guideline is a soft reliability threshold. For larger widgets, use data-driven loops, shared CSS classes, and simpler markup rather than truncating required behavior. {} If the widget should match Alex, rely on `alex-*` scaffold classes plus host-projected color, surface, status, border, shadow, motion, and font-family variables instead of hard-coded colors or custom chrome. Treat radius, spacing, font-size, and font-weight variables as iframe-local scaffold values, not host appearance extension points. If the user asked for file navigation, do not finish this field until each clickable node has verified file metadata or is intentionally non-clickable.",
                         Self::combined_reminder()
                     )
                 },
@@ -289,16 +289,16 @@ Input rules:
         let appearance_context = self.build_appearance_prompt_context().await;
         if let Some(obj) = schema.as_object_mut() {
             obj.insert(
-                "x-openbitfun-reminder".to_string(),
+                "x-alex-reminder".to_string(),
                 Value::String(Self::combined_reminder()),
             );
             obj.insert(
-                "x-openbitfun-design-system".to_string(),
-                Value::String(Self::openbitfun_design_system_reminder().to_string()),
+                "x-alex-design-system".to_string(),
+                Value::String(Self::alex_design_system_reminder().to_string()),
             );
             if let Some(appearance_context) = appearance_context {
                 obj.insert(
-                    "x-openbitfun-appearance-context".to_string(),
+                    "x-alex-appearance-context".to_string(),
                     Value::String(appearance_context.clone()),
                 );
                 if let Some(description) = obj
@@ -426,7 +426,7 @@ Input rules:
         &self,
         input: &Value,
         context: &ToolUseContext,
-    ) -> OpenBitFunResult<Vec<ToolResult>> {
+    ) -> AlexResult<Vec<ToolResult>> {
         let title = input
             .get("title")
             .and_then(|v| v.as_str())

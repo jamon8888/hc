@@ -7,7 +7,7 @@
  */
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { subscribeOverlayInteraction, createOverlayPortal, Button, IconButton, OverflowText, Icon, KeyHint, Menu, MenuItem, MenuList, MenuSeparator, Tooltip } from '@openbitfun/ui';
+import { subscribeOverlayInteraction, createOverlayPortal, Button, IconButton, OverflowText, Icon, KeyHint, Menu, MenuItem, MenuList, MenuSeparator, Tooltip } from '@alex/ui';
 import { getAppearanceOverlayHost } from '@/infrastructure/appearance/runtime/AppearanceOverlayHost';
 import { LayoutGrid } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -165,12 +165,12 @@ export const TabOverflowMenu: React.FC<TabOverflowMenuProps> = ({
       : '';
 
   return (
-    <div data-openbitfun-product-component="canvas-tab-overflow" data-openbitfun-product-part="root" data-openbitfun-state={isOpen ? 'open' : ''} ref={wrapperRef} className="canvas-tab-panorama-wrapper">
+    <div data-alex-product-component="canvas-tab-overflow" data-alex-product-part="root" data-alex-state={isOpen ? 'open' : ''} ref={wrapperRef} className="canvas-tab-panorama-wrapper">
       <Tooltip content={tooltipContent} placement="bottom">
         {hasOverflow ? (
           <Button
-            data-openbitfun-product-component="canvas-tab-overflow"
-            data-openbitfun-product-part="trigger"
+            data-alex-product-component="canvas-tab-overflow"
+            data-alex-product-part="trigger"
             size="sm"
             variant="text"
             aria-label={tooltipContent}
@@ -179,14 +179,14 @@ export const TabOverflowMenu: React.FC<TabOverflowMenuProps> = ({
             onClick={handleButtonClick}
             leadingIcon={hasMissionControl ? <LayoutGrid size={14} /> : <Icon name="chevron-down" size="sm" />}
           >
-            <span data-openbitfun-product-component="canvas-tab-overflow" data-openbitfun-product-part="badge">
+            <span data-alex-product-component="canvas-tab-overflow" data-alex-product-part="badge">
               +{overflowTabs.length}
             </span>
           </Button>
         ) : (
           <IconButton
-            data-openbitfun-product-component="canvas-tab-overflow"
-            data-openbitfun-product-part="trigger"
+            data-alex-product-component="canvas-tab-overflow"
+            data-alex-product-part="trigger"
             size="sm"
             aria-label={tooltipContent}
             onClick={handleButtonClick}
@@ -246,9 +246,9 @@ export const TabOverflowMenu: React.FC<TabOverflowMenuProps> = ({
                 }]}
               >
                 <OverflowText behavior="marquee"
-                  data-openbitfun-product-component="canvas-tab-overflow"
-                  data-openbitfun-product-part="itemTitle"
-                  data-openbitfun-state={[
+                  data-alex-product-component="canvas-tab-overflow"
+                  data-alex-product-part="itemTitle"
+                  data-alex-state={[
                     activeTabId === tab.id && 'active',
                     tab.isDirty && 'dirty',
                     tab.fileDeletedFromDisk && 'deleted',

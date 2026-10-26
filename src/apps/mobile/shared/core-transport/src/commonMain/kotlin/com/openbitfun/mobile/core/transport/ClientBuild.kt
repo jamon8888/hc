@@ -18,7 +18,7 @@ package com.openbitfun.mobile.core.transport
  *  - increment only on a breaking change to the client control contract.
  *
  * Kept numerically identical to
- * `openbitfun_product_domains::account::CLIENT_PROTOCOL_VERSION` in
+ * `alex_product_domains::account::CLIENT_PROTOCOL_VERSION` in
  * `src/crates/contracts/product-domains/src/account.rs` and to
  * `src/shared/relay-transport/ClientBuild.ts`; `ClientBuildContractTest` pins
  * the three together so one side can never drift.

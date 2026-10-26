@@ -5,7 +5,7 @@ import { dockConversationKey, useConversationDockStore, type DockConversation } 
 import type { SceneTabId, SessionSceneTarget } from '../components/SceneBar/types';
 import { stageConversationViewTransfer } from '@/flow_chat/components/modern/flowChatViewHandoff';
 
-const MIME = 'application/x-openbitfun-conversation';
+const MIME = 'application/x-alex-conversation';
 type Offer = { id: string; scope: SurfaceScope; ref: DockConversation; sourceTab?: SceneTabId };
 let offer: Offer | null = null;
 

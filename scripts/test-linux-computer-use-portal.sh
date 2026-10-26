@@ -13,7 +13,7 @@ python3 - <<'PY' &
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
-window = Gtk.Window(title='OpenBitFun Portal Fixture')
+window = Gtk.Window(title='Alex Portal Fixture')
 window.set_default_size(640, 360)
 window.connect('destroy', Gtk.main_quit)
 area = Gtk.DrawingArea()
@@ -23,7 +23,7 @@ def draw(widget, context):
     context.set_source_rgb(1, 1, 1)
     context.set_font_size(22)
     context.move_to(35, 150)
-    context.show_text('OpenBitFun Portal Fixture')
+    context.show_text('Alex Portal Fixture')
     context.set_font_size(15)
     context.move_to(35, 190)
     context.show_text('Select this window in the system sharing dialog.')

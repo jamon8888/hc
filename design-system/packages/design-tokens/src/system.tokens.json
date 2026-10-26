@@ -37,7 +37,7 @@
       },
       "aiResponse": {
         "$type": "fontFamily",
-        "$value": "'OpenBitFun Source Serif 4', 'OpenBitFun Source Serif 4 VF', {font.family.sans}"
+        "$value": "'Alex Source Serif 4', 'Alex Source Serif 4 VF', {font.family.sans}"
       }
     },
     "size": {

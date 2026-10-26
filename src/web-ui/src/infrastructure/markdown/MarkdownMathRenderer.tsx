@@ -45,8 +45,8 @@ export const MarkdownMathRenderer: React.FC<MarkdownMathRendererProps> = ({
     </ReactMarkdown>
   );
   return inline
-    ? <span data-openbitfun-component="markdown" data-openbitfun-part="math">{content}</span>
-    : <div data-openbitfun-component="markdown" data-openbitfun-part="math">{content}</div>;
+    ? <span data-alex-component="markdown" data-alex-part="math">{content}</span>
+    : <div data-alex-component="markdown" data-alex-part="math">{content}</div>;
 };
 
 export default MarkdownMathRenderer;

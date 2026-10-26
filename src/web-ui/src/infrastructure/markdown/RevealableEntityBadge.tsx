@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { Tooltip } from '@openbitfun/ui';
+import { Tooltip } from '@alex/ui';
 import { Eye, EyeOff } from 'lucide-react';
 import { basemindAPI } from '@/infrastructure/api';
 import { useI18n } from '@/infrastructure/i18n';
@@ -120,9 +120,9 @@ export const RevealableEntityBadge: React.FC<RevealableEntityBadgeProps> = ({
     >
       <span
         className={`pii-entity-badge pii-entity-badge--${tone}`}
-        data-openbitfun-component="pii-entity-badge"
-        data-openbitfun-part="root"
-        data-openbitfun-state={errorMessage ? 'error' : isRevealed ? 'revealed' : isLoading ? 'loading' : undefined}
+        data-alex-component="pii-entity-badge"
+        data-alex-part="root"
+        data-alex-state={errorMessage ? 'error' : isRevealed ? 'revealed' : isLoading ? 'loading' : undefined}
         data-entity-type={entityType}
         onClick={() => { void handleClick(); }}
         onKeyDown={(event) => {
@@ -136,21 +136,21 @@ export const RevealableEntityBadge: React.FC<RevealableEntityBadgeProps> = ({
         aria-pressed={isRevealed}
         aria-busy={isLoading || undefined}
       >
-        <span className="pii-entity-badge__label" data-openbitfun-component="pii-entity-badge" data-openbitfun-part="label">
+        <span className="pii-entity-badge__label" data-alex-component="pii-entity-badge" data-alex-part="label">
           {displayText}
         </span>
         <span className="sr-only">{statusText}</span>
         {isLoading && (
           <span
             className="pii-entity-badge__spinner"
-            data-openbitfun-component="pii-entity-badge"
-            data-openbitfun-part="spinner"
+            data-alex-component="pii-entity-badge"
+            data-alex-part="spinner"
             aria-hidden="true"
           />
         )}
         {!isLoading && (isRevealed
-          ? <EyeOff className="pii-entity-badge__icon" data-openbitfun-component="pii-entity-badge" data-openbitfun-part="icon" size={12} aria-hidden="true" />
-          : <Eye className="pii-entity-badge__icon" data-openbitfun-component="pii-entity-badge" data-openbitfun-part="icon" size={12} aria-hidden="true" />)}
+          ? <EyeOff className="pii-entity-badge__icon" data-alex-component="pii-entity-badge" data-alex-part="icon" size={12} aria-hidden="true" />
+          : <Eye className="pii-entity-badge__icon" data-alex-component="pii-entity-badge" data-alex-part="icon" size={12} aria-hidden="true" />)}
       </span>
     </Tooltip>
   );

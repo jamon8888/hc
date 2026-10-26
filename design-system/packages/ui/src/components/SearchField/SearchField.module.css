@@ -1,56 +1,56 @@
-@layer openbitfun.components {
+@layer alex.components {
   .root {
-    --_search-field-height: var(--openbitfun-control-search-field-height-sm);
+    --_search-field-height: var(--alex-control-search-field-height-sm);
 
     display: inline-flex;
     min-inline-size: 0;
   }
 
   .root[data-size="md"] {
-    --_search-field-height: var(--openbitfun-control-search-field-height-md);
+    --_search-field-height: var(--alex-control-search-field-height-md);
   }
 
   .root[data-size="lg"] {
-    --_search-field-height: var(--openbitfun-control-search-field-height-lg);
+    --_search-field-height: var(--alex-control-search-field-height-lg);
   }
 
   .root .field {
     box-sizing: border-box;
     inline-size: 100%;
     block-size: var(--_search-field-height);
-    gap: var(--openbitfun-space-1);
-    padding-inline-start: var(--openbitfun-space-component-inline);
+    gap: var(--alex-space-1);
+    padding-inline-start: var(--alex-space-component-inline);
     border: 0;
-    border-radius: var(--openbitfun-radius-pill);
+    border-radius: var(--alex-radius-pill);
     box-shadow: none;
   }
 
   .root[data-variant="default"] .field {
     /* Match Figma's centered stroke without changing the input-row layout box. */
-    outline: var(--openbitfun-border-width-default) solid var(--openbitfun-color-field-border);
-    outline-offset: calc(-0.5 * var(--openbitfun-border-width-default));
+    outline: var(--alex-border-width-default) solid var(--alex-color-field-border);
+    outline-offset: calc(-0.5 * var(--alex-border-width-default));
   }
 
   .root[data-variant="default"] .field[data-invalid="true"] {
-    outline-color: var(--openbitfun-color-status-danger-border);
+    outline-color: var(--alex-color-status-danger-border);
   }
 
   /* Search owns a quiet focus treatment without changing general-purpose Input. */
   .root[data-variant="default"] .field:where(:not([data-invalid="true"])) {
-    outline-color: var(--openbitfun-color-border-subtle);
+    outline-color: var(--alex-color-border-subtle);
   }
 
   .root[data-variant="default"] .field:where(:not([data-invalid="true"], [data-disabled="true"])):is(:hover, :focus-within) {
-    outline-color: var(--openbitfun-color-border-default);
+    outline-color: var(--alex-color-border-default);
   }
 
-  .field [data-openbitfun-part="trailing"] {
-    gap: var(--openbitfun-space-1);
+  .field [data-alex-part="trailing"] {
+    gap: var(--alex-space-1);
   }
 
   .root:not([data-variant="embedded"]) .fieldWithAction {
     /* End clearance and centered block clearance share the same layout geometry. */
-    padding-inline-end: max(0px, calc((var(--_search-field-height) - var(--openbitfun-control-icon-button-xs-size)) / 2));
+    padding-inline-end: max(0px, calc((var(--_search-field-height) - var(--alex-control-icon-button-xs-size)) / 2));
   }
 
   .root[data-variant="embedded"] .field,
@@ -66,20 +66,20 @@
 
   .root[data-variant="panel"] {
     flex-direction: column;
-    border-radius: var(--openbitfun-radius-lg);
-    outline: var(--openbitfun-border-width-default) solid var(--openbitfun-color-border-subtle);
-    outline-offset: calc(-0.5 * var(--openbitfun-border-width-default));
-    color: var(--openbitfun-color-content-primary);
-    background: var(--openbitfun-color-surface-raised);
-    box-shadow: var(--openbitfun-shadow-overlay);
+    border-radius: var(--alex-radius-lg);
+    outline: var(--alex-border-width-default) solid var(--alex-color-border-subtle);
+    outline-offset: calc(-0.5 * var(--alex-border-width-default));
+    color: var(--alex-color-content-primary);
+    background: var(--alex-color-surface-raised);
+    box-shadow: var(--alex-shadow-overlay);
   }
 
   .root[data-variant="panel"]:focus-within {
-    outline-color: var(--openbitfun-color-border-default);
+    outline-color: var(--alex-color-border-default);
   }
 
   .root[data-variant="panel"]:has(.field[data-invalid="true"]) {
-    outline-color: var(--openbitfun-color-status-danger-border);
+    outline-color: var(--alex-color-status-danger-border);
   }
 
   .root[data-variant="panel"] .field,
@@ -97,36 +97,36 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--openbitfun-space-2);
+    gap: var(--alex-space-2);
     min-inline-size: 0;
-    min-block-size: calc(var(--_search-field-height) + var(--openbitfun-space-1) - var(--openbitfun-border-width-default));
-    padding: var(--openbitfun-space-1) var(--openbitfun-space-2);
-    border-block-start: var(--openbitfun-border-width-default) solid var(--openbitfun-color-border-subtle);
-    font-family: var(--openbitfun-type-meta-font-family);
-    font-size: var(--openbitfun-type-meta-font-size);
-    font-weight: var(--openbitfun-type-meta-font-weight);
-    line-height: var(--openbitfun-type-meta-line-height);
-    letter-spacing: var(--openbitfun-type-meta-letter-spacing);
+    min-block-size: calc(var(--_search-field-height) + var(--alex-space-1) - var(--alex-border-width-default));
+    padding: var(--alex-space-1) var(--alex-space-2);
+    border-block-start: var(--alex-border-width-default) solid var(--alex-color-border-subtle);
+    font-family: var(--alex-type-meta-font-family);
+    font-size: var(--alex-type-meta-font-size);
+    font-weight: var(--alex-type-meta-font-weight);
+    line-height: var(--alex-type-meta-line-height);
+    letter-spacing: var(--alex-type-meta-letter-spacing);
   }
 
   @supports (backdrop-filter: none) or (-webkit-backdrop-filter: none) {
     .root[data-variant="panel"] {
       /* Surface tokens may be opaque; composite the whole panel before blurring. */
-      background: color-mix(in srgb, var(--openbitfun-color-surface-raised) 80%, transparent);
-      -webkit-backdrop-filter: var(--openbitfun-effect-blur-medium);
-      backdrop-filter: var(--openbitfun-effect-blur-medium);
+      background: color-mix(in srgb, var(--alex-color-surface-raised) 80%, transparent);
+      -webkit-backdrop-filter: var(--alex-effect-blur-medium);
+      backdrop-filter: var(--alex-effect-blur-medium);
     }
   }
 
   :where(:global([data-contrast="high"])) .root[data-variant="panel"] {
-    background: var(--openbitfun-color-surface-raised);
+    background: var(--alex-color-surface-raised);
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
 
   @media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
     .root[data-variant="panel"] {
-      background: var(--openbitfun-color-surface-raised);
+      background: var(--alex-color-surface-raised);
       -webkit-backdrop-filter: none;
       backdrop-filter: none;
     }
@@ -164,7 +164,7 @@
   }
 
   .icon > :where(svg, img),
-  .icon > [data-openbitfun-component="icon"] {
+  .icon > [data-alex-component="icon"] {
     display: block;
     inline-size: 100%;
     block-size: 100%;
@@ -175,12 +175,12 @@
     align-items: center;
     justify-content: center;
     min-inline-size: 0;
-    color: var(--openbitfun-color-content-muted);
-    font-family: var(--openbitfun-type-meta-font-family);
-    font-size: var(--openbitfun-type-meta-font-size);
-    font-weight: var(--openbitfun-type-meta-font-weight);
-    line-height: var(--openbitfun-type-meta-line-height);
-    letter-spacing: var(--openbitfun-type-meta-letter-spacing);
+    color: var(--alex-color-content-muted);
+    font-family: var(--alex-type-meta-font-family);
+    font-size: var(--alex-type-meta-font-size);
+    font-weight: var(--alex-type-meta-font-weight);
+    line-height: var(--alex-type-meta-line-height);
+    letter-spacing: var(--alex-type-meta-letter-spacing);
     white-space: nowrap;
   }
 

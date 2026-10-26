@@ -15,8 +15,8 @@ vi.mock('@/infrastructure/i18n', () => ({
   }),
 }));
 
-vi.mock('@openbitfun/ui', async importOriginal => ({
-  ...await importOriginal<typeof import('@openbitfun/ui')>(),
+vi.mock('@alex/ui', async importOriginal => ({
+  ...await importOriginal<typeof import('@alex/ui')>(),
   Tooltip: ({ children }: { children: React.ReactElement }) => children,
 }));
 
@@ -28,7 +28,7 @@ const job: CronJob = {
   enabled: true,
   target: {
     kind: 'workspace',
-    workspace: { workspacePath: '/workspace/openbitfun' },
+    workspace: { workspacePath: '/workspace/alex' },
     launch: { agentType: 'Standard' },
   },
   createdAtMs: 0,
@@ -77,9 +77,9 @@ describe('TodoItemRow actions', () => {
     const editButton = container.querySelector<HTMLButtonElement>('button[aria-label="actions.edit"]');
     const deleteButton = container.querySelector<HTMLButtonElement>('button[aria-label="actions.delete"]');
 
-    expect(editButton?.dataset.openbitfunComponent).toBe('icon-button');
+    expect(editButton?.dataset.alexComponent).toBe('icon-button');
     expect(editButton?.dataset.size).toBe('sm');
-    expect(deleteButton?.dataset.openbitfunTone).toBe('danger');
+    expect(deleteButton?.dataset.alexTone).toBe('danger');
 
     act(() => editButton?.click());
     expect(onEdit).toHaveBeenCalledTimes(1);

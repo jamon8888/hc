@@ -17,7 +17,7 @@ const browser = await puppeteer.launch({
   ...(process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : { channel: 'chrome' }),
   headless: 'new',
 });
-const dir = await mkdtemp(join(tmpdir(), 'openbitfun-dom-context-'));
+const dir = await mkdtemp(join(tmpdir(), 'alex-dom-context-'));
 try {
   const page = await browser.newPage();
   await page.setViewport({ width: 1200, height: 900 });
@@ -104,7 +104,7 @@ try {
   const code = await new Promise((resolveExit, reject) => {
     const child = spawn(process.execPath, [join(root, 'scripts/test-computer-use-context.mjs'), 'real_browser_snapshot', '--', '--ignored'], {
       cwd: root, stdio: 'inherit', windowsHide: true,
-      env: { ...process.env, OPENBITFUN_BROWSER_SNAPSHOT_FIXTURE: fixture },
+      env: { ...process.env, ALEX_BROWSER_SNAPSHOT_FIXTURE: fixture },
     });
     child.on('error', reject);
     child.on('close', code => resolveExit(code ?? 1));
@@ -123,9 +123,9 @@ try {
     }));
     const nativeCode = await new Promise((resolveExit, reject) => {
       const nativeArgs = ['--ignored', '--exact', 'computer_use::screen_ocr::native_fixture_tests::native_vision_reads_rendered_fixture'];
-      const child = spawn(process.env.OPENBITFUN_TEST_BINARY || 'cargo', process.env.OPENBITFUN_TEST_BINARY ? nativeArgs : ['test', '-p', 'openbitfun-desktop', '--lib', 'native_vision_reads_rendered_fixture', '--', ...nativeArgs], {
+      const child = spawn(process.env.ALEX_TEST_BINARY || 'cargo', process.env.ALEX_TEST_BINARY ? nativeArgs : ['test', '-p', 'alex-desktop', '--lib', 'native_vision_reads_rendered_fixture', '--', ...nativeArgs], {
         cwd: root, stdio: 'inherit', windowsHide: true,
-        env: { ...process.env, OPENBITFUN_OCR_FIXTURE: ocrFixture },
+        env: { ...process.env, ALEX_OCR_FIXTURE: ocrFixture },
       });
       child.on('error', reject);
       child.on('close', code => resolveExit(code ?? 1));

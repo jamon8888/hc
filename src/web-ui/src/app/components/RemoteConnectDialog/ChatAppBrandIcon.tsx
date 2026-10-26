@@ -1,4 +1,4 @@
-import type { IconSize } from '@openbitfun/ui';
+import type { IconSize } from '@alex/ui';
 
 export type ChatAppBrand = 'telegram' | 'feishu' | 'weixin';
 
@@ -8,11 +8,11 @@ interface ChatAppBrandIconProps {
 }
 
 const ICON_TOKEN_SIZE: Record<IconSize, string> = {
-  '2xs': 'var(--openbitfun-control-icon-size2xs)',
-  xs: 'var(--openbitfun-control-icon-size-xs)',
-  sm: 'var(--openbitfun-control-icon-size-sm)',
-  md: 'var(--openbitfun-control-icon-size-md)',
-  lg: 'var(--openbitfun-control-icon-size-lg)',
+  '2xs': 'var(--alex-control-icon-size2xs)',
+  xs: 'var(--alex-control-icon-size-xs)',
+  sm: 'var(--alex-control-icon-size-sm)',
+  md: 'var(--alex-control-icon-size-md)',
+  lg: 'var(--alex-control-icon-size-lg)',
 };
 
 /**

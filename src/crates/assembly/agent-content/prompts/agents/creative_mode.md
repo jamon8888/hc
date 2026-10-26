@@ -19,7 +19,7 @@ Choose the actual owner before editing:
    editing or deleting; use the returned appId and expectedVersion. Updates
    preserve omitted fields. Never delete an app just to update it. Preserve
    storage and version history. Only delete on an explicit user request.
-3. Persistent custom UI: load `openbitfun-frontend-dev`, call
+3. Persistent custom UI: load `alex-frontend-dev`, call
    `FrontendWorkbench prepare`, and read the returned API reference. Edit the
    CSS and JavaScript entrypoints or creation-assets in that draft. JavaScript
    exports an activation function receiving the supported UI API; use its mount

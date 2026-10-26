@@ -36,22 +36,22 @@ test("Card keeps media, header, body, and footer regions independent", () => {
     )),
   );
 
-  assert.match(markup, /data-openbitfun-component="card"/);
+  assert.match(markup, /data-alex-component="card"/);
   assert.match(markup, /data-appearance="raised"/);
   assert.match(markup, /data-clip="true"/);
   assert.match(markup, /data-gap="md"/);
   assert.match(markup, /data-radius="lg"/);
-  assert.match(markup, /data-openbitfun-part="media"/);
-  assert.match(markup, /data-openbitfun-part="header"/);
+  assert.match(markup, /data-alex-part="media"/);
+  assert.match(markup, /data-alex-part="header"/);
   assert.match(markup, /data-content-align="center"/);
-  assert.match(markup, /data-openbitfun-part="header-content"/);
-  assert.match(markup, /data-openbitfun-part="leading"/);
-  assert.match(markup, /data-openbitfun-part="title">Projects/);
-  assert.match(markup, /data-openbitfun-part="description">One item/);
-  assert.match(markup, /data-openbitfun-part="actions"/);
-  assert.match(markup, /data-openbitfun-part="body"/);
-  assert.match(markup, /data-align="end"[^>]+data-openbitfun-part="body"/);
-  assert.match(markup, /data-openbitfun-part="footer"/);
+  assert.match(markup, /data-alex-part="header-content"/);
+  assert.match(markup, /data-alex-part="leading"/);
+  assert.match(markup, /data-alex-part="title">Projects/);
+  assert.match(markup, /data-alex-part="description">One item/);
+  assert.match(markup, /data-alex-part="actions"/);
+  assert.match(markup, /data-alex-part="body"/);
+  assert.match(markup, /data-align="end"[^>]+data-alex-part="body"/);
+  assert.match(markup, /data-alex-part="footer"/);
   assert.match(markup, /data-align="between"/);
 });
 
@@ -76,13 +76,13 @@ test("Card supports a square surface when it joins a parent container", () => {
 test("Card styles use public surface, spacing, radius, and elevation tokens", async () => {
   const styles = await readFile(new URL("../dist/styles.css", import.meta.url), "utf8");
 
-  assert.match(styles, /--openbitfun-color-surface-raised/);
-  assert.match(styles, /--openbitfun-color-surface-tertiary/);
-  assert.match(styles, /--openbitfun-color-action-neutral-surface/);
-  assert.match(styles, /--openbitfun-shadow-overlay/);
-  assert.match(styles, /--openbitfun-layout-card-padding-sm/);
-  assert.match(styles, /--openbitfun-layout-card-radius-lg/);
+  assert.match(styles, /--alex-color-surface-raised/);
+  assert.match(styles, /--alex-color-surface-tertiary/);
+  assert.match(styles, /--alex-color-action-neutral-surface/);
+  assert.match(styles, /--alex-shadow-overlay/);
+  assert.match(styles, /--alex-layout-card-padding-sm/);
+  assert.match(styles, /--alex-layout-card-radius-lg/);
   assert.match(styles, /data-radius=none[^}]*border-radius:0/);
-  assert.match(styles, /--openbitfun-layout-card-media-min-block-size/);
+  assert.match(styles, /--alex-layout-card-media-min-block-size/);
   assert.match(styles, /object-fit:cover/);
 });

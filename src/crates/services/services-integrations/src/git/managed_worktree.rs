@@ -3,7 +3,7 @@ use super::types::{GitLocalChangeSummary, GitWorktreeInfo};
 use super::utils::{execute_git_command, open_repository};
 use super::GitError;
 use git2::Repository;
-use openbitfun_services_core::process_manager;
+use alex_services_core::process_manager;
 use std::path::{Component, Path, PathBuf};
 use std::process::Stdio;
 use tokio::io::AsyncWriteExt;
@@ -481,7 +481,7 @@ mod tests {
     use tempfile::TempDir;
 
     fn git(path: &Path, args: &[&str]) -> String {
-        let output = openbitfun_services_core::process_manager::create_command("git")
+        let output = alex_services_core::process_manager::create_command("git")
             .current_dir(path)
             .env("GIT_TERMINAL_PROMPT", "0")
             .args(args)
@@ -501,10 +501,10 @@ mod tests {
         let repository = temp.path().join("repository");
         fs::create_dir_all(&repository).expect("create repository");
         git(&repository, &["init"]);
-        git(&repository, &["config", "user.name", "OpenBitFun Test"]);
+        git(&repository, &["config", "user.name", "Alex Test"]);
         git(
             &repository,
-            &["config", "user.email", "openbitfun-test@example.invalid"],
+            &["config", "user.email", "alex-test@example.invalid"],
         );
         fs::write(repository.join("shared.txt"), "base\n").expect("write base file");
         git(&repository, &["add", "."]);

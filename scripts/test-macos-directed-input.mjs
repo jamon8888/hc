@@ -6,7 +6,7 @@ import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 assert.equal(process.platform, 'darwin', 'directed input fixture requires macOS');
 const root = fileURLToPath(new URL('../', import.meta.url));
-const directory = await mkdtemp(join(tmpdir(), 'openbitfun-directed-input-'));
+const directory = await mkdtemp(join(tmpdir(), 'alex-directed-input-'));
 const run = (command, args, env = process.env) => new Promise((resolve, reject) => {
   const child = spawn(command, args, { cwd: root, stdio: 'inherit', windowsHide: true, env });
   child.on('error', reject);
@@ -30,11 +30,11 @@ try {
     });
   });
   const testArgs = ['native_directed_input_fixture_counts_and_stop_release', '--ignored', '--test-threads=1', '--nocapture'];
-  const command = process.env.OPENBITFUN_TEST_BINARY || 'cargo';
-  const args = process.env.OPENBITFUN_TEST_BINARY ? testArgs : ['test', '-p', 'openbitfun-desktop', '--lib', 'native_directed_input_fixture_counts_and_stop_release', '--', ...testArgs.slice(1)];
+  const command = process.env.ALEX_TEST_BINARY || 'cargo';
+  const args = process.env.ALEX_TEST_BINARY ? testArgs : ['test', '-p', 'alex-desktop', '--lib', 'native_directed_input_fixture_counts_and_stop_release', '--', ...testArgs.slice(1)];
   await run(command, args, {
-    ...process.env, OPENBITFUN_INPUT_FIXTURE_PID: pid, OPENBITFUN_INPUT_FIXTURE_X: x,
-    OPENBITFUN_INPUT_FIXTURE_Y: y, OPENBITFUN_INPUT_FIXTURE_RESULT: result,
+    ...process.env, ALEX_INPUT_FIXTURE_PID: pid, ALEX_INPUT_FIXTURE_X: x,
+    ALEX_INPUT_FIXTURE_Y: y, ALEX_INPUT_FIXTURE_RESULT: result,
   });
   const received = JSON.parse(await readFile(result, 'utf8'));
   assert.equal(received.locations.length, 4);

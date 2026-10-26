@@ -165,29 +165,29 @@ impl BasemindPromptPseudonymizer {
 
 #[cfg(feature = "basemind")]
 #[async_trait::async_trait]
-impl openbitfun_runtime_ports::PromptPseudonymizationPort for BasemindPromptPseudonymizer {
+impl alex_runtime_ports::PromptPseudonymizationPort for BasemindPromptPseudonymizer {
     async fn pseudonymize(
         &self,
         prompt: &str,
         session_id: &str,
         workspace_root: &str,
     ) -> Result<
-        openbitfun_runtime_ports::PseudonymizedPrompt,
-        openbitfun_runtime_ports::PromptPseudonymizationError,
+        alex_runtime_ports::PseudonymizedPrompt,
+        alex_runtime_ports::PromptPseudonymizationError,
     > {
         let mut guard = self.inner.lock().await;
         PromptPseudonymizer::pseudonymize(&mut guard, prompt, session_id, workspace_root)
             .await
             .map(
-                |pseudonymized| openbitfun_runtime_ports::PseudonymizedPrompt {
+                |pseudonymized| alex_runtime_ports::PseudonymizedPrompt {
                     text: pseudonymized.text,
                     rehydration_map: pseudonymized.rehydration_map,
                     session_id: pseudonymized.session_id,
                 },
             )
             .map_err(|error| {
-                openbitfun_runtime_ports::PromptPseudonymizationError::new(
-                    openbitfun_runtime_ports::PromptPseudonymizationErrorKind::Failed,
+                alex_runtime_ports::PromptPseudonymizationError::new(
+                    alex_runtime_ports::PromptPseudonymizationErrorKind::Failed,
                     error.to_string(),
                 )
             })

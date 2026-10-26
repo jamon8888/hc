@@ -518,7 +518,7 @@ public class CloudAccountClient internal constructor(
         val response = client.request("https://api.github.com/user/$userId") {
             method = HttpMethod.Get
             accept(ContentType.Application.Json)
-            headers.append("User-Agent", "OpenBitFun-Mobile")
+            headers.append("User-Agent", "Alex-Mobile")
         }
         if (response.status.value != 200) return null
         val profile = RelayJson.decodeFromString<GitHubProfile>(response.bodyAsText())

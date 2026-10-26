@@ -28,8 +28,8 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-vi.mock('@openbitfun/ui', async () => ({
-  Icon: ({ name }: { name: string }) => <span data-openbitfun-component="icon" data-openbitfun-name={name} />,
+vi.mock('@alex/ui', async () => ({
+  Icon: ({ name }: { name: string }) => <span data-alex-component="icon" data-alex-name={name} />,
   Button: ({
     children,
     disabled,
@@ -37,7 +37,7 @@ vi.mock('@openbitfun/ui', async () => ({
     children: React.ReactNode;
     disabled?: boolean;
   }) => <button type="button" disabled={disabled}>{children}</button>,
-  Checkbox: (await vi.importActual<typeof import("@openbitfun/ui")>("@openbitfun/ui")).Checkbox,
+  Checkbox: (await vi.importActual<typeof import("@alex/ui")>("@alex/ui")).Checkbox,
   Tooltip: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
@@ -232,7 +232,7 @@ describeWithJsdom('RemediationSelectionPanel interactions', () => {
     mount(<Panel />);
     const header = container.querySelector<HTMLElement>('.deep-review-action-bar__remediation-toggle')!;
     const checkbox = header.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
-    const box = header.querySelector<HTMLElement>('[data-openbitfun-part="box"]')!;
+    const box = header.querySelector<HTMLElement>('[data-alex-part="box"]')!;
 
     for (const target of [checkbox, box]) {
       act(() => { target.click(); });

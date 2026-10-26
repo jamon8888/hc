@@ -145,29 +145,29 @@ export const ConfirmDialog = forwardRef<HTMLDivElement, ConfirmDialogProps>(
         </DialogHeader>
         {hasMessage || hasPreview ? (
           <DialogBody>
-            <div className={styles.content} data-openbitfun-component="confirm-dialog" data-openbitfun-part="content">
+            <div className={styles.content} data-alex-component="confirm-dialog" data-alex-part="content">
               {hasMessage ? (
                 <div
                   className={styles.messageRow}
-                  data-openbitfun-component="confirm-dialog"
-                  data-openbitfun-part="messageRow"
+                  data-alex-component="confirm-dialog"
+                  data-alex-part="messageRow"
                 >
                   {resolvedIcon !== null ? (
                     <span
                       aria-hidden="true"
                       className={styles.icon}
-                      data-openbitfun-component="confirm-dialog"
-                      data-openbitfun-icon-slot="true"
-                      data-openbitfun-part="icon"
-                      data-openbitfun-status={type === "error" ? "danger" : type}
+                      data-alex-component="confirm-dialog"
+                      data-alex-icon-slot="true"
+                      data-alex-part="icon"
+                      data-alex-status={type === "error" ? "danger" : type}
                     >
                       {resolvedIcon}
                     </span>
                   ) : null}
                   <div
                     className={styles.message}
-                    data-openbitfun-component="confirm-dialog"
-                    data-openbitfun-part="message"
+                    data-alex-component="confirm-dialog"
+                    data-alex-part="message"
                   >
                     {message}
                   </div>
@@ -176,8 +176,8 @@ export const ConfirmDialog = forwardRef<HTMLDivElement, ConfirmDialogProps>(
               {hasPreview ? (
                 <div
                   className={styles.preview}
-                  data-openbitfun-component="confirm-dialog"
-                  data-openbitfun-part="preview"
+                  data-alex-component="confirm-dialog"
+                  data-alex-part="preview"
                 >
                   {typeof preview === "string" ? <pre>{preview}</pre> : preview}
                 </div>

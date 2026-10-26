@@ -48,7 +48,7 @@ async function main() {
   console.log(`[product] ${resolution.assembly.member} ${resolution.assembly.assemblyDigest}`);
   const fontProfile = configureDesktopWebFontProfile(forward);
   console.log(`[font-profile] ${fontProfile}`);
-  const releaseChannel = resolveReleaseChannel(process.env.OPENBITFUN_RELEASE_CHANNEL);
+  const releaseChannel = resolveReleaseChannel(process.env.ALEX_RELEASE_CHANNEL);
   console.log(`[release] channel=${releaseChannel.channel}`);
 
   const desktopDir = join(ROOT, 'src', 'apps', 'desktop');
@@ -276,9 +276,9 @@ export function configureDesktopWebFontProfile(
 
 export function shouldPackageInterpreter(args = [], env = process.env) {
   // A debug build is a developer build, not a release artifact, so it does not
-  // pay for the packaged agent. `OPENBITFUN_SKIP_INTERPRETER_PACKAGE=1`
+  // pay for the packaged agent. `ALEX_SKIP_INTERPRETER_PACKAGE=1`
   // opts a release build out as well.
-  if (['1', 'true', 'yes'].includes(String(env.OPENBITFUN_SKIP_INTERPRETER_PACKAGE ?? '').toLowerCase())) {
+  if (['1', 'true', 'yes'].includes(String(env.ALEX_SKIP_INTERPRETER_PACKAGE ?? '').toLowerCase())) {
     return false;
   }
   return !args.includes('--debug');
@@ -410,27 +410,27 @@ export function prepareTauriConfig(
   injectExternalFrontendResource(config);
 
   const release = releaseChannel
-    ?? resolveReleaseChannel(process.env.OPENBITFUN_RELEASE_CHANNEL);
+    ?? resolveReleaseChannel(process.env.ALEX_RELEASE_CHANNEL);
   const primaryEndpoint =
     process.env.TAURI_UPDATER_ENDPOINT || release.primaryUpdaterEndpoint;
   const fallbackEndpoint =
     process.env.TAURI_UPDATER_FALLBACK_ENDPOINT || release.fallbackUpdaterEndpoint;
-  process.env.OPENBITFUN_RELEASE_CHANNEL = release.channel;
-  process.env.OPENBITFUN_UPDATER_PRIMARY_ENDPOINT = primaryEndpoint;
-  process.env.OPENBITFUN_UPDATER_FALLBACK_ENDPOINT = fallbackEndpoint;
+  process.env.ALEX_RELEASE_CHANNEL = release.channel;
+  process.env.ALEX_UPDATER_PRIMARY_ENDPOINT = primaryEndpoint;
+  process.env.ALEX_UPDATER_FALLBACK_ENDPOINT = fallbackEndpoint;
 
   const enabled = ['1', 'true', 'yes'].includes(
-    String(process.env.OPENBITFUN_ENABLE_UPDATER_ARTIFACTS || '').toLowerCase()
+    String(process.env.ALEX_ENABLE_UPDATER_ARTIFACTS || '').toLowerCase()
   );
 
   if (enabled) {
     const pubkey = process.env.TAURI_UPDATER_PUBKEY;
     if (!pubkey) {
-      console.error('OPENBITFUN_ENABLE_UPDATER_ARTIFACTS is set, but TAURI_UPDATER_PUBKEY is missing.');
+      console.error('ALEX_ENABLE_UPDATER_ARTIFACTS is set, but TAURI_UPDATER_PUBKEY is missing.');
       process.exit(1);
     }
     if (!process.env.TAURI_SIGNING_PRIVATE_KEY) {
-      console.error('OPENBITFUN_ENABLE_UPDATER_ARTIFACTS is set, but TAURI_SIGNING_PRIVATE_KEY is missing.');
+      console.error('ALEX_ENABLE_UPDATER_ARTIFACTS is set, but TAURI_SIGNING_PRIVATE_KEY is missing.');
       process.exit(1);
     }
 
@@ -559,7 +559,7 @@ export function interpreterExecutables(root) {
   // The preparation step records the executables it made runnable, so the
   // signing step covers exactly the files that are code. The package's data
   // files must not be signed.
-  const manifestPath = join(root, 'openbitfun-bundled-tool.json');
+  const manifestPath = join(root, 'alex-bundled-tool.json');
   if (!existsSync(manifestPath)) {
     throw new Error('Bundled Open Interpreter package is missing its manifest');
   }

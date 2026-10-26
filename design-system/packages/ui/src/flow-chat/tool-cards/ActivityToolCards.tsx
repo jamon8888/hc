@@ -36,14 +36,14 @@ function ActivityToolCardBase({
   return (
     <AmbientToolCard
       {...props}
-      data-openbitfun-tool-card={toolCard}
+      data-alex-tool-card={toolCard}
       header={(
         <AmbientToolCardHeader
           action={action}
           content={summary !== undefined && summary !== null ? (
             <OverflowText
               className={styles.summary}
-              data-openbitfun-part="summary"
+              data-alex-part="summary"
               data-tone={status === "error" ? "danger" : "neutral"}
               title={summaryTitle}
             >

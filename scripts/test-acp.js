@@ -1,4 +1,4 @@
-// Simple test client for OpenBitFun ACP server.
+// Simple test client for Alex ACP server.
 // Run with: node scripts/test-acp.js
 
 import { spawn } from 'node:child_process';
@@ -7,18 +7,18 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const cliPath = path.join(__dirname, '..', 'target', 'debug', 'openbitfun');
-const cliReleasePath = path.join(__dirname, '..', 'target', 'release', 'openbitfun');
+const cliPath = path.join(__dirname, '..', 'target', 'debug', 'alex');
+const cliReleasePath = path.join(__dirname, '..', 'target', 'release', 'alex');
 const usePath = fs.existsSync(cliPath)
   ? cliPath
   : fs.existsSync(cliReleasePath)
     ? cliReleasePath
-    : 'openbitfun';
+    : 'alex';
 
 const cwd = '/tmp/test-acp-node';
 fs.mkdirSync(cwd, { recursive: true });
 
-console.log('=== OpenBitFun ACP Server Test (Node.js) ===\n');
+console.log('=== Alex ACP Server Test (Node.js) ===\n');
 
 const child = spawn(usePath, ['acp'], {
   stdio: ['pipe', 'pipe', 'inherit'],

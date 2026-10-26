@@ -138,20 +138,20 @@ export const DropZone: React.FC<DropZoneProps> = ({
   };
 
   return (
-    <div data-openbitfun-component="content-canvas" data-openbitfun-part="dropZone" data-openbitfun-state={showOverlay ? 'dragging' : ''} className={`canvas-drop-zone-container ${showOverlay ? 'is-dragging' : ''}`}>
-      <div className="canvas-drop-zone-container__content" data-openbitfun-component="content-canvas" data-openbitfun-part="dropContent">
+    <div data-alex-component="content-canvas" data-alex-part="dropZone" data-alex-state={showOverlay ? 'dragging' : ''} className={`canvas-drop-zone-container ${showOverlay ? 'is-dragging' : ''}`}>
+      <div className="canvas-drop-zone-container__content" data-alex-component="content-canvas" data-alex-part="dropContent">
         {children}
       </div>
 
       {showOverlay && zones.length > 0 && (
-        <div className="canvas-drop-zone-overlay" data-openbitfun-component="content-canvas" data-openbitfun-part="dropOverlay" data-openbitfun-state="dragging">
+        <div className="canvas-drop-zone-overlay" data-alex-component="content-canvas" data-alex-part="dropOverlay" data-alex-state="dragging">
           {zones.filter(z => z.show).map(({ position, label }) => (
             <div
               key={position}
-              data-openbitfun-component="content-canvas"
-              data-openbitfun-part="dropTarget"
-              data-openbitfun-position={position}
-              data-openbitfun-state={activeZone === position ? 'active' : ''}
+              data-alex-component="content-canvas"
+              data-alex-part="dropTarget"
+              data-alex-position={position}
+              data-alex-state={activeZone === position ? 'active' : ''}
               className={`canvas-drop-zone canvas-drop-zone--${position} ${activeZone === position ? 'is-active' : ''}`}
               style={getZoneStyle(position)}
               onDragEnter={handleDragEnter(position)}
@@ -159,7 +159,7 @@ export const DropZone: React.FC<DropZoneProps> = ({
               onDragOver={handleDragOver}
               onDrop={handleDrop(position)}
             >
-              <div className="canvas-drop-zone__indicator" data-openbitfun-component="content-canvas" data-openbitfun-part="dropIndicator" data-openbitfun-position={position}>
+              <div className="canvas-drop-zone__indicator" data-alex-component="content-canvas" data-alex-part="dropIndicator" data-alex-position={position}>
                 <span>{label}</span>
               </div>
             </div>

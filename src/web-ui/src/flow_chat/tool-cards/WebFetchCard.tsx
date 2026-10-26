@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import type { ToolCardProps } from '../types/flow-chat';
 import { systemAPI } from '../../infrastructure/api';
-import { WebFetchToolCard as WebFetchToolCardView } from '@openbitfun/ui/flow-chat';
+import { WebFetchToolCard as WebFetchToolCardView } from '@alex/ui/flow-chat';
 import { ToolCardCopyAction } from './ToolCardCopyAction';
 import { createLogger } from '@/shared/utils/logger';
 import { useToolCardHeightContract } from './useToolCardHeightContract';
@@ -132,7 +132,7 @@ export const WebFetchCard: React.FC<ToolCardProps> = ({
   );
 
   return (
-    <div data-openbitfun-adapter="web-fetch" ref={cardRootRef} data-tool-card-id={toolId ?? ''}>
+    <div data-alex-adapter="web-fetch" ref={cardRootRef} data-tool-card-id={toolId ?? ''}>
       <WebFetchToolCardView
         status={status}
         isExpanded={isExpanded}

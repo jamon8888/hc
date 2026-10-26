@@ -19,7 +19,7 @@ C0a 实现一个构建期 JSONC 产品定义、严格解析器和确定性解析
 - Desktop build adapter：从解析结果覆盖 Tauri `productName`、`mainBinaryName` 与 bundle identifier；
 - CLI dev/build wrapper：从同一解析结果设置命令名、隔离定制构建缓存，并按成员 `binaryName` 暂存构建产物；
 - First-party Rust artifacts：Desktop/CLI build adapter 通过编译期环境注入 `productId`、
-  `dataNamespace` 与由其派生的隐藏目录名，`openbitfun-core-types::product_identity` 作为最小事实 owner，供数据路径、Runtime
+  `dataNamespace` 与由其派生的隐藏目录名，`alex-core-types::product_identity` 作为最小事实 owner，供数据路径、Runtime
   ownership、Remote Connect 与 Detached Dispatch 复用；
 
 `product:check` / `product:explain` 只是构建作者的校验与解释工具，不计作产品字段的生产消费者。C0a 不生成无人读取的

@@ -8,7 +8,7 @@ export const agentCompanionDesktopPetAppearanceDescriptor: AppearanceSurfaceDesc
     { id: 'hitbox' }, { id: 'pet' },
   ],
   states: [
-    { id: 'attention', selector: { kind: 'self', suffix: '[data-openbitfun-state~="attention"]' } },
-    { id: 'typing', selector: { kind: 'self', suffix: '[data-openbitfun-state~="typing"]' } },
+    { id: 'attention', selector: { kind: 'self', suffix: '[data-alex-state~="attention"]' } },
+    { id: 'typing', selector: { kind: 'self', suffix: '[data-alex-state~="typing"]' } },
   ],
 };

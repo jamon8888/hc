@@ -1,18 +1,18 @@
 use crate::agentic::core::SessionConfig;
 use crate::service::workspace_runtime::WorkspaceRuntimeService;
-use openbitfun_core_types::SessionExecutionTarget;
-pub use openbitfun_runtime_ports::{
+use alex_core_types::SessionExecutionTarget;
+pub use alex_runtime_ports::{
     WorkspaceCommandOptions, WorkspaceCommandResult, WorkspaceDirEntry, WorkspaceFileSystem,
     WorkspaceServices, WorkspaceShell,
 };
-pub use openbitfun_services_core::workspace::{
+pub use alex_services_core::workspace::{
     local_workspace_services, LocalWorkspaceFs, LocalWorkspaceShell,
 };
-use openbitfun_services_core::workspace_identity::{
+use alex_services_core::workspace_identity::{
     WorkspaceSessionIdentity, LOCAL_WORKSPACE_SSH_HOST,
 };
 #[cfg(feature = "remote-workspace")]
-pub use openbitfun_services_integrations::remote_ssh::{
+pub use alex_services_integrations::remote_ssh::{
     remote_workspace_services, RemoteWorkspaceFs, RemoteWorkspaceShell,
 };
 use std::path::{Path, PathBuf};
@@ -56,9 +56,9 @@ pub struct WorkspaceBinding {
 
 impl WorkspaceBinding {
     /// Construct an execution binding from the owning host's authoritative record.
-    pub async fn resolve(workspace_id: &str) -> crate::OpenBitFunResult<Self> {
+    pub async fn resolve(workspace_id: &str) -> crate::AlexResult<Self> {
         let service = crate::service::workspace::get_global_workspace_service()
-            .ok_or_else(|| crate::OpenBitFunError::service("Workspace service is unavailable"))?;
+            .ok_or_else(|| crate::AlexError::service("Workspace service is unavailable"))?;
         let record = service.require_workspace(workspace_id).await?;
         let mut config = SessionConfig::default();
         apply_workspace_record(&mut config, &record)?;
@@ -83,7 +83,7 @@ impl WorkspaceBinding {
             ))
         } else {
             let project_id = config.project_workspace_id.ok_or_else(|| {
-                crate::OpenBitFunError::service("Project workspace ID is required")
+                crate::AlexError::service("Project workspace ID is required")
             })?;
             let project = service.require_workspace(&project_id).await?;
             let mut binding = Self::new(Some(record.id), record.root_path)
@@ -97,7 +97,7 @@ impl WorkspaceBinding {
     pub fn new(workspace_id: Option<String>, root_path: PathBuf) -> Self {
         let logical_workspace_path = root_path.to_string_lossy().to_string();
         let session_identity = WorkspaceSessionIdentity {
-            workspace_kind: openbitfun_core_types::WorkspaceKind::Normal,
+            workspace_kind: alex_core_types::WorkspaceKind::Normal,
             hostname: LOCAL_WORKSPACE_SSH_HOST.to_string(),
             logical_workspace_path,
             remote_connection_id: None,
@@ -197,7 +197,7 @@ impl WorkspaceBinding {
         if self.is_remote() {
             if self.session_identity.hostname == "_unresolved" {
                 if let Some(connection_id) = self.session_identity.remote_connection_id.as_deref() {
-                    return openbitfun_services_core::workspace_identity::unresolved_remote_session_storage_dir(
+                    return alex_services_core::workspace_identity::unresolved_remote_session_storage_dir(
                         crate::infrastructure::get_path_manager_arc().remote_ssh_mirror_root_dir(),
                         connection_id,
                         self.session_identity.logical_workspace_path(),
@@ -222,10 +222,10 @@ impl WorkspaceBinding {
 mod tests {
     use super::{WorkspaceBackend, WorkspaceBinding};
     use crate::service::workspace_runtime::WorkspaceRuntimeService;
-    use openbitfun_core_types::{
+    use alex_core_types::{
         SessionExecutionTarget, SessionExecutionTargetKind, WorktreeLifecycle,
     };
-    use openbitfun_services_core::workspace_identity::{
+    use alex_services_core::workspace_identity::{
         remote_workspace_session_mirror_dir, workspace_session_identity,
     };
     use std::path::PathBuf;
@@ -259,8 +259,8 @@ mod tests {
 
     #[test]
     fn worktree_binding_executes_in_worktree_but_persists_in_project() {
-        let project_root = PathBuf::from("/tmp/openbitfun-project");
-        let worktree_root = PathBuf::from("/tmp/openbitfun-worktrees/wt-1");
+        let project_root = PathBuf::from("/tmp/alex-project");
+        let worktree_root = PathBuf::from("/tmp/alex-worktrees/wt-1");
         let execution_target = SessionExecutionTarget {
             kind: SessionExecutionTargetKind::ManagedWorktree,
             worktree_id: Some("wt-1".to_string()),
@@ -287,14 +287,14 @@ mod tests {
     }
 }
 
-// Workspace-level I/O contracts are owned by openbitfun-runtime-ports and the
+// Workspace-level I/O contracts are owned by alex-runtime-ports and the
 // concrete providers are re-exported from their service owner crates above.
 
 /// Resolve old and new session configs against the owning host's workspace
 /// registry before routing, ownership checks, extension discovery or persistence.
 pub(crate) async fn normalize_session_workspace(
     config: &mut SessionConfig,
-) -> crate::OpenBitFunResult<()> {
+) -> crate::AlexResult<()> {
     use crate::service::workspace::{get_global_workspace_service, WorkspaceKind};
     if config.workspace_id.is_none()
         && config.workspace_path.is_none()
@@ -303,7 +303,7 @@ pub(crate) async fn normalize_session_workspace(
         return Ok(());
     }
     let service = get_global_workspace_service()
-        .ok_or_else(|| crate::OpenBitFunError::service("Workspace service is unavailable"))?;
+        .ok_or_else(|| crate::AlexError::service("Workspace service is unavailable"))?;
     if config.workspace_id.is_none() || config.project_workspace_id.is_none() {
         crate::service::workspace::legacy_compat::upgrade_session_workspace_reference(
             config, &service,
@@ -315,13 +315,13 @@ pub(crate) async fn normalize_session_workspace(
         .await?;
     let project_id = record
         .project_workspace_id()
-        .map_err(crate::OpenBitFunError::service)?;
+        .map_err(crate::AlexError::service)?;
     if config
         .project_workspace_id
         .as_deref()
         .is_some_and(|id| id != project_id)
     {
-        return Err(crate::OpenBitFunError::service(
+        return Err(crate::AlexError::service(
             "Session project workspace ID differs from its workspace object",
         ));
     }
@@ -330,7 +330,7 @@ pub(crate) async fn normalize_session_workspace(
         || project.workspace_kind == WorkspaceKind::Remote)
         && record.id != project.id
     {
-        return Err(crate::OpenBitFunError::service(
+        return Err(crate::AlexError::service(
             "Remote workspace cannot be bound to a different project workspace",
         ));
     }
@@ -358,7 +358,7 @@ pub(crate) async fn normalize_session_workspace(
 pub(crate) fn apply_workspace_record(
     config: &mut SessionConfig,
     record: &crate::service::workspace::WorkspaceInfo,
-) -> crate::OpenBitFunResult<()> {
+) -> crate::AlexResult<()> {
     use crate::service::workspace::WorkspaceKind;
     let (connection_id, host) = if record.workspace_kind == WorkspaceKind::Remote {
         let id = record
@@ -366,7 +366,7 @@ pub(crate) fn apply_workspace_record(
             .map(str::trim)
             .filter(|id| !id.is_empty())
             .ok_or_else(|| {
-                crate::OpenBitFunError::service(
+                crate::AlexError::service(
                     "Remote workspace record is missing its saved SSH connection ID",
                 )
             })?;
@@ -377,7 +377,7 @@ pub(crate) fn apply_workspace_record(
             .map(str::trim)
             .filter(|host| !host.is_empty())
             .ok_or_else(|| {
-                crate::OpenBitFunError::service("Remote workspace record is missing its SSH host")
+                crate::AlexError::service("Remote workspace record is missing its SSH host")
             })?;
         (Some(id.to_owned()), Some(host.to_owned()))
     } else {
@@ -387,7 +387,7 @@ pub(crate) fn apply_workspace_record(
     config.project_workspace_id = Some(
         record
             .project_workspace_id()
-            .map_err(crate::OpenBitFunError::service)?
+            .map_err(crate::AlexError::service)?
             .to_owned(),
     );
     config.project_workspace_path =
@@ -412,11 +412,11 @@ pub(crate) fn reject_session_storage_root(
     path: &Path,
     projects_root: &Path,
     ssh_mirror_root: &Path,
-) -> crate::OpenBitFunResult<()> {
+) -> crate::AlexResult<()> {
     if [projects_root, ssh_mirror_root].iter().any(|root| {
         path.starts_with(root) || dunce::canonicalize(path).is_ok_and(|path| path.starts_with(root))
     }) {
-        return Err(crate::OpenBitFunError::service(
+        return Err(crate::AlexError::service(
             "Session storage directories cannot be used as workspace execution roots",
         ));
     }

@@ -1,5 +1,5 @@
 const cssVariable = (name: string): string => `var(${name})`;
-const domainToken = (name: string): string => cssVariable(`--openbitfun-domain-${name}`);
+const domainToken = (name: string): string => cssVariable(`--alex-domain-${name}`);
 
 export const APPEARANCE_DOMAIN_TOKENS = {
   contextCompression: domainToken('context-compression'),
@@ -52,7 +52,7 @@ export const APPEARANCE_DOMAIN_TOKENS = {
     mainTooltipBackground: domainToken('inspector-main-tooltip-background'),
     tooltipText: domainToken('inspector-tooltip-text'),
     tooltipShadow: domainToken('inspector-tooltip-shadow'),
-    staticWhite: cssVariable('--openbitfun-color-content-on-dark'),
+    staticWhite: cssVariable('--alex-color-content-on-dark'),
   },
 } as const;
 

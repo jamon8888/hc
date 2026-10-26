@@ -5,8 +5,8 @@ import path from 'node:path';
 import test from 'node:test';
 
 const root = process.cwd();
-const contractTestProfile = process.env.OPENBITFUN_I18N_CONTRACT_TEST_PROFILE ?? 'full';
-const runAuditIntegrationTests = process.env.OPENBITFUN_I18N_CONTRACT_TEST_AUDIT_INTEGRATION === '1';
+const contractTestProfile = process.env.ALEX_I18N_CONTRACT_TEST_PROFILE ?? 'full';
+const runAuditIntegrationTests = process.env.ALEX_I18N_CONTRACT_TEST_AUDIT_INTEGRATION === '1';
 const skipAuditIntegrationTests = contractTestProfile === 'ci' && !runAuditIntegrationTests;
 const contractPath = path.join(root, 'src', 'shared', 'i18n', 'contract', 'locales.json');
 const sharedTermsDir = path.join(root, 'src', 'shared', 'i18n', 'resources', 'shared');
@@ -770,7 +770,7 @@ auditIntegrationTest('web-ui uses shared terms for stable navigation and feature
       'common:scenes.settings',
       'common:tabs.settings',
       'common:remoteConnect.title',
-      'common:remoteConnect.tabOpenBitFunServer',
+      'common:remoteConnect.tabAlexServer',
       'common:remoteConnect.tabLan',
       'flow-chat:layout.noPanels',
       'flow-chat:deepReviewActionBar.minimizedDeep',
@@ -790,7 +790,7 @@ auditIntegrationTest('web-ui uses shared terms for stable navigation and feature
     const legacyWebUiKeys = [
       'header.remoteConnect',
       'remoteConnect.title',
-      'remoteConnect.tabOpenBitFunServer',
+      'remoteConnect.tabAlexServer',
       'remoteConnect.tabLan',
       'nav.sections.workspace',
       'nav.sessions.newCodeSessionShort',

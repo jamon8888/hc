@@ -1,13 +1,13 @@
-@layer openbitfun.components {
-  .root { display: flex; align-items: flex-start; gap: var(--openbitfun-space-3); padding: var(--openbitfun-space-3) var(--openbitfun-space-4); border: var(--openbitfun-border-width-default) solid var(--openbitfun-color-status-info-border); border-radius: var(--openbitfun-radius-base); color: var(--openbitfun-color-status-info-emphasis); background: var(--openbitfun-color-status-info-surface); font-family: var(--openbitfun-type-body-sm-font-family); font-size: var(--openbitfun-type-body-sm-font-size); font-weight: var(--openbitfun-type-body-sm-font-weight); line-height: var(--openbitfun-type-body-sm-line-height); letter-spacing: var(--openbitfun-type-body-sm-letter-spacing); }
-  .root[data-openbitfun-tone="success"] { border-color: var(--openbitfun-color-status-success-border); color: var(--openbitfun-color-status-success-emphasis); background: var(--openbitfun-color-status-success-surface); }
-  .root[data-openbitfun-tone="warning"] { border-color: var(--openbitfun-color-status-warning-border); color: var(--openbitfun-color-status-warning-emphasis); background: var(--openbitfun-color-status-warning-surface); }
-  .root[data-openbitfun-tone="error"] { border-color: var(--openbitfun-color-status-danger-border); color: var(--openbitfun-color-status-danger-emphasis); background: var(--openbitfun-color-status-danger-surface); }
+@layer alex.components {
+  .root { display: flex; align-items: flex-start; gap: var(--alex-space-3); padding: var(--alex-space-3) var(--alex-space-4); border: var(--alex-border-width-default) solid var(--alex-color-status-info-border); border-radius: var(--alex-radius-base); color: var(--alex-color-status-info-emphasis); background: var(--alex-color-status-info-surface); font-family: var(--alex-type-body-sm-font-family); font-size: var(--alex-type-body-sm-font-size); font-weight: var(--alex-type-body-sm-font-weight); line-height: var(--alex-type-body-sm-line-height); letter-spacing: var(--alex-type-body-sm-letter-spacing); }
+  .root[data-alex-tone="success"] { border-color: var(--alex-color-status-success-border); color: var(--alex-color-status-success-emphasis); background: var(--alex-color-status-success-surface); }
+  .root[data-alex-tone="warning"] { border-color: var(--alex-color-status-warning-border); color: var(--alex-color-status-warning-emphasis); background: var(--alex-color-status-warning-surface); }
+  .root[data-alex-tone="error"] { border-color: var(--alex-color-status-danger-border); color: var(--alex-color-status-danger-emphasis); background: var(--alex-color-status-danger-surface); }
   .icon { display: inline-flex; flex: 0 0 auto; margin-block-start: 1px; }
-  .content { display: flex; flex: 1 1 auto; min-inline-size: 0; flex-direction: column; gap: var(--openbitfun-space-1); }
-  .title { color: var(--openbitfun-color-content-primary); font-family: var(--openbitfun-type-heading-card-font-family); font-size: var(--openbitfun-type-heading-card-font-size); font-weight: var(--openbitfun-type-heading-card-font-weight); line-height: var(--openbitfun-type-heading-card-line-height); letter-spacing: var(--openbitfun-type-heading-card-letter-spacing); }
-  .message { color: var(--openbitfun-color-content-primary); }
-  .description { color: var(--openbitfun-color-content-secondary); font-family: var(--openbitfun-type-support-font-family); font-size: var(--openbitfun-type-support-font-size); font-weight: var(--openbitfun-type-support-font-weight); line-height: var(--openbitfun-type-support-line-height); letter-spacing: var(--openbitfun-type-support-letter-spacing); }
-  .close { flex: 0 0 auto; margin: calc(var(--openbitfun-space-1) * -1); }
+  .content { display: flex; flex: 1 1 auto; min-inline-size: 0; flex-direction: column; gap: var(--alex-space-1); }
+  .title { color: var(--alex-color-content-primary); font-family: var(--alex-type-heading-card-font-family); font-size: var(--alex-type-heading-card-font-size); font-weight: var(--alex-type-heading-card-font-weight); line-height: var(--alex-type-heading-card-line-height); letter-spacing: var(--alex-type-heading-card-letter-spacing); }
+  .message { color: var(--alex-color-content-primary); }
+  .description { color: var(--alex-color-content-secondary); font-family: var(--alex-type-support-font-family); font-size: var(--alex-type-support-font-size); font-weight: var(--alex-type-support-font-weight); line-height: var(--alex-type-support-line-height); letter-spacing: var(--alex-type-support-letter-spacing); }
+  .close { flex: 0 0 auto; margin: calc(var(--alex-space-1) * -1); }
   @media (forced-colors: active) { .root { border-color: CanvasText; } }
 }

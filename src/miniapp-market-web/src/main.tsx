@@ -1,8 +1,8 @@
-import { DesignSystemProvider } from '@openbitfun/ui';
-import '@openbitfun/ui/styles.css';
+import { DesignSystemProvider } from '@alex/ui';
+import '@alex/ui/styles.css';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import '@openbitfun/theme-openbitfun/default.css';
+import '@alex/theme-alex/default.css';
 import App from './App';
 import './styles.css';
 

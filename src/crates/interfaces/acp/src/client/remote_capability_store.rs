@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 use log::warn;
-use openbitfun_core::util::errors::{OpenBitFunError, OpenBitFunResult};
+use alex_core::util::errors::{AlexError, AlexResult};
 use tokio::sync::RwLock;
 
 use super::config::RemoteAcpClientRequirementSnapshot;
@@ -60,7 +60,7 @@ impl RemoteAcpCapabilityStore {
     pub(crate) async fn set(
         &self,
         snapshot: RemoteAcpClientRequirementSnapshot,
-    ) -> OpenBitFunResult<()> {
+    ) -> AlexResult<()> {
         let entries = {
             let mut guard = self.snapshots.write().await;
             guard.insert(snapshot.connection_id.clone(), snapshot);
@@ -69,7 +69,7 @@ impl RemoteAcpCapabilityStore {
         self.persist(entries).await
     }
 
-    pub(crate) async fn clear(&self) -> OpenBitFunResult<()> {
+    pub(crate) async fn clear(&self) -> AlexResult<()> {
         {
             let mut guard = self.snapshots.write().await;
             guard.clear();
@@ -80,10 +80,10 @@ impl RemoteAcpCapabilityStore {
     async fn persist(
         &self,
         snapshots: Vec<RemoteAcpClientRequirementSnapshot>,
-    ) -> OpenBitFunResult<()> {
+    ) -> AlexResult<()> {
         if let Some(parent) = self.path.parent() {
             tokio::fs::create_dir_all(parent).await.map_err(|error| {
-                OpenBitFunError::io(format!(
+                AlexError::io(format!(
                     "Failed to create remote ACP capability snapshot directory: {}",
                     error
                 ))
@@ -91,7 +91,7 @@ impl RemoteAcpCapabilityStore {
         }
 
         let content = serde_json::to_string_pretty(&snapshots).map_err(|error| {
-            OpenBitFunError::serialization(format!(
+            AlexError::serialization(format!(
                 "Failed to serialize remote ACP capability snapshots: {}",
                 error
             ))
@@ -99,7 +99,7 @@ impl RemoteAcpCapabilityStore {
         tokio::fs::write(&self.path, content)
             .await
             .map_err(|error| {
-                OpenBitFunError::io(format!(
+                AlexError::io(format!(
                     "Failed to write remote ACP capability snapshots: {}",
                     error
                 ))

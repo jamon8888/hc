@@ -4,7 +4,7 @@ use async_trait::async_trait;
 use serde_json::Value;
 use tokio::sync::broadcast;
 
-use crate::util::errors::OpenBitFunResult;
+use crate::util::errors::AlexResult;
 
 /// A lifecycle or diagnostic event emitted by a browser-engine adapter.
 ///
@@ -118,7 +118,7 @@ impl BrowserAutomationCapabilities {
 /// must stay in `BrowserActions`, never in either adapter.
 #[async_trait]
 pub trait BrowserAutomationClient: Send + Sync {
-    async fn send(&self, method: &str, params: Option<Value>) -> OpenBitFunResult<Value>;
+    async fn send(&self, method: &str, params: Option<Value>) -> AlexResult<Value>;
 
     fn subscribe_events(&self) -> broadcast::Receiver<BrowserAutomationEvent>;
 

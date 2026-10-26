@@ -1,2 +1,2 @@
-export { OpenBitFunDesignSystemProvider } from './OpenBitFunDesignSystemProvider';
+export { AlexDesignSystemProvider } from './AlexDesignSystemProvider';
 export * from './typographyRuntime';

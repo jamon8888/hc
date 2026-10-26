@@ -1,4 +1,4 @@
-import { themeCssVariables } from '@openbitfun/theme-openbitfun';
+import { themeCssVariables } from '@alex/theme-alex';
 import { resolveHighlightColor, resolveHighlightPaintColors } from './highlightPaintColors';
 import './highlightPaintColors.scss';
 
@@ -16,15 +16,15 @@ import type {
 
 const ROOT_ALLOWED_TOKEN_NAMES = new Set<string>(APPEARANCE_ROOT_TOKEN_NAMES);
 const SCOPED_ALLOWED_TOKEN_NAMES = new Set<string>(APPEARANCE_SCOPED_TOKEN_NAMES);
-const SCOPE_STYLE_ATTRIBUTE = 'data-openbitfun-appearance-theme-scopes';
-const HIGHLIGHT_STYLE_ATTRIBUTE = 'data-openbitfun-appearance-highlight-paint';
+const SCOPE_STYLE_ATTRIBUTE = 'data-alex-appearance-theme-scopes';
+const HIGHLIGHT_STYLE_ATTRIBUTE = 'data-alex-appearance-highlight-paint';
 const ROOT_BACKGROUND_VARIABLE = themeCssVariables['color.surface.chrome'];
 const FORBIDDEN_VALUE = /(?:url\s*\(|var\s*\(|expression\s*\(|[;{}<>])/i;
 const HIGHLIGHT_COLOR_TOKENS = new Set([
-  '--openbitfun-color-accent-border-subtle',
-  '--openbitfun-color-selection-surface',
-  '--openbitfun-color-action-secondary-pressed',
-  '--openbitfun-color-content-primary',
+  '--alex-color-accent-border-subtle',
+  '--alex-color-selection-surface',
+  '--alex-color-action-secondary-pressed',
+  '--alex-color-content-primary',
 ]);
 
 function projectHighlightToken(name: string, value: string): string {
@@ -113,7 +113,7 @@ export const themeTokenAppearanceAdapter: AppearanceRendererAdapter<'theme-token
     Object.entries(next.tokens).forEach(([name, value]) => {
       if (value !== undefined) rootStyle.setProperty(name, projectHighlightToken(name, value));
     });
-    const accent = next.tokens['--openbitfun-component-conversation-excerpt-accent'];
+    const accent = next.tokens['--alex-component-conversation-excerpt-accent'];
     if (accent) {
       const paint = resolveHighlightPaintColors(document, accent);
       // Renderer output only: old theme packages need no new setting or token.
@@ -122,8 +122,8 @@ export const themeTokenAppearanceAdapter: AppearanceRendererAdapter<'theme-token
         const style = document.createElement('style');
         style.setAttribute(HIGHLIGHT_STYLE_ATTRIBUTE, 'true');
         style.textContent = `@media (forced-colors: none) {
-          [data-flowchat-highlight-excerpt]::highlight(openbitfun-flowchat-excerpt),
-          [data-flowchat-highlight-annotations]::highlight(openbitfun-flowchat-annotations) {
+          [data-flowchat-highlight-excerpt]::highlight(alex-flowchat-excerpt),
+          [data-flowchat-highlight-annotations]::highlight(alex-flowchat-annotations) {
             background-color: ${paint.background}; color: ${paint.foreground};
           }
         }`;
@@ -139,7 +139,7 @@ export const themeTokenAppearanceAdapter: AppearanceRendererAdapter<'theme-token
     }
     // Native material is advertised by the local desktop window bootstrap.
     // Keep this independent of the active peer/runtime and of theme changes.
-    const background = document.documentElement.getAttribute('data-openbitfun-native-material') === 'sidebar'
+    const background = document.documentElement.getAttribute('data-alex-native-material') === 'sidebar'
       ? 'transparent'
       : `var(${ROOT_BACKGROUND_VARIABLE})`;
     rootStyle.backgroundColor = background;

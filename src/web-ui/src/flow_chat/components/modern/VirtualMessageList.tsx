@@ -238,8 +238,8 @@ const FlowChatListHeader = forwardRef<HTMLDivElement, {
   <div ref={ref} className="message-list-header-block">
     <div
       className="message-list-header"
-      data-openbitfun-component="virtual-message-list"
-      data-openbitfun-part="header"
+      data-alex-component="virtual-message-list"
+      data-alex-part="header"
       style={{
         height: `${FLOWCHAT_TURN_TOP_GAP_PX}px`,
         minHeight: `${FLOWCHAT_TURN_TOP_GAP_PX}px`,
@@ -264,8 +264,8 @@ const FlowChatListFooter = ({
   <>
     <div
       className="message-list-footer"
-      data-openbitfun-component="virtual-message-list"
-      data-openbitfun-part="footer"
+      data-alex-component="virtual-message-list"
+      data-alex-part="footer"
       style={{
         height: `${bottomLayoutInsetPx}px`,
         minHeight: `${bottomLayoutInsetPx}px`,
@@ -281,8 +281,8 @@ const FlowChatListFooter = ({
     */}
     <div
       className="message-list-tail-spacer"
-      data-openbitfun-component="virtual-message-list"
-      data-openbitfun-part="tailSpacer"
+      data-alex-component="virtual-message-list"
+      data-alex-part="tailSpacer"
       aria-hidden="true"
       style={{
         height: `${tailSpacerPx}px`,
@@ -301,9 +301,9 @@ const FlowChatHistoryPagingSentinel = ({
 }) => (
   <div
     className="virtual-message-list__history-paging-sentinel"
-    data-openbitfun-component="virtual-message-list"
-    data-openbitfun-part="boundaryStatus"
-    data-openbitfun-state={state === 'loading' ? 'preparing' : state === 'error' ? 'unavailable' : undefined}
+    data-alex-component="virtual-message-list"
+    data-alex-part="boundaryStatus"
+    data-alex-state={state === 'loading' ? 'preparing' : state === 'error' ? 'unavailable' : undefined}
     data-history-paging-sentinel={state}
     data-history-boundary-status={state === 'loading' ? 'preparing' : state === 'error' ? 'not-ready' : undefined}
     aria-hidden={state === 'idle'}
@@ -2143,7 +2143,7 @@ const VirtualMessageListSession = forwardRef<VirtualMessageListRef, VirtualMessa
       // Read the design-system spacing used by the scroller's edge masks.
       // The floating input and its fade are outside the readable viewport.
       const edgeFadePx = Number.parseFloat(
-        getComputedStyle(scroller).getPropertyValue('--openbitfun-space-12'),
+        getComputedStyle(scroller).getPropertyValue('--alex-space-12'),
       ) || 0;
       const readableTop = scrollerRect.top
         + (scroller.scrollTop <= FLOWCHAT_SCROLL_START_THRESHOLD_PX ? 0 : edgeFadePx);
@@ -2473,14 +2473,14 @@ const VirtualMessageListSession = forwardRef<VirtualMessageListRef, VirtualMessa
   if (virtualItems.length === 0) {
     return (
       <div
-        data-openbitfun-component="virtual-message-list"
-        data-openbitfun-part="root"
-        data-openbitfun-state="empty"
+        data-alex-component="virtual-message-list"
+        data-alex-part="root"
+        data-alex-state="empty"
         className="virtual-message-list virtual-message-list--empty"
         data-testid="flowchat-message-list-empty"
       >
-        <div className="empty-state" data-openbitfun-component="virtual-message-list" data-openbitfun-part="empty">
-          <p data-openbitfun-component="virtual-message-list" data-openbitfun-part="emptyMessage">No messages yet</p>
+        <div className="empty-state" data-alex-component="virtual-message-list" data-alex-part="empty">
+          <p data-alex-component="virtual-message-list" data-alex-part="emptyMessage">No messages yet</p>
         </div>
       </div>
     );
@@ -2489,8 +2489,8 @@ const VirtualMessageListSession = forwardRef<VirtualMessageListRef, VirtualMessa
   return (
     <FlowChatPrependSnapshot itemKeys={prependItemKeys} scrollerRef={scrollerElementRef} snapshotRef={prependSnapshotRef}>
     <FlowChatOpeningBoundary
-      data-openbitfun-component="virtual-message-list"
-      data-openbitfun-part="root"
+      data-alex-component="virtual-message-list"
+      data-alex-part="root"
       className="virtual-message-list"
       data-testid="flowchat-message-list"
       data-presentation-mode={presentationMode}
@@ -2519,8 +2519,8 @@ const VirtualMessageListSession = forwardRef<VirtualMessageListRef, VirtualMessa
         */}
         <div
           className="virtual-message-list__items"
-          data-openbitfun-component="virtual-message-list"
-          data-openbitfun-part="items"
+          data-alex-component="virtual-message-list"
+          data-alex-part="items"
           data-testid="flowchat-item-list"
           style={{
             paddingTop: `${virtualizer.paddingTopPx}px`,

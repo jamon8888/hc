@@ -1,4 +1,4 @@
-//! Mapping helpers from `rmcp` protocol models into OpenBitFun MCP contracts.
+//! Mapping helpers from `rmcp` protocol models into Alex MCP contracts.
 
 use super::types::{
     InitializeResult, MCPAnnotations, MCPCapability, MCPPrompt, MCPPromptArgument,

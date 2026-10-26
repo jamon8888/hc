@@ -7,8 +7,8 @@ import { browser, $, $$ } from '@wdio/globals';
 export class ChatPage extends BasePage {
   private selectors = {
     // Use actual frontend selectors
-    appLayout: '[data-testid="app-layout"], .openbitfun-app-layout',
-    mainContent: '[data-testid="app-main-content"], .openbitfun-main-content',
+    appLayout: '[data-testid="app-layout"], .alex-app-layout',
+    mainContent: '[data-testid="app-main-content"], .alex-main-content',
     inputContainer: '[data-testid="chat-input-container"], .chat-input-container',
     textarea: '[data-testid="chat-input-textarea"], .chat-input textarea, textarea[class*="chat-input"]',
     sendBtn: '[data-testid="chat-input-send-btn"], .chat-input__send-btn, button[class*="send"]',

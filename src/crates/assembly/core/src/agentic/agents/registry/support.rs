@@ -4,13 +4,13 @@ use crate::service::config::agent_profile_project_store::{
 };
 use crate::service::config::global::GlobalConfigManager;
 use crate::service::config::types::{AgentProfileConfig, AgentSubagentOverrideConfig};
-use crate::util::errors::OpenBitFunResult;
+use crate::util::errors::AlexResult;
 use std::collections::HashMap;
 
 /// Tool-name prefixes of the tool families that are registered dynamically at
 /// runtime and therefore cannot appear in an Agent's static tool manifest.
 ///
-/// These mirror `openbitfun_agent_tools::{ACP_TOOL_PREFIX, MCP_TOOL_PREFIX}`, but
+/// These mirror `alex_agent_tools::{ACP_TOOL_PREFIX, MCP_TOOL_PREFIX}`, but
 /// are declared locally on purpose: both of those constants sit behind that
 /// crate's `acp-bridge` / `mcp-bridge` cargo features, while this module also
 /// compiles under `agent-runtime` alone, where neither feature is enabled.
@@ -44,7 +44,7 @@ pub(super) async fn get_subagent_overrides() -> AgentSubagentOverrideConfig {
 
 pub(super) async fn load_project_subagent_overrides_local(
     workspace_id: &str,
-) -> OpenBitFunResult<AgentSubagentOverrideConfig> {
+) -> AlexResult<AgentSubagentOverrideConfig> {
     let record = require_local_workspace(workspace_id).await?;
     let document = load_project_agent_profiles_document_local(&record.root_path).await?;
     Ok(document
@@ -62,7 +62,7 @@ pub(super) async fn load_project_subagent_overrides_local(
 pub(super) async fn save_project_subagent_overrides_local(
     workspace_id: &str,
     overrides: &AgentSubagentOverrideConfig,
-) -> OpenBitFunResult<()> {
+) -> AlexResult<()> {
     let record = require_local_workspace(workspace_id).await?;
     let mut document = load_project_agent_profiles_document_local(&record.root_path).await?;
 
@@ -104,9 +104,9 @@ fn merge_dynamic_tool_names(
 
 pub(super) async fn require_workspace(
     id: &str,
-) -> OpenBitFunResult<crate::service::workspace::WorkspaceInfo> {
+) -> AlexResult<crate::service::workspace::WorkspaceInfo> {
     let service = crate::service::workspace::get_global_workspace_service()
-        .ok_or_else(|| crate::OpenBitFunError::service("Workspace service is unavailable"))?;
+        .ok_or_else(|| crate::AlexError::service("Workspace service is unavailable"))?;
     service.require_workspace(id).await
 }
 
@@ -116,10 +116,10 @@ pub(super) async fn require_workspace(
 /// same-named local path would leak or lose user configuration.
 pub(super) async fn require_local_workspace(
     id: &str,
-) -> OpenBitFunResult<crate::service::workspace::WorkspaceInfo> {
+) -> AlexResult<crate::service::workspace::WorkspaceInfo> {
     let record = require_workspace(id).await?;
     if record.workspace_kind == crate::service::workspace::WorkspaceKind::Remote {
-        return Err(crate::OpenBitFunError::service(
+        return Err(crate::AlexError::service(
             "Local agent discovery cannot read a remote workspace",
         ));
     }
@@ -134,7 +134,7 @@ pub(super) async fn require_local_workspace(
 /// the whole load and leaving user-level custom agents unloaded.
 pub(super) async fn project_agent_discovery_root(
     id: &str,
-) -> OpenBitFunResult<Option<std::path::PathBuf>> {
+) -> AlexResult<Option<std::path::PathBuf>> {
     let record = require_workspace(id).await?;
     if record.workspace_kind == crate::service::workspace::WorkspaceKind::Remote {
         log::debug!(

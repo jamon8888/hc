@@ -34,7 +34,7 @@ describe('PendingQueueModule', () => {
     const sessionId = testSession();
     pendingQueueManager.enqueue({ sessionId, content: 'local draft' });
 
-    const canonicalKey = `openbitfun.flowChat.pendingQueue.v1.${encodeURIComponent(JSON.stringify([
+    const canonicalKey = `alex.flowChat.pendingQueue.v1.${encodeURIComponent(JSON.stringify([
       LOCAL_SURFACE_ID,
       sessionId,
     ]))}`;
@@ -128,7 +128,7 @@ describe('PendingQueueModule', () => {
     expect(items[0]).toBe(first);
     expect(items[2]).toBe(third);
     expect(before[1].content).toBe('original');
-    const canonicalKey = `openbitfun.flowChat.pendingQueue.v1.${encodeURIComponent(JSON.stringify([LOCAL_SURFACE_ID, sessionId]))}`;
+    const canonicalKey = `alex.flowChat.pendingQueue.v1.${encodeURIComponent(JSON.stringify([LOCAL_SURFACE_ID, sessionId]))}`;
     expect(JSON.parse(window.localStorage.getItem(canonicalKey)!)[1].content).toBe('revised');
     pendingQueueManager.setStatus(sessionId, target.id, 'sending');
     expect(pendingQueueManager.updatePayloadForSurface(LOCAL_SURFACE_ID, sessionId, target.id, edit)).toBe(false);

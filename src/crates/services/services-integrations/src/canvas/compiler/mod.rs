@@ -16,14 +16,14 @@ mod sdk_contract;
 #[cfg(test)]
 mod tests;
 
-use openbitfun_product_domains::canvas::policy::validate_canvas_source_policy;
-use openbitfun_product_domains::canvas::runtime::CanvasCompileResult;
-use openbitfun_product_domains::canvas::types::{
+use alex_product_domains::canvas::policy::validate_canvas_source_policy;
+use alex_product_domains::canvas::runtime::CanvasCompileResult;
+use alex_product_domains::canvas::types::{
     CanvasCompiledPayload, CanvasDiagnostic, CanvasDiagnosticCategory, CanvasDiagnosticSeverity,
     CanvasSource,
 };
-use openbitfun_product_domains::canvas::{
-    OPENBITFUN_CANVAS_RUNTIME_VERSION, OPENBITFUN_CANVAS_SDK_VERSION,
+use alex_product_domains::canvas::{
+    ALEX_CANVAS_RUNTIME_VERSION, ALEX_CANVAS_SDK_VERSION,
 };
 
 pub use html::compile_canvas_html;
@@ -46,8 +46,8 @@ pub fn compile_canvas_source(source: &CanvasSource, compiled_at: i64) -> CanvasC
             let payload = CanvasCompiledPayload {
                 canvas_id: source.canvas_id.clone(),
                 source_revision: source.revision.clone(),
-                sdk_version: OPENBITFUN_CANVAS_SDK_VERSION.to_string(),
-                runtime_version: OPENBITFUN_CANVAS_RUNTIME_VERSION.to_string(),
+                sdk_version: ALEX_CANVAS_SDK_VERSION.to_string(),
+                runtime_version: ALEX_CANVAS_RUNTIME_VERSION.to_string(),
                 content_hash: stable_content_hash(&html),
                 html,
                 diagnostics: diagnostics.clone(),

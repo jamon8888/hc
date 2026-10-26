@@ -27,7 +27,7 @@ const questions = [
         value: "stable",
       },
     ],
-    prompt: "OpenBitFun has three versions — which would you like me to pull?",
+    prompt: "Alex has three versions — which would you like me to pull?",
     selectionMode: "single",
   },
 ];
@@ -42,16 +42,16 @@ test("AskUser renders the answered disclosure and native selection semantics", (
     summaryLabel: "1 question answered",
   }));
 
-  assert.match(markup, /data-openbitfun-component="ask-user"/);
-  assert.match(markup, /data-openbitfun-state="completed"/);
-  assert.match(markup, /data-openbitfun-expanded="true"/);
+  assert.match(markup, /data-alex-component="ask-user"/);
+  assert.match(markup, /data-alex-state="completed"/);
+  assert.match(markup, /data-alex-expanded="true"/);
   assert.match(markup, /<button[^>]+aria-expanded="true"/);
-  assert.match(markup, /data-openbitfun-part="summary-label">1 question answered/);
-  assert.match(markup, /data-openbitfun-part="summary-detail"[^>]*><span[^>]*>Choose version:/);
+  assert.match(markup, /data-alex-part="summary-label">1 question answered/);
+  assert.match(markup, /data-alex-part="summary-detail"[^>]*><span[^>]*>Choose version:/);
   assert.match(markup, /<fieldset[^>]+disabled=""/);
   assert.match(markup, /type="radio"[^>]+checked=""/);
   assert.match(markup, /lucide-disc2/);
-  assert.match(markup, /data-openbitfun-part="description"/);
+  assert.match(markup, /data-alex-part="description"/);
 });
 
 test("AskUser renders a controlled custom answer with an accessible text field", () => {
@@ -66,25 +66,25 @@ test("AskUser renders a controlled custom answer with an accessible text field",
   }));
 
   assert.match(markup, /data-custom="true" data-selected="true"/);
-  assert.match(markup, /data-openbitfun-part="custom-input"/);
+  assert.match(markup, /data-alex-part="custom-input"/);
   assert.match(markup, /aria-label="Custom version"/);
   assert.match(markup, /value="v0.2.17"/);
-  assert.match(markup, /data-openbitfun-part="submit"/);
-  assert.match(markup, /data-openbitfun-component="button"[^>]+data-openbitfun-variant="primary"/);
+  assert.match(markup, /data-alex-part="submit"/);
+  assert.match(markup, /data-alex-component="button"[^>]+data-alex-variant="primary"/);
 });
 
 test("AskUser styles use public semantic and component geometry tokens", async () => {
   const styles = await readFile(new URL("../dist/styles.css", import.meta.url), "utf8");
 
-  assert.match(styles, /--openbitfun-control-ask-user-header-height/);
-  assert.match(styles, /--openbitfun-control-ask-user-option-padding-block/);
-  assert.match(styles, /--openbitfun-control-ask-user-question-options-gap/);
-  assert.match(styles, /--openbitfun-control-ask-user-description-max-width/);
-  assert.match(styles, /--openbitfun-color-surface-subtle/);
-  assert.match(styles, /--openbitfun-color-action-neutral-content/);
-  assert.match(styles, /--openbitfun-color-content-muted/);
-  assert.match(styles, /--openbitfun-color-status-success-content/);
-  assert.match(styles, /--openbitfun-type-heading-page-line-height/);
+  assert.match(styles, /--alex-control-ask-user-header-height/);
+  assert.match(styles, /--alex-control-ask-user-option-padding-block/);
+  assert.match(styles, /--alex-control-ask-user-question-options-gap/);
+  assert.match(styles, /--alex-control-ask-user-description-max-width/);
+  assert.match(styles, /--alex-color-surface-subtle/);
+  assert.match(styles, /--alex-color-action-neutral-content/);
+  assert.match(styles, /--alex-color-content-muted/);
+  assert.match(styles, /--alex-color-status-success-content/);
+  assert.match(styles, /--alex-type-heading-page-line-height/);
   assert.match(
     styles,
     /circle:nth-of-type\(2\)\s*\{\s*fill:\s*currentColor/,

@@ -55,7 +55,7 @@ export function ConversationExcerptMarkers({ wrapper, turnId }: { wrapper: HTMLE
     const mutation = new MutationObserver(records => {
       if (records.some(record => {
         const target = record.target instanceof Element ? record.target : record.target.parentElement;
-        return !target?.closest('[data-openbitfun-product-part="markers"]');
+        return !target?.closest('[data-alex-product-part="markers"]');
       })) schedule();
     });
     mutation.observe(wrapper, { childList: true, characterData: true, subtree: true, attributes: true,
@@ -98,7 +98,7 @@ export function ConversationExcerptMarkers({ wrapper, turnId }: { wrapper: HTMLE
   return <>{groups.map(group => (
     <sup key={group.key}
       ref={element => { if (element) markerRefs.current.set(group.key, element); else markerRefs.current.delete(group.key); }}
-      data-openbitfun-product-component="conversation-excerpt" data-openbitfun-product-part="markers"
+      data-alex-product-component="conversation-excerpt" data-alex-product-part="markers"
       className="conversation-excerpt__markers" data-flowchat-selection-ignore="true"
       style={{ left: positions.get(group.key)?.left ?? 0, top: positions.get(group.key)?.top ?? 0,
         visibility: positions.has(group.key) ? 'visible' : 'hidden' }}>

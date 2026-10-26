@@ -325,8 +325,8 @@ describeWithJsdom('RichTextInput external sync', () => {
     paste(editor, {
       types: ['text/plain', 'text/html'],
       text: '[Skill: pdf] summarize it',
-      html: '<div data-openbitfun-composer-clipboard="1" '
-        + 'data-openbitfun-composer-clipboard-tokens="[$pdf] summarize it">'
+      html: '<div data-alex-composer-clipboard="1" '
+        + 'data-alex-composer-clipboard-tokens="[$pdf] summarize it">'
         + '[Skill: pdf] summarize it</div>',
     });
 
@@ -360,8 +360,8 @@ describeWithJsdom('RichTextInput external sync', () => {
 
     expect(clipboard.get('text/plain')).toBe('compare [$pdf] with [$doc]');
     const html = clipboard.get('text/html') ?? '';
-    expect(html).toContain('data-openbitfun-composer-clipboard="1"');
-    expect(html).toContain('data-openbitfun-composer-clipboard-tokens="compare [$pdf] with [$doc]"');
+    expect(html).toContain('data-alex-composer-clipboard="1"');
+    expect(html).toContain('data-alex-composer-clipboard-tokens="compare [$pdf] with [$doc]"');
     expect(html).not.toContain('rich-text-tag-pill__remove');
   });
 
@@ -444,7 +444,7 @@ describeWithJsdom('RichTextInput external sync', () => {
     ) as HTMLElement | null;
     expect(skillPill).toBeTruthy();
     expect(skillPill?.getAttribute('data-tag-format')).toBe('[$pdf]');
-    expect(skillPill?.querySelector('[data-openbitfun-component="icon"][data-openbitfun-name="extension"]')).toBeTruthy();
+    expect(skillPill?.querySelector('[data-alex-component="icon"][data-alex-name="extension"]')).toBeTruthy();
     expect(editor.textContent).toContain('pdf');
   });
 
@@ -453,7 +453,7 @@ describeWithJsdom('RichTextInput external sync', () => {
     const editor = await renderHarness(harnessRef);
 
     await act(async () => {
-      harnessRef.current?.setValue('[[openbitfun-additional-mode:review]]');
+      harnessRef.current?.setValue('[[alex-additional-mode:review]]');
     });
 
     const reviewPill = editor.querySelector(
@@ -461,8 +461,8 @@ describeWithJsdom('RichTextInput external sync', () => {
     ) as HTMLElement | null;
     expect(reviewPill).toBeTruthy();
     expect(reviewPill?.classList.contains('rich-text-tag-pill--skill-ref')).toBe(true);
-    expect(reviewPill?.getAttribute('data-openbitfun-context-type')).toBe('additional-mode-reference');
-    expect(reviewPill?.querySelector('[data-openbitfun-component="icon"][data-openbitfun-name="extension"]')).toBeTruthy();
+    expect(reviewPill?.getAttribute('data-alex-context-type')).toBe('additional-mode-reference');
+    expect(reviewPill?.querySelector('[data-alex-component="icon"][data-alex-name="extension"]')).toBeTruthy();
     expect(reviewPill?.textContent).toContain('Review');
   });
 
@@ -855,8 +855,8 @@ describeWithJsdom('RichTextInput external sync', () => {
     await act(async () => editor.replaceActiveContextTrigger?.(reference));
     expect(onChange).toHaveBeenLastCalledWith(`Please use ${reference}`, emptyContexts);
     const capsule = editor.querySelector<HTMLElement>('[data-inline-token-type="mcp-ref"]');
-    expect(capsule?.querySelector('[data-openbitfun-part="tagText"]')?.textContent).toBe('Docs');
-    expect(capsule?.querySelector('[data-openbitfun-part="tagBadge"] svg')).not.toBeNull();
+    expect(capsule?.querySelector('[data-alex-part="tagText"]')?.textContent).toBe('Docs');
+    expect(capsule?.querySelector('[data-alex-part="tagBadge"] svg')).not.toBeNull();
     expect(capsule?.getAttribute('contenteditable')).toBe('false');
     expect(capsule?.dataset.tagFormat).toBe(reference);
     expect(editor.textContent).not.toContain('server:');
@@ -936,7 +936,7 @@ describeWithJsdom('RichTextInput external sync', () => {
     expect(onChange).toHaveBeenCalledWith('[$pdf]', emptyContexts);
     const skillPill = editor?.querySelector('.rich-text-tag-pill--skill-ref');
     expect(skillPill).toBeTruthy();
-    expect(skillPill?.querySelector('[data-openbitfun-component="icon"][data-openbitfun-name="extension"]')).toBeTruthy();
+    expect(skillPill?.querySelector('[data-alex-component="icon"][data-alex-name="extension"]')).toBeTruthy();
     expect(skillPill?.nextSibling?.textContent).toBe(' ');
     const selection = window.getSelection();
     expect(selection?.anchorNode).toBe(editor);
@@ -1028,11 +1028,11 @@ describeWithJsdom('RichTextInput external sync', () => {
     expect(editor).toBeTruthy();
 
     await act(async () => {
-      editor?.appendInlineTokenAtEnd?.('[[openbitfun-additional-mode:review]]');
+      editor?.appendInlineTokenAtEnd?.('[[alex-additional-mode:review]]');
     });
 
     expect(onChange).toHaveBeenCalledWith(
-      'hello [[openbitfun-additional-mode:review]]',
+      'hello [[alex-additional-mode:review]]',
       emptyContexts,
     );
     expect(editor?.querySelector('.rich-text-tag-pill--additional-mode-ref')).toBeTruthy();

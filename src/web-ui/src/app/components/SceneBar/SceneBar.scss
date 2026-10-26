@@ -1,9 +1,9 @@
 /**
- * Scene-level tabs. Tab anatomy and visual states come from @openbitfun/ui;
+ * Scene-level tabs. Tab anatomy and visual states come from @alex/ui;
  * SceneBar owns only product-shell layout, overflow, and label truncation.
  */
 
-.openbitfun-scene-bar {
+.alex-scene-bar {
   display: flex;
   align-items: center;
   flex: 1 1 240px;
@@ -22,10 +22,10 @@
     &[data-canvas-drop-position]::after {
       content: '';
       position: absolute;
-      inset-block: var(--openbitfun-space-1);
-      width: var(--openbitfun-border-width-strong);
-      border-radius: var(--openbitfun-radius-pill);
-      background: var(--openbitfun-color-accent-default);
+      inset-block: var(--alex-space-1);
+      width: var(--alex-border-width-strong);
+      border-radius: var(--alex-radius-pill);
+      background: var(--alex-color-accent-default);
       pointer-events: none;
     }
 
@@ -37,7 +37,7 @@
     display: flex;
     align-items: center;
     flex: 1 1 auto;
-    gap: var(--openbitfun-space-1);
+    gap: var(--alex-space-1);
     min-width: 0;
     height: 100%;
   }
@@ -46,28 +46,28 @@
     display: grid;
     align-items: center;
     flex: 0 0 auto;
-    block-size: var(--openbitfun-control-tab-group-item-height-sm);
-    margin-inline: var(--openbitfun-space-2) var(--openbitfun-space-1);
-    padding-inline: var(--openbitfun-control-tab-group-item-padding-inline-sm);
-    border: var(--openbitfun-border-width-default) solid var(--openbitfun-component-button-outline-border-interactive);
-    border-radius: var(--openbitfun-control-tab-group-item-radius);
-    background: var(--openbitfun-color-selection-surface);
-    color: var(--openbitfun-color-content-primary);
-    font-family: var(--openbitfun-type-label-md-font-family);
-    font-size: var(--openbitfun-type-label-md-font-size);
-    font-weight: var(--openbitfun-type-label-md-font-weight);
-    line-height: var(--openbitfun-type-label-md-line-height);
-    letter-spacing: var(--openbitfun-type-label-md-letter-spacing);
+    block-size: var(--alex-control-tab-group-item-height-sm);
+    margin-inline: var(--alex-space-2) var(--alex-space-1);
+    padding-inline: var(--alex-control-tab-group-item-padding-inline-sm);
+    border: var(--alex-border-width-default) solid var(--alex-component-button-outline-border-interactive);
+    border-radius: var(--alex-control-tab-group-item-radius);
+    background: var(--alex-color-selection-surface);
+    color: var(--alex-color-content-primary);
+    font-family: var(--alex-type-label-md-font-family);
+    font-size: var(--alex-type-label-md-font-size);
+    font-weight: var(--alex-type-label-md-font-weight);
+    line-height: var(--alex-type-label-md-line-height);
+    letter-spacing: var(--alex-type-label-md-letter-spacing);
     white-space: nowrap;
     pointer-events: none;
-    transition: border-color var(--openbitfun-motion-duration-fast) var(--openbitfun-motion-easing-standard);
+    transition: border-color var(--alex-motion-duration-fast) var(--alex-motion-easing-standard);
 
     > span { grid-area: 1 / 1; }
     > span[aria-hidden='true'] { visibility: hidden; }
   }
 
   &[data-canvas-drop-state='active'] &__drop-hint {
-    border-color: var(--openbitfun-color-accent-default);
+    border-color: var(--alex-color-accent-default);
   }
 
   &__tabs {
@@ -76,11 +76,11 @@
     flex: 1 1 auto;
     min-width: 0;
     height: 100%;
-    padding-inline: var(--openbitfun-border-width-default);
+    padding-inline: var(--alex-border-width-default);
     overflow-x: auto;
     overflow-y: hidden;
     overscroll-behavior-x: contain;
-    scroll-padding-inline: var(--openbitfun-control-tab-group-gap);
+    scroll-padding-inline: var(--alex-control-tab-group-gap);
     scrollbar-width: none;
     -ms-overflow-style: none;
 
@@ -91,10 +91,10 @@
 
   &__scroll-button {
     --_scene-bar-scroll-button-control-zone: calc(
-      var(--openbitfun-control-tab-group-item-height-sm) + var(--openbitfun-space-1)
+      var(--alex-control-tab-group-item-height-sm) + var(--alex-space-1)
     );
     --_scene-bar-scroll-button-fade-width: calc(
-      var(--openbitfun-control-height-sm) + var(--openbitfun-space-2)
+      var(--alex-control-height-sm) + var(--alex-space-2)
     );
     --_scene-bar-scroll-button-effect-width: calc(
       var(--_scene-bar-scroll-button-control-zone)
@@ -102,7 +102,7 @@
     );
     --_scene-bar-scroll-button-surface: color-mix(
       in srgb,
-      var(--openbitfun-color-surface-scene) 76%,
+      var(--alex-color-surface-scene) 76%,
       transparent
     );
 
@@ -111,21 +111,21 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    flex: 0 0 var(--openbitfun-control-tab-group-item-height-sm);
-    width: var(--openbitfun-control-tab-group-item-height-sm);
-    height: var(--openbitfun-control-tab-group-item-height-sm);
+    flex: 0 0 var(--alex-control-tab-group-item-height-sm);
+    width: var(--alex-control-tab-group-item-height-sm);
+    height: var(--alex-control-tab-group-item-height-sm);
     padding: 0;
-    border: var(--openbitfun-border-width-default) solid transparent;
-    border-radius: var(--openbitfun-radius-pill);
+    border: var(--alex-border-width-default) solid transparent;
+    border-radius: var(--alex-radius-pill);
     outline: none;
     overflow: visible;
     background: transparent;
-    color: var(--openbitfun-color-action-neutral-content);
+    color: var(--alex-color-action-neutral-content);
     cursor: pointer;
     transition:
-      background-color var(--openbitfun-motion-duration-fast) var(--openbitfun-motion-easing-standard),
-      color var(--openbitfun-motion-duration-fast) var(--openbitfun-motion-easing-standard),
-      transform var(--openbitfun-motion-duration-fast) var(--openbitfun-motion-easing-standard);
+      background-color var(--alex-motion-duration-fast) var(--alex-motion-easing-standard),
+      color var(--alex-motion-duration-fast) var(--alex-motion-easing-standard),
+      transform var(--alex-motion-duration-fast) var(--alex-motion-easing-standard);
 
     &::before {
       content: '';
@@ -133,12 +133,12 @@
       inset-block-start: 50%;
       z-index: -1;
       width: var(--_scene-bar-scroll-button-effect-width);
-      height: var(--openbitfun-control-tab-group-item-height-sm);
+      height: var(--alex-control-tab-group-item-height-sm);
       transform: translateY(-50%);
       pointer-events: none;
     }
 
-    &[data-openbitfun-part='scrollPrevious']::before {
+    &[data-alex-part='scrollPrevious']::before {
       inset-inline-start: 0;
       background: linear-gradient(
         to right,
@@ -148,7 +148,7 @@
       );
     }
 
-    &[data-openbitfun-part='scrollNext']::before {
+    &[data-alex-part='scrollNext']::before {
       inset-inline-end: 0;
       background: linear-gradient(
         to left,
@@ -164,30 +164,30 @@
     }
 
     &:active {
-      background: var(--openbitfun-color-action-neutral-surface-pressed);
+      background: var(--alex-color-action-neutral-surface-pressed);
     }
 
     &:focus-visible {
-      outline: var(--openbitfun-focus-width) solid var(--openbitfun-color-focus-ring);
-      outline-offset: var(--openbitfun-focus-offset);
+      outline: var(--alex-focus-width) solid var(--alex-color-focus-ring);
+      outline-offset: var(--alex-focus-offset);
     }
   }
 
-  &__tabs [data-openbitfun-part='item'] {
+  &__tabs [data-alex-part='item'] {
     // Cap the whole tab, including its label padding and close-action reserve.
     max-inline-size: 220px;
   }
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .openbitfun-scene-bar__scroll-button:hover {
-    background: var(--openbitfun-color-action-neutral-surface-hover);
+  .alex-scene-bar__scroll-button:hover {
+    background: var(--alex-color-action-neutral-surface-hover);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .openbitfun-scene-bar__drop-hint { transition: none; }
-  .openbitfun-scene-bar__scroll-button {
+  .alex-scene-bar__drop-hint { transition: none; }
+  .alex-scene-bar__scroll-button {
     transition: none;
     transform: none;
   }

@@ -5,7 +5,7 @@
 
 > 最短结论：修改这个目录里的网页，完成检查并提交 Git commit 后，按照
 > [生产部署手册](../../deploy/miniapp-market/README.md)重建并重启
-> `openbitfun-miniapp-market` 容器。网页和 Rust 后端在同一个 Docker 镜像中，
+> `alex-miniapp-market` 容器。网页和 Rust 后端在同一个 Docker 镜像中，
 > 不要单独把 `dist/` 上传到服务器。
 
 ## 给 AI Agent 的执行约束
@@ -109,7 +109,7 @@ pnpm install
 `var/miniapp-market/`，默认配置只适合开发：
 
 ```bash
-cargo run -p openbitfun-miniapp-market-server
+cargo run -p alex-miniapp-market-server
 ```
 
 终端二启动 Vite：

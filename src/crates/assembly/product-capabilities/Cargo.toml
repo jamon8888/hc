@@ -1,13 +1,13 @@
 [package]
-name = "openbitfun-product-capabilities"
+name = "alex-product-capabilities"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
-description = "OpenBitFun product capability pack contracts"
+description = "Alex product capability pack contracts"
 autotests = false
 
 [lib]
-name = "openbitfun_product_capabilities"
+name = "alex_product_capabilities"
 crate-type = ["rlib"]
 
 [[test]]
@@ -17,20 +17,20 @@ path = "tests/product_capability_contracts.rs"
 [features]
 default = []
 # Compile-time switch for the Basemind tool owner. Mirrors and enables the
-# basemind cfg of openbitfun-tool-packs so the deliberate ImageAnalysis removal
+# basemind cfg of alex-tool-packs so the deliberate ImageAnalysis removal
 # and the tool request engage together in every build graph.
-basemind = ["openbitfun-tool-packs/basemind"]
+basemind = ["alex-tool-packs/basemind"]
 
 [dependencies]
-openbitfun-runtime-ports = { path = "../../contracts/runtime-ports", features = ["plugin-runtime"] }
-openbitfun-runtime-services = { path = "../../execution/runtime-services" }
-openbitfun-tool-packs = { path = "../../execution/tool-provider-groups" }
+alex-runtime-ports = { path = "../../contracts/runtime-ports", features = ["plugin-runtime"] }
+alex-runtime-services = { path = "../../execution/runtime-services" }
+alex-tool-packs = { path = "../../execution/tool-provider-groups" }
 
 [dev-dependencies]
 async-trait = { workspace = true }
-openbitfun-agent-runtime = { path = "../../execution/agent-runtime", features = ["agent-runtime"] }
-openbitfun-runtime-ports = { path = "../../contracts/runtime-ports", features = ["agent-api"] }
-openbitfun-runtime-services = { path = "../../execution/runtime-services", features = ["test-support"] }
+alex-agent-runtime = { path = "../../execution/agent-runtime", features = ["agent-runtime"] }
+alex-runtime-ports = { path = "../../contracts/runtime-ports", features = ["agent-api"] }
+alex-runtime-services = { path = "../../execution/runtime-services", features = ["test-support"] }
 tokio = { workspace = true, features = ["macros", "rt"] }
 
 [lints]

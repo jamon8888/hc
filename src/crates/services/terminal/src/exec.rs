@@ -26,8 +26,8 @@ use tokio::task::JoinHandle;
 use uuid::Uuid;
 
 const DEFAULT_YIELD_TIME_MS: u64 = 10_000;
-pub(crate) const EXEC_TERMINAL_SIZE: openbitfun_runtime_ports::ExecTerminalSize =
-    openbitfun_runtime_ports::ExecTerminalSize { cols: 80, rows: 24 };
+pub(crate) const EXEC_TERMINAL_SIZE: alex_runtime_ports::ExecTerminalSize =
+    alex_runtime_ports::ExecTerminalSize { cols: 80, rows: 24 };
 const MAX_RETAINED_OUTPUT_BYTES: usize = 1024 * 1024;
 const MAX_EXEC_SESSIONS: usize = 64;
 const MAX_COMPLETED_EXEC_SESSIONS: usize = 64;
@@ -1851,7 +1851,7 @@ mod tests {
         let manager = ExecProcessManager::default();
         let response = manager
             .exec_command(ExecCommandRequest {
-                argv: shell_argv("echo openbitfun_exec_test"),
+                argv: shell_argv("echo alex_exec_test"),
                 cwd: std::env::current_dir().expect("current dir"),
                 env: HashMap::new(),
                 tty: false,
@@ -1865,7 +1865,7 @@ mod tests {
 
         assert_eq!(response.exit_code, Some(0));
         assert!(response.session_id.is_none());
-        assert!(response.output.contains("openbitfun_exec_test"));
+        assert!(response.output.contains("alex_exec_test"));
     }
 
     #[tokio::test]
@@ -2295,8 +2295,8 @@ mod tests {
                 .expect("system time should be after unix epoch")
                 .as_nanos()
         );
-        let pid_file = std::env::temp_dir().join(format!("openbitfun-exec-child-{unique}.pid"));
-        let tick_file = std::env::temp_dir().join(format!("openbitfun-exec-child-{unique}.tick"));
+        let pid_file = std::env::temp_dir().join(format!("alex-exec-child-{unique}.pid"));
+        let tick_file = std::env::temp_dir().join(format!("alex-exec-child-{unique}.tick"));
         let pid_path = pid_file.to_string_lossy();
         let tick_path = tick_file.to_string_lossy();
         let script = format!(
@@ -2445,8 +2445,8 @@ print("parent_exit", flush=True)"#;
     #[ignore = "requires a working Python Install Manager App Execution Alias"]
     async fn control_terminates_python_app_execution_alias() {
         use std::os::windows::fs::MetadataExt;
-        let alias = std::env::var("OPENBITFUN_TEST_PYTHON_ALIAS")
-            .expect("set OPENBITFUN_TEST_PYTHON_ALIAS to the WindowsApps python.exe alias");
+        let alias = std::env::var("ALEX_TEST_PYTHON_ALIAS")
+            .expect("set ALEX_TEST_PYTHON_ALIAS to the WindowsApps python.exe alias");
         let metadata = std::fs::metadata(&alias).expect("alias metadata");
         assert_eq!(metadata.len(), 0, "must use an application execution alias");
         assert_ne!(metadata.file_attributes() & 0x400, 0);
@@ -2558,15 +2558,15 @@ print("parent_exit", flush=True)"#;
 
     #[cfg(windows)]
     async fn assert_git_bash_npm_dev_control(action: ExecControlAction) {
-        let Ok(bash_path) = std::env::var("OPENBITFUN_TEST_WINDOWS_GIT_BASH") else {
+        let Ok(bash_path) = std::env::var("ALEX_TEST_WINDOWS_GIT_BASH") else {
             eprintln!(
-                "skipping git bash exec regression: OPENBITFUN_TEST_WINDOWS_GIT_BASH is unset"
+                "skipping git bash exec regression: ALEX_TEST_WINDOWS_GIT_BASH is unset"
             );
             return;
         };
-        let Ok(fixture_dir) = std::env::var("OPENBITFUN_TEST_WINDOWS_NPM_FIXTURE") else {
+        let Ok(fixture_dir) = std::env::var("ALEX_TEST_WINDOWS_NPM_FIXTURE") else {
             eprintln!(
-                "skipping git bash exec regression: OPENBITFUN_TEST_WINDOWS_NPM_FIXTURE is unset"
+                "skipping git bash exec regression: ALEX_TEST_WINDOWS_NPM_FIXTURE is unset"
             );
             return;
         };

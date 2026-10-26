@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
-import { themes } from '@openbitfun/theme-openbitfun';
+import { themes } from '@alex/theme-alex';
 
 export type Theme = 'light' | 'dark';
 
-export const THEME_STORAGE_KEY = 'openbitfun-skin-market-theme';
+export const THEME_STORAGE_KEY = 'alex-skin-market-theme';
 
 export function isTheme(value: string | null): value is Theme {
   return value === 'light' || value === 'dark';
@@ -23,7 +23,7 @@ function readStoredTheme(): string | null {
 
 function applyTheme(theme: Theme): void {
   const root = document.documentElement;
-  root.setAttribute('data-openbitfun-design-system-root', '');
+  root.setAttribute('data-alex-design-system-root', '');
   root.dataset.colorScheme = theme;
   root.dataset.contrast = 'standard';
   root.dataset.density = 'comfortable';

@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { Button, Icon, IconButton, Portal, ScrollArea } from '@openbitfun/ui';
+import { Button, Icon, IconButton, Portal, ScrollArea } from '@alex/ui';
 import { useAnnouncementStore } from '../store/announcementStore';
 import FeatureModalPage from './FeatureModalPage';
 import { useAnnouncementI18n } from '../hooks/useAnnouncementI18n';
@@ -140,37 +140,37 @@ const FeatureModal: React.FC = () => {
     <div
       ref={backdropRef}
       className={`feature-modal-backdrop${exiting ? ' feature-modal-backdrop--exiting' : ''}`}
-      data-openbitfun-component="announcement"
-      data-openbitfun-part="modalBackdrop"
+      data-alex-component="announcement"
+      data-alex-part="modalBackdrop"
       onClick={handleBackdropClick}
       role="dialog"
       tabIndex={-1}
-      data-openbitfun-native-webview-occlusion
+      data-alex-native-webview-occlusion
       aria-modal="true"
       aria-hidden={exiting}
       {...(exiting ? { inert: '' } : {})}
     >
-      <div className={`feature-modal ${sizeClass}${exiting ? ' feature-modal--exiting' : ''}`} data-openbitfun-component="announcement" data-openbitfun-part="modal">
+      <div className={`feature-modal ${sizeClass}${exiting ? ' feature-modal--exiting' : ''}`} data-alex-component="announcement" data-alex-part="modal">
         {/* Close button */}
         {modal.closable && (
           <IconButton
             className="feature-modal__close"
             icon={<Icon name="xmark" size="lg" />}
             size="md"
-            data-openbitfun-component="announcement"
-            data-openbitfun-part="modalClose"
+            data-alex-component="announcement"
+            data-alex-part="modalClose"
             onClick={() => triggerClose()}
             aria-label={t('announcements.common.close')}
           />
         )}
 
         {/* Page viewport */}
-        <div className="feature-modal__pages" data-openbitfun-component="announcement" data-openbitfun-part="modalPages">
+        <div className="feature-modal__pages" data-alex-component="announcement" data-alex-part="modalPages">
           <FeatureModalPages pages={pages} currentPage={currentPage} />
         </div>
 
         {/* Footer navigation */}
-        <div className="feature-modal__footer" data-openbitfun-component="announcement" data-openbitfun-part="modalFooter">
+        <div className="feature-modal__footer" data-alex-component="announcement" data-alex-part="modalFooter">
           {/* Dot indicators */}
           <div className="feature-modal__dots" aria-label="Page navigation">
             {pages.map((_, i) => (
@@ -185,7 +185,7 @@ const FeatureModal: React.FC = () => {
           </div>
 
           {/* Navigation buttons */}
-          <div className="feature-modal__nav" data-openbitfun-component="announcement" data-openbitfun-part="modalNavigation">
+          <div className="feature-modal__nav" data-alex-component="announcement" data-alex-part="modalNavigation">
             {modal.completion_action === 'never_show_again' && isLast && (
               <Button
                 variant="outline"

@@ -118,7 +118,7 @@
 
 ### F7(中)输入框 backdrop-filter 与布局属性 transition 叠加
 
-`ChatInput.scss:632-640`:`.openbitfun-chat-input__box` 同时有 `backdrop-filter: blur(16px) saturate(1.2)` 和对 `padding/min-height/max-height/box-shadow` 的 0.32s transition。胶囊↔多行切换(由 F3 的测量高频驱动)期间每帧:重排(布局属性)+ 16px 背景重采样 + box-shadow 重绘。嵌套层另有 blur(8/12/20px)(`:659,668,689,1137`)。
+`ChatInput.scss:632-640`:`.alex-chat-input__box` 同时有 `backdrop-filter: blur(16px) saturate(1.2)` 和对 `padding/min-height/max-height/box-shadow` 的 0.32s transition。胶囊↔多行切换(由 F3 的测量高频驱动)期间每帧:重排(布局属性)+ 16px 背景重采样 + box-shadow 重绘。嵌套层另有 blur(8/12/20px)(`:659,668,689,1137`)。
 
 **优化方案**:transition 收窄为 `border-radius, border-color, box-shadow`;高度变化改用容器 `grid-template-rows`/transform 方案或接受瞬时切换;评估把模糊降级为半透明底色(至少在低端机/省电模式)。
 

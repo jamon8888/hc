@@ -80,7 +80,7 @@ pub async fn server_info() -> Json<ServerInfo> {
 
 pub(crate) async fn server_info_for_host(host_version: &'static str) -> Json<ServerInfo> {
     Json(ServerInfo {
-        name: "OpenBitFun Relay Server".to_string(),
+        name: "Alex Relay Server".to_string(),
         version: host_version.to_string(),
         protocol_version: 3,
         capabilities: vec![

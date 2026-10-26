@@ -107,8 +107,8 @@ export const ReadOnlyCodeBlock: React.FC<ReadOnlyCodeBlockProps> = ({
   return (
     <div
       className={`readonly-code-block ${className}`}
-      data-openbitfun-component="editor-tool"
-      data-openbitfun-part="readOnlyCodeBlock"
+      data-alex-component="editor-tool"
+      data-alex-part="readOnlyCodeBlock"
       style={{
         height: computedHeight,
         ...style,

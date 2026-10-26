@@ -22,14 +22,14 @@ use dashmap::mapref::entry::Entry;
 use dashmap::DashMap;
 use futures::io::{AsyncRead as FuturesAsyncRead, AsyncWrite as FuturesAsyncWrite};
 use log::{debug, info, warn};
-use openbitfun_agent_tools::ACP_TOOL_PREFIX;
-use openbitfun_core::agentic::tools::registry::get_global_tool_registry;
-use openbitfun_core::infrastructure::events::{emit_global_event, BackendEvent};
-use openbitfun_core::infrastructure::PathManager;
-use openbitfun_core::service::config::ConfigService;
-use openbitfun_core::service::remote_ssh::workspace_state::get_remote_workspace_manager;
-use openbitfun_core::service::remote_ssh::SSHConnectionManager;
-use openbitfun_core::util::errors::{OpenBitFunError, OpenBitFunResult};
+use alex_agent_tools::ACP_TOOL_PREFIX;
+use alex_core::agentic::tools::registry::get_global_tool_registry;
+use alex_core::infrastructure::events::{emit_global_event, BackendEvent};
+use alex_core::infrastructure::PathManager;
+use alex_core::service::config::ConfigService;
+use alex_core::service::remote_ssh::workspace_state::get_remote_workspace_manager;
+use alex_core::service::remote_ssh::SSHConnectionManager;
+use alex_core::util::errors::{AlexError, AlexResult};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use tokio::process::{Child, Command};
@@ -226,7 +226,7 @@ impl AcpClientService {
     pub fn new(
         config_service: Arc<ConfigService>,
         path_manager: Arc<PathManager>,
-    ) -> OpenBitFunResult<Arc<Self>> {
+    ) -> AlexResult<Arc<Self>> {
         Ok(Arc::new(Self {
             config_service,
             session_persistence: AcpSessionPersistence::new(path_manager.clone())?,
@@ -250,7 +250,7 @@ impl AcpClientService {
         workspace_path: &str,
         client_id: &str,
         session_name: Option<String>,
-    ) -> OpenBitFunResult<CreateAcpFlowSessionRecordResponse> {
+    ) -> AlexResult<CreateAcpFlowSessionRecordResponse> {
         self.session_persistence
             .create_flow_session_record(
                 session_storage_path,
@@ -262,7 +262,7 @@ impl AcpClientService {
             .await
     }
 
-    pub async fn initialize_all(self: &Arc<Self>) -> OpenBitFunResult<()> {
+    pub async fn initialize_all(self: &Arc<Self>) -> AlexResult<()> {
         let configs = self.load_configs().await?;
         self.register_configured_tools(&configs).await;
 
@@ -289,7 +289,7 @@ impl AcpClientService {
         Ok(())
     }
 
-    pub async fn list_clients(self: &Arc<Self>) -> OpenBitFunResult<Vec<AcpClientInfo>> {
+    pub async fn list_clients(self: &Arc<Self>) -> AlexResult<Vec<AcpClientInfo>> {
         let configs = self.load_configs().await?;
         let mut infos = Vec::with_capacity(configs.len());
         for (id, config) in configs {
@@ -328,7 +328,7 @@ impl AcpClientService {
         self: &Arc<Self>,
         remote_connection_id: Option<&str>,
         force_refresh: bool,
-    ) -> OpenBitFunResult<Vec<AcpClientRequirementProbe>> {
+    ) -> AlexResult<Vec<AcpClientRequirementProbe>> {
         if let Some(remote_connection_id) = remote_connection_id
             .map(str::trim)
             .filter(|value| !value.is_empty())
@@ -410,7 +410,7 @@ impl AcpClientService {
     pub async fn refresh_remote_client_requirements(
         &self,
         remote_connection_id: &str,
-    ) -> OpenBitFunResult<Vec<AcpClientRequirementProbe>> {
+    ) -> AlexResult<Vec<AcpClientRequirementProbe>> {
         let probes = self
             .probe_remote_client_requirements(remote_connection_id)
             .await?;
@@ -427,12 +427,12 @@ impl AcpClientService {
     async fn probe_remote_client_requirements(
         &self,
         remote_connection_id: &str,
-    ) -> OpenBitFunResult<Vec<AcpClientRequirementProbe>> {
+    ) -> AlexResult<Vec<AcpClientRequirementProbe>> {
         let remote_manager = get_remote_workspace_manager().ok_or_else(|| {
-            OpenBitFunError::service("Remote workspace manager is not initialized".to_string())
+            AlexError::service("Remote workspace manager is not initialized".to_string())
         })?;
         let ssh_manager = remote_manager.get_ssh_manager().await.ok_or_else(|| {
-            OpenBitFunError::service("SSH manager is not available for remote ACP".to_string())
+            AlexError::service("SSH manager is not available for remote ACP".to_string())
         })?;
 
         let config_file = self.load_config_file().await?;
@@ -509,11 +509,11 @@ impl AcpClientService {
     pub async fn predownload_client_adapter(
         self: &Arc<Self>,
         client_id: &str,
-    ) -> OpenBitFunResult<()> {
+    ) -> AlexResult<()> {
         let configs = self.load_configs().await?;
         let spec = acp_requirement_spec(client_id, configs.get(client_id));
         let adapter = spec.adapter.ok_or_else(|| {
-            OpenBitFunError::config(format!(
+            AlexError::config(format!(
                 "ACP client '{}' does not use a downloadable adapter",
                 client_id
             ))
@@ -526,7 +526,7 @@ impl AcpClientService {
         self: &Arc<Self>,
         client_id: &str,
         remote_connection_id: Option<&str>,
-    ) -> OpenBitFunResult<()> {
+    ) -> AlexResult<()> {
         let remote_connection_id = remote_connection_id
             .map(str::trim)
             .filter(|value| !value.is_empty());
@@ -534,7 +534,7 @@ impl AcpClientService {
         let config = resolve_config_for_client(&config_file, client_id, remote_connection_id);
         let spec = acp_requirement_spec(client_id, config.as_ref());
         let package = spec.install_package.ok_or_else(|| {
-            OpenBitFunError::config(format!(
+            AlexError::config(format!(
                 "ACP client '{}' does not have a known CLI installer",
                 client_id
             ))
@@ -542,10 +542,10 @@ impl AcpClientService {
 
         if let Some(remote_connection_id) = remote_connection_id {
             let remote_manager = get_remote_workspace_manager().ok_or_else(|| {
-                OpenBitFunError::service("Remote workspace manager is not initialized".to_string())
+                AlexError::service("Remote workspace manager is not initialized".to_string())
             })?;
             let ssh_manager = remote_manager.get_ssh_manager().await.ok_or_else(|| {
-                OpenBitFunError::service("SSH manager is not available for remote ACP".to_string())
+                AlexError::service("SSH manager is not available for remote ACP".to_string())
             })?;
             install_remote_npm_cli_package(&ssh_manager, remote_connection_id, package).await
         } else {
@@ -556,11 +556,11 @@ impl AcpClientService {
     pub async fn start_client_for_session(
         self: &Arc<Self>,
         client_id: &str,
-        openbitfun_session_id: &str,
+        alex_session_id: &str,
         workspace_path: Option<&str>,
         remote_connection_id: Option<&str>,
-    ) -> OpenBitFunResult<()> {
-        let connection_id = session_client_connection_id(client_id, openbitfun_session_id);
+    ) -> AlexResult<()> {
+        let connection_id = session_client_connection_id(client_id, alex_session_id);
         self.start_client_connection(
             &connection_id,
             client_id,
@@ -576,7 +576,7 @@ impl AcpClientService {
         client_id: &str,
         workspace_path: Option<&str>,
         remote_connection_id: Option<&str>,
-    ) -> OpenBitFunResult<()> {
+    ) -> AlexResult<()> {
         let (connection, remote_connection_id) = loop {
             if let Some(existing) = self.clients.get(connection_id).map(|entry| entry.clone()) {
                 let status = *existing.status.read().await;
@@ -672,7 +672,7 @@ impl AcpClientService {
         let connect_task = tokio::spawn(async move {
             let result = Client
                 .builder()
-                .name("openbitfun-acp-client")
+                .name("alex-acp-client")
                 .on_receive_notification(
                     handle_transport_closed,
                     agent_client_protocol::on_receive_notification!(),
@@ -696,7 +696,7 @@ impl AcpClientService {
                     let init = InitializeRequest::new(ProtocolVersion::V1)
                         .client_capabilities(ClientCapabilities::new())
                         .client_info(Implementation::new(
-                            "openbitfun-desktop",
+                            "alex-desktop",
                             env!("CARGO_PKG_VERSION"),
                         ));
                     let initialize_response = cx.send_request(init).block_task().await?;
@@ -730,7 +730,7 @@ impl AcpClientService {
                 // The agent is gone; whatever it managed to say on the way out
                 // is all anyone has to go on, so put it in front of the user
                 // rather than only in the log.
-                return Err(OpenBitFunError::service(startup_exit_error_message(
+                return Err(AlexError::service(startup_exit_error_message(
                     client_id,
                     &stderr_tail.drained_detail().await,
                 )));
@@ -767,7 +767,7 @@ impl AcpClientService {
         }
     }
 
-    pub async fn stop_client(self: &Arc<Self>, client_id: &str) -> OpenBitFunResult<()> {
+    pub async fn stop_client(self: &Arc<Self>, client_id: &str) -> AlexResult<()> {
         let connection_ids = self
             .clients
             .iter()
@@ -780,7 +780,7 @@ impl AcpClientService {
         Ok(())
     }
 
-    async fn stop_connection(self: &Arc<Self>, connection_id: &str) -> OpenBitFunResult<()> {
+    async fn stop_connection(self: &Arc<Self>, connection_id: &str) -> AlexResult<()> {
         let Some(client) = self.clients.get(connection_id).map(|entry| entry.clone()) else {
             return Ok(());
         };
@@ -804,8 +804,8 @@ impl AcpClientService {
         Ok(())
     }
 
-    pub async fn release_openbitfun_session(self: &Arc<Self>, openbitfun_session_id: &str) -> bool {
-        let session_key_prefix = format!("{}:", openbitfun_session_id);
+    pub async fn release_alex_session(self: &Arc<Self>, alex_session_id: &str) -> bool {
+        let session_key_prefix = format!("{}:", alex_session_id);
         let clients = self
             .clients
             .iter()
@@ -896,27 +896,27 @@ impl AcpClientService {
     pub async fn delete_flow_session_record(
         &self,
         session_storage_path: &Path,
-        openbitfun_session_id: &str,
-    ) -> OpenBitFunResult<()> {
+        alex_session_id: &str,
+    ) -> AlexResult<()> {
         self.session_persistence
-            .delete_flow_session_record(session_storage_path, openbitfun_session_id)
+            .delete_flow_session_record(session_storage_path, alex_session_id)
             .await
     }
 
-    pub async fn load_json_config(&self) -> OpenBitFunResult<String> {
+    pub async fn load_json_config(&self) -> AlexResult<String> {
         let config = parse_config_value(self.load_config_value().await?)?;
         serde_json::to_string_pretty(&config).map_err(|error| {
-            OpenBitFunError::config(format!("Failed to render ACP config: {}", error))
+            AlexError::config(format!("Failed to render ACP config: {}", error))
         })
     }
 
-    pub async fn save_json_config(self: &Arc<Self>, json_config: &str) -> OpenBitFunResult<()> {
+    pub async fn save_json_config(self: &Arc<Self>, json_config: &str) -> AlexResult<()> {
         let value: serde_json::Value = serde_json::from_str(json_config).map_err(|error| {
-            OpenBitFunError::config(format!("Invalid ACP client JSON config: {}", error))
+            AlexError::config(format!("Invalid ACP client JSON config: {}", error))
         })?;
         let config = parse_config_value(value)?;
         let canonical_value = serde_json::to_value(config).map_err(|error| {
-            OpenBitFunError::config(format!("Failed to render ACP config: {}", error))
+            AlexError::config(format!("Failed to render ACP config: {}", error))
         })?;
         self.config_service
             .set_config(CONFIG_PATH, canonical_value)
@@ -928,9 +928,9 @@ impl AcpClientService {
     pub async fn submit_permission_response(
         &self,
         request: SubmitAcpPermissionResponseRequest,
-    ) -> OpenBitFunResult<AcpClientPermissionResponse> {
+    ) -> AlexResult<AcpClientPermissionResponse> {
         let Some((_, pending)) = self.pending_permissions.remove(&request.permission_id) else {
-            return Err(OpenBitFunError::NotFound(format!(
+            return Err(AlexError::NotFound(format!(
                 "ACP permission request not found: {}",
                 request.permission_id
             )));
@@ -955,14 +955,14 @@ impl AcpClientService {
         workspace_path: Option<String>,
         remote_connection_id: Option<String>,
         session_storage_path: Option<PathBuf>,
-        openbitfun_session_id: String,
-    ) -> OpenBitFunResult<AcpSessionOptions> {
+        alex_session_id: String,
+    ) -> AlexResult<AcpSessionOptions> {
         let resolved = self
             .resolve_or_create_client_session(
                 client_id,
                 workspace_path,
                 remote_connection_id.as_deref(),
-                &openbitfun_session_id,
+                &alex_session_id,
             )
             .await?;
 
@@ -971,7 +971,7 @@ impl AcpClientService {
             &resolved.client,
             &resolved.session_key,
             &resolved.cwd,
-            &openbitfun_session_id,
+            &alex_session_id,
             session_storage_path.as_deref(),
             &mut session,
         )
@@ -990,14 +990,14 @@ impl AcpClientService {
         workspace_path: Option<String>,
         remote_connection_id: Option<String>,
         session_storage_path: Option<PathBuf>,
-        openbitfun_session_id: String,
-    ) -> OpenBitFunResult<Vec<AcpAvailableCommand>> {
+        alex_session_id: String,
+    ) -> AlexResult<Vec<AcpAvailableCommand>> {
         let resolved = self
             .resolve_or_create_client_session(
                 client_id,
                 workspace_path,
                 remote_connection_id.as_deref(),
-                &openbitfun_session_id,
+                &alex_session_id,
             )
             .await?;
 
@@ -1006,7 +1006,7 @@ impl AcpClientService {
             &resolved.client,
             &resolved.session_key,
             &resolved.cwd,
-            &openbitfun_session_id,
+            &alex_session_id,
             session_storage_path.as_deref(),
             &mut session,
         )
@@ -1019,7 +1019,7 @@ impl AcpClientService {
         self: &Arc<Self>,
         request: SetAcpSessionModelRequest,
         session_storage_path: Option<PathBuf>,
-    ) -> OpenBitFunResult<AcpSessionOptions> {
+    ) -> AlexResult<AcpSessionOptions> {
         let resolved = self
             .resolve_or_create_client_session(
                 &request.client_id,
@@ -1042,7 +1042,7 @@ impl AcpClientService {
         let active = session
             .active
             .as_ref()
-            .ok_or_else(|| OpenBitFunError::service("ACP session was not initialized"))?;
+            .ok_or_else(|| AlexError::service("ACP session was not initialized"))?;
         let remote_session_id = active.session_id().to_string();
         let connection = active.connection();
 
@@ -1108,7 +1108,7 @@ impl AcpClientService {
         if let Some(error) = set_model_error {
             return Err(error);
         }
-        Err(OpenBitFunError::NotFound(
+        Err(AlexError::NotFound(
             "ACP session does not expose selectable models".to_string(),
         ))
     }
@@ -1117,7 +1117,7 @@ impl AcpClientService {
         self: &Arc<Self>,
         request: SetAcpSessionConfigOptionRequest,
         session_storage_path: Option<PathBuf>,
-    ) -> OpenBitFunResult<AcpSessionOptions> {
+    ) -> AlexResult<AcpSessionOptions> {
         let resolved = self
             .resolve_or_create_client_session(
                 &request.client_id,
@@ -1140,7 +1140,7 @@ impl AcpClientService {
         let active = session
             .active
             .as_ref()
-            .ok_or_else(|| OpenBitFunError::service("ACP session was not initialized"))?;
+            .ok_or_else(|| AlexError::service("ACP session was not initialized"))?;
         let remote_session_id = active.session_id().to_string();
         let connection = active.connection();
 
@@ -1149,7 +1149,7 @@ impl AcpClientService {
             .iter()
             .any(|option| option.id.to_string() == request.config_id)
         {
-            return Err(OpenBitFunError::NotFound(format!(
+            return Err(AlexError::NotFound(format!(
                 "ACP session config option not found: {}",
                 request.config_id
             )));
@@ -1185,12 +1185,12 @@ impl AcpClientService {
     async fn pseudonymize_acp_prompt(
         prompt: String,
         workspace_root: &Path,
-        openbitfun_session_id: &str,
-    ) -> OpenBitFunResult<String> {
+        alex_session_id: &str,
+    ) -> AlexResult<String> {
         super::prompt_redaction::apply_prompt_interceptor(
             prompt,
             workspace_root,
-            openbitfun_session_id,
+            alex_session_id,
         )
         .await
     }
@@ -1201,16 +1201,16 @@ impl AcpClientService {
         prompt: String,
         workspace_path: Option<String>,
         remote_connection_id: Option<String>,
-        openbitfun_session_id: String,
+        alex_session_id: String,
         session_storage_path: Option<PathBuf>,
         timeout_seconds: Option<u64>,
-    ) -> OpenBitFunResult<String> {
+    ) -> AlexResult<String> {
         let resolved = self
             .resolve_or_create_client_session(
                 client_id,
                 workspace_path,
                 remote_connection_id.as_deref(),
-                &openbitfun_session_id,
+                &alex_session_id,
             )
             .await?;
         let run = async {
@@ -1220,7 +1220,7 @@ impl AcpClientService {
             // lock so redaction latency cannot serialize other users of the
             // session.
             let prompt =
-                Self::pseudonymize_acp_prompt(prompt, &resolved.cwd, &openbitfun_session_id)
+                Self::pseudonymize_acp_prompt(prompt, &resolved.cwd, &alex_session_id)
                     .await?;
 
             let mut session = resolved.session.lock().await;
@@ -1228,7 +1228,7 @@ impl AcpClientService {
                 &resolved.client,
                 &resolved.session_key,
                 &resolved.cwd,
-                &openbitfun_session_id,
+                &alex_session_id,
                 session_storage_path.as_deref(),
                 &mut session,
             )
@@ -1238,7 +1238,7 @@ impl AcpClientService {
             let active = session
                 .active
                 .as_mut()
-                .ok_or_else(|| OpenBitFunError::service("ACP session was not initialized"))?;
+                .ok_or_else(|| AlexError::service("ACP session was not initialized"))?;
             let mut prompt = AcpPrompt::start(active, prompt);
             read_turn_to_string(&mut session, &mut prompt).await
         };
@@ -1247,7 +1247,7 @@ impl AcpClientService {
             tokio::time::timeout(Duration::from_secs(seconds), run)
                 .await
                 .map_err(|_| {
-                    OpenBitFunError::tool(format!("ACP client timed out after {}s", seconds))
+                    AlexError::tool(format!("ACP client timed out after {}s", seconds))
                 })?
         } else {
             run.await
@@ -1260,20 +1260,20 @@ impl AcpClientService {
         prompt: String,
         workspace_path: Option<String>,
         remote_connection_id: Option<String>,
-        openbitfun_session_id: String,
+        alex_session_id: String,
         session_storage_path: Option<PathBuf>,
         timeout_seconds: Option<u64>,
         mut on_event: F,
-    ) -> OpenBitFunResult<()>
+    ) -> AlexResult<()>
     where
-        F: FnMut(AcpClientStreamEvent) -> OpenBitFunResult<()> + Send,
+        F: FnMut(AcpClientStreamEvent) -> AlexResult<()> + Send,
     {
         let resolved = self
             .resolve_or_create_client_session(
                 client_id,
                 workspace_path,
                 remote_connection_id.as_deref(),
-                &openbitfun_session_id,
+                &alex_session_id,
             )
             .await?;
         let run = async {
@@ -1281,7 +1281,7 @@ impl AcpClientService {
             // session lock: the caller's deadline covers redaction too, and
             // redaction latency cannot serialize the session.
             let prompt =
-                Self::pseudonymize_acp_prompt(prompt, &resolved.cwd, &openbitfun_session_id)
+                Self::pseudonymize_acp_prompt(prompt, &resolved.cwd, &alex_session_id)
                     .await?;
 
             let mut session = resolved.session.lock().await;
@@ -1289,7 +1289,7 @@ impl AcpClientService {
                 &resolved.client,
                 &resolved.session_key,
                 &resolved.cwd,
-                &openbitfun_session_id,
+                &alex_session_id,
                 session_storage_path.as_deref(),
                 &mut session,
             )
@@ -1300,7 +1300,7 @@ impl AcpClientService {
                 let active = session
                     .active
                     .as_mut()
-                    .ok_or_else(|| OpenBitFunError::service("ACP session was not initialized"))?;
+                    .ok_or_else(|| AlexError::service("ACP session was not initialized"))?;
                 AcpPrompt::start(active, prompt)
             };
             let mut round_tracker = AcpStreamRoundTracker::new();
@@ -1309,7 +1309,7 @@ impl AcpClientService {
             loop {
                 let message = {
                     let active = session.active.as_mut().ok_or_else(|| {
-                        OpenBitFunError::service("ACP session was not initialized")
+                        AlexError::service("ACP session was not initialized")
                     })?;
                     prompt.read_update(active).await.map_err(protocol_error)?
                 };
@@ -1354,7 +1354,7 @@ impl AcpClientService {
             tokio::time::timeout(Duration::from_secs(seconds), run)
                 .await
                 .map_err(|_| {
-                    OpenBitFunError::tool(format!("ACP client timed out after {}s", seconds))
+                    AlexError::tool(format!("ACP client timed out after {}s", seconds))
                 })?
         } else {
             run.await
@@ -1365,24 +1365,24 @@ impl AcpClientService {
         self: &Arc<Self>,
         client_id: &str,
         workspace_path: Option<String>,
-        openbitfun_session_id: String,
-    ) -> OpenBitFunResult<()> {
-        let connection_id = session_client_connection_id(client_id, &openbitfun_session_id);
+        alex_session_id: String,
+    ) -> AlexResult<()> {
+        let connection_id = session_client_connection_id(client_id, &alex_session_id);
         let client = self
             .clients
             .get(&connection_id)
             .map(|entry| entry.clone())
             .ok_or_else(|| {
-                OpenBitFunError::service(format!("ACP client is not running: {}", client_id))
+                AlexError::service(format!("ACP client is not running: {}", client_id))
             })?;
 
         let cwd = workspace_path
             .map(PathBuf::from)
             .or_else(|| std::env::current_dir().ok())
-            .ok_or_else(|| OpenBitFunError::validation("Workspace path is required".to_string()))?;
-        let session_key = build_session_key(&openbitfun_session_id, client_id, &cwd);
+            .ok_or_else(|| AlexError::validation("Workspace path is required".to_string()))?;
+        let session_key = build_session_key(&alex_session_id, client_id, &cwd);
         let handle = client.cancel_handles.get(&session_key).ok_or_else(|| {
-            OpenBitFunError::NotFound(format!(
+            AlexError::NotFound(format!(
                 "ACP session is not active for client '{}' in workspace '{}'",
                 client_id,
                 cwd.display()
@@ -1396,11 +1396,11 @@ impl AcpClientService {
         Ok(())
     }
 
-    pub async fn cancel_openbitfun_session(
+    pub async fn cancel_alex_session(
         self: &Arc<Self>,
-        openbitfun_session_id: &str,
-    ) -> OpenBitFunResult<bool> {
-        let session_key_prefix = format!("{}:", openbitfun_session_id);
+        alex_session_id: &str,
+    ) -> AlexResult<bool> {
+        let session_key_prefix = format!("{}:", alex_session_id);
         for client in self.clients.iter().map(|entry| entry.value().clone()) {
             let handle = client
                 .cancel_handles
@@ -1425,9 +1425,9 @@ impl AcpClientService {
         client_id: &str,
         workspace_path: Option<String>,
         remote_connection_id: Option<&str>,
-        openbitfun_session_id: &str,
-    ) -> OpenBitFunResult<(Arc<AcpClientConnection>, PathBuf, String)> {
-        let connection_id = session_client_connection_id(client_id, openbitfun_session_id);
+        alex_session_id: &str,
+    ) -> AlexResult<(Arc<AcpClientConnection>, PathBuf, String)> {
+        let connection_id = session_client_connection_id(client_id, alex_session_id);
         self.start_client_connection(
             &connection_id,
             client_id,
@@ -1440,14 +1440,14 @@ impl AcpClientService {
             .get(&connection_id)
             .map(|entry| entry.clone())
             .ok_or_else(|| {
-                OpenBitFunError::service(format!("ACP client is not running: {}", client_id))
+                AlexError::service(format!("ACP client is not running: {}", client_id))
             })?;
 
         let cwd = workspace_path
             .map(PathBuf::from)
             .or_else(|| std::env::current_dir().ok())
-            .ok_or_else(|| OpenBitFunError::validation("Workspace path is required".to_string()))?;
-        let session_key = build_session_key(openbitfun_session_id, client_id, &cwd);
+            .ok_or_else(|| AlexError::validation("Workspace path is required".to_string()))?;
+        let session_key = build_session_key(alex_session_id, client_id, &cwd);
         Ok((client, cwd, session_key))
     }
 
@@ -1456,14 +1456,14 @@ impl AcpClientService {
         client_id: &str,
         workspace_path: Option<String>,
         remote_connection_id: Option<&str>,
-        openbitfun_session_id: &str,
-    ) -> OpenBitFunResult<ResolvedClientSession> {
+        alex_session_id: &str,
+    ) -> AlexResult<ResolvedClientSession> {
         let (client, cwd, session_key) = self
             .resolve_client_session(
                 client_id,
                 workspace_path,
                 remote_connection_id,
-                openbitfun_session_id,
+                alex_session_id,
             )
             .await?;
         let session = client
@@ -1484,10 +1484,10 @@ impl AcpClientService {
         client: &Arc<AcpClientConnection>,
         session_key: &str,
         cwd: &Path,
-        openbitfun_session_id: &str,
+        alex_session_id: &str,
         session_storage_path: Option<&Path>,
         session: &mut AcpRemoteSession,
-    ) -> OpenBitFunResult<()> {
+    ) -> AlexResult<()> {
         if session.active.is_some() {
             return Ok(());
         }
@@ -1495,7 +1495,7 @@ impl AcpClientService {
         let cx = client.connection().await?;
         let persisted_remote_session_id = if let Some(session_storage_path) = session_storage_path {
             self.session_persistence
-                .load_remote_session_id(session_storage_path, openbitfun_session_id)
+                .load_remote_session_id(session_storage_path, alex_session_id)
                 .await?
         } else {
             None
@@ -1585,7 +1585,7 @@ impl AcpClientService {
             self.attach_remote_session(
                 client,
                 session_key,
-                openbitfun_session_id,
+                alex_session_id,
                 session_storage_path,
                 session,
                 response,
@@ -1596,7 +1596,7 @@ impl AcpClientService {
             return Ok(());
         }
 
-        Err(OpenBitFunError::service(
+        Err(AlexError::service(
             "Failed to initialize ACP remote session".to_string(),
         ))
     }
@@ -1629,13 +1629,13 @@ impl AcpClientService {
         &self,
         client: &Arc<AcpClientConnection>,
         session_key: &str,
-        openbitfun_session_id: &str,
+        alex_session_id: &str,
         session_storage_path: Option<&Path>,
         session: &mut AcpRemoteSession,
         response: NewSessionResponse,
         strategy: AcpRemoteSessionStrategy,
         last_resume_error: Option<String>,
-    ) -> OpenBitFunResult<()> {
+    ) -> AlexResult<()> {
         let cx = client.connection().await?;
         let models = response.models.clone();
         let config_options = response.config_options.clone().unwrap_or_default();
@@ -1656,7 +1656,7 @@ impl AcpClientService {
             self.session_persistence
                 .update_remote_session_state(
                     session_storage_path,
-                    openbitfun_session_id,
+                    alex_session_id,
                     &remote_session_id,
                     strategy.as_str(),
                     last_resume_error,
@@ -1671,15 +1671,15 @@ impl AcpClientService {
         Ok(())
     }
 
-    async fn load_configs(&self) -> OpenBitFunResult<HashMap<String, AcpClientConfig>> {
+    async fn load_configs(&self) -> AlexResult<HashMap<String, AcpClientConfig>> {
         Ok(self.load_config_file().await?.acp_clients)
     }
 
-    async fn load_config_file(&self) -> OpenBitFunResult<AcpClientConfigFile> {
+    async fn load_config_file(&self) -> AlexResult<AcpClientConfigFile> {
         parse_config_value(self.load_config_value().await?)
     }
 
-    async fn load_config_value(&self) -> OpenBitFunResult<serde_json::Value> {
+    async fn load_config_value(&self) -> AlexResult<serde_json::Value> {
         Ok(self
             .config_service
             .get_config::<serde_json::Value>(Some(CONFIG_PATH))
@@ -1700,7 +1700,7 @@ impl AcpClientService {
             .filter(|(_, config)| config.enabled && config.subagent.enabled)
             .map(|(id, config)| {
                 Arc::new(AcpAgentTool::new(id.clone(), config.clone(), self.clone()))
-                    as Arc<dyn openbitfun_core::agentic::tools::framework::Tool>
+                    as Arc<dyn alex_core::agentic::tools::framework::Tool>
             })
             .collect::<Vec<_>>();
 
@@ -1786,12 +1786,12 @@ impl AcpClientService {
         client_id: &str,
         connection_id: &str,
         config: &AcpClientConfig,
-    ) -> OpenBitFunResult<(
+    ) -> AlexResult<(
         ByteStreams<AcpOutgoingStream, AcpIncomingStream>,
         Child,
         StderrTail,
     )> {
-        // An agent whose runtime OpenBitFun ships (dsh) needs it in place before the
+        // An agent whose runtime Alex ships (dsh) needs it in place before the
         // command runs, because the command's only job is to boot it.
         if let Some(profile) = builtin_acp_client_preset(client_id).and_then(|p| p.bundled_profile)
         {
@@ -1799,7 +1799,7 @@ impl AcpClientService {
         }
 
         let program = resolve_client_command(client_id, config);
-        let mut command = openbitfun_core::util::process_manager::create_tokio_command(&program);
+        let mut command = alex_core::util::process_manager::create_tokio_command(&program);
         command
             .args(&config.args)
             .stdin(Stdio::piped())
@@ -1813,7 +1813,7 @@ impl AcpClientService {
         configure_process_group(&mut command);
 
         let mut child = command.spawn().map_err(|error| {
-            OpenBitFunError::service(format!(
+            AlexError::service(format!(
                 "Failed to spawn ACP client '{}': {}",
                 client_id, error
             ))
@@ -1823,7 +1823,7 @@ impl AcpClientService {
             Some(stdout) => stdout,
             None => {
                 terminate_child_process_tree(connection_id, child).await;
-                return Err(OpenBitFunError::service(format!(
+                return Err(AlexError::service(format!(
                     "ACP client '{}' stdout is unavailable",
                     client_id
                 )));
@@ -1833,7 +1833,7 @@ impl AcpClientService {
             Some(stdin) => stdin,
             None => {
                 terminate_child_process_tree(connection_id, child).await;
-                return Err(OpenBitFunError::service(format!(
+                return Err(AlexError::service(format!(
                     "ACP client '{}' stdin is unavailable",
                     client_id
                 )));
@@ -1859,7 +1859,7 @@ impl AcpClientService {
         config: &AcpClientConfig,
         workspace_path: Option<&str>,
         remote_connection_id: Option<&str>,
-    ) -> OpenBitFunResult<(
+    ) -> AlexResult<(
         ByteStreams<AcpOutgoingStream, AcpIncomingStream>,
         Option<Child>,
         StderrTail,
@@ -1882,19 +1882,19 @@ impl AcpClientService {
         config: &AcpClientConfig,
         workspace_path: Option<&str>,
         remote_connection_id: &str,
-    ) -> OpenBitFunResult<(
+    ) -> AlexResult<(
         ByteStreams<AcpOutgoingStream, AcpIncomingStream>,
         StderrTail,
     )> {
         let command = render_remote_client_command(config, workspace_path)?;
         let remote_manager = get_remote_workspace_manager().ok_or_else(|| {
-            OpenBitFunError::service("Remote workspace manager is not initialized".to_string())
+            AlexError::service("Remote workspace manager is not initialized".to_string())
         })?;
         let ssh_manager = remote_manager.get_ssh_manager().await.ok_or_else(|| {
-            OpenBitFunError::service("SSH manager is not available for remote ACP".to_string())
+            AlexError::service("SSH manager is not available for remote ACP".to_string())
         })?;
         // Same reason as `start_local_transport`: the command below only boots
-        // the runtime OpenBitFun ships, so it has to be on that host first.
+        // the runtime Alex ships, so it has to be on that host first.
         if let Some(profile) = builtin_acp_client_preset(client_id).and_then(|p| p.bundled_profile)
         {
             ensure_bundled_profile_remote(
@@ -1920,7 +1920,7 @@ impl AcpClientService {
             .open_workspace_stdio(remote_connection_id, &command)
             .await
             .map_err(|error| {
-                OpenBitFunError::service(format!(
+                AlexError::service(format!(
                     "Failed to start remote ACP client '{}': {}",
                     client_id, error
                 ))
@@ -1951,7 +1951,7 @@ impl AcpClientService {
         client_id: &str,
         workspace_path: Option<&str>,
         remote_connection_id: Option<&str>,
-    ) -> OpenBitFunResult<StartClientConfig> {
+    ) -> AlexResult<StartClientConfig> {
         let remote_connection_id = remote_connection_id
             .map(str::trim)
             .filter(|value| !value.is_empty())
@@ -1961,17 +1961,17 @@ impl AcpClientService {
         let config =
             resolve_config_for_client(&config_file, client_id, remote_connection_id.as_deref())
                 .ok_or_else(|| {
-                    OpenBitFunError::NotFound(format!("ACP client not found: {}", client_id))
+                    AlexError::NotFound(format!("ACP client not found: {}", client_id))
                 })?;
 
         if config.command.trim().is_empty() {
-            return Err(OpenBitFunError::config(format!(
+            return Err(AlexError::config(format!(
                 "ACP client command is empty: {}",
                 client_id
             )));
         }
         if !config.enabled {
-            return Err(OpenBitFunError::config(format!(
+            return Err(AlexError::config(format!(
                 "ACP client is disabled: {}",
                 client_id
             )));
@@ -2003,12 +2003,12 @@ fn resolve_config_for_client(
 fn ensure_remote_client_supported(
     _client_id: &str,
     workspace_path: Option<&str>,
-) -> OpenBitFunResult<()> {
+) -> AlexResult<()> {
     if workspace_path
         .map(str::trim)
         .is_none_or(|workspace_path| workspace_path.is_empty())
     {
-        return Err(OpenBitFunError::validation(
+        return Err(AlexError::validation(
             "Workspace path is required for remote ACP sessions".to_string(),
         ));
     }
@@ -2016,7 +2016,7 @@ fn ensure_remote_client_supported(
     Ok(())
 }
 
-/// A self-managed agent has to exist on the host that runs it before OpenBitFun
+/// A self-managed agent has to exist on the host that runs it before Alex
 /// can drive it. The agent list already answers that question with `command -v`
 /// on the remote host; asking the same question here keeps the list and the
 /// launch from disagreeing, and turns a bare exec failure into a state the user
@@ -2026,7 +2026,7 @@ async fn ensure_self_managed_agent_available_remote(
     config: &AcpClientConfig,
     ssh_manager: &SSHConnectionManager,
     remote_connection_id: &str,
-) -> OpenBitFunResult<()> {
+) -> AlexResult<()> {
     if !needs_remote_presence_check(client_id) {
         return Ok(());
     }
@@ -2057,9 +2057,9 @@ async fn ensure_self_managed_agent_available_remote(
     Ok(())
 }
 
-/// OpenBitFun cannot install a self-managed agent on the user's behalf, so the
-/// agent has to be on the remote host before OpenBitFun can drive it. Agents
-/// OpenBitFun can install remotely, and bundled-profile agents that carry their
+/// Alex cannot install a self-managed agent on the user's behalf, so the
+/// agent has to be on the remote host before Alex can drive it. Agents
+/// Alex can install remotely, and bundled-profile agents that carry their
 /// own launcher check, are not this function's business.
 fn needs_remote_presence_check(client_id: &str) -> bool {
     builtin_acp_client_preset(client_id)
@@ -2070,14 +2070,14 @@ fn missing_self_managed_agent_error(
     client_id: &str,
     launcher: &str,
     packaged: bool,
-) -> OpenBitFunError {
+) -> AlexError {
     let guidance = if packaged {
-        "OpenBitFun packages a copy for the local machine only; install the agent on that host \
+        "Alex packages a copy for the local machine only; install the agent on that host \
          and make sure it is on PATH."
     } else {
         "Install the agent on that host and make sure it is on PATH."
     };
-    OpenBitFunError::service(format!(
+    AlexError::service(format!(
         "ACP client '{client_id}' is not installed on the remote host: `{launcher}` is not on the \
          login shell's PATH. {guidance}"
     ))
@@ -2086,10 +2086,10 @@ fn missing_self_managed_agent_error(
 fn render_remote_client_command(
     config: &AcpClientConfig,
     workspace_path: Option<&str>,
-) -> OpenBitFunResult<String> {
+) -> AlexResult<String> {
     let command = config.command.trim();
     if command.is_empty() {
-        return Err(OpenBitFunError::config(
+        return Err(AlexError::config(
             "ACP client command is empty".to_string(),
         ));
     }
@@ -2140,9 +2140,9 @@ impl AcpClientConnection {
         }
     }
 
-    async fn connection(&self) -> OpenBitFunResult<ConnectionTo<Agent>> {
+    async fn connection(&self) -> AlexResult<ConnectionTo<Agent>> {
         self.connection.read().await.clone().ok_or_else(|| {
-            OpenBitFunError::service(format!("ACP client is not connected: {}", self.id))
+            AlexError::service(format!("ACP client is not connected: {}", self.id))
         })
     }
 }
@@ -2169,7 +2169,7 @@ fn claim_client_start(
 async fn wait_for_client_connection(
     client: Arc<AcpClientConnection>,
     connection_id: &str,
-) -> OpenBitFunResult<()> {
+) -> AlexResult<()> {
     let started_at = Instant::now();
     loop {
         if client.connection.read().await.is_some() {
@@ -2178,7 +2178,7 @@ async fn wait_for_client_connection(
 
         let status = *client.status.read().await;
         if matches!(status, AcpClientStatus::Failed | AcpClientStatus::Stopped) {
-            return Err(OpenBitFunError::service(format!(
+            return Err(AlexError::service(format!(
                 "ACP client '{}' is not running",
                 connection_id
             )));
@@ -2192,17 +2192,17 @@ async fn wait_for_client_connection(
     }
 }
 
-fn parse_config_value(value: serde_json::Value) -> OpenBitFunResult<AcpClientConfigFile> {
+fn parse_config_value(value: serde_json::Value) -> AlexResult<AcpClientConfigFile> {
     let mut config = if value.get("acpClients").is_some() {
         serde_json::from_value(value).map_err(|error| {
-            OpenBitFunError::config(format!("Invalid ACP client config: {}", error))
+            AlexError::config(format!("Invalid ACP client config: {}", error))
         })
     } else if value.is_object() {
         serde_json::from_value(json!({ "acpClients": value })).map_err(|error| {
-            OpenBitFunError::config(format!("Invalid ACP client config map: {}", error))
+            AlexError::config(format!("Invalid ACP client config map: {}", error))
         })
     } else {
-        Err(OpenBitFunError::config(
+        Err(AlexError::config(
             "ACP client config must be an object".to_string(),
         ))
     }?;
@@ -2210,17 +2210,17 @@ fn parse_config_value(value: serde_json::Value) -> OpenBitFunResult<AcpClientCon
     Ok(config)
 }
 
-fn build_session_key(openbitfun_session_id: &str, client_id: &str, cwd: &Path) -> String {
+fn build_session_key(alex_session_id: &str, client_id: &str, cwd: &Path) -> String {
     format!(
         "{}:{}:{}",
-        openbitfun_session_id,
+        alex_session_id,
         client_id,
         cwd.to_string_lossy()
     )
 }
 
-fn session_client_connection_id(client_id: &str, openbitfun_session_id: &str) -> String {
-    format!("{}::session::{}", client_id, openbitfun_session_id)
+fn session_client_connection_id(client_id: &str, alex_session_id: &str) -> String {
+    format!("{}::session::{}", client_id, alex_session_id)
 }
 
 fn aggregate_client_status(statuses: &[AcpClientStatus]) -> AcpClientStatus {
@@ -2265,7 +2265,7 @@ async fn terminate_child_process_tree(client_id: &str, mut child: Child) {
     #[cfg(unix)]
     if let Some(pid) = pid {
         let process_group = format!("-{}", pid);
-        match openbitfun_core::util::process_manager::create_tokio_command("kill")
+        match alex_core::util::process_manager::create_tokio_command("kill")
             .arg("-TERM")
             .arg(&process_group)
             .status()
@@ -2297,7 +2297,7 @@ async fn terminate_child_process_tree(client_id: &str, mut child: Child) {
             Err(_) => {}
         }
 
-        if let Err(error) = openbitfun_core::util::process_manager::create_tokio_command("kill")
+        if let Err(error) = alex_core::util::process_manager::create_tokio_command("kill")
             .arg("-KILL")
             .arg(&process_group)
             .status()
@@ -2314,7 +2314,7 @@ async fn terminate_child_process_tree(client_id: &str, mut child: Child) {
 
     #[cfg(windows)]
     if let Some(pid) = pid {
-        match openbitfun_core::util::process_manager::create_tokio_command("taskkill")
+        match alex_core::util::process_manager::create_tokio_command("taskkill")
             .arg("/PID")
             .arg(pid.to_string())
             .arg("/T")
@@ -2434,9 +2434,9 @@ async fn drain_pending_turn_updates<F>(
     tool_call_tracker: &mut AcpToolCallTracker,
     round_tracker: &mut AcpStreamRoundTracker,
     on_event: &mut F,
-) -> OpenBitFunResult<()>
+) -> AlexResult<()>
 where
-    F: FnMut(AcpClientStreamEvent) -> OpenBitFunResult<()> + Send,
+    F: FnMut(AcpClientStreamEvent) -> AlexResult<()> + Send,
 {
     let started_at = Instant::now();
     let mut drained_count = 0usize;
@@ -2484,7 +2484,7 @@ where
 async fn read_turn_to_string(
     session: &mut AcpRemoteSession,
     prompt: &mut AcpPrompt,
-) -> OpenBitFunResult<String> {
+) -> AlexResult<String> {
     let mut output = String::new();
     let mut tool_call_tracker = AcpToolCallTracker::new();
     loop {
@@ -2492,7 +2492,7 @@ async fn read_turn_to_string(
             let active = session
                 .active
                 .as_mut()
-                .ok_or_else(|| OpenBitFunError::service("ACP session was not initialized"))?;
+                .ok_or_else(|| AlexError::service("ACP session was not initialized"))?;
             prompt.read_update(active).await.map_err(protocol_error)?
         };
 
@@ -2518,7 +2518,7 @@ async fn drain_pending_turn_text(
     session: &mut AcpRemoteSession,
     tool_call_tracker: &mut AcpToolCallTracker,
     output: &mut String,
-) -> OpenBitFunResult<()> {
+) -> AlexResult<()> {
     let started_at = Instant::now();
     let mut drained_count = 0usize;
     while started_at.elapsed() < TURN_COMPLETION_DRAIN_MAX_DURATION {
@@ -2568,7 +2568,7 @@ fn append_agent_text(output: &mut String, events: Vec<AcpClientStreamEvent>) {
 
 async fn drain_pending_session_metadata_updates(
     session: &mut AcpRemoteSession,
-) -> OpenBitFunResult<()> {
+) -> AlexResult<()> {
     let started_at = Instant::now();
     let mut drained_count = 0usize;
     let mut tool_call_tracker = AcpToolCallTracker::new();
@@ -2703,8 +2703,8 @@ fn update_session_config_options(session: &mut AcpRemoteSession, events: &[AcpCl
     session.config_options = options;
 }
 
-fn protocol_error(error: impl std::fmt::Display) -> OpenBitFunError {
-    OpenBitFunError::service(format!("ACP protocol error: {}", error))
+fn protocol_error(error: impl std::fmt::Display) -> AlexError {
+    AlexError::service(format!("ACP protocol error: {}", error))
 }
 
 /// The last lines an agent wrote to stderr, kept so a startup failure can say
@@ -2817,8 +2817,8 @@ fn startup_exit_error_message(client_id: &str, stderr_detail: &str) -> String {
 
 const STARTUP_TIMEOUT_ERROR_PREFIX: &str = "ACP startup timed out:";
 
-fn startup_timeout_error(client_id: &str, phase: &str) -> OpenBitFunError {
-    OpenBitFunError::service(startup_timeout_error_message(client_id, phase))
+fn startup_timeout_error(client_id: &str, phase: &str) -> AlexError {
+    AlexError::service(startup_timeout_error_message(client_id, phase))
 }
 
 fn startup_timeout_error_message(client_id: &str, phase: &str) -> String {
@@ -2831,7 +2831,7 @@ fn startup_timeout_error_message(client_id: &str, phase: &str) -> String {
     )
 }
 
-fn is_startup_timeout_error(error: &OpenBitFunError) -> bool {
+fn is_startup_timeout_error(error: &AlexError) -> bool {
     error.to_string().contains(STARTUP_TIMEOUT_ERROR_PREFIX)
 }
 
@@ -3086,7 +3086,7 @@ mod tests {
         // A remote workspace resolves the same launch as a local one, and both
         // transports materialize the profile first, so the command finds it
         // there either way.
-        assert_eq!(resolved.args, vec!["--profile", "openbitfun-acp"]);
+        assert_eq!(resolved.args, vec!["--profile", "alex-acp"]);
         assert!(resolved.enabled);
     }
 
@@ -3102,8 +3102,8 @@ mod tests {
             &self,
             prompt: &str,
             _workspace_root: &Path,
-            _openbitfun_session_id: &str,
-        ) -> OpenBitFunResult<String> {
+            _alex_session_id: &str,
+        ) -> AlexResult<String> {
             Ok(format!("{prompt} [PSEUDONYMIZED]"))
         }
     }
@@ -3118,9 +3118,9 @@ mod tests {
             &self,
             _prompt: &str,
             _workspace_root: &Path,
-            _openbitfun_session_id: &str,
-        ) -> OpenBitFunResult<String> {
-            Err(OpenBitFunError::service(
+            _alex_session_id: &str,
+        ) -> AlexResult<String> {
+            Err(AlexError::service(
                 "PII pseudonymization is unavailable: the basemind sidecar is not running",
             ))
         }
@@ -3201,12 +3201,12 @@ mod tests {
 
     #[test]
     fn checks_presence_on_the_remote_host_only_for_self_managed_agents() {
-        // OpenBitFun cannot install these, so the remote host has to have them
+        // Alex cannot install these, so the remote host has to have them
         // already and the launch has to say which host is missing it.
         assert!(needs_remote_presence_check("interpreter"));
         assert!(needs_remote_presence_check("omp"));
 
-        // OpenBitFun can install these on the remote host on demand.
+        // Alex can install these on the remote host on demand.
         assert!(!needs_remote_presence_check("opencode"));
         assert!(!needs_remote_presence_check("dsh"));
         assert!(!needs_remote_presence_check("claude-code"));

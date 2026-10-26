@@ -1,13 +1,13 @@
-//! Resolution of ACP agent commands that ship with the OpenBitFun product.
+//! Resolution of ACP agent commands that ship with the Alex product.
 //!
 //! Some ACP agents are packaged with the product, so a user does not have to
-//! install them before they work. The packaged copy is OpenBitFun's default,
+//! install them before they work. The packaged copy is Alex's default,
 //! not an override of a deliberate choice: a client whose command the user
 //! changed keeps the command the user chose.
 
 use std::path::PathBuf;
 
-use openbitfun_core::service::bundled_tools::bundled_tool_package;
+use alex_core::service::bundled_tools::bundled_tool_package;
 
 use super::builtin_clients::builtin_acp_client_preset;
 use super::config::AcpClientConfig;

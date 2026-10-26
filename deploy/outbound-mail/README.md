@@ -11,7 +11,7 @@ auth → 私有 SMTP → Postfix → 收件方 MX:25
 ```
 
 本手册描述可复用的维护规则。生产实例的具体 IP、路径、已部署版本和回滚文件见
-服务器 `/etc/openbitfun-mail/README.md`。不要将 SMTP 密码、DKIM 私钥、验证码、
+服务器 `/etc/alex-mail/README.md`。不要将 SMTP 密码、DKIM 私钥、验证码、
 认证令牌或生产 env 文件复制到仓库。
 
 ## 网络与发信身份

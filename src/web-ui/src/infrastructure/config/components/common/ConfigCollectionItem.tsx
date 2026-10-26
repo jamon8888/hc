@@ -1,5 +1,5 @@
 import React, { useId, useState } from 'react';
-import { Disclosure, OverflowText, Icon, IconButton } from '@openbitfun/ui';
+import { Disclosure, OverflowText, Icon, IconButton } from '@alex/ui';
 import './ConfigCollectionItem.scss';
 
 export interface ConfigCollectionItemProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -61,43 +61,43 @@ export const ConfigCollectionItem: React.FC<ConfigCollectionItemProps> = ({
 
   return (
     <div
-      className={`openbitfun-collection-item ${isExpanded ? 'is-expanded' : ''} ${disabled ? 'is-disabled' : ''} ${className}`}
-      data-openbitfun-component="config"
-      data-openbitfun-part="collectionItem"
+      className={`alex-collection-item ${isExpanded ? 'is-expanded' : ''} ${disabled ? 'is-disabled' : ''} ${className}`}
+      data-alex-component="config"
+      data-alex-part="collectionItem"
       {...rootProps}
     >
       <Disclosure
-        className="openbitfun-collection-item__disclosure"
+        className="alex-collection-item__disclosure"
         summary={label}
         open={hasDetails && isExpanded}
         disabled={!hasDetails || detailsDisabled}
         onOpenChange={toggleDetails}
         unmountOnClose
         exitDurationMs={180}
-        contentClassName="openbitfun-collection-item__details-collapse"
-        contentInnerClassName="openbitfun-collection-item__details-clip"
+        contentClassName="alex-collection-item__details-collapse"
+        contentInnerClassName="alex-collection-item__details-clip"
         renderHeader={(triggerProps) => (
           <div data-overflow-trigger
-            className={`openbitfun-config-page-row openbitfun-config-page-row--center openbitfun-collection-item__row ${
-              toggleOnRowClick && hasDetails && !detailsDisabled ? 'openbitfun-collection-item__row--toggleable' : ''
+            className={`alex-config-page-row alex-config-page-row--center alex-collection-item__row ${
+              toggleOnRowClick && hasDetails && !detailsDisabled ? 'alex-collection-item__row--toggleable' : ''
             }`}
-            data-openbitfun-component="config"
-            data-openbitfun-part="collectionRow"
+            data-alex-component="config"
+            data-alex-part="collectionRow"
             onClick={handleRowClick}
           >
-            <div className="openbitfun-config-page-row__meta" data-openbitfun-component="config" data-openbitfun-part="collectionMeta">
+            <div className="alex-config-page-row__meta" data-alex-component="config" data-alex-part="collectionMeta">
               <div
-                className={`openbitfun-config-page-row__label openbitfun-collection-item__label ${
-                  badgePlacement === 'below' ? 'openbitfun-collection-item__label--stacked' : ''
+                className={`alex-config-page-row__label alex-collection-item__label ${
+                  badgePlacement === 'below' ? 'alex-collection-item__label--stacked' : ''
                 }`}
               >
-                <OverflowText id={labelId} className="openbitfun-collection-item__name" data-openbitfun-component="config" data-openbitfun-part="collectionName">{label}</OverflowText>
+                <OverflowText id={labelId} className="alex-collection-item__name" data-alex-component="config" data-alex-part="collectionName">{label}</OverflowText>
                 {badge && (
                   <span
-                    className={`openbitfun-collection-item__badges ${
+                    className={`alex-collection-item__badges ${
                       badgePlacement === 'below'
-                        ? 'openbitfun-collection-item__badges--stacked'
-                        : 'openbitfun-collection-item__badges--inline'
+                        ? 'alex-collection-item__badges--stacked'
+                        : 'alex-collection-item__badges--inline'
                     }`}
                   >
                     {badge}
@@ -105,13 +105,13 @@ export const ConfigCollectionItem: React.FC<ConfigCollectionItemProps> = ({
                 )}
               </div>
             </div>
-            <div className="openbitfun-config-page-row__control" data-openbitfun-component="config" data-openbitfun-part="collectionControl">
-              <div className="openbitfun-collection-item__control">
+            <div className="alex-config-page-row__control" data-alex-component="config" data-alex-part="collectionControl">
+              <div className="alex-collection-item__control">
                 {control}
                 {hasDetails ? (
                   <IconButton
                     type="button"
-                    className="openbitfun-collection-btn openbitfun-collection-item__details-toggle"
+                    className="alex-collection-btn alex-collection-item__details-toggle"
                     disabled={detailsDisabled}
                     aria-label={typeof label === 'string' ? label : ''}
                     aria-labelledby={labelId}
@@ -124,7 +124,7 @@ export const ConfigCollectionItem: React.FC<ConfigCollectionItemProps> = ({
           </div>
         )}
       >
-        <div className="openbitfun-collection-item__details" data-openbitfun-component="config" data-openbitfun-part="collectionDetails">{details}</div>
+        <div className="alex-collection-item__details" data-alex-component="config" data-alex-part="collectionDetails">{details}</div>
       </Disclosure>
     </div>
   );

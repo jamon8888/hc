@@ -8,7 +8,7 @@
 use core_graphics::event::{CGEvent, CGEventFlags, CGEventType, CGMouseButton};
 use core_graphics::geometry::CGPoint;
 use foreign_types::ForeignType;
-use openbitfun_core::util::errors::{OpenBitFunError, OpenBitFunResult};
+use alex_core::util::errors::{AlexError, AlexResult};
 use std::sync::Mutex;
 use std::time::Duration;
 
@@ -52,24 +52,24 @@ pub(super) fn stop() {
     }
 }
 
-fn check(pid: i32, window: u32) -> OpenBitFunResult<()> {
-    super::control_session::input_allowed().map_err(OpenBitFunError::tool)?;
+fn check(pid: i32, window: u32) -> AlexResult<()> {
+    super::control_session::input_allowed().map_err(AlexError::tool)?;
     super::control_session::target_allowed(&format!("pid:{pid}/window:{window}"))
-        .map_err(OpenBitFunError::tool)
+        .map_err(AlexError::tool)
 }
 
-pub(super) fn prepare(pid: i32) -> OpenBitFunResult<()> {
-    super::control_session::input_allowed().map_err(OpenBitFunError::tool)?;
-    let window = super::macos_capture::bound_window_id(pid).map_err(OpenBitFunError::tool)?;
+pub(super) fn prepare(pid: i32) -> AlexResult<()> {
+    super::control_session::input_allowed().map_err(AlexError::tool)?;
+    let window = super::macos_capture::bound_window_id(pid).map_err(AlexError::tool)?;
     check(pid, window)?;
     let foreground = super::macos_bg_input::frontmost_pid_macos().ok_or_else(|| {
-        OpenBitFunError::tool("[BACKGROUND_INPUT_UNAVAILABLE] Foreground ownership is unavailable")
+        AlexError::tool("[BACKGROUND_INPUT_UNAVAILABLE] Foreground ownership is unavailable")
     })?;
     if foreground == pid || super::control_session::foreground_allowed().is_ok() {
         return Ok(());
     }
     let identity = super::macos_skylight::process_identity(pid).ok_or_else(|| {
-        OpenBitFunError::tool(
+        AlexError::tool(
             "[BACKGROUND_INPUT_UNAVAILABLE] Target process identity is unavailable",
         )
     })?;
@@ -78,10 +78,10 @@ pub(super) fn prepare(pid: i32) -> OpenBitFunResult<()> {
     // Obtain capture geometry before the focus lock: bind_target may hold the
     // capture lock while clearing old input focus. Never invert that order.
     let [x, y, width, height] =
-        super::macos_capture::window_bounds(pid, window).map_err(OpenBitFunError::tool)?;
+        super::macos_capture::window_bounds(pid, window).map_err(AlexError::tool)?;
     let mut state = FOCUS
         .lock()
-        .map_err(|_| OpenBitFunError::tool("Background input focus lock poisoned"))?;
+        .map_err(|_| AlexError::tool("Background input focus lock poisoned"))?;
     let focus = Focus {
         pid,
         identity,
@@ -97,7 +97,7 @@ pub(super) fn prepare(pid: i32) -> OpenBitFunResult<()> {
         cleanup(old);
     }
     if ![x, y, width, height].iter().all(|v| v.is_finite()) || width <= 0.0 || height <= 0.0 {
-        return Err(OpenBitFunError::tool(
+        return Err(AlexError::tool(
             "[CONTROL_TARGET_CHANGED] Invalid window geometry for background focus",
         ));
     }
@@ -107,7 +107,7 @@ pub(super) fn prepare(pid: i32) -> OpenBitFunResult<()> {
     let mut pair = Vec::with_capacity(2);
     for kind in [CGEventType::LeftMouseDown, CGEventType::LeftMouseUp] {
         let event = CGEvent::new_mouse_event(source.clone(), kind, point, CGMouseButton::Left)
-            .map_err(|_| OpenBitFunError::tool("Background focus event unavailable"))?;
+            .map_err(|_| AlexError::tool("Background focus event unavailable"))?;
         for field in [51, 91, 92] {
             event.set_integer_value_field(field, window as i64);
         }
@@ -115,7 +115,7 @@ pub(super) fn prepare(pid: i32) -> OpenBitFunResult<()> {
         event.set_integer_value_field(1, 1);
         event.set_flags(CGEventFlags::CGEventFlagNull);
         if !super::macos_skylight::set_window_location(event.as_ptr().cast(), -8.0, -8.0) {
-            return Err(OpenBitFunError::tool(
+            return Err(AlexError::tool(
                 "[BACKGROUND_INPUT_UNAVAILABLE] Window-local input routing is unavailable",
             ));
         }
@@ -126,7 +126,7 @@ pub(super) fn prepare(pid: i32) -> OpenBitFunResult<()> {
     *state = Some(focus);
     if !super::macos_skylight::set_local_activation(identity, window, true) {
         state.take();
-        return Err(OpenBitFunError::tool("[BACKGROUND_INPUT_UNAVAILABLE] Target-local input activation failed; no content input was sent"));
+        return Err(AlexError::tool("[BACKGROUND_INPUT_UNAVAILABLE] Target-local input activation failed; no content input was sent"));
     }
     std::thread::sleep(Duration::from_millis(20));
     if let Err(error) = check(pid, window) {

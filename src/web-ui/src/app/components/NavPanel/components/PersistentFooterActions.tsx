@@ -12,7 +12,7 @@ import { createOverlayPortal,
   DialogHeader,
   DialogHeading,
   DialogTitle,
-} from '@openbitfun/ui';
+} from '@alex/ui';
 import { RetainedMountBoundary } from '@/shared/presence';
 import { useI18n } from '@/infrastructure/i18n/hooks/useI18n';
 import { activateProductAction } from '@/app/global-search/productActionActivator';
@@ -149,8 +149,8 @@ const PersistentFooterActions: React.FC = () => {
         setShowRemoteDisclaimer(true);
       }
     };
-    window.addEventListener('openbitfun:open-remote-connect', handlePlaybookOpen);
-    return () => window.removeEventListener('openbitfun:open-remote-connect', handlePlaybookOpen);
+    window.addEventListener('alex:open-remote-connect', handlePlaybookOpen);
+    return () => window.removeEventListener('alex:open-remote-connect', handlePlaybookOpen);
   }, [hasAgreedRemoteDisclaimer]);
 
   const handleAgreeDisclaimer = useCallback(() => {
@@ -163,8 +163,8 @@ const PersistentFooterActions: React.FC = () => {
   return (
     <>
       <PeerConnectionStatus />
-      <div className="openbitfun-nav-panel__footer" data-openbitfun-component="nav-panel" data-openbitfun-part="footer">
-        <div className="openbitfun-nav-panel__footer-left">
+      <div className="alex-nav-panel__footer" data-alex-component="nav-panel" data-alex-part="footer">
+        <div className="alex-nav-panel__footer-left">
           <DeviceStatusControl
             open={deviceOverviewOpen}
             onOpenChange={handleDeviceOverviewOpenChange}
@@ -172,9 +172,9 @@ const PersistentFooterActions: React.FC = () => {
           />
         </div>
 
-        <div className="openbitfun-nav-panel__footer-right">
+        <div className="alex-nav-panel__footer-right">
           <UpdateDownloadIndicator />
-          <div className="openbitfun-nav-panel__footer-menu-wrap">
+          <div className="alex-nav-panel__footer-menu-wrap">
             <Tooltip
               content={hasAppUpdate ? t('update.availableVersion', { version: updateVersion }) : t('actions.more')}
               placement="right"
@@ -183,16 +183,16 @@ const PersistentFooterActions: React.FC = () => {
             >
               <IconButton
                 ref={menuTriggerRef}
-                className={`openbitfun-nav-panel__footer-btn openbitfun-nav-panel__footer-btn--icon${menuOpen ? ' is-active' : ''}`}
+                className={`alex-nav-panel__footer-btn alex-nav-panel__footer-btn--icon${menuOpen ? ' is-active' : ''}`}
                 aria-label={hasAppUpdate ? t('update.moreAttention') : t('actions.more')}
                 aria-expanded={menuOpen}
                 aria-haspopup="menu"
                 onClick={toggleMenu}
                 data-testid="nav-footer-settings-item"
-                data-openbitfun-component="nav-panel"
-                data-openbitfun-part="settingsEntry"
-                data-openbitfun-state={menuOpen ? 'open' : undefined}
-                icon={<span className="openbitfun-update-indicator-anchor"><Icon name="gear" size="sm" aria-hidden="true" /><UpdateIndicator /></span>}
+                data-alex-component="nav-panel"
+                data-alex-part="settingsEntry"
+                data-alex-state={menuOpen ? 'open' : undefined}
+                icon={<span className="alex-update-indicator-anchor"><Icon name="gear" size="sm" aria-hidden="true" /><UpdateIndicator /></span>}
                 size="sm"
                 variant="quiet"
               />
@@ -201,12 +201,12 @@ const PersistentFooterActions: React.FC = () => {
             {menuOpen && createOverlayPortal(
               <>
                 <div
-                  className="openbitfun-nav-panel__footer-backdrop"
+                  className="alex-nav-panel__footer-backdrop"
                   onClick={closeMenu}
                 />
                 <Menu
                   ref={menuPopoverRef}
-                  className={`openbitfun-nav-panel__footer-menu${menuClosing ? ' is-closing' : ''}`}
+                  className={`alex-nav-panel__footer-menu${menuClosing ? ' is-closing' : ''}`}
                   inlineSize="content"
                   aria-label={t('actions.more')}
                   data-testid="nav-settings-menu"

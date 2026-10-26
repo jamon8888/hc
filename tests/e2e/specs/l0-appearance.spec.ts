@@ -19,7 +19,7 @@ function getWebDriverSessionId(): string {
 }
 
 function webDriverEndpoint(pathname: string): string {
-  const port = Number(process.env.OPENBITFUN_E2E_WEBDRIVER_PORT || 4445);
+  const port = Number(process.env.ALEX_E2E_WEBDRIVER_PORT || 4445);
   return `http://127.0.0.1:${port}${pathname}`;
 }
 
@@ -104,7 +104,7 @@ async function selectAppearance(appearanceId: string): Promise<void> {
 
   await browser.waitUntil(async () => {
     return browser.execute((expectedId: string) => {
-      return document.documentElement.getAttribute('data-openbitfun-appearance') === expectedId;
+      return document.documentElement.getAttribute('data-alex-appearance') === expectedId;
     }, appearanceId);
   }, {
     timeout: 10000,
@@ -120,9 +120,9 @@ describe('L0 Appearance', () => {
       return browser.execute(() => {
         const root = document.documentElement;
         return document.readyState === 'complete'
-          && root.getAttribute('data-openbitfun-appearance-root') === 'true'
-          && root.getAttribute('data-openbitfun-appearance') !== null
-          && root.getAttribute('data-openbitfun-appearance-mode') !== null;
+          && root.getAttribute('data-alex-appearance-root') === 'true'
+          && root.getAttribute('data-alex-appearance') !== null
+          && root.getAttribute('data-alex-appearance-mode') !== null;
       });
     }, {
       timeout: 20000,
@@ -138,10 +138,10 @@ describe('L0 Appearance', () => {
     const appearance = await browser.execute(() => {
       const root = document.documentElement;
       return {
-        id: root.getAttribute('data-openbitfun-appearance'),
-        mode: root.getAttribute('data-openbitfun-appearance-mode'),
-        revision: root.getAttribute('data-openbitfun-appearance-revision'),
-        isRoot: root.getAttribute('data-openbitfun-appearance-root'),
+        id: root.getAttribute('data-alex-appearance'),
+        mode: root.getAttribute('data-alex-appearance-mode'),
+        revision: root.getAttribute('data-alex-appearance-revision'),
+        isRoot: root.getAttribute('data-alex-appearance-root'),
       };
     });
 
@@ -156,13 +156,13 @@ describe('L0 Appearance', () => {
     const appearanceStyles = await browser.execute(() => {
       const styles = window.getComputedStyle(document.documentElement);
       const appearanceVariables = Array.from(styles)
-        .filter(property => property.startsWith('--openbitfun-color-'));
+        .filter(property => property.startsWith('--alex-color-'));
 
       return {
         variableCount: appearanceVariables.length,
-        background: styles.getPropertyValue('--openbitfun-color-surface-canvas').trim(),
-        text: styles.getPropertyValue('--openbitfun-color-content-primary').trim(),
-        accent: styles.getPropertyValue('--openbitfun-color-accent-default').trim(),
+        background: styles.getPropertyValue('--alex-color-surface-canvas').trim(),
+        text: styles.getPropertyValue('--alex-color-content-primary').trim(),
+        accent: styles.getPropertyValue('--alex-color-accent-default').trim(),
       };
     });
 
@@ -174,22 +174,22 @@ describe('L0 Appearance', () => {
   });
 
   it('should project the neutral and navy light palette into the native app', async () => {
-    await selectAppearance('openbitfun-light');
+    await selectAppearance('alex-light');
 
     const lightNavigation = await browser.execute(() => {
       const styles = window.getComputedStyle(document.documentElement);
       const navPanel = document.querySelector<HTMLElement>('[data-testid="nav-panel"]');
       return {
-        primary: styles.getPropertyValue('--openbitfun-color-surface-canvas').trim(),
-        scene: styles.getPropertyValue('--openbitfun-color-surface-scene').trim(),
-        softSurface: styles.getPropertyValue('--openbitfun-color-action-secondary-background').trim(),
-        text: styles.getPropertyValue('--openbitfun-color-content-primary').trim(),
-        mutedText: styles.getPropertyValue('--openbitfun-color-content-muted').trim(),
-        accent: styles.getPropertyValue('--openbitfun-color-accent-default').trim(),
-        primaryButton: styles.getPropertyValue('--openbitfun-color-action-primary-background').trim(),
-        successBackground: styles.getPropertyValue('--openbitfun-color-status-success-surface').trim(),
-        errorBackground: styles.getPropertyValue('--openbitfun-color-status-danger-surface').trim(),
-        border: styles.getPropertyValue('--openbitfun-color-border-default').trim(),
+        primary: styles.getPropertyValue('--alex-color-surface-canvas').trim(),
+        scene: styles.getPropertyValue('--alex-color-surface-scene').trim(),
+        softSurface: styles.getPropertyValue('--alex-color-action-secondary-background').trim(),
+        text: styles.getPropertyValue('--alex-color-content-primary').trim(),
+        mutedText: styles.getPropertyValue('--alex-color-content-muted').trim(),
+        accent: styles.getPropertyValue('--alex-color-accent-default').trim(),
+        primaryButton: styles.getPropertyValue('--alex-color-action-primary-background').trim(),
+        successBackground: styles.getPropertyValue('--alex-color-status-success-surface').trim(),
+        errorBackground: styles.getPropertyValue('--alex-color-status-danger-surface').trim(),
+        border: styles.getPropertyValue('--alex-color-border-default').trim(),
         navBackground: navPanel ? window.getComputedStyle(navPanel).backgroundColor : null,
       };
     });
@@ -210,7 +210,7 @@ describe('L0 Appearance', () => {
   });
 
   it('should compile inverse new-session hover colors for the light appearance', async () => {
-    await selectAppearance('openbitfun-light');
+    await selectAppearance('alex-light');
 
     const hoverContract = await browser.execute(() => {
       const styleRules: CSSStyleRule[] = [];
@@ -238,18 +238,18 @@ describe('L0 Appearance', () => {
       };
       const buttonRule = styleRules.find(rule => hasSelector(
         rule,
-        '.openbitfun-nav-panel__utility-action:hover',
+        '.alex-nav-panel__utility-action:hover',
       ));
       const iconRule = styleRules.find(rule => hasSelector(
         rule,
-        '.openbitfun-nav-panel__utility-action:hover > svg',
+        '.alex-nav-panel__utility-action:hover > svg',
       ));
       const rootStyle = window.getComputedStyle(document.documentElement);
 
       return {
-        appearanceMode: document.documentElement.getAttribute('data-openbitfun-appearance-mode'),
-        textPrimary: rootStyle.getPropertyValue('--openbitfun-color-content-primary').trim(),
-        scene: rootStyle.getPropertyValue('--openbitfun-color-surface-scene').trim(),
+        appearanceMode: document.documentElement.getAttribute('data-alex-appearance-mode'),
+        textPrimary: rootStyle.getPropertyValue('--alex-color-content-primary').trim(),
+        scene: rootStyle.getPropertyValue('--alex-color-surface-scene').trim(),
         buttonBackground: buttonRule?.style.background ?? null,
         buttonBorder: buttonRule?.style.borderColor ?? null,
         iconColor: iconRule?.style.color ?? null,
@@ -261,22 +261,22 @@ describe('L0 Appearance', () => {
       appearanceMode: 'light',
       textPrimary: '#1c1c1f',
       scene: '#ffffff',
-      buttonBackground: 'var(--openbitfun-color-content-primary)',
-      buttonBorder: 'var(--openbitfun-color-content-primary)',
-      iconColor: 'var(--openbitfun-color-surface-scene)',
+      buttonBackground: 'var(--alex-color-content-primary)',
+      buttonBorder: 'var(--alex-color-content-primary)',
+      iconColor: 'var(--alex-color-surface-scene)',
       iconStroke: 'currentcolor',
     });
   });
 
   it('should lift only the scene viewport above the light navigation shell', async () => {
-    await selectAppearance('openbitfun-light');
-    await waitForDisplayed('.openbitfun-workspace-body__scene-area');
-    await waitForDisplayed('.openbitfun-scene-viewport');
+    await selectAppearance('alex-light');
+    await waitForDisplayed('.alex-workspace-body__scene-area');
+    await waitForDisplayed('.alex-scene-viewport');
 
     const sceneSurface = await browser.execute(() => {
-      const workbench = document.querySelector<HTMLElement>('.openbitfun-workspace-body');
-      const sceneArea = document.querySelector<HTMLElement>('.openbitfun-workspace-body__scene-area');
-      const viewport = document.querySelector<HTMLElement>('.openbitfun-scene-viewport');
+      const workbench = document.querySelector<HTMLElement>('.alex-workspace-body');
+      const sceneArea = document.querySelector<HTMLElement>('.alex-workspace-body__scene-area');
+      const viewport = document.querySelector<HTMLElement>('.alex-scene-viewport');
 
       if (!workbench || !sceneArea || !viewport) {
         return null;
@@ -317,45 +317,45 @@ describe('L0 Appearance', () => {
   });
 
   it('should keep Mini Apps and the selected navigation surface visually light', async () => {
-    await selectAppearance('openbitfun-light');
+    await selectAppearance('alex-light');
 
     const navBack = await waitForDisplayed(
-      '[data-openbitfun-component="nav-bar"][data-openbitfun-part="back"]:not(.is-inactive)',
+      '[data-alex-component="nav-bar"][data-alex-part="back"]:not(.is-inactive)',
     );
     await navBack.click();
 
     const miniAppsEntry = await waitForDisplayed('[data-testid="nav-miniapps-entry"]');
     await miniAppsEntry.click();
-    await waitForDisplayed('[data-openbitfun-scene="miniapp-gallery"]');
-    await waitForDisplayed('.miniapp-gallery-scene__tabs .openbitfun-tabs__tab--active');
-    await waitForDisplayed('[data-openbitfun-component="mini-app-card"]', 20000);
+    await waitForDisplayed('[data-alex-scene="miniapp-gallery"]');
+    await waitForDisplayed('.miniapp-gallery-scene__tabs .alex-tabs__tab--active');
+    await waitForDisplayed('[data-alex-component="mini-app-card"]', 20000);
 
     const miniAppPresentation = await browser.execute(() => {
       const selectedNavigation = document.querySelector<HTMLElement>('[data-testid="nav-miniapps-entry"]');
       const selectedTab = document.querySelector<HTMLElement>(
-        '.miniapp-gallery-scene__tabs .openbitfun-tabs__tab--active',
+        '.miniapp-gallery-scene__tabs .alex-tabs__tab--active',
       );
       const tabsNav = document.querySelector<HTMLElement>(
-        '.miniapp-gallery-scene__tabs > .openbitfun-tabs__nav',
+        '.miniapp-gallery-scene__tabs > .alex-tabs__nav',
       );
-      const tabsNavList = tabsNav?.querySelector<HTMLElement>('.openbitfun-tabs__nav-list') ?? null;
+      const tabsNavList = tabsNav?.querySelector<HTMLElement>('.alex-tabs__nav-list') ?? null;
       const tabButtons = Array.from(
-        tabsNavList?.querySelectorAll<HTMLElement>('.openbitfun-tabs__tab-button') ?? [],
+        tabsNavList?.querySelectorAll<HTMLElement>('.alex-tabs__tab-button') ?? [],
       );
       const tabsContent = document.querySelector<HTMLElement>(
-        '.miniapp-gallery-scene__tabs > .openbitfun-tabs__content',
+        '.miniapp-gallery-scene__tabs > .alex-tabs__content',
       );
       const tabsContentView = tabsContent?.querySelector<HTMLElement>(
-        ':scope > .openbitfun-tabs__content-view',
+        ':scope > .alex-tabs__content-view',
       ) ?? null;
       const galleryScroller = document.querySelector<HTMLElement>(
         '.miniapp-gallery .gallery-layout__body',
       );
-      const scene = document.querySelector<HTMLElement>('[data-openbitfun-scene="miniapp-gallery"]');
+      const scene = document.querySelector<HTMLElement>('[data-alex-scene="miniapp-gallery"]');
       const pageHeader = document.querySelector<HTMLElement>('.miniapp-gallery .gallery-page-header');
       const pageHeaderTitle = pageHeader?.querySelector<HTMLElement>('.gallery-page-header__title') ?? null;
       const pageHeaderActions = pageHeader?.querySelector<HTMLElement>('.gallery-page-header__actions') ?? null;
-      const card = document.querySelector<HTMLElement>('[data-openbitfun-component="mini-app-card"]');
+      const card = document.querySelector<HTMLElement>('[data-alex-component="mini-app-card"]');
       const cardFooter = card?.querySelector<HTMLElement>('.miniapp-card__footer') ?? null;
       const cardIcon = card?.querySelector<HTMLElement>('.miniapp-card__icon-area') ?? null;
       const cardDescription = card?.querySelector<HTMLElement>('.miniapp-card__desc') ?? null;
@@ -449,7 +449,7 @@ describe('L0 Appearance', () => {
                   ? window.getComputedStyle(cardPrimaryAction).backgroundColor
                   : null,
                 neutralActionBackground: window.getComputedStyle(card)
-                  .getPropertyValue('--openbitfun-color-action-neutral-surface')
+                  .getPropertyValue('--alex-color-action-neutral-surface')
                   .trim(),
                 primaryActionLabel: cardPrimaryAction?.textContent?.trim() ?? '',
                 width: cardRect.width,
@@ -575,11 +575,11 @@ describe('L0 Appearance', () => {
     expect(miniAppPresentation.card!.actionsBottomGap).toBeLessThanOrEqual(16.5);
 
     await saveElementScreenshot(
-      '[data-openbitfun-component="mini-app-card"]',
+      '[data-alex-component="mini-app-card"]',
       'l0-appearance-light-miniapp-card',
     );
     await saveElementScreenshot(
-      '[data-openbitfun-scene="miniapp-gallery"]',
+      '[data-alex-scene="miniapp-gallery"]',
       'l0-appearance-light-miniapp-upper-layout',
     );
     await saveStepScreenshot('l0-appearance-light-miniapps');
@@ -669,8 +669,8 @@ describe('L0 Appearance', () => {
         '.miniapp-card__action-btn--danger:hover',
       ));
       const lightInverseRule = styleRules.find(rule => (
-        rule.selectorText.includes('data-openbitfun-appearance')
-        && rule.selectorText.includes('openbitfun-light')
+        rule.selectorText.includes('data-alex-appearance')
+        && rule.selectorText.includes('alex-light')
         && rule.selectorText.includes('.miniapp-card')
       ));
 
@@ -688,16 +688,16 @@ describe('L0 Appearance', () => {
       };
     });
     expect(miniAppHoverContract).toEqual({
-      cardBackground: 'var(--openbitfun-color-surface-subtle)',
-      cardBorder: 'var(--openbitfun-color-border-default)',
-      cardShadow: 'var(--openbitfun-shadow-sm)',
+      cardBackground: 'var(--alex-color-surface-subtle)',
+      cardBorder: 'var(--alex-color-border-default)',
+      cardShadow: 'var(--alex-shadow-sm)',
       cardTransform: 'translateY(-3px)',
       primaryBackground: 'var(--miniapp-card-inverse-bg)',
       primaryColor: 'var(--miniapp-card-inverse-color)',
       deleteBackground: 'var(--miniapp-card-inverse-bg)',
       deleteColor: 'var(--miniapp-card-inverse-color)',
-      lightInverseBackground: 'var(--openbitfun-color-content-on-light)',
-      lightInverseColor: 'var(--openbitfun-color-content-on-dark)',
+      lightInverseBackground: 'var(--alex-color-content-on-light)',
+      lightInverseColor: 'var(--alex-color-content-on-dark)',
     });
 
     const importAction = await $('[data-testid="miniapp-import-action"]');
@@ -717,7 +717,7 @@ describe('L0 Appearance', () => {
   });
 
   it('should render monochrome structural chrome against a white workspace', async () => {
-    await selectAppearance('openbitfun-monochrome');
+    await selectAppearance('alex-monochrome');
     await browser.execute(() => {
       if (document.activeElement instanceof HTMLElement) {
         document.activeElement.blur();
@@ -725,28 +725,28 @@ describe('L0 Appearance', () => {
     });
     await waitForDisplayed('[data-testid="nav-panel"]');
     await waitForDisplayed('[data-testid="settings-nav"]');
-    await waitForDisplayed('.openbitfun-scene-bar');
-    await waitForDisplayed('.openbitfun-scene-viewport');
+    await waitForDisplayed('.alex-scene-bar');
+    await waitForDisplayed('.alex-scene-viewport');
 
     const contrastPresentation = await browser.execute(() => {
       const rootStyles = window.getComputedStyle(document.documentElement);
       const bodyStyles = window.getComputedStyle(document.body);
-      const workbench = document.querySelector<HTMLElement>('.openbitfun-workspace-body');
+      const workbench = document.querySelector<HTMLElement>('.alex-workspace-body');
       const navPanel = document.querySelector<HTMLElement>('[data-testid="nav-panel"]');
-      const settingsTitle = document.querySelector<HTMLElement>('.openbitfun-settings-nav__title');
-      const settingsActiveItem = document.querySelector<HTMLElement>('.openbitfun-settings-nav__item.is-active');
+      const settingsTitle = document.querySelector<HTMLElement>('.alex-settings-nav__title');
+      const settingsActiveItem = document.querySelector<HTMLElement>('.alex-settings-nav__item.is-active');
       const settingsSectionBody = document.querySelector<HTMLElement>(
-        '[data-testid="appearance-settings-section"] .openbitfun-config-page-section__body',
+        '[data-testid="appearance-settings-section"] .alex-config-page-section__body',
       );
       const settingsRows = document.querySelectorAll<HTMLElement>(
-        '[data-testid="appearance-settings-section"] .openbitfun-config-page-row',
+        '[data-testid="appearance-settings-section"] .alex-config-page-row',
       );
       const settingsRowDivider = settingsRows.item(1);
       const appearanceSelect = document.querySelector<HTMLElement>(
         '[data-testid="appearance-palette-select"]',
       );
-      const sceneBar = document.querySelector<HTMLElement>('.openbitfun-scene-bar');
-      const viewport = document.querySelector<HTMLElement>('.openbitfun-scene-viewport');
+      const sceneBar = document.querySelector<HTMLElement>('.alex-scene-bar');
+      const viewport = document.querySelector<HTMLElement>('.alex-scene-viewport');
 
       if (
         !workbench ||
@@ -768,23 +768,23 @@ describe('L0 Appearance', () => {
       const viewportStyles = window.getComputedStyle(viewport);
 
       return {
-        appearanceId: document.documentElement.getAttribute('data-openbitfun-appearance'),
-        appearanceMode: document.documentElement.getAttribute('data-openbitfun-appearance-mode'),
-        contentBackgroundToken: rootStyles.getPropertyValue('--openbitfun-color-surface-canvas').trim(),
-        contentTextToken: rootStyles.getPropertyValue('--openbitfun-color-content-primary').trim(),
-        contentSecondaryTextToken: rootStyles.getPropertyValue('--openbitfun-color-content-secondary').trim(),
-        contentBorderToken: rootStyles.getPropertyValue('--openbitfun-color-border-subtle').trim(),
-        contentSurfaceToken: rootStyles.getPropertyValue('--openbitfun-color-surface-subtle').trim(),
-        configSectionBackgroundToken: rootStyles.getPropertyValue('--openbitfun-component-config-page-section-background').trim(),
-        configSectionBorderToken: rootStyles.getPropertyValue('--openbitfun-component-config-page-section-border').trim(),
-        configSectionBorderWidthToken: rootStyles.getPropertyValue('--openbitfun-component-config-page-section-border-width').trim(),
-        configDividerToken: rootStyles.getPropertyValue('--openbitfun-component-config-page-divider').trim(),
-        chromeBackgroundToken: navStyles.getPropertyValue('--openbitfun-color-surface-canvas').trim(),
-        chromeTextToken: navStyles.getPropertyValue('--openbitfun-color-content-primary').trim(),
+        appearanceId: document.documentElement.getAttribute('data-alex-appearance'),
+        appearanceMode: document.documentElement.getAttribute('data-alex-appearance-mode'),
+        contentBackgroundToken: rootStyles.getPropertyValue('--alex-color-surface-canvas').trim(),
+        contentTextToken: rootStyles.getPropertyValue('--alex-color-content-primary').trim(),
+        contentSecondaryTextToken: rootStyles.getPropertyValue('--alex-color-content-secondary').trim(),
+        contentBorderToken: rootStyles.getPropertyValue('--alex-color-border-subtle').trim(),
+        contentSurfaceToken: rootStyles.getPropertyValue('--alex-color-surface-subtle').trim(),
+        configSectionBackgroundToken: rootStyles.getPropertyValue('--alex-component-config-page-section-background').trim(),
+        configSectionBorderToken: rootStyles.getPropertyValue('--alex-component-config-page-section-border').trim(),
+        configSectionBorderWidthToken: rootStyles.getPropertyValue('--alex-component-config-page-section-border-width').trim(),
+        configDividerToken: rootStyles.getPropertyValue('--alex-component-config-page-divider').trim(),
+        chromeBackgroundToken: navStyles.getPropertyValue('--alex-color-surface-canvas').trim(),
+        chromeTextToken: navStyles.getPropertyValue('--alex-color-content-primary').trim(),
         bodyBackground: bodyStyles.backgroundColor,
         workbenchBackground: workbenchStyles.backgroundColor,
         navBackground: navStyles.backgroundColor,
-        navTextToken: navStyles.getPropertyValue('--openbitfun-color-content-primary').trim(),
+        navTextToken: navStyles.getPropertyValue('--alex-color-content-primary').trim(),
         settingsTitleColor: window.getComputedStyle(settingsTitle).color,
         settingsActiveItemColor: window.getComputedStyle(settingsActiveItem).color,
         settingsSectionBackground: window.getComputedStyle(settingsSectionBody).backgroundColor,
@@ -793,15 +793,15 @@ describe('L0 Appearance', () => {
         settingsSectionShadow: window.getComputedStyle(settingsSectionBody).boxShadow,
         settingsRowDivider: window.getComputedStyle(settingsRowDivider).borderTopColor,
         appearanceSelectBorder: window.getComputedStyle(appearanceSelect).borderTopColor,
-        sceneBarTextToken: sceneBarStyles.getPropertyValue('--openbitfun-color-content-primary').trim(),
+        sceneBarTextToken: sceneBarStyles.getPropertyValue('--alex-color-content-primary').trim(),
         viewportBackground: viewportStyles.backgroundColor,
-        viewportTextToken: viewportStyles.getPropertyValue('--openbitfun-color-content-primary').trim(),
+        viewportTextToken: viewportStyles.getPropertyValue('--alex-color-content-primary').trim(),
         viewportRadius: viewportStyles.borderTopLeftRadius,
       };
     });
 
     expect(contrastPresentation).toEqual({
-      appearanceId: 'openbitfun-monochrome',
+      appearanceId: 'alex-monochrome',
       appearanceMode: 'light',
       contentBackgroundToken: '#ffffff',
       contentTextToken: '#1c1c1f',
@@ -845,11 +845,11 @@ describe('L0 Appearance', () => {
 
   it('should keep the Skin market and appearance package import entry points hidden', async () => {
     await openAppearanceSettings();
-    await waitForDisplayed('[data-openbitfun-part="packageSection"]');
+    await waitForDisplayed('[data-alex-part="packageSection"]');
 
     const packageEntryPoints = await browser.execute(() => ({
       actionButtons: Array.from(document.querySelectorAll<HTMLElement>(
-        '[data-openbitfun-part="packageActions"] [data-openbitfun-component="button"]',
+        '[data-alex-part="packageActions"] [data-alex-component="button"]',
       )).map(button => button.textContent?.trim() ?? ''),
       fileInputs: document.querySelectorAll('.appearance-package-config__file-input').length,
     }));
@@ -858,7 +858,7 @@ describe('L0 Appearance', () => {
     expect(packageEntryPoints.fileInputs).toBe(0);
 
     await saveElementScreenshot(
-      '[data-openbitfun-part="packageSection"]',
+      '[data-alex-part="packageSection"]',
       'l0-appearance-package-entry-points-hidden',
     );
   });
@@ -867,8 +867,8 @@ describe('L0 Appearance', () => {
     await openAppearanceSettings();
 
     const before = await browser.execute(() => ({
-      id: document.documentElement.getAttribute('data-openbitfun-appearance'),
-      revision: document.documentElement.getAttribute('data-openbitfun-appearance-revision'),
+      id: document.documentElement.getAttribute('data-alex-appearance'),
+      revision: document.documentElement.getAttribute('data-alex-appearance-revision'),
     }));
 
     const picker = await $('[data-testid="appearance-palette-select"]');
@@ -897,7 +897,7 @@ describe('L0 Appearance', () => {
     expect(targetId).toBeTruthy();
     await browser.waitUntil(async () => {
       return browser.execute((expectedId: string) => {
-        return document.documentElement.getAttribute('data-openbitfun-appearance') === expectedId;
+        return document.documentElement.getAttribute('data-alex-appearance') === expectedId;
       }, targetId!);
     }, {
       timeout: 10000,
@@ -909,10 +909,10 @@ describe('L0 Appearance', () => {
       const root = document.documentElement;
       const styles = window.getComputedStyle(root);
       return {
-        id: root.getAttribute('data-openbitfun-appearance'),
-        mode: root.getAttribute('data-openbitfun-appearance-mode'),
-        revision: root.getAttribute('data-openbitfun-appearance-revision'),
-        background: styles.getPropertyValue('--openbitfun-color-surface-canvas').trim(),
+        id: root.getAttribute('data-alex-appearance'),
+        mode: root.getAttribute('data-alex-appearance-mode'),
+        revision: root.getAttribute('data-alex-appearance-revision'),
+        background: styles.getPropertyValue('--alex-color-surface-canvas').trim(),
       };
     });
 

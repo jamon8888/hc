@@ -1,7 +1,7 @@
 //! PII-safe workspace RAG search port (D11).
 //!
-//! The only RAG shape `openbitfun-core` ever sees: the concrete pipeline lives
-//! in `openbitfun-basemind-integration` behind `ToolRuntimeHandles` injection.
+//! The only RAG shape `alex-core` ever sees: the concrete pipeline lives
+//! in `alex-basemind-integration` behind `ToolRuntimeHandles` injection.
 //! Hits are session-tokenized at the LLM boundary; the underlying values never
 //! cross this interface (D3/D4, SPEC §4).
 

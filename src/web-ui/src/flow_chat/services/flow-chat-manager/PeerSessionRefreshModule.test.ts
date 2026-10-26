@@ -171,7 +171,7 @@ describe('PeerSessionRefreshModule re-attach after a surface switch', () => {
       sessions: new Map([
         ['session-1', {
           sessionId: 'session-1',
-          workspaceId: 'workspace-1', workspacePath: '/repo/OpenBitFun',
+          workspaceId: 'workspace-1', workspacePath: '/repo/Alex',
           historyState: 'ready',
           isHistorical: false,
           isTransient: false,
@@ -604,7 +604,7 @@ describe('PeerSessionRefreshModule dead subscription recovery', () => {
       sessions: new Map([
         ['session-1', {
           sessionId: 'session-1',
-          workspaceId: 'workspace-1', workspacePath: '/repo/OpenBitFun',
+          workspaceId: 'workspace-1', workspacePath: '/repo/Alex',
           historyState: 'ready',
           isHistorical: false,
           isTransient: false,
@@ -691,7 +691,7 @@ describe('PeerSessionRefreshModule dead subscription recovery', () => {
 
 describe('isSessionProjectionAttachable', () => {
   const base = {
-    workspaceId: 'workspace-1', workspacePath: '/repo/OpenBitFun',
+    workspaceId: 'workspace-1', workspacePath: '/repo/Alex',
     isTransient: false,
     isHistorical: false,
     historyState: 'ready' as const,
@@ -751,7 +751,7 @@ describe('PeerSessionRefreshModule attach eligibility after a surface switch', (
       sessions: new Map([
         ['session-new', {
           sessionId: 'session-new',
-          workspaceId: 'workspace-1', workspacePath: '/repo/OpenBitFun',
+          workspaceId: 'workspace-1', workspacePath: '/repo/Alex',
           historyState: 'new',
           isHistorical: false,
           isTransient: false,
@@ -787,7 +787,7 @@ describe('PeerSessionRefreshModule attach eligibility after a surface switch', (
       sessions: new Map([
         ['session-meta', {
           sessionId: 'session-meta',
-          workspaceId: 'workspace-1', workspacePath: '/repo/OpenBitFun',
+          workspaceId: 'workspace-1', workspacePath: '/repo/Alex',
           historyState: 'metadata-only',
           isHistorical: true,
           isTransient: false,
@@ -824,14 +824,14 @@ describe('PeerSessionRefreshModule attach eligibility after a surface switch', (
       sessions: new Map([
         ['session-active', {
           sessionId: 'session-active',
-          workspaceId: 'workspace-1', workspacePath: '/repo/OpenBitFun',
+          workspaceId: 'workspace-1', workspacePath: '/repo/Alex',
           historyState: 'new',
           isHistorical: false,
           isTransient: false,
         }],
         ['session-bg', {
           sessionId: 'session-bg',
-          workspaceId: 'workspace-1', workspacePath: '/repo/OpenBitFun',
+          workspaceId: 'workspace-1', workspacePath: '/repo/Alex',
           historyState: 'new',
           isHistorical: false,
           isTransient: false,
@@ -888,14 +888,14 @@ describe('PeerSessionRefreshModule attach eligibility after a surface switch', (
       sessions: new Map([
         ['session-active', {
           sessionId: 'session-active',
-          workspaceId: 'workspace-1', workspacePath: '/repo/OpenBitFun',
+          workspaceId: 'workspace-1', workspacePath: '/repo/Alex',
           historyState: 'new',
           isHistorical: false,
           isTransient: false,
         }],
         ['session-bg', {
           sessionId: 'session-bg',
-          workspaceId: 'workspace-1', workspacePath: '/repo/OpenBitFun',
+          workspaceId: 'workspace-1', workspacePath: '/repo/Alex',
           historyState: 'new',
           isHistorical: false,
           isTransient: false,
@@ -983,7 +983,7 @@ describe('PeerSessionRefreshModule journal apply', () => {
         {
           sessionId: 'session-1',
           title: 'Live',
-          workspaceId: 'workspace-1', workspacePath: '/repo/OpenBitFun',
+          workspaceId: 'workspace-1', workspacePath: '/repo/Alex',
           historyState: 'ready',
           isHistorical: false,
           isTransient: false,

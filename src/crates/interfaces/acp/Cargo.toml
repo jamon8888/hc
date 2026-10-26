@@ -1,52 +1,52 @@
 [package]
-name = "openbitfun-acp"
+name = "alex-acp"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
-description = "OpenBitFun Agent Client Protocol surface"
+description = "Alex Agent Client Protocol surface"
 
 [features]
 default = ["client", "server"]
 client = [
-    "openbitfun-agent-tools/acp-bridge",
+    "alex-agent-tools/acp-bridge",
     "dep:futures",
     "dep:serde",
     "dep:dirs",
     "dep:semver",
     "dep:tar",
-    "dep:openbitfun-core",
-    "openbitfun-core/agent-runtime",
-    "openbitfun-core/ssh-remote",
+    "dep:alex-core",
+    "alex-core/agent-runtime",
+    "alex-core/ssh-remote",
 ]
 server = [
-    "dep:openbitfun-agent-tools",
-    "dep:openbitfun-agent-runtime",
-    "openbitfun-agent-runtime/agent-runtime",
-    "dep:openbitfun-core-types",
-    "dep:openbitfun-core",
+    "dep:alex-agent-tools",
+    "dep:alex-agent-runtime",
+    "alex-agent-runtime/agent-runtime",
+    "dep:alex-core-types",
+    "dep:alex-core",
     "dep:sha2",
-    "openbitfun-core/agent-runtime",
-    "openbitfun-core/document-read",
-    "openbitfun-core/subscription-auth",
-    "openbitfun-core/external-sources",
-    "openbitfun-core/tools-basic",
-    "openbitfun-core/tools-git",
-    "openbitfun-core/tools-mcp",
-    "openbitfun-core/tools-browser-web",
-    "openbitfun-core/tools-computer-use",
-    "openbitfun-core/tools-image-analysis",
-    "openbitfun-core/tools-agent-control",
+    "alex-core/agent-runtime",
+    "alex-core/document-read",
+    "alex-core/subscription-auth",
+    "alex-core/external-sources",
+    "alex-core/tools-basic",
+    "alex-core/tools-git",
+    "alex-core/tools-mcp",
+    "alex-core/tools-browser-web",
+    "alex-core/tools-computer-use",
+    "alex-core/tools-image-analysis",
+    "alex-core/tools-agent-control",
 ]
 
 [lib]
-name = "openbitfun_acp"
+name = "alex_acp"
 
 [dependencies]
-openbitfun-core = { path = "../../assembly/core", optional = true }
-openbitfun-agent-runtime = { path = "../../execution/agent-runtime", optional = true }
-openbitfun-agent-tools = { path = "../../execution/tool-contracts", optional = true }
-openbitfun-events = { path = "../../contracts/events" }
-openbitfun-core-types = { path = "../../contracts/core-types", optional = true }
+alex-core = { path = "../../assembly/core", optional = true }
+alex-agent-runtime = { path = "../../execution/agent-runtime", optional = true }
+alex-agent-tools = { path = "../../execution/tool-contracts", optional = true }
+alex-events = { path = "../../contracts/events" }
+alex-core-types = { path = "../../contracts/core-types", optional = true }
 
 agent-client-protocol = { workspace = true }
 tokio = { workspace = true, features = ["fs", "io-std", "io-util", "macros", "process", "rt", "sync", "time"] }

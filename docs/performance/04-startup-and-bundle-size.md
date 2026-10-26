@@ -16,7 +16,7 @@
 | `dist/monaco-editor` | **14 MB** | monaco `min/vs` 全量拷贝(含 9 种 NLS 语言、tsWorker 5.7 MB) |
 | `dist/fonts` | **13 MB** | 审阅时的旧内置中文字体 3 个字重,各 ~4.2 MB |
 | `dist/` 根目录图片 | ~2.7 MB | Alex-Logo.png 1.06 MB 等未压缩 PNG |
-| `target/release/openbitfun-desktop.exe` | 217 MB(7-24 本地构建,profile 未知,可能为 release-fast) | 前端 dist 全部嵌入二进制 |
+| `target/release/alex-desktop.exe` | 217 MB(7-24 本地构建,profile 未知,可能为 release-fast) | 前端 dist 全部嵌入二进制 |
 | NSIS 安装包 | 0.2.11 → 81 MB;0.2.13 → **90.5 MB**(两个小版本 +9.4 MB) | `target/release/bundle/nsis/` |
 
 > 前置说明:前端在启动编排上已有明显投入(`src/web-ui/src/app/startup/startupPerformanceContract.test.ts` 契约测试、`index.html` 内联 splash、AppLayout lazy、i18n 命名空间懒加载、Rust 侧 startup_trace),本报告只列仍然成立的真实问题。
@@ -44,7 +44,7 @@
 
 ### 1. 窗口创建被全部后端初始化串行阻塞(冷启动最大瓶颈)【高收益/中风险】
 
-**问题**:`openbitfun_desktop_lib::run()` 在进入 `tauri::Builder` 之前,串行 `await` 了 7 个初始化步骤;主窗口在 `setup()` 中更靠后的位置才创建。也就是说,从进程启动到用户看到第一帧(哪怕是 splash),要等完:
+**问题**:`alex_desktop_lib::run()` 在进入 `tauri::Builder` 之前,串行 `await` 了 7 个初始化步骤;主窗口在 `setup()` 中更靠后的位置才创建。也就是说,从进程启动到用户看到第一帧(哪怕是 splash),要等完:
 
 - `src/apps/desktop/src/lib.rs:325` `initialize_global_config().await`(磁盘 IO)
 - `lib.rs:337-353` `initialize_global_i18n_service().await`
@@ -113,7 +113,7 @@
 
 ### 8. release profile 缺 `panic = "abort"`【中收益/中低风险】
 
-**证据**:根 `Cargo.toml:282-286` `[profile.release]` 已有 `opt-level=3, lto=true, codegen-units=1, strip=true`(体积姿势基本正确),但未设 `panic = "abort"`,unwinding 表与 landing pad 通常占 5~10% 二进制体积。另:本地 `target/release/openbitfun-desktop.exe` 实测 217 MB,若为 `release-fast` profile(strip=false、lto=false,`Cargo.toml:288-293`)构建则不代表发布体积;发布链路(NSIS 90.5 MB)以 `[profile.release]` 为准。
+**证据**:根 `Cargo.toml:282-286` `[profile.release]` 已有 `opt-level=3, lto=true, codegen-units=1, strip=true`(体积姿势基本正确),但未设 `panic = "abort"`,unwinding 表与 landing pad 通常占 5~10% 二进制体积。另:本地 `target/release/alex-desktop.exe` 实测 217 MB,若为 `release-fast` profile(strip=false、lto=false,`Cargo.toml:288-293`)构建则不代表发布体积;发布链路(NSIS 90.5 MB)以 `[profile.release]` 为准。
 
 **方案**:`[profile.release]` 增加 `panic = "abort"`。风险点:代码中依赖 `catch_unwind` 的路径会变成直接终止(`lib.rs:316` 有 `setup_panic_hook`,panic hook 本身仍然有效);建议加上后跑一轮桌面回归。注意安装包体积从 0.2.11→0.2.13 两个小版本涨了 9.4 MB,建议在 CI 中加体积基线监控。
 

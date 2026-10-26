@@ -30,7 +30,7 @@ const cyberAccent = (alpha: number | string) => rgbaFromHex(CYBER_ACCENT, alpha)
 
 export const openBitFunCyberPalette: AppearancePalette = {
 
-  id: 'openbitfun-cyber',
+  id: 'alex-cyber',
   name: 'Cyber',
   type: 'dark',
   description: 'Tech-style appearance - Deep black hole, neon future, ultimate tech aesthetics',

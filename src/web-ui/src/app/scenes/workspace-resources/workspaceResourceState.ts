@@ -48,7 +48,7 @@ export const useWorkspaceResourceState = create<ResourceState>()(persist((set) =
     return { layouts: { ...rest, [key]: legacy } };
   }),
 }), {
-  name: 'openbitfun-workspace-resource-layouts',
+  name: 'alex-workspace-resource-layouts',
   version: 1,
   storage: createJSONStorage(() => localStorage),
   partialize: state => ({ layouts: state.layouts }),

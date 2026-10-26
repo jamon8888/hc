@@ -38,7 +38,7 @@ import {
   MobileSegmentedControl,
   MobileStatus,
   MobileTextField,
-} from '@openbitfun/ui/mobile';
+} from '@alex/ui/mobile';
 import LanguageToggleButton from '../components/LanguageToggleButton';
 import SessionOverlays from '../components/SessionOverlays';
 import CompactSettingsSheet from '../components/CompactSettingsSheet';
@@ -67,8 +67,8 @@ import {
   type WorkspaceReference,
 } from '../services/workspaceIdentity';
 import { useTheme } from '../theme';
-import logoMarkDark from '../assets/openbitfun-mark-dark.png';
-import logoMarkLight from '../assets/openbitfun-mark-light.png';
+import logoMarkDark from '../assets/alex-mark-dark.png';
+import logoMarkLight from '../assets/alex-mark-light.png';
 import {
   isAccountIdentityChangedError,
   type RelayHttpClient,

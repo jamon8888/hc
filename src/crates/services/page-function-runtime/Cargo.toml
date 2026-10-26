@@ -1,12 +1,12 @@
 [package]
-name = "openbitfun-page-function-runtime"
+name = "alex-page-function-runtime"
 version = "1.0.2"
-authors = ["OpenBitFun Team"]
+authors = ["Alex Team"]
 edition = "2021"
-description = "Embedded JS Page Function runtime for OpenBitFun Pages (rquickjs)"
+description = "Embedded JS Page Function runtime for Alex Pages (rquickjs)"
 
 [lib]
-name = "openbitfun_page_function_runtime"
+name = "alex_page_function_runtime"
 path = "src/lib.rs"
 
 [dependencies]

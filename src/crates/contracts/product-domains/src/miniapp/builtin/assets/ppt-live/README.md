@@ -87,7 +87,7 @@ ppt-live/
     ├── export-html.js            # HTML 导出
     ├── export-format-icons.js    # 导出格式图标
     ├── flat-select.js            # 自定义下拉组件
-    └── openbitfun-backend-adapter.js # Alex 后端适配器
+    └── alex-backend-adapter.js # Alex 后端适配器
 ```
 
 ## 构建
@@ -136,7 +136,7 @@ node build-openbitfun.mjs
    - meta.json:   "version": N
    - bundle.json: "version": N
    - builtin.rs:  version: N,  （路径: src/crates/contracts/product-domains/src/miniapp/builtin.rs）
-4. cargo check -p openbitfun-product-domains
+4. cargo check -p alex-product-domains
 5. 重启 pnpm run desktop:dev（或 touch builtin.rs 触发 Rust 重编译）让新 bundle 生效
 ```
 

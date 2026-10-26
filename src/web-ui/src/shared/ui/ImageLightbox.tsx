@@ -1,4 +1,4 @@
-import { Dialog, DialogClose, Icon } from '@openbitfun/ui';
+import { Dialog, DialogClose, Icon } from '@alex/ui';
 import { getAppearanceOverlayHost } from '@/infrastructure/appearance/runtime/AppearanceOverlayHost';
 import { i18nService } from '@/infrastructure/i18n';
 import './ImageLightbox.scss';
@@ -33,7 +33,7 @@ export function ImageLightbox({ image, onClose }: {
       className="image-lightbox-surface"
       overlayProps={{
         className: 'image-lightbox',
-        'data-openbitfun-native-webview-occlusion': true,
+        'data-alex-native-webview-occlusion': true,
       }}
       autoFocus={false}
       restoreFocus={false}
@@ -46,8 +46,8 @@ export function ImageLightbox({ image, onClose }: {
       <img
         src={image.source}
         alt={image.alt ?? ''}
-        data-openbitfun-component="image-lightbox"
-        data-openbitfun-part="image"
+        data-alex-component="image-lightbox"
+        data-alex-part="image"
       />
     </Dialog>
   );

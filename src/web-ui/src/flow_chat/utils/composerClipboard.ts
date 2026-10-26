@@ -12,8 +12,8 @@ import { getWidgetPromptReferenceMatches } from '@/tools/generative-widget/widge
  * payload instead of leaving their source text behind.
  */
 
-const CLIPBOARD_MARKER_ATTRIBUTE = 'data-openbitfun-composer-clipboard';
-const CLIPBOARD_TOKEN_ATTRIBUTE = 'data-openbitfun-composer-clipboard-tokens';
+const CLIPBOARD_MARKER_ATTRIBUTE = 'data-alex-composer-clipboard';
+const CLIPBOARD_TOKEN_ATTRIBUTE = 'data-alex-composer-clipboard-tokens';
 const CLIPBOARD_PAYLOAD_VERSION = '1';
 
 export interface ComposerInlineTokenMatch {

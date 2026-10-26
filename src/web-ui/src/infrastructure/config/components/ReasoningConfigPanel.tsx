@@ -1,4 +1,4 @@
-import { Button, ScrollArea } from '@openbitfun/ui';
+import { Button, ScrollArea } from '@alex/ui';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -115,14 +115,14 @@ export const ReasoningConfigPanel: React.FC<ReasoningConfigPanelProps> = ({
 
   return (
     <div
-      className="openbitfun-reasoning-config-panel"
-      data-openbitfun-component="reasoning-config-panel"
-      data-openbitfun-part="root"
+      className="alex-reasoning-config-panel"
+      data-alex-component="reasoning-config-panel"
+      data-alex-part="root"
     >
       <ScrollArea
-        className="openbitfun-reasoning-config-panel__body"
-        data-openbitfun-component="reasoning-config-panel"
-        data-openbitfun-part="body"
+        className="alex-reasoning-config-panel__body"
+        data-alex-component="reasoning-config-panel"
+        data-alex-part="body"
       >
         <ReasoningPresetEditor
           value={draft}
@@ -134,15 +134,15 @@ export const ReasoningConfigPanel: React.FC<ReasoningConfigPanelProps> = ({
         />
       </ScrollArea>
       <div
-        className="openbitfun-reasoning-config-panel__footer"
-        data-openbitfun-component="reasoning-config-panel"
-        data-openbitfun-part="footer"
+        className="alex-reasoning-config-panel__footer"
+        data-alex-component="reasoning-config-panel"
+        data-alex-part="footer"
       >
         {invalid && (
           <div
-            className="openbitfun-reasoning-config-panel__error"
-            data-openbitfun-component="reasoning-config-panel"
-            data-openbitfun-part="error"
+            className="alex-reasoning-config-panel__error"
+            data-alex-component="reasoning-config-panel"
+            data-alex-part="error"
             role="alert"
           >
             <AlertTriangle size={14} aria-hidden="true" />
@@ -150,9 +150,9 @@ export const ReasoningConfigPanel: React.FC<ReasoningConfigPanelProps> = ({
           </div>
         )}
         <div
-          className="openbitfun-reasoning-config-panel__actions"
-          data-openbitfun-component="reasoning-config-panel"
-          data-openbitfun-part="actions"
+          className="alex-reasoning-config-panel__actions"
+          data-alex-component="reasoning-config-panel"
+          data-alex-part="actions"
         >
           <Button variant="fill" onClick={onCancel}>
             {t('actions.cancel')}

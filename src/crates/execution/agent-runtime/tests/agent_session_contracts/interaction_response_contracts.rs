@@ -1,11 +1,11 @@
 use std::sync::{Arc, Mutex};
 
 use async_trait::async_trait;
-use openbitfun_agent_runtime::sdk::{
+use alex_agent_runtime::sdk::{
     AgentInteractionResponsePort, AgentRuntimeBuilder, AgentSubmissionPort, AgentSubmissionRequest,
     AgentSubmissionResult, AgentUserAnswersRequest, PortError, PortResult, RuntimeError,
 };
-use openbitfun_runtime_ports::PortErrorKind;
+use alex_runtime_ports::PortErrorKind;
 use serde_json::json;
 
 #[derive(Debug, Default)]
@@ -15,8 +15,8 @@ struct FakeSubmissionPort;
 impl AgentSubmissionPort for FakeSubmissionPort {
     async fn create_session(
         &self,
-        _request: openbitfun_agent_runtime::sdk::AgentSessionCreateRequest,
-    ) -> PortResult<openbitfun_agent_runtime::sdk::AgentSessionCreateResult> {
+        _request: alex_agent_runtime::sdk::AgentSessionCreateRequest,
+    ) -> PortResult<alex_agent_runtime::sdk::AgentSessionCreateResult> {
         unreachable!("interaction response contracts do not create sessions")
     }
 

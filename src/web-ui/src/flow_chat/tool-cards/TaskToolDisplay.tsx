@@ -21,7 +21,7 @@ import {
   AmbientToolCard,
   AmbientToolCardHeader,
   ToolCardStatusSlot,
-} from '@openbitfun/ui/flow-chat';
+} from '@alex/ui/flow-chat';
 import { taskCollapseStateManager } from '../store/TaskCollapseStateManager';
 import { useToolCardHeightContract } from './useToolCardHeightContract';
 import { ToolTimeoutIndicator } from './ToolTimeoutIndicator';
@@ -708,10 +708,10 @@ export const TaskToolDisplay: React.FC<ToolCardProps> = ({
     }
 
     return (
-      <div className="task-expanded-content" data-openbitfun-component="task-tool-display" data-openbitfun-part="expanded" data-openbitfun-state="expanded">
+      <div className="task-expanded-content" data-alex-component="task-tool-display" data-alex-part="expanded" data-alex-state="expanded">
         {interruptionNote && (
           <>
-            <div className="task-interruption-note" role="note" data-openbitfun-component="task-tool-display" data-openbitfun-part="interruption">
+            <div className="task-interruption-note" role="note" data-alex-component="task-tool-display" data-alex-part="interruption">
               <AlertTriangle size={14} strokeWidth={2} aria-hidden />
               <span>{interruptionNote}</span>
             </div>
@@ -721,7 +721,7 @@ export const TaskToolDisplay: React.FC<ToolCardProps> = ({
           </>
         )}
         {rc ? (
-          <div className="task-reviewer-context" data-openbitfun-component="task-tool-display" data-openbitfun-part="reviewer">
+          <div className="task-reviewer-context" data-alex-component="task-tool-display" data-alex-part="reviewer">
             <div className="task-reviewer-context__role" style={{ color: rc.accentColor }}>
               {tAgents(`reviewTeams.members.${rc.definitionKey}.role`, {
                 defaultValue: rc.roleName,
@@ -732,7 +732,7 @@ export const TaskToolDisplay: React.FC<ToolCardProps> = ({
                 defaultValue: rc.description,
               })}
             </div>
-            <ul className="task-reviewer-context__responsibilities" data-openbitfun-component="task-tool-display" data-openbitfun-part="responsibilities">
+            <ul className="task-reviewer-context__responsibilities" data-alex-component="task-tool-display" data-alex-part="responsibilities">
               {rc.responsibilities.map((resp, idx) => (
                 <li key={idx}>
                   {tAgents(`reviewTeams.members.${rc.definitionKey}.responsibilities.${idx}`, {
@@ -748,8 +748,8 @@ export const TaskToolDisplay: React.FC<ToolCardProps> = ({
             className={`thinking-content-wrapper task-prompt-wrapper${promptScrollState.hasScroll ? ' has-scroll' : ''}${
               promptScrollState.atTop ? ' at-top' : ''
             }${promptScrollState.atBottom ? ' at-bottom' : ''}`}
-            data-openbitfun-component="task-tool-display"
-            data-openbitfun-part="prompt"
+            data-alex-component="task-tool-display"
+            data-alex-part="prompt"
           >
             <div
               ref={promptContentRef}
@@ -772,8 +772,8 @@ export const TaskToolDisplay: React.FC<ToolCardProps> = ({
   if (isCancelAction) {
     const cancelSessionId = linkedSubagentSessionId || 'Not provided';
     return (
-      <div data-openbitfun-component="task-tool-display" data-openbitfun-part="root">
-        <div data-openbitfun-component="task-tool-display" data-openbitfun-part="cancel">
+      <div data-alex-component="task-tool-display" data-alex-part="root">
+        <div data-alex-component="task-tool-display" data-alex-part="cancel">
           <AmbientToolCard
             status={status}
             isExpanded={false}
@@ -810,9 +810,9 @@ export const TaskToolDisplay: React.FC<ToolCardProps> = ({
 
   return (
     <div
-      data-openbitfun-component="task-tool-display"
-      data-openbitfun-part="root"
-      data-openbitfun-state={[isFailed && 'failed', displayIsExpanded && 'expanded'].filter(Boolean).join(' ') || undefined}
+      data-alex-component="task-tool-display"
+      data-alex-part="root"
+      data-alex-state={[isFailed && 'failed', displayIsExpanded && 'expanded'].filter(Boolean).join(' ') || undefined}
       ref={cardRootRef}
       data-tool-card-id={toolId ?? ''}
     >

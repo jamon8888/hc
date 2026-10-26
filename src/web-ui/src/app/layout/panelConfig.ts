@@ -194,13 +194,13 @@ export function clampWidth(
 
 // ==================== Local storage keys ====================
 export const STORAGE_KEYS = {
-  LEFT_PANEL_WIDTH: 'openbitfun:leftPanelWidth',
-  RIGHT_PANEL_WIDTH: 'openbitfun:rightPanelWidth',
-  LEFT_PANEL_COLLAPSED: 'openbitfun:leftPanelCollapsed',
-  RIGHT_PANEL_COLLAPSED: 'openbitfun:rightPanelCollapsed',
-  LEFT_PANEL_LAST_WIDTH: 'openbitfun:leftPanelLastWidth',   // Remembered width before collapse
-  RIGHT_PANEL_LAST_WIDTH: 'openbitfun:rightPanelLastWidth', // Remembered width before collapse
-  BOTTOM_TERMINAL_PANEL_LAST_HEIGHT: 'openbitfun:bottomTerminalPanelLastHeight',
+  LEFT_PANEL_WIDTH: 'alex:leftPanelWidth',
+  RIGHT_PANEL_WIDTH: 'alex:rightPanelWidth',
+  LEFT_PANEL_COLLAPSED: 'alex:leftPanelCollapsed',
+  RIGHT_PANEL_COLLAPSED: 'alex:rightPanelCollapsed',
+  LEFT_PANEL_LAST_WIDTH: 'alex:leftPanelLastWidth',   // Remembered width before collapse
+  RIGHT_PANEL_LAST_WIDTH: 'alex:rightPanelLastWidth', // Remembered width before collapse
+  BOTTOM_TERMINAL_PANEL_LAST_HEIGHT: 'alex:bottomTerminalPanelLastHeight',
 } as const;
 
 /**

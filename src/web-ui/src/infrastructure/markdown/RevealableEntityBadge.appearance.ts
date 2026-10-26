@@ -16,8 +16,8 @@ export const revealableEntityBadgeAppearanceDescriptor: AppearanceSurfaceDescrip
     { id: 'spinner' },
   ],
   states: [
-    { id: 'loading', selector: { kind: 'self', suffix: '[data-openbitfun-state~="loading"]' } },
-    { id: 'revealed', selector: { kind: 'self', suffix: '[data-openbitfun-state~="revealed"]' } },
-    { id: 'error', selector: { kind: 'self', suffix: '[data-openbitfun-state~="error"]' } },
+    { id: 'loading', selector: { kind: 'self', suffix: '[data-alex-state~="loading"]' } },
+    { id: 'revealed', selector: { kind: 'self', suffix: '[data-alex-state~="revealed"]' } },
+    { id: 'error', selector: { kind: 'self', suffix: '[data-alex-state~="error"]' } },
   ],
 };

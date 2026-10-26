@@ -10,7 +10,7 @@
  */
 
 import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
-import { OverflowText, Composer, ComposerToolbar, Icon, IconButton } from '@openbitfun/ui';
+import { OverflowText, Composer, ComposerToolbar, Icon, IconButton } from '@alex/ui';
 import { useTranslation } from 'react-i18next';
 import { ModelSelector } from '@/flow_chat/components/ModelSelector';
 import { flowChatManager } from '@/flow_chat/services/FlowChatManager';
@@ -99,7 +99,7 @@ const AssistantQuickInput: React.FC<AssistantQuickInputProps> = ({
     : t('input.placeholder');
 
   return (
-    <div data-openbitfun-component="assistant-quick-input" data-openbitfun-part="root" className="aqi">
+    <div data-alex-component="assistant-quick-input" data-alex-part="root" className="aqi">
       <Composer
         aria-label={placeholder}
         className="aqi__composer"
@@ -109,14 +109,14 @@ const AssistantQuickInput: React.FC<AssistantQuickInputProps> = ({
             leading={(
               <div
                 className="aqi__footer-left"
-                data-openbitfun-component="assistant-quick-input"
-                data-openbitfun-part="footerLeft"
+                data-alex-component="assistant-quick-input"
+                data-alex-part="footerLeft"
               >
                 <ModelSelector currentMode="Claw" className="aqi__model" />
                 <OverflowText
                   className="aqi__hint"
-                  data-openbitfun-component="assistant-quick-input"
-                  data-openbitfun-part="hint"
+                  data-alex-component="assistant-quick-input"
+                  data-alex-part="hint"
                 >
                   {t('input.sendHint')}
                 </OverflowText>

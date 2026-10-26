@@ -5,7 +5,7 @@ use crate::types::{
     MIN_MODEL_CONTEXT_WINDOW_TOKENS,
 };
 use log::warn;
-pub use openbitfun_core_types::AIConfig;
+pub use alex_core_types::AIConfig;
 
 fn append_endpoint(base_url: &str, endpoint: &str) -> String {
     let base = base_url.trim();

@@ -169,7 +169,7 @@ stdio.
 | id | command | install |
 |---|---|---|
 | `opencode` | `opencode acp` | npm `opencode-ai` |
-| `dsh` | `dsh --profile openbitfun-acp` | npm `@deepseek-ai/dsh` |
+| `dsh` | `dsh --profile alex-acp` | npm `@deepseek-ai/dsh` |
 | `omp` | `omp acp` | **user-managed** (`install_package: None`) |
 | `claude-code` | `npx …/claude-agent-acp@latest` | npm, adapter required |
 | `codex` | `npx …/codex-acp@latest` | npm, adapter required |
@@ -239,7 +239,7 @@ genuine work out of cheap local/open models** by matching the harness they were 
 
 **Cost estimate:** one preset struct + a round of the existing `builtin_*` tests + a docs row.
 Nothing in `assembly/core`, `agent-runtime`, or `ai-adapters` changes. Verification is the
-existing `cargo test -p openbitfun-acp`.
+existing `cargo test -p alex-acp`.
 
 **Caveats to record:**
 
@@ -326,7 +326,7 @@ model-tuned surfaces. Treat it as a design topic with its own port/provider revi
 ### Suggested next steps
 
 - [x] Prototype the `BuiltinAcpClientPreset` entry and run
-      `cargo test -p openbitfun-acp --no-default-features --features client`.
+      `cargo test -p alex-acp --no-default-features --features client`.
 - [ ] Manually verify `interpreter acp` streams tool progress + permission requests in the
       Web UI via the existing `acp_client_api.rs` projection.
 - [ ] Decide the remote-workspace stance and, if needed, add a Product Operation Registry row.
@@ -400,8 +400,8 @@ Deliberately **not** changed:
 
 | Gate | Result |
 |---|---|
-| `cargo test -p openbitfun-acp --no-default-features --features client,openbitfun-core/git --lib` | 83 passed, 0 failed |
-| `cargo check -p openbitfun-acp` (default features, client+server) | clean |
+| `cargo test -p alex-acp --no-default-features --features client,alex-core/git --lib` | 83 passed, 0 failed |
+| `cargo check -p alex-acp` (default features, client+server) | clean |
 | `rustfmt --edition 2021 --check` on both changed Rust files | clean |
 | `pnpm run i18n:audit` | passed, 0 warnings |
 | `pnpm run capabilities:check` | verified in sync |
@@ -411,7 +411,7 @@ Deliberately **not** changed:
 | `pnpm run check:repo-hygiene` | passed |
 
 Note: the client closure requires Core's `git` feature
-(`--features client,openbitfun-core/git`); without it `openbitfun-core` fails to resolve a
+(`--features client,alex-core/git`); without it `alex-core` fails to resolve a
 git-gated worktree import. That is a pre-existing feature-invocation requirement documented
 in `src/crates/interfaces/acp/AGENTS.md`, not a regression from this change.
 
@@ -476,7 +476,7 @@ Tauri bundle as a resource, and resolved from the product's resource directory a
 ### 7.3 Decisions worth recording
 
 1. **The product reads its own manifest, not the upstream one.** The build step writes
-   `openbitfun-bundled-tool.json` next to the packaged files. A change to the upstream
+   `alex-bundled-tool.json` next to the packaged files. A change to the upstream
    `codex-package.json` layout therefore cannot break the runtime lookup.
 2. **A host tag gates the package.** The manifest records the host the package was built
    for (`macos-aarch64`, `linux-x86_64`, …) and the runtime only launches a package whose
@@ -510,10 +510,10 @@ each release asset. A download that does not match never becomes a package input
 Two failures existed on `HEAD` before this work and had to be fixed to compile and test
 anything:
 
-1. `openbitfun-core` did not compile: `commit 2f9c4a3eb` ("make French the product default
+1. `alex-core` did not compile: `commit 2f9c4a3eb` ("make French the product default
    locale") added a non-`const` `Default for LocaleId` while `app_language.rs` uses
    `LocaleId::default()` in a `const`. The repository rule "Keep `cargo check -p
-   openbitfun-core --no-default-features` viable" was being violated. The upstream author
+   alex-core --no-default-features` viable" was being violated. The upstream author
    then fixed it properly in `9a31b9004` by exposing the contract default as a
    `DEFAULT_LOCALE` const, so no local change was needed.
 2. `scripts/desktop-tauri-build.test.mjs` fails on `main`: the locale contract lists

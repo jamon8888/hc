@@ -2,7 +2,7 @@ import React, { useEffect, useId, useRef, useState } from 'react';
 import {
   Button, Checkbox, Dialog, DialogBody, DialogClose, DialogFooter, DialogHeader,
   DialogHeading, DialogTitle, Disclosure, Icon, IconButton, Input, Select, Textarea,
-} from '@openbitfun/ui';
+} from '@alex/ui';
 import { useI18n } from '@/infrastructure/i18n/hooks/useI18n';
 import { requestSettingsDraftExit, useSettingsDraft } from '../settingsDraftRegistry';
 import {
@@ -187,10 +187,10 @@ export function MCPServerConfigDialog({ session, saving, onSave, onClose }: Prop
   }
 
   function field(label: string, key: keyof McpServerDraft, children: React.ReactNode, hint?: string) {
-    return <div className="mcp-config-editor__field" data-openbitfun-component="mcp-config-editor" data-openbitfun-part="field">
+    return <div className="mcp-config-editor__field" data-alex-component="mcp-config-editor" data-alex-part="field">
       <label htmlFor={`${controlId}-${key}`}>{label}</label>
       {children}
-      {hint && <p className="mcp-config-editor__hint" data-openbitfun-component="mcp-config-editor" data-openbitfun-part="hint">{hint}</p>}
+      {hint && <p className="mcp-config-editor__hint" data-alex-component="mcp-config-editor" data-alex-part="hint">{hint}</p>}
     </div>;
   }
 
@@ -202,9 +202,9 @@ export function MCPServerConfigDialog({ session, saving, onSave, onClose }: Prop
   function keyValues(key: 'env' | 'headers', label: string) {
     const rows = draft[key];
     const changeRow = (index: number, change: Partial<McpKeyValueRow>) => update(key, rows.map((row, i) => i === index ? { ...row, ...change } : row));
-    return <section className="mcp-config-editor__section" aria-label={label} data-openbitfun-component="mcp-config-editor" data-openbitfun-part="section">
+    return <section className="mcp-config-editor__section" aria-label={label} data-alex-component="mcp-config-editor" data-alex-part="section">
       <span>{label}</span>
-      {rows.map((row, index) => <div className="mcp-config-editor__key-value" key={index} data-openbitfun-component="mcp-config-editor" data-openbitfun-part="keyValue">
+      {rows.map((row, index) => <div className="mcp-config-editor__key-value" key={index} data-alex-component="mcp-config-editor" data-alex-part="keyValue">
         <Input size="sm" data-mcp-field={key} aria-describedby={error?.field === key ? `${controlId}-error` : undefined} aria-label={t('visual.keyLabel', { field: label, index: formatNumber(index + 1) })} value={row.key} disabled={busy} invalid={error?.field === key} placeholder={t('visual.key')} onChange={event => changeRow(index, { key: event.target.value })} />
         <Input size="sm" type="password" autoComplete="new-password" aria-label={t('visual.valueLabel', { field: label, index: formatNumber(index + 1) })} value={row.value ?? ''} disabled={busy} placeholder={row.value === undefined && row.savedValue !== undefined ? t('visual.savedValue') : t('visual.value')} onChange={event => changeRow(index, { value: event.target.value })} />
         <IconButton type="button" size="sm" aria-label={t('visual.removeRow', { index: formatNumber(index + 1) })} disabled={busy} icon={<Icon name="delete" size="sm" />} onClick={() => update(key, rows.filter((_, i) => i !== index))} />
@@ -216,30 +216,30 @@ export function MCPServerConfigDialog({ session, saving, onSave, onClose }: Prop
   return <Dialog open onOpenChange={open => { if (!open) close(); }} size="lg" closeOnEscape={!busy} closeOnPointerOutside={false}>
     <DialogHeader><DialogHeading><DialogTitle>{title}</DialogTitle></DialogHeading>{!busy && <DialogClose />}</DialogHeader>
     <DialogBody>
-      <div ref={formRef} className="mcp-config-editor" data-openbitfun-component="mcp-config-editor" data-openbitfun-part="root">
-        <p className="mcp-config-editor__hint" data-openbitfun-component="mcp-config-editor" data-openbitfun-part="hint">{t('visual.scopeHint')}</p>
+      <div ref={formRef} className="mcp-config-editor" data-alex-component="mcp-config-editor" data-alex-part="root">
+        <p className="mcp-config-editor__hint" data-alex-component="mcp-config-editor" data-alex-part="hint">{t('visual.scopeHint')}</p>
         {isImport ? <>
           <label htmlFor={`${controlId}-import`}>{t('visual.pasteConfig')}</label>
           <Textarea id={`${controlId}-import`} data-mcp-field="config" data-testid="mcp-import-input" rows={10} value={importText} disabled={busy} spellCheck={false} onChange={event => { setImportText(event.target.value); setCandidates(null); clearErrors(); }} />
-          <div className="mcp-config-editor__actions" data-openbitfun-component="mcp-config-editor" data-openbitfun-part="actions">
+          <div className="mcp-config-editor__actions" data-alex-component="mcp-config-editor" data-alex-part="actions">
             <input ref={fileRef} type="file" accept=".json,application/json" hidden aria-label={t('visual.chooseFile')} onChange={event => { void readImportFile(event.target.files?.[0]); event.target.value = ''; }} />
             <Button size="sm" variant="outline" disabled={busy} onClick={() => fileRef.current?.click()}>{t('visual.chooseFile')}</Button>
             <Button size="sm" variant="outline" data-testid="mcp-import-preview" disabled={busy || !importText.trim()} onClick={parseImport}>{t('visual.previewImport')}</Button>
           </div>
-          <p className="mcp-config-editor__hint" data-openbitfun-component="mcp-config-editor" data-openbitfun-part="hint">{t('visual.importHint')}</p>
-          {candidates?.map((candidate, index) => <div key={candidate.sourceId} className="mcp-config-editor__import-row" data-openbitfun-component="mcp-config-editor" data-openbitfun-part="importRow">
+          <p className="mcp-config-editor__hint" data-alex-component="mcp-config-editor" data-alex-part="hint">{t('visual.importHint')}</p>
+          {candidates?.map((candidate, index) => <div key={candidate.sourceId} className="mcp-config-editor__import-row" data-alex-component="mcp-config-editor" data-alex-part="importRow">
             <Checkbox checked={candidate.selected} disabled={busy} label={candidate.sourceId} onChange={event => updateCandidate(index, { selected: event.target.checked })} />
             <Input data-mcp-field="id" aria-label={t('visual.importId', { name: candidate.sourceId })} value={candidate.targetId} disabled={busy} invalid={candidate.selected && Object.prototype.hasOwnProperty.call(initial.document.mcpServers, candidate.targetId.trim())} onChange={event => updateCandidate(index, { targetId: event.target.value })} />
-            {Object.prototype.hasOwnProperty.call(initial.document.mcpServers, candidate.targetId.trim()) && <span className="mcp-config-editor__hint" data-openbitfun-component="mcp-config-editor" data-openbitfun-part="hint">{t('visual.conflictingId')}</span>}
+            {Object.prototype.hasOwnProperty.call(initial.document.mcpServers, candidate.targetId.trim()) && <span className="mcp-config-editor__hint" data-alex-component="mcp-config-editor" data-alex-part="hint">{t('visual.conflictingId')}</span>}
           </div>)}
         </> : <>
-          <div className="mcp-config-editor__actions" data-openbitfun-component="mcp-config-editor" data-openbitfun-part="actions">
+          <div className="mcp-config-editor__actions" data-alex-component="mcp-config-editor" data-alex-part="actions">
             <Button size="sm" variant="outline" data-testid="mcp-switch-editor" disabled={busy} onClick={switchEditor}>{jsonMode ? t('visual.backToForm') : t('visual.editJson')}</Button>
           </div>
           {jsonMode ? <>
             {field(t('server.id'), 'id', <Input {...inputProps('id')} value={draft.id} readOnly={!isNew} onChange={event => { setIdEdited(true); update('id', event.target.value); }} />, t('visual.idHint'))}
             <Textarea data-mcp-field="config" data-testid="mcp-server-json" aria-label={t('visual.editJson')} rows={16} value={serverJson} disabled={busy} spellCheck={false} onChange={event => { setServerJson(event.target.value); setJsonTouched(true); clearErrors(); }} />
-            <p className="mcp-config-editor__hint" data-openbitfun-component="mcp-config-editor" data-openbitfun-part="hint">{t('jsonEditor.secretWarning')}</p>
+            <p className="mcp-config-editor__hint" data-alex-component="mcp-config-editor" data-alex-part="hint">{t('jsonEditor.secretWarning')}</p>
           </> : <>
             {field(t('server.name'), 'name', <Input {...inputProps('name')} value={draft.name} onChange={event => {
               const name = event.target.value;
@@ -251,9 +251,9 @@ export function MCPServerConfigDialog({ session, saving, onSave, onClose }: Prop
             ]} onValueChange={value => update('transport', value as McpServerDraft['transport'])} />)}
             {draft.transport === 'stdio' ? <>
               {field(t('visual.command'), 'command', <Input {...inputProps('command')} value={draft.command} placeholder={t('visual.commandPlaceholder')} onChange={event => update('command', event.target.value)} />, t('visual.commandHint'))}
-              <section className="mcp-config-editor__section" aria-label={t('visual.arguments')} data-openbitfun-component="mcp-config-editor" data-openbitfun-part="section">
+              <section className="mcp-config-editor__section" aria-label={t('visual.arguments')} data-alex-component="mcp-config-editor" data-alex-part="section">
                 <span>{t('visual.arguments')}</span>
-                {draft.args.map((argument, index) => <div key={index} className="mcp-config-editor__argument" data-openbitfun-component="mcp-config-editor" data-openbitfun-part="argument">
+                {draft.args.map((argument, index) => <div key={index} className="mcp-config-editor__argument" data-alex-component="mcp-config-editor" data-alex-part="argument">
                   <Input aria-label={t('visual.argumentIndex', { index: formatNumber(index + 1) })} value={argument} disabled={busy} onChange={event => update('args', draft.args.map((item, i) => i === index ? event.target.value : item))} />
                   <IconButton size="sm" aria-label={t('visual.removeRow', { index: formatNumber(index + 1) })} disabled={busy} icon={<Icon name="delete" size="sm" />} onClick={() => update('args', draft.args.filter((_, i) => i !== index))} />
                 </div>)}
@@ -273,8 +273,8 @@ export function MCPServerConfigDialog({ session, saving, onSave, onClose }: Prop
             <div
               ref={advancedRef}
               className="mcp-config-editor__advanced"
-              data-openbitfun-component="mcp-config-editor"
-              data-openbitfun-part="advanced"
+              data-alex-component="mcp-config-editor"
+              data-alex-part="advanced"
             >
               <Disclosure
                 summary={t('visual.advanced')}
@@ -284,8 +284,8 @@ export function MCPServerConfigDialog({ session, saving, onSave, onClose }: Prop
               >
                 <div
                   className="mcp-config-editor__advanced-fields"
-                  data-openbitfun-component="mcp-config-editor"
-                  data-openbitfun-part="advancedFields"
+                  data-alex-component="mcp-config-editor"
+                  data-alex-part="advancedFields"
                 >
                   {field(t('server.id'), 'id', (
                     <Input
@@ -328,13 +328,13 @@ export function MCPServerConfigDialog({ session, saving, onSave, onClose }: Prop
                 </div>
               </Disclosure>
             </div>
-            <p className="mcp-config-editor__hint" data-openbitfun-component="mcp-config-editor" data-openbitfun-part="hint">{t('visual.credentialHint')}</p>
+            <p className="mcp-config-editor__hint" data-alex-component="mcp-config-editor" data-alex-part="hint">{t('visual.credentialHint')}</p>
           </>}
-          <p className="mcp-config-editor__hint" data-openbitfun-component="mcp-config-editor" data-openbitfun-part="hint">{isNew ? t('visual.newServerHint') : t('visual.applyHint')}</p>
+          <p className="mcp-config-editor__hint" data-alex-component="mcp-config-editor" data-alex-part="hint">{isNew ? t('visual.newServerHint') : t('visual.applyHint')}</p>
         </>}
-        {error && <p id={`${controlId}-error`} className="mcp-config-editor__error" role="alert" data-openbitfun-component="mcp-config-editor" data-openbitfun-part="error">{errorMessages[error.code]}</p>}
-        {saveFailed && <p className="mcp-config-editor__error" role="alert" data-openbitfun-component="mcp-config-editor" data-openbitfun-part="error">{t('visual.saveFailed')}</p>}
-        {fileReadFailed && <p className="mcp-config-editor__error" role="alert" data-openbitfun-component="mcp-config-editor" data-openbitfun-part="error">{t('visual.fileReadFailed')}</p>}
+        {error && <p id={`${controlId}-error`} className="mcp-config-editor__error" role="alert" data-alex-component="mcp-config-editor" data-alex-part="error">{errorMessages[error.code]}</p>}
+        {saveFailed && <p className="mcp-config-editor__error" role="alert" data-alex-component="mcp-config-editor" data-alex-part="error">{t('visual.saveFailed')}</p>}
+        {fileReadFailed && <p className="mcp-config-editor__error" role="alert" data-alex-component="mcp-config-editor" data-alex-part="error">{t('visual.fileReadFailed')}</p>}
       </div>
     </DialogBody>
     <DialogFooter separator>

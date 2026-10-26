@@ -48,7 +48,7 @@ interface DispatchObserverLease {
 }
 
 type DispatchObserverGlobal = typeof globalThis & {
-  __openbitfunDispatchJobObserverLease__?: DispatchObserverLease;
+  __alexDispatchJobObserverLease__?: DispatchObserverLease;
 };
 
 function getDispatchObserverGlobal(): DispatchObserverGlobal {
@@ -57,7 +57,7 @@ function getDispatchObserverGlobal(): DispatchObserverGlobal {
 
 export function requestDispatchJobRefresh(jobId?: string): void {
   getDispatchObserverGlobal()
-    .__openbitfunDispatchJobObserverLease__
+    .__alexDispatchJobObserverLease__
     ?.requestRefresh(jobId);
 }
 
@@ -1041,7 +1041,7 @@ async function refreshJob(
 
 export function installDispatchJobObserver(context: FlowChatContext): () => void {
   const observerGlobal = getDispatchObserverGlobal();
-  const previousLease = observerGlobal.__openbitfunDispatchJobObserverLease__;
+  const previousLease = observerGlobal.__alexDispatchJobObserverLease__;
   if (previousLease) {
     log.info('Replacing an existing dispatch job observer');
     previousLease.dispose();
@@ -1059,7 +1059,7 @@ export function installDispatchJobObserver(context: FlowChatContext): () => void
   };
   const ownsLease = (): boolean => (
     !disposed
-    && observerGlobal.__openbitfunDispatchJobObserverLease__ === lease
+    && observerGlobal.__alexDispatchJobObserverLease__ === lease
   );
 
   async function run(requestedJobId?: string): Promise<void> {
@@ -1136,8 +1136,8 @@ export function installDispatchJobObserver(context: FlowChatContext): () => void
       return;
     }
     disposed = true;
-    if (observerGlobal.__openbitfunDispatchJobObserverLease__ === lease) {
-      delete observerGlobal.__openbitfunDispatchJobObserverLease__;
+    if (observerGlobal.__alexDispatchJobObserverLease__ === lease) {
+      delete observerGlobal.__alexDispatchJobObserverLease__;
     }
     if (immediateTimer !== null) {
       clearTimeout(immediateTimer);
@@ -1155,7 +1155,7 @@ export function installDispatchJobObserver(context: FlowChatContext): () => void
     // during teardown could race whatever tears the store down next.
     cancelDispatchTranscriptSaves();
   }
-  observerGlobal.__openbitfunDispatchJobObserverLease__ = lease;
+  observerGlobal.__alexDispatchJobObserverLease__ = lease;
 
   interval = setInterval(() => {
     void run();

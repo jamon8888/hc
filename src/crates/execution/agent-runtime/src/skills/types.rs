@@ -142,7 +142,7 @@ impl SkillInfo {
         };
         matches!(
             source,
-            "" | "openbitfun" | "openbitfun-system" | "openbitfun-user"
+            "" | "alex" | "alex-system" | "alex-user"
         )
     }
 

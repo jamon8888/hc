@@ -9,7 +9,7 @@ const orchestration = process.argv.includes('--orchestration') || process.argv.i
 const semantic = process.argv.includes('--semantic') || orchestration;
 assert.ok(process.argv.length === 2 || (process.argv.length === 3 && semantic), 'Usage: node scripts/test-macos-input-controls.mjs [--semantic | --orchestration]');
 const root = fileURLToPath(new URL('../', import.meta.url));
-const directory = await mkdtemp(join(tmpdir(), 'openbitfun-directed-input-'));
+const directory = await mkdtemp(join(tmpdir(), 'alex-directed-input-'));
 const run = (command, args, env = process.env, onSpawn) => new Promise((resolve, reject) => {
   const child = spawn(command, args, { cwd: root, stdio: 'inherit', windowsHide: true, env });
   onSpawn?.(child);
@@ -34,10 +34,10 @@ try {
   await run('xcrun', ['clang', '-fobjc-arc', '-Wall', '-Werror', 'scripts/fixtures/computer-use-input-controls.m', '-framework', 'AppKit', '-o', binary]);
   // Build before opening either fixture window, so compiler latency never
   // leaves the foreground observer sitting above the user's work.
-  let testBinary = process.env.OPENBITFUN_TEST_BINARY;
+  let testBinary = process.env.ALEX_TEST_BINARY;
   if (!testBinary) {
     testBinary = await new Promise((resolve, reject) => {
-      const build = spawn('cargo', ['test', '-p', 'openbitfun-desktop', ...(orchestration ? ['--features', 'devtools', '--test', 'computer_use_native_roundtrip'] : ['--lib']), '--no-run', '--message-format=json'], {
+      const build = spawn('cargo', ['test', '-p', 'alex-desktop', ...(orchestration ? ['--features', 'devtools', '--test', 'computer_use_native_roundtrip'] : ['--lib']), '--no-run', '--message-format=json'], {
         cwd: root, stdio: ['ignore', 'pipe', 'inherit'], windowsHide: true,
       });
       let pending = '';
@@ -48,7 +48,7 @@ try {
         pending = lines.pop();
         for (const line of lines) {
           const message = JSON.parse(line);
-          if (message.reason === 'compiler-artifact' && message.target.name === (orchestration ? 'computer_use_native_roundtrip' : 'openbitfun_desktop_lib') && message.executable) executable = message.executable;
+          if (message.reason === 'compiler-artifact' && message.target.name === (orchestration ? 'computer_use_native_roundtrip' : 'alex_desktop_lib') && message.executable) executable = message.executable;
           if (message.reason === 'compiler-message' && message.message.rendered) process.stderr.write(message.message.rendered);
         }
       });
@@ -56,8 +56,8 @@ try {
       build.once('close', code => code === 0 && executable ? resolve(executable) : reject(new Error(`Test build failed (${code}) or produced no executable`)));
     });
   }
-  const targetBinary = await bundleExecutable('OpenBitFun Input Target', 'dev.openbitfun.input-fixture.target');
-  const observerBinary = await bundleExecutable('OpenBitFun Input Observer', 'dev.openbitfun.input-fixture.observer');
+  const targetBinary = await bundleExecutable('Alex Input Target', 'dev.alex.input-fixture.target');
+  const observerBinary = await bundleExecutable('Alex Input Observer', 'dev.alex.input-fixture.observer');
   await run(binary, ['--wait-input-idle', '20']);
   fixture = spawn(targetBinary, [result], { cwd: root, stdio: ['ignore', 'pipe', 'inherit'], windowsHide: true });
   const [pid] = await new Promise((resolve, reject) => {
@@ -74,9 +74,9 @@ try {
   const initialWindow = JSON.parse(await readFile(result, 'utf8')).window_id;
   const hostReady = join(directory, 'host-ready');
   const testEnvironment = {
-    ...process.env, OPENBITFUN_INPUT_FIXTURE_PID: pid,
-    OPENBITFUN_INPUT_FIXTURE_RESULT: result, OPENBITFUN_INPUT_OBSERVER_RESULT: `${result}.observer`,
-    OPENBITFUN_INPUT_HOST_READY: hostReady,
+    ...process.env, ALEX_INPUT_FIXTURE_PID: pid,
+    ALEX_INPUT_FIXTURE_RESULT: result, ALEX_INPUT_OBSERVER_RESULT: `${result}.observer`,
+    ALEX_INPUT_HOST_READY: hostReady,
   };
   // Initialize AppKit before creating the foreground observer. Otherwise the
   // test host's own startup can deactivate it before the first tool action.
@@ -94,7 +94,7 @@ try {
   // Recheck immediately before foreground activation; the first gate ran
   // before target/host startup. A busy desktop is inconclusive, never PASS.
   await run(binary, ['--wait-input-idle', '5']);
-  observer = spawn(observerBinary, ['--observer', `${result}.observer`, String(initialWindow)], { cwd: root, stdio: ['ignore', 'pipe', 'inherit'], windowsHide: true, env: { ...process.env, OPENBITFUN_INPUT_COVER_TARGET: semantic ? '1' : '0' } });
+  observer = spawn(observerBinary, ['--observer', `${result}.observer`, String(initialWindow)], { cwd: root, stdio: ['ignore', 'pipe', 'inherit'], windowsHide: true, env: { ...process.env, ALEX_INPUT_COVER_TARGET: semantic ? '1' : '0' } });
   await new Promise((resolve, reject) => {
     const timer = setTimeout(() => reject(new Error('Observer not ready')), 10000);
     observer.stdout.on('data', chunk => { process.stdout.write(String(chunk)); if (String(chunk).includes('READY')) { clearTimeout(timer); resolve(); } });
@@ -106,7 +106,7 @@ try {
     const error = await orchestrationResult;
     if (error) throw error;
   } else {
-    await run(testBinary, testArgs, { ...testEnvironment, OPENBITFUN_INPUT_OBSERVER_PID: String(observer.pid) });
+    await run(testBinary, testArgs, { ...testEnvironment, ALEX_INPUT_OBSERVER_PID: String(observer.pid) });
   }
   // Allow the observer's independent sampling timer to publish the final state.
   await new Promise(resolve => setTimeout(resolve, 90));

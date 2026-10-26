@@ -4,16 +4,16 @@
 
 .skill-group-summary {
   &__count {
-    color: var(--openbitfun-color-content-muted);
-    font-size: var(--openbitfun-type-meta-font-size);
-    line-height: var(--openbitfun-type-meta-line-height);
+    color: var(--alex-color-content-muted);
+    font-size: var(--alex-type-meta-font-size);
+    line-height: var(--alex-type-meta-line-height);
     font-variant-numeric: tabular-nums;
   }
 
   &__skills {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
-    gap: var(--openbitfun-space-3);
+    gap: var(--alex-space-3);
   }
 
   &__item {
@@ -21,13 +21,13 @@
     min-inline-size: 0;
     align-items: flex-start;
     flex-direction: column;
-    gap: var(--openbitfun-space-1);
-    font-size: var(--openbitfun-type-label-md-font-size);
-    line-height: var(--openbitfun-type-label-md-line-height);
+    gap: var(--alex-space-1);
+    font-size: var(--alex-type-label-md-font-size);
+    line-height: var(--alex-type-label-md-line-height);
   }
 }
 
 .skill-group-picker__unavailable {
-  color: var(--openbitfun-color-content-muted);
-  font-size: var(--openbitfun-type-meta-font-size);
+  color: var(--alex-color-content-muted);
+  font-size: var(--alex-type-meta-font-size);
 }

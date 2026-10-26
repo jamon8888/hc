@@ -1870,9 +1870,9 @@ Print the branch name, remote URL, and instruct the user to create the PR/MR man
 ## Step 8.5: Auto-invoke /document-release
 
 After the PR is created, automatically sync project documentation. Load
-`user::openbitfun-system::gstack-document-release` with the Skill tool and execute its full workflow:
+`user::alex-system::gstack-document-release` with the Skill tool and execute its full workflow:
 
-1. Load `user::openbitfun-system::gstack-document-release` with the Skill tool.
+1. Load `user::alex-system::gstack-document-release` with the Skill tool.
 2. Follow its instructions — it reads all .md files in the project, cross-references
    the diff, and updates anything that drifted (README, ARCHITECTURE, CONTRIBUTING,
    AGENTS.md, TODOS, etc.)

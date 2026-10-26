@@ -31,8 +31,8 @@ describe('AppearanceCompiler', () => {
 
     expect(snapshot.id).toBe(openBitFunDarkPalette.id);
     expect(snapshot.revision).toBe(3);
-    expect(snapshot.cssText).toContain('--openbitfun-appearance-colors-bg-primary');
-    expect(snapshot.cssText).not.toContain('[data-openbitfun-component="card"]');
+    expect(snapshot.cssText).toContain('--alex-appearance-colors-bg-primary');
+    expect(snapshot.cssText).not.toContain('[data-alex-component="card"]');
     expect(snapshot.cssText).not.toContain('@layer');
     expect(snapshot.cssText).not.toContain(' !important;');
     expect(snapshot.cssText).not.toContain('.btn-primary');
@@ -40,7 +40,7 @@ describe('AppearanceCompiler', () => {
 
   it('keeps product Appearance selectors distinct from design-system anatomy', () => {
     const pkg: AppearancePackage = {
-      schema: 'openbitfun.appearance',
+      schema: 'alex.appearance',
       schemaVersion: APPEARANCE_SCHEMA_VERSION,
       id: 'test.product-surface',
       name: 'Product Surface',
@@ -58,17 +58,17 @@ describe('AppearanceCompiler', () => {
     const snapshot = new AppearanceCompiler(createDefaultAppearanceRegistry()).compile(pkg, 1);
 
     expect(snapshot.cssText).toContain(
-      '[data-openbitfun-product-component="user-message-edit-composer"]'
-      + '[data-openbitfun-product-part="root"]',
+      '[data-alex-product-component="user-message-edit-composer"]'
+      + '[data-alex-product-part="root"]',
     );
     expect(snapshot.cssText).not.toContain(
-      '[data-openbitfun-component="user-message-edit-composer"][data-openbitfun-part="root"]',
+      '[data-alex-component="user-message-edit-composer"][data-alex-part="root"]',
     );
   });
 
   it('targets the renamed context picker for legacy file-picker Appearance packages', () => {
     const pkg: AppearancePackage = {
-      schema: 'openbitfun.appearance',
+      schema: 'alex.appearance',
       schemaVersion: APPEARANCE_SCHEMA_VERSION,
       id: 'test.legacy-context-picker',
       name: 'Legacy Context Picker',
@@ -86,16 +86,16 @@ describe('AppearanceCompiler', () => {
     const snapshot = new AppearanceCompiler(createDefaultAppearanceRegistry()).compile(pkg, 1);
 
     expect(snapshot.cssText).toContain(
-      '[data-openbitfun-component="chat-context-picker"][data-openbitfun-part="root"]',
+      '[data-alex-component="chat-context-picker"][data-alex-part="root"]',
     );
     expect(snapshot.cssText).not.toContain(
-      '[data-openbitfun-component="file-mention-picker"]',
+      '[data-alex-component="file-mention-picker"]',
     );
   });
 
   it('rejects retired Settings surface ids without rewriting the package', () => {
     const pkg: AppearancePackage = {
-      schema: 'openbitfun.appearance',
+      schema: 'alex.appearance',
       schemaVersion: 2,
       id: 'test.legacy-settings-surface',
       name: 'Legacy Settings Surface',
@@ -143,7 +143,7 @@ describe('AppearanceCompiler', () => {
 
   it('rejects retired split execution facets without rewriting the package', () => {
     const pkg: AppearancePackage = {
-      schema: 'openbitfun.appearance',
+      schema: 'alex.appearance',
       schemaVersion: 2,
       id: 'test.split-execution-settings',
       name: 'Split Execution Settings',
@@ -171,7 +171,7 @@ describe('AppearanceCompiler', () => {
 
   it('rejects retired appearance Settings parts without rewriting the package', () => {
     const pkg: AppearancePackage = {
-      schema: 'openbitfun.appearance',
+      schema: 'alex.appearance',
       schemaVersion: 2,
       id: 'test.legacy-appearance-settings-cards',
       name: 'Legacy Appearance Settings Cards',
@@ -195,7 +195,7 @@ describe('AppearanceCompiler', () => {
     const visible = { kind: 'number', value: 0.9 } as const;
     const retired = { kind: 'number', value: 0.4 } as const;
     const pkg: AppearancePackage = {
-      schema: 'openbitfun.appearance',
+      schema: 'alex.appearance',
       schemaVersion: 2,
       id: 'test.retired-product-actions',
       name: 'Retired Product Actions',
@@ -242,7 +242,7 @@ describe('AppearanceCompiler', () => {
   it('rejects retired component surfaces without rewriting the package', () => {
     const visible = { kind: 'number', value: 0.9 } as const;
     const pkg: AppearancePackage = {
-      schema: 'openbitfun.appearance',
+      schema: 'alex.appearance',
       schemaVersion: 2,
       id: 'test.retired-component-surfaces',
       name: 'Retired Component Surfaces',
@@ -263,7 +263,7 @@ describe('AppearanceCompiler', () => {
   it('compiles canonical Settings surface ids', () => {
     const accent = { kind: 'hex', value: '#4488ff' } as const;
     const pkg: AppearancePackage = {
-      schema: 'openbitfun.appearance',
+      schema: 'alex.appearance',
       schemaVersion: APPEARANCE_SCHEMA_VERSION,
       id: 'test.settings-surfaces',
       name: 'Settings Surfaces',
@@ -281,11 +281,11 @@ describe('AppearanceCompiler', () => {
     };
 
     const snapshot = new AppearanceCompiler(createDefaultAppearanceRegistry()).compile(pkg, 1);
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="application-settings"][data-openbitfun-part="notifications"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="model-settings"][data-openbitfun-part="root"][data-openbitfun-view="selection"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="appearance-settings"][data-openbitfun-part="root"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="runtime-settings"][data-openbitfun-part="petTrigger"][data-openbitfun-state~="expanded"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="worktree-settings"][data-openbitfun-part="results"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="application-settings"][data-alex-part="notifications"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="model-settings"][data-alex-part="root"][data-alex-view="selection"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="appearance-settings"][data-alex-part="root"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="runtime-settings"][data-alex-part="petTrigger"][data-alex-state~="expanded"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="worktree-settings"][data-alex-part="results"]');
   });
 
   it('compiles every built-in appearance without raw CSS passthrough', () => {
@@ -310,7 +310,7 @@ describe('AppearanceCompiler', () => {
 
   it('calculates real contrast diagnostics for structured colors', () => {
     const pkg: AppearancePackage = {
-      schema: 'openbitfun.appearance',
+      schema: 'alex.appearance',
       schemaVersion: APPEARANCE_SCHEMA_VERSION,
       id: 'test.low-contrast',
       name: 'Low Contrast',
@@ -337,7 +337,7 @@ describe('AppearanceCompiler', () => {
 
   it('uses important declarations only for explicitly overriding parts', () => {
     const pkg: AppearancePackage = {
-      schema: 'openbitfun.appearance',
+      schema: 'alex.appearance',
       schemaVersion: APPEARANCE_SCHEMA_VERSION,
       id: 'test.cascade-override',
       name: 'Cascade Override',
@@ -361,7 +361,7 @@ describe('AppearanceCompiler', () => {
 
   it('keeps non-forceable layout declarations in the normal cascade', () => {
     const pkg: AppearancePackage = {
-      schema: 'openbitfun.appearance',
+      schema: 'alex.appearance',
       schemaVersion: APPEARANCE_SCHEMA_VERSION,
       id: 'test.property-level-override',
       name: 'Property Level Override',
@@ -393,7 +393,7 @@ describe('AppearanceCompiler', () => {
 
   it('normalizes side borders and outlines into deterministic CSS', () => {
     const pkg: AppearancePackage = {
-      schema: 'openbitfun.appearance',
+      schema: 'alex.appearance',
       schemaVersion: APPEARANCE_SCHEMA_VERSION,
       id: 'test.border-normalization',
       name: 'Border Normalization',
@@ -426,7 +426,7 @@ describe('AppearanceCompiler', () => {
 
   it('combines materials in declaration order before applying the part base', () => {
     const pkg: AppearancePackage = {
-      schema: 'openbitfun.appearance',
+      schema: 'alex.appearance',
       schemaVersion: APPEARANCE_SCHEMA_VERSION,
       id: 'test.material-composition',
       name: 'Material Composition',
@@ -468,7 +468,7 @@ describe('AppearanceCompiler', () => {
 
   it('does not synthesize retired component baselines for an explicit product-surface override', () => {
     const pkg: AppearancePackage = {
-      schema: 'openbitfun.appearance',
+      schema: 'alex.appearance',
       schemaVersion: APPEARANCE_SCHEMA_VERSION,
       id: 'test.layered-cascade',
       name: 'Layered Cascade',
@@ -496,7 +496,7 @@ describe('AppearanceCompiler', () => {
 
   it('compiles structured layout, media, transform, and filter values without CSS passthrough', () => {
     const pkg: AppearancePackage = {
-      schema: 'openbitfun.appearance',
+      schema: 'alex.appearance',
       schemaVersion: APPEARANCE_SCHEMA_VERSION,
       id: 'test.structured-style',
       name: 'Structured Style',
@@ -548,7 +548,7 @@ describe('AppearanceCompiler', () => {
 
   it('compiles layered package assets into aligned host-owned background declarations', () => {
     const pkg: AppearancePackage = {
-      schema: 'openbitfun.appearance',
+      schema: 'alex.appearance',
       schemaVersion: APPEARANCE_SCHEMA_VERSION,
       id: 'test.layered-backgrounds',
       name: 'Layered Backgrounds',
@@ -590,7 +590,7 @@ describe('AppearanceCompiler', () => {
 
     const snapshot = new AppearanceCompiler(createDefaultAppearanceRegistry()).compile(pkg, 1);
     expect(snapshot.cssText).toContain(
-      'background-image:var(--openbitfun-appearance-asset-ornament, none), var(--openbitfun-appearance-asset-texture, none), var(--openbitfun-appearance-asset-backdrop, none);',
+      'background-image:var(--alex-appearance-asset-ornament, none), var(--alex-appearance-asset-texture, none), var(--alex-appearance-asset-backdrop, none);',
     );
     expect(snapshot.cssText).toContain('background-size:96px auto, 256px auto, cover;');
     expect(snapshot.cssText).toContain('background-position:100% 100%, 0% 0%, 65% 50%;');
@@ -615,7 +615,7 @@ describe('AppearanceCompiler', () => {
       })
       .freeze();
     const pkg: AppearancePackage = {
-      schema: 'openbitfun.appearance',
+      schema: 'alex.appearance',
       schemaVersion: APPEARANCE_SCHEMA_VERSION,
       id: 'test.ancestor-state',
       name: 'Ancestor State',
@@ -636,14 +636,14 @@ describe('AppearanceCompiler', () => {
 
     const snapshot = new AppearanceCompiler(registry).compile(pkg, 1);
     expect(snapshot.cssText).toContain(
-      '[data-openbitfun-component="checkbox"][data-openbitfun-part="root"]:has(input:checked) [data-openbitfun-component="checkbox"][data-openbitfun-part="box"]',
+      '[data-alex-component="checkbox"][data-alex-part="root"]:has(input:checked) [data-alex-component="checkbox"][data-alex-part="box"]',
     );
   });
 
   it('targets multiple parts, facets, and states across complex product surfaces', () => {
     const accent = { kind: 'hex', value: '#ff3366' } as const;
     const pkg: AppearancePackage = {
-      schema: 'openbitfun.appearance',
+      schema: 'alex.appearance',
       schemaVersion: APPEARANCE_SCHEMA_VERSION,
       id: 'test.product-surfaces',
       name: 'Product Surfaces',
@@ -683,17 +683,17 @@ describe('AppearanceCompiler', () => {
     };
 
     const snapshot = new AppearanceCompiler(createDefaultAppearanceRegistry()).compile(pkg, 1);
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="about-dialog"][data-openbitfun-part="hero"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="about-dialog"][data-openbitfun-part="updateCard"][data-openbitfun-state~="downloading"] [data-openbitfun-component="about-dialog"][data-openbitfun-part="progressFill"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="nav-panel"][data-openbitfun-part="topAction"][data-openbitfun-action="new-session"][data-openbitfun-state~="active"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="canvas-editor-area"][data-openbitfun-part="root"][data-openbitfun-layout="grid"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-product-component="canvas-tab"][data-openbitfun-product-part="root"][data-openbitfun-state~="active"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="about-dialog"][data-alex-part="hero"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="about-dialog"][data-alex-part="updateCard"][data-alex-state~="downloading"] [data-alex-component="about-dialog"][data-alex-part="progressFill"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="nav-panel"][data-alex-part="topAction"][data-alex-action="new-session"][data-alex-state~="active"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="canvas-editor-area"][data-alex-part="root"][data-alex-layout="grid"]');
+    expect(snapshot.cssText).toContain('[data-alex-product-component="canvas-tab"][data-alex-product-part="root"][data-alex-state~="active"]');
   });
 
   it('compiles dedicated contracts for large interactive owners', () => {
     const accent = { kind: 'hex', value: '#33ffaa' } as const;
     const pkg: AppearancePackage = {
-      schema: 'openbitfun.appearance',
+      schema: 'alex.appearance',
       schemaVersion: APPEARANCE_SCHEMA_VERSION,
       id: 'test.large-owners',
       name: 'Large Owners',
@@ -997,70 +997,70 @@ describe('AppearanceCompiler', () => {
     };
 
     const snapshot = new AppearanceCompiler(createDefaultAppearanceRegistry()).compile(pkg, 1);
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="chat-input"][data-openbitfun-part="target"][data-openbitfun-target="btw"][data-openbitfun-state~="selected"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="virtual-message-list"][data-openbitfun-part="boundaryStatus"][data-openbitfun-state~="unavailable"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="model-settings"][data-openbitfun-part="root"][data-openbitfun-view="selection"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-product-component="external-sources-config"][data-openbitfun-product-part="conflict"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-product-component="review-platform"][data-openbitfun-product-part="listItem"][data-openbitfun-state~="selected"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="modern-flow-chat"][data-openbitfun-part="historyOpenIntent"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="runtime-settings"][data-openbitfun-part="petTrigger"][data-openbitfun-state~="expanded"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="mcp-tools-config"][data-openbitfun-part="root"][data-openbitfun-view="json"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="mcp-tools-config"][data-openbitfun-part="authEditor"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="sessions-section"][data-openbitfun-part="row"][data-openbitfun-state~="active"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="files-panel"][data-openbitfun-part="search"][data-openbitfun-search-mode="content"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="remote-connect-dialog"][data-openbitfun-part="sidebar"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="remote-connect-dialog"][data-openbitfun-part="overviewAction"][data-openbitfun-group="account"][data-openbitfun-state~="authenticated"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-scene="agents"][data-openbitfun-part="catalogGrid"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-product-component="session-usage-panel"][data-openbitfun-product-part="tab"][data-openbitfun-tab="models"][data-openbitfun-state~="active"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="acp-agents-config"][data-openbitfun-part="root"][data-openbitfun-view="json"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="acp-agents-config"][data-openbitfun-part="remoteServer"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="tiptap-editor"][data-openbitfun-part="inlineAiPanel"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="scheduled-jobs-view"][data-openbitfun-part="root"][data-openbitfun-target="workspace"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="scheduled-jobs-view"][data-openbitfun-part="job"][data-openbitfun-state~="expanded"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-product-component="deep-review-action-bar"][data-openbitfun-product-part="root"][data-openbitfun-phase="review_completed"][data-openbitfun-variant="success"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="rich-text-input"][data-openbitfun-part="contextTag"][data-openbitfun-context-type="widget-reference"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-product-component="model-round-item"][data-openbitfun-product-part="root"][data-openbitfun-status="streaming"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-product-component="model-round-item"][data-openbitfun-product-part="action"][data-openbitfun-state~="copied"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="flexible-panel"][data-openbitfun-part="code"][data-openbitfun-state~="needsFix"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="btw-session-panel"][data-openbitfun-part="root"][data-openbitfun-view="session"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="model-selector"][data-openbitfun-part="trigger"][data-openbitfun-state~="open"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="session-files-badge"][data-openbitfun-part="file"][data-openbitfun-operation="modify"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="code-review-tool-card"][data-openbitfun-part="group"][data-openbitfun-state~="expanded"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="create-agent-page"][data-openbitfun-part="levelOption"][data-openbitfun-state~="active"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="keyboard-shortcuts"][data-openbitfun-part="item"][data-openbitfun-state~="recording"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="task-tool-display"][data-openbitfun-part="root"][data-openbitfun-state~="failed"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="application-settings"][data-openbitfun-part="notifications"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-product-component="markdown-editor"][data-openbitfun-product-part="root"][data-openbitfun-view="source"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="plan-viewer"][data-openbitfun-part="editorPanel"][data-openbitfun-state~="expanded"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="terminal-tool"][data-openbitfun-part="screen"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="app-layout"][data-openbitfun-part="root"][data-openbitfun-state~="toolbar"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-product-component="skill-group-picker"][data-openbitfun-product-part="token"][data-openbitfun-state~="selected"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="working-copy-view"][data-openbitfun-part="file"][data-openbitfun-state~="selected"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="assistant-config-page"][data-openbitfun-part="persona"][data-openbitfun-state~="selected"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="assistant-defaults-page"][data-openbitfun-part="skill"][data-openbitfun-state~="covered"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-product-component="task-detail-panel"][data-openbitfun-product-part="root"][data-openbitfun-state~="empty"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-product-component="toolbar-mode"][data-openbitfun-product-part="root"][data-openbitfun-state~="expanded"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="mcp-tool-display"][data-openbitfun-part="expanded"][data-openbitfun-state~="expanded"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="skills-config"][data-openbitfun-part="marketItem"][data-openbitfun-state~="installed"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="diff-editor"][data-openbitfun-part="loading"][data-openbitfun-state~="loading"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="agent-companion-desktop-pet"][data-openbitfun-part="hitbox"][data-openbitfun-state~="attention"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-product-component="tool-group-picker"][data-openbitfun-product-part="token"][data-openbitfun-state~="selected"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="inline-diff-preview"][data-openbitfun-part="root"][data-openbitfun-state~="empty"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-product-component="export-image"][data-openbitfun-product-part="trigger"][data-openbitfun-state~="exporting"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-product-component="user-message-item"][data-openbitfun-product-part="root"][data-openbitfun-state~="failed"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="session-usage-report-card"][data-openbitfun-part="loading"][data-openbitfun-state~="loading"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="create-plan-display"][data-openbitfun-part="todos"][data-openbitfun-state~="expanded"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="workspace-project-permissions-dialog"][data-openbitfun-part="rule"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="workspace-session-batch-modal"][data-openbitfun-part="row"][data-openbitfun-state~="selected"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="archived-sessions-config"][data-openbitfun-part="group"][data-openbitfun-state~="collapsed"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="settings-nav"][data-openbitfun-part="item"][data-openbitfun-state~="active"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="background-command-output-panel"][data-openbitfun-part="root"][data-openbitfun-state~="error"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="chat-input-pixel-pet"][data-openbitfun-part="root"][data-openbitfun-mood="working"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="chat-context-picker"][data-openbitfun-part="root"][data-openbitfun-state~="loading"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="session-file-modifications-bar"][data-openbitfun-part="file"][data-openbitfun-operation="edit"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-product-component="editor-breadcrumb"][data-openbitfun-product-part="item"][data-openbitfun-state~="active"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="git-branch-history"][data-openbitfun-part="commit"][data-openbitfun-state~="expanded"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="git-diff-view"][data-openbitfun-part="file"][data-openbitfun-state~="expanded"]');
-    expect(snapshot.cssText).toContain('[data-openbitfun-component="git-settings-view"][data-openbitfun-part="status"][data-openbitfun-state~="error"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="chat-input"][data-alex-part="target"][data-alex-target="btw"][data-alex-state~="selected"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="virtual-message-list"][data-alex-part="boundaryStatus"][data-alex-state~="unavailable"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="model-settings"][data-alex-part="root"][data-alex-view="selection"]');
+    expect(snapshot.cssText).toContain('[data-alex-product-component="external-sources-config"][data-alex-product-part="conflict"]');
+    expect(snapshot.cssText).toContain('[data-alex-product-component="review-platform"][data-alex-product-part="listItem"][data-alex-state~="selected"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="modern-flow-chat"][data-alex-part="historyOpenIntent"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="runtime-settings"][data-alex-part="petTrigger"][data-alex-state~="expanded"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="mcp-tools-config"][data-alex-part="root"][data-alex-view="json"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="mcp-tools-config"][data-alex-part="authEditor"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="sessions-section"][data-alex-part="row"][data-alex-state~="active"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="files-panel"][data-alex-part="search"][data-alex-search-mode="content"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="remote-connect-dialog"][data-alex-part="sidebar"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="remote-connect-dialog"][data-alex-part="overviewAction"][data-alex-group="account"][data-alex-state~="authenticated"]');
+    expect(snapshot.cssText).toContain('[data-alex-scene="agents"][data-alex-part="catalogGrid"]');
+    expect(snapshot.cssText).toContain('[data-alex-product-component="session-usage-panel"][data-alex-product-part="tab"][data-alex-tab="models"][data-alex-state~="active"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="acp-agents-config"][data-alex-part="root"][data-alex-view="json"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="acp-agents-config"][data-alex-part="remoteServer"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="tiptap-editor"][data-alex-part="inlineAiPanel"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="scheduled-jobs-view"][data-alex-part="root"][data-alex-target="workspace"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="scheduled-jobs-view"][data-alex-part="job"][data-alex-state~="expanded"]');
+    expect(snapshot.cssText).toContain('[data-alex-product-component="deep-review-action-bar"][data-alex-product-part="root"][data-alex-phase="review_completed"][data-alex-variant="success"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="rich-text-input"][data-alex-part="contextTag"][data-alex-context-type="widget-reference"]');
+    expect(snapshot.cssText).toContain('[data-alex-product-component="model-round-item"][data-alex-product-part="root"][data-alex-status="streaming"]');
+    expect(snapshot.cssText).toContain('[data-alex-product-component="model-round-item"][data-alex-product-part="action"][data-alex-state~="copied"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="flexible-panel"][data-alex-part="code"][data-alex-state~="needsFix"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="btw-session-panel"][data-alex-part="root"][data-alex-view="session"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="model-selector"][data-alex-part="trigger"][data-alex-state~="open"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="session-files-badge"][data-alex-part="file"][data-alex-operation="modify"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="code-review-tool-card"][data-alex-part="group"][data-alex-state~="expanded"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="create-agent-page"][data-alex-part="levelOption"][data-alex-state~="active"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="keyboard-shortcuts"][data-alex-part="item"][data-alex-state~="recording"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="task-tool-display"][data-alex-part="root"][data-alex-state~="failed"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="application-settings"][data-alex-part="notifications"]');
+    expect(snapshot.cssText).toContain('[data-alex-product-component="markdown-editor"][data-alex-product-part="root"][data-alex-view="source"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="plan-viewer"][data-alex-part="editorPanel"][data-alex-state~="expanded"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="terminal-tool"][data-alex-part="screen"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="app-layout"][data-alex-part="root"][data-alex-state~="toolbar"]');
+    expect(snapshot.cssText).toContain('[data-alex-product-component="skill-group-picker"][data-alex-product-part="token"][data-alex-state~="selected"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="working-copy-view"][data-alex-part="file"][data-alex-state~="selected"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="assistant-config-page"][data-alex-part="persona"][data-alex-state~="selected"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="assistant-defaults-page"][data-alex-part="skill"][data-alex-state~="covered"]');
+    expect(snapshot.cssText).toContain('[data-alex-product-component="task-detail-panel"][data-alex-product-part="root"][data-alex-state~="empty"]');
+    expect(snapshot.cssText).toContain('[data-alex-product-component="toolbar-mode"][data-alex-product-part="root"][data-alex-state~="expanded"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="mcp-tool-display"][data-alex-part="expanded"][data-alex-state~="expanded"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="skills-config"][data-alex-part="marketItem"][data-alex-state~="installed"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="diff-editor"][data-alex-part="loading"][data-alex-state~="loading"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="agent-companion-desktop-pet"][data-alex-part="hitbox"][data-alex-state~="attention"]');
+    expect(snapshot.cssText).toContain('[data-alex-product-component="tool-group-picker"][data-alex-product-part="token"][data-alex-state~="selected"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="inline-diff-preview"][data-alex-part="root"][data-alex-state~="empty"]');
+    expect(snapshot.cssText).toContain('[data-alex-product-component="export-image"][data-alex-product-part="trigger"][data-alex-state~="exporting"]');
+    expect(snapshot.cssText).toContain('[data-alex-product-component="user-message-item"][data-alex-product-part="root"][data-alex-state~="failed"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="session-usage-report-card"][data-alex-part="loading"][data-alex-state~="loading"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="create-plan-display"][data-alex-part="todos"][data-alex-state~="expanded"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="workspace-project-permissions-dialog"][data-alex-part="rule"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="workspace-session-batch-modal"][data-alex-part="row"][data-alex-state~="selected"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="archived-sessions-config"][data-alex-part="group"][data-alex-state~="collapsed"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="settings-nav"][data-alex-part="item"][data-alex-state~="active"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="background-command-output-panel"][data-alex-part="root"][data-alex-state~="error"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="chat-input-pixel-pet"][data-alex-part="root"][data-alex-mood="working"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="chat-context-picker"][data-alex-part="root"][data-alex-state~="loading"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="session-file-modifications-bar"][data-alex-part="file"][data-alex-operation="edit"]');
+    expect(snapshot.cssText).toContain('[data-alex-product-component="editor-breadcrumb"][data-alex-product-part="item"][data-alex-state~="active"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="git-branch-history"][data-alex-part="commit"][data-alex-state~="expanded"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="git-diff-view"][data-alex-part="file"][data-alex-state~="expanded"]');
+    expect(snapshot.cssText).toContain('[data-alex-component="git-settings-view"][data-alex-part="status"][data-alex-state~="error"]');
   });
 });

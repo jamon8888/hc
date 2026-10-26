@@ -1,7 +1,7 @@
 #![recursion_limit = "512"]
 
 //! Phase 2 integration tests: the generic app-server role exposes real
-//! `openbitfun_agent_runtime` SDK operations over the in-memory channel transport.
+//! `alex_agent_runtime` SDK operations over the in-memory channel transport.
 //!
 //! The mock provider only implements `AgentSubmissionPort` (the port behind
 //! `run`, `create_session`, and `submit_turn`), matching `sdk_minimal.rs`. The
@@ -9,7 +9,7 @@
 //! separate ports; without them injected the runtime returns a missing-port
 //! error, which these tests assert maps to an error at the JSON-RPC boundary.
 //!
-//! Each `on_receive_request` on `OpenBitFunAppServer::serve` chains a
+//! Each `on_receive_request` on `AlexAppServer::serve` chains a
 //! `ChainedHandler` layer; the full agent-kernel + permission + git + config
 //! surface now monomorphizes into a handler tower deeper than the default
 //! recursion limit when this test instantiates the connection. The lifted
@@ -20,8 +20,8 @@ use std::time::Duration;
 
 use agent_client_protocol::{ConnectionTo, ErrorCode, SentRequest};
 use async_trait::async_trait;
-use openbitfun_agent_runtime::event_queue::{EventQueue, EventQueueConfig};
-use openbitfun_agent_runtime::sdk::{
+use alex_agent_runtime::event_queue::{EventQueue, EventQueueConfig};
+use alex_agent_runtime::sdk::{
     AgentEventSource, AgentEventStream, AgentRuntimeBuilder, AgentSessionArchiveStateRequest,
     AgentSessionCreateRequest, AgentSessionCreateResult, AgentSessionDeleteRequest,
     AgentSessionForkAtTurnRequest, AgentSessionForkPort, AgentSessionForkRequest,
@@ -34,7 +34,7 @@ use openbitfun_agent_runtime::sdk::{
     AgentSubmissionResult, AgentSubmissionSource, AgentTurnCancellationRequest, AgenticEvent,
     PortResult, ProcessingPhase, SessionState,
 };
-use openbitfun_app_server::schema::{
+use alex_app_server::schema::{
     CancelTurnMessage, CreateSessionMessage, CreateSessionResponse, DeleteSessionMessage,
     ForkSessionAtTurnMessage, ForkSessionResponse, ListSessionsMessage, RenameSessionMessage,
     RenameSessionResponse, RespondPermissionMessage, RestoreSessionMessage, RunMessage,
@@ -43,19 +43,19 @@ use openbitfun_app_server::schema::{
     SubmitDialogTurnResponse, SubmitTurnMessage, SubmitTurnResponse, UpdateSessionModeMessage,
     UpdateSessionModeResponse, UpdateSessionModelMessage, UpdateSessionModelResponse,
 };
-use openbitfun_app_server::{
-    transport, AppClient, AppServer, OpenBitFunAppRuntime, OpenBitFunAppServer,
+use alex_app_server::{
+    transport, AppClient, AppServer, AlexAppRuntime, AlexAppServer,
 };
-use openbitfun_app_server_protocol::agent as protocol_agent;
-use openbitfun_app_server_protocol::app::{ClientInfo, HealthStatus, InitializeRequest};
-use openbitfun_app_server_protocol::error::{AppServerErrorData, AppServerErrorKind};
-use openbitfun_app_server_protocol::event::{
+use alex_app_server_protocol::agent as protocol_agent;
+use alex_app_server_protocol::app::{ClientInfo, HealthStatus, InitializeRequest};
+use alex_app_server_protocol::error::{AppServerErrorData, AppServerErrorKind};
+use alex_app_server_protocol::event::{
     AgentEventNotification, EventStream, SyncEventsRequest,
 };
-use openbitfun_app_server_protocol::session as protocol_session;
-use openbitfun_app_server_protocol::workspace as protocol_workspace;
-use openbitfun_app_server_protocol::PROTOCOL_VERSION;
-use openbitfun_runtime_ports as ports;
+use alex_app_server_protocol::session as protocol_session;
+use alex_app_server_protocol::workspace as protocol_workspace;
+use alex_app_server_protocol::PROTOCOL_VERSION;
+use alex_runtime_ports as ports;
 use tokio::task::LocalSet;
 
 /// Minimal `AgentSubmissionPort` mock modeled on `sdk_minimal.rs`.
@@ -63,7 +63,7 @@ use tokio::task::LocalSet;
 struct ExampleAgentProvider {
     created_sessions: Mutex<Vec<AgentSessionCreateRequest>>,
     submitted_turns: Mutex<Vec<AgentSubmissionRequest>>,
-    submitted_dialog_turns: Mutex<Vec<openbitfun_agent_runtime::sdk::AgentDialogTurnRequest>>,
+    submitted_dialog_turns: Mutex<Vec<alex_agent_runtime::sdk::AgentDialogTurnRequest>>,
 }
 
 #[async_trait]
@@ -99,17 +99,17 @@ impl AgentSubmissionPort for ExampleAgentProvider {
 }
 
 #[async_trait::async_trait]
-impl openbitfun_agent_runtime::sdk::AgentDialogTurnPort for ExampleAgentProvider {
+impl alex_agent_runtime::sdk::AgentDialogTurnPort for ExampleAgentProvider {
     async fn submit_dialog_turn(
         &self,
-        request: openbitfun_agent_runtime::sdk::AgentDialogTurnRequest,
-    ) -> PortResult<openbitfun_agent_runtime::sdk::DialogSubmitOutcome> {
+        request: alex_agent_runtime::sdk::AgentDialogTurnRequest,
+    ) -> PortResult<alex_agent_runtime::sdk::DialogSubmitOutcome> {
         self.submitted_dialog_turns
             .lock()
             .unwrap()
             .push(request.clone());
         Ok(
-            openbitfun_agent_runtime::sdk::DialogSubmitOutcome::Started {
+            alex_agent_runtime::sdk::DialogSubmitOutcome::Started {
                 session_id: request.session_id,
                 turn_id: request
                     .turn_id
@@ -119,7 +119,7 @@ impl openbitfun_agent_runtime::sdk::AgentDialogTurnPort for ExampleAgentProvider
     }
 }
 
-fn build_runtime() -> openbitfun_agent_runtime::sdk::AgentRuntime {
+fn build_runtime() -> alex_agent_runtime::sdk::AgentRuntime {
     let provider = Arc::new(ExampleAgentProvider::default());
     let events = AgentEventStream::new();
     AgentRuntimeBuilder::new()
@@ -132,20 +132,20 @@ fn build_runtime() -> openbitfun_agent_runtime::sdk::AgentRuntime {
 
 /// Wrap the test runtime with a fresh `AgentEventSource` backed by an isolated
 /// `EventQueue`, so the app-server's event forwarder has something to drain.
-fn build_app_runtime() -> OpenBitFunAppRuntime {
+fn build_app_runtime() -> AlexAppRuntime {
     let event_queue = Arc::new(EventQueue::new(EventQueueConfig::default()));
     let event_source = AgentEventSource::new(event_queue);
-    OpenBitFunAppRuntime::new(build_runtime(), event_source)
+    AlexAppRuntime::new(build_runtime(), event_source)
 }
 
 /// Like [`build_app_runtime`] but also hands back the backing `EventQueue` so a
 /// test can publish into it and assert the server forwards the event to the
 /// client as an `agent/event` notification.
-fn build_app_runtime_with_queue() -> (OpenBitFunAppRuntime, Arc<EventQueue>) {
+fn build_app_runtime_with_queue() -> (AlexAppRuntime, Arc<EventQueue>) {
     let event_queue = Arc::new(EventQueue::new(EventQueueConfig::default()));
     let event_source = AgentEventSource::new(event_queue.clone());
     (
-        OpenBitFunAppRuntime::new(build_runtime(), event_source),
+        AlexAppRuntime::new(build_runtime(), event_source),
         event_queue,
     )
 }
@@ -281,7 +281,7 @@ impl AgentSessionRestorePort for SessionControlProvider {
     }
 }
 
-fn build_session_control_app_runtime() -> (OpenBitFunAppRuntime, Arc<SessionControlProvider>) {
+fn build_session_control_app_runtime() -> (AlexAppRuntime, Arc<SessionControlProvider>) {
     let submission = Arc::new(ExampleAgentProvider::default());
     let session_control = Arc::new(SessionControlProvider::default());
     let runtime = AgentRuntimeBuilder::new()
@@ -297,7 +297,7 @@ fn build_session_control_app_runtime() -> (OpenBitFunAppRuntime, Arc<SessionCont
         .expect("runtime should build with Session control ports");
     let event_queue = Arc::new(EventQueue::new(EventQueueConfig::default()));
     (
-        OpenBitFunAppRuntime::new(runtime, AgentEventSource::new(event_queue)),
+        AlexAppRuntime::new(runtime, AgentEventSource::new(event_queue)),
         session_control,
     )
 }
@@ -377,12 +377,12 @@ impl ports::AgentSessionManagementPort for Phase2Provider {
 }
 
 #[async_trait]
-impl openbitfun_agent_runtime::sdk::AgentSessionRestorePort for Phase2Provider {
+impl alex_agent_runtime::sdk::AgentSessionRestorePort for Phase2Provider {
     async fn restore_session(
         &self,
-        request: openbitfun_agent_runtime::sdk::AgentSessionRestoreRequest,
-    ) -> PortResult<openbitfun_agent_runtime::sdk::AgentSessionRestoreResult> {
-        Ok(openbitfun_agent_runtime::sdk::AgentSessionRestoreResult {
+        request: alex_agent_runtime::sdk::AgentSessionRestoreRequest,
+    ) -> PortResult<alex_agent_runtime::sdk::AgentSessionRestoreResult> {
+        Ok(alex_agent_runtime::sdk::AgentSessionRestoreResult {
             session: ports::AgentSessionSummary {
                 session_id: request.session_id,
                 session_name: "Phase 2".to_string(),
@@ -520,9 +520,9 @@ impl ports::AgentSessionUsagePort for Phase2Provider {
     async fn generate_session_usage(
         &self,
         request: ports::AgentSessionUsageRequest,
-    ) -> PortResult<openbitfun_agent_runtime::sdk::SessionUsageReport> {
+    ) -> PortResult<alex_agent_runtime::sdk::SessionUsageReport> {
         Ok(
-            openbitfun_agent_runtime::sdk::SessionUsageReport::partial_unavailable(
+            alex_agent_runtime::sdk::SessionUsageReport::partial_unavailable(
                 request.session_id,
                 1_778_347_200_000,
             ),
@@ -736,9 +736,9 @@ impl ports::RuntimeEventSink for TestRuntimeEventSink {
     }
 }
 
-fn build_phase2_app_runtime() -> (OpenBitFunAppRuntime, Arc<Phase2Provider>) {
+fn build_phase2_app_runtime() -> (AlexAppRuntime, Arc<Phase2Provider>) {
     let provider = Arc::new(Phase2Provider::default());
-    let services = openbitfun_agent_runtime::sdk::RuntimeServicesBuilder::new()
+    let services = alex_agent_runtime::sdk::RuntimeServicesBuilder::new()
         .with_filesystem(Arc::new(TestRuntimeService(
             ports::RuntimeServiceCapability::FileSystem,
         )))
@@ -778,7 +778,7 @@ fn build_phase2_app_runtime() -> (OpenBitFunAppRuntime, Arc<Phase2Provider>) {
         .expect("phase 2 runtime");
     let event_queue = Arc::new(EventQueue::new(EventQueueConfig::default()));
     (
-        OpenBitFunAppRuntime::new(runtime, AgentEventSource::new(event_queue))
+        AlexAppRuntime::new(runtime, AgentEventSource::new(event_queue))
             .with_context_reload(provider.clone()),
         provider,
     )
@@ -793,7 +793,7 @@ async fn phase2_sync_aggregates_authoritative_session_state() {
             let (runtime, _provider) = build_phase2_app_runtime();
             spawn_server(runtime, server_transport);
 
-            let client = openbitfun_app_server_client::connect(client_transport)
+            let client = alex_app_server_client::connect(client_transport)
                 .await
                 .expect("connect app server client");
             let response = client
@@ -841,7 +841,7 @@ async fn phase2_mutations_route_through_runtime_owner_ports() {
             let (runtime, provider) = build_phase2_app_runtime();
             spawn_server(runtime, server_transport);
 
-            let client = openbitfun_app_server_client::connect(client_transport)
+            let client = alex_app_server_client::connect(client_transport)
                 .await
                 .expect("connect app server client");
             let steer = client
@@ -944,7 +944,7 @@ async fn phase2_read_models_cover_usage_settlement_references_lineage_and_diff()
             let (runtime, provider) = build_phase2_app_runtime();
             spawn_server(runtime, server_transport);
 
-            let client = openbitfun_app_server_client::connect(client_transport)
+            let client = alex_app_server_client::connect(client_transport)
                 .await
                 .expect("connect app server client");
             let usage = client
@@ -1061,11 +1061,11 @@ where
 }
 
 fn spawn_server(
-    runtime: OpenBitFunAppRuntime,
+    runtime: AlexAppRuntime,
     transport: impl agent_client_protocol::ConnectTo<AppServer> + 'static,
 ) {
     tokio::task::spawn_local(async move {
-        let _ = OpenBitFunAppServer::new(runtime).serve(transport).await;
+        let _ = AlexAppServer::new(runtime).serve(transport).await;
     });
 }
 
@@ -1078,14 +1078,14 @@ async fn lightweight_client_negotiates_with_the_production_server() {
             let (runtime, provider) = build_phase2_app_runtime();
             spawn_server(runtime, server_transport);
 
-            let client = openbitfun_app_server_client::connect(client_transport)
+            let client = alex_app_server_client::connect(client_transport)
                 .await
                 .expect("lightweight client should connect");
             let initialized = client
                 .initialize(InitializeRequest {
                     protocol_version: PROTOCOL_VERSION,
                     client: ClientInfo {
-                        name: "openbitfun-tui-test".to_string(),
+                        name: "alex-tui-test".to_string(),
                         version: env!("CARGO_PKG_VERSION").to_string(),
                     },
                 })
@@ -1164,7 +1164,7 @@ async fn lightweight_client_negotiates_with_the_production_server() {
                 .initialize(InitializeRequest {
                     protocol_version: PROTOCOL_VERSION + 1,
                     client: ClientInfo {
-                        name: "openbitfun-tui-test".to_string(),
+                        name: "alex-tui-test".to_string(),
                         version: env!("CARGO_PKG_VERSION").to_string(),
                     },
                 })
@@ -1194,14 +1194,14 @@ async fn lightweight_client_does_not_negotiate_context_reload_without_provider()
             let (server_transport, client_transport) = transport::in_memory_channel_pair();
             spawn_server(build_app_runtime(), server_transport);
 
-            let client = openbitfun_app_server_client::connect(client_transport)
+            let client = alex_app_server_client::connect(client_transport)
                 .await
                 .expect("lightweight client should connect");
             let initialized = client
                 .initialize(InitializeRequest {
                     protocol_version: PROTOCOL_VERSION,
                     client: ClientInfo {
-                        name: "openbitfun-tui-test".to_string(),
+                        name: "alex-tui-test".to_string(),
                         version: env!("CARGO_PKG_VERSION").to_string(),
                     },
                 })
@@ -1437,7 +1437,7 @@ async fn respond_permission_routes_to_the_permission_surface() {
                 .connect_with(client_transport, async |cx: ConnectionTo<AppServer>| {
                     let result = recv(cx.send_request(RespondPermissionMessage {
                         request_id: "perm-1".to_string(),
-                        reply: openbitfun_agent_runtime::sdk::PermissionReply::Once,
+                        reply: alex_agent_runtime::sdk::PermissionReply::Once,
                     }))
                     .await;
                     assert!(
@@ -1736,7 +1736,7 @@ struct UnknownAgentResponse;
 #[allow(dead_code)]
 fn _document_run_response_shape_in_tests(_r: RunResponse) {}
 /// The Server Host drives the app-server through the real
-/// `openbitfun_app_server_client::connect`
+/// `alex_app_server_client::connect`
 /// handle (not an inline `AppClient::builder().connect_with` main_fn like the
 /// round-trip tests above). `connect` parks its main loop on a shutdown
 /// receiver and returns an `AppServerClient` the host holds for the process
@@ -1758,7 +1758,7 @@ async fn client_connect_keeps_connection_alive_after_return() {
             let runtime = build_app_runtime();
             spawn_server(runtime, server_transport);
 
-            let client = openbitfun_app_server_client::connect(client_transport)
+            let client = alex_app_server_client::connect(client_transport)
                 .await
                 .expect("app-server client should connect");
 

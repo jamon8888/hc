@@ -27,25 +27,25 @@ export const ConfigCollectionSection: React.FC<ConfigCollectionSectionProps> = (
     <ConfigPageSection
       title={title}
       description={description}
-      className={`openbitfun-config-collection-section ${hasEditor ? 'openbitfun-config-collection-section--with-editor' : ''} ${className}`}
+      className={`alex-config-collection-section ${hasEditor ? 'alex-config-collection-section--with-editor' : ''} ${className}`}
     >
-      <div className="openbitfun-config-collection-section__content" data-openbitfun-component="config" data-openbitfun-part="collectionSection">
+      <div className="alex-config-collection-section__content" data-alex-component="config" data-alex-part="collectionSection">
         {toolbar && (
-          <div className="openbitfun-config-collection-section__toolbar" data-openbitfun-component="config" data-openbitfun-part="collectionToolbar">
+          <div className="alex-config-collection-section__toolbar" data-alex-component="config" data-alex-part="collectionToolbar">
             {toolbar}
           </div>
         )}
         {editor && (
-          <div className="openbitfun-config-collection-section__editor" data-openbitfun-component="config" data-openbitfun-part="collectionEditor">
+          <div className="alex-config-collection-section__editor" data-alex-component="config" data-alex-part="collectionEditor">
             {editor}
           </div>
         )}
         {filters && (
-          <div className="openbitfun-config-collection-section__filters" data-openbitfun-component="config" data-openbitfun-part="collectionFilters">
+          <div className="alex-config-collection-section__filters" data-alex-component="config" data-alex-part="collectionFilters">
             {filters}
           </div>
         )}
-        <div className="openbitfun-config-collection-section__list" data-openbitfun-component="config" data-openbitfun-part="collectionList">
+        <div className="alex-config-collection-section__list" data-alex-component="config" data-alex-part="collectionList">
           {children}
         </div>
       </div>

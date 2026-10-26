@@ -13,14 +13,14 @@ test("IconButton requires an accessible label and keeps its icon decorative", ()
     }),
   );
 
-  assert.match(markup, /data-openbitfun-component="icon-button"/);
-  assert.match(markup, /data-openbitfun-part="progress"/);
-  assert.match(markup, /data-openbitfun-part="icon"/);
+  assert.match(markup, /data-alex-component="icon-button"/);
+  assert.match(markup, /data-alex-part="progress"/);
+  assert.match(markup, /data-alex-part="icon"/);
   assert.match(markup, /aria-label="Show list"/);
   assert.match(markup, /aria-hidden="true"/);
   assert.match(markup, /data-icon="list"/);
-  assert.match(markup, /data-openbitfun-variant="quiet"/);
-  assert.match(markup, /data-openbitfun-shape="square"/);
+  assert.match(markup, /data-alex-variant="quiet"/);
+  assert.match(markup, /data-alex-shape="square"/);
   assert.match(markup, /type="button"/);
 });
 
@@ -36,9 +36,9 @@ test("IconButton exposes presentation, shape, tone, and size independently", () 
     }),
   );
 
-  assert.match(markup, /data-openbitfun-variant="primary"/);
-  assert.match(markup, /data-openbitfun-shape="circle"/);
-  assert.match(markup, /data-openbitfun-tone="danger"/);
+  assert.match(markup, /data-alex-variant="primary"/);
+  assert.match(markup, /data-alex-shape="circle"/);
+  assert.match(markup, /data-alex-tone="danger"/);
   assert.match(markup, /data-size="lg"/);
 });
 
@@ -75,8 +75,8 @@ test("outlined circles compose the standard size with disabled and loading state
       size: "standard", shape: "circle", variant: "outline", ...state,
     }));
     assert.match(markup, /data-size="standard"/);
-    assert.match(markup, /data-openbitfun-shape="circle"/);
-    assert.match(markup, /data-openbitfun-variant="outline"/);
+    assert.match(markup, /data-alex-shape="circle"/);
+    assert.match(markup, /data-alex-variant="outline"/);
     if (state.disabled || state.loading) assert.match(markup, /disabled=""/);
   }
 });
@@ -84,13 +84,13 @@ test("outlined circles compose the standard size with disabled and loading state
 test("IconButton styles consume shared action and geometry tokens", async () => {
   const styles = await readFile(new URL("../dist/styles.css", import.meta.url), "utf8");
 
-  assert.match(styles, /\[data-openbitfun-variant=primary\]/);
-  assert.match(styles, /--openbitfun-color-action-neutral-surface-hover/);
-  assert.match(styles, /--openbitfun-color-action-primary-background/);
-  assert.match(styles, /--openbitfun-control-height-sm/);
-  assert.match(styles, /--openbitfun-control-icon-button-xs-size/);
-  assert.match(styles, /--openbitfun-radius-sm/);
-  assert.match(styles, /--openbitfun-radius-pill/);
+  assert.match(styles, /\[data-alex-variant=primary\]/);
+  assert.match(styles, /--alex-color-action-neutral-surface-hover/);
+  assert.match(styles, /--alex-color-action-primary-background/);
+  assert.match(styles, /--alex-control-height-sm/);
+  assert.match(styles, /--alex-control-icon-button-xs-size/);
+  assert.match(styles, /--alex-radius-sm/);
+  assert.match(styles, /--alex-radius-pill/);
 });
 
 test("quiet IconButtons are transparent at rest while emphasized variants retain an opaque surface", async () => {
@@ -109,11 +109,11 @@ test("quiet IconButtons are transparent at rest while emphasized variants retain
   );
   assert.match(
     styles,
-    /\.button\[data-openbitfun-variant="fill"\],\s*\.button\[data-openbitfun-variant="primary"\]\s*\{[^}]*background:\s*var\(--openbitfun-color-surface-tertiary\)/s,
+    /\.button\[data-alex-variant="fill"\],\s*\.button\[data-alex-variant="primary"\]\s*\{[^}]*background:\s*var\(--alex-color-surface-tertiary\)/s,
   );
   assert.doesNotMatch(styles, /--_icon-button-background-(?:hover|active):\s*transparent/);
   for (const state of ["hover", "active"]) {
-    assert.ok(styles.includes(`:is(:${state}, [data-openbitfun-preview-state="${state}"]):not(:disabled)::before`));
+    assert.ok(styles.includes(`:is(:${state}, [data-alex-preview-state="${state}"]):not(:disabled)::before`));
   }
-  assert.match(styles, /\.button:focus-visible\s*\{[^}]*outline:.*var\(--openbitfun-color-focus-ring\)/s);
+  assert.match(styles, /\.button:focus-visible\s*\{[^}]*outline:.*var\(--alex-color-focus-ring\)/s);
 });

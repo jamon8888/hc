@@ -6,7 +6,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.test.platform.app.InstrumentationRegistry
 import com.openbitfun.mobile.app.ui.remote.RuntimeWorkspacePickerDialog
-import com.openbitfun.mobile.app.ui.theme.OpenBitFunTheme
+import com.openbitfun.mobile.app.ui.theme.AlexTheme
 import com.openbitfun.mobile.core.feature.workspace.*
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -21,7 +21,7 @@ class RuntimeWorkspacePickerTest {
             RemoteFilePreviewUiState.None, false, RemoteFileDownloadUiState.None))
         val intents = mutableListOf<RemoteWorkspaceIntent>()
         restoration.setContent {
-            OpenBitFunTheme(dark = true) {
+            AlexTheme(dark = true) {
                 RuntimeWorkspacePickerDialog(state.value, onIntent = {
                     intents += it
                     state.value = state.value.copy(busy = true)

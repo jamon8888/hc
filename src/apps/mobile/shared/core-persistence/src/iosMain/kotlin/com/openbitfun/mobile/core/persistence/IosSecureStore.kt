@@ -146,5 +146,5 @@ private class IosSecureStore(private val service: String) : SecureStore {
     }
 }
 
-/** Creates a Keychain namespace isolated from other OpenBitFun installations. */
+/** Creates a Keychain namespace isolated from other Alex installations. */
 public fun iosSecureStore(service: String): SecureStore = IosSecureStore(service)

@@ -1,4 +1,4 @@
-use openbitfun_agent_runtime::scheduled_job::{
+use alex_agent_runtime::scheduled_job::{
     ScheduledJobEnqueueFailureAction, ScheduledJobRunStatus, ScheduledJobRuntimeState,
     ScheduledJobTriggerAction, DEFAULT_SCHEDULED_JOB_RETRY_DELAY_MS,
 };

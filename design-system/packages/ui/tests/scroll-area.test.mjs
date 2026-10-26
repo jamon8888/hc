@@ -10,10 +10,10 @@ test("ScrollArea defaults to a native vertical viewport with automatic visibilit
     createElement(ScrollArea, { "aria-label": "Activity" }, "Content"),
   );
 
-  assert.match(markup, /data-openbitfun-component="scroll-area"/);
-  assert.match(markup, /data-openbitfun-part="viewport"/);
-  assert.match(markup, /data-openbitfun-orientation="vertical"/);
-  assert.match(markup, /data-openbitfun-scrollbar-visibility="auto"/);
+  assert.match(markup, /data-alex-component="scroll-area"/);
+  assert.match(markup, /data-alex-part="viewport"/);
+  assert.match(markup, /data-alex-orientation="vertical"/);
+  assert.match(markup, /data-alex-scrollbar-visibility="auto"/);
   assert.match(markup, /aria-label="Activity"/);
 });
 
@@ -26,21 +26,21 @@ test("ScrollArea exposes orientation and scrollbar visibility contracts", () => 
     ),
   );
 
-  assert.match(markup, /data-openbitfun-orientation="both"/);
-  assert.match(markup, /data-openbitfun-scrollbar-visibility="always"/);
+  assert.match(markup, /data-alex-orientation="both"/);
+  assert.match(markup, /data-alex-scrollbar-visibility="always"/);
 });
 
 test("ScrollArea preserves feature-owned appearance contracts", () => {
   const markup = renderToStaticMarkup(
     createElement(
       ScrollArea,
-      { "data-openbitfun-component": "model-settings", "data-openbitfun-part": "root" },
+      { "data-alex-component": "model-settings", "data-alex-part": "root" },
       "Content",
     ),
   );
 
-  assert.match(markup, /data-openbitfun-component="model-settings"/);
-  assert.match(markup, /data-openbitfun-part="root"/);
+  assert.match(markup, /data-alex-component="model-settings"/);
+  assert.match(markup, /data-alex-part="root"/);
 });
 
 test("ScrollArea styling uses public scrollbar tokens and preserves native scrolling", async () => {
@@ -57,11 +57,11 @@ test("ScrollArea styling uses public scrollbar tokens and preserves native scrol
   // The published stylesheet must carry the shared policy for both ordinary
   // native scroll containers and ScrollArea, including standalone consumers.
   const publishedStyles = await readFile(new URL("../dist/styles.css", import.meta.url), "utf8");
-  assert.match(publishedStyles, /--openbitfun-scrollbar-width/);
-  assert.match(publishedStyles, /--openbitfun-scrollbar-radius/);
-  assert.match(publishedStyles, /--openbitfun-color-scrollbar-thumb/);
-  assert.match(publishedStyles, /--openbitfun-color-scrollbar-thumb-hover/);
-  assert.match(publishedStyles, /\[data-openbitfun-scrollbar-visibility\]/);
+  assert.match(publishedStyles, /--alex-scrollbar-width/);
+  assert.match(publishedStyles, /--alex-scrollbar-radius/);
+  assert.match(publishedStyles, /--alex-color-scrollbar-thumb/);
+  assert.match(publishedStyles, /--alex-color-scrollbar-thumb-hover/);
+  assert.match(publishedStyles, /\[data-alex-scrollbar-visibility\]/);
   assert.match(publishedStyles, /scrollbar-width:\s*none/);
   assert.doesNotMatch(styles, /#[0-9a-f]{3,8}/i);
 });

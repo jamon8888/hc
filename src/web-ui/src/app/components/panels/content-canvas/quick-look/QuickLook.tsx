@@ -20,7 +20,7 @@ import { useTranslation } from 'react-i18next';
 import FlexiblePanel from '../../base/FlexiblePanel';
 import type { PanelContent } from '../types';
 import './QuickLook.scss';
-import { createOverlayPortal, OverflowText, Icon, Tooltip, useDismissibleLayer } from '@openbitfun/ui';
+import { createOverlayPortal, OverflowText, Icon, Tooltip, useDismissibleLayer } from '@alex/ui';
 
 export interface QuickLookProps {
   /** Whether visible */
@@ -128,9 +128,9 @@ export const QuickLook: React.FC<QuickLookProps> = ({
       ref={containerRef}
       className="canvas-quick-look"
       data-shortcut-scope="canvas"
-      data-openbitfun-component="content-canvas"
-      data-openbitfun-part="quickLook"
-      data-openbitfun-state="open"
+      data-alex-component="content-canvas"
+      data-alex-part="quickLook"
+      data-alex-state="open"
       tabIndex={-1}
       style={{
         left: `${adjustedPosition.x}px`,
@@ -138,8 +138,8 @@ export const QuickLook: React.FC<QuickLookProps> = ({
       }}
     >
       {/* Header */}
-      <div className="canvas-quick-look__header" data-openbitfun-component="content-canvas" data-openbitfun-part="quickLookHeader">
-        <div className="canvas-quick-look__title" data-openbitfun-component="content-canvas" data-openbitfun-part="quickLookTitle">
+      <div className="canvas-quick-look__header" data-alex-component="content-canvas" data-alex-part="quickLookHeader">
+        <div className="canvas-quick-look__title" data-alex-component="content-canvas" data-alex-part="quickLookTitle">
           <OverflowText>{content.title}</OverflowText>
           {content.data?.filePath && (
             <Tooltip content={t('canvas.openFileLocation')}>
@@ -150,7 +150,7 @@ export const QuickLook: React.FC<QuickLookProps> = ({
           )}
         </div>
         
-        <div className="canvas-quick-look__actions" data-openbitfun-component="content-canvas" data-openbitfun-part="quickLookActions">
+        <div className="canvas-quick-look__actions" data-alex-component="content-canvas" data-alex-part="quickLookActions">
           <Tooltip content={t('canvas.pinAsTab')}>
             <button
               className="canvas-quick-look__action-btn canvas-quick-look__pin-btn"
@@ -172,7 +172,7 @@ export const QuickLook: React.FC<QuickLookProps> = ({
       </div>
 
       {/* Content */}
-      <div className="canvas-quick-look__content" data-openbitfun-component="content-canvas" data-openbitfun-part="quickLookContent">
+      <div className="canvas-quick-look__content" data-alex-component="content-canvas" data-alex-part="quickLookContent">
         <FlexiblePanel
           content={content}
           onContentChange={handleContentChange}
@@ -181,7 +181,7 @@ export const QuickLook: React.FC<QuickLookProps> = ({
       </div>
 
       {/* Footer hint */}
-      <div className="canvas-quick-look__footer" data-openbitfun-component="content-canvas" data-openbitfun-part="quickLookFooter">
+      <div className="canvas-quick-look__footer" data-alex-component="content-canvas" data-alex-part="quickLookFooter">
         <span>{t('canvas.enterToPin')}</span>
         <span className="canvas-quick-look__separator">|</span>
         <span>{t('canvas.escToClose')}</span>

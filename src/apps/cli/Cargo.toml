@@ -1,15 +1,15 @@
 [package]
-name = "openbitfun-cli"
+name = "alex-cli"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
-description = "OpenBitFun CLI - Terminal User Interface"
-default-run = "openbitfun"
+description = "Alex CLI - Terminal User Interface"
+default-run = "alex"
 autobins = false
 autotests = false
 
 [[bin]]
-name = "openbitfun"
+name = "alex"
 path = "src/main.rs"
 
 [[test]]
@@ -30,7 +30,7 @@ path = "tests/terminal_process_contracts.rs"
 
 [dependencies]
 # Internal crates
-openbitfun-core = { path = "../../crates/assembly/core", features = [
+alex-core = { path = "../../crates/assembly/core", features = [
     "agent-runtime",
     "product-search",
     "document-read",
@@ -49,17 +49,17 @@ openbitfun-core = { path = "../../crates/assembly/core", features = [
     "tools-image-analysis",
     "tools-agent-control",
 ] }
-openbitfun-events = { path = "../../crates/contracts/events" }
-openbitfun-core-types = { path = "../../crates/contracts/core-types" }
-openbitfun-acp = { path = "../../crates/interfaces/acp", default-features = false, features = ["client", "server"] }
-openbitfun-agent-runtime = { path = "../../crates/execution/agent-runtime", features = ["agent-runtime"] }
-openbitfun-agent-runtime-ipc = { path = "../../crates/adapters/agent-runtime-ipc" }
-openbitfun-app-server = { path = "../../crates/interfaces/app-server" }
-openbitfun-runtime-ports = { path = "../../crates/contracts/runtime-ports", features = ["agent-api", "git-port", "permission", "plugin-runtime", "workspace-ports"] }
-openbitfun-runtime-services = { path = "../../crates/execution/runtime-services" }
-openbitfun-services-core = { path = "../../crates/services/services-core", features = ["dispatch-workspace", "local-storage", "process-runtime", "runtime-ownership", "tls-provider"] }
-openbitfun-agent-tools = { path = "../../crates/execution/tool-contracts" }
-openbitfun-product-domains = { path = "../../crates/contracts/product-domains", features = ["external-sources"] }
+alex-events = { path = "../../crates/contracts/events" }
+alex-core-types = { path = "../../crates/contracts/core-types" }
+alex-acp = { path = "../../crates/interfaces/acp", default-features = false, features = ["client", "server"] }
+alex-agent-runtime = { path = "../../crates/execution/agent-runtime", features = ["agent-runtime"] }
+alex-agent-runtime-ipc = { path = "../../crates/adapters/agent-runtime-ipc" }
+alex-app-server = { path = "../../crates/interfaces/app-server" }
+alex-runtime-ports = { path = "../../crates/contracts/runtime-ports", features = ["agent-api", "git-port", "permission", "plugin-runtime", "workspace-ports"] }
+alex-runtime-services = { path = "../../crates/execution/runtime-services" }
+alex-services-core = { path = "../../crates/services/services-core", features = ["dispatch-workspace", "local-storage", "process-runtime", "runtime-ownership", "tls-provider"] }
+alex-agent-tools = { path = "../../crates/execution/tool-contracts" }
+alex-product-domains = { path = "../../crates/contracts/product-domains", features = ["external-sources"] }
 
 # CLI framework
 clap = { workspace = true }
@@ -129,7 +129,7 @@ shlex = { workspace = true }
 
 [dev-dependencies]
 hex = { workspace = true }
-openbitfun-core = { path = "../../crates/assembly/core", features = ["test-support"] }
+alex-core = { path = "../../crates/assembly/core", features = ["test-support"] }
 tokio = { workspace = true, features = ["io-util", "net"] }
 
 [target.'cfg(windows)'.dependencies]

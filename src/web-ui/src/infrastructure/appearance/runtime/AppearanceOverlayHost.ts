@@ -7,10 +7,10 @@
  * subtree it portaled out of. See AppearanceOverlayHost.scss.
  */
 
-import { getOverlayHost } from '@openbitfun/ui';
+import { getOverlayHost } from '@alex/ui';
 import './AppearanceOverlayHost.scss';
 
-const OVERLAY_HOST_ID = 'openbitfun-appearance-overlay-host';
+const OVERLAY_HOST_ID = 'alex-appearance-overlay-host';
 
 export function getAppearanceOverlayHost(): HTMLDivElement {
   const host = getOverlayHost(document);

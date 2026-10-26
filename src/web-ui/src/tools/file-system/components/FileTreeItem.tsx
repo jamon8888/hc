@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { FolderOpen, FileText, Loader2 } from 'lucide-react';
-import { OverflowText, Icon, Input } from '@openbitfun/ui';
+import { OverflowText, Icon, Input } from '@alex/ui';
 import { dragManager } from '../../../shared/services/DragManager';
 import { fileTreeDragSource } from '../../../shared/context-system/drag-drop/FileTreeDragSource';
 import { useI18n } from '@/infrastructure/i18n';
@@ -21,7 +21,7 @@ const RenameInput: React.FC<RenameInputProps> = ({ node, onRename, onCancel }) =
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      const input = document.querySelector('.openbitfun-file-explorer__rename-input-wrapper input') as HTMLInputElement | null;
+      const input = document.querySelector('.alex-file-explorer__rename-input-wrapper input') as HTMLInputElement | null;
       if (!input) {
         return;
       }
@@ -73,9 +73,9 @@ const RenameInput: React.FC<RenameInputProps> = ({ node, onRename, onCancel }) =
   };
 
   return (
-    <div className="openbitfun-file-explorer__rename-input-wrapper" onClick={(event) => event.stopPropagation()}>
+    <div className="alex-file-explorer__rename-input-wrapper" onClick={(event) => event.stopPropagation()}>
       <Input
-        className="openbitfun-file-explorer__rename-input"
+        className="alex-file-explorer__rename-input"
         type="text"
         size="sm"
         value={value}
@@ -158,8 +158,8 @@ export const FileTreeItem: React.FC<FileTreeItemProps> = ({
     dragImage.style.position = 'absolute';
     dragImage.style.top = '-1000px';
     dragImage.style.padding = '8px';
-    dragImage.style.background = 'color-mix(in srgb, var(--openbitfun-color-content-on-light) 80%, transparent)';
-    dragImage.style.color = 'var(--openbitfun-color-content-on-dark)';
+    dragImage.style.background = 'color-mix(in srgb, var(--alex-color-content-on-light) 80%, transparent)';
+    dragImage.style.color = 'var(--alex-color-content-on-dark)';
     dragImage.style.borderRadius = '4px';
     document.body.appendChild(dragImage);
     dragImageRef.current = dragImage;
@@ -183,7 +183,7 @@ export const FileTreeItem: React.FC<FileTreeItemProps> = ({
 
   return (
     <div data-overflow-trigger
-      className={`openbitfun-file-explorer__node-content ${isSelected ? 'openbitfun-file-explorer__node-content--selected' : ''} ${node.isDirectory ? 'openbitfun-file-explorer__node-content--directory' : ''} ${isCompressed ? 'openbitfun-file-explorer__node-content--compressed' : ''} ${className}`}
+      className={`alex-file-explorer__node-content ${isSelected ? 'alex-file-explorer__node-content--selected' : ''} ${node.isDirectory ? 'alex-file-explorer__node-content--directory' : ''} ${isCompressed ? 'alex-file-explorer__node-content--compressed' : ''} ${className}`}
       style={{ paddingLeft: `${indentPx}px` }}
       onClick={handleClick}
       title={tooltip}
@@ -199,9 +199,9 @@ export const FileTreeItem: React.FC<FileTreeItemProps> = ({
       aria-selected={isSelected}
     >
       {node.isDirectory ? (
-        <span className={`openbitfun-file-explorer__expand-icon ${isExpanded ? 'openbitfun-file-explorer__expand-icon--expanded' : ''}`} onClick={handleExpandClick}>
+        <span className={`alex-file-explorer__expand-icon ${isExpanded ? 'alex-file-explorer__expand-icon--expanded' : ''}`} onClick={handleExpandClick}>
           {isLoading ? (
-            <Loader2 size={16} className="openbitfun-file-explorer__loading-icon" />
+            <Loader2 size={16} className="alex-file-explorer__loading-icon" />
           ) : (
             <Icon name="chevron-right" size="md" />
           )}
@@ -221,13 +221,13 @@ export const FileTreeItem: React.FC<FileTreeItemProps> = ({
       ) : renderContent ? (
         renderContent(node, level)
       ) : (
-        <OverflowText className={`openbitfun-file-explorer__node-name ${isCompressed ? 'openbitfun-file-explorer__compressed-path' : ''}`}>
+        <OverflowText className={`alex-file-explorer__node-name ${isCompressed ? 'alex-file-explorer__compressed-path' : ''}`}>
           {node.name}
         </OverflowText>
       )}
 
       {renderActions ? (
-        <div className="openbitfun-file-explorer__node-actions" onClick={(event) => event.stopPropagation()}>
+        <div className="alex-file-explorer__node-actions" onClick={(event) => event.stopPropagation()}>
           {renderActions(node)}
         </div>
       ) : null}

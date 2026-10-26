@@ -8,22 +8,22 @@ use agent_client_protocol::schema::{
 use agent_client_protocol::{Client, ConnectionTo, Error, Result};
 use chrono::{DateTime, Utc};
 use dashmap::mapref::entry::Entry;
-use openbitfun_agent_runtime::sdk::{
+use alex_agent_runtime::sdk::{
     AgentSessionCreateRequest, AgentSessionDeleteRequest, AgentSessionListRequest,
     AgentSessionModeUpdateRequest, SessionStoragePathRequest,
 };
-use openbitfun_core::agentic::agents::get_agent_registry;
-use openbitfun_core::service::workspace::{get_global_workspace_service, WorkspaceInfo};
+use alex_core::agentic::agents::get_agent_registry;
+use alex_core::service::workspace::{get_global_workspace_service, WorkspaceInfo};
 
 use super::model::{
     build_session_config_options, build_session_model_state, normalize_session_model_id,
 };
 use super::replay::replay_session_history;
-use super::{AcpSessionState, OpenBitFunAcpRuntime};
+use super::{AcpSessionState, AlexAcpRuntime};
 
-impl OpenBitFunAcpRuntime {
+impl AlexAcpRuntime {
     fn validate_session_target(session_id: &str, cwd: &Path) -> Result<()> {
-        openbitfun_core_types::validate_session_id(session_id)
+        alex_core_types::validate_session_id(session_id)
             .map_err(|message| Error::invalid_params().data(message))?;
         if !cwd.is_absolute() {
             return Err(Error::invalid_params().data("cwd must be an absolute path"));
@@ -105,8 +105,8 @@ impl OpenBitFunAcpRuntime {
             Err(error) => {
                 let core_cleanup_required = matches!(
                     &error,
-                    openbitfun_agent_runtime::sdk::RuntimeError::Port(port_error)
-                        if port_error.kind == openbitfun_agent_runtime::sdk::PortErrorKind::CleanupRequired
+                    alex_agent_runtime::sdk::RuntimeError::Port(port_error)
+                        if port_error.kind == alex_agent_runtime::sdk::PortErrorKind::CleanupRequired
                 );
                 let mcp_cleaned = self.release_mcp_servers(&mcp_server_ids).await.is_ok();
                 let core_cleaned = if core_cleanup_required {
@@ -141,7 +141,7 @@ impl OpenBitFunAcpRuntime {
         };
         let acp_session = AcpSessionState {
             acp_session_id: session.session_id.clone(),
-            openbitfun_session_id: session.session_id.clone(),
+            alex_session_id: session.session_id.clone(),
             workspace_id: workspace.id,
             cwd,
             mode_id: session.agent_type.clone(),
@@ -233,7 +233,7 @@ impl OpenBitFunAcpRuntime {
         };
         let acp_session = AcpSessionState {
             acp_session_id: session.session_id.clone(),
-            openbitfun_session_id: session.session_id.clone(),
+            alex_session_id: session.session_id.clone(),
             workspace_id: workspace.id,
             cwd,
             mode_id: session.agent_type.clone(),
@@ -331,14 +331,14 @@ impl OpenBitFunAcpRuntime {
         let mcp_cleaned = self.cleanup_failed_session_setup(session, stage).await;
         let core_unloaded = match self
             .compatibility
-            .unload_persisted_session(&session.openbitfun_session_id)
+            .unload_persisted_session(&session.alex_session_id)
             .await
         {
             Ok(_) => true,
             Err(error) => {
                 log::warn!(
                     "Failed to unload Core session after ACP load error: session_id={}, stage={}, error={}",
-                    session.openbitfun_session_id,
+                    session.alex_session_id,
                     stage,
                     error
                 );
@@ -373,7 +373,7 @@ impl OpenBitFunAcpRuntime {
         let mcp_cleaned = self.cleanup_failed_session_setup(session, stage).await;
         let core_cleaned = self
             .delete_failed_new_core_session(
-                &session.openbitfun_session_id,
+                &session.alex_session_id,
                 &session.workspace_id,
                 &session.cwd,
                 stage,
@@ -436,13 +436,13 @@ impl OpenBitFunAcpRuntime {
             })?;
         let _maintenance = self
             .compatibility
-            .begin_session_maintenance(&storage_path, &active_session.openbitfun_session_id, 5_000)
+            .begin_session_maintenance(&storage_path, &active_session.alex_session_id, 5_000)
             .await
             .map_err(|error| {
                 Self::session_close_incomplete_error(&session_id, "active work drain", error, &[])
             })?;
         self.compatibility
-            .unload_persisted_session(&active_session.openbitfun_session_id)
+            .unload_persisted_session(&active_session.alex_session_id)
             .await
             .map_err(|error| {
                 Self::session_close_incomplete_error(&session_id, "Core runtime unload", error, &[])
@@ -557,7 +557,7 @@ impl OpenBitFunAcpRuntime {
         let mode_id = mode_id.trim();
         self.agent_runtime
             .update_session_mode(AgentSessionModeUpdateRequest {
-                session_id: session.openbitfun_session_id.clone(),
+                session_id: session.alex_session_id.clone(),
                 mode_id: mode_id.to_string(),
                 agent_route_key: None,
             })

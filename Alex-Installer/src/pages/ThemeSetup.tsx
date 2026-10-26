@@ -1,4 +1,4 @@
-import { Button, Checkbox, PageHeader, Radio } from '@openbitfun/ui';
+import { Button, Checkbox, PageHeader, Radio } from '@alex/ui';
 import { ArrowUpRight, Check } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -46,7 +46,7 @@ export function ThemeSetup({ options, setOptions, onLaunch, onClose, previewOnly
       }
       onClose();
     } catch (err: unknown) {
-      setFinishError(typeof err === 'string' ? err : (err as Error)?.message || 'Failed to launch OpenBitFun');
+      setFinishError(typeof err === 'string' ? err : (err as Error)?.message || 'Failed to launch Alex');
     } finally {
       setIsFinishing(false);
     }

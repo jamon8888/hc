@@ -4,69 +4,69 @@ use crate::agentic::coordination::get_global_coordinator;
 use crate::agentic::goal_mode::user_facing_thread_goal_error;
 use crate::agentic::tools::framework::{Tool, ToolResult, ToolUseContext};
 use crate::service_agent_runtime::CoreServiceAgentRuntime;
-use crate::util::errors::{OpenBitFunError, OpenBitFunResult};
+use crate::util::errors::{AlexError, AlexResult};
 use async_trait::async_trait;
-use openbitfun_agent_runtime::sdk::RuntimeError;
-use openbitfun_agent_runtime::thread_goal_tools::{
+use alex_agent_runtime::sdk::RuntimeError;
+use alex_agent_runtime::thread_goal_tools::{
     build_goal_tool_result, parse_create_goal_args, parse_update_goal_args,
     parse_update_goal_status, CREATE_GOAL_TOOL_NAME, GET_GOAL_TOOL_NAME, UPDATE_GOAL_TOOL_NAME,
 };
-use openbitfun_runtime_ports::{
+use alex_runtime_ports::{
     AgentThreadGoalCreateRequest, AgentThreadGoalGetRequest, AgentThreadGoalUpdateStatusRequest,
     PortError, PortErrorKind, ThreadGoalStatus,
 };
 use serde_json::{json, Value};
 
-fn require_agent_runtime() -> OpenBitFunResult<openbitfun_agent_runtime::sdk::AgentRuntime> {
+fn require_agent_runtime() -> AlexResult<alex_agent_runtime::sdk::AgentRuntime> {
     let coordinator = get_global_coordinator()
-        .ok_or_else(|| OpenBitFunError::Validation("coordinator is unavailable".to_string()))?;
-    CoreServiceAgentRuntime::agent_runtime(coordinator).map_err(OpenBitFunError::tool)
+        .ok_or_else(|| AlexError::Validation("coordinator is unavailable".to_string()))?;
+    CoreServiceAgentRuntime::agent_runtime(coordinator).map_err(AlexError::tool)
 }
 
 fn require_session_context(
     context: &ToolUseContext,
-) -> OpenBitFunResult<(String, std::path::PathBuf)> {
+) -> AlexResult<(String, std::path::PathBuf)> {
     let session_id = context
         .session_id
         .clone()
-        .ok_or_else(|| OpenBitFunError::Validation("session_id is unavailable".to_string()))?;
+        .ok_or_else(|| AlexError::Validation("session_id is unavailable".to_string()))?;
     let workspace_path = context
         .workspace_root()
-        .ok_or_else(|| OpenBitFunError::Validation("workspace_path is unavailable".to_string()))?
+        .ok_or_else(|| AlexError::Validation("workspace_path is unavailable".to_string()))?
         .to_path_buf();
     Ok((session_id, workspace_path))
 }
 
-fn thread_goal_runtime_error(error: RuntimeError) -> OpenBitFunError {
+fn thread_goal_runtime_error(error: RuntimeError) -> AlexError {
     match error {
         RuntimeError::Port(port_error) => thread_goal_port_error(port_error),
-        other => user_facing_thread_goal_error(OpenBitFunError::Tool(
+        other => user_facing_thread_goal_error(AlexError::Tool(
             CoreServiceAgentRuntime::runtime_error_message(other),
         )),
     }
 }
 
-fn thread_goal_port_error(port_error: PortError) -> OpenBitFunError {
+fn thread_goal_port_error(port_error: PortError) -> AlexError {
     match port_error.kind {
-        PortErrorKind::InvalidRequest => OpenBitFunError::Validation(port_error.message),
-        PortErrorKind::NotFound => OpenBitFunError::NotFound(port_error.message),
+        PortErrorKind::InvalidRequest => AlexError::Validation(port_error.message),
+        PortErrorKind::NotFound => AlexError::NotFound(port_error.message),
         PortErrorKind::Cancelled => {
-            user_facing_thread_goal_error(OpenBitFunError::Cancelled(port_error.message))
+            user_facing_thread_goal_error(AlexError::Cancelled(port_error.message))
         }
         PortErrorKind::Timeout => {
-            user_facing_thread_goal_error(OpenBitFunError::Timeout(port_error.message))
+            user_facing_thread_goal_error(AlexError::Timeout(port_error.message))
         }
         PortErrorKind::NotAvailable => {
-            user_facing_thread_goal_error(OpenBitFunError::NotImplemented(port_error.message))
+            user_facing_thread_goal_error(AlexError::NotImplemented(port_error.message))
         }
         PortErrorKind::OutcomeUnknown => {
-            user_facing_thread_goal_error(OpenBitFunError::OutcomeUnknown(port_error.message))
+            user_facing_thread_goal_error(AlexError::OutcomeUnknown(port_error.message))
         }
         PortErrorKind::PermissionDenied
         | PortErrorKind::SessionInUse
         | PortErrorKind::CleanupRequired
         | PortErrorKind::Backend => {
-            user_facing_thread_goal_error(OpenBitFunError::Tool(port_error.message))
+            user_facing_thread_goal_error(AlexError::Tool(port_error.message))
         }
     }
 }
@@ -91,7 +91,7 @@ impl Tool for GetGoalTool {
         GET_GOAL_TOOL_NAME
     }
 
-    async fn description(&self) -> OpenBitFunResult<String> {
+    async fn description(&self) -> AlexResult<String> {
         Ok("Get the current goal for this session, including status, budgets, token and elapsed-time usage, and remaining token budget.".to_string())
     }
 
@@ -115,7 +115,7 @@ impl Tool for GetGoalTool {
         &self,
         _input: &Value,
         context: &ToolUseContext,
-    ) -> OpenBitFunResult<Vec<ToolResult>> {
+    ) -> AlexResult<Vec<ToolResult>> {
         let runtime = require_agent_runtime()?;
         let (session_id, workspace_path) = require_session_context(context)?;
         let remote_connection_id = context
@@ -139,7 +139,7 @@ impl Tool for GetGoalTool {
             .await
             .map_err(thread_goal_runtime_error)?;
         let result = build_goal_tool_result(goal, false)
-            .map_err(|error| OpenBitFunError::Validation(error.to_string()))?;
+            .map_err(|error| AlexError::Validation(error.to_string()))?;
         Ok(vec![ToolResult::Result {
             data: result.data,
             result_for_assistant: Some(result.result_for_assistant),
@@ -168,7 +168,7 @@ impl Tool for CreateGoalTool {
         CREATE_GOAL_TOOL_NAME
     }
 
-    async fn description(&self) -> OpenBitFunResult<String> {
+    async fn description(&self) -> AlexResult<String> {
         Ok(format!(
             "Create a goal only when explicitly requested by the user or system/developer instructions; do not infer goals from ordinary tasks. \
 Set token_budget only when an explicit token budget is requested. Fails if a goal exists; use {UPDATE_GOAL_TOOL_NAME} only for status."
@@ -201,9 +201,9 @@ Set token_budget only when an explicit token budget is requested. Fails if a goa
         &self,
         input: &Value,
         context: &ToolUseContext,
-    ) -> OpenBitFunResult<Vec<ToolResult>> {
+    ) -> AlexResult<Vec<ToolResult>> {
         let parsed = parse_create_goal_args(input.clone())
-            .map_err(|error| OpenBitFunError::Validation(error.to_string()))?;
+            .map_err(|error| AlexError::Validation(error.to_string()))?;
         let runtime = require_agent_runtime()?;
         let (session_id, workspace_path) = require_session_context(context)?;
         let goal = runtime
@@ -216,7 +216,7 @@ Set token_budget only when an explicit token budget is requested. Fails if a goa
             .await
             .map_err(thread_goal_runtime_error)?;
         let result = build_goal_tool_result(Some(goal), false)
-            .map_err(|error| OpenBitFunError::Validation(error.to_string()))?;
+            .map_err(|error| AlexError::Validation(error.to_string()))?;
         Ok(vec![ToolResult::Result {
             data: result.data,
             result_for_assistant: Some(result.result_for_assistant),
@@ -245,7 +245,7 @@ impl Tool for UpdateGoalTool {
         UPDATE_GOAL_TOOL_NAME
     }
 
-    async fn description(&self) -> OpenBitFunResult<String> {
+    async fn description(&self) -> AlexResult<String> {
         Ok(
             "Update the existing goal. Use only to mark the goal achieved or genuinely blocked. \
 Set status to complete only when current evidence verifies the full objective, subsequent user requirements, and requested delivery; no required work may remain. \
@@ -278,11 +278,11 @@ After an explicit resume, begin a fresh blocked audit. Do not repeat failed side
         &self,
         input: &Value,
         context: &ToolUseContext,
-    ) -> OpenBitFunResult<Vec<ToolResult>> {
+    ) -> AlexResult<Vec<ToolResult>> {
         let parsed = parse_update_goal_args(input.clone())
-            .map_err(|error| OpenBitFunError::Validation(error.to_string()))?;
+            .map_err(|error| AlexError::Validation(error.to_string()))?;
         let status = parse_update_goal_status(&parsed.status)
-            .map_err(|error| OpenBitFunError::Validation(error.to_string()))?;
+            .map_err(|error| AlexError::Validation(error.to_string()))?;
         let runtime = require_agent_runtime()?;
         let (session_id, workspace_path) = require_session_context(context)?;
         let goal = runtime
@@ -296,7 +296,7 @@ After an explicit resume, begin a fresh blocked audit. Do not repeat failed side
             .map_err(thread_goal_runtime_error)?;
         let include_report = status == ThreadGoalStatus::Complete;
         let result = build_goal_tool_result(Some(goal), include_report)
-            .map_err(|error| OpenBitFunError::Validation(error.to_string()))?;
+            .map_err(|error| AlexError::Validation(error.to_string()))?;
         Ok(vec![ToolResult::Result {
             data: result.data,
             result_for_assistant: Some(result.result_for_assistant),
@@ -323,15 +323,15 @@ mod tests {
 
         assert!(matches!(
             invalid,
-            OpenBitFunError::Validation(message) if message == "missing objective"
+            AlexError::Validation(message) if message == "missing objective"
         ));
         assert!(matches!(
             not_found,
-            OpenBitFunError::NotFound(message) if message == "thread goal not found"
+            AlexError::NotFound(message) if message == "thread goal not found"
         ));
         assert!(matches!(
             timeout,
-            OpenBitFunError::Validation(message)
+            AlexError::Validation(message)
                 if message == "Thread goal operation failed. Check session state and try again."
         ));
     }

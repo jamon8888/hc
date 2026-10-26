@@ -4,8 +4,8 @@ use std::path::PathBuf;
 
 use serde_json::{json, Value};
 
-use openbitfun_core::service::workspace::{WorkspaceInfo, WorkspaceKind};
-use openbitfun_runtime_ports::{
+use alex_core::service::workspace::{WorkspaceInfo, WorkspaceKind};
+use alex_runtime_ports::{
     AgentSessionRollbackToTurnRequest, LocalWorkspaceSnapshotPort,
     LocalWorkspaceSnapshotSessionRequest, LocalWorkspaceSnapshotStats, PortError, PortErrorKind,
 };
@@ -113,7 +113,7 @@ pub(crate) async fn get_session_files(
     let session_id = get_string(request, "sessionId")?;
     let workspace = resolve_snapshot_workspace(state, request).await?;
 
-    openbitfun_agent_runtime::session_control::validate_session_id(&session_id)?;
+    alex_agent_runtime::session_control::validate_session_id(&session_id)?;
     require_local_snapshot_workspace(&workspace)?;
     let scope = ensure_session_workspace_runtime_ownership(state, request).await?;
     let storage_path = resolved_session_storage_scope(state, scope).await?;
@@ -145,7 +145,7 @@ pub(crate) async fn rollback_session_to_turn(
         serde_json::from_value(request.clone())
             .map_err(|error| format!("Invalid targeted Session rollback request: {error}"))?;
 
-    openbitfun_agent_runtime::session_control::validate_session_id(&rollback_request.session_id)?;
+    alex_agent_runtime::session_control::validate_session_id(&rollback_request.session_id)?;
     let workspace = if let Some(id) = rollback_request.workspace_id.as_deref() {
         state
             .workspace_service
@@ -187,7 +187,7 @@ mod tests {
     use std::sync::atomic::{AtomicUsize, Ordering};
     use std::sync::Mutex;
 
-    use openbitfun_runtime_ports::{
+    use alex_runtime_ports::{
         LocalWorkspaceSnapshotPort, LocalWorkspaceSnapshotSessionRequest,
         LocalWorkspaceSnapshotStats, LocalWorkspaceSnapshotTurnRequest, PortError, PortErrorKind,
         PortResult,
@@ -248,10 +248,10 @@ mod tests {
 
     #[tokio::test]
     async fn snapshot_kind_is_authoritative_without_transport_inference() {
-        use openbitfun_core::service::workspace::WorkspaceInfoRuntimeExt;
+        use alex_core::service::workspace::WorkspaceInfoRuntimeExt;
         let directory = tempfile::tempdir().unwrap();
         let mut workspace =
-            openbitfun_core::service::workspace::WorkspaceInfo::new_without_worktree(
+            alex_core::service::workspace::WorkspaceInfo::new_without_worktree(
                 directory.path().to_path_buf(),
                 Default::default(),
             )

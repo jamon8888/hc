@@ -58,14 +58,14 @@ pub use crate::runtime::{
 };
 pub use crate::session_state::{session_state_label_for_state, ProcessingPhase, SessionState};
 pub use crate::user_questions::{PendingUserQuestion, PendingUserQuestionSnapshot};
-pub use openbitfun_agent_tools::{ToolRegistry, ToolRegistryItem};
-pub use openbitfun_core_types::SessionUsageReport;
-// Event envelope types re-exported so protocol surfaces (e.g. `openbitfun-app-server`)
+pub use alex_agent_tools::{ToolRegistry, ToolRegistryItem};
+pub use alex_core_types::SessionUsageReport;
+// Event envelope types re-exported so protocol surfaces (e.g. `alex-app-server`)
 // can carry the runtime event stream over a JSON-RPC transport without depending
-// on `openbitfun-events` directly. These are the exact types the runtime's event
+// on `alex-events` directly. These are the exact types the runtime's event
 // subscribers receive; the app-server forwards them as `agent/event` notifications.
-pub use openbitfun_events::{AgenticEvent, AgenticEventEnvelope};
-pub use openbitfun_runtime_ports::{
+pub use alex_events::{AgenticEvent, AgenticEventEnvelope};
+pub use alex_runtime_ports::{
     AgentBackgroundResultRequest, AgentContextReloadPort, AgentDialogSteerRequest,
     AgentDialogTurnExecution, AgentDialogTurnPort, AgentDialogTurnRecoveryOutcome,
     AgentDialogTurnRecoveryRequest, AgentDialogTurnRequest, AgentInputAttachment,
@@ -112,7 +112,7 @@ pub use openbitfun_runtime_ports::{
     TranscriptContent, TranscriptMessage, TranscriptToolCall, WorkspaceDiffContent,
     WorkspaceDiffFile, WorkspaceDiffFileStatus, WorkspaceDiffSnapshot, WorkspacePort,
 };
-pub use openbitfun_runtime_services::{
+pub use alex_runtime_services::{
     CapabilityAvailability, RuntimeServices, RuntimeServicesBuilder, RuntimeServicesError,
     RuntimeServicesProvider, RuntimeServicesRegistry,
 };
@@ -680,8 +680,8 @@ impl AgentRuntime {
 
     pub async fn manage_dialog_queue(
         &self,
-        request: openbitfun_runtime_ports::DialogQueueRequest,
-    ) -> Result<openbitfun_runtime_ports::DialogQueueSnapshot, RuntimeError> {
+        request: alex_runtime_ports::DialogQueueRequest,
+    ) -> Result<alex_runtime_ports::DialogQueueSnapshot, RuntimeError> {
         self.inner.manage_dialog_queue(request).await
     }
 

@@ -21,7 +21,7 @@ import kotlin.test.assertFailsWith
 class RealtimeRelayIntegrationTest {
     @Test
     fun concurrentCallsUseOneAccountSocket(): Unit = runBlocking {
-        val credentials = System.getenv("OPENBITFUN_RELAY_LAB_CREDENTIALS")
+        val credentials = System.getenv("ALEX_RELAY_LAB_CREDENTIALS")
         assumeTrue("Requires a source-built Relay lab", !credentials.isNullOrBlank())
         val config = Json.parseToJsonElement(Files.readString(Path.of(credentials))).jsonObject
         val http = relayHttpClient()

@@ -14,7 +14,7 @@ import {
 const createWorkspace = (workspaceKind: WorkspaceKind): WorkspaceInfo => ({
   id: `${workspaceKind}-workspace`,
   name: 'OpenBitFun',
-  rootPath: '/workspace/OpenBitFun',
+  rootPath: '/workspace/Alex',
   workspaceType: WorkspaceType.SingleProject,
   workspaceKind,
   languages: [],

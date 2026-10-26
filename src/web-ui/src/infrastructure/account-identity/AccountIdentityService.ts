@@ -92,7 +92,7 @@ class BroadcastAccountIdentitySyncPort implements AccountIdentitySyncPort {
 export function createAccountIdentitySyncPort(): AccountIdentitySyncPort {
   if (typeof BroadcastChannel === 'undefined') return noopSyncPort;
   try {
-    return new BroadcastAccountIdentitySyncPort(new BroadcastChannel('openbitfun-account-identity'));
+    return new BroadcastAccountIdentitySyncPort(new BroadcastChannel('alex-account-identity'));
   } catch {
     return noopSyncPort;
   }

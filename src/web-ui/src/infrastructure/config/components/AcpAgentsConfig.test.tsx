@@ -41,8 +41,8 @@ vi.mock('@/infrastructure/i18n', () => ({
   }),
 }));
 
-vi.mock('@openbitfun/ui', async importOriginal => ({
-  ...await importOriginal<typeof import('@openbitfun/ui')>(),
+vi.mock('@alex/ui', async importOriginal => ({
+  ...await importOriginal<typeof import('@alex/ui')>(),
   ConfirmDialog: ({
     cancelText,
     confirmText,
@@ -249,7 +249,7 @@ async function openView(container: HTMLElement, label: string): Promise<void> {
 
 async function selectPermission(container: HTMLElement, value: string): Promise<void> {
   const trigger = container.querySelector<HTMLButtonElement>(
-    '[data-openbitfun-part="confirmation"] button[role="combobox"]',
+    '[data-alex-part="confirmation"] button[role="combobox"]',
   );
   expect(trigger).not.toBeNull();
   await act(async () => trigger!.click());
@@ -295,7 +295,7 @@ describe('AcpAgentsConfig', () => {
     listSavedConnectionsMock.mockResolvedValue([]);
     probeClientRequirementsMock.mockResolvedValue([]);
     saveJsonConfigMock.mockImplementation(async () => {
-      window.dispatchEvent(new Event('openbitfun:acp-clients-changed'));
+      window.dispatchEvent(new Event('alex:acp-clients-changed'));
     });
     installClientCliMock.mockResolvedValue(undefined);
     predownloadClientAdapterMock.mockResolvedValue(undefined);
@@ -427,11 +427,11 @@ describe('AcpAgentsConfig', () => {
     loadJsonConfigMock.mockResolvedValue(JSON.stringify(wrapped ? { acpClients } : acpClients));
     saveJsonConfigMock.mockImplementation(async (rawConfig: string) => {
       loadJsonConfigMock.mockResolvedValue(rawConfig);
-      window.dispatchEvent(new Event('openbitfun:acp-clients-changed'));
+      window.dispatchEvent(new Event('alex:acp-clients-changed'));
     });
 
     await act(async () => root.render(<AcpAgentsConfig />));
-    expect(container.querySelector('[data-openbitfun-part="confirmation"]')?.textContent)
+    expect(container.querySelector('[data-alex-part="confirmation"]')?.textContent)
       .toContain('permissionMode.ask');
     expect(container.querySelector('[role="alert"]')?.textContent)
       .toContain('permissionMode.legacyRejectWarning');
@@ -457,7 +457,7 @@ describe('AcpAgentsConfig', () => {
     expect(container.textContent).not.toContain('permissionMode.saveAndApply');
 
     await act(async () => {
-      window.dispatchEvent(new Event('openbitfun:acp-clients-changed'));
+      window.dispatchEvent(new Event('alex:acp-clients-changed'));
     });
     expect(container.textContent).not.toContain('permissionMode.legacyRejectWarning');
     expect(saveJsonConfigMock).toHaveBeenCalledTimes(1);
@@ -525,17 +525,17 @@ describe('AcpAgentsConfig', () => {
     });
 
     const row = Array.from(
-      container.querySelectorAll('.openbitfun-acp-agents__registry-row'),
-    ).find(candidate => candidate.querySelector('.openbitfun-acp-agents__registry-name')
+      container.querySelectorAll('.alex-acp-agents__registry-row'),
+    ).find(candidate => candidate.querySelector('.alex-acp-agents__registry-name')
       ?.textContent === 'opencode');
     expect(row).toBeTruthy();
 
     const status = row?.querySelector(
-      '[data-openbitfun-component="status-pill"][data-openbitfun-state="not_installed"]',
+      '[data-alex-component="status-pill"][data-alex-state="not_installed"]',
     );
 
-    expect(row?.querySelector('[data-openbitfun-part="capabilities"]')).toBeNull();
-    expect(row?.querySelectorAll('[data-openbitfun-component="status-pill"]')).toHaveLength(1);
+    expect(row?.querySelector('[data-alex-part="capabilities"]')).toBeNull();
+    expect(row?.querySelectorAll('[data-alex-component="status-pill"]')).toHaveLength(1);
     expect(status?.getAttribute('data-tone')).toBe('neutral');
   });
 
@@ -744,7 +744,7 @@ describe('AcpAgentsConfig', () => {
 
   it('restores a hidden remote server from the hidden list', async () => {
     localStorage.setItem(
-      'openbitfun:settings:acp-agents:hidden-remote-connections:v1',
+      'alex:settings:acp-agents:hidden-remote-connections:v1',
       JSON.stringify(['huawei-server'])
     );
     listSavedConnectionsMock.mockResolvedValue([{
@@ -792,7 +792,7 @@ describe('AcpAgentsConfig', () => {
 
   it('does not probe hidden remote servers until they are restored', async () => {
     localStorage.setItem(
-      'openbitfun:settings:acp-agents:hidden-remote-connections:v1',
+      'alex:settings:acp-agents:hidden-remote-connections:v1',
       JSON.stringify(['huawei-server'])
     );
     listSavedConnectionsMock.mockResolvedValue([{
@@ -900,7 +900,7 @@ describe('AcpAgentsConfig', () => {
     ];
     probeClientRequirementsMock.mockResolvedValue(healthyProbes);
     saveJsonConfigMock.mockImplementation(async () => {
-      window.dispatchEvent(new Event('openbitfun:acp-clients-changed'));
+      window.dispatchEvent(new Event('alex:acp-clients-changed'));
       loadJsonConfigMock.mockResolvedValue(JSON.stringify({
         acpClients: {
           opencode: {
@@ -1089,13 +1089,13 @@ describe('AcpAgentsConfig', () => {
       await Promise.resolve();
     });
 
-    const row = Array.from(container.querySelectorAll('.openbitfun-acp-agents__registry-row'))
-      .find(candidate => candidate.querySelector('.openbitfun-acp-agents__registry-name')
+    const row = Array.from(container.querySelectorAll('.alex-acp-agents__registry-row'))
+      .find(candidate => candidate.querySelector('.alex-acp-agents__registry-name')
         ?.textContent === 'Open Interpreter');
     expect(row).toBeTruthy();
     expect(row?.textContent).toContain('presets.interpreter.description');
 
-    // Self-managed: OpenBitFun ships no installer, so the one-click action is
+    // Self-managed: Alex ships no installer, so the one-click action is
     // hidden and the instructions take its place.
     const rowButtons = Array.from(row!.querySelectorAll('button'));
     expect(rowButtons.some(button => button.textContent?.includes('actions.installCli'))).toBe(false);
@@ -1110,7 +1110,7 @@ describe('AcpAgentsConfig', () => {
       await Promise.resolve();
     });
 
-    // The toast keeps the OpenBitFun-side guidance; the browser gets the
+    // The toast keeps the Alex-side guidance; the browser gets the
     // vendor's install page, which is what stays correct across platforms.
     expect(notifyInfoMock).toHaveBeenCalledWith(
       'registry.selfManagedCliMissingDetail',
@@ -1142,8 +1142,8 @@ describe('AcpAgentsConfig', () => {
       await Promise.resolve();
     });
 
-    const row = Array.from(container.querySelectorAll('.openbitfun-acp-agents__registry-row'))
-      .find(candidate => candidate.querySelector('.openbitfun-acp-agents__registry-name')
+    const row = Array.from(container.querySelectorAll('.alex-acp-agents__registry-row'))
+      .find(candidate => candidate.querySelector('.alex-acp-agents__registry-name')
         ?.textContent === 'Open Interpreter');
     expect(row).toBeTruthy();
     // A native ACP agent has no adapter to install, so it must not be reported
@@ -1174,8 +1174,8 @@ describe('AcpAgentsConfig', () => {
       await Promise.resolve();
     });
 
-    const row = Array.from(container.querySelectorAll('.openbitfun-acp-agents__registry-row'))
-      .find(candidate => candidate.querySelector('.openbitfun-acp-agents__registry-name')
+    const row = Array.from(container.querySelectorAll('.alex-acp-agents__registry-row'))
+      .find(candidate => candidate.querySelector('.alex-acp-agents__registry-name')
         ?.textContent === 'Open Interpreter');
     expect(row).toBeTruthy();
 
@@ -1189,7 +1189,7 @@ describe('AcpAgentsConfig', () => {
       await Promise.resolve();
     });
 
-    // Open Interpreter ships no npm package, so OpenBitFun must not try to
+    // Open Interpreter ships no npm package, so Alex must not try to
     // install it — it records the config and hands the install to the user.
     expect(installClientCliMock).not.toHaveBeenCalled();
     expect(saveJsonConfigMock).toHaveBeenCalledWith(expect.stringContaining('"interpreter"'));
@@ -1215,8 +1215,8 @@ describe('AcpAgentsConfig', () => {
     });
 
     expect(container.textContent).toContain('DeepSeek Harness');
-    // Unlike omp, the harness is a plain npm global, so OpenBitFun installs it.
-    // The bridge is not a separate adapter — it ships inside OpenBitFun.
+    // Unlike omp, the harness is a plain npm global, so Alex installs it.
+    // The bridge is not a separate adapter — it ships inside Alex.
     expect(container.textContent).not.toContain('registry.adapterMissing');
 
     const installButtons = Array.from(container.querySelectorAll('button'))
@@ -1241,7 +1241,7 @@ describe('AcpAgentsConfig', () => {
     );
   });
 
-  it('adds DeepSeek Harness as a launch of the profile OpenBitFun materializes', async () => {
+  it('adds DeepSeek Harness as a launch of the profile Alex materializes', async () => {
     probeClientRequirementsMock.mockResolvedValue([
       {
         id: 'dsh',
@@ -1263,8 +1263,8 @@ describe('AcpAgentsConfig', () => {
     // and the preset list happen to produce, so "the last add button" belongs
     // to some other agent as often as not.
     const harnessRow = Array.from(
-      container.querySelectorAll('.openbitfun-acp-agents__registry-row'),
-    ).find(row => row.querySelector('.openbitfun-acp-agents__registry-name')
+      container.querySelectorAll('.alex-acp-agents__registry-row'),
+    ).find(row => row.querySelector('.alex-acp-agents__registry-name')
       ?.textContent === 'DeepSeek Harness');
     expect(harnessRow).toBeTruthy();
 
@@ -1279,10 +1279,10 @@ describe('AcpAgentsConfig', () => {
       await Promise.resolve();
     });
 
-    // The command has to name the profile OpenBitFun materializes; a bare `dsh`
+    // The command has to name the profile Alex materializes; a bare `dsh`
     // would drop the user into the harness's own default composition, which
     // does not speak ACP at all.
-    expect(saveJsonConfigMock).toHaveBeenCalledWith(expect.stringContaining('openbitfun-acp'));
+    expect(saveJsonConfigMock).toHaveBeenCalledWith(expect.stringContaining('alex-acp'));
   });
 
   it('does not downgrade enabled agents on transient probe timeouts during refresh', async () => {

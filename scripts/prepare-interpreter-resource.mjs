@@ -11,7 +11,7 @@ const MANIFEST_PATH = join(RESOURCE_DIR, 'VERSION.json');
 // The manifest the product reads at runtime. It is written next to the
 // packaged files so the product never has to read the upstream package
 // descriptor, and so a change to the upstream layout cannot break the lookup.
-const PACKAGE_MANIFEST = 'openbitfun-bundled-tool.json';
+const PACKAGE_MANIFEST = 'alex-bundled-tool.json';
 
 const HOST_TARGETS = {
   'darwin/arm64': 'aarch64-apple-darwin',

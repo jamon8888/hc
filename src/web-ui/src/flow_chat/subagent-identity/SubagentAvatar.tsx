@@ -37,10 +37,10 @@ export const SubagentAvatar: React.FC<SubagentAvatarProps> = ({
   return (
     <span
       className={classes}
-      data-openbitfun-component="subagent-avatar"
-      data-openbitfun-part="root"
-      data-openbitfun-avatar-id={presentation.avatarId}
-      data-openbitfun-state={status}
+      data-alex-component="subagent-avatar"
+      data-alex-part="root"
+      data-alex-avatar-id={presentation.avatarId}
+      data-alex-state={status}
       style={{
         '--subagent-avatar-size': `${size}px`,
       } as React.CSSProperties}

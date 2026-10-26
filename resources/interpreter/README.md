@@ -21,7 +21,7 @@ codex-package.json       the upstream package descriptor
 ```
 
 The helper files are read relative to the executable, so the package has to
-ship as one directory. The build step writes `openbitfun-bundled-tool.json`
+ship as one directory. The build step writes `alex-bundled-tool.json`
 next to them, which is what the product reads at runtime — the product never
 reads the upstream `codex-package.json`, so a change to the upstream layout
 cannot break the lookup.

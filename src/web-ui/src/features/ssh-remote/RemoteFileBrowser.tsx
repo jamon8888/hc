@@ -3,7 +3,7 @@
  * Used to browse and select remote directory as workspace
  */
 
-import { subscribeOverlayInteraction, createOverlayPortal, Button, Dialog, ConfirmDialog, Icon, IconButton, Input, Menu, MenuItem, MenuSeparator, ScrollArea } from '@openbitfun/ui';
+import { subscribeOverlayInteraction, createOverlayPortal, Button, Dialog, ConfirmDialog, Icon, IconButton, Input, Menu, MenuItem, MenuSeparator, ScrollArea } from '@alex/ui';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { getAppearanceOverlayHost } from '@/infrastructure/appearance/runtime/AppearanceOverlayHost';
 import { useI18n } from '@/infrastructure/i18n';
@@ -386,11 +386,11 @@ export const RemoteFileBrowser: React.FC<RemoteFileBrowserProps> = ({
   };
 
   const browser = (
-    <div className="remote-file-browser-overlay" data-openbitfun-component="ssh-remote" data-openbitfun-part="browserOverlay">
+    <div className="remote-file-browser-overlay" data-alex-component="ssh-remote" data-alex-part="browserOverlay">
       <div ref={surfaceRef} role="dialog" aria-modal="true" tabIndex={-1}
-        className="remote-file-browser" data-openbitfun-component="ssh-remote" data-openbitfun-part="browser">
+        className="remote-file-browser" data-alex-component="ssh-remote" data-alex-part="browser">
         {/* Header */}
-        <div className="remote-file-browser__header" data-openbitfun-component="ssh-remote" data-openbitfun-part="browserHeader">
+        <div className="remote-file-browser__header" data-alex-component="ssh-remote" data-alex-part="browserHeader">
           <h2 className="remote-file-browser__header-title">
             {t('ssh.remote.selectWorkspace')}
           </h2>
@@ -400,16 +400,16 @@ export const RemoteFileBrowser: React.FC<RemoteFileBrowserProps> = ({
             size="md"
             onClick={onCancel}
             aria-label={t('actions.close')}
-            data-openbitfun-component="ssh-remote"
-            data-openbitfun-part="browserClose"
+            data-alex-component="ssh-remote"
+            data-alex-part="browserClose"
           />
         </div>
 
         {/* Path Breadcrumb / Input */}
         <ScrollArea
           className="remote-file-browser__breadcrumb"
-          data-openbitfun-component="ssh-remote"
-          data-openbitfun-part="breadcrumb"
+          data-alex-component="ssh-remote"
+          data-alex-part="breadcrumb"
           orientation="horizontal"
           scrollbarVisibility="hidden"
         >
@@ -471,7 +471,7 @@ export const RemoteFileBrowser: React.FC<RemoteFileBrowserProps> = ({
         </ScrollArea>
 
         {/* Toolbar */}
-        <div className="remote-file-browser__toolbar" data-openbitfun-component="ssh-remote" data-openbitfun-part="toolbar">
+        <div className="remote-file-browser__toolbar" data-alex-component="ssh-remote" data-alex-part="toolbar">
           <IconButton
             className="remote-file-browser__toolbar-btn"
             onClick={() => loadDirectory(currentPath)}
@@ -510,7 +510,7 @@ export const RemoteFileBrowser: React.FC<RemoteFileBrowserProps> = ({
         )}
 
         {/* File List */}
-        <ScrollArea className="remote-file-browser__content" data-openbitfun-component="ssh-remote" data-openbitfun-part="content">
+        <ScrollArea className="remote-file-browser__content" data-alex-component="ssh-remote" data-alex-part="content">
           {error && (
             <div className="remote-file-browser__error">
               <span>{error}</span>
@@ -717,7 +717,7 @@ export const RemoteFileBrowser: React.FC<RemoteFileBrowserProps> = ({
         />
 
         {/* Footer */}
-        <div className="remote-file-browser__footer" data-openbitfun-component="ssh-remote" data-openbitfun-part="footer">
+        <div className="remote-file-browser__footer" data-alex-component="ssh-remote" data-alex-part="footer">
           <div className="remote-file-browser__footer-info">
             {!selectDirectoriesOnly && selectedPath ? (
               <>

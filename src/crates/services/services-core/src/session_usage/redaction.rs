@@ -134,8 +134,8 @@ mod tests {
     #[test]
     fn display_workspace_relative_path_keeps_workspace_relative_label() {
         let label = display_workspace_relative_path(
-            Some("D:/workspace/openbitfun"),
-            "D:/workspace/openbitfun/src/main.rs",
+            Some("D:/workspace/alex"),
+            "D:/workspace/alex/src/main.rs",
         );
 
         assert!(!label.redacted);

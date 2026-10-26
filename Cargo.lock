@@ -6003,7 +6003,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "openbitfun-acp"
+name = "alex-acp"
 version = "1.0.2"
 dependencies = [
  "agent-client-protocol",
@@ -6013,11 +6013,11 @@ dependencies = [
  "dirs 6.0.0",
  "futures",
  "log",
- "openbitfun-agent-runtime",
- "openbitfun-agent-tools",
- "openbitfun-core",
- "openbitfun-core-types",
- "openbitfun-events",
+ "alex-agent-runtime",
+ "alex-agent-tools",
+ "alex-core",
+ "alex-core-types",
+ "alex-events",
  "semver",
  "serde",
  "serde_json",
@@ -6029,23 +6029,23 @@ dependencies = [
 ]
 
 [[package]]
-name = "openbitfun-agent-content"
+name = "alex-agent-content"
 version = "1.0.2"
 
 [[package]]
-name = "openbitfun-agent-runtime"
+name = "alex-agent-runtime"
 version = "1.0.2"
 dependencies = [
  "async-trait",
  "dashmap",
  "hex",
  "log",
- "openbitfun-agent-stream",
- "openbitfun-agent-tools",
- "openbitfun-core-types",
- "openbitfun-events",
- "openbitfun-runtime-ports",
- "openbitfun-runtime-services",
+ "alex-agent-stream",
+ "alex-agent-tools",
+ "alex-core-types",
+ "alex-events",
+ "alex-runtime-ports",
+ "alex-runtime-services",
  "regex",
  "serde",
  "serde_json",
@@ -6058,16 +6058,16 @@ dependencies = [
 ]
 
 [[package]]
-name = "openbitfun-agent-runtime-ipc"
+name = "alex-agent-runtime-ipc"
 version = "1.0.2"
 dependencies = [
  "async-trait",
  "dunce",
  "fs2",
- "openbitfun-events",
- "openbitfun-product-domains",
- "openbitfun-runtime-ports",
- "openbitfun-transport",
+ "alex-events",
+ "alex-product-domains",
+ "alex-runtime-ports",
+ "alex-transport",
  "serde",
  "serde_json",
  "sha2 0.10.9",
@@ -6079,17 +6079,17 @@ dependencies = [
 ]
 
 [[package]]
-name = "openbitfun-agent-stream"
+name = "alex-agent-stream"
 version = "1.0.2"
 dependencies = [
  "anyhow",
  "async-trait",
  "futures",
  "log",
- "openbitfun-agent-tools",
- "openbitfun-core-types",
- "openbitfun-events",
- "openbitfun-tool-call-jsonrepair",
+ "alex-agent-tools",
+ "alex-core-types",
+ "alex-events",
+ "alex-tool-call-jsonrepair",
  "serde",
  "serde_json",
  "tokio",
@@ -6099,27 +6099,27 @@ dependencies = [
 ]
 
 [[package]]
-name = "openbitfun-agent-tools"
+name = "alex-agent-tools"
 version = "1.0.2"
 dependencies = [
  "async-trait",
  "indexmap 2.14.0",
- "openbitfun-core-types",
- "openbitfun-runtime-ports",
+ "alex-core-types",
+ "alex-runtime-ports",
  "serde",
  "serde_json",
  "tokio",
 ]
 
 [[package]]
-name = "openbitfun-agent-workflows"
+name = "alex-agent-workflows"
 version = "1.0.2"
 dependencies = [
  "regex",
 ]
 
 [[package]]
-name = "openbitfun-ai-adapters"
+name = "alex-ai-adapters"
 version = "1.0.2"
 dependencies = [
  "anyhow",
@@ -6135,10 +6135,10 @@ dependencies = [
  "keyring-core",
  "libc",
  "log",
- "openbitfun-agent-stream",
- "openbitfun-core-types",
- "openbitfun-events",
- "openbitfun-services-core",
+ "alex-agent-stream",
+ "alex-core-types",
+ "alex-events",
+ "alex-services-core",
  "reqwest",
  "serde",
  "serde_json",
@@ -6153,7 +6153,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "openbitfun-app-server"
+name = "alex-app-server"
 version = "1.0.2"
 dependencies = [
  "agent-client-protocol",
@@ -6161,12 +6161,12 @@ dependencies = [
  "async-trait",
  "dunce",
  "log",
- "openbitfun-agent-runtime",
- "openbitfun-app-server-client",
- "openbitfun-app-server-protocol",
- "openbitfun-core",
- "openbitfun-product-domains",
- "openbitfun-runtime-ports",
+ "alex-agent-runtime",
+ "alex-app-server-client",
+ "alex-app-server-protocol",
+ "alex-core",
+ "alex-product-domains",
+ "alex-runtime-ports",
  "serde",
  "serde_json",
  "tokio",
@@ -6175,32 +6175,32 @@ dependencies = [
 ]
 
 [[package]]
-name = "openbitfun-app-server-client"
+name = "alex-app-server-client"
 version = "1.0.2"
 dependencies = [
  "agent-client-protocol",
  "anyhow",
- "openbitfun-app-server-protocol",
+ "alex-app-server-protocol",
  "serde_json",
  "tokio",
 ]
 
 [[package]]
-name = "openbitfun-app-server-protocol"
+name = "alex-app-server-protocol"
 version = "1.0.2"
 dependencies = [
  "agent-client-protocol",
- "openbitfun-core-types",
- "openbitfun-events",
- "openbitfun-product-domains",
- "openbitfun-runtime-ports",
+ "alex-core-types",
+ "alex-events",
+ "alex-product-domains",
+ "alex-runtime-ports",
  "serde",
  "serde_json",
  "ts-rs",
 ]
 
 [[package]]
-name = "openbitfun-basemind-integration"
+name = "alex-basemind-integration"
 version = "0.1.0"
 dependencies = [
  "aes-gcm",
@@ -6214,8 +6214,8 @@ dependencies = [
  "keyring-core",
  "log",
  "md5",
- "openbitfun-runtime-ports",
- "openbitfun-services-core",
+ "alex-runtime-ports",
+ "alex-services-core",
  "rand 0.8.7",
  "regex",
  "reqwest",
@@ -6238,16 +6238,16 @@ dependencies = [
 ]
 
 [[package]]
-name = "openbitfun-claude-code-adapter"
+name = "alex-claude-code-adapter"
 version = "1.0.2"
 dependencies = [
  "dirs 6.0.0",
  "dunce",
  "hex",
  "log",
- "openbitfun-product-domains",
- "openbitfun-services-core",
- "openbitfun-static-hook-support",
+ "alex-product-domains",
+ "alex-services-core",
+ "alex-static-hook-support",
  "regex",
  "serde_json",
  "serde_yaml",
@@ -6257,7 +6257,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "openbitfun-cli"
+name = "alex-cli"
 version = "1.0.2"
 dependencies = [
  "anyhow",
@@ -6277,18 +6277,18 @@ dependencies = [
  "libc",
  "minisign-verify",
  "once_cell",
- "openbitfun-acp",
- "openbitfun-agent-runtime",
- "openbitfun-agent-runtime-ipc",
- "openbitfun-agent-tools",
- "openbitfun-app-server",
- "openbitfun-core",
- "openbitfun-core-types",
- "openbitfun-events",
- "openbitfun-product-domains",
- "openbitfun-runtime-ports",
- "openbitfun-runtime-services",
- "openbitfun-services-core",
+ "alex-acp",
+ "alex-agent-runtime",
+ "alex-agent-runtime-ipc",
+ "alex-agent-tools",
+ "alex-app-server",
+ "alex-core",
+ "alex-core-types",
+ "alex-events",
+ "alex-product-domains",
+ "alex-runtime-ports",
+ "alex-runtime-services",
+ "alex-services-core",
  "portable-pty 0.8.1",
  "portable-pty 0.9.0",
  "pulldown-cmark",
@@ -6316,15 +6316,15 @@ dependencies = [
 ]
 
 [[package]]
-name = "openbitfun-codex-adapter"
+name = "alex-codex-adapter"
 version = "1.0.2"
 dependencies = [
  "dirs 6.0.0",
  "dunce",
  "hex",
- "openbitfun-product-domains",
- "openbitfun-services-core",
- "openbitfun-static-hook-support",
+ "alex-product-domains",
+ "alex-services-core",
+ "alex-static-hook-support",
  "serde_json",
  "sha2 0.10.9",
  "tempfile",
@@ -6333,14 +6333,14 @@ dependencies = [
 ]
 
 [[package]]
-name = "openbitfun-config-contracts"
+name = "alex-config-contracts"
 version = "1.0.2"
 dependencies = [
  "chrono",
  "hex",
  "log",
- "openbitfun-core-types",
- "openbitfun-product-domains",
+ "alex-core-types",
+ "alex-product-domains",
  "serde",
  "serde_json",
  "sha2 0.10.9",
@@ -6348,7 +6348,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "openbitfun-core"
+name = "alex-core"
 version = "1.0.2"
 dependencies = [
  "anyhow",
@@ -6373,31 +6373,31 @@ dependencies = [
  "log",
  "md5",
  "notify",
- "openbitfun-agent-content",
- "openbitfun-agent-runtime",
- "openbitfun-agent-stream",
- "openbitfun-agent-tools",
- "openbitfun-agent-workflows",
- "openbitfun-ai-adapters",
- "openbitfun-claude-code-adapter",
- "openbitfun-codex-adapter",
- "openbitfun-config-contracts",
- "openbitfun-core-types",
- "openbitfun-dsh-adapter",
- "openbitfun-events",
- "openbitfun-external-sources",
- "openbitfun-legacy-migration-adapters",
- "openbitfun-opencode-adapter",
- "openbitfun-opencode-plugin-host",
- "openbitfun-pi-adapter",
- "openbitfun-plugin-runtime-client",
- "openbitfun-product-capabilities",
- "openbitfun-product-domains",
- "openbitfun-runtime-ports",
- "openbitfun-runtime-services",
- "openbitfun-services-core",
- "openbitfun-services-integrations",
- "openbitfun-tool-packs",
+ "alex-agent-content",
+ "alex-agent-runtime",
+ "alex-agent-stream",
+ "alex-agent-tools",
+ "alex-agent-workflows",
+ "alex-ai-adapters",
+ "alex-claude-code-adapter",
+ "alex-codex-adapter",
+ "alex-config-contracts",
+ "alex-core-types",
+ "alex-dsh-adapter",
+ "alex-events",
+ "alex-external-sources",
+ "alex-legacy-migration-adapters",
+ "alex-opencode-adapter",
+ "alex-opencode-plugin-host",
+ "alex-pi-adapter",
+ "alex-plugin-runtime-client",
+ "alex-product-capabilities",
+ "alex-product-domains",
+ "alex-runtime-ports",
+ "alex-runtime-services",
+ "alex-services-core",
+ "alex-services-integrations",
+ "alex-tool-packs",
  "regex",
  "reqwest",
  "rusqlite",
@@ -6421,7 +6421,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "openbitfun-core-types"
+name = "alex-core-types"
 version = "1.0.2"
 dependencies = [
  "serde",
@@ -6430,13 +6430,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "openbitfun-data-migrator"
+name = "alex-data-migrator"
 version = "0.1.1"
 dependencies = [
- "openbitfun-core-types",
- "openbitfun-legacy-migration",
- "openbitfun-legacy-migration-adapters",
- "openbitfun-product-domains",
+ "alex-core-types",
+ "alex-legacy-migration",
+ "alex-legacy-migration-adapters",
+ "alex-product-domains",
  "serde",
  "serde_json",
  "tauri",
@@ -6446,7 +6446,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "openbitfun-desktop"
+name = "alex-desktop"
 version = "1.0.2"
 dependencies = [
  "alloc-no-stdlib",
@@ -6485,20 +6485,20 @@ dependencies = [
  "objc2-app-kit",
  "objc2-foundation",
  "objc2-vision",
- "openbitfun-acp",
- "openbitfun-agent-runtime",
- "openbitfun-agent-tools",
- "openbitfun-basemind-integration",
- "openbitfun-core",
- "openbitfun-core-types",
- "openbitfun-events",
- "openbitfun-product-domains",
- "openbitfun-relay-service",
- "openbitfun-runtime-ports",
- "openbitfun-services-core",
- "openbitfun-services-integrations",
- "openbitfun-transport",
- "openbitfun-webdriver",
+ "alex-acp",
+ "alex-agent-runtime",
+ "alex-agent-tools",
+ "alex-basemind-integration",
+ "alex-core",
+ "alex-core-types",
+ "alex-events",
+ "alex-product-domains",
+ "alex-relay-service",
+ "alex-runtime-ports",
+ "alex-services-core",
+ "alex-services-integrations",
+ "alex-transport",
+ "alex-webdriver",
  "regex",
  "reqwest",
  "resvg",
@@ -6537,16 +6537,16 @@ dependencies = [
 ]
 
 [[package]]
-name = "openbitfun-dsh-adapter"
+name = "alex-dsh-adapter"
 version = "1.0.2"
 dependencies = [
  "async-trait",
  "dirs 6.0.0",
  "hex",
- "openbitfun-plugin-runtime-client",
- "openbitfun-product-domains",
- "openbitfun-runtime-ports",
- "openbitfun-static-hook-support",
+ "alex-plugin-runtime-client",
+ "alex-product-domains",
+ "alex-runtime-ports",
+ "alex-static-hook-support",
  "serde",
  "serde_json",
  "serde_yaml",
@@ -6558,31 +6558,31 @@ dependencies = [
 ]
 
 [[package]]
-name = "openbitfun-events"
+name = "alex-events"
 version = "1.0.2"
 dependencies = [
  "anyhow",
  "async-trait",
  "chrono",
  "log",
- "openbitfun-core-types",
+ "alex-core-types",
  "serde",
  "serde_json",
  "uuid",
 ]
 
 [[package]]
-name = "openbitfun-external-sources"
+name = "alex-external-sources"
 version = "1.0.2"
 dependencies = [
  "futures",
  "log",
- "openbitfun-product-domains",
+ "alex-product-domains",
  "tokio",
 ]
 
 [[package]]
-name = "openbitfun-legacy-migration"
+name = "alex-legacy-migration"
 version = "1.0.2"
 dependencies = [
  "chrono",
@@ -6590,8 +6590,8 @@ dependencies = [
  "fs2",
  "hex",
  "libc",
- "openbitfun-product-domains",
- "openbitfun-services-core",
+ "alex-product-domains",
+ "alex-services-core",
  "rusqlite",
  "semver",
  "serde",
@@ -6604,20 +6604,20 @@ dependencies = [
 ]
 
 [[package]]
-name = "openbitfun-legacy-migration-adapters"
+name = "alex-legacy-migration-adapters"
 version = "1.0.2"
 dependencies = [
  "anyhow",
  "chrono",
  "dunce",
  "hex",
- "openbitfun-agent-runtime",
- "openbitfun-config-contracts",
- "openbitfun-core-types",
- "openbitfun-legacy-migration",
- "openbitfun-product-domains",
- "openbitfun-services-core",
- "openbitfun-services-integrations",
+ "alex-agent-runtime",
+ "alex-config-contracts",
+ "alex-core-types",
+ "alex-legacy-migration",
+ "alex-product-domains",
+ "alex-services-core",
+ "alex-services-integrations",
  "rusqlite",
  "serde",
  "serde_json",
@@ -6628,19 +6628,19 @@ dependencies = [
 ]
 
 [[package]]
-name = "openbitfun-miniapp-market-server"
+name = "alex-miniapp-market-server"
 version = "1.0.2"
 dependencies = [
  "anyhow",
  "axum",
- "openbitfun-miniapp-market-service",
+ "alex-miniapp-market-service",
  "tokio",
  "tracing",
  "tracing-subscriber",
 ]
 
 [[package]]
-name = "openbitfun-miniapp-market-service"
+name = "alex-miniapp-market-service"
 version = "1.0.2"
 dependencies = [
  "anyhow",
@@ -6651,8 +6651,8 @@ dependencies = [
  "hmac 0.12.1",
  "image 0.25.10",
  "lettre",
- "openbitfun-product-domains",
- "openbitfun-services-core",
+ "alex-product-domains",
+ "alex-services-core",
  "rand 0.8.7",
  "reqwest",
  "semver",
@@ -6673,7 +6673,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "openbitfun-opencode-adapter"
+name = "alex-opencode-adapter"
 version = "1.0.2"
 dependencies = [
  "async-trait",
@@ -6682,12 +6682,12 @@ dependencies = [
  "globset",
  "hex",
  "log",
- "openbitfun-plugin-runtime-client",
- "openbitfun-product-domains",
- "openbitfun-runtime-ports",
- "openbitfun-services-core",
- "openbitfun-services-integrations",
- "openbitfun-static-hook-support",
+ "alex-plugin-runtime-client",
+ "alex-product-domains",
+ "alex-runtime-ports",
+ "alex-services-core",
+ "alex-services-integrations",
+ "alex-static-hook-support",
  "oxc",
  "regex",
  "serde",
@@ -6702,14 +6702,14 @@ dependencies = [
 ]
 
 [[package]]
-name = "openbitfun-opencode-plugin-host"
+name = "alex-opencode-plugin-host"
 version = "1.0.2"
 dependencies = [
  "async-trait",
  "base64 0.22.1",
  "log",
- "openbitfun-runtime-ports",
- "openbitfun-services-core",
+ "alex-runtime-ports",
+ "alex-services-core",
  "rand 0.8.7",
  "serde",
  "serde_json",
@@ -6721,7 +6721,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "openbitfun-page-function-runtime"
+name = "alex-page-function-runtime"
 version = "1.0.2"
 dependencies = [
  "rquickjs",
@@ -6731,40 +6731,40 @@ dependencies = [
 ]
 
 [[package]]
-name = "openbitfun-pi-adapter"
+name = "alex-pi-adapter"
 version = "1.0.2"
 dependencies = [
  "dirs 6.0.0",
- "openbitfun-product-domains",
- "openbitfun-static-hook-support",
+ "alex-product-domains",
+ "alex-static-hook-support",
  "oxc",
  "serde_json",
  "tempfile",
 ]
 
 [[package]]
-name = "openbitfun-plugin-runtime-client"
+name = "alex-plugin-runtime-client"
 version = "1.0.2"
 dependencies = [
  "async-trait",
- "openbitfun-runtime-ports",
+ "alex-runtime-ports",
  "tokio",
 ]
 
 [[package]]
-name = "openbitfun-product-capabilities"
+name = "alex-product-capabilities"
 version = "1.0.2"
 dependencies = [
  "async-trait",
- "openbitfun-agent-runtime",
- "openbitfun-runtime-ports",
- "openbitfun-runtime-services",
- "openbitfun-tool-packs",
+ "alex-agent-runtime",
+ "alex-runtime-ports",
+ "alex-runtime-services",
+ "alex-tool-packs",
  "tokio",
 ]
 
 [[package]]
-name = "openbitfun-product-domains"
+name = "alex-product-domains"
 version = "1.0.2"
 dependencies = [
  "dirs 6.0.0",
@@ -6782,14 +6782,14 @@ dependencies = [
 ]
 
 [[package]]
-name = "openbitfun-relay-server"
+name = "alex-relay-server"
 version = "1.0.2"
 dependencies = [
  "anyhow",
  "axum",
  "chrono",
  "clap",
- "openbitfun-relay-service",
+ "alex-relay-service",
  "rpassword",
  "serde_json",
  "tokio",
@@ -6799,7 +6799,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "openbitfun-relay-service"
+name = "alex-relay-service"
 version = "1.0.2"
 dependencies = [
  "anyhow",
@@ -6809,7 +6809,7 @@ dependencies = [
  "dashmap",
  "futures-util",
  "libsqlite3-sys",
- "openbitfun-page-function-runtime",
+ "alex-page-function-runtime",
  "rand 0.8.7",
  "reqwest",
  "rusqlite",
@@ -6830,13 +6830,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "openbitfun-runtime-ports"
+name = "alex-runtime-ports"
 version = "1.0.2"
 dependencies = [
  "anyhow",
  "async-trait",
- "openbitfun-core-types",
- "openbitfun-product-domains",
+ "alex-core-types",
+ "alex-product-domains",
  "serde",
  "serde_json",
  "tokio",
@@ -6845,14 +6845,14 @@ dependencies = [
 ]
 
 [[package]]
-name = "openbitfun-runtime-services"
+name = "alex-runtime-services"
 version = "1.0.2"
 dependencies = [
  "anyhow",
  "async-trait",
  "log",
- "openbitfun-events",
- "openbitfun-runtime-ports",
+ "alex-events",
+ "alex-runtime-ports",
  "serde",
  "serde_json",
  "thiserror 2.0.19",
@@ -6860,15 +6860,15 @@ dependencies = [
 ]
 
 [[package]]
-name = "openbitfun-sdk-host"
+name = "alex-sdk-host"
 version = "1.0.2"
 dependencies = [
  "async-trait",
  "futures-util",
- "openbitfun-agent-runtime",
- "openbitfun-core-types",
- "openbitfun-events",
- "openbitfun-runtime-ports",
+ "alex-agent-runtime",
+ "alex-core-types",
+ "alex-events",
+ "alex-runtime-ports",
  "serde",
  "serde_json",
  "tokio",
@@ -6879,17 +6879,17 @@ dependencies = [
 ]
 
 [[package]]
-name = "openbitfun-sdk-host-app"
+name = "alex-sdk-host-app"
 version = "1.0.2"
 dependencies = [
  "anyhow",
  "async-trait",
  "futures-util",
- "openbitfun-agent-runtime",
- "openbitfun-core",
- "openbitfun-sdk-host",
- "openbitfun-services-core",
- "openbitfun-transport",
+ "alex-agent-runtime",
+ "alex-core",
+ "alex-sdk-host",
+ "alex-services-core",
+ "alex-transport",
  "rustls",
  "serde_json",
  "tempfile",
@@ -6901,7 +6901,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "openbitfun-server"
+name = "alex-server"
 version = "1.0.2"
 dependencies = [
  "agent-client-protocol",
@@ -6914,10 +6914,10 @@ dependencies = [
  "futures",
  "futures-util",
  "log",
- "openbitfun-agent-runtime",
- "openbitfun-app-server",
- "openbitfun-core",
- "openbitfun-events",
+ "alex-agent-runtime",
+ "alex-app-server",
+ "alex-core",
+ "alex-events",
  "serde",
  "serde_json",
  "tokio",
@@ -6927,7 +6927,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "openbitfun-services-core"
+name = "alex-services-core"
 version = "1.0.2"
 dependencies = [
  "aes-gcm",
@@ -6945,10 +6945,10 @@ dependencies = [
  "image 0.25.10",
  "libc",
  "log",
- "openbitfun-core-types",
- "openbitfun-events",
- "openbitfun-product-domains",
- "openbitfun-runtime-ports",
+ "alex-core-types",
+ "alex-events",
+ "alex-product-domains",
+ "alex-runtime-ports",
  "rand 0.8.7",
  "regex",
  "rusqlite",
@@ -6969,7 +6969,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "openbitfun-services-integrations"
+name = "alex-services-integrations"
 version = "1.0.2"
 dependencies = [
  "aes",
@@ -6997,14 +6997,14 @@ dependencies = [
  "md5",
  "minisign-verify",
  "notify",
- "openbitfun-agent-runtime",
- "openbitfun-agent-tools",
- "openbitfun-agent-workflows",
- "openbitfun-core-types",
- "openbitfun-events",
- "openbitfun-product-domains",
- "openbitfun-runtime-ports",
- "openbitfun-services-core",
+ "alex-agent-runtime",
+ "alex-agent-tools",
+ "alex-agent-workflows",
+ "alex-core-types",
+ "alex-events",
+ "alex-product-domains",
+ "alex-runtime-ports",
+ "alex-services-core",
  "oxc",
  "pulldown-cmark",
  "qrcode",
@@ -7047,19 +7047,19 @@ dependencies = [
 ]
 
 [[package]]
-name = "openbitfun-skin-market-server"
+name = "alex-skin-market-server"
 version = "1.0.2"
 dependencies = [
  "anyhow",
  "axum",
- "openbitfun-skin-market-service",
+ "alex-skin-market-service",
  "tokio",
  "tracing",
  "tracing-subscriber",
 ]
 
 [[package]]
-name = "openbitfun-skin-market-service"
+name = "alex-skin-market-service"
 version = "1.0.2"
 dependencies = [
  "anyhow",
@@ -7069,8 +7069,8 @@ dependencies = [
  "hex",
  "hmac 0.12.1",
  "image 0.25.10",
- "openbitfun-product-domains",
- "openbitfun-services-core",
+ "alex-product-domains",
+ "alex-services-core",
  "reqwest",
  "semver",
  "serde",
@@ -7089,12 +7089,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "openbitfun-static-hook-support"
+name = "alex-static-hook-support"
 version = "1.0.2"
 dependencies = [
  "hex",
- "openbitfun-product-domains",
- "openbitfun-services-core",
+ "alex-product-domains",
+ "alex-services-core",
  "serde_json",
  "sha2 0.10.9",
  "tempfile",
@@ -7102,7 +7102,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "openbitfun-tool-call-jsonrepair"
+name = "alex-tool-call-jsonrepair"
 version = "1.0.2"
 dependencies = [
  "serde",
@@ -7110,17 +7110,17 @@ dependencies = [
 ]
 
 [[package]]
-name = "openbitfun-tool-packs"
+name = "alex-tool-packs"
 version = "1.0.2"
 
 [[package]]
-name = "openbitfun-transport"
+name = "alex-transport"
 version = "1.0.2"
 dependencies = [
  "anyhow",
  "async-trait",
  "log",
- "openbitfun-events",
+ "alex-events",
  "serde",
  "serde_json",
  "tauri",
@@ -7128,7 +7128,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "openbitfun-webdriver"
+name = "alex-webdriver"
 version = "1.0.2"
 dependencies = [
  "anyhow",
@@ -11101,7 +11101,7 @@ dependencies = [
  "futures",
  "libc",
  "log",
- "openbitfun-runtime-ports",
+ "alex-runtime-ports",
  "portable-pty 0.8.1",
  "portable-pty 0.9.0",
  "rand 0.8.7",
@@ -11559,10 +11559,10 @@ dependencies = [
  "ignore",
  "legible",
  "log",
- "openbitfun-agent-tools",
- "openbitfun-core-types",
- "openbitfun-events",
- "openbitfun-runtime-ports",
+ "alex-agent-tools",
+ "alex-core-types",
+ "alex-events",
+ "alex-runtime-ports",
  "readability-js",
  "regex",
  "serde",

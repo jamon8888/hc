@@ -209,7 +209,7 @@ impl ChatMode {
                 editor_error,
                 overwrite_confirmed,
             } => {
-                let store = openbitfun_services_core::json_store::JsonFileStore;
+                let store = alex_services_core::json_store::JsonFileStore;
                 if let Some(path) = target.as_deref() {
                     let write_result = tokio::task::block_in_place(|| {
                         if overwrite_confirmed {
@@ -362,12 +362,12 @@ impl ChatMode {
         self.auto_approve_ask_default = tokio::task::block_in_place(|| {
             rt_handle.block_on(async {
                 let Ok(service) =
-                    openbitfun_core::service::config::get_global_config_service().await
+                    alex_core::service::config::get_global_config_service().await
                 else {
                     return false;
                 };
                 service
-                    .get_config::<openbitfun_core::service::config::types::GlobalConfig>(None)
+                    .get_config::<alex_core::service::config::types::GlobalConfig>(None)
                     .await
                     .map(|config| config.tool_permissions.interaction.auto_approve_ask)
                     .unwrap_or(false)
@@ -479,7 +479,7 @@ impl ChatMode {
             } else {
                 rt_handle
                     .block_on(
-                        openbitfun_core::external_sources::subscribe_external_source_updates(
+                        alex_core::external_sources::subscribe_external_source_updates(
                             workspace.as_deref(),
                         ),
                     )
@@ -488,22 +488,22 @@ impl ChatMode {
             let snapshot = rt_handle.block_on(async {
                 if self.agent.is_remote_workspace() {
                     return Err(
-                        openbitfun_core::external_sources::sanitize_external_source_operation_error(
+                        alex_core::external_sources::sanitize_external_source_operation_error(
                             "External source management is unavailable for a Remote workspace"
                                 .to_string(),
                         ),
                     );
                 }
-                let snapshot = openbitfun_core::external_sources::external_source_snapshot(
+                let snapshot = alex_core::external_sources::external_source_snapshot(
                     workspace.as_deref(),
                     false,
                 )
                 .await
-                .map_err(openbitfun_core::external_sources::sanitize_external_source_operation_error)?;
-                let preferences = openbitfun_core::external_sources::external_source_conflict_choices()
+                .map_err(alex_core::external_sources::sanitize_external_source_operation_error)?;
+                let preferences = alex_core::external_sources::external_source_conflict_choices()
                     .await
                     .map_err(
-                        openbitfun_core::external_sources::sanitize_external_source_operation_error,
+                        alex_core::external_sources::sanitize_external_source_operation_error,
                     )?;
                 Ok::<_, ExternalSourceOperationError>((snapshot.into(), preferences.into()))
             });
@@ -684,7 +684,7 @@ impl ChatMode {
             if let Some(receiver) = permission_rx.as_mut() {
                 for _ in 0..4 {
                     match receiver.try_recv() {
-                        Ok(openbitfun_product_domains::tool_permissions::PermissionRequestEvent::Asked {
+                        Ok(alex_product_domains::tool_permissions::PermissionRequestEvent::Asked {
                             request,
                         }) if crate::runtime::approval::permission_request_targets_session(
                             &request,
@@ -694,16 +694,16 @@ impl ChatMode {
                             if chat_state.enqueue_permission_request(request) {
                                 self.emit_terminal_attention(
                                     &mut terminal,
-                                    "OpenBitFun requires permission",
+                                    "Alex requires permission",
                                 );
                                 needs_redraw = true;
                             }
                         }
-                        Ok(openbitfun_product_domains::tool_permissions::PermissionRequestEvent::Replied {
+                        Ok(alex_product_domains::tool_permissions::PermissionRequestEvent::Replied {
                             request_id,
                             ..
                         })
-                        | Ok(openbitfun_product_domains::tool_permissions::PermissionRequestEvent::Cancelled {
+                        | Ok(alex_product_domains::tool_permissions::PermissionRequestEvent::Cancelled {
                             request_id,
                             ..
                         }) => {
@@ -729,7 +729,7 @@ impl ChatMode {
                                     if outcome.added {
                                         self.emit_terminal_attention(
                                             &mut terminal,
-                                            "OpenBitFun requires permission",
+                                            "Alex requires permission",
                                         );
                                     }
                                     if outcome.changed {
@@ -798,9 +798,9 @@ impl ChatMode {
                         && !snapshot.discovery_pending;
                     let snapshot = match tokio::task::block_in_place(|| {
                         rt_handle.block_on(async {
-                            let preferences = openbitfun_core::external_sources::external_source_conflict_choices()
+                            let preferences = alex_core::external_sources::external_source_conflict_choices()
                                 .await
-                                .map_err(openbitfun_core::external_sources::sanitize_external_source_operation_error)?;
+                                .map_err(alex_core::external_sources::sanitize_external_source_operation_error)?;
                             Ok::<_, ExternalSourceOperationError>(
                                 (snapshot.clone(), preferences.into()),
                             )
@@ -1034,7 +1034,7 @@ impl ChatMode {
                         if projection.requested_input {
                             self.emit_terminal_attention(
                                 &mut terminal,
-                                "OpenBitFun requires your input",
+                                "Alex requires your input",
                             );
                         }
                         if matches!(event, AgenticEvent::ContextCompressionStarted { .. })
@@ -1048,7 +1048,7 @@ impl ChatMode {
                                 chat_view.set_status(None);
                                 self.emit_terminal_attention(
                                     &mut terminal,
-                                    "OpenBitFun finished the current turn",
+                                    "Alex finished the current turn",
                                 );
                                 tracing::info!("Dialog turn completed");
                             }
@@ -1057,7 +1057,7 @@ impl ChatMode {
                                 chat_view.set_status(Some(format!("Error: {error}")));
                                 self.emit_terminal_attention(
                                     &mut terminal,
-                                    "OpenBitFun turn failed",
+                                    "Alex turn failed",
                                 );
                                 tracing::error!("Dialog turn failed: {error}");
                             }

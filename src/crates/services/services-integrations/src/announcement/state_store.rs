@@ -8,7 +8,7 @@ use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU8, Ordering};
 
 use log::{debug, warn};
-use openbitfun_services_core::json_store::{JsonFileStore, JsonFileStoreError};
+use alex_services_core::json_store::{JsonFileStore, JsonFileStoreError};
 
 use super::types::AnnouncementState;
 

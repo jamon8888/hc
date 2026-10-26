@@ -1,14 +1,14 @@
-/* OpenBitFun unified animation system - token-driven motion styles */
+/* Alex unified animation system - token-driven motion styles */
 
 /* ========== Core keyframe animations ========== */
 
 /* Base animations */
-@keyframes openbitfun-utility-fade-in {
+@keyframes alex-utility-fade-in {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
-@keyframes openbitfun-utility-fade-in-up {
+@keyframes alex-utility-fade-in-up {
   from {
     opacity: 0;
     transform: translateY(20px);
@@ -19,7 +19,7 @@
   }
 }
 
-@keyframes openbitfun-utility-slide-in-up {
+@keyframes alex-utility-slide-in-up {
   from {
     opacity: 0;
     transform: translateY(20px);
@@ -30,7 +30,7 @@
   }
 }
 
-@keyframes openbitfun-utility-slide-in-left {
+@keyframes alex-utility-slide-in-left {
   from {
     opacity: 0;
     transform: translateX(-20px);
@@ -41,7 +41,7 @@
   }
 }
 
-@keyframes openbitfun-utility-slide-in-right {
+@keyframes alex-utility-slide-in-right {
   from {
     opacity: 0;
     transform: translateX(20px);
@@ -52,7 +52,7 @@
   }
 }
 
-@keyframes openbitfun-utility-scale-in {
+@keyframes alex-utility-scale-in {
   from {
     opacity: 0;
     transform: scale(0.9);
@@ -64,7 +64,7 @@
 }
 
 /* Interaction animations */
-@keyframes openbitfun-utility-pulse {
+@keyframes alex-utility-pulse {
   0%, 100% {
     opacity: 1;
     transform: scale(1);
@@ -75,19 +75,19 @@
   }
 }
 
-@keyframes openbitfun-utility-spin {
+@keyframes alex-utility-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
 
-@keyframes openbitfun-utility-bounce {
+@keyframes alex-utility-bounce {
   0%, 20%, 53%, 80%, 100% { transform: translateY(0); }
   40%, 43% { transform: translateY(-8px); }
   70% { transform: translateY(-4px); }
   90% { transform: translateY(-2px); }
 }
 
-@keyframes openbitfun-utility-shake {
+@keyframes alex-utility-shake {
   0%, 100% { transform: translateX(0); }
   10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
   20%, 40%, 60%, 80% { transform: translateX(2px); }
@@ -96,7 +96,7 @@
 /* ========== Glassmorphism effect animations ========== */
 
 /* Glass shine animation */
-@keyframes openbitfun-utility-glass-shine {
+@keyframes alex-utility-glass-shine {
   0%, 100% {
     opacity: 0.15;
     transform: translateX(-50%) scaleX(0.8);
@@ -108,13 +108,13 @@
 }
 
 /* Light sweep effect */
-@keyframes openbitfun-utility-sweep-glow {
+@keyframes alex-utility-sweep-glow {
   0% { left: -100%; }
   100% { left: 100%; }
 }
 
 /* Mirror reflection shimmer */
-@keyframes openbitfun-utility-shimmer {
+@keyframes alex-utility-shimmer {
   0%, 100% {
     left: -100%;
     opacity: 0;
@@ -126,7 +126,7 @@
 }
 
 /* Circle pulse effect - from the prompt box */
-@keyframes openbitfun-utility-question-pulse {
+@keyframes alex-utility-question-pulse {
   0%, 100% {
     transform: scale(1);
     opacity: 0.6;
@@ -138,7 +138,7 @@
 }
 
 /* Breathing animation system */
-@keyframes openbitfun-utility-breathing-ring-1 {
+@keyframes alex-utility-breathing-ring-1 {
   0%, 100% {
     transform: scale(1);
     opacity: 0.6;
@@ -149,7 +149,7 @@
   }
 }
 
-@keyframes openbitfun-utility-breathing-ring-2 {
+@keyframes alex-utility-breathing-ring-2 {
   0%, 100% {
     transform: scale(1);
     opacity: 0.4;
@@ -161,7 +161,7 @@
 }
 
 /* Decorative pulse animation */
-@keyframes openbitfun-utility-decoration-pulse {
+@keyframes alex-utility-decoration-pulse {
   0%, 100% {
     opacity: 0.6;
     transform: scaleY(1);
@@ -175,46 +175,46 @@
 /* ========== Animation utilities ========== */
 
 /* Base animation classes */
-.anim-fade-in { animation: openbitfun-utility-fade-in var(--openbitfun-motion-duration-fast) var(--openbitfun-motion-easing-standard); }
-.anim-fade-in-slow { animation: openbitfun-utility-fade-in var(--openbitfun-motion-duration-base) var(--openbitfun-motion-easing-standard); }
-.anim-fade-in-up { animation: openbitfun-utility-fade-in-up var(--openbitfun-motion-duration-base) var(--openbitfun-motion-easing-standard); }
-.anim-slide-in-up { animation: openbitfun-utility-slide-in-up var(--openbitfun-motion-duration-base) var(--openbitfun-motion-easing-standard); }
-.anim-slide-in-left { animation: openbitfun-utility-slide-in-left var(--openbitfun-motion-duration-base) var(--openbitfun-motion-easing-standard); }
-.anim-slide-in-right { animation: openbitfun-utility-slide-in-right var(--openbitfun-motion-duration-base) var(--openbitfun-motion-easing-standard); }
-.anim-scale-in { animation: openbitfun-utility-scale-in var(--openbitfun-motion-duration-fast) var(--openbitfun-motion-easing-standard); }
+.anim-fade-in { animation: alex-utility-fade-in var(--alex-motion-duration-fast) var(--alex-motion-easing-standard); }
+.anim-fade-in-slow { animation: alex-utility-fade-in var(--alex-motion-duration-base) var(--alex-motion-easing-standard); }
+.anim-fade-in-up { animation: alex-utility-fade-in-up var(--alex-motion-duration-base) var(--alex-motion-easing-standard); }
+.anim-slide-in-up { animation: alex-utility-slide-in-up var(--alex-motion-duration-base) var(--alex-motion-easing-standard); }
+.anim-slide-in-left { animation: alex-utility-slide-in-left var(--alex-motion-duration-base) var(--alex-motion-easing-standard); }
+.anim-slide-in-right { animation: alex-utility-slide-in-right var(--alex-motion-duration-base) var(--alex-motion-easing-standard); }
+.anim-scale-in { animation: alex-utility-scale-in var(--alex-motion-duration-fast) var(--alex-motion-easing-standard); }
 
 /* Interaction animation classes */
-.anim-pulse { animation: openbitfun-utility-pulse 2s ease-in-out infinite; }
-.anim-spin { animation: openbitfun-utility-spin 1s linear infinite; }
-.anim-bounce { animation: openbitfun-utility-bounce 1s ease-in-out infinite; }
-.anim-shake { animation: openbitfun-utility-shake 0.5s ease-in-out infinite; }
+.anim-pulse { animation: alex-utility-pulse 2s ease-in-out infinite; }
+.anim-spin { animation: alex-utility-spin 1s linear infinite; }
+.anim-bounce { animation: alex-utility-bounce 1s ease-in-out infinite; }
+.anim-shake { animation: alex-utility-shake 0.5s ease-in-out infinite; }
 
 /* Glass effect animation classes */
-.anim-glass-shine { animation: openbitfun-utility-glass-shine 4s ease-in-out infinite; }
-.anim-question-pulse { animation: openbitfun-utility-question-pulse 2s ease-in-out infinite; }
-.anim-decoration-pulse { animation: openbitfun-utility-decoration-pulse 3s ease-in-out infinite; }
+.anim-glass-shine { animation: alex-utility-glass-shine 4s ease-in-out infinite; }
+.anim-question-pulse { animation: alex-utility-question-pulse 2s ease-in-out infinite; }
+.anim-decoration-pulse { animation: alex-utility-decoration-pulse 3s ease-in-out infinite; }
 
 /* ========== Hover effect classes ========== */
 
 .hover-lift {
-  transition: transform var(--openbitfun-motion-duration-fast) var(--openbitfun-motion-easing-standard);
+  transition: transform var(--alex-motion-duration-fast) var(--alex-motion-easing-standard);
 }
 .hover-lift:hover {
   transform: translateY(-2px);
 }
 
 .hover-scale {
-  transition: transform var(--openbitfun-motion-duration-fast) var(--openbitfun-motion-easing-standard);
+  transition: transform var(--alex-motion-duration-fast) var(--alex-motion-easing-standard);
 }
 .hover-scale:hover {
   transform: scale(1.05);
 }
 
 .hover-glow {
-  transition: box-shadow var(--openbitfun-motion-duration-fast) var(--openbitfun-motion-easing-standard);
+  transition: box-shadow var(--alex-motion-duration-fast) var(--alex-motion-easing-standard);
 }
 .hover-glow:hover {
-  box-shadow: var(--openbitfun-shadow-lg);
+  box-shadow: var(--alex-shadow-lg);
 }
 
 /* Glow sweep effect */
@@ -231,14 +231,14 @@
   height: 100%;
   background: linear-gradient(90deg,
     transparent,
-    color-mix(in srgb, var(--openbitfun-color-content-on-dark) 20%, transparent),
+    color-mix(in srgb, var(--alex-color-content-on-dark) 20%, transparent),
     transparent);
   transition: left 0.5s ease;
   pointer-events: none;
   z-index: 1;
 }
 .sweep-glow:hover::before {
-  animation: openbitfun-utility-sweep-glow 0.5s ease;
+  animation: alex-utility-sweep-glow 0.5s ease;
 }
 
 /* ========== Glassmorphism composite classes ========== */
@@ -246,33 +246,33 @@
 /* Static utility effect; themed components should use their owning surface tokens. */
 /* Base glass effect */
 .glass-base {
-  background: var(--openbitfun-color-surface-subtle);
-  border: 1px solid var(--openbitfun-color-border-default);
+  background: var(--alex-color-surface-subtle);
+  border: 1px solid var(--alex-color-border-default);
   backdrop-filter: blur(8px) saturate(1.1);
   -webkit-backdrop-filter: blur(8px) saturate(1.1);
-  box-shadow: var(--openbitfun-shadow-base);
+  box-shadow: var(--alex-shadow-base);
 }
 
 /* Enhanced glass effect on hover */
 .glass-hover {
   transition:
-    background-color var(--openbitfun-motion-duration-base) var(--openbitfun-motion-easing-standard),
-    border-color var(--openbitfun-motion-duration-base) var(--openbitfun-motion-easing-standard),
-    box-shadow var(--openbitfun-motion-duration-base) var(--openbitfun-motion-easing-standard),
-    transform var(--openbitfun-motion-duration-base) var(--openbitfun-motion-easing-standard);
+    background-color var(--alex-motion-duration-base) var(--alex-motion-easing-standard),
+    border-color var(--alex-motion-duration-base) var(--alex-motion-easing-standard),
+    box-shadow var(--alex-motion-duration-base) var(--alex-motion-easing-standard),
+    transform var(--alex-motion-duration-base) var(--alex-motion-easing-standard);
 }
 .glass-hover:hover {
-  background: var(--openbitfun-color-action-neutral-surface-hover);
-  border-color: var(--openbitfun-color-field-border-hover);
-  box-shadow: var(--openbitfun-shadow-lg);
+  background: var(--alex-color-action-neutral-surface-hover);
+  border-color: var(--alex-color-field-border-hover);
+  box-shadow: var(--alex-shadow-lg);
   transform: translateY(-1px);
 }
 
 /* Active glass effect */
 .glass-active {
-  background: var(--openbitfun-color-action-neutral-surface-pressed);
-  border-color: var(--openbitfun-color-border-strong);
-  box-shadow: var(--openbitfun-shadow-xl);
+  background: var(--alex-color-action-neutral-surface-pressed);
+  border-color: var(--alex-color-border-strong);
+  box-shadow: var(--alex-shadow-xl);
 }
 
 /* ========== Decorative effects ========== */
@@ -288,13 +288,13 @@
   height: 2px;
   background: linear-gradient(90deg,
     transparent 0%,
-    color-mix(in srgb, var(--openbitfun-color-content-on-dark) 20%, transparent) 20%,
-    color-mix(in srgb, var(--openbitfun-color-content-on-dark) 30%, transparent) 50%,
-    color-mix(in srgb, var(--openbitfun-color-content-on-dark) 20%, transparent) 80%,
+    color-mix(in srgb, var(--alex-color-content-on-dark) 20%, transparent) 20%,
+    color-mix(in srgb, var(--alex-color-content-on-dark) 30%, transparent) 50%,
+    color-mix(in srgb, var(--alex-color-content-on-dark) 20%, transparent) 80%,
     transparent 100%);
   border-radius: 2px;
   opacity: 0.4;
-  animation: openbitfun-utility-glass-shine 4s ease-in-out infinite;
+  animation: alex-utility-glass-shine 4s ease-in-out infinite;
   pointer-events: none;
   z-index: 1;
 }
@@ -308,9 +308,9 @@
   right: 0;
   bottom: 0;
   background: linear-gradient(135deg,
-    color-mix(in srgb, var(--openbitfun-color-content-on-dark) 4%, transparent) 0%,
+    color-mix(in srgb, var(--alex-color-content-on-dark) 4%, transparent) 0%,
     transparent 50%,
-    color-mix(in srgb, var(--openbitfun-color-content-on-dark) 1%, transparent) 100%);
+    color-mix(in srgb, var(--alex-color-content-on-dark) 1%, transparent) 100%);
   pointer-events: none;
   z-index: 1;
   border-radius: inherit;
@@ -351,8 +351,8 @@
 /* High-performance mode - mobile optimization */
 @media (max-width: 768px) {
   .glass-base {
-    backdrop-filter: var(--openbitfun-effect-blur-subtle);
-    -webkit-backdrop-filter: var(--openbitfun-effect-blur-subtle);
+    backdrop-filter: var(--alex-effect-blur-subtle);
+    -webkit-backdrop-filter: var(--alex-effect-blur-subtle);
   }
 
   .anim-glass-shine,

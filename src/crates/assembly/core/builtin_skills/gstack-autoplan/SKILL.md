@@ -183,9 +183,9 @@ Then prepend a one-line HTML comment to the plan file:
 ### Step 3: Load review skills
 
 Load each stable key with the Skill tool:
-- `user::openbitfun-system::gstack-plan-ceo-review`
-- `user::openbitfun-system::gstack-plan-design-review` (only if UI scope detected)
-- `user::openbitfun-system::gstack-plan-eng-review`
+- `user::alex-system::gstack-plan-ceo-review`
+- `user::alex-system::gstack-plan-design-review` (only if UI scope detected)
+- `user::alex-system::gstack-plan-eng-review`
 - `the relevant built-in developer-experience review methodology, if present` (only if DX scope detected)
 
 **Section skip list — when following a loaded skill file, SKIP these sections
@@ -212,7 +212,7 @@ Loaded review skills from disk. Starting full review pipeline with auto-decision
 
 ## Phase 1: CEO Review (Strategy & Scope)
 
-Load `user::openbitfun-system::gstack-plan-ceo-review` with the Skill tool and follow all sections at full depth.
+Load `user::alex-system::gstack-plan-ceo-review` with the Skill tool and follow all sections at full depth.
 Override: every AskUserQuestion → auto-decide using the 6 principles.
 
 **Override rules:**
@@ -331,7 +331,7 @@ and the premise gate has been passed.
 
 ## Phase 2: Design Review (conditional — skip if no UI scope)
 
-Load `user::openbitfun-system::gstack-plan-design-review` with the Skill tool and follow all 7 dimensions at full depth.
+Load `user::alex-system::gstack-plan-design-review` with the Skill tool and follow all 7 dimensions at full depth.
 Override: every AskUserQuestion → auto-decide using the 6 principles.
 
 **Override rules:**
@@ -409,7 +409,7 @@ Do NOT begin Phase 3 until all Phase 2 outputs (if run) are written to the plan 
 
 ## Phase 3: Eng Review + Dual Voices
 
-Load `user::openbitfun-system::gstack-plan-eng-review` with the Skill tool and follow all sections at full depth.
+Load `user::alex-system::gstack-plan-eng-review` with the Skill tool and follow all sections at full depth.
 Override: every AskUserQuestion → auto-decide using the 6 principles.
 
 **Override rules:**

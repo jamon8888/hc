@@ -26,7 +26,7 @@
 ## 2. Interception #1 — Workspace Filesystem Access
 
 **File:** `src/crates/services/services-core/src/workspace.rs`  
-**Target:** `LocalWorkspaceFs` (implements `WorkspaceFileSystem` from `openbitfun_runtime_ports`)
+**Target:** `LocalWorkspaceFs` (implements `WorkspaceFileSystem` from `alex_runtime_ports`)
 
 All agent tools (`file_read_tool`, `ls_tool`, `grep_tool`, `file_write_tool`) go through this abstraction.
 
@@ -223,16 +223,16 @@ let conversion = tokio::time::timeout(DOCUMENT_CONVERSION_TIMEOUT, conversion_ca
 
 | Layer | Crate / file | Owns |
 |---|---|---|
-| Port | `src/crates/contracts/runtime-ports/src/rag_search.rs` (feature `rag-search`) | `RagSearchPort` trait + `RagSearchRequest` / `RagSearchResponse` / error DTOs — the only shape `openbitfun-core` ever sees |
-| Tool wrapper | `src/crates/assembly/core/src/agentic/tools/implementations/rag_search_tool.rs` (`openbitfun-core`, feature `tools-rag`) | `Tool` impl (`call_impl`), input schema, the **real** `session_id` from `ToolUseContext`, delegation to `context.runtime_handles.rag_search_port()` |
+| Port | `src/crates/contracts/runtime-ports/src/rag_search.rs` (feature `rag-search`) | `RagSearchPort` trait + `RagSearchRequest` / `RagSearchResponse` / error DTOs — the only shape `alex-core` ever sees |
+| Tool wrapper | `src/crates/assembly/core/src/agentic/tools/implementations/rag_search_tool.rs` (`alex-core`, feature `tools-rag`) | `Tool` impl (`call_impl`), input schema, the **real** `session_id` from `ToolUseContext`, delegation to `context.runtime_handles.rag_search_port()` |
 | PII-safe search pipeline | `src/crates/services/basemind-integration/src/rag_search.rs` (`RagSearchTool::search`) + `query_resolution.rs` (`QueryResolver`) | `impl RagSearchPort`: query resolution, basemind MCP call, hit re-tokenization, vault upsert |
 
-**Dependency rule:** `openbitfun-runtime-ports` and `openbitfun-core` must **not**
+**Dependency rule:** `alex-runtime-ports` and `alex-core` must **not**
 depend on `basemind-integration`. The concrete port is constructed at the host
 composition root — beside where the desktop app already builds `PromptPseudonymizer`
 in `AppState` — and reaches the tool through the existing `ToolRuntimeHandles` seam
 (`with_rag_search_port`, mirroring how `RemoteExecPort` and `TerminalPort` are
-threaded in). `openbitfun-core` only ever holds `Arc<dyn RagSearchPort>`; if no port
+threaded in). `alex-core` only ever holds `Arc<dyn RagSearchPort>`; if no port
 is injected the tool reports itself unavailable (no silent local fallback).
 
 **Pipeline** (ticket `.scratch/basemind-integration/issues/06-rag-search-tool.md`):
@@ -445,7 +445,7 @@ span: ({ node, className, children, ...props }) => {
 **File:** `src/web-ui/src/app/components/panels/content-canvas/RedactedDocumentTabs.tsx` (or shared UI components)
 
 - Colored badge by type: PERSON=blue, DATE=gray, ORG=green, IBAN=red, EMAIL=purple, etc.
-- Tooltip from `@openbitfun/ui` on hover
+- Tooltip from `@alex/ui` on hover
 - On click → `basemindAPI.revealEntity(entityId)` → shows real value **temporarily in overlay**, never re-injected into markdown or conversation history.
 
 ### 7.5 Dual-Tab Viewer: Source | Redacted
@@ -463,7 +463,7 @@ export const FILE_VIEWER_TYPES: PanelContentType[] = [
 
 ```
 ┌─────────────────────────────────────────────┐
-│ [Source]   [Redacted (12 PII)]               │  ← Toolbar/ToolbarGroup (@openbitfun/ui)
+│ [Source]   [Redacted (12 PII)]               │  ← Toolbar/ToolbarGroup (@alex/ui)
 ├───────────────────────────────────────────────┤
 │  Source tab   → <PdfViewer path={source} />  (existing, pdfjs-dist)
 │  Redacted tab → <MarkdownRenderer content={redactedMarkdown} />
@@ -528,7 +528,7 @@ time and verified, rather than committed to the repository:
   than fall back to unredacted text (D7).
 
 **Ports** — the host owns the composition; the runtime only ever sees the
-port traits in `openbitfun-runtime-ports`:
+port traits in `alex-runtime-ports`:
 
 | Port | Feature | Owns |
 |------|---------|-------|
@@ -591,7 +591,7 @@ pub struct ModelSpec {
 - Manual "Download" / "Remove" buttons per model
 - Local model directory override (advanced)
 
-**Persistence:** Model metadata in `openbitfun_core::service::config::GlobalConfig` → `basemind.models` section.
+**Persistence:** Model metadata in `alex_core::service::config::GlobalConfig` → `basemind.models` section.
 
 ---
 
@@ -600,7 +600,7 @@ pub struct ModelSpec {
 ### 9.1 Config Schema Extension
 
 ```rust
-// openbitfun_core::service::config::types
+// alex_core::service::config::types
 #[derive(Serialize, Deserialize, Clone, Default)]
 pub struct BasemindConfig {
     pub enabled: bool,
@@ -1038,14 +1038,14 @@ Fails at **compile time** if upstream signature changes — better than silent p
 
 | Layer | Command |
 |-------|---------|
-| Rust (basemind-integration) | `cargo test -p openbitfun-basemind-integration` |
-| Runtime-ports (RagSearchPort) | `cargo test -p openbitfun-runtime-ports rag_search` |
-| Services-core | `cargo test -p openbitfun-services-core workspace` |
+| Rust (basemind-integration) | `cargo test -p alex-basemind-integration` |
+| Runtime-ports (RagSearchPort) | `cargo test -p alex-runtime-ports rag_search` |
+| Services-core | `cargo test -p alex-services-core workspace` |
 | Tool-execution | `cargo test -p tool-runtime document` |
-| Assembly/core (tools) | `cargo test -p openbitfun-core rag_search` |
+| Assembly/core (tools) | `cargo test -p alex-core rag_search` |
 | Boundary rule (no core → basemind dep) | `pnpm run check:core-boundaries` |
-| Desktop (Tauri commands) | `cargo test -p openbitfun-desktop basemind` |
-| Desktop (pseudonymization) | `cargo test -p openbitfun-desktop prompt_pseudonym` |
+| Desktop (Tauri commands) | `cargo test -p alex-desktop basemind` |
+| Desktop (pseudonymization) | `cargo test -p alex-desktop prompt_pseudonym` |
 | Web UI (unit) | `pnpm --filter web-ui test BasemindAPI` |
 | Web UI (E2E) | `pnpm --filter web-ui test:e2e redacted-document` |
 | Web UI (E2E) | `pnpm --filter web-ui test:e2e prompt-pseudonymization` |
@@ -1057,7 +1057,7 @@ Fails at **compile time** if upstream signature changes — better than silent p
 ## 17. Dependencies on Basemind Fork (jamon8888/basemind)
 
 **Pinned version:** `jamon8888/basemind` **v0.34.0** (2026-10-19), recorded in code as
-`openbitfun_basemind_integration::BASEMIND_VERSION` and checked against the running
+`alex_basemind_integration::BASEMIND_VERSION` and checked against the running
 daemon's published version before the first call. All PII/identity evidence in this spec
 (issues 01–02, ADR 0001) was gathered at v0.33.0.
 

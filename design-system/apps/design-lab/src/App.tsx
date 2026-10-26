@@ -4,8 +4,8 @@ import {
   useRef,
   useState,
 } from "react";
-import type { SystemTokenMode } from "@openbitfun/design-tokens";
-import type { ThemeDataName } from "@openbitfun/theme-openbitfun";
+import type { SystemTokenMode } from "@alex/design-tokens";
+import type { ThemeDataName } from "@alex/theme-alex";
 import { AppWindow, Blocks, BookOpen, Braces, CircleDashed, FileText, House, Languages, Menu, Moon, MousePointerClick, PanelTop, PanelsTopLeft, Smartphone, SquareTerminal, Sun, ToggleLeft, type LucideIcon } from "lucide-react";
 import { Icon as CatalogIcon,
   ThemeRoot,
@@ -13,8 +13,8 @@ import { Icon as CatalogIcon,
   type ContrastMode,
   type DensityMode,
   type IconName,
-} from "@openbitfun/ui";
-import { componentRegistry } from "@openbitfun/ui/registry";
+} from "@alex/ui";
+import { componentRegistry } from "@alex/ui/registry";
 import {
   useI18n,
   type DesignLabLocale,
@@ -441,7 +441,7 @@ export function App() {
         <div className="lab-brand">
           <span className="lab-brand__mark"><CircleDashed aria-hidden="true" size={25} strokeWidth={2.35} /></span>
           <span>
-            <strong>OpenBitFun Design</strong>
+            <strong>Alex Design</strong>
           </span>
           <button aria-label={t("app.closeNavigation")} onClick={() => setSidebarOpen(false)} type="button">
             <CatalogIcon name="xmark" size="lg" aria-hidden="true" style={{ width: 18, height: 18 }} />

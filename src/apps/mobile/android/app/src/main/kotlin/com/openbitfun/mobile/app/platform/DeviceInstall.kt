@@ -5,7 +5,7 @@ import android.os.Build
 import com.openbitfun.mobile.core.feature.account.MobileDeviceIdentity
 import java.util.UUID
 
-private const val PREFS = "openbitfun_install"
+private const val PREFS = "alex_install"
 private const val KEY_INSTALL_ID = "install_id"
 
 internal val LEGACY_MOBILE_DEVICE_NAMES: Set<String> = setOf(

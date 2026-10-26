@@ -17,16 +17,16 @@ use crate::agentic::tools::tool_result_storage;
 use crate::agentic::WorkspaceBinding;
 use crate::native_hooks::{self, NativeHookSessionFacts};
 use crate::util::elapsed_ms_u64;
-use crate::util::errors::{OpenBitFunError, OpenBitFunResult};
+use crate::util::errors::{AlexError, AlexResult};
 use futures::future::join_all;
 use log::{debug, error, info, warn};
-use openbitfun_agent_runtime::permission::{
+use alex_agent_runtime::permission::{
     plan_permission_intents, PendingPermissionReceiver, PermissionIntentPlan,
     PermissionRequestManager, PermissionWaitOutcome,
 };
-use openbitfun_agent_runtime::sdk::PermissionReplySource;
-use openbitfun_agent_stream::ToolArgumentRepairKind;
-use openbitfun_agent_tools::{
+use alex_agent_runtime::sdk::PermissionReplySource;
+use alex_agent_stream::ToolArgumentRepairKind;
+use alex_agent_tools::{
     build_invalid_tool_call_error_message, build_normal_tool_json_repair_notice,
     build_permission_denied_tool_presentation, build_tool_execution_error_presentation,
     build_tool_execution_timeout_presentation,
@@ -36,7 +36,7 @@ use openbitfun_agent_tools::{
     ResolvedToolInvocation, ToolExecutionAdmissionRejection, ToolExecutionAdmissionRequest,
     ToolExecutionErrorPresentation, GET_TOOL_SPEC_TOOL_NAME, USER_STEERING_INTERRUPTED_MESSAGE,
 };
-use openbitfun_runtime_ports::{
+use alex_runtime_ports::{
     PermissionReply, PermissionRequest, PermissionRequestSource, PermissionRequestSourceKind,
     PermissionResourceCaseSensitivity, RoundInjectionToolPreemption,
 };
@@ -256,12 +256,12 @@ fn elapsed_ms_since(time: SystemTime) -> u64 {
         .unwrap_or(0)
 }
 
-fn classify_tool_error(error: &OpenBitFunError) -> &'static str {
+fn classify_tool_error(error: &AlexError) -> &'static str {
     match error {
-        OpenBitFunError::Validation(_) => "invalid_arguments",
-        OpenBitFunError::Cancelled(_) => "cancelled",
-        OpenBitFunError::Timeout(_) => "timeout",
-        OpenBitFunError::NotFound(_) => "not_found",
+        AlexError::Validation(_) => "invalid_arguments",
+        AlexError::Cancelled(_) => "cancelled",
+        AlexError::Timeout(_) => "timeout",
+        AlexError::NotFound(_) => "not_found",
         _ => "execution_error",
     }
 }
@@ -269,7 +269,7 @@ fn classify_tool_error(error: &OpenBitFunError) -> &'static str {
 fn build_error_execution_result(
     task_id: &str,
     task: Option<ToolTask>,
-    error: &OpenBitFunError,
+    error: &AlexError,
 ) -> ToolExecutionResult {
     let error_message = error.to_string();
     let category = classify_tool_error(error);
@@ -448,23 +448,23 @@ fn build_permission_rejected_tool_result(
 const ROUND_INJECTION_RUNNING_TOOL_CANCELLED_MESSAGE: &str =
     "Tool execution cancelled because a pending round injection requested running-tool preemption for this turn.";
 
-fn should_retry_tool_error(error: &OpenBitFunError) -> bool {
-    if matches!(error, OpenBitFunError::OutcomeUnknown(_)) {
+fn should_retry_tool_error(error: &AlexError) -> bool {
+    if matches!(error, AlexError::OutcomeUnknown(_)) {
         return false;
     }
     matches!(
         error,
-        OpenBitFunError::Timeout(_)
-            | OpenBitFunError::Io(_)
-            | OpenBitFunError::Http(_)
-            | OpenBitFunError::Service(_)
-            | OpenBitFunError::MCPError(_)
-            | OpenBitFunError::ProcessError(_)
-            | OpenBitFunError::Other(_)
+        AlexError::Timeout(_)
+            | AlexError::Io(_)
+            | AlexError::Http(_)
+            | AlexError::Service(_)
+            | AlexError::MCPError(_)
+            | AlexError::ProcessError(_)
+            | AlexError::Other(_)
     )
 }
 
-fn classify_tool_retry_error(error: &OpenBitFunError) -> ToolExecutionErrorClass {
+fn classify_tool_retry_error(error: &AlexError) -> ToolExecutionErrorClass {
     if should_retry_tool_error(error) {
         ToolExecutionErrorClass::Retryable
     } else {
@@ -474,14 +474,14 @@ fn classify_tool_retry_error(error: &OpenBitFunError) -> ToolExecutionErrorClass
 
 fn map_tool_execution_admission_rejection(
     error: ToolExecutionAdmissionRejection,
-) -> OpenBitFunError {
+) -> AlexError {
     match error {
         ToolExecutionAdmissionRejection::RuntimeRestriction(error) => error.into(),
         ToolExecutionAdmissionRejection::AllowedList(error) => {
-            OpenBitFunError::Validation(error.to_string())
+            AlexError::Validation(error.to_string())
         }
         ToolExecutionAdmissionRejection::Deferred(error) => {
-            OpenBitFunError::Validation(error.to_string())
+            AlexError::Validation(error.to_string())
         }
     }
 }
@@ -531,12 +531,12 @@ enum PermissionPlanDraft {
 }
 
 pub fn permission_project_id_for_workspace_identity(
-    identity: &openbitfun_services_core::workspace_identity::WorkspaceSessionIdentity,
+    identity: &alex_services_core::workspace_identity::WorkspaceSessionIdentity,
     is_remote: bool,
-) -> OpenBitFunResult<String> {
+) -> AlexResult<String> {
     if !is_remote {
         return Ok(
-            openbitfun_services_core::workspace_identity::local_workspace_stable_storage_id(
+            alex_services_core::workspace_identity::local_workspace_stable_storage_id(
                 identity.logical_workspace_path(),
             ),
         );
@@ -544,12 +544,12 @@ pub fn permission_project_id_for_workspace_identity(
 
     if identity.hostname == "_unresolved" {
         let connection_id = identity.remote_connection_id.as_deref().ok_or_else(|| {
-            OpenBitFunError::validation(
+            AlexError::validation(
                 "Unresolved remote workspace permission identity has no connection id".to_string(),
             )
         })?;
         let key =
-            openbitfun_services_core::workspace_identity::unresolved_remote_session_storage_key(
+            alex_services_core::workspace_identity::unresolved_remote_session_storage_key(
                 connection_id,
                 identity.logical_workspace_path(),
             );
@@ -557,23 +557,23 @@ pub fn permission_project_id_for_workspace_identity(
     }
 
     Ok(
-        openbitfun_services_core::workspace_identity::remote_workspace_stable_id(
+        alex_services_core::workspace_identity::remote_workspace_stable_id(
             &identity.hostname,
             identity.logical_workspace_path(),
         ),
     )
 }
 
-fn permission_project_id(context: &ToolUseContext) -> OpenBitFunResult<String> {
+fn permission_project_id(context: &ToolUseContext) -> AlexResult<String> {
     let workspace = context.workspace.as_ref().ok_or_else(|| {
-        OpenBitFunError::validation("A workspace is required for file permissions".to_string())
+        AlexError::validation("A workspace is required for file permissions".to_string())
     })?;
     permission_project_id_for_workspace_identity(&workspace.session_identity, workspace.is_remote())
 }
 
-fn permission_project_path(context: &ToolUseContext) -> OpenBitFunResult<String> {
+fn permission_project_path(context: &ToolUseContext) -> AlexResult<String> {
     let workspace = context.workspace.as_ref().ok_or_else(|| {
-        OpenBitFunError::validation("A workspace is required for file permissions".to_string())
+        AlexError::validation("A workspace is required for file permissions".to_string())
     })?;
     Ok(workspace
         .session_identity
@@ -582,13 +582,13 @@ fn permission_project_path(context: &ToolUseContext) -> OpenBitFunResult<String>
 }
 
 const ACCOUNT_PERMISSION_SCOPE: &str = "account";
-const ACCOUNT_PERMISSION_PROJECT_ID: &str = "__openbitfun_account_actions__";
+const ACCOUNT_PERMISSION_PROJECT_ID: &str = "__alex_account_actions__";
 const ACCOUNT_PERMISSION_PROJECT_PATH: &str = "GitHub account";
 
 fn permission_scope(
     context: &ToolUseContext,
     intents: &[PermissionIntent],
-) -> OpenBitFunResult<(String, String)> {
+) -> AlexResult<(String, String)> {
     if context.workspace.is_some() {
         return Ok((
             permission_project_id(context)?,
@@ -610,7 +610,7 @@ fn permission_scope(
         ));
     }
 
-    Err(OpenBitFunError::validation(
+    Err(AlexError::validation(
         "A workspace is required for file permissions".to_string(),
     ))
 }
@@ -701,7 +701,7 @@ impl ToolPipeline {
         tool_name: String,
         intents: Vec<PermissionIntent>,
         context: ToolUseContext,
-    ) -> OpenBitFunResult<PermissionPlanDraft> {
+    ) -> AlexResult<PermissionPlanDraft> {
         if intents.is_empty() {
             return Ok(PermissionPlanDraft::Allowed);
         }
@@ -724,7 +724,7 @@ impl ToolPipeline {
             Some(ref manager) => manager
                 .list_project_grants(&project_id)
                 .await
-                .map_err(|error| OpenBitFunError::service(error.to_string()))?,
+                .map_err(|error| AlexError::service(error.to_string()))?,
             None => Vec::new(),
         };
         let asks =
@@ -777,7 +777,7 @@ impl ToolPipeline {
         }
 
         if manager.is_none() {
-            return Err(OpenBitFunError::service(
+            return Err(AlexError::service(
                 "Permission request manager is unavailable for a file tool request".to_string(),
             ));
         }
@@ -813,9 +813,9 @@ impl ToolPipeline {
         requests: Vec<PermissionRequest>,
         dialog_turn_id: &str,
         auto_approve: bool,
-    ) -> OpenBitFunResult<Vec<PendingPermissionReceiver>> {
+    ) -> AlexResult<Vec<PendingPermissionReceiver>> {
         let manager = self.permission_request_manager.as_ref().ok_or_else(|| {
-            OpenBitFunError::service(
+            AlexError::service(
                 "Permission request manager is unavailable for a file tool request".to_string(),
             )
         })?;
@@ -832,7 +832,7 @@ impl ToolPipeline {
                 .register_batch_for_turn(requests.clone(), dialog_turn_id.to_string())
                 .await
         }
-        .map_err(|error| OpenBitFunError::service(error.to_string()))?;
+        .map_err(|error| AlexError::service(error.to_string()))?;
 
         if auto_approve {
             for request in &requests {
@@ -840,7 +840,7 @@ impl ToolPipeline {
                     .reply(
                         &request.request_id,
                         PermissionReply::Once,
-                        openbitfun_runtime_ports::PermissionReplySource::AutoApprove,
+                        alex_runtime_ports::PermissionReplySource::AutoApprove,
                     )
                     .await
                 {
@@ -852,7 +852,7 @@ impl ToolPipeline {
                         "Automatic permission approval failed".to_string(),
                     )
                     .await;
-                    return Err(OpenBitFunError::service(error.to_string()));
+                    return Err(AlexError::service(error.to_string()));
                 }
             }
         }
@@ -864,7 +864,7 @@ impl ToolPipeline {
         &self,
         task: &ToolTask,
         updated_input: &serde_json::Value,
-    ) -> Option<openbitfun_agent_tools::ValidationResult> {
+    ) -> Option<alex_agent_tools::ValidationResult> {
         if updated_input == &task.original_effective_arguments {
             return None;
         }
@@ -1155,7 +1155,7 @@ impl ToolPipeline {
         });
     }
 
-    async fn prepare_permission_plans(&self, task_ids: &[String]) -> OpenBitFunResult<()> {
+    async fn prepare_permission_plans(&self, task_ids: &[String]) -> AlexResult<()> {
         let mut drafts = Vec::with_capacity(task_ids.len());
         let mut ordered_requests = Vec::new();
 
@@ -1246,7 +1246,7 @@ impl ToolPipeline {
                 .and_then(|task_id| self.state_manager.get_task(task_id))
                 .map(|task| task.context.dialog_turn_id)
                 .ok_or_else(|| {
-                    OpenBitFunError::service(
+                    AlexError::service(
                         "Permission batch lost its owning Dialog Turn".to_string(),
                     )
                 })?;
@@ -1261,7 +1261,7 @@ impl ToolPipeline {
             for (task_id, draft) in &drafts {
                 if let PermissionPlanDraft::Requests(_) = draft {
                     let receivers = receivers_by_task.remove(task_id).ok_or_else(|| {
-                        OpenBitFunError::service(format!(
+                        AlexError::service(format!(
                             "Permission plan lost its pending receivers for tool task '{task_id}'"
                         ))
                     })?;
@@ -1298,7 +1298,7 @@ impl ToolPipeline {
         &self,
         task_id: &str,
         cancellation_token: &CancellationToken,
-    ) -> OpenBitFunResult<PermissionAuthorization> {
+    ) -> AlexResult<PermissionAuthorization> {
         let Some(plan) = self.permission_plans.lock().await.remove(task_id) else {
             return Ok(PermissionAuthorization::Allowed);
         };
@@ -1311,7 +1311,7 @@ impl ToolPipeline {
         &self,
         plan: PermissionExecutionPlan,
         cancellation_token: &CancellationToken,
-    ) -> OpenBitFunResult<PermissionAuthorization> {
+    ) -> AlexResult<PermissionAuthorization> {
         let receivers = match plan {
             PermissionExecutionPlan::Allowed => return Ok(PermissionAuthorization::Allowed),
             PermissionExecutionPlan::Rejected { reason } => {
@@ -1334,7 +1334,7 @@ impl ToolPipeline {
                         "Tool execution was cancelled".to_string(),
                     )
                     .await;
-                    return Err(OpenBitFunError::Cancelled(
+                    return Err(AlexError::Cancelled(
                         "Tool execution was cancelled while awaiting permission".to_string(),
                     ));
                 }
@@ -1347,7 +1347,7 @@ impl ToolPipeline {
                     updated_input: patch,
                 }) => {
                     let patch = patch.as_object().ok_or_else(|| {
-                        OpenBitFunError::Validation(
+                        AlexError::Validation(
                             "Edited approval input must be an object".to_string(),
                         )
                     })?;
@@ -1374,7 +1374,7 @@ impl ToolPipeline {
                         "Another permission request for this tool was cancelled".to_string(),
                     )
                     .await;
-                    return Err(OpenBitFunError::Cancelled(reason));
+                    return Err(AlexError::Cancelled(reason));
                 }
             }
 
@@ -1386,7 +1386,7 @@ impl ToolPipeline {
                     "Tool execution was cancelled".to_string(),
                 )
                 .await;
-                return Err(OpenBitFunError::Cancelled(
+                return Err(AlexError::Cancelled(
                     "Tool execution was cancelled after permission reply".to_string(),
                 ));
             }
@@ -1448,7 +1448,7 @@ impl ToolPipeline {
         intents: Vec<PermissionIntent>,
         context: &ToolUseContext,
         cancellation_token: &CancellationToken,
-    ) -> OpenBitFunResult<PermissionAuthorization> {
+    ) -> AlexResult<PermissionAuthorization> {
         let draft = self
             .draft_permission_plan(
                 task.clone(),
@@ -1520,7 +1520,7 @@ impl ToolPipeline {
     fn append_execution_result(
         &self,
         task_id: &str,
-        result: OpenBitFunResult<ToolExecutionResult>,
+        result: AlexResult<ToolExecutionResult>,
         all_results: &mut Vec<ToolExecutionResult>,
     ) {
         match result {
@@ -1541,7 +1541,7 @@ impl ToolPipeline {
         &self,
         task_ids: impl IntoIterator<Item = String>,
         preemption: RoundInjectionToolPreemption,
-    ) -> OpenBitFunResult<()> {
+    ) -> AlexResult<()> {
         for task_id in task_ids {
             let Some(task) = self.state_manager.get_task(&task_id) else {
                 continue;
@@ -1600,7 +1600,7 @@ impl ToolPipeline {
         tool_calls: Vec<ToolCall>,
         context: ToolExecutionContext,
         options: ToolExecutionOptions,
-    ) -> OpenBitFunResult<Vec<ToolExecutionResult>> {
+    ) -> AlexResult<Vec<ToolExecutionResult>> {
         if tool_calls.is_empty() {
             return Ok(vec![]);
         }
@@ -1755,7 +1755,7 @@ impl ToolPipeline {
     async fn execute_parallel(
         &self,
         task_ids: Vec<String>,
-    ) -> OpenBitFunResult<Vec<ToolExecutionResult>> {
+    ) -> AlexResult<Vec<ToolExecutionResult>> {
         let batch_interrupt = task_ids
             .first()
             .and_then(|task_id| self.state_manager.get_task(task_id))
@@ -1788,7 +1788,7 @@ impl ToolPipeline {
     async fn execute_sequential(
         &self,
         task_ids: Vec<String>,
-    ) -> OpenBitFunResult<Vec<ToolExecutionResult>> {
+    ) -> AlexResult<Vec<ToolExecutionResult>> {
         let mut results = Vec::new();
 
         let mut task_iter = task_ids.into_iter().peekable();
@@ -1821,14 +1821,14 @@ impl ToolPipeline {
     }
 
     /// Execute single tool
-    async fn execute_single_tool(&self, tool_id: String) -> OpenBitFunResult<ToolExecutionResult> {
+    async fn execute_single_tool(&self, tool_id: String) -> AlexResult<ToolExecutionResult> {
         let start_time = Instant::now();
 
         debug!("Starting tool execution: tool_id={}", tool_id);
 
         // Get task
         let mut task = self.state_manager.get_task(&tool_id).ok_or_else(|| {
-            OpenBitFunError::NotFound(format!("Tool task not found: {}", tool_id))
+            AlexError::NotFound(format!("Tool task not found: {}", tool_id))
         })?;
 
         let wire_tool_name = task.tool_call.tool_name.clone();
@@ -1886,7 +1886,7 @@ impl ToolPipeline {
                 )
                 .await;
 
-            return Err(OpenBitFunError::Validation(error_msg));
+            return Err(AlexError::Validation(error_msg));
         }
 
         if let Some(rejection) = task.input_rewrite_rejection.as_ref() {
@@ -1911,7 +1911,7 @@ impl ToolPipeline {
                     },
                 )
                 .await;
-            return Err(OpenBitFunError::Validation(error_msg));
+            return Err(AlexError::Validation(error_msg));
         }
 
         match repair_kind {
@@ -1977,7 +1977,7 @@ impl ToolPipeline {
         let registered_tool = tool.ok_or_else(|| {
             let error_msg = format!("Tool '{}' is not registered or enabled.", tool_name);
             error!("{}", error_msg);
-            OpenBitFunError::tool(error_msg)
+            AlexError::tool(error_msg)
         })?;
 
         let cancellation_token = task
@@ -2000,7 +2000,7 @@ impl ToolPipeline {
                     },
                 )
                 .await;
-            return Err(OpenBitFunError::Cancelled(
+            return Err(AlexError::Cancelled(
                 "Tool was cancelled before validation".to_string(),
             ));
         }
@@ -2035,11 +2035,11 @@ impl ToolPipeline {
                 )
                 .await;
             return Err(match error_detail {
-                Some(detail) => OpenBitFunError::ClassifiedTool {
+                Some(detail) => AlexError::ClassifiedTool {
                     message: error_msg,
                     detail,
                 },
-                None => OpenBitFunError::Validation(error_msg),
+                None => AlexError::Validation(error_msg),
             });
         }
         if let Some(message) = validation
@@ -2071,7 +2071,7 @@ impl ToolPipeline {
                 )
                 .await;
             self.cancellation_tokens.remove(&tool_id);
-            return Err(OpenBitFunError::Cancelled(
+            return Err(AlexError::Cancelled(
                 "Tool was cancelled during validation".to_string(),
             ));
         }
@@ -2169,7 +2169,7 @@ impl ToolPipeline {
                 )
                 .await;
             self.cancellation_tokens.remove(&tool_id);
-            return Err(OpenBitFunError::Cancelled(
+            return Err(AlexError::Cancelled(
                 "Tool was cancelled before execution".to_string(),
             ));
         }
@@ -2288,7 +2288,7 @@ impl ToolPipeline {
                 // Cancellation is a first-class terminal state, not a failure.
                 // Preserve Cancelled here so a late cancel cannot be overwritten
                 // by the generic Failed branch below.
-                if let OpenBitFunError::Cancelled(reason) = &e {
+                if let AlexError::Cancelled(reason) = &e {
                     self.state_manager
                         .update_state(
                             &tool_id,
@@ -2317,7 +2317,7 @@ impl ToolPipeline {
                     return Err(e);
                 }
 
-                if matches!(e, OpenBitFunError::Timeout(_)) {
+                if matches!(e, AlexError::Timeout(_)) {
                     let duration_ms = elapsed_ms_u64(start_time);
                     let presentation = build_tool_execution_timeout_presentation(
                         &tool_name,
@@ -2412,14 +2412,14 @@ impl ToolPipeline {
         task: &ToolTask,
         cancellation_token: CancellationToken,
         tool: Arc<dyn crate::agentic::tools::framework::Tool>,
-    ) -> OpenBitFunResult<ModelToolResult> {
+    ) -> AlexResult<ModelToolResult> {
         let mut attempts = 0;
         let max_attempts = task.options.max_retries + 1;
 
         loop {
             // Check cancellation token
             if cancellation_token.is_cancelled() {
-                return Err(OpenBitFunError::Cancelled(
+                return Err(AlexError::Cancelled(
                     "Tool execution was cancelled".to_string(),
                 ));
             }
@@ -2459,10 +2459,10 @@ impl ToolPipeline {
         task: &ToolTask,
         cancellation_token: CancellationToken,
         tool: Arc<dyn crate::agentic::tools::framework::Tool>,
-    ) -> OpenBitFunResult<ModelToolResult> {
+    ) -> AlexResult<ModelToolResult> {
         // Check cancellation token
         if cancellation_token.is_cancelled() {
-            return Err(OpenBitFunError::Cancelled(
+            return Err(AlexError::Cancelled(
                 "Tool execution was cancelled".to_string(),
             ));
         }
@@ -2487,7 +2487,7 @@ impl ToolPipeline {
                 let result = timeout(timeout_duration, execution_future)
                     .await
                     .map_err(|_| {
-                        OpenBitFunError::Timeout(format!(
+                        AlexError::Timeout(format!(
                             "Tool execution timeout: {}",
                             task.effective_tool_name()
                         ))
@@ -2513,7 +2513,7 @@ impl ToolPipeline {
                 )
             })
             .ok_or_else(|| {
-                OpenBitFunError::Tool(format!(
+                AlexError::Tool(format!(
                     "Tool did not return result: {}",
                     task.effective_tool_name()
                 ))
@@ -2537,7 +2537,7 @@ impl ToolPipeline {
         &self,
         task: &ToolTask,
         results: &[FrameworkToolResult],
-    ) -> OpenBitFunResult<()> {
+    ) -> AlexResult<()> {
         let mut chunks_received = 0;
 
         for result in results {
@@ -2562,7 +2562,7 @@ impl ToolPipeline {
 
                 // Send StreamChunk event
                 let _event_data = ToolEventData::StreamChunk {
-                    identity: openbitfun_events::ToolEventIdentity::resolved(
+                    identity: alex_events::ToolEventIdentity::resolved(
                         task.tool_call.tool_id.clone(),
                         task.invocation.wire_tool_name.clone(),
                         task.effective_tool_name().to_string(),
@@ -2576,7 +2576,7 @@ impl ToolPipeline {
     }
 
     /// Cancel tool execution
-    pub async fn cancel_tool(&self, tool_id: &str, reason: String) -> OpenBitFunResult<()> {
+    pub async fn cancel_tool(&self, tool_id: &str, reason: String) -> AlexResult<()> {
         let Some(task) = self.state_manager.get_task(tool_id) else {
             debug!(
                 "Ignoring cancel request for unknown tool: tool_id={}",
@@ -2630,26 +2630,26 @@ impl ToolPipeline {
         &self,
         task: &ToolTask,
         patch: serde_json::Value,
-    ) -> OpenBitFunResult<serde_json::Value> {
+    ) -> AlexResult<serde_json::Value> {
         let mut arguments = task
             .invocation
             .effective_arguments
             .as_object()
             .cloned()
             .ok_or_else(|| {
-                OpenBitFunError::Validation(
+                AlexError::Validation(
                     "This tool does not support object input edits".to_string(),
                 )
             })?;
         arguments.extend(patch.as_object().cloned().ok_or_else(|| {
-            OpenBitFunError::Validation("Edited approval input must be an object".to_string())
+            AlexError::Validation("Edited approval input must be an object".to_string())
         })?);
         let arguments = serde_json::Value::Object(arguments);
         if let Some(rejection) = self
             .non_relaxable_original_input_rejection(task, &arguments)
             .await
         {
-            return Err(OpenBitFunError::Validation(
+            return Err(AlexError::Validation(
                 rejection
                     .message
                     .unwrap_or_else(|| "This tool input is immutable".to_string()),
@@ -2661,18 +2661,18 @@ impl ToolPipeline {
             .read()
             .await
             .get_tool(task.effective_tool_name())
-            .ok_or_else(|| OpenBitFunError::NotFound("Approval tool is unavailable".to_string()))?;
+            .ok_or_else(|| AlexError::NotFound("Approval tool is unavailable".to_string()))?;
         if tool.is_concurrency_safe(Some(task.effective_arguments()))
             && !tool.is_concurrency_safe(Some(&arguments))
         {
-            return Err(OpenBitFunError::Validation(
+            return Err(AlexError::Validation(
                 "Edited input changes the admitted concurrency class; submit it as a new tool call"
                     .to_string(),
             ));
         }
         let validation = tool.validate_input(&arguments, Some(&context)).await;
         if !validation.result {
-            return Err(OpenBitFunError::Validation(
+            return Err(AlexError::Validation(
                 validation
                     .message
                     .unwrap_or_else(|| "Invalid edited tool input".to_string()),
@@ -2688,7 +2688,7 @@ impl ToolPipeline {
             )
             .await?
         {
-            return Err(OpenBitFunError::Validation(reason));
+            return Err(AlexError::Validation(reason));
         }
         Ok(arguments)
     }
@@ -2697,9 +2697,9 @@ impl ToolPipeline {
         &self,
         tool_id: &str,
         reply: PermissionReply,
-    ) -> OpenBitFunResult<()> {
+    ) -> AlexResult<()> {
         let manager = self.permission_request_manager.as_ref().ok_or_else(|| {
-            OpenBitFunError::service("Permission request manager is unavailable".to_string())
+            AlexError::service("Permission request manager is unavailable".to_string())
         })?;
         let request = manager
             .pending_requests()
@@ -2708,7 +2708,7 @@ impl ToolPipeline {
                 request.tool_call_id.as_deref() == Some(tool_id) || request.request_id == tool_id
             })
             .ok_or_else(|| {
-                OpenBitFunError::NotFound(format!(
+                AlexError::NotFound(format!(
                     "Permission request not found for tool: {tool_id}"
                 ))
             })?;
@@ -2718,7 +2718,7 @@ impl ToolPipeline {
                 .as_deref()
                 .and_then(|id| self.state_manager.get_task(id))
                 .ok_or_else(|| {
-                    OpenBitFunError::Validation(
+                    AlexError::Validation(
                         "This permission request does not own editable tool input".to_string(),
                     )
                 })?;
@@ -2729,11 +2729,11 @@ impl ToolPipeline {
             .reply(&request.request_id, reply, PermissionReplySource::User)
             .await
             .map(|_| ())
-            .map_err(|error| OpenBitFunError::service(error.to_string()))
+            .map_err(|error| AlexError::service(error.to_string()))
     }
 
     /// Cancel all tools for a dialog turn
-    pub async fn cancel_dialog_turn_tools(&self, dialog_turn_id: &str) -> OpenBitFunResult<()> {
+    pub async fn cancel_dialog_turn_tools(&self, dialog_turn_id: &str) -> AlexResult<()> {
         info!(
             "Cancelling all tools for dialog turn: dialog_turn_id={}",
             dialog_turn_id
@@ -2796,10 +2796,10 @@ mod tests {
     use crate::agentic::tools::ToolRuntimeRestrictions;
     use crate::agentic::WorkspaceBinding;
     use async_trait::async_trait;
-    use openbitfun_agent_tools::{
+    use alex_agent_tools::{
         LoadedDeferredToolSpec, CALL_DEFERRED_TOOL_NAME, USER_REJECTED_TOOL_MESSAGE,
     };
-    use openbitfun_runtime_ports::{
+    use alex_runtime_ports::{
         ClockPort, PermissionAuditEvent, PermissionAuditRecord, PermissionAuditStorePort,
         PermissionConstraintLayer, PermissionEffect, PermissionGrant, PermissionGrantKey,
         PermissionGrantStorePort, PermissionReplyStorePort, PermissionRule, PortResult,
@@ -3068,7 +3068,7 @@ mod tests {
             true
         }
 
-        async fn description(&self) -> OpenBitFunResult<String> {
+        async fn description(&self) -> AlexResult<String> {
             Ok("File permission test tool".to_string())
         }
 
@@ -3084,7 +3084,7 @@ mod tests {
             &self,
             _input: &serde_json::Value,
             _context: &ToolUseContext,
-        ) -> OpenBitFunResult<Vec<PermissionIntent>> {
+        ) -> AlexResult<Vec<PermissionIntent>> {
             Ok(self.intents.clone())
         }
 
@@ -3092,7 +3092,7 @@ mod tests {
             &self,
             input: &serde_json::Value,
             _context: &ToolUseContext,
-        ) -> OpenBitFunResult<Vec<ToolResult>> {
+        ) -> AlexResult<Vec<ToolResult>> {
             self.call_count.fetch_add(1, Ordering::SeqCst);
             Ok(vec![ToolResult::Result {
                 data: json!({ "written": true, "input": input }),
@@ -3214,7 +3214,7 @@ mod tests {
             &self.name
         }
 
-        async fn description(&self) -> OpenBitFunResult<String> {
+        async fn description(&self) -> AlexResult<String> {
             Ok("capturing test tool".to_string())
         }
 
@@ -3299,7 +3299,7 @@ mod tests {
             &self,
             input: &serde_json::Value,
             _context: &ToolUseContext,
-        ) -> OpenBitFunResult<Vec<ToolResult>> {
+        ) -> AlexResult<Vec<ToolResult>> {
             *self
                 .received_arguments
                 .lock()
@@ -3318,7 +3318,7 @@ mod tests {
             &self.name
         }
 
-        async fn description(&self) -> OpenBitFunResult<String> {
+        async fn description(&self) -> AlexResult<String> {
             Ok("static test tool".to_string())
         }
 
@@ -3355,7 +3355,7 @@ mod tests {
             &self,
             _input: &serde_json::Value,
             context: &ToolUseContext,
-        ) -> OpenBitFunResult<Vec<ToolResult>> {
+        ) -> AlexResult<Vec<ToolResult>> {
             if self.delay_ms > 0 {
                 if let Some(token) = context
                     .round_injection_preemption_token()
@@ -3413,7 +3413,7 @@ mod tests {
             context_vars: HashMap::new(),
             subagent_parent_info: None,
             permission_delegation: None,
-            delegation_policy: openbitfun_runtime_ports::DelegationPolicy::top_level(),
+            delegation_policy: alex_runtime_ports::DelegationPolicy::top_level(),
             deferred_tools: Vec::new(),
             loaded_deferred_tool_specs: Vec::new(),
             allowed_tools: Vec::new(),
@@ -3571,7 +3571,7 @@ mod tests {
         let mut context = test_tool_execution_context();
         context.workspace = Some(WorkspaceBinding::new(
             None,
-            std::env::temp_dir().join("openbitfun-permission-test"),
+            std::env::temp_dir().join("alex-permission-test"),
         ));
         context
     }
@@ -3650,7 +3650,7 @@ mod tests {
 
     async fn wait_for_permission_request(
         manager: &PermissionRequestManager,
-    ) -> openbitfun_runtime_ports::PermissionRequest {
+    ) -> alex_runtime_ports::PermissionRequest {
         for _ in 0..100 {
             if let Some(request) = manager.pending_requests().into_iter().next() {
                 return request;
@@ -3663,7 +3663,7 @@ mod tests {
     async fn wait_for_permission_request_count(
         manager: &PermissionRequestManager,
         expected: usize,
-    ) -> Vec<openbitfun_runtime_ports::PermissionRequest> {
+    ) -> Vec<alex_runtime_ports::PermissionRequest> {
         for _ in 0..100 {
             let requests = manager.pending_requests();
             if requests.len() >= expected {
@@ -4003,7 +4003,7 @@ mod tests {
             .execute_single_tool(tool_id)
             .await
             .expect_err("protected original input must block execution");
-        assert!(matches!(error, OpenBitFunError::Validation(_)));
+        assert!(matches!(error, AlexError::Validation(_)));
         assert!(received_arguments
             .lock()
             .expect("capturing tool argument lock")
@@ -4042,7 +4042,7 @@ mod tests {
             .execute_single_tool(tool_id)
             .await
             .expect_err("protected original target must block execution");
-        assert!(matches!(error, OpenBitFunError::Validation(_)));
+        assert!(matches!(error, AlexError::Validation(_)));
         assert!(received_arguments
             .lock()
             .expect("capturing tool argument lock")
@@ -4119,7 +4119,7 @@ mod tests {
             .execute_single_tool(tool_id)
             .await
             .expect_err("protected final input must fail final validation");
-        assert!(matches!(error, OpenBitFunError::Validation(_)));
+        assert!(matches!(error, AlexError::Validation(_)));
         assert!(received_arguments
             .lock()
             .expect("capturing tool argument lock")
@@ -4334,7 +4334,7 @@ mod tests {
         let requests = wait_for_permission_request_count(&manager, 2).await;
         assert_eq!(requests.len(), 2);
         let expected_project_path = std::env::temp_dir()
-            .join("openbitfun-permission-test")
+            .join("alex-permission-test")
             .to_string_lossy()
             .to_string();
         assert_eq!(
@@ -4353,7 +4353,7 @@ mod tests {
         .zip(requests.iter())
         {
             match event {
-                openbitfun_runtime_ports::PermissionRequestEvent::Asked { request } => {
+                alex_runtime_ports::PermissionRequestEvent::Asked { request } => {
                     assert_eq!(request.request_id, expected_request.request_id);
                 }
                 other => panic!("expected asked event, got {other:?}"),
@@ -4372,7 +4372,7 @@ mod tests {
             .reply(
                 &rejected_request.request_id,
                 PermissionReply::Reject { feedback: None },
-                openbitfun_runtime_ports::PermissionReplySource::User,
+                alex_runtime_ports::PermissionReplySource::User,
             )
             .await
             .expect("reject one tool");
@@ -4389,7 +4389,7 @@ mod tests {
             .reply(
                 &sibling_request.request_id,
                 PermissionReply::Once,
-                openbitfun_runtime_ports::PermissionReplySource::User,
+                alex_runtime_ports::PermissionReplySource::User,
             )
             .await
             .expect("allow sibling tool");
@@ -4443,7 +4443,7 @@ mod tests {
                 PermissionReply::Reject {
                     feedback: Some("Use a read-only path".to_string()),
                 },
-                openbitfun_runtime_ports::PermissionReplySource::User,
+                alex_runtime_ports::PermissionReplySource::User,
             )
             .await
             .expect("reject request with feedback");
@@ -4512,7 +4512,7 @@ mod tests {
             .reply(
                 &request.request_id,
                 PermissionReply::Once,
-                openbitfun_runtime_ports::PermissionReplySource::User,
+                alex_runtime_ports::PermissionReplySource::User,
             )
             .await
             .expect("allow child request");
@@ -4543,7 +4543,7 @@ mod tests {
         context.session_id = "subagent-session".to_string();
         context.agent_type = "Explore".to_string();
         context.permission_delegation =
-            Some(openbitfun_runtime_ports::PermissionDelegationContext {
+            Some(alex_runtime_ports::PermissionDelegationContext {
                 parent_session_id: "parent-session".to_string(),
                 parent_dialog_turn_id: None,
                 parent_tool_call_id: "parent-task-call".to_string(),
@@ -4574,7 +4574,7 @@ mod tests {
             .reply(
                 &request.request_id,
                 PermissionReply::Once,
-                openbitfun_runtime_ports::PermissionReplySource::User,
+                alex_runtime_ports::PermissionReplySource::User,
             )
             .await
             .expect("allow child request");
@@ -4618,7 +4618,7 @@ mod tests {
             .reply(
                 &request.request_id,
                 PermissionReply::Once,
-                openbitfun_runtime_ports::PermissionReplySource::User,
+                alex_runtime_ports::PermissionReplySource::User,
             )
             .await
             .expect("once reply");
@@ -4640,7 +4640,7 @@ mod tests {
             .reply(
                 &request.request_id,
                 PermissionReply::Always,
-                openbitfun_runtime_ports::PermissionReplySource::User,
+                alex_runtime_ports::PermissionReplySource::User,
             )
             .await
             .expect("always reply");
@@ -4669,7 +4669,7 @@ mod tests {
         let mut other_project_context = permission_test_context();
         other_project_context.workspace = Some(WorkspaceBinding::new(
             None,
-            std::env::temp_dir().join("openbitfun-permission-other-project"),
+            std::env::temp_dir().join("alex-permission-other-project"),
         ));
         let other_pipeline = pipeline.clone();
         let other_project = tokio::spawn(async move {
@@ -4695,7 +4695,7 @@ mod tests {
             .reply(
                 &other_request.request_id,
                 PermissionReply::Reject { feedback: None },
-                openbitfun_runtime_ports::PermissionReplySource::User,
+                alex_runtime_ports::PermissionReplySource::User,
             )
             .await
             .expect("reject other project request");
@@ -4743,7 +4743,7 @@ mod tests {
             .reply(
                 &remote_request.request_id,
                 PermissionReply::Reject { feedback: None },
-                openbitfun_runtime_ports::PermissionReplySource::User,
+                alex_runtime_ports::PermissionReplySource::User,
             )
             .await
             .expect("reject remote project request");
@@ -4823,7 +4823,7 @@ mod tests {
             audit[1].event,
             PermissionAuditEvent::Replied {
                 reply: PermissionReply::Once,
-                source: openbitfun_runtime_ports::PermissionReplySource::AutoApprove,
+                source: alex_runtime_ports::PermissionReplySource::AutoApprove,
             }
         ));
         assert!(matches!(
@@ -5135,9 +5135,9 @@ mod tests {
 
     #[test]
     fn classified_edit_failure_preserves_model_error_and_persisted_detail() {
-        let error = OpenBitFunError::ClassifiedTool {
+        let error = AlexError::ClassifiedTool {
             message: "[guidance] new_string must be different from old_string".into(),
-            detail: openbitfun_core_types::errors::ToolErrorDetail {
+            detail: alex_core_types::errors::ToolErrorDetail {
                 code: "edit_no_change".into(),
                 kind: "guidance".into(),
             },
@@ -5167,7 +5167,7 @@ mod tests {
         let result = build_error_execution_result(
             "tool_1",
             Some(task),
-            &OpenBitFunError::Validation("Arguments are invalid JSON.".to_string()),
+            &AlexError::Validation("Arguments are invalid JSON.".to_string()),
         );
 
         assert_eq!(
@@ -5196,7 +5196,7 @@ mod tests {
         let result = build_error_execution_result(
             "tool_1",
             Some(task),
-            &OpenBitFunError::Validation("operation is not supported".to_string()),
+            &AlexError::Validation("operation is not supported".to_string()),
         );
 
         assert!(result.result.result["provided_arguments"].is_null());
@@ -5534,7 +5534,7 @@ mod tests {
         use crate::agentic::core::message::Message;
         use crate::agentic::tools::implementations::computer_use_presentation::complete_model_results;
         use crate::util::types::Message as AIMessage;
-        use openbitfun_agent_tools::ToolImageAttachment;
+        use alex_agent_tools::ToolImageAttachment;
 
         // These deliberately have the brief summaries that previously hid the
         // entire app list and AX tree from the model. Check the final provider

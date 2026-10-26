@@ -131,10 +131,10 @@ describe('device status card', () => {
     const card = element('nav-device-status-popover');
     expect(card.dataset.radius).toBe('lg');
     expect(card.dataset.padding).toBe('none');
-    expect(card.querySelector('[data-openbitfun-part="header"]')?.getAttribute('data-content-align')).toBe('center');
+    expect(card.querySelector('[data-alex-part="header"]')?.getAttribute('data-content-align')).toBe('center');
     expect(card.querySelector('[data-artwork="device"]')).not.toBeNull();
-    expect(element('nav-device-status-summary').querySelector('.openbitfun-device-overview__device-name')?.textContent).toBe('Workstation');
-    expect(element('nav-device-status-manage').getAttribute('data-openbitfun-variant')).toBe('primary');
+    expect(element('nav-device-status-summary').querySelector('.alex-device-overview__device-name')?.textContent).toBe('Workstation');
+    expect(element('nav-device-status-manage').getAttribute('data-alex-variant')).toBe('primary');
     expect(card.querySelector('[data-testid="nav-device-status-connected-devices"]')).toBeNull();
     act(() => element('nav-device-status-manage').click());
     expect(onOpenChange).toHaveBeenCalledWith(false);
@@ -251,13 +251,13 @@ describe('device status card', () => {
     expect(summary.textContent).not.toContain('deviceOverview.currentUse');
     // This machine has no connect action, but its card renders the same button a
     // peer's card renders, so both cards stay exactly one control tall.
-    const localActionRow = summary.querySelector('.openbitfun-device-overview__connect-action');
+    const localActionRow = summary.querySelector('.alex-device-overview__connect-action');
     expect(localActionRow).not.toBeNull();
     const localActionButton = localActionRow!.querySelector('button');
     expect(localActionButton).not.toBeNull();
     expect(localActionButton!.disabled).toBe(true);
     expect(localActionButton!.getAttribute('aria-hidden')).toBe('true');
-    expect(localActionButton!.className).toContain('openbitfun-device-overview__connect-reserved');
+    expect(localActionButton!.className).toContain('alex-device-overview__connect-reserved');
 
     // A peer in use keeps the generic wording: it is not a local device.
     state.overview = overview({
@@ -267,7 +267,7 @@ describe('device status card', () => {
     render();
     expect(summary.textContent).toContain('deviceOverview.currentUse');
     expect(summary.textContent).not.toContain('deviceOverview.currentLocalDevice');
-    expect(summary.querySelector('.openbitfun-device-overview__connect-action')).not.toBeNull();
+    expect(summary.querySelector('.alex-device-overview__connect-action')).not.toBeNull();
   });
 
   it('keeps connected controllers visible without the connection service card', () => {
@@ -312,7 +312,7 @@ describe('device status card', () => {
       remoteStatusState: 'unavailable',
     });
     render();
-    const retry = document.querySelector<HTMLButtonElement>('.openbitfun-device-overview__notice');
+    const retry = document.querySelector<HTMLButtonElement>('.alex-device-overview__notice');
     expect(retry?.textContent).toContain('deviceOverview.statusUnavailable');
     const previousRefreshes = state.refresh.mock.calls.length;
     act(() => retry?.click());
@@ -329,7 +329,7 @@ describe('device status card', () => {
     const name = 'Engineering workstation with a very long device name';
     state.overview = overview({ localDeviceName: name });
     render();
-    expect(element('nav-device-status-summary').querySelector('.openbitfun-device-overview__device-name')?.textContent).toBe(name);
+    expect(element('nav-device-status-summary').querySelector('.alex-device-overview__device-name')?.textContent).toBe(name);
     expect(element('nav-device-status-summary').querySelector('[title]')?.getAttribute('title')).toBe(name);
     expect(element('nav-footer-device-status').getAttribute('aria-label')).toContain(name);
   });
@@ -337,7 +337,7 @@ describe('device status card', () => {
   it('draws this machine as the attached desktop, by the system it reported', () => {
     const footer = () => element('nav-footer-device-status');
     const attachedDesktop = () => footer()
-      .querySelector('[data-openbitfun-device-kind="desktop"]');
+      .querySelector('[data-alex-device-kind="desktop"]');
 
     // A peer in use names itself in the trigger and lands in the carousel; this
     // machine is the attached desktop, and it reads as the Mac it is.
@@ -378,7 +378,7 @@ describe('device status card', () => {
       },
     });
     render();
-    expect(footer().querySelector('[data-openbitfun-device-kind="mobile"] [data-system]')).toBeNull();
+    expect(footer().querySelector('[data-alex-device-kind="mobile"] [data-system]')).toBeNull();
 
     // A system this client cannot place keeps the neutral mark it always drew.
     state.overview = overview({
@@ -394,7 +394,7 @@ describe('device status card', () => {
   it('draws a group of headless hosts with the mark the list draws for them', () => {
     const footer = () => element('nav-footer-device-status');
     const headlessGroup = () => footer()
-      .querySelector('[data-openbitfun-device-kind="execution-host"]');
+      .querySelector('[data-alex-device-kind="execution-host"]');
 
     // A dispatch job running on another host is what puts that group in the
     // footer, and the group names a class rather than one device: it has no row
@@ -414,7 +414,7 @@ describe('device status card', () => {
       scope?.querySelector('svg[data-system="server"] path')?.getAttribute('d')
     );
     const listRow = element('nav-device-status-connected-devices')
-      .querySelector('[data-openbitfun-device-kind="execution-host"]');
+      .querySelector('[data-alex-device-kind="execution-host"]');
     // One drawing, whatever slot it lands in: the group is not a second glyph.
     expect(drawnPath(headlessGroup())).not.toBeNull();
     expect(drawnPath(headlessGroup())).toBe(drawnPath(listRow));
@@ -441,7 +441,7 @@ describe('device status card', () => {
     // saying what they are, because neither is a system this client can draw.
     const rows = element('nav-device-status-connected-devices');
     const row = (text: string) => Array.from(
-      rows.querySelectorAll('.openbitfun-device-overview__device-row'),
+      rows.querySelectorAll('.alex-device-overview__device-row'),
     ).find(candidate => candidate.textContent?.includes(text))!;
     expect(row('Workstation').querySelector('svg[data-system="macos"]')).not.toBeNull();
     expect(row('My phone').querySelector('[data-system]')).toBeNull();
@@ -490,9 +490,9 @@ describe('device status card', () => {
     expect(notice).not.toBeNull();
     expect(notice?.tagName).toBe('BUTTON');
     expect((notice as HTMLButtonElement).disabled).toBe(true);
-    expect(document.querySelectorAll('.openbitfun-device-overview__connect-action button')).toHaveLength(1);
+    expect(document.querySelectorAll('.alex-device-overview__connect-action button')).toHaveLength(1);
     expect(notice?.textContent).toContain('deviceOverview.deviceClientIncompatibleWithVersion');
-    expect(document.querySelector('.openbitfun-device-overview__device-name')?.textContent).toBeDefined();
+    expect(document.querySelector('.alex-device-overview__device-name')?.textContent).toBeDefined();
     expect(Array.from(document.querySelectorAll('button')).some(
       button => button.textContent === 'deviceOverview.connectDevice',
     )).toBe(false);

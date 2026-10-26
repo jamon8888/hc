@@ -9,22 +9,22 @@ use image::codecs::jpeg::JpegEncoder;
 #[cfg(target_os = "macos")]
 use image::DynamicImage;
 use image::RgbImage;
-use openbitfun_core::agentic::tools::computer_use_host::{
+use alex_core::agentic::tools::computer_use_host::{
     ComputerScreenshot, ComputerUseDisplayInfo, ComputerUseImageContentRect,
     ComputerUseImageGlobalBounds, ComputerUseScreenshotParams, OcrRegionNative, OcrTextMatch,
 };
-use openbitfun_core::util::errors::{OpenBitFunError, OpenBitFunResult};
+use alex_core::util::errors::{AlexError, AlexResult};
 use screenshots::Screen;
 
 #[cfg(any(test, target_os = "macos", target_os = "windows"))]
-fn bound_window_identity(target: &str) -> OpenBitFunResult<(i32, isize)> {
+fn bound_window_identity(target: &str) -> AlexResult<(i32, isize)> {
     let identity = target
         .strip_prefix("pid:")
         .and_then(|value| value.split_once("/window:"))
         .and_then(|(pid, window)| Some((pid.parse::<i32>().ok()?, window.parse::<isize>().ok()?)))
         .filter(|(pid, window)| *pid > 0 && *window != 0);
     identity.ok_or_else(|| {
-        OpenBitFunError::tool("[TARGET_INVALID] Capture requires an exact process/window identity")
+        AlexError::tool("[TARGET_INVALID] Capture requires an exact process/window identity")
     })
 }
 
@@ -47,9 +47,9 @@ pub(super) struct MacPointerGeo {
 #[cfg(target_os = "macos")]
 impl MacPointerGeo {
     /// Map **continuous** framebuffer pixel center `(cx, cy)` (0.5 = middle of left/top pixel) to CG global.
-    fn full_pixel_center_to_global_f64(&self, cx: f64, cy: f64) -> OpenBitFunResult<(f64, f64)> {
+    fn full_pixel_center_to_global_f64(&self, cx: f64, cy: f64) -> AlexResult<(f64, f64)> {
         if self.disp_w <= 0.0 || self.disp_h <= 0.0 || self.full_px_w == 0 || self.full_px_h == 0 {
-            return Err(OpenBitFunError::tool(
+            return Err(AlexError::tool(
                 "Invalid macOS pointer geometry.".to_string(),
             ));
         }
@@ -88,9 +88,9 @@ impl PointerMap {
     /// Relative image-pixel displacement uses the same scale as the captured
     /// image, without clamping a delta to an absolute image location.
     #[cfg(target_os = "macos")]
-    pub(super) fn image_delta_to_global(&self, dx: i32, dy: i32) -> OpenBitFunResult<(f64, f64)> {
+    pub(super) fn image_delta_to_global(&self, dx: i32, dy: i32) -> AlexResult<(f64, f64)> {
         if self.content_w == 0 || self.content_h == 0 || self.native_w == 0 || self.native_h == 0 {
-            return Err(OpenBitFunError::tool(
+            return Err(AlexError::tool(
                 "Invalid screenshot coordinate map (zero dimension)",
             ));
         }
@@ -104,7 +104,7 @@ impl PointerMap {
                 || geo.disp_w <= 0.0
                 || geo.disp_h <= 0.0
             {
-                return Err(OpenBitFunError::tool("Invalid macOS pointer geometry"));
+                return Err(AlexError::tool("Invalid macOS pointer geometry"));
             }
             sx *= geo.disp_w / geo.full_px_w as f64;
             sy *= geo.disp_h / geo.full_px_h as f64;
@@ -121,12 +121,12 @@ impl PointerMap {
         translated == *other
     }
 
-    pub(super) fn at_window_bounds(mut self, bounds: [f64; 4]) -> OpenBitFunResult<Self> {
+    pub(super) fn at_window_bounds(mut self, bounds: [f64; 4]) -> AlexResult<Self> {
         if bounds.iter().any(|v| !v.is_finite())
             || (bounds[2] - self.native_w as f64).abs() > 1.0
             || (bounds[3] - self.native_h as f64).abs() > 1.0
         {
-            return Err(OpenBitFunError::tool(
+            return Err(AlexError::tool(
                 "[STALE_CAPTURE] Target resized; observe again before coordinate input",
             ));
         }
@@ -136,7 +136,7 @@ impl PointerMap {
     }
 
     /// Continuous mapping: **composed JPEG** pixel `(x,y)` -> global (macOS CG).
-    pub(super) fn map_image_to_global_f64(&self, x: i32, y: i32) -> OpenBitFunResult<(f64, f64)> {
+    pub(super) fn map_image_to_global_f64(&self, x: i32, y: i32) -> AlexResult<(f64, f64)> {
         if self.image_w == 0
             || self.image_h == 0
             || self.content_w == 0
@@ -144,7 +144,7 @@ impl PointerMap {
             || self.native_w == 0
             || self.native_h == 0
         {
-            return Err(OpenBitFunError::tool(
+            return Err(AlexError::tool(
                 "Invalid screenshot coordinate map (zero dimension).".to_string(),
             ));
         }
@@ -178,9 +178,9 @@ impl PointerMap {
         &self,
         x: i32,
         y: i32,
-    ) -> OpenBitFunResult<(f64, f64)> {
+    ) -> AlexResult<(f64, f64)> {
         if self.native_w == 0 || self.native_h == 0 {
-            return Err(OpenBitFunError::tool(
+            return Err(AlexError::tool(
                 "Invalid screenshot coordinate map (zero native dimension).".to_string(),
             ));
         }
@@ -203,7 +203,7 @@ impl PointerMap {
 }
 
 impl DesktopComputerUseHost {
-    fn encode_jpeg(rgb: &RgbImage, quality: u8) -> OpenBitFunResult<Vec<u8>> {
+    fn encode_jpeg(rgb: &RgbImage, quality: u8) -> AlexResult<Vec<u8>> {
         let mut buf = Vec::new();
         let mut enc = JpegEncoder::new_with_quality(&mut buf, quality);
         enc.encode(
@@ -212,7 +212,7 @@ impl DesktopComputerUseHost {
             rgb.height(),
             image::ExtendedColorType::Rgb8,
         )
-        .map_err(|e| OpenBitFunError::tool(format!("JPEG encode: {}", e)))?;
+        .map_err(|e| AlexError::tool(format!("JPEG encode: {}", e)))?;
         Ok(buf)
     }
 
@@ -226,7 +226,7 @@ impl DesktopComputerUseHost {
         display_origin_y: i32,
         native_w: u32,
         native_h: u32,
-    ) -> OpenBitFunResult<ComputerScreenshot> {
+    ) -> AlexResult<ComputerScreenshot> {
         let jpeg_bytes = Self::encode_jpeg(&rgb, Self::OCR_RAW_JPEG_QUALITY)?;
         let iw = rgb.width();
         let ih = rgb.height();
@@ -269,7 +269,7 @@ impl DesktopComputerUseHost {
         cx: f64,
         cy: f64,
         half: u32,
-    ) -> OpenBitFunResult<OcrRegionNative> {
+    ) -> AlexResult<OcrRegionNative> {
         let hh = half as f64;
         let x0 = (cx - hh).floor() as i32;
         let y0 = (cy - hh).floor() as i32;
@@ -325,7 +325,7 @@ impl DesktopComputerUseHost {
     pub(super) async fn screenshot_for_app_pid(
         &self,
         pid: i32,
-    ) -> OpenBitFunResult<ComputerScreenshot> {
+    ) -> AlexResult<ComputerScreenshot> {
         self.capture_app_pid(pid, true).await
     }
 
@@ -334,15 +334,15 @@ impl DesktopComputerUseHost {
         &self,
         pid: i32,
         update_navigation: bool,
-    ) -> OpenBitFunResult<ComputerScreenshot> {
+    ) -> AlexResult<ComputerScreenshot> {
         let cap = crate::computer_use::control_session::spawn_blocking(move || {
             crate::computer_use::macos_capture::capture_frame(pid, None)
-                .map_err(OpenBitFunError::tool)
+                .map_err(AlexError::tool)
         })
         .await
-        .map_err(|e| OpenBitFunError::tool(e.to_string()))??;
+        .map_err(|e| AlexError::tool(e.to_string()))??;
         let rgba = image::RgbaImage::from_raw(cap.width, cap.height, cap.rgba)
-            .ok_or_else(|| OpenBitFunError::tool("CAPTURE_INVALID_FRAME"))?;
+            .ok_or_else(|| AlexError::tool("CAPTURE_INVALID_FRAME"))?;
         let rgb = DynamicImage::ImageRgba8(rgba).to_rgb8();
         let origin_x = cap.bounds[0].round() as i32;
         let origin_y = cap.bounds[1].round() as i32;
@@ -369,7 +369,7 @@ impl DesktopComputerUseHost {
         let mut state = self
             .state
             .lock()
-            .map_err(|e| OpenBitFunError::tool(format!("lock: {e}")))?;
+            .map_err(|e| AlexError::tool(format!("lock: {e}")))?;
         state.transition_after_screenshot(map);
         state.app_pointer_maps.insert(pid, map);
         let target = format!("pid:{pid}/window:{}", cap.window_id);
@@ -395,7 +395,7 @@ impl DesktopComputerUseHost {
         &self,
         pid: i32,
         hwnd_raw: isize,
-    ) -> OpenBitFunResult<ComputerScreenshot> {
+    ) -> AlexResult<ComputerScreenshot> {
         self.capture_window(pid, hwnd_raw, true).await
     }
 
@@ -405,7 +405,7 @@ impl DesktopComputerUseHost {
         pid: i32,
         hwnd_raw: isize,
         update_navigation: bool,
-    ) -> OpenBitFunResult<ComputerScreenshot> {
+    ) -> AlexResult<ComputerScreenshot> {
         use windows::Win32::Foundation::HWND;
 
         let cap = crate::computer_use::control_session::spawn_blocking(move || {
@@ -413,10 +413,10 @@ impl DesktopComputerUseHost {
             crate::computer_use::windows_capture::screenshot_window_capture(hwnd)
         })
         .await
-        .map_err(|e| OpenBitFunError::tool(e.to_string()))??;
+        .map_err(|e| AlexError::tool(e.to_string()))??;
 
         let img = image::load_from_memory(&cap.png)
-            .map_err(|e| OpenBitFunError::tool(format!("decode window capture PNG: {}", e)))?;
+            .map_err(|e| AlexError::tool(format!("decode window capture PNG: {}", e)))?;
         let rgb = img.to_rgb8();
         let native_w = rgb.width();
         let native_h = rgb.height();
@@ -443,7 +443,7 @@ impl DesktopComputerUseHost {
             let mut s = self
                 .state
                 .lock()
-                .map_err(|e| OpenBitFunError::tool(format!("lock: {}", e)))?;
+                .map_err(|e| AlexError::tool(format!("lock: {}", e)))?;
             s.transition_after_screenshot(map);
             s.app_pointer_maps.insert(pid, map);
             let target = format!("pid:{pid}/window:{hwnd_raw}");
@@ -465,10 +465,10 @@ impl DesktopComputerUseHost {
         &self,
         session: &crate::computer_use::linux_control::LinuxControlSession,
         update_navigation: bool,
-    ) -> OpenBitFunResult<ComputerScreenshot> {
-        let jpeg = session.capture().await.map_err(OpenBitFunError::tool)?;
+    ) -> AlexResult<ComputerScreenshot> {
+        let jpeg = session.capture().await.map_err(AlexError::tool)?;
         let rgb = image::load_from_memory(&jpeg)
-            .map_err(|e| OpenBitFunError::tool(format!("[CAPTURE_INVALID_FRAME] {e}")))?
+            .map_err(|e| AlexError::tool(format!("[CAPTURE_INVALID_FRAME] {e}")))?
             .to_rgb8();
         let size = session.logical_size();
         let (logical_w, logical_h) = size
@@ -497,7 +497,7 @@ impl DesktopComputerUseHost {
             let mut state = self
                 .state
                 .lock()
-                .map_err(|e| OpenBitFunError::tool(format!("lock: {e}")))?;
+                .map_err(|e| AlexError::tool(format!("lock: {e}")))?;
             state.transition_after_screenshot(map);
             if let Some(id) = shot.screenshot_id.clone() {
                 state.screenshot_pointer_maps.insert(id, map);
@@ -516,14 +516,14 @@ impl DesktopComputerUseHost {
     pub(super) async fn screenshot_display_impl(
         &self,
         _params: ComputerUseScreenshotParams,
-    ) -> OpenBitFunResult<ComputerScreenshot> {
+    ) -> AlexResult<ComputerScreenshot> {
         // Legacy crop/navigation parameters cannot widen the authorized scope.
         self.capture_bound_target(true).await
     }
 
     pub(super) async fn screenshot_peek_full_display_impl(
         &self,
-    ) -> OpenBitFunResult<ComputerScreenshot> {
+    ) -> AlexResult<ComputerScreenshot> {
         // The legacy trait name is retained for callers, but preview captures
         // only the same authorized target and does not change coordinate maps.
         self.capture_bound_target(false).await
@@ -532,19 +532,19 @@ impl DesktopComputerUseHost {
     async fn capture_bound_target(
         &self,
         update_navigation: bool,
-    ) -> OpenBitFunResult<ComputerScreenshot> {
-        crate::computer_use::control_session::capture_allowed().map_err(OpenBitFunError::tool)?;
+    ) -> AlexResult<ComputerScreenshot> {
+        crate::computer_use::control_session::capture_allowed().map_err(AlexError::tool)?;
         let snapshot = crate::computer_use::control_session::snapshot();
         if snapshot.state != "active" {
-            return Err(OpenBitFunError::tool(
+            return Err(AlexError::tool(
                 "[CONTROL_STOPPED] Capture requires an active control session",
             ));
         }
         let target = snapshot.target.ok_or_else(|| {
-            OpenBitFunError::tool("[TARGET_REQUIRED] Select an authorized target before capture")
+            AlexError::tool("[TARGET_REQUIRED] Select an authorized target before capture")
         })?;
         crate::computer_use::control_session::target_allowed(&target)
-            .map_err(OpenBitFunError::tool)?;
+            .map_err(AlexError::tool)?;
         #[cfg(target_os = "windows")]
         {
             let (pid, window) = bound_window_identity(&target)?;
@@ -554,9 +554,9 @@ impl DesktopComputerUseHost {
         {
             let (pid, window) = bound_window_identity(&target)?;
             let bound = crate::computer_use::macos_capture::bound_window_id(pid)
-                .map_err(OpenBitFunError::tool)?;
+                .map_err(AlexError::tool)?;
             if bound as isize != window {
-                return Err(OpenBitFunError::tool(
+                return Err(AlexError::tool(
                     "[TARGET_CHANGED] Native capture window differs from the authorized target",
                 ));
             }
@@ -565,19 +565,19 @@ impl DesktopComputerUseHost {
         #[cfg(target_os = "linux")]
         {
             let session = crate::computer_use::linux_control::session()
-                .map_err(OpenBitFunError::tool)?
+                .map_err(AlexError::tool)?
                 .ok_or_else(|| {
-                    OpenBitFunError::tool(
+                    AlexError::tool(
                         "[CAPTURE_REQUIRED] Start an authorized portal capture session",
                     )
                 })?;
             if target != session.target_identity() {
-                return Err(OpenBitFunError::tool("[CAPTURE_TARGET_MISMATCH] Portal-selected pixels do not represent the bound application; no capture was taken"));
+                return Err(AlexError::tool("[CAPTURE_TARGET_MISMATCH] Portal-selected pixels do not represent the bound application; no capture was taken"));
             }
             return self.screenshot_portal(&session, update_navigation).await;
         }
         #[allow(unreachable_code)]
-        Err(OpenBitFunError::tool(
+        Err(AlexError::tool(
             "[CAPTURE_UNSUPPORTED] This platform has no authorized target capture provider",
         ))
     }
@@ -585,10 +585,10 @@ impl DesktopComputerUseHost {
     async fn control_ocr_capture(
         &self,
         region: Option<OcrRegionNative>,
-    ) -> OpenBitFunResult<ComputerScreenshot> {
+    ) -> AlexResult<ComputerScreenshot> {
         let snapshot = crate::computer_use::control_session::snapshot();
         if snapshot.state != "active" || snapshot.target.is_none() {
-            return Err(OpenBitFunError::tool(
+            return Err(AlexError::tool(
                 "[CAPTURE_REQUIRED] Observe an authorized target before OCR",
             ));
         }
@@ -598,14 +598,14 @@ impl DesktopComputerUseHost {
             .as_deref()
             .is_some_and(|target| target.starts_with("atspi:"))
         {
-            return Err(OpenBitFunError::tool("[OCR_TARGET_ASSOCIATION_UNAVAILABLE] AT-SPI application identity is not linked to the portal-selected window. Observe the portal window independently; its pixels cannot verify this application's semantic state."));
+            return Err(AlexError::tool("[OCR_TARGET_ASSOCIATION_UNAVAILABLE] AT-SPI application identity is not linked to the portal-selected window. Observe the portal window independently; its pixels cannot verify this application's semantic state."));
         }
         let shot = self.screenshot_peek_full_display_impl().await?;
         let Some(region) = region else {
             return Ok(shot);
         };
         let bounds = shot.image_global_bounds.as_ref().ok_or_else(|| {
-            OpenBitFunError::tool(
+            AlexError::tool(
                 "[COORDINATES_UNAVAILABLE] Capture has no authoritative coordinate geometry",
             )
         })?;
@@ -614,12 +614,12 @@ impl DesktopComputerUseHost {
         let right = (region.x0 as f64 + region.width as f64).min(bounds.left + bounds.width);
         let bottom = (region.y0 as f64 + region.height as f64).min(bounds.top + bounds.height);
         if right <= left || bottom <= top || bounds.width <= 0.0 || bounds.height <= 0.0 {
-            return Err(OpenBitFunError::tool(
+            return Err(AlexError::tool(
                 "[TARGET_SCOPE_MISMATCH] OCR region is outside the authorized target",
             ));
         }
         let image = image::load_from_memory(&shot.bytes)
-            .map_err(|e| OpenBitFunError::tool(e.to_string()))?
+            .map_err(|e| AlexError::tool(e.to_string()))?
             .to_rgb8();
         let scale_x = image.width() as f64 / bounds.width;
         let scale_y = image.height() as f64 / bounds.height;
@@ -628,7 +628,7 @@ impl DesktopComputerUseHost {
         let x1 = (((right - bounds.left) * scale_x).ceil() as u32).min(image.width());
         let y1 = (((bottom - bounds.top) * scale_y).ceil() as u32).min(image.height());
         if x1 <= x0 || y1 <= y0 {
-            return Err(OpenBitFunError::tool(
+            return Err(AlexError::tool(
                 "[INVALID_COORDINATES] Empty OCR crop",
             ));
         }
@@ -642,7 +642,7 @@ impl DesktopComputerUseHost {
         )
     }
 
-    pub(super) async fn read_screen_text_impl(&self) -> OpenBitFunResult<Vec<OcrTextMatch>> {
+    pub(super) async fn read_screen_text_impl(&self) -> AlexResult<Vec<OcrTextMatch>> {
         let shot = self.control_ocr_capture(None).await?;
         crate::computer_use::control_session::spawn_blocking(move || {
             #[cfg(target_os = "macos")]
@@ -655,14 +655,14 @@ impl DesktopComputerUseHost {
             }
         })
         .await
-        .map_err(|error| OpenBitFunError::tool(error.to_string()))?
+        .map_err(|error| AlexError::tool(error.to_string()))?
     }
 
     pub(super) async fn ocr_find_text_matches_impl(
         &self,
         text_query: &str,
-        region_native: Option<openbitfun_core::agentic::tools::computer_use_host::OcrRegionNative>,
-    ) -> OpenBitFunResult<Vec<OcrTextMatch>> {
+        region_native: Option<alex_core::agentic::tools::computer_use_host::OcrRegionNative>,
+    ) -> AlexResult<Vec<OcrTextMatch>> {
         let shot = self.control_ocr_capture(region_native).await?;
         let query = text_query.to_string();
         let desktop_matches = crate::computer_use::control_session::spawn_blocking(move || {
@@ -681,11 +681,11 @@ impl DesktopComputerUseHost {
             }
         })
         .await
-        .map_err(|e| OpenBitFunError::tool(e.to_string()))??;
+        .map_err(|e| AlexError::tool(e.to_string()))??;
         Ok(desktop_matches
             .into_iter()
             .map(
-                |m| openbitfun_core::agentic::tools::computer_use_host::OcrTextMatch {
+                |m| alex_core::agentic::tools::computer_use_host::OcrTextMatch {
                     text: m.text,
                     confidence: m.confidence,
                     center_x: m.center_x,
@@ -704,7 +704,7 @@ impl DesktopComputerUseHost {
         gx: f64,
         gy: f64,
         half_extent_native: u32,
-    ) -> OpenBitFunResult<Vec<u8>> {
+    ) -> AlexResult<Vec<u8>> {
         let region = Self::ocr_region_square_around_point(gx, gy, half_extent_native)?;
         let shot = self.control_ocr_capture(Some(region)).await?;
         Ok(shot.bytes)
@@ -717,7 +717,7 @@ mod window_projection_tests {
     use super::DesktopComputerUseHost;
     use super::{bound_window_identity, PointerMap};
     #[cfg(target_os = "macos")]
-    use openbitfun_core::agentic::tools::computer_use_host::ComputerUseHost;
+    use alex_core::agentic::tools::computer_use_host::ComputerUseHost;
 
     #[test]
     fn native_capture_identity_never_accepts_an_unbound_or_partial_target() {

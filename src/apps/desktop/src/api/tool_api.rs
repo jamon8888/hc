@@ -6,17 +6,17 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 use tauri::State;
 
-use openbitfun_agent_runtime::sdk::AgentUserAnswersRequest;
-use openbitfun_core::agentic::tools::product_runtime::{build_tool_info, ToolInfoDto};
-use openbitfun_core::agentic::{
+use alex_agent_runtime::sdk::AgentUserAnswersRequest;
+use alex_core::agentic::tools::product_runtime::{build_tool_info, ToolInfoDto};
+use alex_core::agentic::{
     tools::framework::ToolUseContext,
     tools::{get_all_tools, get_readonly_tools},
     workspace::{local_workspace_services, remote_workspace_services},
     WorkspaceBinding,
 };
-use openbitfun_core::product_runtime::CoreRuntimeServicesProvider;
-use openbitfun_core::service::remote_ssh::workspace_state::get_remote_workspace_manager;
-use openbitfun_core::util::elapsed_ms_u64;
+use alex_core::product_runtime::CoreRuntimeServicesProvider;
+use alex_core::service::remote_ssh::workspace_state::get_remote_workspace_manager;
+use alex_core::util::elapsed_ms_u64;
 
 use crate::runtime::DesktopRuntimeContext;
 
@@ -28,9 +28,9 @@ pub type ToolInfo = ToolInfoDto;
 
 #[tauri::command]
 pub async fn get_chat_mcp_catalog(
-    request: openbitfun_core::agentic::tools::product_runtime::ChatMcpCatalogRequest,
-) -> Result<openbitfun_core::agentic::tools::product_runtime::ChatMcpCatalog, String> {
-    openbitfun_core::agentic::tools::product_runtime::build_chat_mcp_catalog(request).await
+    request: alex_core::agentic::tools::product_runtime::ChatMcpCatalogRequest,
+) -> Result<alex_core::agentic::tools::product_runtime::ChatMcpCatalog, String> {
+    alex_core::agentic::tools::product_runtime::build_chat_mcp_catalog(request).await
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -54,10 +54,10 @@ pub struct GetToolInfoRequest {
 }
 
 // Re-export the shared dynamic tool DTOs (Core already owns them under
-// `openbitfun_core::agentic::tools::framework`); Desktop used to carry byte-for-byte
+// `alex_core::agentic::tools::framework`); Desktop used to carry byte-for-byte
 // duplicates. Keeping the names re-exported preserves downstream `use ...::*`
 // imports in lib.rs.
-pub use openbitfun_core::agentic::tools::framework::{DynamicMcpToolInfo, DynamicToolInfo};
+pub use alex_core::agentic::tools::framework::{DynamicMcpToolInfo, DynamicToolInfo};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ToolExecutionResponse {
@@ -100,7 +100,7 @@ async fn build_tool_context(
     let id = if let Some(id) = workspace_id {
         Some(id.to_owned())
     } else if let Some(path) = legacy_path.filter(|path| !path.trim().is_empty()) {
-        let service = openbitfun_core::service::workspace::get_global_workspace_service()
+        let service = alex_core::service::workspace::get_global_workspace_service()
             .ok_or_else(|| "Workspace service is unavailable".to_string())?;
         let record = service
             .resolve_legacy_workspace_reference(None, path, None, None)
@@ -333,15 +333,15 @@ pub async fn execute_tool(request: ToolExecutionRequest) -> Result<ToolExecution
                 Ok(results) => {
                     let combined_result = if results.len() == 1 {
                         match &results[0] {
-                            openbitfun_core::agentic::tools::framework::ToolResult::Result {
+                            alex_core::agentic::tools::framework::ToolResult::Result {
                                 data,
                                 ..
                             } => Some(data.clone()),
-                            openbitfun_core::agentic::tools::framework::ToolResult::Progress {
+                            alex_core::agentic::tools::framework::ToolResult::Progress {
                                 content,
                                 ..
                             } => Some(content.clone()),
-                            openbitfun_core::agentic::tools::framework::ToolResult::StreamChunk {
+                            alex_core::agentic::tools::framework::ToolResult::StreamChunk {
                                 data,
                                 ..
                             } => Some(data.clone()),
@@ -349,11 +349,11 @@ pub async fn execute_tool(request: ToolExecutionRequest) -> Result<ToolExecution
                     } else {
                         Some(serde_json::json!({
                                         "results": results.iter().map(|r| match r {
-                        openbitfun_core::agentic::tools::framework::ToolResult::Result { data, .. } => {
+                        alex_core::agentic::tools::framework::ToolResult::Result { data, .. } => {
                             data.clone()
                         }
-                        openbitfun_core::agentic::tools::framework::ToolResult::Progress { content, .. } => content.clone(),
-                        openbitfun_core::agentic::tools::framework::ToolResult::StreamChunk { data, .. } => data.clone(),
+                        alex_core::agentic::tools::framework::ToolResult::Progress { content, .. } => content.clone(),
+                        alex_core::agentic::tools::framework::ToolResult::StreamChunk { data, .. } => data.clone(),
                                         }).collect::<Vec<_>>()
                                     }))
                     };

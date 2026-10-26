@@ -1,4 +1,4 @@
-//! OpenBitFun Relay Service
+//! Alex Relay Service
 //!
 //! Shared relay logic used by both the standalone relay-server binary and
 //! the embedded relay running inside the desktop process.
@@ -51,7 +51,7 @@ pub(crate) fn asset_store_error_status(error: String) -> axum::http::StatusCode 
 
 /// Apply conservative browser security headers to API and hosted-web
 /// responses. Operators can still add a stricter CSP at their reverse proxy;
-/// a global CSP here would incorrectly constrain user-authored OpenBitFun Pages.
+/// a global CSP here would incorrectly constrain user-authored Alex Pages.
 pub async fn relay_security_headers(
     request: axum::extract::Request,
     next: axum::middleware::Next,
@@ -160,7 +160,7 @@ pub(crate) fn normalized_browser_origin(raw: &str) -> Option<String> {
     Some(format!("{scheme}://{authority}"))
 }
 
-/// Trusted public/authentication URL pair for browser-hosted OpenBitFun Pages.
+/// Trusted public/authentication URL pair for browser-hosted Alex Pages.
 ///
 /// User-authored Page documents can execute arbitrary JavaScript, so the
 /// account login UI must use a different browser origin from Page content.
@@ -1297,7 +1297,7 @@ mod tests {
         assert_eq!(headers_response.headers()["referrer-policy"], "no-referrer");
 
         let info = get_json(app, "/api/info").await;
-        assert_eq!(info["name"], "OpenBitFun Relay Server");
+        assert_eq!(info["name"], "Alex Relay Server");
         assert_eq!(info["version"], "test-host-version");
         assert_eq!(info["protocol_version"], 3);
     }
@@ -1305,15 +1305,15 @@ mod tests {
     #[test]
     fn page_browser_auth_requires_distinct_valid_origins() {
         let config = PageBrowserAuthConfig::new(
-            "https://pages.example.com/openbitfun/",
+            "https://pages.example.com/alex/",
             "https://relay.example.com/relay/",
         )
         .unwrap();
         assert_eq!(
             config.public_base_url,
-            "https://pages.example.com/openbitfun"
+            "https://pages.example.com/alex"
         );
-        assert_eq!(config.public_path_prefix, "/openbitfun");
+        assert_eq!(config.public_path_prefix, "/alex");
         assert_eq!(config.auth_base_url, "https://relay.example.com/relay");
         assert!(PageBrowserAuthConfig::new(
             "https://relay.example.com/pages",

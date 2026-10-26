@@ -8,7 +8,7 @@
 use crate::infrastructure::get_path_manager_arc;
 use crate::service::remote_ssh::{RemoteFileService, RemoteTerminalManager, SSHConnectionManager};
 use crate::service::workspace_runtime::WorkspaceRuntimeService;
-pub use openbitfun_services_integrations::remote_ssh::{
+pub use alex_services_integrations::remote_ssh::{
     local_workspace_stable_storage_id, normalize_remote_workspace_path,
     remote_root_to_mirror_subpath, remote_workspace_stable_id,
     sanitize_remote_mirror_path_component, sanitize_ssh_connection_id_for_local_dir,
@@ -40,7 +40,7 @@ pub async fn resolve_workspace_session_identity(
             lookup_remote_connection_with_hint(workspace_path, Some(connection_id)).await
         {
             return Some(WorkspaceSessionIdentity {
-                workspace_kind: openbitfun_core_types::WorkspaceKind::Remote,
+                workspace_kind: alex_core_types::WorkspaceKind::Remote,
                 hostname: entry.ssh_host,
                 logical_workspace_path: entry.remote_root,
                 remote_connection_id: Some(entry.connection_id),
@@ -48,7 +48,7 @@ pub async fn resolve_workspace_session_identity(
         }
 
         return Some(WorkspaceSessionIdentity {
-            workspace_kind: openbitfun_core_types::WorkspaceKind::Remote,
+            workspace_kind: alex_core_types::WorkspaceKind::Remote,
             hostname: "_unresolved".to_string(),
             logical_workspace_path: normalize_remote_workspace_path(workspace_path),
             remote_connection_id: Some(connection_id.to_string()),
@@ -66,7 +66,7 @@ pub async fn resolve_workspace_session_identity(
     // workspace must never be misclassified as an invalid local path.
     if let Some(entry) = lookup_remote_connection_with_hint(workspace_path, None).await {
         return Some(WorkspaceSessionIdentity {
-            workspace_kind: openbitfun_core_types::WorkspaceKind::Remote,
+            workspace_kind: alex_core_types::WorkspaceKind::Remote,
             hostname: entry.ssh_host,
             logical_workspace_path: entry.remote_root,
             remote_connection_id: Some(entry.connection_id),
@@ -77,7 +77,7 @@ pub async fn resolve_workspace_session_identity(
 }
 /// Local directory where persisted sessions for this remote workspace root are stored.
 pub fn remote_workspace_runtime_root(ssh_host: &str, remote_root_norm: &str) -> PathBuf {
-    openbitfun_services_integrations::remote_ssh::remote_workspace_runtime_root(
+    alex_services_integrations::remote_ssh::remote_workspace_runtime_root(
         get_path_manager_arc().remote_ssh_mirror_root_dir(),
         ssh_host,
         remote_root_norm,
@@ -86,7 +86,7 @@ pub fn remote_workspace_runtime_root(ssh_host: &str, remote_root_norm: &str) -> 
 
 /// Local directory where persisted sessions for this remote workspace root are stored.
 pub fn remote_workspace_session_mirror_dir(ssh_host: &str, remote_root_norm: &str) -> PathBuf {
-    openbitfun_services_integrations::remote_ssh::remote_workspace_session_mirror_dir(
+    alex_services_integrations::remote_ssh::remote_workspace_session_mirror_dir(
         get_path_manager_arc().remote_ssh_mirror_root_dir(),
         ssh_host,
         remote_root_norm,
@@ -95,28 +95,28 @@ pub fn remote_workspace_session_mirror_dir(ssh_host: &str, remote_root_norm: &st
 
 /// Canonical local root [`PathBuf`] plus normalized string form (single `canonicalize` call).
 pub fn canonicalize_local_workspace_root(path: &Path) -> Result<(PathBuf, String), String> {
-    openbitfun_services_integrations::remote_ssh::canonicalize_local_workspace_root(path)
+    alex_services_integrations::remote_ssh::canonicalize_local_workspace_root(path)
 }
 
 /// Canonical absolute local path as a stable UTF-8 string (forward slashes, dunce-simplified).
 pub fn normalize_local_workspace_root_for_stable_id(path: &Path) -> Result<String, String> {
-    openbitfun_services_integrations::remote_ssh::normalize_local_workspace_root_for_stable_id(path)
+    alex_services_integrations::remote_ssh::normalize_local_workspace_root_for_stable_id(path)
 }
 
 /// Whether two local paths refer to the same workspace root (canonical comparison when possible).
 pub fn local_workspace_roots_equal(a: &Path, b: &Path) -> bool {
-    openbitfun_services_integrations::remote_ssh::local_workspace_roots_equal(a, b)
+    alex_services_integrations::remote_ssh::local_workspace_roots_equal(a, b)
 }
 
 /// When a remote scope has `connection_id` but no resolvable SSH host, we must not read/write the
 /// legacy per-connection tree (it is not the same layout as `remote_ssh/{host}/.../sessions`).
-/// This returns a dedicated stub under `~/.openbitfun/remote_ssh/_unresolved/.../sessions` that is
+/// This returns a dedicated stub under `~/.alex/remote_ssh/_unresolved/.../sessions` that is
 /// usually absent, so session listing is empty until host can be resolved.
 pub fn unresolved_remote_session_storage_dir(
     connection_id: &str,
     workspace_path_norm: &str,
 ) -> PathBuf {
-    openbitfun_services_integrations::remote_ssh::unresolved_remote_session_storage_dir(
+    alex_services_integrations::remote_ssh::unresolved_remote_session_storage_dir(
         get_path_manager_arc().remote_ssh_mirror_root_dir(),
         connection_id,
         workspace_path_norm,
@@ -206,7 +206,7 @@ impl RemoteWorkspaceStateManager {
         path: &str,
         preferred_connection_id: Option<&str>,
     ) -> Option<RemoteWorkspaceEntry> {
-        // Assistant sessions use client-local paths under ~/.openbitfun/personal_assistant.
+        // Assistant sessions use client-local paths under ~/.alex/personal_assistant.
         // A registered remote root of `/` matches every absolute path; without an explicit
         // `remote_connection_id`, those paths must not be treated as SSH workspaces.
         let is_local_assistant_path =
@@ -296,7 +296,7 @@ impl RemoteWorkspaceStateManager {
 
     // ── Session storage ────────────────────────────────────────────
 
-    /// Local mirror directory for persisted sessions (`~/.openbitfun/remote_ssh/.../sessions`).
+    /// Local mirror directory for persisted sessions (`~/.alex/remote_ssh/.../sessions`).
     pub fn get_remote_session_mirror_path(
         &self,
         ssh_host: &str,
@@ -306,7 +306,7 @@ impl RemoteWorkspaceStateManager {
     }
 
     /// Map a workspace path to the final on-disk sessions directory.
-    /// Local roots map to `~/.openbitfun/projects/<workspace-slug>/sessions`;
+    /// Local roots map to `~/.alex/projects/<workspace-slug>/sessions`;
     /// remote roots map to the local SSH mirror sessions dir.
     pub async fn get_effective_session_path(
         &self,
@@ -418,7 +418,7 @@ pub fn remote_workspace_support() -> RemoteWorkspaceSupport {
 /// [`remote_workspace_support`] here.
 pub fn remote_workspace_not_compiled_message(path: &str) -> String {
     format!(
-        "Remote workspaces are not compiled into this OpenBitFun host (feature `remote-workspace`); refusing to read the local filesystem for a remote path: {path}"
+        "Remote workspaces are not compiled into this Alex host (feature `remote-workspace`); refusing to read the local filesystem for a remote path: {path}"
     )
 }
 
@@ -542,7 +542,7 @@ mod tests {
         let manager = super::init_remote_workspace_manager();
         manager
             .register_remote_workspace(
-                "/openbitfun-tests/identity-fallback/repo".to_string(),
+                "/alex-tests/identity-fallback/repo".to_string(),
                 "conn-identity-fallback".to_string(),
                 "Fallback Server".to_string(),
                 "fallback-host".to_string(),
@@ -550,7 +550,7 @@ mod tests {
             .await;
 
         let identity = super::resolve_workspace_session_identity(
-            "/openbitfun-tests/identity-fallback/repo",
+            "/alex-tests/identity-fallback/repo",
             None,
             None,
         )
@@ -564,19 +564,19 @@ mod tests {
         );
         assert_eq!(
             identity.logical_workspace_path(),
-            "/openbitfun-tests/identity-fallback/repo"
+            "/alex-tests/identity-fallback/repo"
         );
 
         manager
             .unregister_remote_workspace(
                 "conn-identity-fallback",
-                "/openbitfun-tests/identity-fallback/repo",
+                "/alex-tests/identity-fallback/repo",
             )
             .await;
 
         assert!(
             super::resolve_workspace_session_identity(
-                "/openbitfun-tests/identity-fallback/repo",
+                "/alex-tests/identity-fallback/repo",
                 None,
                 None,
             )
@@ -589,7 +589,7 @@ mod tests {
     #[tokio::test]
     async fn effective_session_path_returns_local_sessions_dir() {
         let workspace_root = std::env::temp_dir().join(format!(
-            "openbitfun-local-session-path-test-{}",
+            "alex-local-session-path-test-{}",
             uuid::Uuid::new_v4()
         ));
         std::fs::create_dir_all(&workspace_root).expect("workspace root should exist");
@@ -622,7 +622,7 @@ mod tests {
     #[tokio::test]
     async fn manager_effective_session_path_returns_local_sessions_dir() {
         let workspace_root = std::env::temp_dir().join(format!(
-            "openbitfun-manager-local-session-path-test-{}",
+            "alex-manager-local-session-path-test-{}",
             uuid::Uuid::new_v4()
         ));
         std::fs::create_dir_all(&workspace_root).expect("workspace root should exist");
@@ -652,7 +652,7 @@ pub async fn ensure_saved_connection_services() -> Result<Arc<RemoteWorkspaceSta
     }
     INITIALIZED
         .get_or_try_init(|| async {
-            let data_dir = if std::env::var_os("OPENBITFUN_HOME").is_some() {
+            let data_dir = if std::env::var_os("ALEX_HOME").is_some() {
                 crate::infrastructure::try_get_path_manager_arc()
                     .map_err(|e| e.to_string())?
                     .user_data_dir()

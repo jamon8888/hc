@@ -4,7 +4,7 @@
 @mixin apply($enclosed: false) {
   > :is(.flow-text-block, .flow-thinking-item, .flowchat-flow-item,
     .task-with-subagent-wrapper, .subagent-projection-text--truncated) {
-    margin: 0 0 var(--openbitfun-control-flow-chat-flow-item-gap) 0;
+    margin: 0 0 var(--alex-control-flow-chat-flow-item-gap) 0;
   }
 
   // A card may render nothing for a settled state: an errored exploration tool
@@ -18,12 +18,12 @@
 
   // Consecutive collapsed ambient tools form a continuous run of 22px lines.
   > .flowchat-flow-item:has(
-    > .flow-tool-card-wrapper[data-openbitfun-attention='ambient']
-      [data-openbitfun-component='flow-chat-tool-card'][data-openbitfun-part='root'][data-openbitfun-expanded-shell='false']
+    > .flow-tool-card-wrapper[data-alex-attention='ambient']
+      [data-alex-component='flow-chat-tool-card'][data-alex-part='root'][data-alex-expanded-shell='false']
   ):has(
     + .flowchat-flow-item
-      > .flow-tool-card-wrapper[data-openbitfun-attention='ambient']
-        [data-openbitfun-component='flow-chat-tool-card'][data-openbitfun-part='root'][data-openbitfun-expanded-shell='false']
+      > .flow-tool-card-wrapper[data-alex-attention='ambient']
+        [data-alex-component='flow-chat-tool-card'][data-alex-part='root'][data-alex-expanded-shell='false']
   ) {
     margin-bottom: 0;
   }

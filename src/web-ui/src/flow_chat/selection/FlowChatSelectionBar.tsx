@@ -2,7 +2,7 @@ import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type 
 import { createOverlayPortal,
   Button, Card, Dialog, DialogBody, DialogClose, DialogFooter, DialogHeader, DialogHeading,
   DialogTitle, Icon, ToolbarGroup, ToolbarSeparator, useDismissibleLayer,
-} from '@openbitfun/ui';
+} from '@alex/ui';
 import { getAppearanceOverlayHost } from '@/infrastructure/appearance/runtime/AppearanceOverlayHost';
 import { useI18n } from '@/infrastructure/i18n';
 import { getActiveSurfaceScope } from '@/infrastructure/peer-device/deviceSurface';
@@ -215,19 +215,19 @@ export function FlowChatSelectionBar({ rootRef, sessionId, parentSessionId, acti
   return (
     <>
       {selection && active && !editing && createOverlayPortal(
-        <Card appearance="raised" radius="lg" data-openbitfun-product-component="conversation-excerpt" data-openbitfun-product-part="root"
-          ref={popupRef} className="conversation-excerpt__popover" data-flowchat-selection-ignore="true" data-openbitfun-native-webview-occlusion
+        <Card appearance="raised" radius="lg" data-alex-product-component="conversation-excerpt" data-alex-product-part="root"
+          ref={popupRef} className="conversation-excerpt__popover" data-flowchat-selection-ignore="true" data-alex-native-webview-occlusion
           style={{ left: position?.left ?? 0, top: position?.top ?? 0, visibility: position ? 'visible' : 'hidden' }}>
-          <ToolbarGroup data-openbitfun-product-component="conversation-excerpt" data-openbitfun-product-part="toolbar" className="conversation-excerpt__toolbar"
+          <ToolbarGroup data-alex-product-component="conversation-excerpt" data-alex-product-part="toolbar" className="conversation-excerpt__toolbar"
             role="group" aria-label={t('selection.actions')}>
             <Button size="sm" variant="text" className="conversation-excerpt__action"
-              data-openbitfun-product-component="conversation-excerpt" data-openbitfun-product-part="action"
+              data-alex-product-component="conversation-excerpt" data-alex-product-part="action"
               leadingIcon={<Icon name="edit" />} onClick={beginEditing} aria-haspopup="dialog">
               {t('selection.annotate')}
             </Button>
             <ToolbarSeparator />
             <Button size="sm" variant="text" className="conversation-excerpt__action"
-              data-openbitfun-product-component="conversation-excerpt" data-openbitfun-product-part="action"
+              data-alex-product-component="conversation-excerpt" data-alex-product-part="action"
               leadingIcon={<Icon name="side-chat" />} disabled={!canAsk}
               title={!canAsk ? t('selection.sideUnsupported') : undefined} onClick={() => submit('ask')}>
               {t(child ? 'selection.askHere' : 'selection.askSide')}
@@ -237,7 +237,7 @@ export function FlowChatSelectionBar({ rootRef, sessionId, parentSessionId, acti
       )}
       <Dialog ref={editorRef} open={!!selection && editing && active} onOpenChange={clear} size="sm" className="conversation-excerpt__dialog"
         initialFocusRef={commentRef} data-flowchat-selection-ignore="true"
-        data-openbitfun-product-component="conversation-excerpt" data-openbitfun-product-part="dialog"
+        data-alex-product-component="conversation-excerpt" data-alex-product-part="dialog"
         onKeyDown={event => {
           if (event.key !== 'Escape' && event.key !== 'Tab') event.stopPropagation();
         }}>
@@ -247,7 +247,7 @@ export function FlowChatSelectionBar({ rootRef, sessionId, parentSessionId, acti
         </DialogHeader>
         <DialogBody>
           <div className="conversation-excerpt__editor"
-            data-openbitfun-product-component="conversation-excerpt" data-openbitfun-product-part="editor">
+            data-alex-product-component="conversation-excerpt" data-alex-product-part="editor">
             {selection && <ConversationExcerptEditor excerpt={selection.excerpt} comment={comment}
               onCommentChange={setComment} inputRef={commentRef} onSubmit={() => submit('annotate')} />}
           </div>

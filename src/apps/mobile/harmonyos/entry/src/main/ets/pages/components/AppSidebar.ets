@@ -283,7 +283,7 @@ export struct AppSidebar {
       }
 
       Button() {
-        Text(RemoteI18n.t('sidebar.signInOpenBitFunAccount'))
+        Text(RemoteI18n.t('sidebar.signInAlexAccount'))
           .fontSize(MobileDesignTypography.bodyMedium.size)
           .fontWeight(FontWeight.Bold)
           .fontColor(CARD)

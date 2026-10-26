@@ -192,7 +192,7 @@ Create `<user config dir>/config/hooks.json`:
         "hooks": [
           {
             "type": "command",
-            "command": "jq -r '.tool_input.command' >> ~/openbitfun-commands.log"
+            "command": "jq -r '.tool_input.command' >> ~/alex-commands.log"
           }
         ]
       }
@@ -202,7 +202,7 @@ Create `<user config dir>/config/hooks.json`:
 ```
 
 Start a new session and ask the Agent to run a shell command; each command it
-runs is appended to `~/openbitfun-commands.log`.
+runs is appended to `~/alex-commands.log`.
 
 A hook that blocks — here, refusing edits under `migrations/`:
 

@@ -8,7 +8,7 @@ import React, {
   type KeyboardEvent,
   type RefObject,
 } from 'react';
-import { createOverlayPortal, OverflowText, Icon, Menu, MenuItem, MenuSeparator } from '@openbitfun/ui';
+import { createOverlayPortal, OverflowText, Icon, Menu, MenuItem, MenuSeparator } from '@alex/ui';
 
 import {
   SYSTEM_APPEARANCE_ID,
@@ -164,7 +164,7 @@ const AppearanceQuickSwitchMenuItem: React.FC<AppearanceQuickSwitchMenuItemProps
 
   const focusFirstSubmenuItem = useCallback(() => {
     const firstItem = submenuRef.current?.querySelector<HTMLButtonElement>(
-      '[data-openbitfun-menu-item]:not(:disabled)',
+      '[data-alex-menu-item]:not(:disabled)',
     );
     firstItem?.focus();
   }, []);
@@ -216,10 +216,10 @@ const AppearanceQuickSwitchMenuItem: React.FC<AppearanceQuickSwitchMenuItemProps
     <>
       <MenuItem data-overflow-trigger
         ref={triggerRef}
-        className={`openbitfun-nav-panel__appearance-menu-trigger${open ? ' is-open' : ''}`}
+        className={`alex-nav-panel__appearance-menu-trigger${open ? ' is-open' : ''}`}
         leading={<Icon name="palette" size="sm" aria-hidden="true" />}
         metadata={(
-          <OverflowText className="openbitfun-nav-panel__appearance-menu-current" title={selectedDisplayName}>
+          <OverflowText className="alex-nav-panel__appearance-menu-current" title={selectedDisplayName}>
             {selectedDisplayName}
           </OverflowText>
         )}
@@ -236,7 +236,7 @@ const AppearanceQuickSwitchMenuItem: React.FC<AppearanceQuickSwitchMenuItemProps
       {open && createOverlayPortal(
         <Menu
           ref={submenuRef}
-          className="openbitfun-nav-panel__appearance-submenu"
+          className="alex-nav-panel__appearance-submenu"
           inlineSize="content"
           aria-label={t('nav.settingsMenu.theme')}
           data-placement={submenuLayout?.placement}

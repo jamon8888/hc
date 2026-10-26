@@ -2,12 +2,12 @@
 
 use crate::agentic::session::ContextCompressor;
 use crate::infrastructure::ai::AIClient;
-use crate::util::errors::{OpenBitFunError, OpenBitFunResult};
-use openbitfun_agent_stream::retry::{delay_ms, should_retry, MAX_MODEL_ATTEMPTS};
-use openbitfun_ai_adapters::{
+use crate::util::errors::{AlexError, AlexResult};
+use alex_agent_stream::retry::{delay_ms, should_retry, MAX_MODEL_ATTEMPTS};
+use alex_ai_adapters::{
     Message, ModelExchangeTraceConfig, ModelRequestContext, ToolDefinition,
 };
-use openbitfun_core_types::errors::{AiProviderError, ErrorCategory};
+use alex_core_types::errors::{AiProviderError, ErrorCategory};
 use std::sync::Arc;
 
 pub(super) async fn request_summary(
@@ -16,7 +16,7 @@ pub(super) async fn request_summary(
     tools: Option<Vec<ToolDefinition>>,
     context: &ModelRequestContext,
     trace: Option<ModelExchangeTraceConfig>,
-) -> OpenBitFunResult<String> {
+) -> AlexResult<String> {
     request_summary_with(|| {
         client.send_message_once_with_trace_and_request_context(
             messages.clone(),
@@ -28,10 +28,10 @@ pub(super) async fn request_summary(
     .await
 }
 
-async fn request_summary_with<F, Fut>(mut request: F) -> OpenBitFunResult<String>
+async fn request_summary_with<F, Fut>(mut request: F) -> AlexResult<String>
 where
     F: FnMut() -> Fut,
-    Fut: std::future::Future<Output = anyhow::Result<openbitfun_ai_adapters::GeminiResponse>>,
+    Fut: std::future::Future<Output = anyhow::Result<alex_ai_adapters::GeminiResponse>>,
 {
     for attempt in 0..MAX_MODEL_ATTEMPTS {
         let result = request().await;
@@ -67,9 +67,9 @@ where
                 error.message
             );
             return Err(if error.category == ErrorCategory::ContextOverflow {
-                OpenBitFunError::RecoverableContextOverflow(error)
+                AlexError::RecoverableContextOverflow(error)
             } else {
-                OpenBitFunError::AIProvider(error)
+                AlexError::AIProvider(error)
             });
         }
         let wait_ms = delay_ms(attempt, &error.message, Some(&error));
@@ -94,8 +94,8 @@ mod tests {
     use crate::agentic::execution::round_executor::tests::{retry_test_success, RetryTestServer};
     use std::collections::VecDeque;
 
-    fn empty() -> anyhow::Result<openbitfun_ai_adapters::GeminiResponse> {
-        Ok(openbitfun_ai_adapters::GeminiResponse {
+    fn empty() -> anyhow::Result<alex_ai_adapters::GeminiResponse> {
+        Ok(alex_ai_adapters::GeminiResponse {
             text: " \n\t".into(),
             reasoning_content: None,
             tool_calls: None,
@@ -188,7 +188,7 @@ mod tests {
             token.cancel();
         };
         let (result, _) = tokio::join!(work, cancel);
-        assert!(matches!(result, Err(OpenBitFunError::Cancelled(_))));
+        assert!(matches!(result, Err(AlexError::Cancelled(_))));
         assert_eq!(requests, 1);
     }
 

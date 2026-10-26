@@ -1,4 +1,4 @@
-import { OverflowText, Button, Icon, IconButton, Textarea, Tooltip } from '@openbitfun/ui';
+import { OverflowText, Button, Icon, IconButton, Textarea, Tooltip } from '@alex/ui';
 import React, { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { AlertTriangle, EyeOff, Loader2, Send } from 'lucide-react';
 
@@ -402,13 +402,13 @@ export const MiniAppCustomizePanel: React.FC<MiniAppCustomizePanelProps> = ({
   return (
     <aside
       className="miniapp-customize-panel"
-      data-openbitfun-component="miniapp-customize-panel"
-      data-openbitfun-part="root"
-      data-openbitfun-stage={state.stage}
-      data-openbitfun-state={[busy && 'busy', state.error && 'error', previewOpen && 'preview-open'].filter(Boolean).join(' ')}
+      data-alex-component="miniapp-customize-panel"
+      data-alex-part="root"
+      data-alex-stage={state.stage}
+      data-alex-state={[busy && 'busy', state.error && 'error', previewOpen && 'preview-open'].filter(Boolean).join(' ')}
       aria-label={t('customize.title')}
     >
-      <div className="miniapp-customize-panel__header" data-openbitfun-component="miniapp-customize-panel" data-openbitfun-part="header">
+      <div className="miniapp-customize-panel__header" data-alex-component="miniapp-customize-panel" data-alex-part="header">
         <div>
           <h3>{t('customize.title')}</h3>
           <OverflowText>{appName}</OverflowText>
@@ -424,7 +424,7 @@ export const MiniAppCustomizePanel: React.FC<MiniAppCustomizePanelProps> = ({
         </Tooltip>
       </div>
 
-      <div className="miniapp-customize-panel__notice" data-openbitfun-component="miniapp-customize-panel" data-openbitfun-part="notice">
+      <div className="miniapp-customize-panel__notice" data-alex-component="miniapp-customize-panel" data-alex-part="notice">
         <AlertTriangle size={18} />
         <div>
           <strong>{t('customize.riskTitle')}</strong>
@@ -433,13 +433,13 @@ export const MiniAppCustomizePanel: React.FC<MiniAppCustomizePanelProps> = ({
       </div>
 
       {builtinUpdateNotice && (
-        <div className="miniapp-customize-panel__notice miniapp-customize-panel__notice--update" data-openbitfun-component="miniapp-customize-panel" data-openbitfun-part="notice">
+        <div className="miniapp-customize-panel__notice miniapp-customize-panel__notice--update" data-alex-component="miniapp-customize-panel" data-alex-part="notice">
           <AlertTriangle size={18} />
           <div>
             <strong>{t('customize.builtinUpdateTitle', { version: builtinUpdateNotice.builtinVersion })}</strong>
             <p>{t('customize.builtinUpdateBody')}</p>
             {builtinUpdateNotice.sourceHash && (
-              <div className="miniapp-customize-panel__notice-actions" data-openbitfun-component="miniapp-customize-panel" data-openbitfun-part="noticeActions">
+              <div className="miniapp-customize-panel__notice-actions" data-alex-component="miniapp-customize-panel" data-alex-part="noticeActions">
                 <Button
                   variant="outline"
                   size="sm"
@@ -457,7 +457,7 @@ export const MiniAppCustomizePanel: React.FC<MiniAppCustomizePanelProps> = ({
         </div>
       )}
 
-      <label className="miniapp-customize-panel__request" data-openbitfun-component="miniapp-customize-panel" data-openbitfun-part="request">
+      <label className="miniapp-customize-panel__request" data-alex-component="miniapp-customize-panel" data-alex-part="request">
         <span>{t('customize.requestLabel')}</span>
         <Textarea
           value={userRequest}
@@ -475,7 +475,7 @@ export const MiniAppCustomizePanel: React.FC<MiniAppCustomizePanelProps> = ({
         />
       </label>
 
-      <div className="miniapp-customize-panel__actions" data-openbitfun-component="miniapp-customize-panel" data-openbitfun-part="actions">
+      <div className="miniapp-customize-panel__actions" data-alex-component="miniapp-customize-panel" data-alex-part="actions">
         <Button
           variant="primary"
           size="sm"
@@ -514,23 +514,23 @@ export const MiniAppCustomizePanel: React.FC<MiniAppCustomizePanelProps> = ({
       </div>
 
       {state.error && (
-        <div className="miniapp-customize-panel__error" data-openbitfun-component="miniapp-customize-panel" data-openbitfun-part="error" role="alert">
+        <div className="miniapp-customize-panel__error" data-alex-component="miniapp-customize-panel" data-alex-part="error" role="alert">
           {state.error}
         </div>
       )}
 
       {editorStatus && (
-        <div className="miniapp-customize-panel__status" data-openbitfun-component="miniapp-customize-panel" data-openbitfun-part="status">
+        <div className="miniapp-customize-panel__status" data-alex-component="miniapp-customize-panel" data-alex-part="status">
           <Icon name="check-line" size="sm" />
           <span>{editorStatus}</span>
         </div>
       )}
 
       {state.customizationSessionId && (
-        <div className="miniapp-customize-panel__chat" data-openbitfun-component="miniapp-customize-panel" data-openbitfun-part="chat">
+        <div className="miniapp-customize-panel__chat" data-alex-component="miniapp-customize-panel" data-alex-part="chat">
           <React.Suspense
             fallback={(
-              <div className="miniapp-customize-panel__chat-loading" data-openbitfun-component="miniapp-customize-panel" data-openbitfun-part="chatLoading">
+              <div className="miniapp-customize-panel__chat-loading" data-alex-component="miniapp-customize-panel" data-alex-part="chatLoading">
                 <Loader2 size={16} className="miniapp-scene__spinning" />
                 <span>{t('customize.chatLoading')}</span>
               </div>
@@ -545,7 +545,7 @@ export const MiniAppCustomizePanel: React.FC<MiniAppCustomizePanelProps> = ({
         </div>
       )}
 
-      <div className="miniapp-customize-panel__footer" data-openbitfun-component="miniapp-customize-panel" data-openbitfun-part="footer">
+      <div className="miniapp-customize-panel__footer" data-alex-component="miniapp-customize-panel" data-alex-part="footer">
         <Button
           variant="fill"
           size="sm"
@@ -569,7 +569,7 @@ export const MiniAppCustomizePanel: React.FC<MiniAppCustomizePanelProps> = ({
       </div>
 
       {state.stage === 'applying' && (
-        <div className="miniapp-customize-panel__busy" data-openbitfun-component="miniapp-customize-panel" data-openbitfun-part="busy">
+        <div className="miniapp-customize-panel__busy" data-alex-component="miniapp-customize-panel" data-alex-part="busy">
           <Loader2 size={16} className="miniapp-scene__spinning" />
           <span>{t('customize.applying')}</span>
         </div>

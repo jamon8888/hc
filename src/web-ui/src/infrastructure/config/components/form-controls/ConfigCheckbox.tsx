@@ -1,6 +1,6 @@
 import React, { forwardRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Checkbox } from '@openbitfun/ui';
+import { Checkbox } from '@alex/ui';
 
 export interface ConfigCheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
    

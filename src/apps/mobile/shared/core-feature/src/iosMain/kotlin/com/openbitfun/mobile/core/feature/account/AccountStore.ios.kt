@@ -13,7 +13,7 @@ public fun AccountStore.Companion.create(
     deviceName: String,
     log: CoreLog,
 ): AccountStore {
-    val persistence = iosPersistenceStores("openbitfun-mobile.db")
+    val persistence = iosPersistenceStores("alex-mobile.db")
     return AccountStore.create(
         scope = scope,
         backend = AccountStore.backend(log, emptySet()),

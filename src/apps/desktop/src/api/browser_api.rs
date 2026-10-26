@@ -3,13 +3,13 @@
 //! Browser webviews are created as native child webviews by this desktop
 //! adapter so stream-specific initialization can run before page scripts.
 
-use openbitfun_core::agentic::tools::browser_control::BuiltInBrowserTarget;
+use alex_core::agentic::tools::browser_control::BuiltInBrowserTarget;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::{Mutex, OnceLock};
 use tauri::Manager;
 
-const VIDEO_DECODER_MODE_ENV: &str = "OPENBITFUN_BROWSER_VIDEO_DECODER_MODE";
+const VIDEO_DECODER_MODE_ENV: &str = "ALEX_BROWSER_VIDEO_DECODER_MODE";
 
 fn video_decoder_compatibility_script() -> String {
     let mode =
@@ -22,10 +22,10 @@ fn video_decoder_compatibility_script() -> String {
     let script = format!(
         r#"
 const isWebView2 = Boolean(window.chrome && window.chrome.webview);
-const isOpenBitFunDocument = location.protocol === 'tauri:'
+const isAlexDocument = location.protocol === 'tauri:'
   || location.hostname === 'tauri.localhost'
   || (location.hostname === 'localhost' && location.port === '1422');
-if (isWebView2 && !isOpenBitFunDocument) {{
+if (isWebView2 && !isAlexDocument) {{
   const decoderMode = {mode_json};
   if (decoderMode && typeof VideoDecoder === 'function') {{
     const originalConfigure = VideoDecoder.prototype.configure;
@@ -427,7 +427,7 @@ pub async fn browser_webview_capture_preview(
 ) -> Result<WebviewPreviewResponse, String> {
     validate_browser_label(&request.label)?;
     let webview = find_browser_webview(&app, &request.label)?;
-    let png = match openbitfun_webdriver::platform::take_screenshot(webview, 1000).await {
+    let png = match alex_webdriver::platform::take_screenshot(webview, 1000).await {
         Ok(png) => png,
         Err(error) if error.error == "unsupported operation" => {
             return Ok(WebviewPreviewResponse::Unsupported {

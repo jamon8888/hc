@@ -37,11 +37,11 @@ describe('UserMessageItem metadata visibility', () => {
     const editingBubble = extractBlock(stylesheet, '\n.user-message-item--editing {');
 
     expect(editLayout).toContain('flex-direction: column;');
-    expect(editLayout).toContain('gap: var(--openbitfun-control-flow-chat-inline-gap);');
+    expect(editLayout).toContain('gap: var(--alex-control-flow-chat-inline-gap);');
     expect(composer).toContain('min-block-size: 0;');
     expect(composer).toContain('padding: 0;');
-    expect(textarea).toContain('min-height: var(--openbitfun-control-height-sm);');
-    expect(richInput).toContain('min-height: var(--openbitfun-control-height-sm);');
+    expect(textarea).toContain('min-height: var(--alex-control-height-sm);');
+    expect(richInput).toContain('min-height: var(--alex-control-height-sm);');
     expect(bubble).toContain('width: fit-content;');
     expect(bubble).not.toContain('min-width:');
     expect(bubble).toContain('max-width: min(72%, 48rem);');
@@ -111,7 +111,7 @@ describe('UserMessageItem metadata visibility', () => {
     // composer card that share that edge.
     expect(bubble).toContain('margin-inline: auto 0;');
     expect(meta).toContain('padding-inline: 0;');
-    expect(meta).toContain('padding-block: calc(var(--openbitfun-space-1) / 2) 0;');
+    expect(meta).toContain('padding-block: calc(var(--alex-space-1) / 2) 0;');
     expect(meta).toContain('pointer-events: auto;');
     expect(shell).not.toContain('.user-message-item__timestamp');
     expect(shell).not.toContain('&--with-timestamp');

@@ -10,11 +10,11 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const DRIVER_HOST = '127.0.0.1';
-const DRIVER_PORT = Number(process.env.OPENBITFUN_E2E_WEBDRIVER_PORT || 4445);
+const DRIVER_PORT = Number(process.env.ALEX_E2E_WEBDRIVER_PORT || 4445);
 const DEV_SERVER_HOST = '127.0.0.1';
 const DEV_SERVER_PORT = 1422;
 
-let openbitfunApp: ChildProcess | null = null;
+let alexApp: ChildProcess | null = null;
 let devServerProcess: ChildProcess | null = null;
 let ownsDevServer = false;
 
@@ -25,7 +25,7 @@ function projectRoot(): string {
 function e2eRuntimeRoot(): string {
   return process.env.OPENBITFUN_E2E_STORAGE_ROOT
     ? path.resolve(process.env.OPENBITFUN_E2E_STORAGE_ROOT)
-    : path.join(projectRoot(), 'tests', 'e2e', '.openbitfun', 'runtime');
+    : path.join(projectRoot(), 'tests', 'e2e', '.alex', 'runtime');
 }
 
 function setDefaultEnvPath(name: string, value: string): void {
@@ -35,25 +35,25 @@ function setDefaultEnvPath(name: string, value: string): void {
 }
 
 function ensureIsolatedE2eStorageEnv(): void {
-  if (process.env.OPENBITFUN_E2E_USE_REAL_PROFILE === '1') {
+  if (process.env.ALEX_E2E_USE_REAL_PROFILE === '1') {
     delete process.env.OPENBITFUN_E2E_STORAGE_GUARD;
     return;
   }
 
   const root = e2eRuntimeRoot();
-  const userRoot = process.env.OPENBITFUN_E2E_USER_ROOT
-    ? path.resolve(process.env.OPENBITFUN_E2E_USER_ROOT)
+  const userRoot = process.env.ALEX_E2E_USER_ROOT
+    ? path.resolve(process.env.ALEX_E2E_USER_ROOT)
     : path.join(root, 'user-root');
-  const homeRoot = process.env.OPENBITFUN_E2E_HOME
-    ? path.resolve(process.env.OPENBITFUN_E2E_HOME)
+  const homeRoot = process.env.ALEX_E2E_HOME
+    ? path.resolve(process.env.ALEX_E2E_HOME)
     : path.join(root, 'home');
 
-  process.env.OPENBITFUN_E2E_USER_ROOT = userRoot;
-  process.env.OPENBITFUN_USER_ROOT = userRoot;
-  process.env.OPENBITFUN_E2E_HOME = homeRoot;
-  process.env.OPENBITFUN_HOME = homeRoot;
+  process.env.ALEX_E2E_USER_ROOT = userRoot;
+  process.env.ALEX_USER_ROOT = userRoot;
+  process.env.ALEX_E2E_HOME = homeRoot;
+  process.env.ALEX_HOME = homeRoot;
   process.env.OPENBITFUN_E2E_STORAGE_GUARD = '1';
-  setDefaultEnvPath('OPENBITFUN_E2E_LOG_DIR', path.join(root, 'logs'));
+  setDefaultEnvPath('ALEX_E2E_LOG_DIR', path.join(root, 'logs'));
   fs.mkdirSync(root, { recursive: true });
 }
 
@@ -70,7 +70,7 @@ type E2eBuildType = 'debug' | 'release' | 'release-fast';
 function executableCandidates(buildType: E2eBuildType): string[] {
   const root = projectRoot();
   const suffix = process.platform === 'win32' ? '.exe' : '';
-  const binaryName = `openbitfun-desktop${suffix}`;
+  const binaryName = `alex-desktop${suffix}`;
 
   if (process.platform === 'darwin') {
     return [
@@ -83,8 +83,8 @@ function executableCandidates(buildType: E2eBuildType): string[] {
 }
 
 export function getApplicationPath(): string {
-  const forcedPath = process.env.OPENBITFUN_E2E_APP_PATH;
-  const forcedMode = process.env.OPENBITFUN_E2E_APP_MODE?.toLowerCase();
+  const forcedPath = process.env.ALEX_E2E_APP_PATH;
+  const forcedMode = process.env.ALEX_E2E_APP_MODE?.toLowerCase();
 
   if (forcedPath) {
     return forcedPath;
@@ -113,7 +113,7 @@ export function getApplicationPath(): string {
 }
 
 async function waitForDevServerIfNeeded(appPath: string): Promise<void> {
-  if (process.env.OPENBITFUN_E2E_PACKAGED_FRONTEND === '1') return;
+  if (process.env.ALEX_E2E_PACKAGED_FRONTEND === '1') return;
   if (!appPath.includes(`${path.sep}debug${path.sep}`)) {
     return;
   }
@@ -188,10 +188,10 @@ async function probeDocumentReady(sessionId: string): Promise<boolean> {
     body: JSON.stringify({
       script: `() => {
         const root = document.getElementById('root');
-        const appLayout = document.querySelector('[data-testid="app-layout"], .openbitfun-app-layout');
-        const mainContent = document.querySelector('[data-testid="app-main-content"], .openbitfun-app-main-workspace');
+        const appLayout = document.querySelector('[data-testid="app-layout"], .alex-app-layout');
+        const mainContent = document.querySelector('[data-testid="app-main-content"], .alex-app-main-workspace');
         const shell = document.querySelector(
-          '.openbitfun-nav-panel, .openbitfun-scene-bar, .openbitfun-nav-bar, .welcome-scene'
+          '.alex-nav-panel, .alex-scene-bar, .alex-nav-bar, .welcome-scene'
         );
         const splashVisible = Boolean(document.querySelector('.splash-screen'));
         const tauriReady =
@@ -236,7 +236,7 @@ async function waitForEmbeddedDriverReady(timeoutMs: number = 30000): Promise<vo
 
 async function waitForWebviewDocumentReady(timeoutMs: number = 30000): Promise<void> {
   const startedAt = Date.now();
-  let lastError = 'OpenBitFun app shell is not ready';
+  let lastError = 'Alex app shell is not ready';
 
   while (Date.now() - startedAt < timeoutMs) {
     let sessionId: string | null = null;
@@ -248,7 +248,7 @@ async function waitForWebviewDocumentReady(timeoutMs: number = 30000): Promise<v
         await deleteProbeSession(sessionId);
         return;
       }
-      lastError = 'OpenBitFun app shell is not ready';
+      lastError = 'Alex app shell is not ready';
     } catch (error) {
       lastError = error instanceof Error ? error.message : String(error);
     } finally {
@@ -284,13 +284,13 @@ async function fetchSessionLogs(
   return payload.value ?? [];
 }
 
-function stopOpenBitFunApp(): void {
-  if (!openbitfunApp) {
+function stopAlexApp(): void {
+  if (!alexApp) {
     return;
   }
 
-  openbitfunApp.kill();
-  openbitfunApp = null;
+  alexApp.kill();
+  alexApp = null;
 }
 
 function stopDevServer(): void {
@@ -413,45 +413,45 @@ async function startDevServer(): Promise<void> {
   }
 }
 
-async function startOpenBitFunApp(): Promise<void> {
+async function startAlexApp(): Promise<void> {
   const appPath = getApplicationPath();
 
   if (!fs.existsSync(appPath)) {
     console.error(`Application not found at: ${appPath}`);
     console.error('Please build the selected application first. Common commands:');
-    console.error('cargo build -p openbitfun-desktop');
+    console.error('cargo build -p alex-desktop');
     console.error('pnpm run desktop:build:release-fast');
     throw new Error('Application not built');
   }
 
   await waitForDevServerIfNeeded(appPath);
 
-  stopOpenBitFunApp();
+  stopAlexApp();
 
-  console.log(`Starting OpenBitFun with embedded WebDriver on port ${DRIVER_PORT}`);
+  console.log(`Starting Alex with embedded WebDriver on port ${DRIVER_PORT}`);
   console.log(`Application: ${appPath}`);
 
-  openbitfunApp = spawn(appPath, [], {
+  alexApp = spawn(appPath, [], {
     cwd: projectRoot(),
     windowsHide: true,
     stdio: ['ignore', 'pipe', 'pipe'],
     env: {
       ...process.env,
-      OPENBITFUN_WEBDRIVER_PORT: String(DRIVER_PORT),
-      OPENBITFUN_WEBDRIVER_LABEL: 'main',
+      ALEX_WEBDRIVER_PORT: String(DRIVER_PORT),
+      ALEX_WEBDRIVER_LABEL: 'main',
     },
   });
 
-  openbitfunApp.stdout?.on('data', (data: Buffer) => {
-    console.log(`[openbitfun-app] ${data.toString().trim()}`);
+  alexApp.stdout?.on('data', (data: Buffer) => {
+    console.log(`[alex-app] ${data.toString().trim()}`);
   });
 
-  openbitfunApp.stderr?.on('data', (data: Buffer) => {
-    console.error(`[openbitfun-app] ${data.toString().trim()}`);
+  alexApp.stderr?.on('data', (data: Buffer) => {
+    console.error(`[alex-app] ${data.toString().trim()}`);
   });
 
-  openbitfunApp.on('exit', (code, signal) => {
-    console.log(`[openbitfun-app] exited (code=${code ?? 'null'}, signal=${signal ?? 'null'})`);
+  alexApp.on('exit', (code, signal) => {
+    console.log(`[alex-app] exited (code=${code ?? 'null'}, signal=${signal ?? 'null'})`);
   });
 
   await waitForEmbeddedDriverReady();
@@ -503,8 +503,8 @@ export function createEmbeddedConfig(specs: string[], label: string): Options.Te
     maxInstances: 1,
     capabilities: [{
       maxInstances: 1,
-      browserName: 'openbitfun',
-      'openbitfun:embedded': true,
+      browserName: 'alex',
+      'alex:embedded': true,
     } as any],
 
     logLevel: (process.env.E2E_LOG_LEVEL || 'info') as Options.Testrunner['logLevel'],
@@ -546,7 +546,7 @@ export function createEmbeddedConfig(specs: string[], label: string): Options.Te
       if (!fs.existsSync(appPath)) {
         console.error(`Application not found at: ${appPath}`);
         console.error('Please build the selected application first. Common commands:');
-        console.error('cargo build -p openbitfun-desktop');
+        console.error('cargo build -p alex-desktop');
         console.error('pnpm run desktop:build:release-fast');
         throw new Error('Application not built');
       }
@@ -556,7 +556,7 @@ export function createEmbeddedConfig(specs: string[], label: string): Options.Te
     },
 
     beforeSession: async function beforeSession() {
-      await startOpenBitFunApp();
+      await startAlexApp();
     },
 
     before: async function before() {
@@ -572,15 +572,15 @@ export function createEmbeddedConfig(specs: string[], label: string): Options.Te
     },
 
     afterSession: function afterSession() {
-      console.log('Stopping OpenBitFun app...');
-      stopOpenBitFunApp();
+      console.log('Stopping Alex app...');
+      stopAlexApp();
     },
 
     afterTest: sharedAfterTest(),
 
     onComplete: function onComplete() {
       console.log(`${label} E2E test run completed`);
-      stopOpenBitFunApp();
+      stopAlexApp();
       stopDevServer();
     },
   };

@@ -18,7 +18,7 @@ test("Select exposes a select-only combobox and preserves native form semantics"
     value: "ask",
   }));
 
-  assert.match(markup, /data-openbitfun-component="select"/);
+  assert.match(markup, /data-alex-component="select"/);
   assert.match(markup, /<select/);
   assert.match(markup, /aria-hidden="true"/);
   assert.match(markup, /aria-label="Mode"/);
@@ -29,7 +29,7 @@ test("Select exposes a select-only combobox and preserves native form semantics"
   assert.match(markup, /<optgroup label="Advanced">/);
   assert.match(markup, /value="3">Agent<\/option>/);
   assert.match(markup, /<button[^>]*aria-expanded="false"[^>]*role="combobox"/);
-  assert.match(markup, /data-openbitfun-part="value"[^>]*data-overflow-behavior="marquee"[^>]*><span[^>]*>Ask<\/span><\/span>/);
+  assert.match(markup, /data-alex-part="value"[^>]*data-overflow-behavior="marquee"[^>]*><span[^>]*>Ask<\/span><\/span>/);
 });
 
 test("Select exposes size, invalid, disabled, and leading regions independently", () => {
@@ -46,8 +46,8 @@ test("Select exposes size, invalid, disabled, and leading regions independently"
   assert.match(markup, /data-disabled="true"/);
   assert.match(markup, /data-invalid="true"/);
   assert.match(markup, /aria-invalid="true"/);
-  assert.match(markup, /data-openbitfun-part="leading"/);
-  assert.match(markup, /data-openbitfun-part="indicator"/);
+  assert.match(markup, /data-alex-part="leading"/);
+  assert.match(markup, /data-alex-part="indicator"/);
 });
 
 test("Select styling owns one token-driven surface for the expanded header and listbox", async () => {
@@ -60,23 +60,23 @@ test("Select styling owns one token-driven surface for the expanded header and l
     "utf8",
   );
 
-  assert.match(styles, /--openbitfun-control-select-padding-inline/);
-  assert.match(styles, /--openbitfun-control-select-indicator-size/);
-  assert.match(styles, /--openbitfun-color-field-border-focus/);
-  assert.match(styles, /\.popover\s*\{[^}]*border-radius:\s*var\(--openbitfun-control-select-radius\)/s);
-  assert.match(styles, /--openbitfun-color-selection-surface/);
-  assert.match(styles, /--openbitfun-color-control-highlight-background/);
-  assert.match(styles, /--openbitfun-shadow-menu/);
-  assert.match(styles, /--openbitfun-color-status-danger-border/);
+  assert.match(styles, /--alex-control-select-padding-inline/);
+  assert.match(styles, /--alex-control-select-indicator-size/);
+  assert.match(styles, /--alex-color-field-border-focus/);
+  assert.match(styles, /\.popover\s*\{[^}]*border-radius:\s*var\(--alex-control-select-radius\)/s);
+  assert.match(styles, /--alex-color-selection-surface/);
+  assert.match(styles, /--alex-color-control-highlight-background/);
+  assert.match(styles, /--alex-shadow-menu/);
+  assert.match(styles, /--alex-color-status-danger-border/);
   assert.match(styles, /\.popover\s*\{[^}]*flex-direction:\s*column[^}]*padding:\s*0[^}]*border:/s);
   assert.match(styles, /\.root\s*\{[^}]*block-size:\s*var\(--_select-height\)/s);
   assert.match(styles, /\.root\s*\{[^}]*display:\s*grid;/s);
   assert.match(
     styles,
-    /\.popoverHeader\s*\{[^}]*block-size:\s*calc\([\s\S]*?--_select-height[\s\S]*?--openbitfun-border-width-default/,
+    /\.popoverHeader\s*\{[^}]*block-size:\s*calc\([\s\S]*?--_select-height[\s\S]*?--alex-border-width-default/,
   );
-  assert.match(styles, /\.divider\s*\{[^}]*--openbitfun-border-width-default/s);
-  assert.match(styles, /\.options\s*\{[^}]*--openbitfun-overlay-menu-surface-padding/s);
+  assert.match(styles, /\.divider\s*\{[^}]*--alex-border-width-default/s);
+  assert.match(styles, /\.options\s*\{[^}]*--alex-overlay-menu-surface-padding/s);
   assert.doesNotMatch(styles, /border-block-(?:start|end):\s*0/);
   assert.doesNotMatch(styles, /scale\(/);
   assert.match(source, /<Listbox/);
@@ -84,12 +84,12 @@ test("Select styling owns one token-driven surface for the expanded header and l
   assert.match(source, /useDismissibleLayer/);
   assert.match(source, /useAnchoredLayer\(\{/);
   assert.match(source, /overlapAnchor:\s*true/);
-  assert.match(source, /data-openbitfun-part="header"/);
-  assert.match(source, /data-openbitfun-part="divider"/);
-  assert.match(source, /data-openbitfun-part="options"/);
+  assert.match(source, /data-alex-part="header"/);
+  assert.match(source, /data-alex-part="divider"/);
+  assert.match(source, /data-alex-part="options"/);
   assert.ok(
-    source.indexOf('data-openbitfun-part="header"')
-      < source.indexOf('data-openbitfun-part="options"'),
+    source.indexOf('data-alex-part="header"')
+      < source.indexOf('data-alex-part="options"'),
   );
   assert.doesNotMatch(styles, /#[0-9a-f]{3,8}/i);
 });

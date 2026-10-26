@@ -7,7 +7,7 @@
 //! their geometry and references, not base64 image bodies.
 
 use crate::agentic::tools::framework::ToolResult;
-use openbitfun_agent_tools::render_tool_result_for_assistant;
+use alex_agent_tools::render_tool_result_for_assistant;
 use serde_json::{json, Value};
 
 /// Legacy display-navigation enums stay in persisted/wire data for old clients.

@@ -1,4 +1,4 @@
-@layer openbitfun.components {
+@layer alex.components {
   .root {
     position: relative;
     display: inline-flex;
@@ -15,7 +15,7 @@
     block-size: 100%;
     align-items: center;
     justify-content: center;
-    transition: opacity var(--openbitfun-motion-duration-fast) var(--openbitfun-motion-easing-standard);
+    transition: opacity var(--alex-motion-duration-fast) var(--alex-motion-easing-standard);
   }
 
   .statusLayer > :where(svg, img),
@@ -40,19 +40,19 @@
   }
 
   .success {
-    color: var(--openbitfun-color-status-success-emphasis);
+    color: var(--alex-color-status-success-emphasis);
   }
 
   .danger {
-    color: var(--openbitfun-color-status-danger-emphasis);
+    color: var(--alex-color-status-danger-emphasis);
   }
 
   .statusLayer .processing {
-    color: var(--openbitfun-color-status-info-emphasis);
+    color: var(--alex-color-status-info-emphasis);
   }
 
   .muted {
-    color: var(--openbitfun-color-content-muted);
+    color: var(--alex-color-content-muted);
   }
 
   @media (prefers-reduced-motion: reduce) {

@@ -2,7 +2,7 @@ import type { AppearanceSurfaceDescriptor } from '@/infrastructure/appearance';
 
 export const reviewPlatformAppearanceDescriptor: AppearanceSurfaceDescriptor = {
   id: 'review-platform',
-  componentAttribute: 'data-openbitfun-product-component',
+  componentAttribute: 'data-alex-product-component',
   parts: [
     { id: 'root' },
     { id: 'chrome' },
@@ -49,10 +49,10 @@ export const reviewPlatformAppearanceDescriptor: AppearanceSurfaceDescriptor = {
     { id: 'diff' },
   ],
   facets: [
-    { id: 'layout', attribute: 'data-openbitfun-layout', values: ['full', 'detail'] },
-    { id: 'view', attribute: 'data-openbitfun-view', values: ['list', 'detail'] },
+    { id: 'layout', attribute: 'data-alex-layout', values: ['full', 'detail'] },
+    { id: 'view', attribute: 'data-alex-view', values: ['list', 'detail'] },
   ],
   states: [
-    { id: 'selected', selector: { kind: 'self', suffix: '[data-openbitfun-state~="selected"]' } },
+    { id: 'selected', selector: { kind: 'self', suffix: '[data-alex-state~="selected"]' } },
   ],
 };

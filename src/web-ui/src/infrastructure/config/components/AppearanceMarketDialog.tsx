@@ -12,7 +12,7 @@ import { OverflowText,
   DialogHeaderActions,
   DialogHeading,
   DialogTitle,
-} from '@openbitfun/ui';
+} from '@alex/ui';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AlertTriangle, PackageCheck } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -78,7 +78,7 @@ function hasUnsupportedCapabilities(detail: AppearanceMarketListingSummary): boo
   return detail.requiredCapabilities.some(capability => !SUPPORTED_CAPABILITIES.has(capability));
 }
 
-function requiresNewerOpenBitFun(minimum: string): boolean {
+function requiresNewerAlex(minimum: string): boolean {
   const parse = (value: string) => {
     const match = /^(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?(?:\+[0-9A-Za-z.-]+)?$/.exec(value);
     return match ? {
@@ -270,8 +270,8 @@ export function AppearanceMarketDialog({ isOpen, onClose }: AppearanceMarketDial
     const local = installedEntry(appearances, detail);
     const active = selectedAppearanceId === detail.packageId;
     const unsupported = hasUnsupportedCapabilities(detail);
-    const incompatibleVersion = requiresNewerOpenBitFun(
-      release?.minOpenBitFunVersion ?? detail.minOpenBitFunVersion,
+    const incompatibleVersion = requiresNewerAlex(
+      release?.minAlexVersion ?? detail.minAlexVersion,
     );
     const linkedToOtherListing = local?.marketOrigin
       && local.marketOrigin.listingId !== detail.listingId;
@@ -297,8 +297,8 @@ export function AppearanceMarketDialog({ isOpen, onClose }: AppearanceMarketDial
     return (
       <ScrollArea
         className="appearance-market__detail"
-        data-openbitfun-component="appearance-settings"
-        data-openbitfun-part="marketDetail"
+        data-alex-component="appearance-settings"
+        data-alex-part="marketDetail"
       >
         <Button className="appearance-market__back" variant="outline" size="sm" onClick={() => setDetail(null)} leadingIcon={<Icon name="arrow-left" size="sm" />}>
 
@@ -306,8 +306,8 @@ export function AppearanceMarketDialog({ isOpen, onClose }: AppearanceMarketDial
         </Button>
         <div
           className="appearance-market__detail-hero"
-          data-openbitfun-component="appearance-settings"
-          data-openbitfun-part="marketDetailPreview"
+          data-alex-component="appearance-settings"
+          data-alex-part="marketDetailPreview"
         >
           {detail.previewUrl
             ? (
@@ -325,8 +325,8 @@ export function AppearanceMarketDialog({ isOpen, onClose }: AppearanceMarketDial
         </div>
         <div
           className="appearance-market__detail-body"
-          data-openbitfun-component="appearance-settings"
-          data-openbitfun-part="marketDetailBody"
+          data-alex-component="appearance-settings"
+          data-alex-part="marketDetailBody"
         >
           <div className="appearance-market__detail-heading">
             <div>
@@ -337,7 +337,7 @@ export function AppearanceMarketDialog({ isOpen, onClose }: AppearanceMarketDial
           </div>
           <p>{detail.description}</p>
           <dl className="appearance-market__facts">
-            <div><dt><OverflowText>{t('package.market.minimumVersion')}</OverflowText></dt><dd><OverflowText>{detail.minOpenBitFunVersion}</OverflowText></dd></div>
+            <div><dt><OverflowText>{t('package.market.minimumVersion')}</OverflowText></dt><dd><OverflowText>{detail.minAlexVersion}</OverflowText></dd></div>
             <div><dt><OverflowText>{t('package.market.license')}</OverflowText></dt><dd><OverflowText>{detail.license.spdxExpression || t('package.market.customLicense')}</OverflowText></dd></div>
           </dl>
           {detail.requiredCapabilities.length > 0 && (
@@ -361,8 +361,8 @@ export function AppearanceMarketDialog({ isOpen, onClose }: AppearanceMarketDial
             || local?.localOverride) && (
             <div
               className="appearance-market__warning"
-              data-openbitfun-component="appearance-settings"
-              data-openbitfun-part="marketWarning"
+              data-alex-component="appearance-settings"
+              data-alex-part="marketWarning"
             >
               <AlertTriangle size={16} aria-hidden="true" />
               <span>
@@ -372,7 +372,7 @@ export function AppearanceMarketDialog({ isOpen, onClose }: AppearanceMarketDial
                     ? t('package.market.installedReleaseYanked')
                     : incompatibleVersion
                       ? t('package.market.incompatibleVersion', {
-                          version: release?.minOpenBitFunVersion ?? detail.minOpenBitFunVersion,
+                          version: release?.minAlexVersion ?? detail.minAlexVersion,
                         })
                       : unsupported
                         ? t('package.market.unsupportedCapabilities')
@@ -385,16 +385,16 @@ export function AppearanceMarketDialog({ isOpen, onClose }: AppearanceMarketDial
 
           <section
             className="appearance-market__releases"
-            data-openbitfun-component="appearance-settings"
-            data-openbitfun-part="marketReleaseList"
+            data-alex-component="appearance-settings"
+            data-alex-part="marketReleaseList"
           >
             <h4>{t('package.market.releases')}</h4>
             {detail.releases.map(item => (
               <div
                 key={item.releaseId}
                 className="appearance-market__release"
-                data-openbitfun-component="appearance-settings"
-                data-openbitfun-part="marketRelease"
+                data-alex-component="appearance-settings"
+                data-alex-part="marketRelease"
               >
                 <span>v{item.packageVersion}</span>
                 <small>{t('package.market.releaseNumber', { number: item.releaseNumber })}</small>
@@ -405,8 +405,8 @@ export function AppearanceMarketDialog({ isOpen, onClose }: AppearanceMarketDial
 
           <div
             className="appearance-market__actions"
-            data-openbitfun-component="appearance-settings"
-            data-openbitfun-part="marketActions"
+            data-alex-component="appearance-settings"
+            data-alex-part="marketActions"
           >
             {local?.marketOrigin?.listingId === detail.listingId
               && !updateAvailable
@@ -471,13 +471,13 @@ export function AppearanceMarketDialog({ isOpen, onClose }: AppearanceMarketDial
         <div className="appearance-market__modal">
       <div
         className="appearance-market"
-        data-openbitfun-component="appearance-settings"
-        data-openbitfun-part="marketDialog"
+        data-alex-component="appearance-settings"
+        data-alex-part="marketDialog"
       >
         <nav
           className="appearance-market__nav"
-          data-openbitfun-component="appearance-settings"
-          data-openbitfun-part="marketNav"
+          data-alex-component="appearance-settings"
+          data-alex-part="marketNav"
           aria-label={t('package.market.views.label')}
         >
           <NavigationPanelItem
@@ -521,13 +521,13 @@ export function AppearanceMarketDialog({ isOpen, onClose }: AppearanceMarketDial
         {view !== 'browse' ? <AppearanceMarketWorkflows workflow={view} /> : detail ? renderDetail() : (
           <div
             className="appearance-market__browse"
-            data-openbitfun-component="appearance-settings"
-            data-openbitfun-part="marketBrowse"
+            data-alex-component="appearance-settings"
+            data-alex-part="marketBrowse"
           >
             <div
               className="appearance-market__toolbar"
-              data-openbitfun-component="appearance-settings"
-              data-openbitfun-part="marketToolbar"
+              data-alex-component="appearance-settings"
+              data-alex-part="marketToolbar"
             >
               <SearchField
                 className="appearance-market__toolbar-control appearance-market__toolbar-search"
@@ -577,8 +577,8 @@ export function AppearanceMarketDialog({ isOpen, onClose }: AppearanceMarketDial
               <div
                 className="appearance-market__error"
                 role="alert"
-                data-openbitfun-component="appearance-settings"
-                data-openbitfun-part="marketError"
+                data-alex-component="appearance-settings"
+                data-alex-part="marketError"
               >
                 <AlertTriangle size={16} />
                 <span>{error}</span>
@@ -590,9 +590,9 @@ export function AppearanceMarketDialog({ isOpen, onClose }: AppearanceMarketDial
 
             <ScrollArea
               className="appearance-market__results"
-              data-openbitfun-component="appearance-settings"
-              data-openbitfun-part="marketResults"
-              data-openbitfun-state={loading ? 'loading' : undefined}
+              data-alex-component="appearance-settings"
+              data-alex-part="marketResults"
+              data-alex-state={loading ? 'loading' : undefined}
               aria-busy={loading || undefined}
             >
               {showSkeletons ? (
@@ -617,8 +617,8 @@ export function AppearanceMarketDialog({ isOpen, onClose }: AppearanceMarketDial
                   className="appearance-market__grid"
                   revision={JSON.stringify(items.map(item => item.listingId))}
                   animate={animateList.current}
-                  data-openbitfun-component="appearance-settings"
-                  data-openbitfun-part="marketGrid"
+                  data-alex-component="appearance-settings"
+                  data-alex-part="marketGrid"
                 >
                   {items.map(item => {
                     const local = installedEntry(appearances, item);
@@ -634,14 +634,14 @@ export function AppearanceMarketDialog({ isOpen, onClose }: AppearanceMarketDial
                         className="appearance-market__card"
                         onClick={() => void openDetail(item)}
                         disabled={detailLoading}
-                        data-openbitfun-component="appearance-settings"
-                        data-openbitfun-part="marketCard"
-                        data-openbitfun-state={detailLoading ? 'disabled' : undefined}
+                        data-alex-component="appearance-settings"
+                        data-alex-part="marketCard"
+                        data-alex-state={detailLoading ? 'disabled' : undefined}
                       >
                         <div
                           className="appearance-market__preview"
-                          data-openbitfun-component="appearance-settings"
-                          data-openbitfun-part="marketPreview"
+                          data-alex-component="appearance-settings"
+                          data-alex-part="marketPreview"
                         >
                           {item.previewUrl
                             ? (
@@ -657,8 +657,8 @@ export function AppearanceMarketDialog({ isOpen, onClose }: AppearanceMarketDial
                         </div>
                         <div
                           className="appearance-market__card-body"
-                          data-openbitfun-component="appearance-settings"
-                          data-openbitfun-part="marketCardBody"
+                          data-alex-component="appearance-settings"
+                          data-alex-part="marketCardBody"
                         >
                           <strong><OverflowText>{item.name}</OverflowText></strong>
                           <OverflowText>{item.author || item.owner.login} · v{item.packageVersion}</OverflowText>
@@ -667,8 +667,8 @@ export function AppearanceMarketDialog({ isOpen, onClose }: AppearanceMarketDial
                         {local && (
                           <span
                             className="appearance-market__status"
-                            data-openbitfun-component="appearance-settings"
-                            data-openbitfun-part="marketStatus"
+                            data-alex-component="appearance-settings"
+                            data-alex-part="marketStatus"
                           >
                             {updateAvailable
                               ? t('package.market.updateAvailable')
@@ -686,8 +686,8 @@ export function AppearanceMarketDialog({ isOpen, onClose }: AppearanceMarketDial
               {showEmpty && (
                 <div
                   className="appearance-market__empty"
-                  data-openbitfun-component="appearance-settings"
-                  data-openbitfun-part="marketEmpty"
+                  data-alex-component="appearance-settings"
+                  data-alex-part="marketEmpty"
                 >
                   <Icon name="store" size="lg" aria-hidden="true" />
                   <p>{t('package.market.empty')}</p>

@@ -1,15 +1,15 @@
 use crate::plugin_host::PluginHostInstance;
-// OpenCode client route projections backed by OpenBitFun owners.
+// OpenCode client route projections backed by Alex owners.
 //
 // The adapter owns OpenCode path/method matching, wire DTOs, framing, and
-// transport errors. This module only invokes the existing OpenBitFun session,
+// transport errors. This module only invokes the existing Alex session,
 // filesystem, terminal, MCP, Git, and model owners and projects their
 // results into the adapter's route contract. The logical instance and PTY
 // maps in `plugin_host` scope those calls; they are not physical process
 // supervision (that remains in the adapter/services process-tree boundary).
 
 use crate::plugin_host_http::{body_as, Failure, RouteResult};
-use openbitfun_opencode_plugin_host::OpenCodeClientRoute;
+use alex_opencode_plugin_host::OpenCodeClientRoute;
 use serde_json::{json, Value};
 use std::collections::HashMap;
 
@@ -146,7 +146,7 @@ async fn config_get() -> RouteResult {
 
 fn provider_projection(
     models: &[crate::service::config::AIModelConfig],
-    catalog: &openbitfun_core_types::ProviderCatalog,
+    catalog: &alex_core_types::ProviderCatalog,
     full_model_dto: bool,
 ) -> Vec<Value> {
     let mut grouped =
@@ -273,9 +273,9 @@ fn modality_flags(modalities: &[String]) -> Value {
 }
 
 fn matching_catalog_model<'a>(
-    catalog: &'a openbitfun_core_types::ProviderCatalog,
+    catalog: &'a alex_core_types::ProviderCatalog,
     model: &crate::service::config::AIModelConfig,
-) -> Option<&'a openbitfun_core_types::ProviderCatalogModel> {
+) -> Option<&'a alex_core_types::ProviderCatalogModel> {
     let mut matches = catalog
         .providers
         .iter()
@@ -295,7 +295,7 @@ fn price(value: Option<&str>) -> Option<f64> {
 }
 
 fn optional_model_cost(
-    model: Option<&openbitfun_core_types::ProviderCatalogModel>,
+    model: Option<&alex_core_types::ProviderCatalogModel>,
 ) -> Option<Value> {
     let pricing = model?.pricing.as_ref()?;
     let input = price(pricing.input.as_deref())?;
@@ -310,7 +310,7 @@ fn optional_model_cost(
     Some(cost)
 }
 
-fn model_cost(model: Option<&openbitfun_core_types::ProviderCatalogModel>) -> Value {
+fn model_cost(model: Option<&alex_core_types::ProviderCatalogModel>) -> Value {
     let pricing = model.and_then(|entry| entry.pricing.as_ref());
     json!({
         "input": price(pricing.and_then(|entry| entry.input.as_deref())).unwrap_or(0.0),
@@ -326,7 +326,7 @@ async fn load_models() -> Result<
     (
         Vec<crate::service::config::AIModelConfig>,
         HashMap<String, String>,
-        openbitfun_core_types::ProviderCatalog,
+        alex_core_types::ProviderCatalog,
     ),
     Failure,
 > {
@@ -549,7 +549,7 @@ mod tests {
     };
     use crate::plugin_host::PluginHostInstance;
     use crate::service::session::{ModelRoundData, ToolCallData, ToolItemData, ToolResultData};
-    use openbitfun_services_core::filesystem::{FileSearchResult, SearchMatchType};
+    use alex_services_core::filesystem::{FileSearchResult, SearchMatchType};
     use serde_json::json;
     use std::collections::HashMap;
     use std::path::PathBuf;
@@ -652,7 +652,7 @@ mod tests {
 
         let value = serde_json::to_string(&provider_projection(
             &[model],
-            &openbitfun_core_types::ProviderCatalog::default(),
+            &alex_core_types::ProviderCatalog::default(),
             true,
         ))
         .expect("provider projection");

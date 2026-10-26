@@ -4,7 +4,7 @@
   "retiredCommandPrefixes": [
     {
       "prefix": "lsp_",
-      "reason": "the OpenBitFun LSP runtime has been retired"
+      "reason": "the Alex LSP runtime has been retired"
     }
   ],
   "capabilities": {
@@ -4346,7 +4346,7 @@
       }
     },
     {
-      "id": "mark_openbitfun_control_surface_ready",
+      "id": "mark_alex_control_surface_ready",
       "surface": "tauri_command",
       "remoteWorkspace": "WorkspaceAgnostic",
       "peer": {
@@ -4358,7 +4358,7 @@
       }
     },
     {
-      "id": "mark_openbitfun_control_surface_unready",
+      "id": "mark_alex_control_surface_unready",
       "surface": "tauri_command",
       "remoteWorkspace": "WorkspaceAgnostic",
       "peer": {
@@ -5928,7 +5928,7 @@
       }
     },
     {
-      "id": "report_openbitfun_control_result",
+      "id": "report_alex_control_result",
       "surface": "tauri_command",
       "remoteWorkspace": "WorkspaceAgnostic",
       "peer": {

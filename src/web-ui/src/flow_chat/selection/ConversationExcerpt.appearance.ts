@@ -2,7 +2,7 @@ import type { AppearanceSurfaceDescriptor } from '@/infrastructure/appearance';
 
 export const conversationExcerptAppearanceDescriptor: AppearanceSurfaceDescriptor = {
   id: 'conversation-excerpt',
-  componentAttribute: 'data-openbitfun-product-component',
+  componentAttribute: 'data-alex-product-component',
   parts: [
     { id: 'root' }, { id: 'toolbar' }, { id: 'action' }, { id: 'editor' }, { id: 'attachments' },
     { id: 'attachment' }, { id: 'dialog' }, { id: 'quote' }, { id: 'quoteText' },

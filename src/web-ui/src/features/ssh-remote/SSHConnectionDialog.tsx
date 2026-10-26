@@ -1,6 +1,6 @@
 /**
  * SSH Connection Dialog Component
- * Professional SSH connection dialog following OpenBitFun design patterns
+ * Professional SSH connection dialog following Alex design patterns
  */
 
 import { OverflowText,
@@ -23,7 +23,7 @@ import { OverflowText,
   DialogHeader,
   DialogHeading,
   DialogTitle,
-} from '@openbitfun/ui';
+} from '@alex/ui';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useI18n } from '@/infrastructure/i18n';
 import { useSSHRemoteContext } from './SSHRemoteContext';
@@ -792,9 +792,9 @@ export const SSHConnectionDialog: React.FC<SSHConnectionDialogProps> = ({
           <DialogClose />
         </DialogHeader>
         <DialogBody inset="none">
-        <div className="ssh-connection-dialog" data-openbitfun-component="ssh-remote" data-openbitfun-part="connection">
+        <div className="ssh-connection-dialog" data-alex-component="ssh-remote" data-alex-part="connection">
           {error && (
-            <div className="ssh-connection-dialog__error-banner" data-openbitfun-component="ssh-remote" data-openbitfun-part="connectionError">
+            <div className="ssh-connection-dialog__error-banner" data-alex-component="ssh-remote" data-alex-part="connectionError">
               <Alert
                 tone="error"
                 message={error}
@@ -805,13 +805,13 @@ export const SSHConnectionDialog: React.FC<SSHConnectionDialogProps> = ({
             </div>
           )}
 
-          <ScrollArea scrollbarVisibility="hidden" className="ssh-connection-dialog__scroll" data-openbitfun-component="ssh-remote" data-openbitfun-part="connectionContent">
+          <ScrollArea scrollbarVisibility="hidden" className="ssh-connection-dialog__scroll" data-alex-component="ssh-remote" data-alex-part="connectionContent">
           {/* Saved connections section */}
           {savedConnections.length > 0 && (
             <FormSection
               className="ssh-connection-dialog__section"
-              data-openbitfun-component="ssh-remote"
-              data-openbitfun-part="connectionSection"
+              data-alex-component="ssh-remote"
+              data-alex-part="connectionSection"
               headingAs="h3"
               title={<span className="ssh-connection-dialog__section-title">{t('ssh.remote.savedConnections')}</span>}
               actions={(
@@ -825,7 +825,7 @@ export const SSHConnectionDialog: React.FC<SSHConnectionDialogProps> = ({
                 />
               )}
             >
-              <ScrollArea scrollbarVisibility="hidden" className="ssh-connection-dialog__saved-list" data-openbitfun-component="ssh-remote" data-openbitfun-part="connectionList">
+              <ScrollArea scrollbarVisibility="hidden" className="ssh-connection-dialog__saved-list" data-alex-component="ssh-remote" data-alex-part="connectionList">
                 {filteredSavedConnections.map((conn) => (
                   <div data-overflow-trigger
                     key={conn.id}
@@ -910,8 +910,8 @@ export const SSHConnectionDialog: React.FC<SSHConnectionDialogProps> = ({
                   <div data-overflow-trigger
                     key={configHost.host}
                     className="ssh-connection-dialog__saved-item ssh-connection-dialog__saved-item--config"
-                    data-openbitfun-component="ssh-remote"
-                    data-openbitfun-part="connectionItem"
+                    data-alex-component="ssh-remote"
+                    data-alex-part="connectionItem"
                     onClick={() => !isConnecting && handleFillFromConfig(configHost)}
                     role="button"
                     tabIndex={0}
@@ -964,8 +964,8 @@ export const SSHConnectionDialog: React.FC<SSHConnectionDialogProps> = ({
               'ssh-connection-dialog__form',
               formHighlighted ? 'ssh-connection-dialog__form--highlighted' : '',
             ].filter(Boolean).join(' ')}
-            data-openbitfun-component="ssh-remote"
-            data-openbitfun-part="connectionForm"
+            data-alex-component="ssh-remote"
+            data-alex-part="connectionForm"
           >
             <FieldRow padding="none" className="ssh-connection-dialog__field">
               <label className="ssh-connection-dialog__label">
@@ -1451,8 +1451,8 @@ export const SSHConnectionDialog: React.FC<SSHConnectionDialogProps> = ({
         <DialogFooter
           separator
           className="ssh-connection-dialog__actions"
-          data-openbitfun-component="ssh-remote"
-          data-openbitfun-part="connectionActions"
+          data-alex-component="ssh-remote"
+          data-alex-part="connectionActions"
         >
             <Button
               variant="outline"

@@ -12,7 +12,7 @@
 //!     SelectionItem / ExpandCollapse / Value / RangeValue / Text / Scroll).
 //!   * Transient `E_FAIL` provider errors retried (3 attempts, 40ms backoff).
 //!
-//! Unlike the cua daemon, OpenBitFun is a Tauri GUI app, so COM is initialized with
+//! Unlike the cua daemon, Alex is a Tauri GUI app, so COM is initialized with
 //! `COINIT_APARTMENTTHREADED` (correct for the main thread). VARIANT-based
 //! property reads are deliberately avoided: they require the
 //! `Win32_System_Ole` + `Win32_System_Variant` features which the desktop
@@ -27,11 +27,11 @@
 
 use super::ax_snapshot_digest::compute_digest;
 use crate::computer_use::ui_locate_common;
-use openbitfun_core::agentic::tools::computer_use_host::{
+use alex_core::agentic::tools::computer_use_host::{
     AppInfo, AppStateSnapshot, AxNode, OcrAccessibilityHit, UiElementLocateQuery,
     UiElementLocateResult,
 };
-use openbitfun_core::util::errors::{OpenBitFunError, OpenBitFunResult};
+use alex_core::util::errors::{AlexError, AlexResult};
 use windows::core::Interface;
 use windows::Win32::Foundation::HWND;
 use windows::Win32::System::Com::{
@@ -90,7 +90,7 @@ pub(super) struct UiaNode {
 }
 
 impl UiaNode {
-    /// Convert to OpenBitFun's [`AxNode`] for `get_app_state` integration.
+    /// Convert to Alex's [`AxNode`] for `get_app_state` integration.
     ///
     /// `idx` / `parent_idx` are supplied by the caller because `AxNode` uses a
     /// dense `u32` index over the *rendered* tree (including content-only
@@ -141,11 +141,11 @@ fn localized_control_type_string(elem: &IUIAutomationElement) -> String {
 /// read, so the walk itself issues zero cross-process RPCs.
 unsafe fn build_cache_request(
     automation: &IUIAutomation,
-) -> OpenBitFunResult<IUIAutomationCacheRequest> {
+) -> AlexResult<IUIAutomationCacheRequest> {
     // SAFETY: `automation` is a live UI Automation COM interface and all ids
     // supplied below are documented properties, patterns, scopes, or filters.
     let cache_req = unsafe { automation.CreateCacheRequest() }
-        .map_err(|e| OpenBitFunError::tool(format!("UI Automation CreateCacheRequest: {}.", e)))?;
+        .map_err(|e| AlexError::tool(format!("UI Automation CreateCacheRequest: {}.", e)))?;
 
     // Properties to pre-fetch (typed cached accessors read these).
     for prop in [
@@ -198,7 +198,7 @@ unsafe fn build_cache_request(
 pub(crate) unsafe fn build_updated_cache_with_retry(
     uncached: &IUIAutomationElement,
     cache_req: &IUIAutomationCacheRequest,
-) -> OpenBitFunResult<IUIAutomationElement> {
+) -> AlexResult<IUIAutomationElement> {
     let mut attempt = 0u32;
     loop {
         // SAFETY: both COM interfaces are live for the call and `cache_req`
@@ -208,7 +208,7 @@ pub(crate) unsafe fn build_updated_cache_with_retry(
             Err(e) => {
                 attempt += 1;
                 if attempt >= BUILD_CACHE_MAX_ATTEMPTS {
-                    return Err(OpenBitFunError::tool(format!(
+                    return Err(AlexError::tool(format!(
                         "UI Automation BuildUpdatedCache failed after {} attempts: {}.",
                         attempt, e
                     )));
@@ -431,14 +431,14 @@ unsafe fn walk_tree_full(
     hwnd: windows::Win32::Foundation::HWND,
     max_elements: usize,
     max_depth: usize,
-) -> OpenBitFunResult<(String, Vec<UiaNode>)> {
+) -> AlexResult<(String, Vec<UiaNode>)> {
     // SAFETY: initializes COM for the current thread and creates the documented
     // in-process UI Automation class; failures are handled below.
     let _ = unsafe { CoInitializeEx(None, COINIT_APARTMENTTHREADED) };
 
     let automation: IUIAutomation =
         unsafe { CoCreateInstance(&CUIAutomation, None, CLSCTX_INPROC_SERVER) }.map_err(|e| {
-            OpenBitFunError::tool(format!(
+            AlexError::tool(format!(
                 "UI Automation (CoCreateInstance CUIAutomation): {}.",
                 e
             ))
@@ -449,7 +449,7 @@ unsafe fn walk_tree_full(
     // SAFETY: `hwnd` is the caller-provided target handle. UIA reports an
     // error for an invalid or stale handle, which is propagated here.
     let uncached = unsafe { automation.ElementFromHandle(hwnd) }.map_err(|e| {
-        OpenBitFunError::tool(format!("UI Automation ElementFromHandle failed: {}.", e))
+        AlexError::tool(format!("UI Automation ElementFromHandle failed: {}.", e))
     })?;
 
     let root_elem = unsafe { build_updated_cache_with_retry(&uncached, &cache_req) }?;
@@ -555,7 +555,7 @@ unsafe fn walk_cached_bounded(
     if is_actionable || has_content {
         // Read the bounding rect for content-only nodes too, so text/role
         // locate-by-filter can still resolve a click center (cua only reads it
-        // for actionable nodes; OpenBitFun's `locate_ui_element_center` needs it).
+        // for actionable nodes; Alex's `locate_ui_element_center` needs it).
         let (center_x, center_y, rect) = read_cached_bounding_rect_full(element);
 
         let node = if is_actionable {
@@ -705,9 +705,9 @@ fn center_result_from_node(
     node: &UiaNode,
     matched_node_idx: Option<u32>,
     matched_via: &str,
-) -> OpenBitFunResult<UiElementLocateResult> {
+) -> AlexResult<UiElementLocateResult> {
     let (l, t, r, b) = node.rect.ok_or_else(|| {
-        OpenBitFunError::tool(format!(
+        AlexError::tool(format!(
             "Matched UI element \"{}\" has no usable bounding rectangle.",
             node.name.as_deref().unwrap_or(node.control_type.as_str())
         ))
@@ -744,7 +744,7 @@ fn center_result_from_node(
 /// Windows-only-`text_contains`/`title_contains`+`role_substring`).
 pub(super) fn locate_ui_element_center(
     query: &UiElementLocateQuery,
-) -> OpenBitFunResult<UiElementLocateResult> {
+) -> AlexResult<UiElementLocateResult> {
     let hwnd = unsafe { GetForegroundWindow() };
     let mut pid = 0;
     unsafe {
@@ -770,7 +770,7 @@ pub(super) fn locate_ui_element_center_for_window(
     hwnd_raw: isize,
     expected_pid: u32,
     query: &UiElementLocateQuery,
-) -> OpenBitFunResult<UiElementLocateResult> {
+) -> AlexResult<UiElementLocateResult> {
     ui_locate_common::validate_query(query)?;
 
     let max_depth = query.max_depth.unwrap_or(48).clamp(1, 200) as usize;
@@ -778,7 +778,7 @@ pub(super) fn locate_ui_element_center_for_window(
 
     let hwnd = HWND(hwnd_raw as *mut _);
     if !target_window_matches(hwnd, expected_pid) {
-        return Err(OpenBitFunError::tool(
+        return Err(AlexError::tool(
             "[TARGET_WINDOW_UNAVAILABLE] Authorized window identity is no longer valid."
                 .to_string(),
         ));
@@ -786,7 +786,7 @@ pub(super) fn locate_ui_element_center_for_window(
 
     let (_tree_text, nodes) = unsafe { walk_tree_full(hwnd, max_elements, max_depth) }?;
     if !target_window_matches(hwnd, expected_pid) {
-        return Err(OpenBitFunError::tool(
+        return Err(AlexError::tool(
             "[TARGET_WINDOW_UNAVAILABLE] Target changed during UIA observation",
         ));
     }
@@ -796,7 +796,7 @@ pub(super) fn locate_ui_element_center_for_window(
         if let Some(node) = nodes.iter().find(|n| n.element_index == Some(idx as usize)) {
             return center_result_from_node(node, Some(idx), "node_idx");
         }
-        return Err(OpenBitFunError::tool(format!(
+        return Err(AlexError::tool(format!(
             "[AX_IDX_NOT_FOUND] No UI element with node_idx={} in the target window tree \
              ({} nodes walked).",
             idx,
@@ -833,14 +833,14 @@ pub(super) fn locate_ui_element_center_for_window(
     }
 
     if total_matches == 0 {
-        Err(OpenBitFunError::tool(
+        Err(AlexError::tool(
             "No UI element matched in the target window for this query. Refine filters or \
              use ComputerUse screenshot. Locate uses the same UI Automation permission as \
              mouse/keyboard automation."
                 .to_string(),
         ))
     } else {
-        Err(OpenBitFunError::tool(format!(
+        Err(AlexError::tool(format!(
             "UI element matched filters but had no usable bounding rectangle ({} match(es): {}).",
             total_matches,
             other_matches.join(" | ")
@@ -853,7 +853,7 @@ pub(super) fn locate_ui_element_center_for_window(
 pub(super) fn accessibility_hit_at_global_point(
     gx: f64,
     gy: f64,
-) -> OpenBitFunResult<Option<OcrAccessibilityHit>> {
+) -> AlexResult<Option<OcrAccessibilityHit>> {
     let hwnd = unsafe { GetForegroundWindow() };
     let mut pid = 0;
     unsafe {
@@ -869,7 +869,7 @@ pub(super) fn accessibility_hit_at_global_point_for_window(
     expected_pid: u32,
     gx: f64,
     gy: f64,
-) -> OpenBitFunResult<Option<OcrAccessibilityHit>> {
+) -> AlexResult<Option<OcrAccessibilityHit>> {
     let hwnd = HWND(hwnd_raw as *mut _);
     if !gx.is_finite() || !gy.is_finite() || !target_window_matches(hwnd, expected_pid) {
         return Ok(None);
@@ -898,11 +898,11 @@ pub(super) fn accessibility_hit_at_global_point_for_window(
     }
     let automation: IUIAutomation =
         unsafe { CoCreateInstance(&CUIAutomation, None, CLSCTX_INPROC_SERVER) }
-            .map_err(|error| OpenBitFunError::tool(format!("UI Automation: {error}")))?;
+            .map_err(|error| AlexError::tool(format!("UI Automation: {error}")))?;
     let root = unsafe { automation.ElementFromHandle(hwnd) }
-        .map_err(|error| OpenBitFunError::tool(format!("UI Automation target root: {error}")))?;
+        .map_err(|error| AlexError::tool(format!("UI Automation target root: {error}")))?;
     let walker = unsafe { automation.RawViewWalker() }
-        .map_err(|error| OpenBitFunError::tool(format!("UI Automation target walker: {error}")))?;
+        .map_err(|error| AlexError::tool(format!("UI Automation target walker: {error}")))?;
     let mut current = element;
     let mut belongs_to_window = false;
     for _ in 0..200 {
@@ -952,9 +952,9 @@ fn snapshot_and_nodes(
     hwnd: windows::Win32::Foundation::HWND,
     max_depth: u32,
     focus_window_only: bool,
-) -> OpenBitFunResult<(AppStateSnapshot, Vec<UiaNode>)> {
+) -> AlexResult<(AppStateSnapshot, Vec<UiaNode>)> {
     if hwnd.is_invalid() {
-        return Err(OpenBitFunError::tool(
+        return Err(AlexError::tool(
             "No target window (invalid HWND).".to_string(),
         ));
     }
@@ -1107,20 +1107,20 @@ enum UiaRequest {
         Option<(f64, f64)>,
         String,
         super::control_session::ControlToken,
-        std::sync::mpsc::SyncSender<OpenBitFunResult<()>>,
+        std::sync::mpsc::SyncSender<AlexResult<()>>,
     ),
     Observe(
         isize,
         u32,
         bool,
         super::control_session::ControlToken,
-        std::sync::mpsc::SyncSender<OpenBitFunResult<AppStateSnapshot>>,
+        std::sync::mpsc::SyncSender<AlexResult<AppStateSnapshot>>,
     ),
     Act(
         isize,
         SemanticAction,
         super::control_session::ControlToken,
-        std::sync::mpsc::SyncSender<OpenBitFunResult<(f64, f64)>>,
+        std::sync::mpsc::SyncSender<AlexResult<(f64, f64)>>,
     ),
 }
 struct ObservedWindow {
@@ -1146,10 +1146,10 @@ fn uia_worker() -> &'static std::sync::mpsc::Sender<UiaRequest> {
                     }
                     UiaRequest::Observe(hwnd, depth, focus, token, reply) => {
                         let result = super::control_session::with_token(token, || {
-                            super::control_session::capture_allowed().map_err(OpenBitFunError::tool)?;
+                            super::control_session::capture_allowed().map_err(AlexError::tool)?;
                             let handle = windows::Win32::Foundation::HWND(hwnd as *mut _);
                             let (snapshot, nodes) = snapshot_and_nodes(handle, depth, focus)?;
-                            super::control_session::capture_allowed().map_err(OpenBitFunError::tool)?;
+                            super::control_session::capture_allowed().map_err(AlexError::tool)?;
                             observed = Some(ObservedWindow { hwnd, generation: token.generation(),
                                 pid: window_pid_for(handle).unwrap_or(0), nodes });
                             Ok(snapshot)
@@ -1159,7 +1159,7 @@ fn uia_worker() -> &'static std::sync::mpsc::Sender<UiaRequest> {
                     }
                     UiaRequest::Act(hwnd, action, token, reply) => {
                         let result = super::control_session::with_token(token, || {
-                            let cache = observed.as_ref().ok_or_else(|| OpenBitFunError::tool(
+                            let cache = observed.as_ref().ok_or_else(|| AlexError::tool(
                                 "[AX_OBSERVATION_REQUIRED] Read the target window before using a node index"))?;
                             apply_semantic(cache, hwnd, token.generation(), action)
                         });
@@ -1177,8 +1177,8 @@ pub(super) fn get_app_state_snapshot_for_window(
     hwnd: windows::Win32::Foundation::HWND,
     max_depth: u32,
     focus_window_only: bool,
-) -> OpenBitFunResult<AppStateSnapshot> {
-    let token = super::control_session::capture_token().map_err(OpenBitFunError::tool)?;
+) -> AlexResult<AppStateSnapshot> {
+    let token = super::control_session::capture_token().map_err(AlexError::tool)?;
     let (tx, rx) = std::sync::mpsc::sync_channel(1);
     uia_worker()
         .send(UiaRequest::Observe(
@@ -1188,9 +1188,9 @@ pub(super) fn get_app_state_snapshot_for_window(
             token,
             tx,
         ))
-        .map_err(|_| OpenBitFunError::tool("UIA worker unavailable"))?;
+        .map_err(|_| AlexError::tool("UIA worker unavailable"))?;
     rx.recv()
-        .map_err(|_| OpenBitFunError::tool("UIA worker stopped"))?
+        .map_err(|_| AlexError::tool("UIA worker stopped"))?
 }
 /// Resolve an image-derived point inside the bound native window, or that
 /// window thread's existing focus. This never asks the desktop which app is
@@ -1199,8 +1199,8 @@ pub(super) fn insert_text_at_bound_target(
     hwnd: isize,
     point: Option<(f64, f64)>,
     text: &str,
-) -> OpenBitFunResult<()> {
-    let token = super::control_session::capture_token().map_err(OpenBitFunError::tool)?;
+) -> AlexResult<()> {
+    let token = super::control_session::capture_token().map_err(AlexError::tool)?;
     let (tx, rx) = std::sync::mpsc::sync_channel(1);
     uia_worker()
         .send(UiaRequest::InsertNative(
@@ -1210,9 +1210,9 @@ pub(super) fn insert_text_at_bound_target(
             token,
             tx,
         ))
-        .map_err(|_| OpenBitFunError::tool("UIA worker unavailable"))?;
+        .map_err(|_| AlexError::tool("UIA worker unavailable"))?;
     rx.recv()
-        .map_err(|_| OpenBitFunError::tool("UIA worker stopped"))?
+        .map_err(|_| AlexError::tool("UIA worker stopped"))?
 }
 
 fn point_in_window(point: (f64, f64), rect: (i32, i32, i32, i32)) -> bool {
@@ -1230,7 +1230,7 @@ fn insert_native_target(
     hwnd: isize,
     point: Option<(f64, f64)>,
     text: &str,
-) -> OpenBitFunResult<()> {
+) -> AlexResult<()> {
     use windows::Win32::Foundation::{POINT, RECT};
     use windows::Win32::Graphics::Gdi::ScreenToClient;
     use windows::Win32::UI::WindowsAndMessaging::{
@@ -1238,18 +1238,18 @@ fn insert_native_target(
         CWP_SKIPINVISIBLE, CWP_SKIPTRANSPARENT, GUITHREADINFO,
     };
     let top = HWND(hwnd as *mut _);
-    super::control_session::input_allowed().map_err(OpenBitFunError::tool)?;
+    super::control_session::input_allowed().map_err(AlexError::tool)?;
     let pid = window_pid_for(top)
-        .ok_or_else(|| OpenBitFunError::tool("[AX_STALE_TARGET] Bound window has no process"))?;
+        .ok_or_else(|| AlexError::tool("[AX_STALE_TARGET] Bound window has no process"))?;
     super::control_session::target_allowed(&format!("pid:{pid}/window:{hwnd}"))
-        .map_err(OpenBitFunError::tool)?;
-    let native_error = |e| OpenBitFunError::tool(format!("[AX_TARGET_UNAVAILABLE] {e}"));
+        .map_err(AlexError::tool)?;
+    let native_error = |e| AlexError::tool(format!("[AX_TARGET_UNAVAILABLE] {e}"));
     unsafe {
         let child = if let Some(point) = point {
             let mut rect = RECT::default();
             GetWindowRect(top, &mut rect).map_err(native_error)?;
             if !point_in_window(point, (rect.left, rect.top, rect.right, rect.bottom)) {
-                return Err(OpenBitFunError::tool(
+                return Err(AlexError::tool(
                     "[TARGET_COORDINATES_OUTSIDE_WINDOW] Text target is outside the bound window",
                 ));
             }
@@ -1260,7 +1260,7 @@ fn insert_native_target(
                     y: point.1.floor() as i32,
                 };
                 if !ScreenToClient(current, &mut local).as_bool() {
-                    return Err(OpenBitFunError::tool(
+                    return Err(AlexError::tool(
                         "[AX_TARGET_UNAVAILABLE] Cannot map text target to bound window",
                     ));
                 }
@@ -1277,7 +1277,7 @@ fn insert_native_target(
         } else {
             let thread = GetWindowThreadProcessId(top, None);
             if thread == 0 {
-                return Err(OpenBitFunError::tool(
+                return Err(AlexError::tool(
                     "[AX_STALE_TARGET] Bound window thread is unavailable",
                 ));
             }
@@ -1287,7 +1287,7 @@ fn insert_native_target(
             };
             GetGUIThreadInfo(thread, &mut info).map_err(native_error)?;
             if info.hwndFocus.0.is_null() {
-                return Err(OpenBitFunError::tool("[BACKGROUND_TEXT_UNAVAILABLE] Bound window thread has no focused native text control"));
+                return Err(AlexError::tool("[BACKGROUND_TEXT_UNAVAILABLE] Bound window thread has no focused native text control"));
             }
             info.hwndFocus
         };
@@ -1297,14 +1297,14 @@ fn insert_native_target(
         // The retained UIA element must still identify the precise child that
         // was hit or focused; providers must not redirect us to another HWND.
         if element.CurrentNativeWindowHandle().map_err(native_error)? != child {
-            return Err(OpenBitFunError::tool(
+            return Err(AlexError::tool(
                 "[AX_STALE_ELEMENT] UIA native identity differs from the resolved text control",
             ));
         }
         if let Some(point) = point {
             let rect = element.CurrentBoundingRectangle().map_err(native_error)?;
             if !point_in_window(point, (rect.left, rect.top, rect.right, rect.bottom)) {
-                return Err(OpenBitFunError::tool(
+                return Err(AlexError::tool(
                     "[AX_GEOMETRY_CHANGED] Text control moved after point resolution",
                 ));
             }
@@ -1343,23 +1343,23 @@ fn replace_native_edit_selection(
     top: HWND,
     pid: u32,
     text: &str,
-) -> OpenBitFunResult<()> {
+) -> AlexResult<()> {
     use windows::Win32::Foundation::{LPARAM, WPARAM};
     use windows::Win32::UI::Input::KeyboardAndMouse::IsWindowEnabled;
     use windows::Win32::UI::WindowsAndMessaging::{
         GetAncestor, GetClassNameW, GetWindowLongW, IsWindowUnicode, SendMessageTimeoutW,
         ES_READONLY, GA_ROOT, GWL_STYLE, SMTO_ABORTIFHUNG, SMTO_BLOCK,
     };
-    let buffer = edit_replacement_utf16(text).map_err(OpenBitFunError::tool)?;
+    let buffer = edit_replacement_utf16(text).map_err(AlexError::tool)?;
     unsafe {
         let child = element.CurrentNativeWindowHandle().map_err(|_| {
-            OpenBitFunError::tool(
+            AlexError::tool(
                 "[BACKGROUND_TEXT_UNAVAILABLE] Observed UIA element has no native edit window",
             )
         })?;
         if element
             .CurrentProcessId()
-            .map_err(|e| OpenBitFunError::tool(format!("[AX_ACTION_FAILED] {e}")))?
+            .map_err(|e| AlexError::tool(format!("[AX_ACTION_FAILED] {e}")))?
             as u32
             != pid
             || child.0.is_null()
@@ -1367,7 +1367,7 @@ fn replace_native_edit_selection(
             || window_pid_for(child) != Some(pid)
             || GetAncestor(child, GA_ROOT) != top
         {
-            return Err(OpenBitFunError::tool("[AX_STALE_ELEMENT] Native edit HWND does not belong to the observed process and bound top-level window"));
+            return Err(AlexError::tool("[AX_STALE_ELEMENT] Native edit HWND does not belong to the observed process and bound top-level window"));
         }
         let mut class = [0u16; 256];
         let length = GetClassNameW(child, &mut class);
@@ -1375,11 +1375,11 @@ fn replace_native_edit_selection(
             || !is_native_edit_class(&String::from_utf16_lossy(&class[..length as usize]))
             || !IsWindowUnicode(child).as_bool()
         {
-            return Err(OpenBitFunError::tool("[BACKGROUND_TEXT_UNAVAILABLE] Selection-aware insertion requires a standard Unicode Win32 Edit or RichEdit control"));
+            return Err(AlexError::tool("[BACKGROUND_TEXT_UNAVAILABLE] Selection-aware insertion requires a standard Unicode Win32 Edit or RichEdit control"));
         }
         if !IsWindowEnabled(child).as_bool() || GetWindowLongW(child, GWL_STYLE) & ES_READONLY != 0
         {
-            return Err(OpenBitFunError::tool(
+            return Err(AlexError::tool(
                 "[BACKGROUND_TEXT_UNAVAILABLE] Native edit control is disabled or read-only",
             ));
         }
@@ -1388,10 +1388,10 @@ fn replace_native_edit_selection(
         {
             if pattern
                 .CurrentIsReadOnly()
-                .map_err(|e| OpenBitFunError::tool(format!("[AX_ACTION_FAILED] {e}")))?
+                .map_err(|e| AlexError::tool(format!("[AX_ACTION_FAILED] {e}")))?
                 .as_bool()
             {
-                return Err(OpenBitFunError::tool(
+                return Err(AlexError::tool(
                     "[BACKGROUND_TEXT_UNAVAILABLE] UIA provider marks this control read-only",
                 ));
             }
@@ -1399,9 +1399,9 @@ fn replace_native_edit_selection(
         if text.is_empty() {
             return Ok(());
         }
-        super::control_session::input_allowed().map_err(OpenBitFunError::tool)?;
+        super::control_session::input_allowed().map_err(AlexError::tool)?;
         super::control_session::target_allowed(&format!("pid:{pid}/window:{}", top.0 as isize))
-            .map_err(OpenBitFunError::tool)?;
+            .map_err(AlexError::tool)?;
         // This system message is marshalled by Windows across processes. Its
         // result has no success value; only the transport completion is known.
         let completed = SendMessageTimeoutW(
@@ -1419,31 +1419,31 @@ fn replace_native_edit_selection(
             if pid == std::process::id() {
                 std::mem::forget(buffer);
             }
-            return Err(OpenBitFunError::tool("[INPUT_OUTCOME_UNKNOWN] Native edit message did not complete; some text may already have been inserted. Observe before further input; no retry was sent"));
+            return Err(AlexError::tool("[INPUT_OUTCOME_UNKNOWN] Native edit message did not complete; some text may already have been inserted. Observe before further input; no retry was sent"));
         }
     }
     Ok(())
 }
 
-fn dispatch_semantic(hwnd: isize, action: SemanticAction) -> OpenBitFunResult<(f64, f64)> {
-    let token = super::control_session::capture_token().map_err(OpenBitFunError::tool)?;
+fn dispatch_semantic(hwnd: isize, action: SemanticAction) -> AlexResult<(f64, f64)> {
+    let token = super::control_session::capture_token().map_err(AlexError::tool)?;
     let (tx, rx) = std::sync::mpsc::sync_channel(1);
     uia_worker()
         .send(UiaRequest::Act(hwnd, action, token, tx))
-        .map_err(|_| OpenBitFunError::tool("UIA worker unavailable"))?;
+        .map_err(|_| AlexError::tool("UIA worker unavailable"))?;
     rx.recv()
-        .map_err(|_| OpenBitFunError::tool("UIA worker stopped"))?
+        .map_err(|_| AlexError::tool("UIA worker stopped"))?
 }
-pub(super) fn invoke_cached_node(hwnd: isize, idx: u32) -> OpenBitFunResult<()> {
+pub(super) fn invoke_cached_node(hwnd: isize, idx: u32) -> AlexResult<()> {
     dispatch_semantic(hwnd, SemanticAction::Invoke(idx)).map(|_| ())
 }
-pub(super) fn insert_cached_text(hwnd: isize, idx: u32, text: &str) -> OpenBitFunResult<()> {
+pub(super) fn insert_cached_text(hwnd: isize, idx: u32, text: &str) -> AlexResult<()> {
     dispatch_semantic(hwnd, SemanticAction::Insert(idx, text.into())).map(|_| ())
 }
-pub(super) fn scroll_cached_node(hwnd: isize, idx: u32, dx: i32, dy: i32) -> OpenBitFunResult<()> {
+pub(super) fn scroll_cached_node(hwnd: isize, idx: u32, dx: i32, dy: i32) -> AlexResult<()> {
     dispatch_semantic(hwnd, SemanticAction::Scroll(idx, dx, dy)).map(|_| ())
 }
-pub(super) fn cached_node_center(hwnd: isize, idx: u32) -> OpenBitFunResult<(f64, f64)> {
+pub(super) fn cached_node_center(hwnd: isize, idx: u32) -> AlexResult<(f64, f64)> {
     dispatch_semantic(hwnd, SemanticAction::Center(idx))
 }
 fn apply_semantic(
@@ -1451,23 +1451,23 @@ fn apply_semantic(
     hwnd: isize,
     generation: u64,
     action: SemanticAction,
-) -> OpenBitFunResult<(f64, f64)> {
+) -> AlexResult<(f64, f64)> {
     use windows::Win32::UI::Accessibility::{
         IUIAutomationInvokePattern, IUIAutomationScrollPattern, IUIAutomationSelectionItemPattern,
         IUIAutomationTogglePattern, ScrollAmount_NoAmount, ScrollAmount_SmallDecrement,
         ScrollAmount_SmallIncrement,
     };
-    super::control_session::capture_allowed().map_err(OpenBitFunError::tool)?;
+    super::control_session::capture_allowed().map_err(AlexError::tool)?;
     if cache.hwnd != hwnd
         || cache.generation != generation
         || window_pid_for(windows::Win32::Foundation::HWND(hwnd as *mut _)) != Some(cache.pid)
     {
-        return Err(OpenBitFunError::tool(
+        return Err(AlexError::tool(
             "[AX_STALE_TARGET] Read the target window again",
         ));
     }
     super::control_session::target_allowed(&format!("pid:{}/window:{hwnd}", cache.pid))
-        .map_err(OpenBitFunError::tool)?;
+        .map_err(AlexError::tool)?;
     let idx = match &action {
         SemanticAction::Invoke(i)
         | SemanticAction::Insert(i, _)
@@ -1477,28 +1477,28 @@ fn apply_semantic(
     let node = cache
         .nodes
         .get(idx as usize)
-        .ok_or_else(|| OpenBitFunError::tool("[AX_STALE_INDEX] Read the target window again"))?;
+        .ok_or_else(|| AlexError::tool("[AX_STALE_INDEX] Read the target window again"))?;
     let element: IUIAutomationElement = node
         .element
         .as_ref()
         .and_then(|e| e.cast().ok())
         .ok_or_else(|| {
-            OpenBitFunError::tool(
+            AlexError::tool(
                 "[AX_ACTION_UNSUPPORTED] This legacy element has no UIA semantic provider",
             )
         })?;
-    let native = |e: windows::core::Error| OpenBitFunError::tool(format!("[AX_ACTION_FAILED] {e}"));
+    let native = |e: windows::core::Error| AlexError::tool(format!("[AX_ACTION_FAILED] {e}"));
     unsafe {
         if element.CurrentProcessId().map_err(native)? as u32 != cache.pid
             || !element.CurrentIsEnabled().map_err(native)?.as_bool()
         {
-            return Err(OpenBitFunError::tool(
+            return Err(AlexError::tool(
                 "[AX_STALE_ELEMENT] The observed control is no longer available",
             ));
         }
         let rect = element.CurrentBoundingRectangle().map_err(native)?;
         if node.rect != Some((rect.left, rect.top, rect.right, rect.bottom)) {
-            return Err(OpenBitFunError::tool(
+            return Err(AlexError::tool(
                 "[AX_GEOMETRY_CHANGED] Observe the target again before input",
             ));
         }
@@ -1509,29 +1509,29 @@ fn apply_semantic(
         if matches!(action, SemanticAction::Center(_)) {
             return Ok(center);
         }
-        super::control_session::input_allowed().map_err(OpenBitFunError::tool)?;
+        super::control_session::input_allowed().map_err(AlexError::tool)?;
         let clicked = matches!(action, SemanticAction::Invoke(_));
         match action {
             SemanticAction::Invoke(_) => {
                 if let Ok(pattern) =
                     element.GetCurrentPatternAs::<IUIAutomationInvokePattern>(UIA_InvokePatternId)
                 {
-                    super::control_session::input_allowed().map_err(OpenBitFunError::tool)?;
+                    super::control_session::input_allowed().map_err(AlexError::tool)?;
                     pattern.Invoke().map_err(native)?;
                 } else if let Ok(pattern) =
                     element.GetCurrentPatternAs::<IUIAutomationTogglePattern>(UIA_TogglePatternId)
                 {
-                    super::control_session::input_allowed().map_err(OpenBitFunError::tool)?;
+                    super::control_session::input_allowed().map_err(AlexError::tool)?;
                     pattern.Toggle().map_err(native)?;
                 } else if let Ok(pattern) = element
                     .GetCurrentPatternAs::<IUIAutomationSelectionItemPattern>(
                         UIA_SelectionItemPatternId,
                     )
                 {
-                    super::control_session::input_allowed().map_err(OpenBitFunError::tool)?;
+                    super::control_session::input_allowed().map_err(AlexError::tool)?;
                     pattern.Select().map_err(native)?;
                 } else {
-                    return Err(OpenBitFunError::tool("[AX_ACTION_UNSUPPORTED] Control exposes no invoke, toggle or selection pattern"));
+                    return Err(AlexError::tool("[AX_ACTION_UNSUPPORTED] Control exposes no invoke, toggle or selection pattern"));
                 }
             }
             SemanticAction::Insert(_, text) => {
@@ -1541,7 +1541,7 @@ fn apply_semantic(
                 let pattern = element
                     .GetCurrentPatternAs::<IUIAutomationScrollPattern>(UIA_ScrollPatternId)
                     .map_err(|_| {
-                        OpenBitFunError::tool(
+                        AlexError::tool(
                             "[AX_ACTION_UNSUPPORTED] Control has no background Scroll pattern",
                         )
                     })?;
@@ -1554,7 +1554,7 @@ fn apply_semantic(
                         ScrollAmount_NoAmount
                     }
                 };
-                super::control_session::input_allowed().map_err(OpenBitFunError::tool)?;
+                super::control_session::input_allowed().map_err(AlexError::tool)?;
                 pattern.Scroll(amount(dx), amount(dy)).map_err(native)?;
             }
             SemanticAction::Center(_) => unreachable!(),
@@ -1629,7 +1629,7 @@ mod control_native_tests {
             let window = CreateWindowExW(
                 WINDOW_EX_STYLE::default(),
                 w!("STATIC"),
-                w!("OpenBitFun UIA isolated fixture"),
+                w!("Alex UIA isolated fixture"),
                 WS_OVERLAPPEDWINDOW,
                 50,
                 50,
@@ -1714,7 +1714,7 @@ mod control_native_tests {
         let owner = "windows-native-uia-test";
         super::super::control_session::start(
             owner,
-            openbitfun_agent_tools::computer_use_control::ControlMode::Background,
+            alex_agent_tools::computer_use_control::ControlMode::Background,
         )
         .unwrap();
         super::super::control_session::bind_target(format!(

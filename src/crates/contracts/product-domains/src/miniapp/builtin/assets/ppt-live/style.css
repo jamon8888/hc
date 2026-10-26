@@ -1,4 +1,4 @@
-/* PPT Live — canvas-first studio v2 (OpenBitFun theme-aware, beautiful.ai / gamma.app benchmark) */
+/* PPT Live — canvas-first studio v2 (Alex theme-aware, beautiful.ai / gamma.app benchmark) */
 
 /* ============================================
    1. DESIGN TOKENS — New UI/UX upgrade spec
@@ -49,11 +49,11 @@
   --radius-full: 9999px;
 
   /* Shadows / Elevation */
-  --shadow-xs: var(--openbitfun-shadow-xs);
-  --shadow-sm: var(--openbitfun-shadow-sm);
-  --shadow-md: var(--openbitfun-shadow-card);
-  --shadow-lg: var(--openbitfun-shadow-lg);
-  --shadow-xl: var(--openbitfun-shadow-xl);
+  --shadow-xs: var(--alex-shadow-xs);
+  --shadow-sm: var(--alex-shadow-sm);
+  --shadow-md: var(--alex-shadow-card);
+  --shadow-lg: var(--alex-shadow-lg);
+  --shadow-xl: var(--alex-shadow-xl);
   --shadow-glow: 0 0 20px color-mix(in srgb, var(--studio-primary) 30%, transparent);
 
   /* Z-Index hierarchy */
@@ -86,28 +86,28 @@
   --canvas-zoom-max: 2.0;
 
   --app-font-sans-stack: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", "Noto Sans SC", sans-serif;
-  --app-font: var(--openbitfun-font-sans);
-  --app-mono: var(--openbitfun-font-mono);
+  --app-font: var(--alex-font-sans);
+  --app-mono: var(--alex-font-mono);
 
-  --studio-bg: var(--openbitfun-bg);
-  --studio-surface: var(--openbitfun-bg-elevated);
-  --studio-panel: var(--openbitfun-bg-secondary);
-  --studio-line: var(--openbitfun-border-subtle);
-  --studio-border: var(--openbitfun-border);
-  --studio-text: var(--openbitfun-text);
-  --studio-muted: var(--openbitfun-text-muted);
-  --studio-soft: var(--openbitfun-text-secondary);
-  --studio-primary: var(--openbitfun-accent);
-  --studio-primary-2: color-mix(in srgb, var(--studio-primary) 72%, var(--openbitfun-text-on-accent) 28%);
-  --studio-accent: var(--openbitfun-accent-secondary);
-  --studio-focus: color-mix(in srgb, var(--openbitfun-accent) 55%, transparent);
-  --studio-success: var(--openbitfun-success);
-  --studio-danger: var(--openbitfun-error);
-  --studio-warning: var(--openbitfun-warning);
-  --studio-accent-text: var(--openbitfun-text-on-accent);
-  --studio-overlay: var(--openbitfun-overlay-scrim);
-  --studio-control-bg: var(--openbitfun-element-bg);
-  --studio-control-hover: var(--openbitfun-element-hover);
+  --studio-bg: var(--alex-bg);
+  --studio-surface: var(--alex-bg-elevated);
+  --studio-panel: var(--alex-bg-secondary);
+  --studio-line: var(--alex-border-subtle);
+  --studio-border: var(--alex-border);
+  --studio-text: var(--alex-text);
+  --studio-muted: var(--alex-text-muted);
+  --studio-soft: var(--alex-text-secondary);
+  --studio-primary: var(--alex-accent);
+  --studio-primary-2: color-mix(in srgb, var(--studio-primary) 72%, var(--alex-text-on-accent) 28%);
+  --studio-accent: var(--alex-accent-secondary);
+  --studio-focus: color-mix(in srgb, var(--alex-accent) 55%, transparent);
+  --studio-success: var(--alex-success);
+  --studio-danger: var(--alex-error);
+  --studio-warning: var(--alex-warning);
+  --studio-accent-text: var(--alex-text-on-accent);
+  --studio-overlay: var(--alex-overlay-scrim);
+  --studio-control-bg: var(--alex-element-bg);
+  --studio-control-hover: var(--alex-element-hover);
   --studio-control-muted: color-mix(in srgb, var(--studio-text) 6%, transparent);
   --studio-control-subtle: color-mix(in srgb, var(--studio-text) 8%, transparent);
   --studio-topbar-bg: color-mix(in srgb, var(--studio-panel) 94%, transparent);
@@ -116,7 +116,7 @@
   --studio-canvas-grid: color-mix(in srgb, var(--studio-text) 4%, transparent);
   --studio-input-bg: var(--studio-control-bg);
   --studio-log-bg: color-mix(in srgb, var(--studio-text) 4%, var(--studio-bg));
-  --studio-shadow: var(--openbitfun-shadow-overlay);
+  --studio-shadow: var(--alex-shadow-overlay);
   --studio-chip-active-border: color-mix(in srgb, var(--studio-accent) 42%, transparent);
   --studio-chip-active-bg: color-mix(in srgb, var(--studio-accent) 10%, transparent);
   --studio-chip-done-border: color-mix(in srgb, var(--studio-success) 32%, transparent);
@@ -124,12 +124,12 @@
   --studio-history-active-border: color-mix(in srgb, var(--studio-primary) 52%, transparent);
   --studio-history-active-bg: color-mix(in srgb, var(--studio-primary) 10%, transparent);
   --studio-resizer-hover: color-mix(in srgb, var(--studio-accent) 55%, transparent);
-  --studio-slide-chrome: var(--openbitfun-bg-elevated);
-  --studio-slide-empty-bg: var(--openbitfun-bg-secondary);
-  --studio-slide-empty-text: var(--openbitfun-text);
-  --studio-slide-empty-muted: var(--openbitfun-text-muted);
-  --studio-slide-tip-border: var(--openbitfun-border);
-  --studio-slide-tip-text: var(--openbitfun-text-secondary);
+  --studio-slide-chrome: var(--alex-bg-elevated);
+  --studio-slide-empty-bg: var(--alex-bg-secondary);
+  --studio-slide-empty-text: var(--alex-text);
+  --studio-slide-empty-muted: var(--alex-text-muted);
+  --studio-slide-tip-border: var(--alex-border);
+  --studio-slide-tip-text: var(--alex-text-secondary);
 }
 
 /* Smooth theme transition */
@@ -1310,7 +1310,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 
 .generation-steps ::selection {
-  background: var(--openbitfun-accent);
+  background: var(--alex-accent);
   color: var(--studio-text);
 }
 
@@ -1447,7 +1447,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--openbitfun-text-on-accent);
+  background: var(--alex-text-on-accent);
   animation: live-pulse 1.2s ease-in-out infinite;
 }
 @keyframes live-pulse {
@@ -1772,7 +1772,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .outline-list,
 .history-list {
   scrollbar-width: thin;
-  scrollbar-color: var(--openbitfun-scrollbar-thumb) transparent;
+  scrollbar-color: var(--alex-scrollbar-thumb) transparent;
 }
 
 .generation-events::-webkit-scrollbar,
@@ -1786,13 +1786,13 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .outline-list::-webkit-scrollbar-thumb,
 .history-list::-webkit-scrollbar-thumb {
   border-radius: 999px;
-  background: var(--openbitfun-scrollbar-thumb);
+  background: var(--alex-scrollbar-thumb);
 }
 
 .generation-events::-webkit-scrollbar-thumb:hover,
 .outline-list::-webkit-scrollbar-thumb:hover,
 .history-list::-webkit-scrollbar-thumb:hover {
-  background: var(--openbitfun-scrollbar-thumb-hover);
+  background: var(--alex-scrollbar-thumb-hover);
 }
 
 /* ============================================
@@ -2493,7 +2493,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   height: 18px;
   border-radius: 50%;
   background: var(--studio-primary);
-  color: var(--openbitfun-text-on-accent);
+  color: var(--alex-text-on-accent);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2592,12 +2592,12 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .template-card__badge--new {
   background: color-mix(in srgb, var(--studio-success) 90%, transparent);
-  color: var(--openbitfun-text-on-accent);
+  color: var(--alex-text-on-accent);
 }
 
 .template-card__badge--hot {
   background: color-mix(in srgb, var(--studio-warning) 90%, transparent);
-  color: var(--openbitfun-text-on-accent);
+  color: var(--alex-text-on-accent);
 }
 
 .template-card__info {

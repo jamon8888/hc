@@ -15,7 +15,7 @@ internal enum class AppThemeMode {
 }
 
 internal class AppSettingsViewModel(application: Application) : AndroidViewModel(application) {
-    private val preferences = application.getSharedPreferences("openbitfun_app_settings", Application.MODE_PRIVATE)
+    private val preferences = application.getSharedPreferences("alex_app_settings", Application.MODE_PRIVATE)
     private val _theme = MutableStateFlow(
         runCatching { AppThemeMode.valueOf(preferences.getString("theme", null).orEmpty()) }
             .getOrDefault(AppThemeMode.SYSTEM),

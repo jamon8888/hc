@@ -841,7 +841,7 @@ describe('WorkspaceManager host catalog hints', () => {
     const manager = await getFreshWorkspaceManager();
     await manager.initialize();
 
-    handler.current()?.({ payload: { revision: 2, __openbitfunSourceDeviceId: 'device-b' } });
+    handler.current()?.({ payload: { revision: 2, __alexSourceDeviceId: 'device-b' } });
     await flushAsyncWork();
 
     expect(globalStateMocks.getOpenedWorkspaces).not.toHaveBeenCalled();

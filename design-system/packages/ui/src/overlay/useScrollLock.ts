@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-const SCROLL_LOCK = Symbol.for("openbitfun.overlay-scroll-lock.v1");
+const SCROLL_LOCK = Symbol.for("alex.overlay-scroll-lock.v1");
 interface ScrollLockState { count: number; previousOverflow: string }
 
 export function useScrollLock(active: boolean, ownerDocument?: Document | null): void {

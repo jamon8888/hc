@@ -29,7 +29,7 @@ const chinaNightAccent = (alpha: number | string) => rgbaFromHex(CHINA_NIGHT_ACC
 
 export const openBitFunChinaNightPalette: AppearancePalette = {
 
-  id: 'openbitfun-china-night',
+  id: 'alex-china-night',
   name: 'Ink Night',
   type: 'dark',
   description: 'Chinese dark appearance - Starlit ink night, moonlight like water, serene and elegant',

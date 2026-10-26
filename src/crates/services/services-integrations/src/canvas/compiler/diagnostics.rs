@@ -1,4 +1,4 @@
-use openbitfun_product_domains::canvas::types::{
+use alex_product_domains::canvas::types::{
     CanvasDiagnostic, CanvasDiagnosticCategory, CanvasDiagnosticSeverity,
 };
 

@@ -48,7 +48,7 @@ export function splitInterval(everyMs: number): { value: number; unit: IntervalU
 }
 
 /** Emitted after any create/update/delete so other mounted views reload. */
-export const SCHEDULED_JOBS_CHANGED_EVENT = 'openbitfun:scheduled-jobs-changed';
+export const SCHEDULED_JOBS_CHANGED_EVENT = 'alex:scheduled-jobs-changed';
 
 export type ScheduleKind = CronSchedule['kind'];
 

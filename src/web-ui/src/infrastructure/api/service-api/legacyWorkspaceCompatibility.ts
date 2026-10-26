@@ -174,7 +174,7 @@ export async function workspaceWatchRequest(workspaceId: string, path: string, r
 export function migrateLegacySkillReceipts(storage: Storage, records: Array<{
   id: string; rootPath: string; workspaceKind?: string;
 }>): void {
-  const prefix = 'openbitfun:external-skill-import:';
+  const prefix = 'alex:external-skill-import:';
   const keys = Array.from({ length: storage.length }, (_, index) => storage.key(index));
   for (const key of keys) {
     if (!key?.startsWith(prefix) || key.startsWith(`${prefix}v2:`)) continue;

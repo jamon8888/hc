@@ -23,7 +23,7 @@ Landed in two halves — the desktop spawn command and the web-ui entries.
 **Desktop adapter — `src/apps/desktop/src/api/wordcraft_api.rs` (new):**
 
 - `wordcraft_status_command(recheck)` — returns the single factual
-  `WordcraftCapability` record from `openbitfun_services_core::wordcraft`
+  `WordcraftCapability` record from `alex_services_core::wordcraft`
   (explicit path → system PATH → managed component). `recheck: true` forces a
   fresh probe; the probe instance is a process-wide `OnceLock` rooted at the
   path manager's managed-runtimes dir, so UI entries and the agent read the
@@ -47,7 +47,7 @@ Landed in two halves — the desktop spawn command and the web-ui entries.
      passed to the app (`--control <port>`, `WORDCRAFT_PROFILE_DIR`). The key
      file lands inside our isolated profile (`control-key.local-<port>`),
      never logged, never exposed to the agent.
-  6. Spawn via `openbitfun_core::util::process_manager::create_command`
+  6. Spawn via `alex_core::util::process_manager::create_command`
      (CREATE_NO_WINDOW-safe façade, per repo policy) *outside* the managed
      child tree: the editor window is user-facing and outlives Alex;
      killing Alex must not kill the user's editor.
@@ -96,13 +96,13 @@ covered by tickets 10/11 specs, not this command.
 
 ### Verification (closed during ticket 15/16 checks)
 
-- `cargo test -p openbitfun-desktop --lib wordcraft` — 4/4 pass
+- `cargo test -p alex-desktop --lib wordcraft` — 4/4 pass
   (raw-input rejection, local document validation with case-insensitive
   `.docx`, loopback port scan, per-session profile-dir uniqueness; the
   uniqueness test caught a real collide-includes-dir bug where two opens in
   one process shared pid-only fingerprint — fixed with a monotonic per-process
   sequence in the dir fingerprint).
-- `cargo test -p openbitfun-desktop --lib remote_workspace_policy` — the
+- `cargo test -p alex-desktop --lib remote_workspace_policy` — the
   command rows for wordcraft parse clean (no wordcraft entry appears in the
   closure failure set). The closure test currently fails on
   `basemind_read_redacted_document` / `basemind_reveal_entity`, registered by

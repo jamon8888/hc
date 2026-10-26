@@ -1,12 +1,12 @@
 [package]
-name = "openbitfun-tool-packs"
+name = "alex-tool-packs"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
-description = "OpenBitFun concrete tool-pack owner crate"
+description = "Alex concrete tool-pack owner crate"
 
 [lib]
-name = "openbitfun_tool_packs"
+name = "alex_tool_packs"
 crate-type = ["rlib"]
 
 [features]

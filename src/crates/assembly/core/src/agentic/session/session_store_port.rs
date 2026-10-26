@@ -1,7 +1,7 @@
 use std::path::{Component, Path, PathBuf};
 use std::sync::Arc;
 
-use openbitfun_runtime_ports::{
+use alex_runtime_ports::{
     PortError, PortErrorKind, PortResult, RuntimeServiceCapability, RuntimeServicePort,
     SessionStorageKind, SessionStoragePathRequest, SessionStoragePathResolution, SessionStorePort,
 };
@@ -9,7 +9,7 @@ use openbitfun_runtime_ports::{
 use crate::agentic::core::SessionConfig;
 use crate::infrastructure::{get_path_manager_arc, PathManager};
 use crate::service::WorkspaceRuntimeService;
-use openbitfun_services_core::workspace_identity::{
+use alex_services_core::workspace_identity::{
     unresolved_remote_session_storage_dir, WorkspaceSessionIdentity,
 };
 
@@ -27,7 +27,7 @@ async fn resolve_workspace_session_identity(
     crate::agentic::workspace::normalize_session_workspace(&mut config)
         .await
         .ok()?;
-    openbitfun_services_core::workspace_identity::workspace_session_identity(
+    alex_services_core::workspace_identity::workspace_session_identity(
         workspace_path,
         config.remote_connection_id.as_deref(),
         config.remote_ssh_host.as_deref(),
@@ -363,7 +363,7 @@ mod tests {
 
     fn test_port() -> (CoreSessionStorePort, PathBuf) {
         let test_root =
-            std::env::temp_dir().join(format!("openbitfun-session-store-port-{}", Uuid::new_v4()));
+            std::env::temp_dir().join(format!("alex-session-store-port-{}", Uuid::new_v4()));
         let path_manager = Arc::new(PathManager::with_user_root_for_tests(
             test_root.join("user"),
         ));

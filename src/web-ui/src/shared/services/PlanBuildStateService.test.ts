@@ -68,7 +68,7 @@ describe('PlanBuildStateService', () => {
 
   function target(name: string): PlanFileRef {
     const value = {
-      planFilePath: `/workspace/.openbitfun/plans/${name}.plan.md`,
+      planFilePath: `/workspace/.alex/plans/${name}.plan.md`,
       workspacePath: '/workspace',
     };
     trackedTargets.push(value);
@@ -103,7 +103,7 @@ describe('PlanBuildStateService', () => {
       todoIds: ['shared-todo'],
     });
 
-    window.dispatchEvent(new CustomEvent('openbitfun:dialog-cancelled', {
+    window.dispatchEvent(new CustomEvent('alex:dialog-cancelled', {
       detail: { sessionId: 'session-a' },
     }));
 
@@ -125,7 +125,7 @@ describe('PlanBuildStateService', () => {
       todoIds: ['shared-todo'],
     });
 
-    window.dispatchEvent(new CustomEvent('openbitfun:todowrite-update', {
+    window.dispatchEvent(new CustomEvent('alex:todowrite-update', {
       detail: {
         sessionId: 'session-a',
         turnId: firstTurnId,
@@ -157,7 +157,7 @@ describe('PlanBuildStateService', () => {
   });
 
   it('keys build state by workspace ID and routes file IO through the workspace', async () => {
-    const planFilePath = '/workspace/.openbitfun/plans/shared-path.plan.md';
+    const planFilePath = '/workspace/.alex/plans/shared-path.plan.md';
     const inWorkspaceA: PlanFileRef = { planFilePath, workspaceId: 'workspace-a', workspacePath: '/workspace' };
     const inWorkspaceB: PlanFileRef = { planFilePath, workspaceId: 'workspace-b', workspacePath: '/workspace' };
     trackedTargets.push(inWorkspaceA, inWorkspaceB);
@@ -173,7 +173,7 @@ describe('PlanBuildStateService', () => {
     // A pre-ID locator for the same file does not alias the ID-keyed build.
     expect(planBuildStateService.isBuildActive({ planFilePath, workspacePath: '/workspace' })).toBe(false);
 
-    window.dispatchEvent(new CustomEvent('openbitfun:todowrite-update', {
+    window.dispatchEvent(new CustomEvent('alex:todowrite-update', {
       detail: {
         sessionId: 'session-a',
         turnId,

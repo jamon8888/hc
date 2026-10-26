@@ -359,7 +359,7 @@ export class GitAPI {
    
   async getStatus(workspace: GitWorkspaceScope, traceSource = 'unknown'): Promise<GitStatus> {
     try {
-      if (globalThis.__OPENBITFUN_PERF_TRACE_ENABLED__ === true) {
+      if (globalThis.__ALEX_PERF_TRACE_ENABLED__ === true) {
         startupTrace.markPhase('git_status_request', { source: traceSource });
       }
       return await api.invoke('git_get_status', { 

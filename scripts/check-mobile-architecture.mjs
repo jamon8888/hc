@@ -312,7 +312,7 @@ for (const platform of ['android', 'ios']) {
       // a forbidden edge in the one form it is actually able to write.
       const referencesModule =
         new RegExp(`["'][\\w.-]*:${module}(?::[^"']*)?["']`).test(source) ||
-        new RegExp(`com\\.openbitfun\\.mobile\\.core\\.${packageSuffix}\\b`).test(source);
+        new RegExp(`com\\.alex\\.mobile\\.core\\.${packageSuffix}\\b`).test(source);
       if (referencesModule) {
         appReachesInternalModules.push(`${relative(file)} -> ${module}`);
       }

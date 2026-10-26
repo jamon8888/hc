@@ -256,7 +256,7 @@ fn resolve_local_flashgrep_bundle(binary_name: &str) -> Option<PathBuf> {
             candidates.push(parent.join("../Resources/flashgrep").join(binary_name));
             candidates.push(
                 parent
-                    .join("../share/openbitfun/flashgrep")
+                    .join("../share/alex/flashgrep")
                     .join(binary_name),
             );
             candidates.push(
@@ -296,11 +296,11 @@ mod tests {
     fn remote_workspace_search_paths_preserve_current_contract() {
         assert_eq!(
             remote_flashgrep_install_dir("/home/wgq/workspace/bot_detection"),
-            "/home/wgq/workspace/bot_detection/.openbitfun/bin"
+            "/home/wgq/workspace/bot_detection/.alex/bin"
         );
         assert_eq!(
             remote_workspace_search_storage_root("/home/wgq/workspace/bot_detection/"),
-            "/home/wgq/workspace/bot_detection/.openbitfun/search/flashgrep-index"
+            "/home/wgq/workspace/bot_detection/.alex/search/flashgrep-index"
         );
         assert_eq!(join_remote_path("/", "tmp/file.txt"), "/tmp/file.txt");
         assert_eq!(

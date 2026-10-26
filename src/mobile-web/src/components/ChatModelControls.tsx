@@ -1,11 +1,11 @@
 import { ChevronDown as LucideChevronDown, Sparkles as LucideSparkles } from 'lucide-react';
 import React, { useId, useMemo, useRef, useState } from 'react';
-import { MobileButton, MobileCard, MobileTextField } from '@openbitfun/ui/mobile';
+import { MobileButton, MobileCard, MobileTextField } from '@alex/ui/mobile';
 import { useI18n } from '../i18n';
 import type { RemoteModelCatalog, RemoteModelConfig } from '../services/RemoteSessionManager';
 import ComposerSelectionSurface from './ComposerSelectionSurface';
 
-const MOBILE_LAST_SELECTED_MODEL_ID_KEY = 'openbitfun.mobile.last_selected_model_id';
+const MOBILE_LAST_SELECTED_MODEL_ID_KEY = 'alex.mobile.last_selected_model_id';
 
 const SparklesIcon: React.FC<{ className?: string; size?: number }> = ({ className, size = 10 }) => (
   <LucideSparkles className={className} width={size} height={size} stroke="currentColor" aria-hidden="true" />

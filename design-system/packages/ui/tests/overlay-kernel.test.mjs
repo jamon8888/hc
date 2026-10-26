@@ -52,8 +52,8 @@ test("the overlay kernel centralizes portal, stack, dismissal, focus, scroll loc
   assert.match(files[2], /stack.register/);
   assert.match(files[1], /FOCUSABLE_SELECTOR/);
   assert.match(files[3], /registerFocusScope/);
-  assert.match(files[4], /Symbol.for\("openbitfun.overlay-scroll-lock.v1"\)/);
-  assert.match(files[1], /Symbol.for\("openbitfun.overlay-coordinator.v1"\)/);
+  assert.match(files[4], /Symbol.for\("alex.overlay-scroll-lock.v1"\)/);
+  assert.match(files[1], /Symbol.for\("alex.overlay-coordinator.v1"\)/);
   assert.match(files[5], /PresenceState/);
 });
 

@@ -1,28 +1,28 @@
 :root {
   color-scheme: light dark;
-  --openbitfun-canvas-bg: #ffffff;
-  --openbitfun-canvas-panel: #f4f6f8;
-  --openbitfun-canvas-fg: #20242a;
-  --openbitfun-canvas-muted: #697386;
-  --openbitfun-canvas-border: rgba(32, 36, 42, 0.15);
-  --openbitfun-canvas-accent: #2f6fed;
-  --openbitfun-canvas-success: #248a3d;
-  --openbitfun-canvas-warning: #b54708;
-  --openbitfun-canvas-danger: #d1242f;
-  --openbitfun-canvas-info: #0969da;
+  --alex-canvas-bg: #ffffff;
+  --alex-canvas-panel: #f4f6f8;
+  --alex-canvas-fg: #20242a;
+  --alex-canvas-muted: #697386;
+  --alex-canvas-border: rgba(32, 36, 42, 0.15);
+  --alex-canvas-accent: #2f6fed;
+  --alex-canvas-success: #248a3d;
+  --alex-canvas-warning: #b54708;
+  --alex-canvas-danger: #d1242f;
+  --alex-canvas-info: #0969da;
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --openbitfun-canvas-bg: #111318;
-    --openbitfun-canvas-panel: #181b22;
-    --openbitfun-canvas-fg: #eef0f4;
-    --openbitfun-canvas-muted: #a4acb9;
+    --alex-canvas-bg: #111318;
+    --alex-canvas-panel: #181b22;
+    --alex-canvas-fg: #eef0f4;
+    --alex-canvas-muted: #a4acb9;
   }
 }
 body {
   margin: 0;
   background: #eef2f6;
-  color: var(--openbitfun-canvas-fg);
+  color: var(--alex-canvas-fg);
   font: 13px/1.5 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   text-rendering: geometricPrecision;
   overflow-x: hidden;
@@ -33,7 +33,7 @@ html {
   overflow-y: auto;
   overscroll-behavior: contain;
 }
-#openbitfun-canvas-root {
+#alex-canvas-root {
   min-height: 100vh;
   padding: 24px 20px 56px;
   box-sizing: border-box;

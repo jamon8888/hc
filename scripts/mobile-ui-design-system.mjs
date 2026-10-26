@@ -35,15 +35,15 @@ const outputs = new Map([
     renderHarmonyScenarios(scenarios),
   ],
   [
-    join(ROOT, 'src', 'apps', 'mobile', 'android', 'app', 'src', 'main', 'kotlin', 'com', 'openbitfun', 'mobile', 'app', 'ui', 'theme', 'generated', 'MobileDesignTokens.kt'),
+    join(ROOT, 'src', 'apps', 'mobile', 'android', 'app', 'src', 'main', 'kotlin', 'com', 'alex', 'mobile', 'app', 'ui', 'theme', 'generated', 'MobileDesignTokens.kt'),
     renderAndroidTokens(tokens),
   ],
   [
-    join(ROOT, 'src', 'apps', 'mobile', 'android', 'app', 'src', 'main', 'kotlin', 'com', 'openbitfun', 'mobile', 'app', 'ui', 'preview', 'generated', 'MobilePreviewScenarios.kt'),
+    join(ROOT, 'src', 'apps', 'mobile', 'android', 'app', 'src', 'main', 'kotlin', 'com', 'alex', 'mobile', 'app', 'ui', 'preview', 'generated', 'MobilePreviewScenarios.kt'),
     renderAndroidScenarios(scenarios),
   ],
   [
-    join(ROOT, 'src', 'apps', 'mobile', 'shared', 'core-feature', 'src', 'commonMain', 'kotlin', 'com', 'openbitfun', 'mobile', 'core', 'feature', 'layout', 'generated', 'MobileDesignBreakpoints.kt'),
+    join(ROOT, 'src', 'apps', 'mobile', 'shared', 'core-feature', 'src', 'commonMain', 'kotlin', 'com', 'alex', 'mobile', 'core', 'feature', 'layout', 'generated', 'MobileDesignBreakpoints.kt'),
     renderSharedLayoutTokens(tokens),
   ],
   [

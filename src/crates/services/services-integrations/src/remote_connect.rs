@@ -5,7 +5,7 @@
 //! Pairing, encryption, QR generation, relay websocket lifecycle primitives,
 //! wire command routing, and provider-neutral IM bot support live here. Product
 //! assembly, concrete runtime hosts, and IM bot command routing that still needs
-//! session/runtime hosts stay in `openbitfun-core` until their ports are explicit.
+//! session/runtime hosts stay in `alex-core` until their ports are explicit.
 
 pub mod account;
 pub mod bot;
@@ -39,22 +39,22 @@ pub use lan::{
     LocalNetworkInterface,
 };
 use log::info;
-use openbitfun_core_types::{
+use alex_core_types::{
     ModelsDevReasoningCatalog, ProviderCatalog, ReasoningCatalogProjection,
 };
-use openbitfun_events::AgenticEvent;
-use openbitfun_runtime_ports::{
+use alex_events::AgenticEvent;
+use alex_runtime_ports::{
     AgentInputAttachment, AgentSessionCreateRequest, AgentSubmissionRequest, AgentSubmissionSource,
     RemoteControlStateSnapshot,
 };
-pub use openbitfun_runtime_ports::{
+pub use alex_runtime_ports::{
     RemoteAssistantWorkspaceFacts, RemoteFileChunkRange, RemoteInitialSyncRuntimeHost,
     RemoteProjectionPort, RemoteRecentWorkspaceFacts, RemoteSessionMetadata,
     RemoteSessionWorkspaceIdentity, RemoteWorkspaceFacts, RemoteWorkspaceFileChunk,
     RemoteWorkspaceFileContent, RemoteWorkspaceFileInfo, RemoteWorkspaceFileRuntimeHost,
     RemoteWorkspaceKind, RemoteWorkspacePort, RemoteWorkspaceRuntimeHost, RemoteWorkspaceUpdate,
 };
-use openbitfun_services_core::product_identity::hidden_data_directory;
+use alex_services_core::product_identity::hidden_data_directory;
 pub use page_upload::{
     create_page_open_link_on_relay, delete_page_from_relay, delete_page_version_on_relay,
     deploy_page_version_on_relay, join_relay_url, list_page_versions_from_relay,
@@ -82,8 +82,8 @@ where
 }
 
 pub(crate) fn product_home_dir() -> Option<PathBuf> {
-    std::env::var_os("OPENBITFUN_HOME")
-        .or_else(|| std::env::var_os("OPENBITFUN_E2E_HOME"))
+    std::env::var_os("ALEX_HOME")
+        .or_else(|| std::env::var_os("ALEX_E2E_HOME"))
         .map(PathBuf::from)
         .filter(|path| !path.as_os_str().is_empty())
         .or_else(|| dirs::home_dir().map(|home| home.join(hidden_data_directory())))
@@ -2194,7 +2194,7 @@ pub struct RemoteModelCatalogPollDelta {
 
 pub fn resolve_remote_agent_type(mobile_type: Option<&str>) -> &'static str {
     if let Some(harness) =
-        mobile_type.and_then(openbitfun_core_types::agent_identity::HarnessId::from_legacy_id)
+        mobile_type.and_then(alex_core_types::agent_identity::HarnessId::from_legacy_id)
     {
         return harness.as_str();
     }
@@ -2231,8 +2231,8 @@ pub struct SessionInfo {
     pub session_id: String,
     pub name: String,
     #[serde(
-        serialize_with = "openbitfun_core_types::agent_identity_wire::serialize_legacy_agent_id",
-        deserialize_with = "openbitfun_core_types::agent_identity::deserialize_agent_id"
+        serialize_with = "alex_core_types::agent_identity_wire::serialize_legacy_agent_id",
+        deserialize_with = "alex_core_types::agent_identity::deserialize_agent_id"
     )]
     pub agent_type: String,
     pub created_at: String,
@@ -2637,7 +2637,7 @@ pub struct RemoteControlClient {
 #[serde(tag = "cmd", rename_all = "snake_case")]
 pub enum RemoteCommand {
     DialogQueue {
-        request: openbitfun_runtime_ports::DialogQueueRequest,
+        request: alex_runtime_ports::DialogQueueRequest,
     },
     /// Retired: relay-stored session history. Kept so older controllers get an
     /// explicit upgrade message instead of an unknown-command failure.
@@ -2892,7 +2892,7 @@ pub enum RemoteCommand {
 #[serde(tag = "resp", rename_all = "snake_case")]
 pub enum RemoteResponse {
     DialogQueue {
-        snapshot: openbitfun_runtime_ports::DialogQueueSnapshot,
+        snapshot: alex_runtime_ports::DialogQueueSnapshot,
     },
     /// Retired shape; new hosts never produce it but older peers may still send it.
     SessionKey {
@@ -3162,8 +3162,8 @@ pub trait RemoteCommandRuntimeHost: Send + Sync {
 
     async fn manage_dialog_queue(
         &self,
-        _request: openbitfun_runtime_ports::DialogQueueRequest,
-    ) -> Result<openbitfun_runtime_ports::DialogQueueSnapshot, String> {
+        _request: alex_runtime_ports::DialogQueueRequest,
+    ) -> Result<alex_runtime_ports::DialogQueueSnapshot, String> {
         Err("dialog_queue_v1 is not supported".into())
     }
 
@@ -3858,7 +3858,7 @@ impl RemoteSessionStateTracker {
     }
 
     pub fn handle_agentic_event(&self, event: &AgenticEvent) {
-        use openbitfun_events::AgenticEvent as AE;
+        use alex_events::AgenticEvent as AE;
 
         if let AE::SubagentSessionLinked {
             session_id,
@@ -3967,15 +3967,15 @@ impl RemoteSessionStateTracker {
                 let tool_id = tool_event.tool_id().to_string();
                 let tool_name = tool_event.effective_tool_name().to_string();
                 let effective_params = match tool_event {
-                    openbitfun_events::ToolEventData::Started {
+                    alex_events::ToolEventData::Started {
                         identity, params, ..
                     }
-                    | openbitfun_events::ToolEventData::ConfirmationNeeded {
+                    | alex_events::ToolEventData::ConfirmationNeeded {
                         identity,
                         params,
                         ..
                     } => Some(
-                        openbitfun_agent_tools::effective_tool_invocation(
+                        alex_agent_tools::effective_tool_invocation(
                             &identity.tool_name,
                             params,
                         )
@@ -4618,9 +4618,9 @@ mod tests {
             last_modified_ms: 1_700_000_000_000,
             source_version: Some(42),
             models: Vec::new(),
-            provider_catalog: openbitfun_core_types::ProviderCatalog {
+            provider_catalog: alex_core_types::ProviderCatalog {
                 revision: revision.to_string(),
-                source: openbitfun_core_types::ProviderCatalogSource::Cache,
+                source: alex_core_types::ProviderCatalogSource::Cache,
                 providers: Vec::new(),
             },
             models_dev_reasoning_catalog,
@@ -4632,7 +4632,7 @@ mod tests {
             "models-dev-revision",
             Some(ModelsDevReasoningCatalog {
                 revision: "models-dev-revision".to_string(),
-                source: openbitfun_core_types::ModelsDevCatalogSource::Cache,
+                source: alex_core_types::ModelsDevCatalogSource::Cache,
                 providers: Vec::new(),
             }),
         ));

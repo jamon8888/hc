@@ -1,23 +1,23 @@
-.openbitfun-chat-input {
+.alex-chat-input {
   &__image-strip {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--openbitfun-control-flow-chat-inline-gap);
-    margin-block-end: var(--openbitfun-control-flow-chat-inline-gap);
-    padding-block: var(--openbitfun-space-1);
+    gap: var(--alex-control-flow-chat-inline-gap);
+    margin-block-end: var(--alex-control-flow-chat-inline-gap);
+    padding-block: var(--alex-space-1);
   }
 
   &__attachment {
     position: relative;
     inline-size: 44px;
     block-size: 44px;
-    border-radius: var(--openbitfun-radius-sm);
-    background: var(--openbitfun-color-action-neutral-surface-hover);
-    border: var(--openbitfun-border-width-default) solid var(--openbitfun-color-border-subtle);
+    border-radius: var(--alex-radius-sm);
+    background: var(--alex-color-action-neutral-surface-hover);
+    border: var(--alex-border-width-default) solid var(--alex-color-border-subtle);
     flex-shrink: 0;
 
-    &:hover .openbitfun-chat-input__attachment-remove,
-    &:focus-within .openbitfun-chat-input__attachment-remove { opacity: 1; }
+    &:hover .alex-chat-input__attachment-remove,
+    &:focus-within .alex-chat-input__attachment-remove { opacity: 1; }
   }
 
   &__image-chip-preview {
@@ -31,8 +31,8 @@
     cursor: zoom-in;
 
     &:focus-visible {
-      outline: var(--openbitfun-focus-width) solid var(--openbitfun-color-focus-ring);
-      outline-offset: var(--openbitfun-focus-offset);
+      outline: var(--alex-focus-width) solid var(--alex-color-focus-ring);
+      outline-offset: var(--alex-focus-offset);
     }
   }
 
@@ -47,7 +47,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--openbitfun-color-content-secondary);
+      color: var(--alex-color-content-secondary);
     }
   }
 
@@ -57,10 +57,10 @@
     inset-inline-end: -6px;
     inline-size: 18px;
     block-size: 18px;
-    border-radius: var(--openbitfun-radius-pill);
-    border: var(--openbitfun-border-width-default) solid var(--openbitfun-color-border-subtle);
-    background: var(--openbitfun-color-surface-raised);
-    color: var(--openbitfun-color-content-secondary);
+    border-radius: var(--alex-radius-pill);
+    border: var(--alex-border-width-default) solid var(--alex-color-border-subtle);
+    background: var(--alex-color-surface-raised);
+    color: var(--alex-color-content-secondary);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -69,17 +69,17 @@
     opacity: 0;
 
     &:hover {
-      background: var(--openbitfun-color-action-neutral-surface-hover);
-      color: var(--openbitfun-color-content-primary);
+      background: var(--alex-color-action-neutral-surface-hover);
+      color: var(--alex-color-content-primary);
     }
 
     &:focus-visible {
-      outline: var(--openbitfun-focus-width) solid var(--openbitfun-color-focus-ring);
-      outline-offset: var(--openbitfun-focus-offset);
+      outline: var(--alex-focus-width) solid var(--alex-color-focus-ring);
+      outline-offset: var(--alex-focus-offset);
     }
   }
 }
 
 @media (hover: none) {
-  .openbitfun-chat-input__attachment-remove { opacity: 1; }
+  .alex-chat-input__attachment-remove { opacity: 1; }
 }

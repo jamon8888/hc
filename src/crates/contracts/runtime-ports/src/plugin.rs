@@ -69,7 +69,7 @@ pub enum PluginSourceKind {
     OpenCodeCompatible,
     DeepSeekHarnessCompatible,
     RemoteRegistry,
-    OpenBitFunNative,
+    AlexNative,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

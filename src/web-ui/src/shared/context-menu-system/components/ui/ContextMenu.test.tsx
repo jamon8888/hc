@@ -283,18 +283,18 @@ describe('ContextMenu presence', () => {
     ]} />));
     act(() => document.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true })));
     for (const part of ['root', 'item', 'separator', 'icon', 'label', 'shortcut', 'submenuArrow', 'submenu']) {
-      expect(document.querySelector(`[data-openbitfun-product-component="context-menu"][data-openbitfun-product-part="${part}"]`)).not.toBeNull();
+      expect(document.querySelector(`[data-alex-product-component="context-menu"][data-alex-product-part="${part}"]`)).not.toBeNull();
     }
-    expect(document.querySelector('[data-openbitfun-component="menu"][data-openbitfun-product-part="root"]')).not.toBeNull();
-    expect(document.querySelector('[data-openbitfun-product-part="item"][data-openbitfun-state="disabled"]')?.getAttribute('aria-disabled')).toBe('true');
-    expect(document.querySelector('[data-openbitfun-product-part="item"][data-openbitfun-state="submenu-active"]')?.getAttribute('aria-expanded')).toBe('true');
+    expect(document.querySelector('[data-alex-component="menu"][data-alex-product-part="root"]')).not.toBeNull();
+    expect(document.querySelector('[data-alex-product-part="item"][data-alex-state="disabled"]')?.getAttribute('aria-disabled')).toBe('true');
+    expect(document.querySelector('[data-alex-product-part="item"][data-alex-state="submenu-active"]')?.getAttribute('aria-expanded')).toBe('true');
   });
 
   it('sizes the surface to its own rows within the shared menu bounds', () => {
     act(() => root.render(<ContextMenu visible position={{ x: 20, y: 20 }} onClose={vi.fn()} items={[
       { id: 'copy', label: 'Copy', icon: <svg />, shortcut: 'Ctrl+Shift+C' },
     ]} />));
-    expect(document.querySelector('[data-openbitfun-component="menu"]')?.getAttribute('data-openbitfun-inline-size')).toBe('content');
+    expect(document.querySelector('[data-alex-component="menu"]')?.getAttribute('data-alex-inline-size')).toBe('content');
   });
 
   it('resolves the file explorer terminal icon and forwards layout classes through product slots', () => {
@@ -309,16 +309,16 @@ describe('ContextMenu presence', () => {
     });
     act(() => root.render(<ContextMenuRenderer />));
     const terminal = document.querySelector('[data-menu-id="file-new-terminal"]')!;
-    expect(terminal.querySelector('[data-openbitfun-name="terminal"] svg')).not.toBeNull();
+    expect(terminal.querySelector('[data-alex-name="terminal"] svg')).not.toBeNull();
     expect(terminal.querySelector('i.Terminal')).toBeNull();
-    const iconSlots = Array.from(document.querySelectorAll<HTMLElement>('[data-openbitfun-product-part="icon"]'));
+    const iconSlots = Array.from(document.querySelectorAll<HTMLElement>('[data-alex-product-part="icon"]'));
     expect(iconSlots).toHaveLength(3);
     for (const slot of iconSlots) {
       expect(slot.className).not.toBe('');
-      expect(slot.parentElement?.getAttribute('data-openbitfun-part')).toBe('leading');
+      expect(slot.parentElement?.getAttribute('data-alex-part')).toBe('leading');
       expect(slot.querySelector('svg')).not.toBeNull();
     }
-    expect(document.querySelector<HTMLElement>('[data-openbitfun-product-part="submenuArrow"]')?.className).toBeTruthy();
+    expect(document.querySelector<HTMLElement>('[data-alex-product-part="submenuArrow"]')?.className).toBeTruthy();
   });
 
   it('resolves every workspace terminal action icon', () => {
@@ -340,8 +340,8 @@ describe('ContextMenu presence', () => {
       expect(item.querySelector('svg')).not.toBeNull();
       expect(item.querySelector('i')).toBeNull();
     }
-    expect(document.querySelector('[data-menu-id="configure"] [data-openbitfun-name="gear"]')).not.toBeNull();
-    expect(document.querySelector('[data-menu-id="remove"] [data-openbitfun-name="delete"]')).not.toBeNull();
+    expect(document.querySelector('[data-menu-id="configure"] [data-alex-name="gear"]')).not.toBeNull();
+    expect(document.querySelector('[data-menu-id="remove"] [data-alex-name="delete"]')).not.toBeNull();
   });
 
   it('resolves every icon name referenced by menu providers and commands', () => {

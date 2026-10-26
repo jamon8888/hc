@@ -10,7 +10,7 @@ export const workingCopyViewAppearanceDescriptor: AppearanceSurfaceDescriptor = 
     { id: 'resizer' }, { id: 'diffArea' }, { id: 'empty' },
   ],
   states: [
-    { id: 'selected', selector: { kind: 'self', suffix: '[data-openbitfun-state~="selected"]' } },
-    { id: 'loading', selector: { kind: 'self', suffix: '[data-openbitfun-state~="loading"]' } },
+    { id: 'selected', selector: { kind: 'self', suffix: '[data-alex-state~="selected"]' } },
+    { id: 'loading', selector: { kind: 'self', suffix: '[data-alex-state~="loading"]' } },
   ],
 };

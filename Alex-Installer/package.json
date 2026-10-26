@@ -1,9 +1,9 @@
 {
-  "name": "openbitfun-installer",
+  "name": "alex-installer",
   "version": "1.0.2",
   "private": true,
   "type": "module",
-  "description": "OpenBitFun Custom Installer - Modern branded installation experience",
+  "description": "Alex Custom Installer - Modern branded installation experience",
   "scripts": {
     "prepare:design-system": "pnpm --dir ../design-system run build:packages",
     "predev": "pnpm run prepare:design-system",
@@ -30,8 +30,8 @@
     "test": "vitest run src"
   },
   "dependencies": {
-    "@openbitfun/theme-openbitfun": "workspace:^",
-    "@openbitfun/ui": "workspace:^",
+    "@alex/theme-alex": "workspace:^",
+    "@alex/ui": "workspace:^",
     "@tauri-apps/api": "2.11.1",
     "@tauri-apps/plugin-dialog": "2.7.3",
     "i18next": "^25.8.0",

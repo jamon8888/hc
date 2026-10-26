@@ -609,7 +609,7 @@ mod tests {
             provider_conflict_key: None,
             native_collision: Some(NativeCommandCollisionProjection {
                 native_action_id: "help".to_string(),
-                native_candidate_id: "openbitfun.cli:help".to_string(),
+                native_candidate_id: "alex.cli:help".to_string(),
                 external_candidate_id: "external:help".to_string(),
                 conflict_key: "conflict-v1".to_string(),
                 selected_candidate_id: None,
@@ -648,7 +648,7 @@ mod tests {
             provider_conflict_key: None,
             native_collision: Some(NativeCommandCollisionProjection {
                 native_action_id: "help".to_string(),
-                native_candidate_id: "openbitfun.cli:help".to_string(),
+                native_candidate_id: "alex.cli:help".to_string(),
                 external_candidate_id: "external:help".to_string(),
                 conflict_key: "conflict-v1".to_string(),
                 selected_candidate_id: Some("external:help".to_string()),

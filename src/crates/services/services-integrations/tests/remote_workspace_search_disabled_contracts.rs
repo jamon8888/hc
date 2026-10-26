@@ -4,7 +4,7 @@
     not(feature = "remote-ssh-concrete")
 ))]
 
-use openbitfun_services_integrations::remote_ssh::workspace_search::disabled::RemoteWorkspaceSearchService;
+use alex_services_integrations::remote_ssh::workspace_search::disabled::RemoteWorkspaceSearchService;
 
 fn assert_disabled_error(error: String) {
     assert!(

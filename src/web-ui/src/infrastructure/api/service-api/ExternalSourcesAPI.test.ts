@@ -249,7 +249,7 @@ describe('ExternalSourcesAPI', () => {
       'behavior-v1',
       [{
         commandName: 'review',
-        candidateId: 'openbitfun.desktop:action:review',
+        candidateId: 'alex.desktop:action:review',
         behaviorVersion: 'action:review:v1',
       }],
       {
@@ -279,7 +279,7 @@ describe('ExternalSourcesAPI', () => {
         arguments: 'focus on auth',
         nativeCommands: [{
           commandName: 'review',
-          candidateId: 'openbitfun.desktop:action:review',
+          candidateId: 'alex.desktop:action:review',
           behaviorVersion: 'action:review:v1',
         }],
         candidateId: 'claude-code.commands:project:review',
@@ -322,7 +322,7 @@ describe('ExternalSourcesAPI', () => {
     invokeMock.mockResolvedValueOnce({ preferenceRevision: 3, conflicts: [] });
     const nativeCommands = [{
       commandName: 'review',
-      candidateId: 'openbitfun.desktop:action:review',
+      candidateId: 'alex.desktop:action:review',
       behaviorVersion: 'action:review:v1',
     }];
 
@@ -343,14 +343,14 @@ describe('ExternalSourcesAPI', () => {
     invokeMock.mockResolvedValueOnce({ preferenceRevision: 4, conflicts: [] });
     const nativeCommands = [{
       commandName: 'review',
-      candidateId: 'openbitfun.desktop:action:review',
+      candidateId: 'alex.desktop:action:review',
       behaviorVersion: 'action:review:v1',
     }];
 
     await externalSourcesAPI.setNativePromptCommandConflictChoice(
       'workspace-1',
       nativeCommands,
-      'openbitfun.desktop:action:review',
+      'alex.desktop:action:review',
       3,
     );
 
@@ -360,7 +360,7 @@ describe('ExternalSourcesAPI', () => {
         request: {
           workspaceId: 'workspace-1',
           nativeCommands,
-          selectedCandidateId: 'openbitfun.desktop:action:review',
+          selectedCandidateId: 'alex.desktop:action:review',
           expectedPreferenceRevision: 3,
         },
       },

@@ -5,7 +5,7 @@
 .branch-quick-switch__layer {
   @include overlay-layout.anchored-picker-inline-size;
   position: fixed;
-  z-index: var(--openbitfun-layer-popover);
+  z-index: var(--alex-layer-popover);
 
   &[aria-hidden='true'] {
     pointer-events: none;
@@ -18,22 +18,22 @@
   inline-size: 100%;
   box-sizing: border-box;
   overflow: hidden;
-  color: var(--openbitfun-color-content-primary);
-  font-family: var(--openbitfun-type-label-md-font-family);
-  font-size: var(--openbitfun-type-label-md-font-size);
-  font-weight: var(--openbitfun-type-label-md-font-weight);
-  line-height: var(--openbitfun-type-label-md-line-height);
-  letter-spacing: var(--openbitfun-type-label-md-letter-spacing);
+  color: var(--alex-color-content-primary);
+  font-family: var(--alex-type-label-md-font-family);
+  font-size: var(--alex-type-label-md-font-size);
+  font-weight: var(--alex-type-label-md-font-weight);
+  line-height: var(--alex-type-label-md-line-height);
+  letter-spacing: var(--alex-type-label-md-letter-spacing);
   user-select: none;
   // Keep the measured layer stationary while its surface enters and exits.
   opacity: 0;
   transform: translateY(4px);
   transition:
-    opacity 150ms var(--openbitfun-motion-easing-enter),
-    transform 150ms var(--openbitfun-motion-easing-enter);
+    opacity 150ms var(--alex-motion-easing-enter),
+    transform 150ms var(--alex-motion-easing-enter);
 }
 
-.branch-quick-switch__layer[data-openbitfun-placement='bottom'] .branch-quick-switch {
+.branch-quick-switch__layer[data-alex-placement='bottom'] .branch-quick-switch {
   transform: translateY(-4px);
 }
 
@@ -49,7 +49,7 @@
 
 .branch-quick-switch__search {
   padding: 8px;
-  border-bottom: 1px solid var(--openbitfun-color-border-subtle);
+  border-bottom: 1px solid var(--alex-color-border-subtle);
 }
 
 .branch-quick-switch__input-field {
@@ -61,12 +61,12 @@
   // so the popover neither grows nor shifts after opening.
   block-size: clamp(0px, calc(100vh - 96px), 280px);
   padding: calc(
-    var(--openbitfun-overlay-menu-surface-padding)
-    + var(--openbitfun-focus-width)
+    var(--alex-overlay-menu-surface-padding)
+    + var(--alex-focus-width)
   );
 }
 
-.branch-quick-switch__list [data-openbitfun-part='list'] {
+.branch-quick-switch__list [data-alex-part='list'] {
   min-block-size: 100%;
 }
 
@@ -78,19 +78,19 @@
   flex: 1 1 auto;
   gap: 8px;
   padding: 20px;
-  color: var(--openbitfun-color-content-muted);
-  font-family: var(--openbitfun-type-label-md-font-family);
-  font-size: var(--openbitfun-type-label-md-font-size);
-  font-weight: var(--openbitfun-type-label-md-font-weight);
-  line-height: var(--openbitfun-type-label-md-line-height);
-  letter-spacing: var(--openbitfun-type-label-md-letter-spacing);
+  color: var(--alex-color-content-muted);
+  font-family: var(--alex-type-label-md-font-family);
+  font-size: var(--alex-type-label-md-font-size);
+  font-weight: var(--alex-type-label-md-font-weight);
+  line-height: var(--alex-type-label-md-line-height);
+  letter-spacing: var(--alex-type-label-md-letter-spacing);
   text-align: center;
 }
 
 .branch-quick-switch__item {
-  min-height: var(--openbitfun-control-height-sm);
+  min-height: var(--alex-control-height-sm);
 
-  &[data-openbitfun-state='current'] {
+  &[data-alex-state='current'] {
     cursor: default;
   }
 }
@@ -129,15 +129,15 @@
   align-items: baseline;
   gap: 10px;
   min-width: 0;
-  color: var(--openbitfun-color-content-primary);
+  color: var(--alex-color-content-primary);
 }
 
 .branch-switch-conflict-dialog__file-path {
   min-width: 0;
   overflow: hidden;
   flex: 1 1 auto;
-  font-family:var(--openbitfun-type-code-md-font-family);
-  font-size: var(--openbitfun-type-label-md-font-size);
+  font-family:var(--alex-type-code-md-font-family);
+  font-size: var(--alex-type-label-md-font-size);
   white-space: nowrap;
 }
 
@@ -145,20 +145,20 @@
   display: inline-flex;
   flex: 0 0 auto;
   gap: 7px;
-  font-family:var(--openbitfun-type-code-md-font-family);
-  font-size: var(--openbitfun-type-label-md-font-size);
+  font-family:var(--alex-type-code-md-font-family);
+  font-size: var(--alex-type-label-md-font-size);
 }
 
 .branch-switch-conflict-dialog__additions {
-  color: var(--openbitfun-color-code-change-added);
+  color: var(--alex-color-code-change-added);
 }
 
 .branch-switch-conflict-dialog__deletions {
-  color: var(--openbitfun-color-code-change-removed);
+  color: var(--alex-color-code-change-removed);
 }
 
 .branch-switch-commit-dialog__error {
-  color: var(--openbitfun-color-status-danger-content);
+  color: var(--alex-color-status-danger-content);
 }
 
 .branch-switch-commit-dialog {
@@ -173,9 +173,9 @@
 
   p {
     margin: 0;
-    color: var(--openbitfun-color-content-secondary);
-    font-size: var(--openbitfun-type-label-md-font-size);
-    line-height: var(--openbitfun-type-body-sm-line-height);
+    color: var(--alex-color-content-secondary);
+    font-size: var(--alex-type-label-md-font-size);
+    line-height: var(--alex-type-body-sm-line-height);
   }
 
   > .branch-switch-commit-dialog__input {
@@ -183,7 +183,7 @@
   }
 
   .branch-switch-commit-dialog__error {
-    color: var(--openbitfun-color-status-danger-content);
+    color: var(--alex-color-status-danger-content);
   }
 }
 

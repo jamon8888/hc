@@ -1,9 +1,9 @@
 use crate::api::app_state::AppState;
 use log::{debug, info, warn};
-use openbitfun_core::service::search::{
+use alex_core::service::search::{
     workspace_search_runtime_available, WorkspaceSearchAutoIndexPriority,
 };
-use openbitfun_core::service::workspace::{WorkspaceInfo, WorkspaceKind};
+use alex_core::service::workspace::{WorkspaceInfo, WorkspaceKind};
 use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Instant;
@@ -80,8 +80,8 @@ pub fn spawn_restored_workspace_auto_index(
 
 async fn warm_workspace_background_services(
     workspace_id: Arc<RwLock<Option<String>>>,
-    agent_registry: Arc<openbitfun_core::agentic::agents::AgentRegistry>,
-    workspace_search_service: Arc<openbitfun_core::service::search::WorkspaceSearchService>,
+    agent_registry: Arc<alex_core::agentic::agents::AgentRegistry>,
+    workspace_search_service: Arc<alex_core::service::search::WorkspaceSearchService>,
     workspace_info: WorkspaceInfo,
 ) {
     let started_at = Instant::now();

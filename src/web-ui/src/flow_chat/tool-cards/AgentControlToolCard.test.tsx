@@ -173,11 +173,11 @@ describeWithJsdom('AgentControlToolCard', () => {
         );
       });
 
-      const card = container.querySelector<HTMLElement>('[data-openbitfun-tool-card="agent-control"]');
-      const identity = card?.querySelector<HTMLElement>('[data-openbitfun-part="agentIdentity"]');
-      const openButton = card?.querySelector<HTMLButtonElement>('[data-openbitfun-part="openAgentButton"]');
-      const toggle = card?.querySelector<HTMLElement>('[data-openbitfun-part="surface"]');
-      expect(card?.getAttribute('data-openbitfun-attention')).toBe('prominent');
+      const card = container.querySelector<HTMLElement>('[data-alex-tool-card="agent-control"]');
+      const identity = card?.querySelector<HTMLElement>('[data-alex-part="agentIdentity"]');
+      const openButton = card?.querySelector<HTMLButtonElement>('[data-alex-part="openAgentButton"]');
+      const toggle = card?.querySelector<HTMLElement>('[data-alex-part="surface"]');
+      expect(card?.getAttribute('data-alex-attention')).toBe('prominent');
       expect(identity?.textContent?.trim()).toBeTruthy();
       expect(identity?.textContent).toContain(
         toolName === 'AgentSpawn' ? 'Parser review worker 2' : 'Agent 1',
@@ -185,12 +185,12 @@ describeWithJsdom('AgentControlToolCard', () => {
       expect(identity?.textContent).not.toContain(
         toolName === 'AgentSpawn' ? 'parser_review-worker_2' : 'agent-1',
       );
-      expect(card?.querySelector('[data-openbitfun-part="avatar"] [data-openbitfun-component="subagent-avatar"]')).not.toBeNull();
-      expect(container.querySelector('[data-openbitfun-part="type"]')).toBeNull();
+      expect(card?.querySelector('[data-alex-part="avatar"] [data-alex-component="subagent-avatar"]')).not.toBeNull();
+      expect(container.querySelector('[data-alex-part="type"]')).toBeNull();
       expect(container.textContent).not.toContain('SwarmWorker');
       expect(container.textContent).toContain('Running');
-      expect(card?.querySelector('[data-openbitfun-part="affordanceButton"]')).not.toBeNull();
-      expect(card?.querySelector('[data-openbitfun-part="processing"]')).not.toBeNull();
+      expect(card?.querySelector('[data-alex-part="affordanceButton"]')).not.toBeNull();
+      expect(card?.querySelector('[data-alex-part="processing"]')).not.toBeNull();
       expect(container.textContent).not.toContain(
         toolName === 'AgentSpawn'
           ? 'Inspect the parser flow and report findings.'
@@ -238,13 +238,13 @@ describeWithJsdom('AgentControlToolCard', () => {
       );
     });
 
-    const avatar = container.querySelector('[data-openbitfun-component="subagent-avatar"]');
+    const avatar = container.querySelector('[data-alex-component="subagent-avatar"]');
     const presentation = resolveSubagentAvatarPresentation('child-session');
-    expect(avatar?.getAttribute('data-openbitfun-avatar-id')).toBe(presentation.avatarId);
+    expect(avatar?.getAttribute('data-alex-avatar-id')).toBe(presentation.avatarId);
     expect(avatar?.querySelector('img')?.getAttribute('src')).toBe(
       getSubagentAvatarDefinition(presentation.avatarId).src,
     );
-    expect(container.querySelector('[data-openbitfun-part="avatar"] > svg')).toBeNull();
+    expect(container.querySelector('[data-alex-part="avatar"] > svg')).toBeNull();
     expect(container.textContent).toContain('Agent 1');
   });
 
@@ -260,7 +260,7 @@ describeWithJsdom('AgentControlToolCard', () => {
     });
     await act(async () => {
       container
-        .querySelector<HTMLElement>('[data-openbitfun-tool-card="agent-control"] [data-openbitfun-part="surface"]')!
+        .querySelector<HTMLElement>('[data-alex-tool-card="agent-control"] [data-alex-part="surface"]')!
         .dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true }));
     });
     expect(container.textContent).toContain('Inspect the parser flow and report findings.');
@@ -287,14 +287,14 @@ describeWithJsdom('AgentControlToolCard', () => {
 
     expect(
       container
-        .querySelector('[data-openbitfun-tool-card="agent-control"] [data-openbitfun-part="surface"]')
-        ?.getAttribute('data-openbitfun-interactive'),
+        .querySelector('[data-alex-tool-card="agent-control"] [data-alex-part="surface"]')
+        ?.getAttribute('data-alex-interactive'),
     ).toBe('false');
-    expect(container.querySelector('[data-openbitfun-part="affordanceButton"]')).toBeNull();
+    expect(container.querySelector('[data-alex-part="affordanceButton"]')).toBeNull();
     expect(container.textContent).not.toContain('Inspect the parser flow and report findings.');
     expect(
-      container.querySelector('[data-openbitfun-part="expandedCollapse"]')?.getAttribute('aria-hidden'),
+      container.querySelector('[data-alex-part="expandedCollapse"]')?.getAttribute('aria-hidden'),
     ).toBe('true');
-    expect(container.querySelector('[data-openbitfun-tool-card="agent-control"][data-openbitfun-status="streaming"]')).not.toBeNull();
+    expect(container.querySelector('[data-alex-tool-card="agent-control"][data-alex-status="streaming"]')).not.toBeNull();
   });
 });

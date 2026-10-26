@@ -1,10 +1,10 @@
 {
-  "name": "openbitfun-playbook",
+  "name": "alex-playbook",
   "private": true,
   "type": "module",
   "dependencies": {
-    "@openbitfun/design-tokens": "workspace:^",
-    "@openbitfun/theme-openbitfun": "workspace:^"
+    "@alex/design-tokens": "workspace:^",
+    "@alex/theme-alex": "workspace:^"
   },
   "scripts": {
     "build": "node scripts/build.mjs",

@@ -1,4 +1,4 @@
-# @openbitfun/dsh-acp
+# @alex/dsh-acp
 
 An Agent Client Protocol server for [DeepSeek Harness](https://github.com/deepseek-ai)
 (`dsh`), written for an IDE rather than for automation.
@@ -35,12 +35,12 @@ the next message and lasts that session — it does not rewrite your dsh default
 
 ## How Alex launches it
 
-Alex runs `dsh --profile openbitfun-acp`. A dsh profile is just a directory under
+Alex runs `dsh --profile alex-acp`. A dsh profile is just a directory under
 `$DSH_HOME/profiles/`, and Alex materializes this one on first use — see
 `src/crates/interfaces/acp/src/client/dsh_profile.rs`.
 
 ```
-$DSH_HOME/profiles/openbitfun-acp/
+$DSH_HOME/profiles/alex-acp/
   package.json            dsh.profile.bundles: []  — an empty root, so the
                           harness's default tool rows cannot leak into a
                           preset that asked to be minimal
@@ -49,7 +49,7 @@ $DSH_HOME/profiles/openbitfun-acp/
   lib/**                  the compiled bridge
   presets/**              the modes the session offers
   node_modules/           only what the harness closure does NOT already carry
-  .openbitfun-bridge.json     build stamp; Alex re-syncs when it changes
+  .alex-bridge.json     build stamp; Alex re-syncs when it changes
 ```
 
 Everything else resolves out of the user's own dsh: on every launch the harness
@@ -59,7 +59,7 @@ is why this package vendors almost nothing and never installs a second copy of
 the harness.
 
 A remote workspace works the same way: Alex packs the profile above into a tar
-stream and extracts it into `$DSH_HOME/profiles/openbitfun-acp/` on that host over
+stream and extracts it into `$DSH_HOME/profiles/alex-acp/` on that host over
 the session's own transport — no SFTP, so container connections are covered too
 — and skips the upload when the stamp there already matches. `dsh` itself, the
 models, and the key are the remote host's, exactly as they are locally. Steps 1

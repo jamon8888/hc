@@ -2,7 +2,7 @@
 
 import React, { useCallback } from 'react';
 
-import { ActionItem, Button, Select, Tooltip, Icon } from '@openbitfun/ui';
+import { ActionItem, Button, Select, Tooltip, Icon } from '@alex/ui';
 import { useLanguageSelector } from '../hooks/useI18n';
 import type { LocaleId } from '../types';
 import './LanguageSelector.scss';

@@ -1,7 +1,7 @@
 import type { GitWorkspaceScope } from '@/infrastructure/api/service-api/GitAPI';
 /** Git settings view. */
 
-import { Button, Checkbox, Field, Icon, IconButton, Input, Select, TabGroup, ScrollArea } from '@openbitfun/ui';
+import { Button, Checkbox, Field, Icon, IconButton, Input, Select, TabGroup, ScrollArea } from '@alex/ui';
 import React, { useState, useCallback, useEffect } from 'react';
 import { Mail, Key, Save } from 'lucide-react';
 import { useI18n } from '@/infrastructure/i18n';
@@ -171,20 +171,20 @@ const GitSettingsView: React.FC<GitSettingsViewProps> = ({
   }, []);
 
   const renderUserTab = useCallback(() => (
-    <ScrollArea data-openbitfun-component="git-settings-view" data-openbitfun-part="content" className="openbitfun-git-settings-view__content">
-      <div data-openbitfun-component="git-settings-view" data-openbitfun-part="section" className="openbitfun-git-settings-view__section">
-        <h4 className="openbitfun-git-settings-view__section-title">{t('settingsView.sections.user.title')}</h4>
-        <p className="openbitfun-git-settings-view__section-description">
+    <ScrollArea data-alex-component="git-settings-view" data-alex-part="content" className="alex-git-settings-view__content">
+      <div data-alex-component="git-settings-view" data-alex-part="section" className="alex-git-settings-view__section">
+        <h4 className="alex-git-settings-view__section-title">{t('settingsView.sections.user.title')}</h4>
+        <p className="alex-git-settings-view__section-description">
           {t('settingsView.sections.user.description')}
         </p>
         
-        <div data-openbitfun-component="git-settings-view" data-openbitfun-part="formGroup" className="openbitfun-git-settings-view__form-group">
-          <label className="openbitfun-git-settings-view__form-label">
+        <div data-alex-component="git-settings-view" data-alex-part="formGroup" className="alex-git-settings-view__form-group">
+          <label className="alex-git-settings-view__form-label">
             <Icon name="user" size="md" />
             {t('settingsView.sections.user.nameLabel')}
           </label>
           <Input
-            className="openbitfun-git-settings-view__form-input"
+            className="alex-git-settings-view__form-input"
             type="text"
             value={config.user.name}
             onChange={(e) => updateUserConfig('name', e.target.value)}
@@ -192,13 +192,13 @@ const GitSettingsView: React.FC<GitSettingsViewProps> = ({
           />
         </div>
         
-        <div data-openbitfun-component="git-settings-view" data-openbitfun-part="formGroup" className="openbitfun-git-settings-view__form-group">
-          <label className="openbitfun-git-settings-view__form-label">
+        <div data-alex-component="git-settings-view" data-alex-part="formGroup" className="alex-git-settings-view__form-group">
+          <label className="alex-git-settings-view__form-label">
             <Mail size={16} />
             {t('settingsView.sections.user.emailLabel')}
           </label>
           <Input
-            className="openbitfun-git-settings-view__form-input"
+            className="alex-git-settings-view__form-input"
             type="email"
             value={config.user.email}
             onChange={(e) => updateUserConfig('email', e.target.value)}
@@ -210,11 +210,11 @@ const GitSettingsView: React.FC<GitSettingsViewProps> = ({
   ), [config.user, updateUserConfig, t]);
 
   const renderRepositoryTab = useCallback(() => (
-    <ScrollArea data-openbitfun-component="git-settings-view" data-openbitfun-part="content" className="openbitfun-git-settings-view__content">
-      <div data-openbitfun-component="git-settings-view" data-openbitfun-part="section" className="openbitfun-git-settings-view__section">
-        <h4 className="openbitfun-git-settings-view__section-title">{t('settingsView.sections.editor.title')}</h4>
+    <ScrollArea data-alex-component="git-settings-view" data-alex-part="content" className="alex-git-settings-view__content">
+      <div data-alex-component="git-settings-view" data-alex-part="section" className="alex-git-settings-view__section">
+        <h4 className="alex-git-settings-view__section-title">{t('settingsView.sections.editor.title')}</h4>
         
-        <div data-openbitfun-component="git-settings-view" data-openbitfun-part="formGroup" className="openbitfun-git-settings-view__form-group">
+        <div data-alex-component="git-settings-view" data-alex-part="formGroup" className="alex-git-settings-view__form-group">
           <Field label={t('settingsView.sections.editor.defaultEditorLabel')} controlWidth="fill">
             <Select
               options={[
@@ -231,10 +231,10 @@ const GitSettingsView: React.FC<GitSettingsViewProps> = ({
         </div>
       </div>
 
-      <div data-openbitfun-component="git-settings-view" data-openbitfun-part="section" className="openbitfun-git-settings-view__section">
-        <h4 className="openbitfun-git-settings-view__section-title">{t('settingsView.sections.lineEndings.title')}</h4>
+      <div data-alex-component="git-settings-view" data-alex-part="section" className="alex-git-settings-view__section">
+        <h4 className="alex-git-settings-view__section-title">{t('settingsView.sections.lineEndings.title')}</h4>
         
-        <div data-openbitfun-component="git-settings-view" data-openbitfun-part="formGroup" className="openbitfun-git-settings-view__form-group">
+        <div data-alex-component="git-settings-view" data-alex-part="formGroup" className="alex-git-settings-view__form-group">
           <Field label={t('settingsView.sections.lineEndings.autocrlfLabel')} controlWidth="fill">
             <Select
               options={[
@@ -249,18 +249,18 @@ const GitSettingsView: React.FC<GitSettingsViewProps> = ({
         </div>
       </div>
 
-      <div data-openbitfun-component="git-settings-view" data-openbitfun-part="section" className="openbitfun-git-settings-view__section">
-        <h4 className="openbitfun-git-settings-view__section-title">{t('settingsView.sections.remotes.title')}</h4>
+      <div data-alex-component="git-settings-view" data-alex-part="section" className="alex-git-settings-view__section">
+        <h4 className="alex-git-settings-view__section-title">{t('settingsView.sections.remotes.title')}</h4>
         
         {Object.entries(config.remote).map(([name, remote]) => (
-          <div data-openbitfun-component="git-settings-view" data-openbitfun-part="configItem" key={name} className="openbitfun-git-settings-view__config-item">
-            <div className="openbitfun-git-settings-view__config-info">
-              <div className="openbitfun-git-settings-view__config-key">{name}</div>
+          <div data-alex-component="git-settings-view" data-alex-part="configItem" key={name} className="alex-git-settings-view__config-item">
+            <div className="alex-git-settings-view__config-info">
+              <div className="alex-git-settings-view__config-key">{name}</div>
             </div>
-            <div data-openbitfun-component="git-settings-view" data-openbitfun-part="formGroup" className="openbitfun-git-settings-view__form-group">
-              <label className="openbitfun-git-settings-view__form-label">{t('settingsView.sections.remotes.urlLabel')}</label>
+            <div data-alex-component="git-settings-view" data-alex-part="formGroup" className="alex-git-settings-view__form-group">
+              <label className="alex-git-settings-view__form-label">{t('settingsView.sections.remotes.urlLabel')}</label>
               <Input
-                className="openbitfun-git-settings-view__form-input"
+                className="alex-git-settings-view__form-input"
                 type="text"
                 value={remote?.url || ''}
                 onChange={(e) => updateRemoteConfig(name, 'url', e.target.value)}
@@ -274,11 +274,11 @@ const GitSettingsView: React.FC<GitSettingsViewProps> = ({
   ), [config.core, config.remote, updateCoreConfig, updateRemoteConfig, t]);
 
   const renderAdvancedTab = useCallback(() => (
-    <ScrollArea data-openbitfun-component="git-settings-view" data-openbitfun-part="content" className="openbitfun-git-settings-view__content">
-      <div data-openbitfun-component="git-settings-view" data-openbitfun-part="section" className="openbitfun-git-settings-view__section">
-        <h4 className="openbitfun-git-settings-view__section-title">{t('settingsView.sections.core.title')}</h4>
+    <ScrollArea data-alex-component="git-settings-view" data-alex-part="content" className="alex-git-settings-view__content">
+      <div data-alex-component="git-settings-view" data-alex-part="section" className="alex-git-settings-view__section">
+        <h4 className="alex-git-settings-view__section-title">{t('settingsView.sections.core.title')}</h4>
         
-        <div data-openbitfun-component="git-settings-view" data-openbitfun-part="formGroup" className="openbitfun-git-settings-view__form-group">
+        <div data-alex-component="git-settings-view" data-alex-part="formGroup" className="alex-git-settings-view__form-group">
           <Checkbox
             checked={config.core.ignorecase}
             onChange={(e) => updateCoreConfig('ignorecase', e.target.checked)}
@@ -288,29 +288,29 @@ const GitSettingsView: React.FC<GitSettingsViewProps> = ({
         </div>
       </div>
 
-      <div data-openbitfun-component="git-settings-view" data-openbitfun-part="section" className="openbitfun-git-settings-view__section">
-        <h4 className="openbitfun-git-settings-view__section-title">{t('settingsView.sections.branch.title')}</h4>
+      <div data-alex-component="git-settings-view" data-alex-part="section" className="alex-git-settings-view__section">
+        <h4 className="alex-git-settings-view__section-title">{t('settingsView.sections.branch.title')}</h4>
         
         {Object.entries(config.branch).map(([branchName, branchConfig]) => (
-          <div data-openbitfun-component="git-settings-view" data-openbitfun-part="configItem" key={branchName} className="openbitfun-git-settings-view__config-item">
-            <div className="openbitfun-git-settings-view__config-info">
-              <div className="openbitfun-git-settings-view__config-key">
+          <div data-alex-component="git-settings-view" data-alex-part="configItem" key={branchName} className="alex-git-settings-view__config-item">
+            <div className="alex-git-settings-view__config-info">
+              <div className="alex-git-settings-view__config-key">
                 {t('settingsView.sections.branch.branchLabel', { branch: branchName })}
               </div>
             </div>
-            <div data-openbitfun-component="git-settings-view" data-openbitfun-part="formGroup" className="openbitfun-git-settings-view__form-group">
-              <label className="openbitfun-git-settings-view__form-label">{t('settingsView.sections.branch.remoteLabel')}</label>
+            <div data-alex-component="git-settings-view" data-alex-part="formGroup" className="alex-git-settings-view__form-group">
+              <label className="alex-git-settings-view__form-label">{t('settingsView.sections.branch.remoteLabel')}</label>
               <Input
-                className="openbitfun-git-settings-view__form-input"
+                className="alex-git-settings-view__form-input"
                 type="text"
                 value={branchConfig.remote || ''}
                 readOnly
               />
             </div>
-            <div data-openbitfun-component="git-settings-view" data-openbitfun-part="formGroup" className="openbitfun-git-settings-view__form-group">
-              <label className="openbitfun-git-settings-view__form-label">{t('settingsView.sections.branch.mergeLabel')}</label>
+            <div data-alex-component="git-settings-view" data-alex-part="formGroup" className="alex-git-settings-view__form-group">
+              <label className="alex-git-settings-view__form-label">{t('settingsView.sections.branch.mergeLabel')}</label>
               <Input
-                className="openbitfun-git-settings-view__form-input"
+                className="alex-git-settings-view__form-input"
                 type="text"
                 value={branchConfig.merge || ''}
                 readOnly
@@ -331,9 +331,9 @@ const GitSettingsView: React.FC<GitSettingsViewProps> = ({
 
   if (loading) {
     return (
-      <div className={`openbitfun-git-settings-view openbitfun-git-settings-view--loading ${className}`} data-openbitfun-component="git-settings-view" data-openbitfun-part="root" data-openbitfun-state="loading">
-        <div data-openbitfun-component="git-settings-view" data-openbitfun-part="loading" className="openbitfun-git-settings-view__empty-state">
-          <Icon name="refresh" size="lg" className="openbitfun-git-settings-view__loading-spinner" />
+      <div className={`alex-git-settings-view alex-git-settings-view--loading ${className}`} data-alex-component="git-settings-view" data-alex-part="root" data-alex-state="loading">
+        <div data-alex-component="git-settings-view" data-alex-part="loading" className="alex-git-settings-view__empty-state">
+          <Icon name="refresh" size="lg" className="alex-git-settings-view__loading-spinner" />
           <p>{t('settingsView.loading')}</p>
         </div>
       </div>
@@ -342,11 +342,11 @@ const GitSettingsView: React.FC<GitSettingsViewProps> = ({
 
   if (error && !config.user.name) {
     return (
-      <div className={`openbitfun-git-settings-view openbitfun-git-settings-view--error ${className}`} data-openbitfun-component="git-settings-view" data-openbitfun-part="root" data-openbitfun-state="error">
-        <div data-openbitfun-component="git-settings-view" data-openbitfun-part="error" className="openbitfun-git-settings-view__empty-state">
+      <div className={`alex-git-settings-view alex-git-settings-view--error ${className}`} data-alex-component="git-settings-view" data-alex-part="root" data-alex-state="error">
+        <div data-alex-component="git-settings-view" data-alex-part="error" className="alex-git-settings-view__empty-state">
           <Icon name="settings" size="lg" />
           <h3>{t('settingsView.loadFailedTitle')}</h3>
-          <p className="openbitfun-git-settings-view__error-message">{error}</p>
+          <p className="alex-git-settings-view__error-message">{error}</p>
           <Button onClick={loadConfig} variant="primary">
             {t('settingsView.retry')}
           </Button>
@@ -356,14 +356,14 @@ const GitSettingsView: React.FC<GitSettingsViewProps> = ({
   }
 
   return (
-    <div className={`openbitfun-git-settings-view ${className}`} data-openbitfun-component="git-settings-view" data-openbitfun-part="root">
-      <div className="openbitfun-git-settings-view__header" data-openbitfun-component="git-settings-view" data-openbitfun-part="header">
-        <div data-openbitfun-component="git-settings-view" data-openbitfun-part="headerLeft" className="openbitfun-git-settings-view__header-left">
+    <div className={`alex-git-settings-view ${className}`} data-alex-component="git-settings-view" data-alex-part="root">
+      <div className="alex-git-settings-view__header" data-alex-component="git-settings-view" data-alex-part="header">
+        <div data-alex-component="git-settings-view" data-alex-part="headerLeft" className="alex-git-settings-view__header-left">
           <Icon name="settings" size="lg" />
           <h3>{t('settingsView.title')}</h3>
         </div>
         
-        <div data-openbitfun-component="git-settings-view" data-openbitfun-part="headerRight" className="openbitfun-git-settings-view__header-right">
+        <div data-alex-component="git-settings-view" data-alex-part="headerRight" className="alex-git-settings-view__header-right">
           <IconButton
             aria-label={t('settingsView.refresh')}
             onClick={loadConfig}
@@ -386,13 +386,13 @@ const GitSettingsView: React.FC<GitSettingsViewProps> = ({
       </div>
 
       {error && (
-        <div data-openbitfun-component="git-settings-view" data-openbitfun-part="status" data-openbitfun-state="error" className="openbitfun-git-settings-view__status-banner openbitfun-git-settings-view__status-banner--error">
+        <div data-alex-component="git-settings-view" data-alex-part="status" data-alex-state="error" className="alex-git-settings-view__status-banner alex-git-settings-view__status-banner--error">
           <Icon name="xmark" size="sm" />
           <span>{error}</span>
           <IconButton
             aria-label={t('settingsView.dismissError')}
             onClick={() => setError(null)}
-            className="openbitfun-git-settings-view__close-btn"
+            className="alex-git-settings-view__close-btn"
             size="sm"
             icon={<Icon name="xmark" size="xs" />}
           />
@@ -400,22 +400,22 @@ const GitSettingsView: React.FC<GitSettingsViewProps> = ({
       )}
       
       {success && (
-        <div data-openbitfun-component="git-settings-view" data-openbitfun-part="status" className="openbitfun-git-settings-view__status-banner openbitfun-git-settings-view__status-banner--success">
+        <div data-alex-component="git-settings-view" data-alex-part="status" className="alex-git-settings-view__status-banner alex-git-settings-view__status-banner--success">
           <Icon name="check-line" size="sm" />
           <span>{success}</span>
           <IconButton
             aria-label={t('settingsView.dismissSuccess')}
             onClick={() => setSuccess(null)}
-            className="openbitfun-git-settings-view__close-btn"
+            className="alex-git-settings-view__close-btn"
             size="sm"
             icon={<Icon name="xmark" size="xs" />}
           />
         </div>
       )}
 
-      <div className="openbitfun-git-settings-view__tabs" data-openbitfun-component="git-settings-view" data-openbitfun-part="tabs">
+      <div className="alex-git-settings-view__tabs" data-alex-component="git-settings-view" data-alex-part="tabs">
         <TabGroup
-          className="openbitfun-git-settings-view__tab-list"
+          className="alex-git-settings-view__tab-list"
           items={tabItems}
           onValueChange={(value) => setActiveTab(value as typeof activeTab)}
           value={activeTab}

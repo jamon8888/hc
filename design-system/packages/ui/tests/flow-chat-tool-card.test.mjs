@@ -75,21 +75,21 @@ test("flow-chat entry publishes the ambient and prominent framework anatomy", ()
     }),
   );
 
-  assert.match(ambientMarkup, /data-openbitfun-attention="ambient"/);
-  assert.match(ambientMarkup, /data-openbitfun-part="surface"/);
-  assert.match(ambientMarkup, /data-openbitfun-part="iconAffordanceButton"/);
+  assert.match(ambientMarkup, /data-alex-attention="ambient"/);
+  assert.match(ambientMarkup, /data-alex-part="surface"/);
+  assert.match(ambientMarkup, /data-alex-part="iconAffordanceButton"/);
   assert.match(ambientMarkup, /aria-label="Expand details"/);
-  assert.match(prominentMarkup, /data-openbitfun-attention="prominent"/);
-  assert.match(prominentMarkup, /data-openbitfun-part="summary"/);
-  assert.doesNotMatch(prominentMarkup, /data-openbitfun-part="header"/);
-  assert.match(prominentMarkup, /data-openbitfun-part="extra"/);
-  assert.match(prominentMarkup, /data-openbitfun-part="changeSummary"/);
-  assert.match(prominentMarkup, /data-openbitfun-change="added">\+6/);
-  assert.match(prominentMarkup, /data-openbitfun-change="removed">-0/);
-  assert.match(prominentMarkup, /data-openbitfun-part="actionRegion"/);
-  assert.match(prominentMarkup, /data-openbitfun-part="actions"/);
-  assert.match(prominentMarkup, /data-openbitfun-part="copyButton"/);
-  assert.match(prominentMarkup, /data-openbitfun-part="affordanceButton"/);
+  assert.match(prominentMarkup, /data-alex-attention="prominent"/);
+  assert.match(prominentMarkup, /data-alex-part="summary"/);
+  assert.doesNotMatch(prominentMarkup, /data-alex-part="header"/);
+  assert.match(prominentMarkup, /data-alex-part="extra"/);
+  assert.match(prominentMarkup, /data-alex-part="changeSummary"/);
+  assert.match(prominentMarkup, /data-alex-change="added">\+6/);
+  assert.match(prominentMarkup, /data-alex-change="removed">-0/);
+  assert.match(prominentMarkup, /data-alex-part="actionRegion"/);
+  assert.match(prominentMarkup, /data-alex-part="actions"/);
+  assert.match(prominentMarkup, /data-alex-part="copyButton"/);
+  assert.match(prominentMarkup, /data-alex-part="affordanceButton"/);
   assert.match(prominentMarkup, /aria-expanded="false"/);
 });
 
@@ -104,9 +104,9 @@ test("tool-card pointer cursors are limited to interactive surfaces and buttons"
   );
 
   assert.match(styles, /\.prominentSurface\s*\{[^}]*cursor:\s*default;/s);
-  assert.match(styles, /\.prominentSurface\[data-openbitfun-interactive="true"\]\s*\{\s*cursor:\s*pointer;/s);
+  assert.match(styles, /\.prominentSurface\[data-alex-interactive="true"\]\s*\{\s*cursor:\s*pointer;/s);
   assert.match(styles, /\.ambientSurface\s*\{[^}]*cursor:\s*default;/s);
-  assert.match(styles, /\.ambientSurface\[data-openbitfun-interactive="true"\]\s*\{\s*cursor:\s*pointer;/s);
+  assert.match(styles, /\.ambientSurface\[data-alex-interactive="true"\]\s*\{\s*cursor:\s*pointer;/s);
   assert.match(iconButtonStyles, /\.button\s*\{[^}]*cursor:\s*pointer;/s);
 });
 
@@ -133,11 +133,11 @@ test("tool-card change summaries use dedicated code-change colors", async () => 
 
   assert.match(
     styles,
-    /\.changeSummary \[data-openbitfun-change="added"\]\s*\{\s*color: var\(--openbitfun-color-code-change-added\);/,
+    /\.changeSummary \[data-alex-change="added"\]\s*\{\s*color: var\(--alex-color-code-change-added\);/,
   );
   assert.match(
     styles,
-    /\.changeSummary \[data-openbitfun-change="removed"\]\s*\{\s*color: var\(--openbitfun-color-code-change-removed\);/,
+    /\.changeSummary \[data-alex-change="removed"\]\s*\{\s*color: var\(--alex-color-code-change-removed\);/,
   );
 });
 
@@ -150,9 +150,9 @@ test("prominent error status opens error content without a separate failure flag
     }),
   );
 
-  assert.match(markup, /data-openbitfun-state="failed"/);
-  assert.match(markup, /data-openbitfun-part="errorCollapse"[^>]+data-open="true"/);
-  assert.match(markup, /data-openbitfun-part="error"/);
+  assert.match(markup, /data-alex-state="failed"/);
+  assert.match(markup, /data-alex-part="errorCollapse"[^>]+data-open="true"/);
+  assert.match(markup, /data-alex-part="error"/);
   assert.match(markup, /Command failed/);
 });
 
@@ -169,12 +169,12 @@ test("prominent error status can opt into expandable supporting details", () => 
     }),
   );
 
-  assert.match(markup, /data-openbitfun-state="expanded failed"/);
-  assert.match(markup, /data-openbitfun-expandable="true"/);
+  assert.match(markup, /data-alex-state="expanded failed"/);
+  assert.match(markup, /data-alex-expandable="true"/);
   assert.match(markup, /aria-expanded="true"/);
-  assert.match(markup, /data-openbitfun-part="expandedCollapse"[^>]+data-open="true"/);
+  assert.match(markup, /data-alex-part="expandedCollapse"[^>]+data-open="true"/);
   assert.match(markup, /Invocation input/);
-  assert.match(markup, /data-openbitfun-part="errorCollapse"[^>]+data-open="true"/);
+  assert.match(markup, /data-alex-part="errorCollapse"[^>]+data-open="true"/);
   assert.match(markup, /Command failed/);
 });
 
@@ -191,8 +191,8 @@ test("cancelled and rejected tool cards rely on status copy instead of a duplica
       }),
     );
 
-    assert.match(agentMarkup, new RegExp(`data-openbitfun-part="agentStatus"[^>]*><span[^>]*>${statusLabel}<`));
-    assert.doesNotMatch(agentMarkup, /data-openbitfun-part="status"/);
+    assert.match(agentMarkup, new RegExp(`data-alex-part="agentStatus"[^>]*><span[^>]*>${statusLabel}<`));
+    assert.doesNotMatch(agentMarkup, /data-alex-part="status"/);
     assert.doesNotMatch(agentMarkup, /lucide-x/);
   }
 
@@ -206,10 +206,10 @@ test("cancelled and rejected tool cards rely on status copy instead of a duplica
     }),
   );
 
-  assert.match(ambientMarkup, /data-openbitfun-part="statusSlot"[^>]+data-default-icon="tool"/);
-  assert.match(ambientMarkup, /data-openbitfun-part="toolIconLayer"/);
+  assert.match(ambientMarkup, /data-alex-part="statusSlot"[^>]+data-default-icon="tool"/);
+  assert.match(ambientMarkup, /data-alex-part="toolIconLayer"/);
   assert.match(ambientMarkup, /data-icon="custom-tool"/);
-  assert.doesNotMatch(ambientMarkup, /data-openbitfun-part="statusLayer"|lucide-x/);
+  assert.doesNotMatch(ambientMarkup, /data-alex-part="statusLayer"|lucide-x/);
 });
 
 test("default tool cards do not render a text icon", () => {
@@ -220,7 +220,7 @@ test("default tool cards do not render a text icon", () => {
     status: "cancelled",
     summary: "Cancelled",
   }));
-  assert.doesNotMatch(markup, /TOOL|data-openbitfun-part="toolIconLayer"/);
+  assert.doesNotMatch(markup, /TOOL|data-alex-part="toolIconLayer"/);
 });
 
 test("file-operation failures stay collapsed and use the warning emphasis status icon", async () => {
@@ -246,43 +246,43 @@ test("file-operation failures stay collapsed and use the warning emphasis status
     "utf8",
   );
 
-  assert.match(collapsedMarkup, /data-openbitfun-state="failed"/);
-  assert.match(collapsedMarkup, /data-openbitfun-expandable="true"/);
+  assert.match(collapsedMarkup, /data-alex-state="failed"/);
+  assert.match(collapsedMarkup, /data-alex-expandable="true"/);
   assert.match(collapsedMarkup, /aria-expanded="false"/);
-  assert.match(collapsedMarkup, /data-openbitfun-icon="warning"/);
-  assert.match(collapsedMarkup, /data-openbitfun-part="errorCollapse"[^>]+data-open="false"/);
+  assert.match(collapsedMarkup, /data-alex-icon="warning"/);
+  assert.match(collapsedMarkup, /data-alex-part="errorCollapse"[^>]+data-open="false"/);
   assert.match(collapsedMarkup, /src\/index\.ts/);
   assert.doesNotMatch(collapsedMarkup, /Detailed failure/);
   assert.doesNotMatch(collapsedMarkup, /The target text was not found\./);
-  assert.match(expandedMarkup, /data-openbitfun-state="expanded failed"/);
+  assert.match(expandedMarkup, /data-alex-state="expanded failed"/);
   assert.match(expandedMarkup, /aria-expanded="true"/);
-  assert.match(expandedMarkup, /data-openbitfun-part="errorCollapse"[^>]+data-open="true"/);
+  assert.match(expandedMarkup, /data-alex-part="errorCollapse"[^>]+data-open="true"/);
   assert.match(expandedMarkup, /Detailed failure/);
   assert.match(expandedMarkup, /The target text was not found\./);
   assert.match(
     styles,
-    /\.warningStatusIcon\s*\{\s*color: var\(--openbitfun-color-status-warning-emphasis\);/,
+    /\.warningStatusIcon\s*\{\s*color: var\(--alex-color-status-warning-emphasis\);/,
   );
   assert.match(
     styles,
-    /\.errorTitle > :where\(svg, img\)\s*\{[^}]*inline-size: var\(--openbitfun-font-size-xl\);[^}]*block-size: var\(--openbitfun-font-size-xl\);/s,
+    /\.errorTitle > :where\(svg, img\)\s*\{[^}]*inline-size: var\(--alex-font-size-xl\);[^}]*block-size: var\(--alex-font-size-xl\);/s,
   );
 });
 
 test("prominent actions stay hidden until hover, preview-hover, or keyboard focus", async () => {
   const styles = await readFile(new URL("../dist/styles.css", import.meta.url), "utf8");
 
-  assert.match(styles, /data-openbitfun-preview-state=hover/);
+  assert.match(styles, /data-alex-preview-state=hover/);
   assert.match(styles, /:focus-within/);
   assert.match(styles, /max-inline-size:\s*0/);
   assert.match(styles, /opacity:\s*0/);
   assert.match(styles, /pointer-events:\s*none/);
   assert.match(styles, /margin-inline-start:\s*auto/);
   assert.match(styles, /font-variant-numeric:\s*proportional-nums/);
-  assert.match(styles, /--openbitfun-control-height-sm/);
-  assert.match(styles, /--openbitfun-space-6/);
-  assert.match(styles, /--openbitfun-radius-md/);
-  assert.match(styles, /--openbitfun-color-focus-ring/);
+  assert.match(styles, /--alex-control-height-sm/);
+  assert.match(styles, /--alex-space-6/);
+  assert.match(styles, /--alex-radius-md/);
+  assert.match(styles, /--alex-color-focus-ring/);
 });
 
 test("FlowChat tool-card shells stay flat at rest and on hover", async () => {
@@ -301,7 +301,7 @@ test("FlowChat tool-card shells stay flat at rest and on hover", async () => {
   assert.match(ambientExpandedRule, /box-shadow:\s*none/);
   assert.match(ambientOutlineRule, /position:\s*absolute/);
   assert.match(ambientOutlineRule, /pointer-events:\s*none/);
-  assert.doesNotMatch(styles, /box-shadow:\s*var\(--openbitfun-shadow-(?:xs|sm)\)/);
+  assert.doesNotMatch(styles, /box-shadow:\s*var\(--alex-shadow-(?:xs|sm)\)/);
   assert.doesNotMatch(styles, /box-shadow\s+var\(--_tool-card-transition\)/);
 });
 
@@ -325,9 +325,9 @@ test("expanded ambient headers match prominent cards while collapsed traces stay
   assert.ok(expandedIconRule);
   assert.match(
     ambientSurfaceRule,
-    /min-block-size:\s*max\(1lh,\s*var\(--openbitfun-control-tool-card-ambient-row-min-block-size\)\)/,
+    /min-block-size:\s*max\(1lh,\s*var\(--alex-control-tool-card-ambient-row-min-block-size\)\)/,
   );
-  assert.doesNotMatch(ambientSurfaceRule, /--openbitfun-control-height-sm/);
+  assert.doesNotMatch(ambientSurfaceRule, /--alex-control-height-sm/);
   for (const property of ["min-block-size", "gap", "padding-block", "padding-inline", "line-height"]) {
     const declaration = new RegExp(`${property}:\\s*([^;]+);`);
     assert.equal(
@@ -336,8 +336,8 @@ test("expanded ambient headers match prominent cards while collapsed traces stay
       `expanded ambient ${property} must match the prominent header`,
     );
   }
-  assert.match(expandedIconRule, /--_tool-card-action-size:\s*var\(--openbitfun-space-6\)/);
-  assert.match(expandedIconRule, /--_flow-chat-tool-card-icon-size:\s*var\(--openbitfun-font-size-xl\)/);
+  assert.match(expandedIconRule, /--_tool-card-action-size:\s*var\(--alex-space-6\)/);
+  assert.match(expandedIconRule, /--_flow-chat-tool-card-icon-size:\s*var\(--alex-font-size-xl\)/);
 });
 
 test("prominent summary rows keep one symmetric inset and inert empty slots", async () => {
@@ -365,7 +365,7 @@ test("prominent summary rows keep one symmetric inset and inert empty slots", as
   // status summaries) keeps the same distance to the card edge as the leading
   // slot. Declaring a start/end pair here is what let the hidden action region
   // pull that metadata onto the card edge.
-  assert.match(rootRule, /--_tool-card-summary-inset:\s*var\(--openbitfun-space-3\)/);
+  assert.match(rootRule, /--_tool-card-summary-inset:\s*var\(--alex-space-3\)/);
   assert.match(prominentSummaryRule, /padding-inline:\s*var\(--_tool-card-summary-inset\);/);
   assert.match(expandedAmbientSurfaceRule, /padding-inline:\s*var\(--_tool-card-summary-inset\);/);
 
@@ -376,7 +376,7 @@ test("prominent summary rows keep one symmetric inset and inert empty slots", as
   assert.match(actionRegionRule, /transition:[\s\S]*margin-inline-end var\(--_tool-card-transition\)/);
   assert.match(
     revealedActionRegionRule,
-    /margin-inline-end:\s*calc\(-1 \* var\(--openbitfun-space-2\)\);/,
+    /margin-inline-end:\s*calc\(-1 \* var\(--alex-space-2\)\);/,
   );
 
   // A fragment whose conditions are all false still mounts the slot.
@@ -440,10 +440,10 @@ test("FlowChat tool-card summary rows share compact title and content typography
   assert.ok(changeSummaryRule);
   assert.ok(commandRule);
   assert.ok(filePathRule);
-  assert.match(rootRule, /--_tool-card-font-family:\s*var\(--openbitfun-type-body-sm-font-family\)/);
-  assert.match(rootRule, /--_tool-card-font-size:\s*var\(--openbitfun-type-body-sm-font-size\)/);
-  assert.match(rootRule, /--_tool-card-title-font-weight:\s*var\(--openbitfun-type-label-lg-font-weight\)/);
-  assert.match(rootRule, /--_tool-card-content-font-weight:\s*var\(--openbitfun-type-body-sm-font-weight\)/);
+  assert.match(rootRule, /--_tool-card-font-family:\s*var\(--alex-type-body-sm-font-family\)/);
+  assert.match(rootRule, /--_tool-card-font-size:\s*var\(--alex-type-body-sm-font-size\)/);
+  assert.match(rootRule, /--_tool-card-title-font-weight:\s*var\(--alex-type-label-lg-font-weight\)/);
+  assert.match(rootRule, /--_tool-card-content-font-weight:\s*var\(--alex-type-body-sm-font-weight\)/);
   assert.match(rootRule, /font-variant-numeric:\s*proportional-nums/);
   assert.match(prominentSizeRule, /font-size:\s*var\(--_tool-card-font-size\)/);
   assert.match(ambientSizeRule, /font-size:\s*var\(--_tool-card-font-size\)/);
@@ -467,7 +467,7 @@ test("tool cards reserve monospace for file-edit code previews", async () => {
 
   for (const file of files) {
     const stylesheet = await readFile(new URL(file, directory), "utf8");
-    const monoUses = stylesheet.match(/--openbitfun-type-code-md-font-family/g)?.length ?? 0;
+    const monoUses = stylesheet.match(/--alex-type-code-md-font-family/g)?.length ?? 0;
     assert.equal(monoUses, allowedMonoUses.get(file) ?? 0, file);
     assert.doesNotMatch(stylesheet, /font-variant-numeric:\s*tabular-nums/, file);
   }
@@ -476,11 +476,11 @@ test("tool cards reserve monospace for file-edit code previews", async () => {
     new URL("../../../apps/design-lab/src/preview/FlowChatPreviewRegistry.css", import.meta.url),
     "utf8",
   );
-  assert.equal(previewStyles.match(/--openbitfun-type-code-md-font-family/g)?.length ?? 0, 1);
+  assert.equal(previewStyles.match(/--alex-type-code-md-font-family/g)?.length ?? 0, 1);
   assert.doesNotMatch(previewStyles, /font-variant-numeric:\s*tabular-nums/);
   assert.match(
     previewStyles,
-    /\.flow-chat-tool-card-preview__diff\s*\{[^}]*font-family:\s*var\(--openbitfun-type-code-md-font-family\)/s,
+    /\.flow-chat-tool-card-preview__diff\s*\{[^}]*font-family:\s*var\(--alex-type-code-md-font-family\)/s,
   );
 });
 
@@ -512,9 +512,9 @@ test("ambient card cursors distinguish static traces from interactive cards", as
   );
   assert.match(
     styles,
-    /ambientSurface[^}]*\[data-openbitfun-interactive=["']?true["']?\][^{]*\{[^}]*cursor:\s*pointer/s,
+    /ambientSurface[^}]*\[data-alex-interactive=["']?true["']?\][^{]*\{[^}]*cursor:\s*pointer/s,
   );
-  assert.match(staticMarkup, /data-openbitfun-interactive="false"/);
+  assert.match(staticMarkup, /data-alex-interactive="false"/);
   assert.doesNotMatch(staticMarkup, /role="button"/);
   assert.doesNotMatch(staticMarkup, /tabindex="0"/);
 });
@@ -580,36 +580,36 @@ test("standard FlowChat tool views publish their concrete component contracts", 
     }),
   );
 
-  assert.match(readMarkup, /data-openbitfun-tool-card="read-file"/);
-  assert.match(readMarkup, /data-openbitfun-attention="ambient"/);
-  assert.match(readMarkup, /data-openbitfun-direct-action="true"/);
+  assert.match(readMarkup, /data-alex-tool-card="read-file"/);
+  assert.match(readMarkup, /data-alex-attention="ambient"/);
+  assert.match(readMarkup, /data-alex-direct-action="true"/);
   assert.match(readMarkup, /role="button"/);
   assert.match(readMarkup, /tabindex="0"/);
   assert.match(readMarkup, /aria-label="Open src\/index\.ts"/);
-  assert.match(contextMarkup, /data-openbitfun-component="context-compression-tool-card"/);
-  assert.match(contextMarkup, /data-openbitfun-part="summary"/);
+  assert.match(contextMarkup, /data-alex-component="context-compression-tool-card"/);
+  assert.match(contextMarkup, /data-alex-part="summary"/);
   assert.match(contextMarkup, /Compressed context length 31k \(compression ratio 75%\)/);
-  assert.doesNotMatch(contextMarkup, /data-openbitfun-part="(?:savings|meta|tokenChange)"/);
-  assert.match(commandMarkup, /data-openbitfun-component="command-tool-card"/);
-  assert.match(commandMarkup, /data-openbitfun-part="outputFrame"/);
+  assert.doesNotMatch(contextMarkup, /data-alex-part="(?:savings|meta|tokenChange)"/);
+  assert.match(commandMarkup, /data-alex-component="command-tool-card"/);
+  assert.match(commandMarkup, /data-alex-part="outputFrame"/);
   assert.match(commandMarkup, /57 tests passed/);
-  assert.match(deleteMarkup, /data-openbitfun-operation="delete"/);
-  assert.match(deleteMarkup, /data-openbitfun-attention="ambient"/);
-  assert.match(deleteMarkup, /data-openbitfun-part="action"><span[^>]*data-overflow="false"[^>]*><span[^>]*data-overflow-content="">Delete file<\/span><\/span><\/span>/);
-  assert.match(deleteMarkup, /data-openbitfun-part="content">/);
-  assert.match(editMarkup, /data-openbitfun-operation="edit"/);
-  assert.match(editMarkup, /data-openbitfun-attention="prominent"/);
+  assert.match(deleteMarkup, /data-alex-operation="delete"/);
+  assert.match(deleteMarkup, /data-alex-attention="ambient"/);
+  assert.match(deleteMarkup, /data-alex-part="action"><span[^>]*data-overflow="false"[^>]*><span[^>]*data-overflow-content="">Delete file<\/span><\/span><\/span>/);
+  assert.match(deleteMarkup, /data-alex-part="content">/);
+  assert.match(editMarkup, /data-alex-operation="edit"/);
+  assert.match(editMarkup, /data-alex-attention="prominent"/);
   assert.match(editMarkup, /\+ migrated view/);
-  assert.match(editMarkup, /data-openbitfun-part="changeSummary"/);
-  assert.match(editMarkup, /data-openbitfun-part="affordanceButton"/);
-  assert.match(editMarkup, /data-openbitfun-part="trailingActions"[^>]+data-divider="true"/);
-  assert.match(editMarkup, /data-openbitfun-part="openPanelButton"/);
-  assert.match(editMarkup, /data-openbitfun-affordance="open-panel-right"/);
-  assert.match(editMarkup, /data-openbitfun-icon="open-panel-right"/);
+  assert.match(editMarkup, /data-alex-part="changeSummary"/);
+  assert.match(editMarkup, /data-alex-part="affordanceButton"/);
+  assert.match(editMarkup, /data-alex-part="trailingActions"[^>]+data-divider="true"/);
+  assert.match(editMarkup, /data-alex-part="openPanelButton"/);
+  assert.match(editMarkup, /data-alex-affordance="open-panel-right"/);
+  assert.match(editMarkup, /data-alex-icon="open-panel-right"/);
   assert.equal((editMarkup.match(/<button\b/g) ?? []).length, 2);
   assert.ok(
-    editMarkup.indexOf('data-openbitfun-part="affordanceButton"')
-      < editMarkup.indexOf('data-openbitfun-part="trailingActions"'),
+    editMarkup.indexOf('data-alex-part="affordanceButton"')
+      < editMarkup.indexOf('data-alex-part="trailingActions"'),
   );
   assert.doesNotMatch(editMarkup, /lucide-file-diff|lucide-chevron-right/);
 });
@@ -739,9 +739,9 @@ test("every migrated FlowChat tool view publishes a stable concrete card identit
 
   for (const [identity, card] of cards) {
     const markup = renderToStaticMarkup(card);
-    assert.match(markup, new RegExp(`data-openbitfun-tool-card="${identity}"`), identity);
-    assert.match(markup, /data-openbitfun-component="flow-chat-tool-card"/, identity);
-    assert.match(markup, /data-openbitfun-status="(?:completed|running)"/, identity);
+    assert.match(markup, new RegExp(`data-alex-tool-card="${identity}"`), identity);
+    assert.match(markup, /data-alex-component="flow-chat-tool-card"/, identity);
+    assert.match(markup, /data-alex-status="(?:completed|running)"/, identity);
   }
 });
 
@@ -760,15 +760,15 @@ test("file diff summary matches the compact file-operation information hierarchy
   const styles = await readFile(new URL("../dist/styles.css", import.meta.url), "utf8");
   const pathRule = styles.match(/\.[_a-zA-Z0-9-]*diffPath[_a-zA-Z0-9-]*\{([^}]*)\}/)?.[1];
 
-  assert.match(markup, /data-path="src\/index\.ts"[^>]*data-openbitfun-part="path"[^>]*title="src\/index\.ts"/);
+  assert.match(markup, /data-path="src\/index\.ts"[^>]*data-alex-part="path"[^>]*title="src\/index\.ts"/);
   assert.match(markup, />index\.ts<\/span>/);
-  assert.match(markup, /data-openbitfun-part="changeSummary"/);
+  assert.match(markup, /data-alex-part="changeSummary"/);
   assert.match(markup, /aria-label="12 additions and 0 deletions"/);
-  assert.match(markup, /data-openbitfun-change="added">\+12/);
-  assert.match(markup, /data-openbitfun-change="removed">-0/);
-  assert.doesNotMatch(markup, /Git HEAD|data-openbitfun-part="diffType"/);
+  assert.match(markup, /data-alex-change="added">\+12/);
+  assert.match(markup, /data-alex-change="removed">-0/);
+  assert.doesNotMatch(markup, /Git HEAD|data-alex-part="diffType"/);
   assert.ok(pathRule, "file-diff path rule should exist");
-  assert.match(pathRule, /var\(--openbitfun-color-content-secondary\)/);
+  assert.match(pathRule, /var\(--alex-color-content-secondary\)/);
   assert.doesNotMatch(pathRule, /font-(?:family|size|weight):/);
 });
 
@@ -807,20 +807,20 @@ test("concrete tool views expose semantic parts instead of legacy CSS selectors"
     statusText: "Viewed image",
   }));
 
-  assert.match(agentMarkup, /data-openbitfun-part="agentIdentity"/);
-  assert.match(agentMarkup, /data-openbitfun-part="agentModel"/);
-  assert.match(agentMarkup, /data-openbitfun-part="agentSummary"/);
-  assert.match(agentMarkup, /data-openbitfun-part="agentMeta"/);
-  assert.match(agentMarkup, /data-openbitfun-part="statusSlot"/);
-  assert.match(agentMarkup, /data-openbitfun-part="processing"/);
-  assert.match(agentMarkup, /data-openbitfun-part="interruptAgentButton"/);
-  assert.match(agentMarkup, /data-openbitfun-part="affordanceButton"/);
-  assert.match(agentMarkup, /data-openbitfun-part="openAgentButton"/);
-  assert.match(agentMarkup, /data-openbitfun-affordance="open-panel-right"/);
-  assert.doesNotMatch(agentMarkup, /data-openbitfun-part="expandIndicator"|cube-loading/);
-  assert.match(fetchMarkup, /data-openbitfun-part="sourceLink"/);
-  assert.match(fetchMarkup, /data-openbitfun-part="detail"/);
-  assert.match(imageMarkup, /data-openbitfun-part="imagePreview"/);
+  assert.match(agentMarkup, /data-alex-part="agentIdentity"/);
+  assert.match(agentMarkup, /data-alex-part="agentModel"/);
+  assert.match(agentMarkup, /data-alex-part="agentSummary"/);
+  assert.match(agentMarkup, /data-alex-part="agentMeta"/);
+  assert.match(agentMarkup, /data-alex-part="statusSlot"/);
+  assert.match(agentMarkup, /data-alex-part="processing"/);
+  assert.match(agentMarkup, /data-alex-part="interruptAgentButton"/);
+  assert.match(agentMarkup, /data-alex-part="affordanceButton"/);
+  assert.match(agentMarkup, /data-alex-part="openAgentButton"/);
+  assert.match(agentMarkup, /data-alex-affordance="open-panel-right"/);
+  assert.doesNotMatch(agentMarkup, /data-alex-part="expandIndicator"|cube-loading/);
+  assert.match(fetchMarkup, /data-alex-part="sourceLink"/);
+  assert.match(fetchMarkup, /data-alex-part="detail"/);
+  assert.match(imageMarkup, /data-alex-part="imagePreview"/);
 });
 
 test("package manifest exposes flow-chat only through built artifacts", async () => {

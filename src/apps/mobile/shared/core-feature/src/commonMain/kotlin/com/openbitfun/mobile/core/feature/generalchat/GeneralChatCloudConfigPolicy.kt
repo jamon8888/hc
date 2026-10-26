@@ -107,14 +107,14 @@ internal object GeneralChatCloudConfigPolicy {
      * The endpoint to post to, which is not always the one that was configured.
      *
      * The desktop stores Anthropic's host bare and appends the path itself; this
-     * client posts to whatever it is given, so the path has to be here. OpenBitFun's
+     * client posts to whatever it is given, so the path has to be here. Alex's
      * own relay is left alone — it speaks the same protocol on its own route.
      */
     private fun normalizedApiUrl(model: JsonObject): String {
         val baseUrl = model.text("base_url").trim().trimEnd('/')
         val provider = model.text("provider").trim().lowercase()
         val needsMessagesPath = provider == ANTHROPIC_PROVIDER &&
-            !baseUrl.contains(OPENBITFUN_HOST) &&
+            !baseUrl.contains(ALEX_HOST) &&
             !baseUrl.endsWith(ANTHROPIC_MESSAGES_PATH)
         return if (needsMessagesPath) baseUrl + ANTHROPIC_MESSAGES_PATH else baseUrl
     }
@@ -139,7 +139,7 @@ internal object GeneralChatCloudConfigPolicy {
     private const val ACCOUNT_PROVIDER = "account"
     private const val ANTHROPIC_PROVIDER = "anthropic"
     private const val ANTHROPIC_MESSAGES_PATH = "/v1/messages"
-    private const val OPENBITFUN_HOST = "openbitfun.com"
+    private const val ALEX_HOST = "openbitfun.com"
 
     /** Namespaces an account model's id so it can never collide with the local one. */
     const val CLOUD_MODEL_PREFIX: String = "cloud:"

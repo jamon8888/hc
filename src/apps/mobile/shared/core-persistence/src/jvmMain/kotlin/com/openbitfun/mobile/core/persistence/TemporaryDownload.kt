@@ -2,7 +2,7 @@ package com.openbitfun.mobile.core.persistence
 import java.io.File
 import java.io.FileOutputStream
 public actual class TemporaryDownload actual constructor(name: String) {
-    private val directory = java.nio.file.Files.createTempDirectory("openbitfun-download-").toFile()
+    private val directory = java.nio.file.Files.createTempDirectory("alex-download-").toFile()
     private val file = File(directory, name.substringAfterLast('/').substringAfterLast('\\').takeIf { it.isNotBlank() && it != "." && it != ".." } ?: "download")
     private var output: FileOutputStream? = FileOutputStream(file)
     public actual val reference: String get() = file.absolutePath

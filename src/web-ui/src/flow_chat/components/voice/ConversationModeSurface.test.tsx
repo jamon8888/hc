@@ -6,7 +6,7 @@ import React from 'react';
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { VoiceCallTranscript } from '@openbitfun/ui';
+import { VoiceCallTranscript } from '@alex/ui';
 
 import { ConversationModeSurface } from './ConversationModeSurface';
 import type { VoiceMiniAppCallTarget } from './voiceClientContext';
@@ -76,7 +76,7 @@ describe('ConversationModeSurface', () => {
     const renderHeader = (modeSwitch: React.ReactNode) => <header>{modeSwitch}</header>;
     await act(async () => root.render(<ConversationModeSurface renderHeader={renderHeader} voiceTarget={miniAppTarget}><input /></ConversationModeSurface>));
     expect(container.querySelector('footer')).toBeNull();
-    expect(container.querySelector('header .openbitfun-conversation-mode-surface__logo')).not.toBeNull();
+    expect(container.querySelector('header .alex-conversation-mode-surface__logo')).not.toBeNull();
     await act(async () => container.querySelector<HTMLButtonElement>('header button')?.click());
     expect(mocks.controller.start).toHaveBeenCalledWith(miniAppTarget);
     mocks.controller.phase = 'live'; mocks.controller.target = miniAppTarget;
@@ -119,7 +119,7 @@ describe('ConversationModeSurface', () => {
 
     expect(container.querySelector('[data-testid="voice-panel"]')).not.toBeNull();
     expect(container.querySelector('[data-testid="chat-surface"]')?.parentElement?.hidden).toBe(true);
-    expect(container.querySelector('[data-openbitfun-part="modeSwitch"]')).toBeNull();
+    expect(container.querySelector('[data-alex-part="modeSwitch"]')).toBeNull();
 
     await act(async () => {
       container.querySelector<HTMLButtonElement>('[data-testid="voice-panel-close"]')?.click();
@@ -157,7 +157,7 @@ describe('ConversationModeSurface', () => {
     });
 
     expect(container.querySelector('[data-testid="chat-surface"]')).not.toBeNull();
-    expect(container.querySelector('[data-openbitfun-part="modeSwitch"]')).toBeNull();
+    expect(container.querySelector('[data-alex-part="modeSwitch"]')).toBeNull();
     expect(container.querySelector('button')).toBeNull();
   });
 
@@ -174,7 +174,7 @@ describe('ConversationModeSurface', () => {
     });
 
     expect(container.querySelector('[data-testid="voice-panel"]')).not.toBeNull();
-    expect(container.querySelector('[data-openbitfun-part="modeSwitch"]')).toBeNull();
+    expect(container.querySelector('[data-alex-part="modeSwitch"]')).toBeNull();
     await act(async () => {
       container.querySelector<HTMLButtonElement>('[data-testid="voice-panel-close"]')?.click();
     });
@@ -190,7 +190,7 @@ describe('ConversationModeSurface', () => {
     expect(container.querySelector('input')).toBe(input);
     await act(async () => root.render(<ConversationModeSurface voiceTarget={{ ...miniAppTarget, sessionId: 'other' }}><input /></ConversationModeSurface>));
     expect(container.querySelector('[data-testid="voice-panel"]')).toBeNull();
-    expect(container.querySelector<HTMLButtonElement>('[data-openbitfun-part="modeSwitchButton"]')?.disabled).toBe(true);
+    expect(container.querySelector<HTMLButtonElement>('[data-alex-part="modeSwitchButton"]')?.disabled).toBe(true);
     expect(mocks.controller.start).not.toHaveBeenCalled();
   });
 
@@ -210,34 +210,34 @@ describe('ConversationModeSurface', () => {
         <input data-testid="continuous-draft" defaultValue="Unsent draft" />
       </ConversationModeSurface>,
     );
-    const identity = () => container.querySelector<HTMLButtonElement>('[data-openbitfun-part="identity"] button[aria-expanded]')!;
-    const back = () => container.querySelector<HTMLButtonElement>('[data-openbitfun-part="voiceHeader"] button[aria-label="voiceCall.call.switchToChat"]')!;
+    const identity = () => container.querySelector<HTMLButtonElement>('[data-alex-part="identity"] button[aria-expanded]')!;
+    const back = () => container.querySelector<HTMLButtonElement>('[data-alex-part="voiceHeader"] button[aria-label="voiceCall.call.switchToChat"]')!;
 
     it.each([false, true])('keeps the reading viewport through entry, return and hangup (mode-aware: %s)', async modeAware => {
       await act(async () => renderIntegrated(false, modeAware));
       const logo = container.querySelector('canvas');
-      const record = container.querySelector('[data-openbitfun-part="conversation"]');
+      const record = container.querySelector('[data-alex-part="conversation"]');
       const userMessage = container.querySelector('[data-transcript-id="user"]');
-      expect(record?.getAttribute('data-openbitfun-presentation')).toBe(modeAware ? 'chat' : 'voice');
+      expect(record?.getAttribute('data-alex-presentation')).toBe(modeAware ? 'chat' : 'voice');
       const input = container.querySelector<HTMLInputElement>('input')!;
       await act(async () => identity().click());
       expect(mocks.controller.start).toHaveBeenCalledWith(miniAppTarget);
       mocks.controller.phase = 'live'; mocks.controller.target = miniAppTarget;
       await act(async () => renderIntegrated(false, modeAware));
-      expect(record?.getAttribute('data-openbitfun-presentation')).toBe('voice');
+      expect(record?.getAttribute('data-alex-presentation')).toBe('voice');
       expect(identity().hidden).toBe(true);
-      expect(container.querySelector('[data-openbitfun-part="voiceHeader"]')?.getAttribute('aria-hidden')).toBe('false');
+      expect(container.querySelector('[data-alex-part="voiceHeader"]')?.getAttribute('aria-hidden')).toBe('false');
       expect(back().querySelector('.lucide-arrow-left')).not.toBeNull();
-      expect(container.querySelector('[data-openbitfun-part="composer"]')?.getAttribute('aria-hidden')).toBe('true');
+      expect(container.querySelector('[data-alex-part="composer"]')?.getAttribute('aria-hidden')).toBe('true');
       await act(async () => back().click());
-      expect(record?.getAttribute('data-openbitfun-presentation')).toBe(modeAware ? 'chat' : 'voice');
+      expect(record?.getAttribute('data-alex-presentation')).toBe(modeAware ? 'chat' : 'voice');
       expect(mocks.controller.end).not.toHaveBeenCalled();
       expect(identity().hidden).toBe(false);
       expect(identity().getAttribute('aria-label')).toBe('voiceCall.call.identity.ongoing');
       mocks.controller.phase = 'idle'; mocks.controller.target = null;
       await act(async () => renderIntegrated(false, modeAware));
       expect(container.querySelector('canvas')).toBe(logo);
-      expect(container.querySelector('[data-openbitfun-part="conversation"]')).toBe(record);
+      expect(container.querySelector('[data-alex-part="conversation"]')).toBe(record);
       expect(container.querySelector('[data-transcript-id="user"]')).toBe(userMessage);
       expect(container.querySelector('input')).toBe(input);
       expect(input.value).toBe('Unsent draft');
@@ -248,7 +248,7 @@ describe('ConversationModeSurface', () => {
       await act(async () => renderIntegrated(true));
       expect(identity().getAttribute('aria-expanded')).toBe('false');
       expect(identity().disabled).toBe(true);
-      expect(container.querySelector('[data-openbitfun-part="composer"]')?.getAttribute('aria-hidden')).toBe('false');
+      expect(container.querySelector('[data-alex-part="composer"]')?.getAttribute('aria-hidden')).toBe('false');
       expect(mocks.controller.end).not.toHaveBeenCalled();
     });
 

@@ -1,4 +1,4 @@
-import { Select } from '@openbitfun/ui';
+import { Select } from '@alex/ui';
 import React from 'react';
 import { FontPreferencePanel } from '@/infrastructure/font-preference';
 import { useTranslation } from 'react-i18next';
@@ -23,13 +23,13 @@ function AppearanceSelectionSection() {
     <div
       className="appearance-settings"
       data-testid="appearance-settings-section"
-      data-openbitfun-component="appearance-settings"
-      data-openbitfun-part="settings"
+      data-alex-component="appearance-settings"
+      data-alex-part="settings"
     >
       <div
         className="appearance-settings__content"
-        data-openbitfun-component="appearance-settings"
-        data-openbitfun-part="settingsContent"
+        data-alex-component="appearance-settings"
+        data-alex-part="settingsContent"
       >
         <ConfigPageSection
           title={t('appearance.interfaceTitle')}
@@ -41,8 +41,8 @@ function AppearanceSelectionSection() {
           >
             <div
               className="appearance-settings__language-select"
-              data-openbitfun-component="appearance-settings"
-              data-openbitfun-part="language"
+              data-alex-component="appearance-settings"
+              data-alex-part="language"
             >
               <Select
                 size="sm"
@@ -76,15 +76,15 @@ const AppearanceSettingsPage: React.FC = () => {
 
   return (
     <ConfigPageLayout
-      className="openbitfun-appearance-settings"
-      data-openbitfun-component="appearance-settings"
-      data-openbitfun-part="root"
+      className="alex-appearance-settings"
+      data-alex-component="appearance-settings"
+      data-alex-part="root"
     >
       <ConfigPageHeader title={t('title')} subtitle={t('subtitle')} />
       <ConfigPageContent
-        className="openbitfun-appearance-settings__content"
-        data-openbitfun-component="appearance-settings"
-        data-openbitfun-part="content"
+        className="alex-appearance-settings__content"
+        data-alex-component="appearance-settings"
+        data-alex-part="content"
       >
         <ConfigPageSectionStack data-testid="appearance-settings">
           <AppearanceSelectionSection />

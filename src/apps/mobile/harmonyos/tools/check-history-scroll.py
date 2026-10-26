@@ -21,7 +21,7 @@ def main():
     parser.add_argument('--expect-bug', action='store_true')
     args = parser.parse_args()
     command = [args.hdc] + (['-t', args.device] if args.device else [])
-    output = Path(tempfile.mkdtemp(prefix='openbitfun-history-scroll-'))
+    output = Path(tempfile.mkdtemp(prefix='alex-history-scroll-'))
     print(f'Evidence: {output}', flush=True)
     contract = (Path(__file__).resolve().parent.parent /
                 'entry/src/main/ets/services/HarmonyUpgradeIdentityContract.ets')
@@ -34,7 +34,7 @@ def main():
         run('shell', 'aa', 'force-stop', bundle)
         params = ['shell', 'aa', 'start', '-a', 'EntryAbility', '-b', bundle]
         if preview:
-            params += ['--ps', 'openbitfunDesignPreview', 'history-scroll']
+            params += ['--ps', 'alexDesignPreview', 'history-scroll']
         run(*params)
         time.sleep(1)
 

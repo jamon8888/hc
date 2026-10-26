@@ -62,41 +62,41 @@ export const ActionItem = forwardRef<HTMLButtonElement, ActionItemProps>(functio
   return (
     <span
       className={classNames(styles.root, className)}
-      data-openbitfun-component="action-item"
-      data-openbitfun-tone={tone}
+      data-alex-component="action-item"
+      data-alex-tone={tone}
       data-disabled={disabled ? "true" : "false"}
     >
       <button data-overflow-trigger
         {...props}
         className={classNames(styles.trigger, triggerClassName)}
-        data-openbitfun-part="trigger"
+        data-alex-part="trigger"
         disabled={disabled}
         ref={ref}
         type={type}
       >
         {hasLeadingArea && (
-          <span aria-hidden="true" className={styles.leading} data-openbitfun-icon-slot="true" data-openbitfun-part="leading">
+          <span aria-hidden="true" className={styles.leading} data-alex-icon-slot="true" data-alex-part="leading">
             {leading}
           </span>
         )}
         {labelBehavior === "static" ? (
-          <span className={classNames(styles.label, styles.staticLabel)} data-openbitfun-part="label">{children}</span>
+          <span className={classNames(styles.label, styles.staticLabel)} data-alex-part="label">{children}</span>
         ) : (
-          <OverflowText className={styles.label} data-openbitfun-part="label">{children}</OverflowText>
+          <OverflowText className={styles.label} data-alex-part="label">{children}</OverflowText>
         )}
         {metadata !== undefined && metadata !== null && (
-          <span className={styles.metadata} data-openbitfun-part="metadata">
+          <span className={styles.metadata} data-alex-part="metadata">
             {metadata}
           </span>
         )}
         {shortcut !== undefined && shortcut !== null && (
-          <span aria-hidden="true" className={styles.shortcut} data-openbitfun-part="shortcut">
+          <span aria-hidden="true" className={styles.shortcut} data-alex-part="shortcut">
             {shortcut}
           </span>
         )}
       </button>
       {(actions.length > 0 || actionContent != null) && (
-        <span className={styles.actions} data-openbitfun-part="actions">
+        <span className={styles.actions} data-alex-part="actions">
           {actionContent}
           {actions.map((action) => (
               <IconButton

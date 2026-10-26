@@ -4,7 +4,7 @@
 
 #![allow(dead_code)]
 
-use openbitfun_core::util::errors::{OpenBitFunError, OpenBitFunResult};
+use alex_core::util::errors::{AlexError, AlexResult};
 use std::time::{Duration, Instant};
 use windows::core::Interface;
 use windows::Graphics::Capture::{Direct3D11CaptureFramePool, GraphicsCaptureItem};
@@ -40,24 +40,24 @@ pub(super) struct WgcCaptureSession {
 }
 
 impl WgcCaptureSession {
-    pub(super) fn start(hwnd: HWND) -> OpenBitFunResult<Self> {
+    pub(super) fn start(hwnd: HWND) -> AlexResult<Self> {
         if hwnd.is_invalid() {
-            return Err(OpenBitFunError::service("WGC capture: invalid HWND"));
+            return Err(AlexError::service("WGC capture: invalid HWND"));
         }
         unsafe {
             let (device, context) = create_d3d11_device()?;
             let direct_device = create_winrt_d3d_device(&device)?;
             let interop =
                 windows::core::factory::<GraphicsCaptureItem, IGraphicsCaptureItemInterop>()
-                    .map_err(|e| OpenBitFunError::service(format!("WGC factory: {e}")))?;
+                    .map_err(|e| AlexError::service(format!("WGC factory: {e}")))?;
             let item: GraphicsCaptureItem = interop
                 .CreateForWindow(hwnd)
-                .map_err(|e| OpenBitFunError::service(format!("WGC CreateForWindow: {e}")))?;
+                .map_err(|e| AlexError::service(format!("WGC CreateForWindow: {e}")))?;
             let size = item
                 .Size()
-                .map_err(|e| OpenBitFunError::service(format!("WGC size: {e}")))?;
+                .map_err(|e| AlexError::service(format!("WGC size: {e}")))?;
             if size.Width <= 0 || size.Height <= 0 {
-                return Err(OpenBitFunError::service(
+                return Err(AlexError::service(
                     "WGC target has no rendered content",
                 ));
             }
@@ -67,12 +67,12 @@ impl WgcCaptureSession {
                 2,
                 size,
             )
-            .map_err(|e| OpenBitFunError::service(format!("WGC frame pool: {e}")))?;
+            .map_err(|e| AlexError::service(format!("WGC frame pool: {e}")))?;
             let session = match pool.CreateCaptureSession(&item) {
                 Ok(session) => session,
                 Err(e) => {
                     let _ = pool.Close();
-                    return Err(OpenBitFunError::service(format!("WGC session: {e}")));
+                    return Err(AlexError::service(format!("WGC session: {e}")));
                 }
             };
             // Cursor control arrived after WGC itself. On older systems this
@@ -81,12 +81,12 @@ impl WgcCaptureSession {
             if let Err(e) = session.StartCapture() {
                 let _ = session.Close();
                 let _ = pool.Close();
-                return Err(OpenBitFunError::service(format!("WGC start: {e}")));
+                return Err(AlexError::service(format!("WGC start: {e}")));
             }
             let closed = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
             let signal = closed.clone();
             let generation = crate::computer_use::control_session::capture_token()
-                .map_err(OpenBitFunError::service)?
+                .map_err(AlexError::service)?
                 .generation();
             let mut pid = 0;
             windows::Win32::UI::WindowsAndMessaging::GetWindowThreadProcessId(hwnd, Some(&mut pid));
@@ -104,7 +104,7 @@ impl WgcCaptureSession {
                 .map_err(|e| {
                     let _ = session.Close();
                     let _ = pool.Close();
-                    OpenBitFunError::service(format!("WGC Closed handler: {e}"))
+                    AlexError::service(format!("WGC Closed handler: {e}"))
                 })?;
             Ok(Self {
                 device,
@@ -130,25 +130,25 @@ impl WgcCaptureSession {
         }
     }
 
-    fn ensure_live(&self) -> OpenBitFunResult<()> {
+    fn ensure_live(&self) -> AlexResult<()> {
         if self.stopped || self.closed.load(std::sync::atomic::Ordering::Acquire) {
-            return Err(OpenBitFunError::service("WGC capture session stopped"));
+            return Err(AlexError::service("WGC capture session stopped"));
         }
         let size = self
             .item
             .Size()
-            .map_err(|e| OpenBitFunError::service(format!("WGC target unavailable: {e}")))?;
+            .map_err(|e| AlexError::service(format!("WGC target unavailable: {e}")))?;
         if size.Width <= 0 || size.Height <= 0 {
-            return Err(OpenBitFunError::service(
+            return Err(AlexError::service(
                 "WGC target has no rendered content",
             ));
         }
         Ok(())
     }
 
-    pub(super) fn capture(&mut self) -> OpenBitFunResult<(Vec<u8>, u32, u32)> {
+    pub(super) fn capture(&mut self) -> AlexResult<(Vec<u8>, u32, u32)> {
         if self.stopped || self.closed.load(std::sync::atomic::Ordering::Acquire) {
-            return Err(OpenBitFunError::service("WGC capture session stopped"));
+            return Err(AlexError::service("WGC capture session stopped"));
         }
         let deadline = Instant::now() + Duration::from_secs(2);
         loop {
@@ -164,11 +164,11 @@ impl WgcCaptureSession {
                 }
                 let content = frame
                     .ContentSize()
-                    .map_err(|e| OpenBitFunError::service(format!("WGC content size: {e}")))?;
+                    .map_err(|e| AlexError::service(format!("WGC content size: {e}")))?;
                 if content.Width != self.size.Width || content.Height != self.size.Height {
                     let _ = frame.Close();
                     if content.Width <= 0 || content.Height <= 0 {
-                        return Err(OpenBitFunError::service(
+                        return Err(AlexError::service(
                             "WGC target has no rendered content",
                         ));
                     }
@@ -179,7 +179,7 @@ impl WgcCaptureSession {
                             2,
                             content,
                         )
-                        .map_err(|e| OpenBitFunError::service(format!("WGC resize: {e}")))?;
+                        .map_err(|e| AlexError::service(format!("WGC resize: {e}")))?;
                     self.size = content;
                     continue;
                 }
@@ -188,7 +188,7 @@ impl WgcCaptureSession {
                 return result;
             }
             if Instant::now() >= deadline {
-                return Err(OpenBitFunError::service(
+                return Err(AlexError::service(
                     "WGC frame unavailable: target may be closed, minimized or capture revoked",
                 ));
             }
@@ -203,12 +203,12 @@ impl Drop for WgcCaptureSession {
     }
 }
 
-type CaptureResult = OpenBitFunResult<(Vec<u8>, u32, u32)>;
+type CaptureResult = AlexResult<(Vec<u8>, u32, u32)>;
 enum CaptureCommand {
     Ensure(
         usize,
         crate::computer_use::control_session::ControlToken,
-        std::sync::mpsc::SyncSender<OpenBitFunResult<()>>,
+        std::sync::mpsc::SyncSender<AlexResult<()>>,
     ),
     Capture(
         usize,
@@ -223,14 +223,14 @@ fn ensure_stream(
     active: &mut Option<(usize, u64, WgcCaptureSession)>,
     handle: usize,
     generation: u64,
-) -> OpenBitFunResult<&mut WgcCaptureSession> {
+) -> AlexResult<&mut WgcCaptureSession> {
     use windows::Win32::UI::WindowsAndMessaging::{GetWindowThreadProcessId, IsIconic, IsWindow};
-    crate::computer_use::control_session::capture_allowed().map_err(OpenBitFunError::service)?;
+    crate::computer_use::control_session::capture_allowed().map_err(AlexError::service)?;
     let hwnd = HWND(handle as *mut _);
     let mut pid = 0;
     unsafe {
         if !IsWindow(Some(hwnd)).as_bool() || IsIconic(hwnd).as_bool() {
-            return Err(OpenBitFunError::service(
+            return Err(AlexError::service(
                 "capture_unavailable: target closed or minimized",
             ));
         }
@@ -240,7 +240,7 @@ fn ensure_stream(
         "pid:{pid}/window:{}",
         handle as isize
     ))
-    .map_err(OpenBitFunError::service)?;
+    .map_err(AlexError::service)?;
     if active.as_ref().map(|(id, owner, _)| (*id, *owner)) != Some((handle, generation)) {
         *active = None;
         *active = Some((handle, generation, WgcCaptureSession::start(hwnd)?));
@@ -306,34 +306,34 @@ pub(super) fn stop_capture() {
 
 /// Establish/validate the authorized stream without consuming a frame, GPU
 /// readback, or image encoding. Actual observation still validates frame delivery.
-pub(super) fn ensure_window_capture(hwnd: HWND) -> OpenBitFunResult<()> {
+pub(super) fn ensure_window_capture(hwnd: HWND) -> AlexResult<()> {
     let token =
-        crate::computer_use::control_session::capture_token().map_err(OpenBitFunError::service)?;
+        crate::computer_use::control_session::capture_token().map_err(AlexError::service)?;
     let (tx, rx) = std::sync::mpsc::sync_channel(1);
     capture_worker()
         .send(CaptureCommand::Ensure(hwnd.0 as usize, token, tx))
-        .map_err(|_| OpenBitFunError::service("WGC worker unavailable"))?;
+        .map_err(|_| AlexError::service("WGC worker unavailable"))?;
     rx.recv()
-        .map_err(|_| OpenBitFunError::service("WGC worker stopped"))?
+        .map_err(|_| AlexError::service("WGC worker stopped"))?
 }
 
 /// Reuses the one window stream until the control owner stops or retargets it.
 pub(super) fn capture_window_bgra(hwnd: HWND) -> CaptureResult {
-    crate::computer_use::control_session::capture_allowed().map_err(OpenBitFunError::service)?;
+    crate::computer_use::control_session::capture_allowed().map_err(AlexError::service)?;
     let (tx, rx) = std::sync::mpsc::sync_channel(1);
     capture_worker()
         .send(CaptureCommand::Capture(
             hwnd.0 as usize,
             crate::computer_use::control_session::capture_token()
-                .map_err(OpenBitFunError::service)?,
+                .map_err(AlexError::service)?,
             tx,
         ))
-        .map_err(|_| OpenBitFunError::service("WGC worker unavailable"))?;
+        .map_err(|_| AlexError::service("WGC worker unavailable"))?;
     rx.recv()
-        .map_err(|_| OpenBitFunError::service("WGC worker stopped"))?
+        .map_err(|_| AlexError::service("WGC worker stopped"))?
 }
 
-unsafe fn create_d3d11_device() -> OpenBitFunResult<(ID3D11Device, ID3D11DeviceContext)> {
+unsafe fn create_d3d11_device() -> AlexResult<(ID3D11Device, ID3D11DeviceContext)> {
     let mut device: Option<ID3D11Device> = None;
     let mut context: Option<ID3D11DeviceContext> = None;
     let flags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
@@ -368,67 +368,67 @@ unsafe fn create_d3d11_device() -> OpenBitFunResult<(ID3D11Device, ID3D11DeviceC
                 Some(&mut context),
             )
         }
-        .map_err(|e| OpenBitFunError::service(format!("D3D11CreateDevice (WARP): {e}")))?;
+        .map_err(|e| AlexError::service(format!("D3D11CreateDevice (WARP): {e}")))?;
     }
 
     let device = device.ok_or_else(|| {
-        OpenBitFunError::service("D3D11CreateDevice returned null device".to_string())
+        AlexError::service("D3D11CreateDevice returned null device".to_string())
     })?;
     let context = context.ok_or_else(|| {
-        OpenBitFunError::service("D3D11CreateDevice returned null context".to_string())
+        AlexError::service("D3D11CreateDevice returned null context".to_string())
     })?;
     Ok((device, context))
 }
 
-unsafe fn create_winrt_d3d_device(d3d_device: &ID3D11Device) -> OpenBitFunResult<IDirect3DDevice> {
+unsafe fn create_winrt_d3d_device(d3d_device: &ID3D11Device) -> AlexResult<IDirect3DDevice> {
     let dxgi_device: IDXGIDevice = d3d_device
         .cast()
-        .map_err(|e| OpenBitFunError::service(format!("IDXGIDevice cast: {e}")))?;
+        .map_err(|e| AlexError::service(format!("IDXGIDevice cast: {e}")))?;
     // SAFETY: `dxgi_device` is a live COM interface obtained from the supplied
     // D3D11 device and remains alive through the conversion call.
     let inspectable =
         unsafe { CreateDirect3D11DeviceFromDXGIDevice(&dxgi_device) }.map_err(|e| {
-            OpenBitFunError::service(format!("CreateDirect3D11DeviceFromDXGIDevice: {e}"))
+            AlexError::service(format!("CreateDirect3D11DeviceFromDXGIDevice: {e}"))
         })?;
     inspectable
         .cast()
-        .map_err(|e| OpenBitFunError::service(format!("IDirect3DDevice cast: {e}")))
+        .map_err(|e| AlexError::service(format!("IDirect3DDevice cast: {e}")))
 }
 
 unsafe fn copy_frame_to_bgra(
     frame: &windows::Graphics::Capture::Direct3D11CaptureFrame,
     d3d_device: &ID3D11Device,
     d3d_context: &ID3D11DeviceContext,
-) -> OpenBitFunResult<(Vec<u8>, u32, u32)> {
+) -> AlexResult<(Vec<u8>, u32, u32)> {
     let surface = frame
         .Surface()
-        .map_err(|e| OpenBitFunError::service(format!("WGC frame Surface: {e}")))?;
+        .map_err(|e| AlexError::service(format!("WGC frame Surface: {e}")))?;
     let access: IDirect3DDxgiInterfaceAccess = surface
         .cast()
-        .map_err(|e| OpenBitFunError::service(format!("IDirect3DDxgiInterfaceAccess cast: {e}")))?;
+        .map_err(|e| AlexError::service(format!("IDirect3DDxgiInterfaceAccess cast: {e}")))?;
     // SAFETY: `access` is the live DXGI interface for `surface`; the requested
     // interface type matches the WGC frame surface contract.
     let src_texture: ID3D11Texture2D = unsafe { access.GetInterface::<ID3D11Texture2D>() }
-        .map_err(|e| OpenBitFunError::service(format!("GetInterface ID3D11Texture2D: {e}")))?;
+        .map_err(|e| AlexError::service(format!("GetInterface ID3D11Texture2D: {e}")))?;
 
     let mut desc = D3D11_TEXTURE2D_DESC::default();
     unsafe { src_texture.GetDesc(&mut desc) };
     let content = frame
         .ContentSize()
-        .map_err(|e| OpenBitFunError::service(format!("WGC content size: {e}")))?;
+        .map_err(|e| AlexError::service(format!("WGC content size: {e}")))?;
     if content.Width <= 0
         || content.Height <= 0
         || content.Width as u32 > desc.Width
         || content.Height as u32 > desc.Height
     {
-        return Err(OpenBitFunError::service(
+        return Err(AlexError::service(
             "WGC frame geometry changed; retry observation",
         ));
     }
     let width = content.Width as u32;
     let height = content.Height as u32;
     if width == 0 || height == 0 {
-        return Err(OpenBitFunError::service(
+        return Err(AlexError::service(
             "WGC frame texture has zero dimensions".to_string(),
         ));
     }
@@ -449,22 +449,22 @@ unsafe fn copy_frame_to_bgra(
     // SAFETY: `staging_desc` is fully initialized and `staging` is a live
     // output slot for the newly created texture interface.
     unsafe { d3d_device.CreateTexture2D(&staging_desc, None, Some(&mut staging)) }
-        .map_err(|e| OpenBitFunError::service(format!("CreateTexture2D staging: {e}")))?;
+        .map_err(|e| AlexError::service(format!("CreateTexture2D staging: {e}")))?;
     let staging = staging.ok_or_else(|| {
-        OpenBitFunError::service("CreateTexture2D returned null staging texture".to_string())
+        AlexError::service("CreateTexture2D returned null staging texture".to_string())
     })?;
 
     unsafe { d3d_context.CopyResource(&staging, &src_texture) };
 
     let mut mapped = windows::Win32::Graphics::Direct3D11::D3D11_MAPPED_SUBRESOURCE::default();
     unsafe { d3d_context.Map(&staging, 0, D3D11_MAP_READ, 0, Some(&mut mapped)) }
-        .map_err(|e| OpenBitFunError::service(format!("Map staging texture: {e}")))?;
+        .map_err(|e| AlexError::service(format!("Map staging texture: {e}")))?;
 
     let row_pitch = mapped.RowPitch as usize;
     let width_bytes = (width as usize) * 4;
     if mapped.pData.is_null() || row_pitch < width_bytes {
         unsafe { d3d_context.Unmap(&staging, 0) };
-        return Err(OpenBitFunError::service("WGC invalid mapped surface"));
+        return Err(AlexError::service("WGC invalid mapped surface"));
     }
     let mut pixels = vec![0u8; (width as usize) * (height as usize) * 4];
     let src = mapped.pData as *const u8;

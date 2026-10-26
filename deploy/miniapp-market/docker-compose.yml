@@ -6,8 +6,8 @@ services:
       args:
         CARGO_BUILD_JOBS: ${MARKET_CARGO_BUILD_JOBS:-}
         MARKET_GIT_COMMIT: ${MARKET_GIT_COMMIT:?Set MARKET_GIT_COMMIT to the deployed commit}
-    image: openbitfun-miniapp-market:${MARKET_GIT_COMMIT}
-    container_name: openbitfun-miniapp-market
+    image: alex-miniapp-market:${MARKET_GIT_COMMIT}
+    container_name: alex-miniapp-market
     restart: unless-stopped
     user: "10001:10001"
     read_only: true
@@ -18,8 +18,8 @@ services:
     ports:
       - "127.0.0.1:9710:9710"
     env_file:
-      - /etc/openbitfun-miniapp-market/market.env
-      - path: /etc/openbitfun-miniapp-market/smtp.env
+      - /etc/alex-miniapp-market/market.env
+      - path: /etc/alex-miniapp-market/smtp.env
         required: false
     environment:
       MARKET_GITHUB_CALLBACK_URL: https://auth.openbitfun.com/api/v1/auth/github/callback
@@ -28,8 +28,8 @@ services:
       MARKET_ARTIFACT_DIR: /app/artifacts
       MARKET_WEB_DIR: /app/web
     volumes:
-      - /srv/openbitfun-miniapp-market/data:/app/data
-      - /srv/openbitfun-miniapp-market/artifacts:/app/artifacts
+      - /srv/alex-miniapp-market/data:/app/data
+      - /srv/alex-miniapp-market/artifacts:/app/artifacts
     tmpfs:
       - /tmp:rw,noexec,nosuid,nodev,size=64m
     healthcheck:

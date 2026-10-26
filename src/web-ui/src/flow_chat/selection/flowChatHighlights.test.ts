@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createFlowChatHighlightOwner } from './flowChatHighlights';
 
 const attribute = 'data-flowchat-highlight-annotations';
-const name = 'openbitfun-flowchat-annotations';
+const name = 'alex-flowchat-annotations';
 class Highlight extends Set<Range> { constructor(...ranges: Range[]) { super(ranges); } }
 
 describe('FlowChat highlight text scopes', () => {
@@ -81,7 +81,7 @@ describe('FlowChat highlight text scopes', () => {
     annotations.update([range]); excerpt.update([range]); annotations.update([]);
     expect(link.hasAttribute(attribute)).toBe(false);
     expect(link.hasAttribute('data-flowchat-highlight-excerpt')).toBe(true);
-    expect(registry.has('openbitfun-flowchat-excerpt')).toBe(true);
+    expect(registry.has('alex-flowchat-excerpt')).toBe(true);
     annotations.update([range]); root.replaceChildren();
     annotations.update([range]); excerpt.update([range]);
     expect(link.hasAttribute(attribute)).toBe(false);

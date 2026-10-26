@@ -197,10 +197,10 @@
     "colorDomainNearPairs.generatedWidget.nearTotal": {
       "max": 0
     },
-    "colorDomainNearPairs.openbitfunCanvas.indistinguishableTotal": {
+    "colorDomainNearPairs.alexCanvas.indistinguishableTotal": {
       "max": 0
     },
-    "colorDomainNearPairs.openbitfunCanvas.nearTotal": {
+    "colorDomainNearPairs.alexCanvas.nearTotal": {
       "max": 0
     },
     "colorDomainNearPairs.mermaid.indistinguishableTotal": {
@@ -278,10 +278,10 @@
     "colorDomainScopes.generatedWidget.uniqueColors": {
       "max": 0
     },
-    "colorDomainScopes.openbitfunCanvas.occurrences": {
+    "colorDomainScopes.alexCanvas.occurrences": {
       "max": 0
     },
-    "colorDomainScopes.openbitfunCanvas.uniqueColors": {
+    "colorDomainScopes.alexCanvas.uniqueColors": {
       "max": 0
     },
     "colorDomainScopes.editor.occurrences": {

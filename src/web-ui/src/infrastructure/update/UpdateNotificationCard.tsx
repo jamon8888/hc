@@ -1,4 +1,4 @@
-import { ActionItem, Button, Card, CardBody, CardFooter, CardHeader, Icon, IconButton, OverlayLayer, OverflowText, useHasModalOverlay } from '@openbitfun/ui';
+import { ActionItem, Button, Card, CardBody, CardFooter, CardHeader, Icon, IconButton, OverlayLayer, OverflowText, useHasModalOverlay } from '@alex/ui';
 import { useEffect, useMemo, useRef, type MouseEvent } from 'react';
 import { useI18n } from '@/infrastructure/i18n';
 import { getVersionInfo } from '@/shared/utils/version';
@@ -54,10 +54,10 @@ function UpdateNoticeCard({ notice }: { notice: UpdateNotice }) {
   return (
     <div
       ref={cardRef}
-      className="openbitfun-update-notice"
+      className="alex-update-notice"
       data-testid="app-update-notice"
-      data-openbitfun-component="update"
-      data-openbitfun-part="notice"
+      data-alex-component="update"
+      data-alex-part="notice"
       onKeyDown={event => {
         if (event.key === 'Escape') {
           event.stopPropagation();
@@ -66,9 +66,9 @@ function UpdateNoticeCard({ notice }: { notice: UpdateNotice }) {
       }}
     >
       <Card appearance="raised" padding="md" gap="md" radius="md"
-        className="openbitfun-update-notice__surface" data-openbitfun-native-webview-occlusion>
-        <div data-openbitfun-component="update" data-openbitfun-part="availableRoot" data-openbitfun-variant="daily">
-          <div data-openbitfun-component="update" data-openbitfun-part="lead">
+        className="alex-update-notice__surface" data-alex-native-webview-occlusion>
+        <div data-alex-component="update" data-alex-part="availableRoot" data-alex-variant="daily">
+          <div data-alex-component="update" data-alex-part="lead">
             <CardHeader
               align="center"
               actions={(
@@ -76,68 +76,68 @@ function UpdateNoticeCard({ notice }: { notice: UpdateNotice }) {
                   aria-label={t('actions.close')} onClick={state.dismissNotice} />
               )}
             >
-              <span className="openbitfun-update-notice__heading"
-                data-openbitfun-component="update" data-openbitfun-part="noticeTitle">
-                <ActionItem className="openbitfun-update-notice__title"
+              <span className="alex-update-notice__heading"
+                data-alex-component="update" data-alex-part="noticeTitle">
+                <ActionItem className="alex-update-notice__title"
                   aria-label={t('update.openReleaseNotes', { title })}
                   aria-haspopup="dialog" data-testid="app-update-release-notes"
                   metadata={<Icon name="chevron-right" size="xs" />}
                   onClick={state.openReleaseNotes}>
-                  <OverflowText className="openbitfun-update-notice__title-text">{title}</OverflowText>
+                  <OverflowText className="alex-update-notice__title-text">{title}</OverflowText>
                 </ActionItem>
               </span>
             </CardHeader>
           </div>
         </div>
-        <CardBody className="openbitfun-update-notice__body">
+        <CardBody className="alex-update-notice__body">
           {introduction ? (
-            <OverflowText as="p" lines={notice === 'error' ? 1 : 3} className="openbitfun-update-notice__introduction"
+            <OverflowText as="p" lines={notice === 'error' ? 1 : 3} className="alex-update-notice__introduction"
               data-testid="app-update-introduction"
-              data-openbitfun-component="update" data-openbitfun-part="subtitle">
+              data-alex-component="update" data-alex-part="subtitle">
               {introduction}
             </OverflowText>
           ) : (
-            <div className="openbitfun-update-notice__empty-introduction" aria-hidden="true"
+            <div className="alex-update-notice__empty-introduction" aria-hidden="true"
               data-testid="app-update-release-artwork"
-              data-openbitfun-component="update" data-openbitfun-part="releaseArtwork">
-              <span className="openbitfun-update-notice__brand-mark" />
+              data-alex-component="update" data-alex-part="releaseArtwork">
+              <span className="alex-update-notice__brand-mark" />
             </div>
           )}
-          {notice === 'error' && <div className="openbitfun-update-notice__feedback">
-            <p className="openbitfun-update-notice__message" role="status" aria-live="polite"
-              data-openbitfun-component="update" data-openbitfun-part="subtitle">
-              <span className="openbitfun-update-notice__status-icon" aria-hidden="true"
-                data-openbitfun-component="update" data-openbitfun-part="leadIcon">
+          {notice === 'error' && <div className="alex-update-notice__feedback">
+            <p className="alex-update-notice__message" role="status" aria-live="polite"
+              data-alex-component="update" data-alex-part="subtitle">
+              <span className="alex-update-notice__status-icon" aria-hidden="true"
+                data-alex-component="update" data-alex-part="leadIcon">
                 <Icon name="info" size="sm" tone="danger" />
               </span>
               <OverflowText lines={2}>{message}</OverflowText>
             </p>
           </div>}
           {notice === 'downloading' && (
-            <div className="openbitfun-update-progress__bar openbitfun-update-notice__progress"
+            <div className="alex-update-progress__bar alex-update-notice__progress"
               role="progressbar" aria-label={t('update.downloadingTitle')}
               aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent ?? undefined}
-              data-openbitfun-component="update" data-openbitfun-part="progressBar">
+              data-alex-component="update" data-alex-part="progressBar">
               <div
-                className={'openbitfun-update-progress__fill' + (percent == null ? ' openbitfun-update-progress__fill--indeterminate' : '')}
+                className={'alex-update-progress__fill' + (percent == null ? ' alex-update-progress__fill--indeterminate' : '')}
                 style={percent == null ? undefined : { transform: `scaleX(${percent / 100})` }}
-                data-openbitfun-component="update" data-openbitfun-part="progressFill"
-                data-openbitfun-state={percent == null ? 'indeterminate' : undefined} />
+                data-alex-component="update" data-alex-part="progressFill"
+                data-alex-state={percent == null ? 'indeterminate' : undefined} />
             </div>
           )}
         </CardBody>
         {notice !== 'downloading' && (
-          <div className="openbitfun-update-notice__footer" data-openbitfun-component="update" data-openbitfun-part="actions">
-            <CardFooter align={notice === 'available' ? 'between' : 'end'} className="openbitfun-update-notice__actions">
+          <div className="alex-update-notice__footer" data-alex-component="update" data-alex-part="actions">
+            <CardFooter align={notice === 'available' ? 'between' : 'end'} className="alex-update-notice__actions">
               {notice === 'available' && version && (
-                <Button className="openbitfun-update-notice__action" size="sm" variant="outline" onClick={() => state.skipVersion(version)}>
+                <Button className="alex-update-notice__action" size="sm" variant="outline" onClick={() => state.skipVersion(version)}>
                   {t('update.skipVersion')}
                 </Button>
               )}
-              {notice === 'available' && <Button className="openbitfun-update-notice__action" size="sm" variant="primary" onClick={event => startDownload(event, Boolean(state.version), version ?? undefined)}>
+              {notice === 'available' && <Button className="alex-update-notice__action" size="sm" variant="primary" onClick={event => startDownload(event, Boolean(state.version), version ?? undefined)}>
                 {t('update.downloadUpdate')}
               </Button>}
-              {notice === 'error' && <Button className="openbitfun-update-notice__action" size="sm" variant="primary" onClick={event => {
+              {notice === 'error' && <Button className="alex-update-notice__action" size="sm" variant="primary" onClick={event => {
                 if (isUpdateVersionChangedError(state.error)) {
                   state.openDetails();
                   void state.checkForUpdates();

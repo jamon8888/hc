@@ -7,14 +7,14 @@
 //! request is a legacy shape and is resolved through the workspace
 //! legacy-compat boundary.
 
-use openbitfun_core::service::workspace::{get_global_workspace_service, WorkspaceKind};
-use openbitfun_core::service::worktree::{
+use alex_core::service::workspace::{get_global_workspace_service, WorkspaceKind};
+use alex_core::service::worktree::{
     WorktreeCreateBranchRequest, WorktreeCreateRequest, WorktreeCreateResult, WorktreeListRequest,
     WorktreeMutationResult, WorktreeProjectListRequest, WorktreeProjectSummary,
     WorktreePromoteRequest, WorktreeRecreateRequest, WorktreeRemoveRequest, WorktreeRemoveResult,
     WorktreeService, WorktreeSessionBindingRequest, WorktreeSessionBindingResult,
 };
-use openbitfun_core_types::{WorktreeError, WorktreeErrorCode, WorktreeSummary};
+use alex_core_types::{WorktreeError, WorktreeErrorCode, WorktreeSummary};
 
 fn remote_unsupported() -> WorktreeError {
     WorktreeError {

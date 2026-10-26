@@ -1,7 +1,7 @@
 //! Cordis Hook bridge declarations are inspected without composing a profile.
-use openbitfun_product_domains::external_hook_catalog::*;
-use openbitfun_product_domains::external_sources::*;
-use openbitfun_static_hook_support::{
+use alex_product_domains::external_hook_catalog::*;
+use alex_product_domains::external_sources::*;
+use alex_static_hook_support::{
     parse_hook_document, read_bounded_file, regular_file_exists, BoundedFileRead,
     StaticHookCatalog, StaticHookDocumentFormat, StaticHookHandlerRule,
 };

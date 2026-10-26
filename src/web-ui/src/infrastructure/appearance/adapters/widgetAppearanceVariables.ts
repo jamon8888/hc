@@ -1,4 +1,4 @@
-import { themeCssVariables } from '@openbitfun/theme-openbitfun';
+import { themeCssVariables } from '@alex/theme-alex';
 
 import type { AppearanceThemeTokenName } from '../types';
 

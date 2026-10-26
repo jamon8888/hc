@@ -1,8 +1,8 @@
 {
-  "name": "@openbitfun/agent-sdk",
+  "name": "@alex/agent-sdk",
   "version": "0.0.0",
   "private": true,
-  "description": "Internal TypeScript vertical slice for the OpenBitFun Agent SDK",
+  "description": "Internal TypeScript vertical slice for the Alex Agent SDK",
   "type": "module",
   "exports": {
     ".": {

@@ -96,13 +96,13 @@ describe('NotificationCenter header', () => {
 
     expect(trigger?.getAttribute('aria-expanded')).toBe('false');
     expect(
-      document.querySelector('[data-openbitfun-part="description"]')?.textContent,
+      document.querySelector('[data-alex-part="description"]')?.textContent,
     ).toBe('Notification message');
 
     act(() => trigger!.click());
 
     expect(trigger?.getAttribute('aria-expanded')).toBe('true');
-    expect(document.querySelector('[data-openbitfun-part="description"]')).toBeNull();
+    expect(document.querySelector('[data-alex-part="description"]')).toBeNull();
     expect(document.querySelector('.notification-center__item-detail-message')?.textContent)
       .toBe('Notification message');
   });

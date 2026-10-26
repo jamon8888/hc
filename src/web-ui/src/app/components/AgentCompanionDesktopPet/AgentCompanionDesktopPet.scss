@@ -1,6 +1,6 @@
 
-.openbitfun-agent-companion-window-root,
-.openbitfun-agent-companion-window-body {
+.alex-agent-companion-window-root,
+.alex-agent-companion-window-body {
   width: 100%;
   height: 100%;
   margin: 0;
@@ -8,21 +8,21 @@
   background: transparent !important;
 }
 
-.openbitfun-agent-companion-window-body #root {
+.alex-agent-companion-window-body #root {
   width: 100vw;
   height: 100vh;
   background: transparent;
 }
 
-.openbitfun-agent-companion-window {
-  --openbitfun-agent-companion-gap: 8px;
-  --openbitfun-agent-companion-pet-width: 96px;
-  --openbitfun-agent-companion-pet-height: 96px;
+.alex-agent-companion-window {
+  --alex-agent-companion-gap: 8px;
+  --alex-agent-companion-pet-width: 96px;
+  --alex-agent-companion-pet-height: 96px;
   /* Room reserved above and below the dock, mirrored by WINDOW_VERTICAL_BUFFER
      in the component, which grows the host window to hold it. Without it a
      bubble that lifts (hover, attention pulse) is clipped by the bubble slot
      and by the window edge. */
-  --openbitfun-agent-companion-vertical-buffer: 3px;
+  --alex-agent-companion-vertical-buffer: 3px;
 
   width: 100vw;
   height: 100vh;
@@ -61,11 +61,11 @@
     flex-direction: row;
     align-items: center;
     justify-content: flex-end;
-    gap: var(--openbitfun-agent-companion-gap);
+    gap: var(--alex-agent-companion-gap);
     /* The pet is centered in a slot one buffer taller than it, so it keeps the
        same clearance from the window edge as a bubble. */
     min-height: calc(
-      var(--openbitfun-agent-companion-pet-height) + var(--openbitfun-agent-companion-vertical-buffer) * 2
+      var(--alex-agent-companion-pet-height) + var(--alex-agent-companion-vertical-buffer) * 2
     );
     width: max-content;
     max-height: 100vh;
@@ -113,18 +113,18 @@
     height: 21px;
     box-sizing: border-box;
     padding: 2px 5px;
-    border: 1px solid var(--openbitfun-color-field-border);
+    border: 1px solid var(--alex-color-field-border);
     border-radius: 5px;
-    background: var(--openbitfun-color-field-background);
-    color: var(--openbitfun-color-content-primary);
+    background: var(--alex-color-field-background);
+    color: var(--alex-color-content-primary);
     font: inherit;
-    font-size: var(--openbitfun-type-micro-font-size);
-    line-height: var(--openbitfun-type-modifier-leading-snug-line-height);
+    font-size: var(--alex-type-micro-font-size);
+    line-height: var(--alex-type-modifier-leading-snug-line-height);
     user-select: text;
     -webkit-user-select: text;
 
     &::placeholder {
-      color: var(--openbitfun-color-content-muted);
+      color: var(--alex-color-content-muted);
     }
 
     &:focus,
@@ -144,14 +144,14 @@
     padding: 0;
     display: grid;
     place-items: center;
-    border: 1px solid var(--openbitfun-color-action-neutral-border);
+    border: 1px solid var(--alex-color-action-neutral-border);
     border-radius: 5px;
-    background: var(--openbitfun-color-action-neutral-surface);
-    color: var(--openbitfun-color-action-neutral-content);
+    background: var(--alex-color-action-neutral-surface);
+    color: var(--alex-color-action-neutral-content);
     cursor: pointer;
 
     &:hover:not(:disabled) {
-      background: var(--openbitfun-color-action-neutral-surface-hover);
+      background: var(--alex-color-action-neutral-surface-hover);
     }
 
     &:disabled {
@@ -160,24 +160,24 @@
     }
 
     &:focus-visible {
-      outline: 2px solid color-mix(in srgb, var(--openbitfun-color-accent-hover) 70%, transparent);
+      outline: 2px solid color-mix(in srgb, var(--alex-color-accent-hover) 70%, transparent);
       outline-offset: 1px;
     }
   }
 
   &__pet {
-    width: min(var(--openbitfun-agent-companion-pet-width), 100vw);
-    height: min(var(--openbitfun-agent-companion-pet-height), 100vh);
-    max-width: var(--openbitfun-agent-companion-pet-width);
-    max-height: var(--openbitfun-agent-companion-pet-height);
+    width: min(var(--alex-agent-companion-pet-width), 100vw);
+    height: min(var(--alex-agent-companion-pet-height), 100vh);
+    max-width: var(--alex-agent-companion-pet-width);
+    max-height: var(--alex-agent-companion-pet-height);
     transform-origin: center bottom;
   }
 
   &__pet-hitbox {
     position: relative;
     flex-shrink: 0;
-    width: min(var(--openbitfun-agent-companion-pet-width), 100vw);
-    height: min(var(--openbitfun-agent-companion-pet-height), 100vh);
+    width: min(var(--alex-agent-companion-pet-width), 100vw);
+    height: min(var(--alex-agent-companion-pet-height), 100vh);
     display: grid;
     place-items: center;
     cursor: grab;
@@ -196,11 +196,11 @@
       border-radius: 50%;
       background: radial-gradient(
         circle,
-        color-mix(in srgb, var(--openbitfun-color-status-warning-content) 28%, transparent) 0%,
-        color-mix(in srgb, var(--openbitfun-color-status-warning-content) 8%, transparent) 50%,
+        color-mix(in srgb, var(--alex-color-status-warning-content) 28%, transparent) 0%,
+        color-mix(in srgb, var(--alex-color-status-warning-content) 8%, transparent) 50%,
         transparent 75%
       );
-      animation: openbitfun-agent-companion-pet-attention-glow 1.6s ease-in-out infinite !important;
+      animation: alex-agent-companion-pet-attention-glow 1.6s ease-in-out infinite !important;
       pointer-events: none;
       z-index: 0;
     }
@@ -220,7 +220,7 @@
     max-height: 100vh;
     /* The slot clips (`overflow: hidden`), so the buffer has to sit inside it:
        a bubble lifting out of its own box then keeps its border visible. */
-    padding-block: var(--openbitfun-agent-companion-vertical-buffer);
+    padding-block: var(--alex-agent-companion-vertical-buffer);
     display: flex;
     flex-direction: column;
     align-items: flex-end;
@@ -232,8 +232,8 @@
     &--single {
       height: min(
         calc(
-          var(--openbitfun-agent-companion-pet-height)
-          + var(--openbitfun-agent-companion-vertical-buffer) * 2
+          var(--alex-agent-companion-pet-height)
+          + var(--alex-agent-companion-vertical-buffer) * 2
         ),
         100vh
       );
@@ -251,7 +251,7 @@
     max-width: 100%;
 
     &--single {
-      height: min(var(--openbitfun-agent-companion-pet-height), 100vh);
+      height: min(var(--alex-agent-companion-pet-height), 100vh);
     }
   }
 
@@ -266,10 +266,10 @@
     padding: 0;
     display: grid;
     place-items: center;
-    border: 1px solid var(--openbitfun-color-border-default);
+    border: 1px solid var(--alex-color-border-default);
     border-radius: 50%;
-    background: var(--openbitfun-color-surface-raised);
-    color: var(--openbitfun-color-content-primary);
+    background: var(--alex-color-surface-raised);
+    color: var(--alex-color-content-primary);
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
@@ -279,11 +279,11 @@
     cursor: pointer;
 
     &:hover {
-      background: var(--openbitfun-color-surface-tertiary);
+      background: var(--alex-color-surface-tertiary);
     }
 
     &:focus-visible {
-      outline: 2px solid color-mix(in srgb, var(--openbitfun-color-accent-hover) 70%, transparent);
+      outline: 2px solid color-mix(in srgb, var(--alex-color-accent-hover) 70%, transparent);
       outline-offset: 1px;
     }
   }
@@ -304,10 +304,10 @@
     max-width: 100%;
     box-sizing: border-box;
     padding: 7px 10px;
-    border: 1px solid var(--openbitfun-color-border-default);
+    border: 1px solid var(--alex-color-border-default);
     border-radius: 10px 10px 2px 10px;
-    background-color: var(--openbitfun-color-surface-raised);
-    color: var(--openbitfun-color-content-primary);
+    background-color: var(--alex-color-surface-raised);
+    color: var(--alex-color-content-primary);
     backdrop-filter: blur(10px);
     cursor: pointer;
     position: relative;
@@ -318,12 +318,12 @@
     }
 
     &:focus-visible {
-      outline: 2px solid color-mix(in srgb, var(--openbitfun-color-accent-hover) 70%, transparent);
+      outline: 2px solid color-mix(in srgb, var(--alex-color-accent-hover) 70%, transparent);
       outline-offset: 2px;
     }
 
     &--single {
-      height: min(var(--openbitfun-agent-companion-pet-height), 100vh);
+      height: min(var(--alex-agent-companion-pet-height), 100vh);
       display: flex;
       flex-direction: column;
       overflow: hidden;
@@ -343,14 +343,14 @@
 
       /* Only the output yields space to the input row; letting the title and
          status shrink too would clip their glyphs. */
-      .openbitfun-agent-companion-window__bubble-title,
-      .openbitfun-agent-companion-window__bubble-status {
+      .alex-agent-companion-window__bubble-title,
+      .alex-agent-companion-window__bubble-status {
         flex: 0 0 auto;
       }
 
       /* Two whole lines: a flexible height would leave a half-clipped line
          under the input row. */
-      .openbitfun-agent-companion-window__bubble-output {
+      .alex-agent-companion-window__bubble-output {
         flex: 0 0 calc(12px * 2);
         height: calc(12px * 2);
       }
@@ -368,17 +368,17 @@
     box-sizing: border-box;
     max-width: 100%;
     padding-right: 8px;
-    font-size: var(--openbitfun-type-meta-font-size);
-    line-height: var(--openbitfun-type-modifier-leading-dense-line-height);
-    font-weight: var(--openbitfun-type-label-selected-font-weight);
+    font-size: var(--alex-type-meta-font-size);
+    line-height: var(--alex-type-modifier-leading-dense-line-height);
+    font-weight: var(--alex-type-label-selected-font-weight);
     min-width: 0;
   }
 
   &__bubble-status {
     margin-top: 2px;
-    font-size: var(--openbitfun-type-micro-font-size);
-    line-height: var(--openbitfun-type-modifier-leading-dense-line-height);
-    color: var(--openbitfun-color-content-secondary);
+    font-size: var(--alex-type-micro-font-size);
+    line-height: var(--alex-type-modifier-leading-dense-line-height);
+    color: var(--alex-color-content-secondary);
   }
 
   &__bubble-output {
@@ -387,9 +387,9 @@
     min-height: 0;
     flex: 0 0 calc(12px * 4);
     height: calc(12px * 4);
-    font-size: var(--openbitfun-type-micro-font-size);
-    line-height: var(--openbitfun-type-label-md-line-height);
-    color: var(--openbitfun-color-content-secondary);
+    font-size: var(--alex-type-micro-font-size);
+    line-height: var(--alex-type-label-md-line-height);
+    color: var(--alex-color-content-secondary);
     white-space: pre-wrap;
     word-break: break-word;
     overflow-wrap: anywhere;
@@ -408,19 +408,19 @@
       height: 1em;
       margin-left: 2px;
       vertical-align: -0.12em;
-      background: var(--openbitfun-color-content-muted);
-      animation: openbitfun-agent-companion-caret 920ms steps(2, start) infinite;
+      background: var(--alex-color-content-muted);
+      animation: alex-agent-companion-caret 920ms steps(2, start) infinite;
     }
   }
 
   &__bubble--attention {
-    border-color: var(--openbitfun-color-status-warning-border);
+    border-color: var(--alex-color-status-warning-border);
     background-image: linear-gradient(
-      var(--openbitfun-color-status-warning-surface),
-      var(--openbitfun-color-status-warning-surface)
+      var(--alex-color-status-warning-surface),
+      var(--alex-color-status-warning-surface)
     );
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--openbitfun-color-status-warning-content) 50%, transparent);
-    animation: openbitfun-agent-companion-attention-pulse 1.5s ease-in-out infinite !important;
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--alex-color-status-warning-content) 50%, transparent);
+    animation: alex-agent-companion-attention-pulse 1.5s ease-in-out infinite !important;
 
     &::after {
       content: "";
@@ -430,46 +430,46 @@
       width: 6px;
       height: 6px;
       border-radius: 50%;
-      background: var(--openbitfun-color-status-warning-content);
-      animation: openbitfun-agent-companion-attention-dot 1.5s ease-in-out infinite;
+      background: var(--alex-color-status-warning-content);
+      animation: alex-agent-companion-attention-dot 1.5s ease-in-out infinite;
     }
   }
 
   &__bubble--waiting {
-    border-color: var(--openbitfun-color-status-warning-border);
+    border-color: var(--alex-color-status-warning-border);
     background-image: linear-gradient(
-      var(--openbitfun-color-status-warning-surface),
-      var(--openbitfun-color-status-warning-surface)
+      var(--alex-color-status-warning-surface),
+      var(--alex-color-status-warning-surface)
     );
   }
 
   &__bubble--completed {
-    border-color: var(--openbitfun-color-status-success-border);
+    border-color: var(--alex-color-status-success-border);
     background-image: linear-gradient(
-      var(--openbitfun-color-status-success-surface),
-      var(--openbitfun-color-status-success-surface)
+      var(--alex-color-status-success-surface),
+      var(--alex-color-status-success-surface)
     );
   }
 
   &__bubble--error,
   &__bubble--interrupted {
-    border-color: var(--openbitfun-color-status-danger-border);
+    border-color: var(--alex-color-status-danger-border);
     background-image: linear-gradient(
-      var(--openbitfun-color-status-danger-surface),
-      var(--openbitfun-color-status-danger-surface)
+      var(--alex-color-status-danger-surface),
+      var(--alex-color-status-danger-surface)
     );
   }
 
-  .openbitfun-agent-companion-pet {
-    --openbitfun-petdex-width: min(var(--openbitfun-agent-companion-pet-width), 100vw);
-    --openbitfun-petdex-height: min(var(--openbitfun-agent-companion-pet-height), 100vh);
-    --openbitfun-petdex-margin-top: 0;
+  .alex-agent-companion-pet {
+    --alex-petdex-width: min(var(--alex-agent-companion-pet-width), 100vw);
+    --alex-petdex-height: min(var(--alex-agent-companion-pet-height), 100vh);
+    --alex-petdex-margin-top: 0;
 
     pointer-events: none;
   }
 }
 
-@keyframes openbitfun-agent-companion-caret {
+@keyframes alex-agent-companion-caret {
   0%,
   45% {
     opacity: 1;
@@ -481,10 +481,10 @@
   }
 }
 
-@keyframes openbitfun-agent-companion-attention-pulse {
+@keyframes alex-agent-companion-attention-pulse {
   0%,
   100% {
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--openbitfun-color-status-warning-content) 50%, transparent);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--alex-color-status-warning-content) 50%, transparent);
     transform: translateY(0);
   }
 
@@ -494,7 +494,7 @@
   }
 }
 
-@keyframes openbitfun-agent-companion-attention-dot {
+@keyframes alex-agent-companion-attention-dot {
   0%,
   100% {
     transform: scale(1);
@@ -507,7 +507,7 @@
   }
 }
 
-@keyframes openbitfun-agent-companion-pet-attention-glow {
+@keyframes alex-agent-companion-pet-attention-glow {
   0%,
   100% {
     opacity: 0.5;
@@ -521,10 +521,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .openbitfun-agent-companion__pet--needs-attention::before,
-  .openbitfun-agent-companion__bubble--typing::after,
-  .openbitfun-agent-companion__bubble--attention,
-  .openbitfun-agent-companion__bubble--attention::after {
+  .alex-agent-companion__pet--needs-attention::before,
+  .alex-agent-companion__bubble--typing::after,
+  .alex-agent-companion__bubble--attention,
+  .alex-agent-companion__bubble--attention::after {
     animation: none !important;
     transform: none;
   }

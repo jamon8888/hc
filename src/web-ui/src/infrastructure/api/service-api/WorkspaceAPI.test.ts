@@ -68,7 +68,7 @@ describe('WorkspaceAPI', () => {
   it('writes text through the registered command with remote routing context', async () => {
     await workspaceAPI.writeFileContent(
       '/workspace',
-      '/workspace/.openbitfun/plans/refactor.plan.md',
+      '/workspace/.alex/plans/refactor.plan.md',
       '# Plan',
       'remote-connection-1',
     );
@@ -76,7 +76,7 @@ describe('WorkspaceAPI', () => {
     expect(invokeMock).toHaveBeenCalledWith('write_file_content', {
       request: {
         workspacePath: '/workspace',
-        filePath: '/workspace/.openbitfun/plans/refactor.plan.md',
+        filePath: '/workspace/.alex/plans/refactor.plan.md',
         content: '# Plan',
         remoteConnectionId: 'remote-connection-1',
       },

@@ -1,4 +1,4 @@
-@layer openbitfun.components {
+@layer alex.components {
   .root,
   .trigger,
   .leading,
@@ -15,47 +15,47 @@
     inline-size: 100%;
     min-inline-size: 0;
     border: 0;
-    outline: var(--openbitfun-border-width-default) solid transparent;
-    outline-offset: calc(-1 * var(--openbitfun-border-width-default));
-    border-radius: var(--openbitfun-control-action-card-radius);
-    color: var(--openbitfun-color-action-neutral-content);
-    background: var(--openbitfun-color-action-card-background);
+    outline: var(--alex-border-width-default) solid transparent;
+    outline-offset: calc(-1 * var(--alex-border-width-default));
+    border-radius: var(--alex-control-action-card-radius);
+    color: var(--alex-color-action-neutral-content);
+    background: var(--alex-color-action-card-background);
     transition:
-      color var(--openbitfun-motion-duration-fast) var(--openbitfun-motion-easing-standard),
-      background-color var(--openbitfun-motion-duration-fast) var(--openbitfun-motion-easing-standard),
-      outline-color var(--openbitfun-motion-duration-fast) var(--openbitfun-motion-easing-standard);
+      color var(--alex-motion-duration-fast) var(--alex-motion-easing-standard),
+      background-color var(--alex-motion-duration-fast) var(--alex-motion-easing-standard),
+      outline-color var(--alex-motion-duration-fast) var(--alex-motion-easing-standard);
   }
 
   .root[data-size="sm"] {
-    min-block-size: var(--openbitfun-control-action-card-sm-min-block-size);
+    min-block-size: var(--alex-control-action-card-sm-min-block-size);
   }
 
   .root[data-size="md"] {
-    min-block-size: var(--openbitfun-control-action-card-md-min-block-size);
+    min-block-size: var(--alex-control-action-card-md-min-block-size);
   }
 
-  .root:not([data-disabled="true"]):is(:hover, :has(.trigger[data-openbitfun-preview-state="hover"])) {
-    outline-color: var(--openbitfun-color-border-default);
-    background: var(--openbitfun-color-action-neutral-surface-hover);
+  .root:not([data-disabled="true"]):is(:hover, :has(.trigger[data-alex-preview-state="hover"])) {
+    outline-color: var(--alex-color-border-default);
+    background: var(--alex-color-action-neutral-surface-hover);
   }
 
-  .root:not([data-disabled="true"]):is(:active, :has(.trigger[data-openbitfun-preview-state="active"])) {
-    background: var(--openbitfun-color-action-neutral-surface-pressed);
+  .root:not([data-disabled="true"]):is(:active, :has(.trigger[data-alex-preview-state="active"])) {
+    background: var(--alex-color-action-neutral-surface-pressed);
   }
 
   .root[data-selected="true"] {
-    outline-color: var(--openbitfun-color-border-default);
-    background: var(--openbitfun-color-selection-surface);
+    outline-color: var(--alex-color-border-default);
+    background: var(--alex-color-selection-surface);
   }
 
   .root:has(.trigger:focus-visible) {
-    box-shadow: 0 0 0 var(--openbitfun-focus-width) var(--openbitfun-color-focus-ring);
+    box-shadow: 0 0 0 var(--alex-focus-width) var(--alex-color-focus-ring);
   }
 
   .root[data-disabled="true"] {
-    color: var(--openbitfun-color-action-neutral-content-disabled);
+    color: var(--alex-color-action-neutral-content-disabled);
     cursor: not-allowed;
-    opacity: var(--openbitfun-opacity-disabled);
+    opacity: var(--alex-opacity-disabled);
   }
 
   .trigger {
@@ -65,10 +65,10 @@
     align-self: stretch;
     min-inline-size: 0;
     min-block-size: inherit;
-    gap: var(--openbitfun-control-action-card-gap);
+    gap: var(--alex-control-action-card-gap);
     margin: 0;
-    padding-block: var(--openbitfun-control-action-card-padding-block);
-    padding-inline: var(--openbitfun-control-action-card-padding-inline);
+    padding-block: var(--alex-control-action-card-padding-block);
+    padding-inline: var(--alex-control-action-card-padding-inline);
     border: 0;
     outline: 0;
     color: inherit;
@@ -84,20 +84,20 @@
 
   .leading {
     display: inline-flex;
-    flex: 0 0 var(--openbitfun-control-action-card-leading-size);
+    flex: 0 0 var(--alex-control-action-card-leading-size);
     align-items: center;
     justify-content: center;
-    inline-size: var(--openbitfun-control-action-card-leading-size);
-    block-size: var(--openbitfun-control-action-card-leading-size);
-    border-radius: var(--openbitfun-radius-pill);
-    color: var(--openbitfun-color-content-secondary);
+    inline-size: var(--alex-control-action-card-leading-size);
+    block-size: var(--alex-control-action-card-leading-size);
+    border-radius: var(--alex-radius-pill);
+    color: var(--alex-color-content-secondary);
   }
 
   .leading > :where(svg, img),
-  .leading > [data-openbitfun-component="icon"] {
+  .leading > [data-alex-component="icon"] {
     display: block;
-    inline-size: var(--openbitfun-control-action-card-icon-size);
-    block-size: var(--openbitfun-control-action-card-icon-size);
+    inline-size: var(--alex-control-action-card-icon-size);
+    block-size: var(--alex-control-action-card-icon-size);
   }
 
   .content {
@@ -105,7 +105,7 @@
     flex: 1 1 auto;
     min-inline-size: 0;
     flex-direction: column;
-    gap: var(--openbitfun-control-action-card-content-gap);
+    gap: var(--alex-control-action-card-content-gap);
   }
 
   .title,
@@ -116,21 +116,21 @@
   }
 
   .title {
-    color: var(--openbitfun-color-content-primary);
-    font-family: var(--openbitfun-type-heading-section-font-family);
-    font-size: var(--openbitfun-type-heading-section-font-size);
-    font-weight: var(--openbitfun-type-heading-section-font-weight);
-    line-height: var(--openbitfun-type-heading-section-line-height);
-    letter-spacing: var(--openbitfun-type-heading-section-letter-spacing);
+    color: var(--alex-color-content-primary);
+    font-family: var(--alex-type-heading-section-font-family);
+    font-size: var(--alex-type-heading-section-font-size);
+    font-weight: var(--alex-type-heading-section-font-weight);
+    line-height: var(--alex-type-heading-section-line-height);
+    letter-spacing: var(--alex-type-heading-section-letter-spacing);
   }
 
   .description {
-    color: var(--openbitfun-color-content-primary);
-    font-family: var(--openbitfun-type-body-sm-font-family);
-    font-size: var(--openbitfun-type-body-sm-font-size);
-    font-weight: var(--openbitfun-type-body-sm-font-weight);
-    line-height: var(--openbitfun-type-action-row-line-height);
-    letter-spacing: var(--openbitfun-type-body-sm-letter-spacing);
+    color: var(--alex-color-content-primary);
+    font-family: var(--alex-type-body-sm-font-family);
+    font-size: var(--alex-type-body-sm-font-size);
+    font-weight: var(--alex-type-body-sm-font-weight);
+    line-height: var(--alex-type-action-row-line-height);
+    letter-spacing: var(--alex-type-body-sm-letter-spacing);
   }
 
   .actions {
@@ -138,8 +138,8 @@
     flex: 0 0 auto;
     align-items: center;
     align-self: stretch;
-    gap: var(--openbitfun-control-action-card-actions-gap);
-    padding-inline-end: var(--openbitfun-control-action-card-actions-padding-inline-end);
+    gap: var(--alex-control-action-card-actions-gap);
+    padding-inline-end: var(--alex-control-action-card-actions-padding-inline-end);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -160,7 +160,7 @@
     }
 
     .root:has(.trigger:focus-visible) {
-      box-shadow: 0 0 0 var(--openbitfun-focus-width) Highlight;
+      box-shadow: 0 0 0 var(--alex-focus-width) Highlight;
     }
   }
 }

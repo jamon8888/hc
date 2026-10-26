@@ -19,14 +19,14 @@ export const ConfigFieldStatus: React.FC<ConfigFieldStatusProps> = ({
   return (
     <div
       {...props}
-      className={['openbitfun-config-field-status', className].filter(Boolean).join(' ')}
-      data-openbitfun-component="config"
-      data-openbitfun-part="fieldStatus"
-      data-openbitfun-status={status}
+      className={['alex-config-field-status', className].filter(Boolean).join(' ')}
+      data-alex-component="config"
+      data-alex-part="fieldStatus"
+      data-alex-status={status}
       role={status === 'error' ? 'alert' : 'status'}
       aria-live={status === 'error' ? 'assertive' : 'polite'}
     >
-      <span className="openbitfun-config-field-status__marker" aria-hidden="true" />
+      <span className="alex-config-field-status__marker" aria-hidden="true" />
       <span>{message ?? t(`changeStatus.${status}`)}</span>
     </div>
   );

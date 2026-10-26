@@ -35,7 +35,7 @@ const tokyoPrimaryButton = (alpha: number | string) => rgbaFromHex(TOKYO_PRIMARY
 
 /** Colors aligned with the Tokyo Night palette (Enkia / VS Code Tokyo Night). */
 export const openBitFunTokyoNightPalette: AppearancePalette = {
-  id: 'openbitfun-tokyo-night',
+  id: 'alex-tokyo-night',
   name: 'Tokyo Night',
   type: 'dark',
   description:

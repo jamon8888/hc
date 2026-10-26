@@ -46,15 +46,15 @@ function ActivityItemContent({
   return (
     <>
       {leading !== undefined && leading !== null && (
-        <span aria-hidden="true" className={styles.leading} data-openbitfun-icon-slot="true" data-openbitfun-part="leading">
+        <span aria-hidden="true" className={styles.leading} data-alex-icon-slot="true" data-alex-part="leading">
           {leading}
         </span>
       )}
-      <span className={styles.content} data-openbitfun-part="content">
+      <span className={styles.content} data-alex-part="content">
         {label !== undefined && label !== null && (
-          <OverflowText className={styles.label} data-openbitfun-part="label">{label}</OverflowText>
+          <OverflowText className={styles.label} data-alex-part="label">{label}</OverflowText>
         )}
-        <OverflowText className={styles.description} data-openbitfun-part="description">{children}</OverflowText>
+        <OverflowText className={styles.description} data-alex-part="description">{children}</OverflowText>
       </span>
     </>
   );
@@ -87,7 +87,7 @@ export const ActivityItem = forwardRef<HTMLSpanElement, ActivityItemProps>(
         aria-disabled={disabled || undefined}
         className={classNames(styles.root, className)}
         data-appearance={appearance}
-        data-openbitfun-component="activity-item"
+        data-alex-component="activity-item"
         data-disabled={disabled ? "true" : "false"}
         data-has-detail={hasDetail ? "true" : "false"}
         ref={ref}
@@ -96,7 +96,7 @@ export const ActivityItem = forwardRef<HTMLSpanElement, ActivityItemProps>(
           <button
             data-overflow-trigger
             className={styles.trigger}
-            data-openbitfun-part="trigger"
+            data-alex-part="trigger"
             disabled={disabled}
             onClick={onActivate}
             type="button"
@@ -104,15 +104,15 @@ export const ActivityItem = forwardRef<HTMLSpanElement, ActivityItemProps>(
             {content}
           </button>
         ) : (
-          <span className={styles.body} data-openbitfun-part="body">{content}</span>
+          <span className={styles.body} data-alex-part="body">{content}</span>
         )}
         {metadata !== undefined && metadata !== null && (
-          <span className={styles.metadata} data-openbitfun-part="metadata">{metadata}</span>
+          <span className={styles.metadata} data-alex-part="metadata">{metadata}</span>
         )}
         {actions.length > 0 && (
           <>
-            <span aria-hidden="true" className={styles.divider} data-openbitfun-part="divider" />
-            <span className={styles.actions} data-openbitfun-part="actions">
+            <span aria-hidden="true" className={styles.divider} data-alex-part="divider" />
+            <span className={styles.actions} data-alex-part="actions">
               {actions.map((action) => (
                 <IconButton
                   aria-label={action.label}
@@ -129,7 +129,7 @@ export const ActivityItem = forwardRef<HTMLSpanElement, ActivityItemProps>(
           </>
         )}
         {hasDetail && (
-          <span className={styles.detail} data-openbitfun-part="detail">{detail}</span>
+          <span className={styles.detail} data-alex-part="detail">{detail}</span>
         )}
       </span>
     );
@@ -142,11 +142,11 @@ export const ChangeCount = forwardRef<HTMLSpanElement, ChangeCountProps>(
       <span
         {...props}
         className={classNames(styles.changeCount, className)}
-        data-openbitfun-component="change-count"
+        data-alex-component="change-count"
         ref={ref}
       >
-        <span className={styles.additions} data-openbitfun-part="additions">+{Math.abs(additions)}</span>
-        <span className={styles.deletions} data-openbitfun-part="deletions">-{Math.abs(deletions)}</span>
+        <span className={styles.additions} data-alex-part="additions">+{Math.abs(additions)}</span>
+        <span className={styles.deletions} data-alex-part="deletions">-{Math.abs(deletions)}</span>
       </span>
     );
   },

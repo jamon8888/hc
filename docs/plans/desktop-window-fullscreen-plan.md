@@ -68,8 +68,8 @@ Risk: Medium. The code path is narrow, but platform fullscreen behavior differs 
   - `pnpm run lint:web`
   - `pnpm run type-check:web`
   - `pnpm --dir src/web-ui run test:run`
-  - `cargo check -p openbitfun-desktop`
-  - `cargo test -p openbitfun-desktop`
+  - `cargo check -p alex-desktop`
+  - `cargo test -p alex-desktop`
 
 M1 implementation notes:
 

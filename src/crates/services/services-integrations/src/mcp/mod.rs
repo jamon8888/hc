@@ -1,6 +1,6 @@
 //! MCP service contracts.
 //!
-//! `openbitfun-core::service::mcp` remains as the compatibility facade for the
+//! `alex-core::service::mcp` remains as the compatibility facade for the
 //! legacy public path.
 
 mod tool_info;

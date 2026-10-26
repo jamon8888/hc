@@ -21,7 +21,7 @@ function findUnownedRows(source: string, file: string): string[] {
   for (const statement of ast.statements) {
     if (!ts.isImportDeclaration(statement)
       || !ts.isStringLiteral(statement.moduleSpecifier)
-      || statement.moduleSpecifier.text !== '@openbitfun/ui') continue;
+      || statement.moduleSpecifier.text !== '@alex/ui') continue;
     const bindings = statement.importClause?.namedBindings;
     if (bindings && ts.isNamedImports(bindings)) {
       for (const entry of bindings.elements) {
@@ -67,7 +67,7 @@ function findUnownedRows(source: string, file: string): string[] {
 
 describe('menu row layout ownership', () => {
   it('rejects ordinary wrappers that drop row spacing, including mapped and tooltip-wrapped items', () => {
-    const imports = 'import { MenuItem, MenuList, ScrollArea, Tooltip } from "@openbitfun/ui";';
+    const imports = 'import { MenuItem, MenuList, ScrollArea, Tooltip } from "@alex/ui";';
     for (const content of [
       '<div><MenuItem>A</MenuItem><MenuItem>B</MenuItem></div>',
       '<ScrollArea>{items.map(item => <MenuItem>{item}</MenuItem>)}</ScrollArea>',

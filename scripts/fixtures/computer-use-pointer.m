@@ -19,7 +19,7 @@ int main(int argc, const char *argv[]) {
         pid_t foreground = NSWorkspace.sharedWorkspace.frontmostApplication.processIdentifier;
         NSWindow *target = [[NSWindow alloc] initWithContentRect:NSMakeRect(100, 100, 320, 240)
             styleMask:NSWindowStyleMaskTitled backing:NSBackingStoreBuffered defer:NO];
-        target.title = @"OpenBitFun Pointer Fixture";
+        target.title = @"Alex Pointer Fixture";
         [target orderFrontRegardless];
         pump(0.1);
         double top = CGDisplayBounds(CGMainDisplayID()).size.height - NSMaxY(target.frame);

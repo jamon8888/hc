@@ -1,7 +1,7 @@
 //! Announcement system Tauri commands.
 
 use crate::api::app_state::AppState;
-use openbitfun_core::service::announcement::{AnnouncementCard, CardType};
+use alex_core::service::announcement::{AnnouncementCard, CardType};
 use serde::Deserialize;
 use tauri::State;
 
@@ -23,7 +23,7 @@ pub async fn get_pending_announcements(
         .config_service
         .get_config::<String>(Some("app.language"))
         .await
-        .unwrap_or_else(|_| openbitfun_core::service::i18n::default_locale_code().to_string());
+        .unwrap_or_else(|_| alex_core::service::i18n::default_locale_code().to_string());
 
     let mut cards = state
         .announcement_scheduler
@@ -101,7 +101,7 @@ pub async fn trigger_announcement(
         .config_service
         .get_config::<String>(Some("app.language"))
         .await
-        .unwrap_or_else(|_| openbitfun_core::service::i18n::default_locale_code().to_string());
+        .unwrap_or_else(|_| alex_core::service::i18n::default_locale_code().to_string());
 
     Ok(state
         .announcement_scheduler
@@ -118,7 +118,7 @@ pub async fn get_announcement_tips(
         .config_service
         .get_config::<String>(Some("app.language"))
         .await
-        .unwrap_or_else(|_| openbitfun_core::service::i18n::default_locale_code().to_string());
+        .unwrap_or_else(|_| alex_core::service::i18n::default_locale_code().to_string());
 
     // Re-use the scheduler run result but filter to tips only.
     let cards = state
@@ -132,7 +132,7 @@ pub async fn get_announcement_tips(
         .filter(|c| {
             matches!(
                 c.card_type,
-                openbitfun_core::service::announcement::types::CardType::Tip
+                alex_core::service::announcement::types::CardType::Tip
             )
         })
         .collect();

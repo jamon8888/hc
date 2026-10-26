@@ -11,9 +11,9 @@ use crate::agentic::tools::review_read_receipt_runtime::{
     file_revision, get_review_read_coverage, record_review_read_receipt,
     review_read_receipts_enabled,
 };
-use crate::agentic::tools::workspace_paths::is_openbitfun_tool_uri;
+use crate::agentic::tools::workspace_paths::is_alex_tool_uri;
 use crate::agentic::tools::ToolPathOperation;
-use crate::util::errors::{OpenBitFunError, OpenBitFunResult};
+use crate::util::errors::{AlexError, AlexResult};
 use crate::util::timing::elapsed_ms_u64;
 use async_trait::async_trait;
 use log::{debug, warn};
@@ -192,18 +192,18 @@ impl FileReadTool {
         tail: bool,
         filesystem: &dyn crate::agentic::workspace::WorkspaceFileSystem,
         context: &ToolUseContext,
-    ) -> OpenBitFunResult<(ReadFileResult, DocumentReadMetadata)> {
+    ) -> AlexResult<(ReadFileResult, DocumentReadMetadata)> {
         let bytes = filesystem
             .read_file_bounded(resolved_path, MAX_DOCUMENT_INPUT_BYTES)
             .await
             .map_err(|error| {
-                OpenBitFunError::tool(format!(
+                AlexError::tool(format!(
                     "Failed to read document {}: {:#}",
                     logical_path, error
                 ))
             })?
             .ok_or_else(|| {
-                OpenBitFunError::tool(format!(
+                AlexError::tool(format!(
                     "Document {} is larger than the {} MiB Read limit",
                     logical_path,
                     MAX_DOCUMENT_INPUT_BYTES / (1024 * 1024)
@@ -274,7 +274,7 @@ impl FileReadTool {
                 DOCUMENT_CONVERSION_TIMEOUT.as_millis(),
                 elapsed_ms_u64(conversion_started_at)
             );
-            OpenBitFunError::tool(format!(
+            AlexError::tool(format!(
                 "Document conversion did not finish within {} seconds: {}",
                 DOCUMENT_CONVERSION_TIMEOUT.as_secs(),
                 logical_path
@@ -316,7 +316,7 @@ impl FileReadTool {
                 self.max_total_chars,
             )
         }
-        .map_err(OpenBitFunError::tool)?;
+        .map_err(AlexError::tool)?;
 
         Ok((
             read_result,
@@ -332,7 +332,7 @@ impl FileReadTool {
         logical_path: &str,
         resolved_path: &str,
         error: DocumentConversionError,
-    ) -> OpenBitFunError {
+    ) -> AlexError {
         let ocr_hint = (error.code() == "unsupported"
             && Path::new(resolved_path)
                 .extension()
@@ -342,7 +342,7 @@ impl FileReadTool {
             " Text PDFs are supported, but scanned or image-only PDFs require an OCR workflow.",
         )
         .unwrap_or_default();
-        OpenBitFunError::tool(format!(
+        AlexError::tool(format!(
             "Failed to convert document {} to Markdown ({}): {}.{}",
             logical_path,
             error.code(),
@@ -358,7 +358,7 @@ impl Tool for FileReadTool {
         "Read"
     }
 
-    async fn description(&self) -> OpenBitFunResult<String> {
+    async fn description(&self) -> AlexResult<String> {
         #[cfg(feature = "document-read")]
         let document_summary = " Office documents, OpenDocument files, RTF, EPUB, and PDFs are converted locally to GitHub-Flavored Markdown before reading.";
         #[cfg(not(feature = "document-read"))]
@@ -462,11 +462,11 @@ Usage:
         &self,
         input: &Value,
         context: &ToolUseContext,
-    ) -> OpenBitFunResult<Vec<PermissionIntent>> {
+    ) -> AlexResult<Vec<PermissionIntent>> {
         let file_path = input
             .get("file_path")
             .and_then(Value::as_str)
-            .ok_or_else(|| OpenBitFunError::validation("file_path is required".to_string()))?;
+            .ok_or_else(|| AlexError::validation("file_path is required".to_string()))?;
         file_permission_intents("read", [file_path], context)
     }
 
@@ -518,11 +518,11 @@ Usage:
                 }
             }
             None => {
-                if is_openbitfun_tool_uri(file_path) {
+                if is_alex_tool_uri(file_path) {
                     return ValidationResult {
                         result: false,
                         message: Some(
-                            "Tool context is required to resolve OpenBitFun URIs".to_string(),
+                            "Tool context is required to resolve Alex URIs".to_string(),
                         ),
                         error_code: Some(400),
                         meta: None,
@@ -618,7 +618,7 @@ Usage:
                     meta: None,
                 };
             };
-            if metadata.kind != openbitfun_runtime_ports::WorkspacePathKind::File {
+            if metadata.kind != alex_runtime_ports::WorkspacePathKind::File {
                 return ValidationResult {
                     result: false,
                     message: Some(format!("Path is not a file: {}", resolved.logical_path)),
@@ -647,15 +647,15 @@ Usage:
         &self,
         input: &Value,
         context: &ToolUseContext,
-    ) -> OpenBitFunResult<Vec<ToolResult>> {
+    ) -> AlexResult<Vec<ToolResult>> {
         let file_path = input
             .get("file_path")
             .and_then(|v| v.as_str())
-            .ok_or_else(|| OpenBitFunError::tool("file_path is required".to_string()))?;
+            .ok_or_else(|| AlexError::tool("file_path is required".to_string()))?;
 
-        let tail = Self::read_tail_mode(input).map_err(OpenBitFunError::tool)?;
-        let render_mode = Self::read_render_mode(input).map_err(OpenBitFunError::tool)?;
-        let start_line = Self::read_window_start_line(input).map_err(OpenBitFunError::tool)?;
+        let tail = Self::read_tail_mode(input).map_err(AlexError::tool)?;
+        let render_mode = Self::read_render_mode(input).map_err(AlexError::tool)?;
+        let start_line = Self::read_window_start_line(input).map_err(AlexError::tool)?;
 
         let limit = input
             .get("limit")
@@ -667,7 +667,7 @@ Usage:
         #[cfg(feature = "tools-miniapp")]
         if is_virtual_context_path(context, &resolved) {
             let content = virtual_context_file(context, &resolved).ok_or_else(|| {
-                OpenBitFunError::tool(format!(
+                AlexError::tool(format!(
                     "MiniApp context file is unavailable: {}",
                     resolved.logical_path
                 ))
@@ -683,7 +683,7 @@ Usage:
                     self.max_total_chars,
                 )
             }
-            .map_err(OpenBitFunError::tool)?;
+            .map_err(AlexError::tool)?;
             let presentation =
                 build_read_file_presentation(&resolved.logical_path, &read_file_result);
             return Ok(vec![ToolResult::Result {
@@ -705,7 +705,7 @@ Usage:
         }
         #[cfg(feature = "tools-miniapp")]
         if requires_virtual_context_path(context) {
-            return Err(OpenBitFunError::tool(format!(
+            return Err(AlexError::tool(format!(
                 "MiniApp context file is unavailable: {}",
                 resolved.logical_path
             )));
@@ -726,7 +726,7 @@ Usage:
         };
         #[cfg(not(feature = "document-read"))]
         if reads_document_representation {
-            return Err(OpenBitFunError::tool(format!(
+            return Err(AlexError::tool(format!(
                 "Document Markdown conversion is not available in this product build: {}. Use a product that includes document-read, or render=source for text-based formats.",
                 resolved.logical_path
             )));
@@ -775,7 +775,7 @@ Usage:
                 .open_read(&resolved.resolved_path)
                 .await
                 .map_err(|error| {
-                    OpenBitFunError::tool(format!(
+                    AlexError::tool(format!(
                         "Failed to open file {}: {:#}",
                         resolved.logical_path, error
                     ))
@@ -807,7 +807,7 @@ Usage:
                     elapsed_ms_u64(read_started_at),
                     error
                 );
-                OpenBitFunError::tool(error)
+                AlexError::tool(error)
             })?;
             debug!("Workspace file stream read completed: path={} start_line={} end_line={} total_lines={} hit_total_char_limit={} duration_ms={}",
                 resolved.logical_path, result.start_line, result.end_line, result.total_lines,
@@ -892,8 +892,8 @@ mod tests {
         publish_agent_context_snapshot, remove_agent_context_snapshot, MiniAppAgentContextInput,
     };
     use async_trait::async_trait;
-    use openbitfun_runtime_ports::ToolRuntimeHandles;
-    use openbitfun_runtime_ports::{
+    use alex_runtime_ports::ToolRuntimeHandles;
+    use alex_runtime_ports::{
         WorkspaceCommandOptions, WorkspaceCommandResult, WorkspaceDirEntry, WorkspaceFileSystem,
         WorkspaceServices, WorkspaceShell,
     };
@@ -927,20 +927,20 @@ mod tests {
 
     #[cfg(all(feature = "document-read", feature = "tools-rag"))]
     #[async_trait]
-    impl openbitfun_runtime_ports::DocumentRedactionPort for StubRedactor {
+    impl alex_runtime_ports::DocumentRedactionPort for StubRedactor {
         async fn redact(
             &self,
             path: &str,
             workspace_root: &str,
         ) -> Result<
-            openbitfun_runtime_ports::RedactedDocument,
-            openbitfun_runtime_ports::DocumentRedactionError,
+            alex_runtime_ports::RedactedDocument,
+            alex_runtime_ports::DocumentRedactionError,
         > {
             *self.seen.lock().unwrap() = Some((path.to_string(), workspace_root.to_string()));
-            Ok(openbitfun_runtime_ports::RedactedDocument {
+            Ok(alex_runtime_ports::RedactedDocument {
                 markdown: "Contact [EMAIL_1].".to_string(),
                 source_format: "pdf".to_string(),
-                entities: vec![openbitfun_runtime_ports::RedactedEntity {
+                entities: vec![alex_runtime_ports::RedactedEntity {
                     entity_id: "ENT_EMAIL_abcdef12".to_string(),
                     entity_type: "EMAIL".to_string(),
                     occurrence_count: 1,
@@ -963,7 +963,7 @@ mod tests {
         let seen = redactor.clone();
         crate::service::rag_search::set_global_document_redaction_port(Some(redactor));
 
-        let root = std::env::temp_dir().join("openbitfun-file-read-redaction-test");
+        let root = std::env::temp_dir().join("alex-file-read-redaction-test");
         let _ = fs::remove_dir_all(&root);
         fs::create_dir_all(&root).expect("create temp root");
         let document = root.join("contract.pdf");
@@ -994,7 +994,7 @@ mod tests {
             .expect("the port was called");
         assert!(path.ends_with("contract.pdf"), "the port saw {path}");
         assert!(
-            workspace_root.contains("openbitfun-file-read-redaction-test"),
+            workspace_root.contains("alex-file-read-redaction-test"),
             "the port saw the workspace root {workspace_root}"
         );
 
@@ -1038,7 +1038,7 @@ mod tests {
         async fn open_read(
             &self,
             _path: &str,
-        ) -> anyhow::Result<openbitfun_runtime_ports::WorkspaceReader> {
+        ) -> anyhow::Result<alex_runtime_ports::WorkspaceReader> {
             Ok(Box::new(std::io::Cursor::new(self.bytes.clone())))
         }
 
@@ -1046,9 +1046,9 @@ mod tests {
             &self,
             _path: &str,
             _follow_symlinks: bool,
-        ) -> anyhow::Result<Option<openbitfun_runtime_ports::WorkspaceMetadata>> {
-            Ok(Some(openbitfun_runtime_ports::WorkspaceMetadata {
-                kind: openbitfun_runtime_ports::WorkspacePathKind::File,
+        ) -> anyhow::Result<Option<alex_runtime_ports::WorkspaceMetadata>> {
+            Ok(Some(alex_runtime_ports::WorkspaceMetadata {
+                kind: alex_runtime_ports::WorkspacePathKind::File,
                 size: Some(self.bytes.len() as u64),
                 modified: None,
                 permissions: None,

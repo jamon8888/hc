@@ -2,20 +2,20 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 use anyhow::{Context, Result};
-use openbitfun_agent_runtime::sdk::{AgentEventSource, AgentRuntime};
-use openbitfun_core::agentic::system::AgenticSystem;
-use openbitfun_core::product_assembly::{
+use alex_agent_runtime::sdk::{AgentEventSource, AgentRuntime};
+use alex_core::agentic::system::AgenticSystem;
+use alex_core::product_assembly::{
     ProductAssemblyPlan, ProductServiceCapabilityAvailability,
 };
-use openbitfun_core::product_runtime::{
+use alex_core::product_runtime::{
     build_local_runtime_services, ensure_product_dialog_scheduler, CoreAgentRuntimeCompatibility,
     CoreLocalWorkspaceSnapshot, CoreProductAgentRuntime, CoreProductEventQueueOwner,
 };
-use openbitfun_core::runtime_ports::PluginRuntimeAvailability;
-use openbitfun_core::service::remote_connect::account_runtime::AccountRuntime;
-use openbitfun_core::service::token_usage::TokenUsageService;
-use openbitfun_runtime_ports::LocalWorkspaceSnapshotPort;
-use openbitfun_runtime_services::RuntimeServices;
+use alex_core::runtime_ports::PluginRuntimeAvailability;
+use alex_core::service::remote_connect::account_runtime::AccountRuntime;
+use alex_core::service::token_usage::TokenUsageService;
+use alex_runtime_ports::LocalWorkspaceSnapshotPort;
+use alex_runtime_services::RuntimeServices;
 
 use crate::account::{build_account_runtime, CliAccountRoutingHost};
 use crate::product_assembly::{assemble_acp_runtime_parts, assemble_cli_runtime_parts};
@@ -49,7 +49,7 @@ impl CliProductRuntimeState {
 
 #[derive(Clone)]
 pub(crate) struct CliRuntimeContext {
-    workspace: openbitfun_core::service::workspace::WorkspaceInfo,
+    workspace: alex_core::service::workspace::WorkspaceInfo,
     workspace_root: PathBuf,
     agent_runtime: AgentRuntime,
     local_workspace_snapshot: Arc<dyn LocalWorkspaceSnapshotPort>,
@@ -66,7 +66,7 @@ pub(crate) struct CliRuntimeContext {
 impl CliRuntimeContext {
     pub(crate) fn build(
         agentic_system: AgenticSystem,
-        workspace: openbitfun_core::service::workspace::WorkspaceInfo,
+        workspace: alex_core::service::workspace::WorkspaceInfo,
         approval_policy: CliApprovalPolicy,
     ) -> Result<Self> {
         let scheduler = ensure_product_dialog_scheduler(&agentic_system);
@@ -95,7 +95,7 @@ impl CliRuntimeContext {
         let compatibility =
             CoreAgentRuntimeCompatibility::build(agentic_system.coordinator.clone(), scheduler);
         let account = build_account_runtime();
-        openbitfun_core::product_runtime::account_pages::register_account_pages(&account.runtime);
+        alex_core::product_runtime::account_pages::register_account_pages(&account.runtime);
         let local_workspace_snapshot = CoreLocalWorkspaceSnapshot::build();
         let token_usage_service = agentic_system.token_usage_service.clone();
 
@@ -115,7 +115,7 @@ impl CliRuntimeContext {
         })
     }
 
-    pub(crate) fn workspace(&self) -> &openbitfun_core::service::workspace::WorkspaceInfo {
+    pub(crate) fn workspace(&self) -> &alex_core::service::workspace::WorkspaceInfo {
         &self.workspace
     }
 

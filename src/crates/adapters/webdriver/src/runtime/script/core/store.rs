@@ -8,8 +8,8 @@ pub(super) fn script() -> &'static str {
     };
 
     const nextElementId = () => {
-      window.__openbitfunWdElementCounter = (window.__openbitfunWdElementCounter || 0) + 1;
-      return `openbitfun-el-${window.__openbitfunWdElementCounter}`;
+      window.__alexWdElementCounter = (window.__alexWdElementCounter || 0) + 1;
+      return `alex-el-${window.__alexWdElementCounter}`;
     };
 
     const storeElement = (element) => {

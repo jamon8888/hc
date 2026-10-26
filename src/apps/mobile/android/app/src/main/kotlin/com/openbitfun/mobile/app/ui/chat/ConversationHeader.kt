@@ -161,13 +161,13 @@ internal fun ConversationHeader(
                     },
                     modifier = Modifier.testTag(CONVERSATION_MENU_TEST_TAG),
                 )
-                OpenBitFunHeaderActionMenu(
+                AlexHeaderActionMenu(
                     expanded = menuOpen,
                     onDismiss = { menuOpen = false },
                     sectionTitle = stringResource(R.string.session_section),
                     actions = buildList {
                         add(
-                            OpenBitFunHeaderAction(
+                            AlexHeaderAction(
                                 icon = R.drawable.ic_symbol_cloud,
                                 label = stringResource(R.string.session_uploaded_files),
                                 onClick = onShowUploadedFiles,
@@ -175,7 +175,7 @@ internal fun ConversationHeader(
                         )
                         if (canStop) {
                             add(
-                                OpenBitFunHeaderAction(
+                                AlexHeaderAction(
                                     icon = R.drawable.ic_symbol_gearshape,
                                     label = stringResource(R.string.message_stop),
                                     onClick = onStop,

@@ -6,8 +6,8 @@ use crate::{
     RuntimeSessionRenameRequest, RuntimeSessionRestoreRequest, PROTOCOL_VERSION,
 };
 use async_trait::async_trait;
-use openbitfun_events::{AgenticEvent, AgenticEventEnvelope, AgenticEventPriority};
-use openbitfun_runtime_ports::{
+use alex_events::{AgenticEvent, AgenticEventEnvelope, AgenticEventPriority};
+use alex_runtime_ports::{
     AgentDialogTurnRequest, AgentSessionCompactionRequest, AgentSessionComposerUpdate,
     AgentSessionCreateRequest, AgentSessionCreateResult, AgentSessionLineageCancellationRequest,
     AgentSessionLineageTranscriptRequest, AgentSessionModeUpdateRequest,
@@ -266,7 +266,7 @@ impl RuntimeIpcRequestHandler for FakeHandler {
             }
             RuntimeIpcOperation::InspectLineageSession { request } => {
                 Ok(RuntimeIpcOperationResult::LineageSessionInspection {
-                    inspection: openbitfun_runtime_ports::AgentSessionLineageInspection {
+                    inspection: alex_runtime_ports::AgentSessionLineageInspection {
                         transcript: SessionTranscript {
                             session_id: request.session_id,
                             messages: Vec::new(),
@@ -277,7 +277,7 @@ impl RuntimeIpcRequestHandler for FakeHandler {
             }
             RuntimeIpcOperation::CancelLineageSession { request } => {
                 Ok(RuntimeIpcOperationResult::TurnCancelled {
-                    cancellation: openbitfun_runtime_ports::AgentTurnCancellationResult {
+                    cancellation: alex_runtime_ports::AgentTurnCancellationResult {
                         session_id: request.session_id,
                         turn_id: None,
                         requested: true,
@@ -313,7 +313,7 @@ impl RuntimeIpcRequestHandler for FakeHandler {
                     ));
                 }
                 Ok(RuntimeIpcOperationResult::TurnCancelled {
-                    cancellation: openbitfun_runtime_ports::AgentTurnCancellationResult {
+                    cancellation: alex_runtime_ports::AgentTurnCancellationResult {
                         session_id: request.session_id,
                         turn_id: request.turn_id,
                         requested: true,
@@ -653,7 +653,7 @@ fn workspace_binding() -> AgentSessionWorkspaceBinding {
 fn test_identity(workspace: &Path) -> RuntimeInstanceIdentity {
     RuntimeInstanceIdentity::for_workspace(
         workspace,
-        "openbitfun",
+        "alex",
         "stable",
         "user-a",
         PROTOCOL_VERSION,
@@ -714,7 +714,7 @@ fn submit_operation(workspace: &Path, session_id: &str, turn_id: &str) -> Runtim
 
 fn steer_operation(session_id: &str, turn_id: &str) -> RuntimeIpcOperation {
     RuntimeIpcOperation::SteerTurn {
-        request: openbitfun_runtime_ports::AgentDialogSteerRequest {
+        request: alex_runtime_ports::AgentDialogSteerRequest {
             session_id: session_id.to_string(),
             turn_id: turn_id.to_string(),
             content: "check tests".to_string(),

@@ -8,7 +8,7 @@ product contract only.
 
 ## Capability record (single source of truth)
 
-`openbitfun_services_core::wordcraft::WordcraftProbe` (desktop-enabling feature `wordcraft`)
+`alex_services_core::wordcraft::WordcraftProbe` (desktop-enabling feature `wordcraft`)
 produces one `WordcraftCapability` record, resolved **explicit configured path → system PATH →
 managed component** (`wordcraft` component under the managed runtime root; component version
 pinned at `PINNED_WORDCRAFT_VERSION`). Statuses: `available | unsupported | not-installed |
@@ -99,11 +99,11 @@ rule:
 
 Choose at the owner, never a mono-suite:
 
-- Rust, in-crate: `cargo test -p openbitfun-desktop --lib wordcraft` (surface validation),
-  `cargo test -p openbitfun-services-integrations --no-default-features --features mcp --lib
-  mcp::server::wordcraft` (session spec + routing), `cargo test -p openbitfun-services-core
+- Rust, in-crate: `cargo test -p alex-desktop --lib wordcraft` (surface validation),
+  `cargo test -p alex-services-integrations --no-default-features --features mcp --lib
+  mcp::server::wordcraft` (session spec + routing), `cargo test -p alex-services-core
   --no-default-features --features wordcraft --lib wordcraft` (record/probe/checksums).
-- Registry: `cargo test -p openbitfun-desktop --lib remote_workspace_policy`; governance:
+- Registry: `cargo test -p alex-desktop --lib remote_workspace_policy`; governance:
   `pnpm run check:core-boundaries`, `pnpm run fmt:rs`.
 - **Device gate (on demand, real binary required)**:
   `node tests/e2e/scripts/wordcraft-doc-roundtrip.mjs [--cli <path>] [--strict]` —

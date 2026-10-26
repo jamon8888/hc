@@ -11,7 +11,7 @@ const config = JSON.parse(readFileSync(join(desktop, 'tauri.conf.json'), 'utf8')
 const plist = body => `<?xml version="1.0"?><plist version="1.0"><dict>${body}</dict></plist>`;
 
 function verifyFixture(t, { entitlement = 'configured', usage = true } = {}) {
-  const dir = mkdtempSync(join(tmpdir(), 'openbitfun-microphone-'));
+  const dir = mkdtempSync(join(tmpdir(), 'alex-microphone-'));
   t.after(() => rmSync(dir, { recursive: true, force: true }));
   const app = join(dir, 'Microphone.app');
   const executable = join(app, 'Contents/MacOS/fixture');

@@ -1,6 +1,6 @@
 # 06: rag_search tool + registration
 
-**What to build:** A `rag_search` tool exposed through **`RagSearchPort`** (`src/crates/contracts/runtime-ports/src/rag_search.rs`, feature `rag-search`): the `Tool` wrapper in `openbitfun-core` plus the port implementation in `basemind-integration` querying basemind's `memory mode="documents"` MCP tool and re-tokenizing hits to session tokens.
+**What to build:** A `rag_search` tool exposed through **`RagSearchPort`** (`src/crates/contracts/runtime-ports/src/rag_search.rs`, feature `rag-search`): the `Tool` wrapper in `alex-core` plus the port implementation in `basemind-integration` querying basemind's `memory mode="documents"` MCP tool and re-tokenizing hits to session tokens.
 
 **Inputs:** `{ query: string, top_k?: number }`
 **Outputs:** `[{ chunk: string, source_doc: string, score: number, entities: [{category, token}] }]`
@@ -14,7 +14,7 @@
 **Three layers (decided 2026-10-16):**
 
 1. **Port (TO BUILD — `contracts/runtime-ports`):** `RagSearchPort` trait + `RagSearchRequest { query, top_k, session_id }` / `RagSearchResponse` / error DTOs, behind feature `rag-search`; add `ToolRuntimeHandles::with_rag_search_port` + `rag_search_port()` accessor (the existing `ToolRuntimeHandles` Debug-format assertion test must be updated when the field is added).
-2. **Tool wrapper (TO BUILD — `openbitfun-core`):** `src/crates/assembly/core/src/agentic/tools/implementations/rag_search_tool.rs` — `call_impl` parses `{ query, top_k }`, takes the **real** `session_id` from `ToolUseContext` (never a placeholder), fetches `context.runtime_handles.rag_search_port()`, delegates, returns `ToolResult::json(hits)`; no port injected ⇒ explicit "rag_search unavailable in this runtime" tool error, no fallback. **`openbitfun-core` must not depend on `basemind-integration`** — it only ever sees `Arc<dyn RagSearchPort>`.
+2. **Tool wrapper (TO BUILD — `alex-core`):** `src/crates/assembly/core/src/agentic/tools/implementations/rag_search_tool.rs` — `call_impl` parses `{ query, top_k }`, takes the **real** `session_id` from `ToolUseContext` (never a placeholder), fetches `context.runtime_handles.rag_search_port()`, delegates, returns `ToolResult::json(hits)`; no port injected ⇒ explicit "rag_search unavailable in this runtime" tool error, no fallback. **`alex-core` must not depend on `basemind-integration`** — it only ever sees `Arc<dyn RagSearchPort>`.
 3. **Pipeline (EXISTS — `services/basemind-integration`, must be adapted):** `rag_search.rs::RagSearchTool::search(query, top_k, session_id)` + `query_resolution.rs::QueryResolver`; the concrete `impl RagSearchPort` is built at the host composition root — beside where the desktop app constructs `PromptPseudonymizer` — and threaded into tool-context state the same way `RemoteExecPort` reaches tools.
 
 **Implementation:**
@@ -44,7 +44,7 @@
 - [ ] If basemind, the session payload, or the safety pass is unavailable → hard-fail the call (D7); never fall back to raw text
 - [ ] Register in `assembly/core/src/agentic/tools/registry.rs` under `cfg(feature = "tools-rag")`
 - [ ] Add `tools-rag` feature to `assembly/core/Cargo.toml` + ProductToolPlan row
-- [ ] Host injection at the composition root; `pnpm run check:core-boundaries` stays green (no `openbitfun-core` → `basemind-integration` edge)
+- [ ] Host injection at the composition root; `pnpm run check:core-boundaries` stays green (no `alex-core` → `basemind-integration` edge)
 - [ ] Verify tool appears in `get_all_tools()` and works in the agent loop
 - [x] ~~Settle SPEC §14 open question "Index alias ingestion (D6 end-to-end)"~~ — settled 2026-10-16: **raw index** (D6 amended); prove it end-to-end (index carries no aliases/salt; hits leave tokenized)
 
@@ -52,4 +52,4 @@
 
 ## Comments
 
-- 2026-10-16 (code session): D11 seam **delivered** in commit `95d2f37d5` — `RagSearchPort` + `RagSearchRequest`/`Response`/`Error` DTOs in `contracts/runtime-ports` (feature `rag-search`, also aggregated by `tool-runtime-handles`), `ToolRuntimeHandles::with_rag_search_port` injection slot, basemind-side `RagSearchPortAdapter` (Mutex over `RagSearchTool::search`), and `tools-rag = ["openbitfun-runtime-ports/rag-search"]` in `assembly/core/Cargo.toml`. Boundary rules and fixtures updated; `pnpm run check:core-boundaries` green. Still open for this ticket: the `rag_search_tool.rs` wrapper, `registry.rs` registration, ProductToolPlan row, composition-root injection, and the agent-loop verification above. Note for the wrapper: `RagSearchRequest` carries `session_id` (resolve from `ToolUseContext`), and the port hard-fails D7 with `RagSearchErrorKind::SessionUnavailable`/`Failed`.
+- 2026-10-16 (code session): D11 seam **delivered** in commit `95d2f37d5` — `RagSearchPort` + `RagSearchRequest`/`Response`/`Error` DTOs in `contracts/runtime-ports` (feature `rag-search`, also aggregated by `tool-runtime-handles`), `ToolRuntimeHandles::with_rag_search_port` injection slot, basemind-side `RagSearchPortAdapter` (Mutex over `RagSearchTool::search`), and `tools-rag = ["alex-runtime-ports/rag-search"]` in `assembly/core/Cargo.toml`. Boundary rules and fixtures updated; `pnpm run check:core-boundaries` green. Still open for this ticket: the `rag_search_tool.rs` wrapper, `registry.rs` registration, ProductToolPlan row, composition-root injection, and the agent-loop verification above. Note for the wrapper: `RagSearchRequest` carries `session_id` (resolve from `ToolUseContext`), and the port hard-fails D7 with `RagSearchErrorKind::SessionUnavailable`/`Failed`.

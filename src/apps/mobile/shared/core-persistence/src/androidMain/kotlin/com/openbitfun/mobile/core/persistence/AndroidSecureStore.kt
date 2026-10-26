@@ -14,8 +14,8 @@ private class AndroidSecureStore(
     context: Context,
     namespace: String,
 ) : SecureStore {
-    private val preferences = context.getSharedPreferences("openbitfun_secure_" + namespace, Context.MODE_PRIVATE)
-    private val alias = "openbitfun.mobile." + namespace
+    private val preferences = context.getSharedPreferences("alex_secure_" + namespace, Context.MODE_PRIVATE)
+    private val alias = "alex.mobile." + namespace
 
     override fun read(key: String): ByteArray? {
         val packed = preferences.getString(key, null) ?: return null

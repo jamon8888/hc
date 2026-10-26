@@ -240,12 +240,12 @@ internal fun GeneralChatScreen(
                     val stored = state.sessions.any { it.id == state.sessionId }
                     val current = state.sessions.firstOrNull { it.id == state.sessionId }
                     val archived = current?.status.equals(ARCHIVED, ignoreCase = true)
-                    OpenBitFunHeaderActionMenu(
+                    AlexHeaderActionMenu(
                         expanded = menuOpen,
                         onDismiss = { menuOpen = false },
                         sectionTitle = stringResource(R.string.session_section),
                         actions = listOf(
-                            OpenBitFunHeaderAction(
+                            AlexHeaderAction(
                                 icon = R.drawable.ic_symbol_checkmark_circle,
                                 label = stringResource(
                                     if (current?.pinned == true) R.string.session_unpin
@@ -262,7 +262,7 @@ internal fun GeneralChatScreen(
                                     )
                                 },
                             ),
-                            OpenBitFunHeaderAction(
+                            AlexHeaderAction(
                                 icon = R.drawable.ic_symbol_cloud,
                                 label = stringResource(R.string.session_uploaded_files),
                                 onClick = {
@@ -271,7 +271,7 @@ internal fun GeneralChatScreen(
                                         .show()
                                 },
                             ),
-                            OpenBitFunHeaderAction(
+                            AlexHeaderAction(
                                 icon = R.drawable.ic_symbol_folder,
                                 label = stringResource(
                                     if (archived) R.string.session_unarchive else R.string.session_archive,
@@ -282,7 +282,7 @@ internal fun GeneralChatScreen(
                                     viewModel.dispatch(GeneralChatIntent.ArchiveSession(state.sessionId, !archived))
                                 },
                             ),
-                            OpenBitFunHeaderAction(
+                            AlexHeaderAction(
                                 icon = R.drawable.ic_symbol_gearshape,
                                 label = stringResource(R.string.session_delete),
                                 enabled = stored,

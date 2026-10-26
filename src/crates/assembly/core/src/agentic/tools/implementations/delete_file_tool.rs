@@ -2,9 +2,9 @@ use crate::agentic::tools::file_permissions::file_permission_intents;
 use crate::agentic::tools::framework::{
     PermissionIntent, Tool, ToolRenderOptions, ToolResult, ToolUseContext, ValidationResult,
 };
-use crate::agentic::tools::workspace_paths::is_openbitfun_tool_uri;
+use crate::agentic::tools::workspace_paths::is_alex_tool_uri;
 use crate::agentic::tools::ToolPathOperation;
-use crate::util::errors::{OpenBitFunError, OpenBitFunResult};
+use crate::util::errors::{AlexError, AlexResult};
 use async_trait::async_trait;
 use serde_json::{json, Value};
 use std::path::Path;
@@ -35,7 +35,7 @@ impl Tool for DeleteFileTool {
         "Delete"
     }
 
-    async fn description(&self) -> OpenBitFunResult<String> {
+    async fn description(&self) -> AlexResult<String> {
         Ok(r#"Deletes a file or directory from the filesystem. This operation records a lightweight checkpoint before deletion, but rollback is not automatic.
 
 Usage guidelines:
@@ -119,11 +119,11 @@ Important notes:
         &self,
         input: &Value,
         context: &ToolUseContext,
-    ) -> OpenBitFunResult<Vec<PermissionIntent>> {
+    ) -> AlexResult<Vec<PermissionIntent>> {
         let path = input
             .get("path")
             .and_then(Value::as_str)
-            .ok_or_else(|| OpenBitFunError::validation("path parameter is required".to_string()))?;
+            .ok_or_else(|| AlexError::validation("path parameter is required".to_string()))?;
         file_permission_intents("edit", [path], context)
     }
 
@@ -187,11 +187,11 @@ Important notes:
                 };
             }
             None => {
-                if is_openbitfun_tool_uri(path_str) {
+                if is_alex_tool_uri(path_str) {
                     return ValidationResult {
                         result: false,
                         message: Some(
-                            "Tool context is required to resolve OpenBitFun URIs".to_string(),
+                            "Tool context is required to resolve Alex URIs".to_string(),
                         ),
                         error_code: Some(400),
                         meta: None,
@@ -319,11 +319,11 @@ Important notes:
         &self,
         input: &Value,
         context: &ToolUseContext,
-    ) -> OpenBitFunResult<Vec<ToolResult>> {
+    ) -> AlexResult<Vec<ToolResult>> {
         let path_str = input
             .get("path")
             .and_then(|v| v.as_str())
-            .ok_or_else(|| OpenBitFunError::tool("path is required".to_string()))?;
+            .ok_or_else(|| AlexError::tool("path is required".to_string()))?;
 
         let recursive = input
             .get("recursive")
@@ -348,7 +348,7 @@ Important notes:
             recursive,
         )
         .await
-        .map_err(OpenBitFunError::tool)?;
+        .map_err(AlexError::tool)?;
 
         let result_data = json!({
             "success": true,
@@ -392,7 +392,7 @@ mod tests {
     #[tokio::test]
     async fn local_and_remote_delete_use_the_same_filesystem_contract() {
         use crate::agentic::{tools::framework::ToolUseContext, WorkspaceBinding};
-        use openbitfun_runtime_ports::ToolRuntimeHandles;
+        use alex_runtime_ports::ToolRuntimeHandles;
         use serde_json::json;
         use std::os::unix::fs::symlink;
         use std::path::PathBuf;
@@ -401,7 +401,7 @@ mod tests {
         // These are routing/behavior tests, not evidence of a live SSH connection.
         for remote in [false, true] {
             let root =
-                std::env::temp_dir().join(format!("openbitfun-delete-{}", uuid::Uuid::new_v4()));
+                std::env::temp_dir().join(format!("alex-delete-{}", uuid::Uuid::new_v4()));
             std::fs::create_dir_all(root.join("empty")).unwrap();
             std::fs::create_dir_all(root.join("nonempty")).unwrap();
             std::fs::write(root.join("nonempty/keep.txt"), "keep").unwrap();

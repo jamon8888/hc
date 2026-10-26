@@ -15,12 +15,12 @@ export interface VoiceCallHeaderProps {
 
 /** Shared call navigation, including the original circular back action. */
 export function VoiceCallHeader({ title, labels, phase = "live", onBack, onClose }: VoiceCallHeaderProps) {
-  return <header className={styles.header} data-openbitfun-component="voice-call-panel" data-openbitfun-part="header">
+  return <header className={styles.header} data-alex-component="voice-call-panel" data-alex-part="header">
     <Tooltip content={labels.back}>
       <IconButton className={styles.back} shape="circle" aria-label={labels.back}
         onClick={onBack} disabled={phase === "ending"} icon={<ArrowLeft size={20} />} />
     </Tooltip>
-    <h2 className={styles.title} data-openbitfun-part="title"><OverflowText>{title}</OverflowText></h2>
+    <h2 className={styles.title} data-alex-part="title"><OverflowText>{title}</OverflowText></h2>
     <Tooltip content={labels.close}>
       <IconButton className={styles.close} shape="circle" aria-label={labels.close}
         onClick={onClose} icon={<X size={20} />} />

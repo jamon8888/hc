@@ -8,6 +8,6 @@ export const flowTextBlockAppearanceDescriptor: AppearanceSurfaceDescriptor = {
     { id: 'protocol' },
     { id: 'protocolTextContent' },
   ],
-  facets: [{ id: 'mode', attribute: 'data-openbitfun-mode', values: ['markdown', 'text'] }],
-  states: [{ id: 'streaming', selector: { kind: 'self', suffix: '[data-openbitfun-state~="streaming"]' } }],
+  facets: [{ id: 'mode', attribute: 'data-alex-mode', values: ['markdown', 'text'] }],
+  states: [{ id: 'streaming', selector: { kind: 'self', suffix: '[data-alex-state~="streaming"]' } }],
 };

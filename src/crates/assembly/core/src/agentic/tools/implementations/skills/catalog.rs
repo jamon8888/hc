@@ -1,8 +1,8 @@
 //! Compatibility re-export for skill catalog facts.
 //!
-//! The provider-neutral owner lives in `openbitfun-agent-runtime`.
+//! The provider-neutral owner lives in `alex-agent-runtime`.
 
-pub use openbitfun_agent_runtime::skills::builtin_skill_group_key;
+pub use alex_agent_runtime::skills::builtin_skill_group_key;
 
 #[cfg(test)]
 mod tests {
@@ -16,7 +16,7 @@ mod tests {
             assert_eq!(builtin_skill_group_key(removed), None);
         }
         assert_eq!(
-            builtin_skill_group_key("create-openbitfun-skin"),
+            builtin_skill_group_key("create-alex-skin"),
             Some("meta")
         );
         assert_eq!(builtin_skill_group_key("commit-push-pr"), Some("meta"));
@@ -26,7 +26,7 @@ mod tests {
         assert_eq!(builtin_skill_group_key("plan"), Some("planning"));
         assert_eq!(builtin_skill_group_key("miniapp-dev"), Some("miniapp"));
         assert_eq!(
-            builtin_skill_group_key("openbitfun-frontend-dev"),
+            builtin_skill_group_key("alex-frontend-dev"),
             Some("creation")
         );
         assert_eq!(builtin_skill_group_key("writing-skills"), Some("meta"));

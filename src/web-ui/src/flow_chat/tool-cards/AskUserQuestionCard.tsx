@@ -11,7 +11,7 @@ import {
   type AskUserAnswers,
   type AskUserQuestion,
   type AskUserState,
-} from '@openbitfun/ui/flow-chat';
+} from '@alex/ui/flow-chat';
 import React, {
   useCallback,
   useEffect,
@@ -22,7 +22,7 @@ import React, {
   useSyncExternalStore,
 } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, Tooltip } from '@openbitfun/ui';
+import { Button, Tooltip } from '@alex/ui';
 import { X } from 'lucide-react';
 import { i18nService } from '@/infrastructure/i18n';
 import { toolAPI } from '@/infrastructure/api/service-api/ToolAPI';
@@ -235,7 +235,7 @@ export const AskUserQuestionCard: React.FC<ToolCardProps> = ({
   }, [canAnswer, peerDevice, sessionId, toolId]);
   const handleInteraction = useCallback((event: React.SyntheticEvent) => {
     const target = event.target;
-    if (target instanceof Element && target.closest('input, [data-openbitfun-part="option"], [data-openbitfun-part="custom-option"]')) {
+    if (target instanceof Element && target.closest('input, [data-alex-part="option"], [data-alex-part="custom-option"]')) {
       startInteraction();
     }
   }, [startInteraction]);

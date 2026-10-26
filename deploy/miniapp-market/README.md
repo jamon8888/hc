@@ -22,7 +22,7 @@ MiniApp 市场网页源码在 `src/miniapp-market-web/`，后端入口在
 2. 验证或创建部署前备份；
 3. 把该 commit 推到服务器专用 `market-deploy` ref；
 4. 服务器 checkout 该 commit，构建新镜像；
-5. 重建 `openbitfun-miniapp-market` 容器；
+5. 重建 `alex-miniapp-market` 容器；
 6. 核对健康状态、镜像 revision 和公网 URL；
 7. 失败时回到上一个 commit，不能用 `git clean` 或 `git reset --hard`。
 
@@ -43,7 +43,7 @@ Skin 市场复用本服务的 GitHub OAuth、桌面 token 和 Web 会话别名�
 - `/root/repos/Alex` 可能包含 Relay 的未跟踪 `.env`；
 - `/root/repos/Alex-Website` 可能是 dirty worktree。
 
-市场使用独立 checkout `/srv/openbitfun-miniapp-market/app`。任何部署都不得在上述
+市场使用独立 checkout `/srv/alex-miniapp-market/app`。任何部署都不得在上述
 两个现有仓库运行 `git clean`、`git reset --hard`、强制 checkout 或部署脚本。
 
 ## 生产事实
@@ -54,12 +54,12 @@ Skin 市场复用本服务的 GitHub OAuth、桌面 token 和 Web 会话别名�
 | 公网地址 | `https://market.openbitfun.com/miniapp/` |
 | API | `https://market.openbitfun.com/miniapp/api/v1` |
 | OAuth callback | `https://auth.openbitfun.com/api/v1/auth/github/callback` |
-| 专用 checkout | `/srv/openbitfun-miniapp-market/app` |
-| SQLite | `/srv/openbitfun-miniapp-market/data/market.sqlite` |
-| packages/screenshots | `/srv/openbitfun-miniapp-market/artifacts` |
-| backups | `/srv/openbitfun-miniapp-market/backups` |
-| secrets | `/etc/openbitfun-miniapp-market/market.env`，`root:root`、`0600` |
-| 容器 | `openbitfun-miniapp-market` |
+| 专用 checkout | `/srv/alex-miniapp-market/app` |
+| SQLite | `/srv/alex-miniapp-market/data/market.sqlite` |
+| packages/screenshots | `/srv/alex-miniapp-market/artifacts` |
+| backups | `/srv/alex-miniapp-market/backups` |
+| secrets | `/etc/alex-miniapp-market/market.env`，`root:root`、`0600` |
+| 容器 | `alex-miniapp-market` |
 | 监听 | 仅宿主 `127.0.0.1:9710` |
 | Nginx vhost | `/etc/nginx/sites-available/market.openbitfun.com.conf` |
 | Nginx 未知 Host 兜底 | `/etc/nginx/sites-available/00-default-server.conf` |
@@ -75,7 +75,7 @@ capabilities 方式运行。数据和 artifacts 通过独立宿主目录持久�
 1. 先读仓库根 `AGENTS.md`、对应源码 README 和本文件。
 2. 先运行 `git status --short`。不得覆盖或提交用户的无关改动。
 3. 只部署已提交的明确 commit；不从 dirty worktree 构建，不部署浮动分支名。
-4. 不读取、复制、输出 `/etc/openbitfun-miniapp-market/market.env` 内容。
+4. 不读取、复制、输出 `/etc/alex-miniapp-market/market.env` 内容。
 5. 不记录 token、Cookie、请求 body、包内容或个人 IP。
 6. 发布前记录旧 commit；数据库相关变更先验证备份。
 7. 不修改 Relay、New API、官网或它们的 Nginx/container。
@@ -106,8 +106,8 @@ git diff --name-only HEAD
 | 改动 | 发布前验证 |
 | --- | --- |
 | 仅 `src/miniapp-market-web/` | `pnpm run type-check:miniapp-market && pnpm run test:miniapp-market && pnpm run build:miniapp-market` |
-| 后端 Services/入口 | `pnpm run fmt:rs && cargo test -p openbitfun-miniapp-market-service && cargo check -p openbitfun-miniapp-market-server && cargo check --workspace` |
-| 领域 DTO/状态机 | 上述 Rust 检查，再加 `cargo test -p openbitfun-product-domains --features miniapp` 和前端检查 |
+| 后端 Services/入口 | `pnpm run fmt:rs && cargo test -p alex-miniapp-market-service && cargo check -p alex-miniapp-market-server && cargo check --workspace` |
+| 领域 DTO/状态机 | 上述 Rust 检查，再加 `cargo test -p alex-product-domains --features miniapp` 和前端检查 |
 | Docker/Compose | 对应代码检查，再做本地 Docker build |
 | i18n 文案/契约 | 前端检查，再加 `pnpm run i18n:contract:test && pnpm run i18n:audit` |
 | 颜色/token | 对应前端检查，再加 `pnpm run theme:color-audit:all` |
@@ -135,12 +135,12 @@ git status --short
 
 ```bash
 ssh lwb 'set -eu
-git -C /srv/openbitfun-miniapp-market/app status --short
-git -C /srv/openbitfun-miniapp-market/app rev-parse HEAD
-docker inspect --format "{{.Config.Image}} {{.State.Status}} {{if .State.Health}}{{.State.Health.Status}}{{end}}" openbitfun-miniapp-market
-docker inspect --format "{{index .Config.Labels \"org.opencontainers.image.revision\"}}" openbitfun-miniapp-market
+git -C /srv/alex-miniapp-market/app status --short
+git -C /srv/alex-miniapp-market/app rev-parse HEAD
+docker inspect --format "{{.Config.Image}} {{.State.Status}} {{if .State.Health}}{{.State.Health.Status}}{{end}}" alex-miniapp-market
+docker inspect --format "{{index .Config.Labels \"org.opencontainers.image.revision\"}}" alex-miniapp-market
 curl -fsS http://127.0.0.1:9710/miniapp/api/v1/health
-stat -c "%U:%G %a %n" /etc/openbitfun-miniapp-market/market.env'
+stat -c "%U:%G %a %n" /etc/alex-miniapp-market/market.env'
 ```
 
 预期：
@@ -155,7 +155,7 @@ stat -c "%U:%G %a %n" /etc/openbitfun-miniapp-market/market.env'
 
 ```bash
 PREVIOUS_COMMIT="$(
-  ssh lwb 'git -C /srv/openbitfun-miniapp-market/app rev-parse HEAD'
+  ssh lwb 'git -C /srv/alex-miniapp-market/app rev-parse HEAD'
 )"
 ```
 
@@ -166,15 +166,15 @@ migration、包存储或审核流程变更必须在发布前拥有当天的一�
 
 ```bash
 ssh lwb 'set -eu
-systemctl is-enabled openbitfun-miniapp-market-backup.timer
-systemctl is-active openbitfun-miniapp-market-backup.timer
+systemctl is-enabled alex-miniapp-market-backup.timer
+systemctl is-active alex-miniapp-market-backup.timer
 today="$(date -u +%F)"
-target="/srv/openbitfun-miniapp-market/backups/daily/${today}"
+target="/srv/alex-miniapp-market/backups/daily/${today}"
 if [ -d "$target" ]; then
   (cd "$target" && sha256sum -c SHA256SUMS)
   test "$(sqlite3 "$target/market.sqlite" "PRAGMA integrity_check;")" = "ok"
 else
-  /usr/local/sbin/openbitfun-miniapp-market-backup
+  /usr/local/sbin/alex-miniapp-market-backup
 fi'
 ```
 
@@ -185,10 +185,10 @@ artifacts 快照。它会拒绝覆盖同一天已有备份。
 
 ```bash
 ssh lwb 'set -eu
-latest="$(find /srv/openbitfun-miniapp-market/backups/daily \
+latest="$(find /srv/alex-miniapp-market/backups/daily \
   -mindepth 1 -maxdepth 1 -type d -print | sort | tail -n 1)"
 test -n "$latest"
-/usr/local/sbin/openbitfun-miniapp-market-restore-drill "$latest"'
+/usr/local/sbin/alex-miniapp-market-restore-drill "$latest"'
 ```
 
 同机备份不等于异地灾备。不要把“备份存在”描述成完整灾备。
@@ -200,13 +200,13 @@ test -n "$latest"
 
 ```bash
 REMOTE_REF_COMMIT="$(
-  ssh lwb 'git -C /srv/openbitfun-miniapp-market/app \
+  ssh lwb 'git -C /srv/alex-miniapp-market/app \
     rev-parse refs/heads/market-deploy'
 )"
 
 git push \
   --force-with-lease="refs/heads/market-deploy:${REMOTE_REF_COMMIT}" \
-  ssh://lwb/srv/openbitfun-miniapp-market/app \
+  ssh://lwb/srv/alex-miniapp-market/app \
   "${DEPLOY_COMMIT}:refs/heads/market-deploy"
 ```
 
@@ -217,9 +217,9 @@ git push \
 
 ```bash
 ssh lwb "set -eu
-test -z \"\$(git -C /srv/openbitfun-miniapp-market/app status --porcelain)\"
-git -C /srv/openbitfun-miniapp-market/app checkout --detach '$DEPLOY_COMMIT'
-test \"\$(git -C /srv/openbitfun-miniapp-market/app rev-parse HEAD)\" = '$DEPLOY_COMMIT'"
+test -z \"\$(git -C /srv/alex-miniapp-market/app status --porcelain)\"
+git -C /srv/alex-miniapp-market/app checkout --detach '$DEPLOY_COMMIT'
+test \"\$(git -C /srv/alex-miniapp-market/app rev-parse HEAD)\" = '$DEPLOY_COMMIT'"
 ```
 
 这里禁止运行 `git clean` 或 `git reset --hard`。
@@ -230,7 +230,7 @@ test \"\$(git -C /srv/openbitfun-miniapp-market/app rev-parse HEAD)\" = '$DEPLOY
 
 ```bash
 ssh lwb "set -eu
-cd /srv/openbitfun-miniapp-market/app
+cd /srv/alex-miniapp-market/app
 test \"\$(git rev-parse HEAD)\" = '$DEPLOY_COMMIT'
 export MARKET_GIT_COMMIT='$DEPLOY_COMMIT'
 docker compose -f deploy/miniapp-market/docker-compose.yml build miniapp-market
@@ -251,12 +251,12 @@ for attempt in $(seq 1 30); do
   status="$(
     docker inspect --format \
       "{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}" \
-      openbitfun-miniapp-market
+      alex-miniapp-market
   )"
   [ "$status" = "healthy" ] && exit 0
   sleep 2
 done
-docker inspect --format "{{json .State}}" openbitfun-miniapp-market
+docker inspect --format "{{json .State}}" alex-miniapp-market
 exit 1'
 ```
 
@@ -266,7 +266,7 @@ exit 1'
 DEPLOYED_COMMIT="$(
   ssh lwb 'docker inspect --format \
     "{{index .Config.Labels \"org.opencontainers.image.revision\"}}" \
-    openbitfun-miniapp-market'
+    alex-miniapp-market'
 )"
 test "$DEPLOYED_COMMIT" = "$DEPLOY_COMMIT"
 ```
@@ -300,7 +300,7 @@ curl -fsS https://market.openbitfun.com/miniapp/ >/dev/null
 查看最近日志时只读有限行数，不把完整生产日志复制到公开位置：
 
 ```bash
-ssh lwb 'docker logs --since 10m --tail 200 openbitfun-miniapp-market'
+ssh lwb 'docker logs --since 10m --tail 200 alex-miniapp-market'
 ```
 
 ## 7. 只有 Nginx 文件变化时才更新 Nginx
@@ -316,16 +316,16 @@ ssh lwb 'docker logs --since 10m --tail 200 openbitfun-miniapp-market'
 ```bash
 ssh lwb 'set -eu
 install -m 0644 \
-  /srv/openbitfun-miniapp-market/app/deploy/miniapp-market/nginx-default-server.conf \
+  /srv/alex-miniapp-market/app/deploy/miniapp-market/nginx-default-server.conf \
   /etc/nginx/sites-available/00-default-server.conf
 ln -sfn \
   /etc/nginx/sites-available/00-default-server.conf \
   /etc/nginx/sites-enabled/00-default-server.conf
 install -m 0644 \
-  /srv/openbitfun-miniapp-market/app/deploy/miniapp-market/nginx-log-format.conf \
+  /srv/alex-miniapp-market/app/deploy/miniapp-market/nginx-log-format.conf \
   /etc/nginx/conf.d/miniapp-market-log-format.conf
 install -m 0644 \
-  /srv/openbitfun-miniapp-market/app/deploy/miniapp-market/nginx-market.openbitfun.com.conf \
+  /srv/alex-miniapp-market/app/deploy/miniapp-market/nginx-market.openbitfun.com.conf \
   /etc/nginx/sites-available/market.openbitfun.com.conf
 nginx -t
 systemctl reload nginx'
@@ -360,11 +360,11 @@ curl -sS -o /dev/null -w "%{http_code}\n" \
 ```bash
 ssh lwb "set -eu
 test -n '$PREVIOUS_COMMIT'
-test -z \"\$(git -C /srv/openbitfun-miniapp-market/app status --porcelain)\"
-git -C /srv/openbitfun-miniapp-market/app checkout --detach '$PREVIOUS_COMMIT'
-cd /srv/openbitfun-miniapp-market/app
+test -z \"\$(git -C /srv/alex-miniapp-market/app status --porcelain)\"
+git -C /srv/alex-miniapp-market/app checkout --detach '$PREVIOUS_COMMIT'
+cd /srv/alex-miniapp-market/app
 export MARKET_GIT_COMMIT='$PREVIOUS_COMMIT'
-if ! docker image inspect \"openbitfun-miniapp-market:$PREVIOUS_COMMIT\" >/dev/null 2>&1; then
+if ! docker image inspect \"alex-miniapp-market:$PREVIOUS_COMMIT\" >/dev/null 2>&1; then
   docker compose -f deploy/miniapp-market/docker-compose.yml build miniapp-market
 fi
 docker compose -f deploy/miniapp-market/docker-compose.yml \
@@ -377,12 +377,12 @@ docker compose -f deploy/miniapp-market/docker-compose.yml \
 
 ```bash
 ROLLBACK_REF_COMMIT="$(
-  ssh lwb 'git -C /srv/openbitfun-miniapp-market/app \
+  ssh lwb 'git -C /srv/alex-miniapp-market/app \
     rev-parse refs/heads/market-deploy'
 )"
 git push \
   --force-with-lease="refs/heads/market-deploy:${ROLLBACK_REF_COMMIT}" \
-  ssh://lwb/srv/openbitfun-miniapp-market/app \
+  ssh://lwb/srv/alex-miniapp-market/app \
   "${PREVIOUS_COMMIT}:refs/heads/market-deploy"
 ```
 
@@ -393,22 +393,22 @@ git push \
 
 ## 修改生产配置
 
-实际配置只在 `/etc/openbitfun-miniapp-market/market.env`。只能在服务器本地用受控
+实际配置只在 `/etc/alex-miniapp-market/market.env`。只能在服务器本地用受控
 编辑器修改，不能 `cat`、下载或提交：
 
 ```bash
-ssh -t lwb 'umask 077; vi /etc/openbitfun-miniapp-market/market.env'
-ssh lwb 'stat -c "%U:%G %a %n" /etc/openbitfun-miniapp-market/market.env'
+ssh -t lwb 'umask 077; vi /etc/alex-miniapp-market/market.env'
+ssh lwb 'stat -c "%U:%G %a %n" /etc/alex-miniapp-market/market.env'
 ```
 
 配置变化后，用当前 checkout commit recreate 容器：
 
 ```bash
 CURRENT_COMMIT="$(
-  ssh lwb 'git -C /srv/openbitfun-miniapp-market/app rev-parse HEAD'
+  ssh lwb 'git -C /srv/alex-miniapp-market/app rev-parse HEAD'
 )"
 ssh lwb "set -eu
-cd /srv/openbitfun-miniapp-market/app
+cd /srv/alex-miniapp-market/app
 export MARKET_GIT_COMMIT='$CURRENT_COMMIT'
 docker compose -f deploy/miniapp-market/docker-compose.yml \
   up -d --no-build --force-recreate miniapp-market"
@@ -504,7 +504,7 @@ API 的 Relay/客户端。两个市场各自的网页仍在所属 Compose 项目
 当前版本 Relay 和 Skin 身份消费者；保留旧 GitHub 数字账号及旧授权启动行为。
 客户端使用 `methods=all` 主动选择统一登录页，旧客户端继续走原 GitHub URL。
 
-SMTP 配置单独存放在 `/etc/openbitfun-miniapp-market/smtp.env`，root:root 0600，
+SMTP 配置单独存放在 `/etc/alex-miniapp-market/smtp.env`，root:root 0600，
 Compose 以可选 env_file 加载；不要将其复制到 checkout，也不要打印内容。
 使用现有企业邮箱的 SMTP 配置，变量参见后端 README。不要复制收件人列表、测试
 主题或 BCC 等与认证发信无关的配置。发件配置更新后需重建容器，核对

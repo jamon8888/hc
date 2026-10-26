@@ -1,10 +1,10 @@
-const STARTUP_OVERLAY_ID = 'openbitfun-startup-overlay';
-const EXIT_CLASS = 'openbitfun-startup-overlay--exiting';
+const STARTUP_OVERLAY_ID = 'alex-startup-overlay';
+const EXIT_CLASS = 'alex-startup-overlay--exiting';
 const EXIT_FALLBACK_MS = 350;
 
 declare global {
   interface Window {
-    __OPENBITFUN_STARTUP_OVERLAY_STARTED_AT__?: number;
+    __ALEX_STARTUP_OVERLAY_STARTED_AT__?: number;
   }
 }
 
@@ -13,7 +13,7 @@ function getOverlay(): HTMLElement | null {
 }
 
 export function getStartupOverlayElapsedMs(): number {
-  const startedAt = window.__OPENBITFUN_STARTUP_OVERLAY_STARTED_AT__;
+  const startedAt = window.__ALEX_STARTUP_OVERLAY_STARTED_AT__;
   if (typeof startedAt !== 'number') {
     return 0;
   }

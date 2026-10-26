@@ -48,7 +48,7 @@ impl ClawMode {
                 // Desktop control runs directly through its own native tool.
                 "ControlHub".to_string(),
                 "ComputerUse".to_string(),
-                "OpenBitFunControl".to_string(),
+                "AlexControl".to_string(),
                 "PublishAppearance".to_string(),
                 "PageDeploy".to_string(),
                 "PagePublish".to_string(),
@@ -103,7 +103,7 @@ impl Agent for ClawMode {
 mod tests {
     use super::ClawMode;
     use crate::agentic::agents::{Agent, PromptBuilderContext};
-    use openbitfun_agent_runtime::prompt::UserContextSection;
+    use alex_agent_runtime::prompt::UserContextSection;
 
     #[test]
     fn claw_mode_excludes_creation_only_tools_from_defaults() {

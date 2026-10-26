@@ -1,48 +1,48 @@
-@layer openbitfun.tokens.system, openbitfun.tokens.theme, openbitfun.reset, openbitfun.base, openbitfun.components, openbitfun.overrides;
+@layer alex.tokens.system, alex.tokens.theme, alex.reset, alex.base, alex.components, alex.overrides;
 
-@layer openbitfun.reset {
-  [data-openbitfun-design-system-root],
-  [data-openbitfun-design-system-root] *,
-  [data-openbitfun-design-system-root] *::before,
-  [data-openbitfun-design-system-root] *::after {
+@layer alex.reset {
+  [data-alex-design-system-root],
+  [data-alex-design-system-root] *,
+  [data-alex-design-system-root] *::before,
+  [data-alex-design-system-root] *::after {
     box-sizing: border-box;
   }
 
-  [data-openbitfun-design-system-root] button,
-  [data-openbitfun-design-system-root] input,
-  [data-openbitfun-design-system-root] textarea,
-  [data-openbitfun-design-system-root] select {
+  [data-alex-design-system-root] button,
+  [data-alex-design-system-root] input,
+  [data-alex-design-system-root] textarea,
+  [data-alex-design-system-root] select {
     font: inherit;
   }
 }
 
-@layer openbitfun.base {
-  [data-openbitfun-design-system-root] select option,
-  [data-openbitfun-design-system-root] select optgroup {
-    color: var(--openbitfun-color-content-primary);
-    background-color: var(--openbitfun-color-surface-panel);
+@layer alex.base {
+  [data-alex-design-system-root] select option,
+  [data-alex-design-system-root] select optgroup {
+    color: var(--alex-color-content-primary);
+    background-color: var(--alex-color-surface-panel);
   }
 
-  [data-openbitfun-design-system-root] select option:disabled {
-    color: var(--openbitfun-color-content-disabled);
+  [data-alex-design-system-root] select option:disabled {
+    color: var(--alex-color-content-disabled);
   }
 
   @media (forced-colors: active) {
-    [data-openbitfun-design-system-root] select option,
-    [data-openbitfun-design-system-root] select optgroup {
+    [data-alex-design-system-root] select option,
+    [data-alex-design-system-root] select optgroup {
       color: FieldText;
       background-color: Field;
     }
   }
 }
 
-@layer openbitfun.components {
+@layer alex.components {
   /*
    * Public icon slots own the visual weight of default Lucide glyphs as well
    * as their size and color. Match only Lucide's default stroke attribute so
    * reviewed fill icons and intentionally custom line artwork remain intact.
    */
-  [data-openbitfun-icon-slot="true"] > :where(svg.lucide[stroke-width="2"]) {
+  [data-alex-icon-slot="true"] > :where(svg.lucide[stroke-width="2"]) {
     color: inherit;
     stroke-width: 1.6;
   }

@@ -599,7 +599,7 @@ export default function deviceDirectoryUnitTest() {
 
       viewModel.completeLiveCatalog('desk-b', [workspace('/mac/OpenBitFun', 'OpenBitFun')]);
       expect(state.find('desk-b')?.status).assertEqual('ready');
-      expect(state.find('desk-b')?.workspaces[0].path).assertEqual('/mac/OpenBitFun');
+      expect(state.find('desk-b')?.workspaces[0].path).assertEqual('/mac/Alex');
     });
 
     it('releases the abandoned loading owner during rapid target switches', 0, () => {

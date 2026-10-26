@@ -1,4 +1,4 @@
-@layer openbitfun.components {
+@layer alex.components {
   .root {
     display: inline-flex;
     flex: 0 0 auto;
@@ -6,25 +6,25 @@
     justify-content: center;
     min-inline-size: 0;
     margin: 0;
-    gap: calc(var(--openbitfun-space-1) / 2);
-    padding-block: calc(var(--openbitfun-space-1) / 2);
-    padding-inline: var(--openbitfun-space-1);
+    gap: calc(var(--alex-space-1) / 2);
+    padding-block: calc(var(--alex-space-1) / 2);
+    padding-inline: var(--alex-space-1);
     border: 0;
-    border-radius: var(--openbitfun-radius-xs);
-    color: var(--openbitfun-color-key-hint-content);
-    background: var(--openbitfun-color-key-hint-background);
-    font-family: var(--openbitfun-type-micro-font-family);
-    font-size: var(--openbitfun-type-micro-font-size);
-    font-weight: var(--openbitfun-type-micro-font-weight);
-    letter-spacing: var(--openbitfun-type-micro-letter-spacing);
-    line-height: var(--openbitfun-type-modifier-leading-none-line-height);
+    border-radius: var(--alex-radius-xs);
+    color: var(--alex-color-key-hint-content);
+    background: var(--alex-color-key-hint-background);
+    font-family: var(--alex-type-micro-font-family);
+    font-size: var(--alex-type-micro-font-size);
+    font-weight: var(--alex-type-micro-font-weight);
+    letter-spacing: var(--alex-type-micro-letter-spacing);
+    line-height: var(--alex-type-modifier-leading-none-line-height);
     text-decoration: none;
     vertical-align: middle;
     white-space: nowrap;
   }
 
   .icon {
-    --openbitfun-opacity-icon-artwork: 1;
+    --alex-opacity-icon-artwork: 1;
   }
 
   .icon,
@@ -37,7 +37,7 @@
   }
 
   .icon > :where(svg, img),
-  .icon > [data-openbitfun-component="icon"] {
+  .icon > [data-alex-component="icon"] {
     display: block;
     inline-size: 1em;
     block-size: 1em;
@@ -45,7 +45,7 @@
 
   @media (forced-colors: active) {
     .root {
-      border: var(--openbitfun-border-width-default) solid ButtonText;
+      border: var(--alex-border-width-default) solid ButtonText;
       color: ButtonText;
       background: Canvas;
     }

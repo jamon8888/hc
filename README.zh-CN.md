@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<img src="./png/openbitfun-wordmark.png" alt="Alex" width="520" />
+<img src="./png/alex-wordmark.png" alt="Alex" width="520" />
 
 ### 持续推进，直到完成。
 
@@ -34,13 +34,13 @@ Alex 1.0.0 带来全新界面、面向不同任务的四种 Agent Harness，以�
 
 ---
 
-![Alex 官网展示的桌面界面](./png/openbitfun-desktop.png)
+![Alex 官网展示的桌面界面](./png/alex-desktop.png)
 
 ## 四种模式，按你的方式工作
 
 **Agent Harness 决定任务如何推进**，负责规划步骤、组织上下文、调用工具、协调多个 Agent 并整合结果。根据当前任务，选择适合你的协作方式：
 
-![四种工作模式：极简、标准、极致与创造](./png/openbitfun-harness-modes.png)
+![四种工作模式：极简、标准、极致与创造](./png/alex-harness-modes.png)
 
 | 模式 | 什么时候选 |
 | --- | --- |
@@ -57,7 +57,7 @@ Alex 1.0.0 带来全新界面、面向不同任务的四种 Agent Harness，以�
 
 **手表、眼镜，也在成为 Agent 的新入口。** 通过设备扩展协议，Alex 正在把任务进度与轻量交互带到更多穿戴设备，让协作从桌面延伸到腕间与视野中。
 
-![Alex 多设备协作：电脑、手机、手表与眼镜](./png/openbitfun-multi-device.png)
+![Alex 多设备协作：电脑、手机、手表与眼镜](./png/alex-multi-device.png)
 
 <details>
 <summary>连接与部署说明</summary>
@@ -97,13 +97,13 @@ Rust Agent Runtime 承载会话状态、上下文管理与工具执行。持久�
 - **GLM-5.3-Flash**：通过率 **64.6%**，耗时 P50 **42.9 分钟**。
 - **DeepSeek-V4-Flash**：通过率 **56.6%**，耗时 P50 **19.6 分钟**。
 
-![DeepSWE v1.1 评测：通过率、耗时 P50 与 Token P50 对比](./png/openbitfun-deepswe-v1.1.png)
+![DeepSWE v1.1 评测：通过率、耗时 P50 与 Token P50 对比](./png/alex-deepswe-v1.1.png)
 
 ## 功能墙
 
 **图中只是 Alex 的部分功能。** 还有更多工具、工作流与扩展能力，等你在真实任务中探索。
 
-![Alex 功能墙](./png/openbitfun-feature-wall.jpg)
+![Alex 功能墙](./png/alex-feature-wall.jpg)
 
 ## 我们想走向的未来
 

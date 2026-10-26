@@ -3,7 +3,7 @@ import { useI18n } from '@/infrastructure/i18n/hooks/useI18n';
 import { useMiniAppStore } from '@/app/scenes/miniapps/miniAppStore';
 import { useMiniAppActivity } from '@/app/scenes/miniapps/hooks/useMiniAppActivity';
 import { renderMiniAppIcon, getMiniAppIconGradient } from '@/app/scenes/miniapps/utils/miniAppIcons';
-import { Icon, IconButton, NavigationPanelItem, Tooltip } from '@openbitfun/ui';
+import { Icon, IconButton, NavigationPanelItem, Tooltip } from '@alex/ui';
 
 const MAX_VISIBLE_ACTIVE_APPS = 3;
 
@@ -44,11 +44,11 @@ const MiniAppEntry: React.FC<MiniAppEntryProps> = ({
   const overflowCount = Math.max(0, activeApps.length - visibleApps.length);
 
   return (
-    <div className="openbitfun-nav-panel__miniapp-entry-wrap">
+    <div className="alex-nav-panel__miniapp-entry-wrap">
       <NavigationPanelItem
-        className="openbitfun-nav-panel__miniapp-item"
+        className="alex-nav-panel__miniapp-item"
         triggerClassName={[
-          'openbitfun-nav-panel__miniapp-entry',
+          'alex-nav-panel__miniapp-entry',
           isActive && 'is-active',
           activeApps.length > 0 && 'has-running-apps',
           hasCustomizingApps && 'has-customizing-apps',
@@ -58,12 +58,12 @@ const MiniAppEntry: React.FC<MiniAppEntryProps> = ({
         data-testid="nav-miniapps-entry"
         selected={isActive}
         leading={(
-          <span className="openbitfun-nav-panel__miniapp-entry-icon">
+          <span className="alex-nav-panel__miniapp-entry-icon">
             <Icon name="mini-app" size="sm" />
           </span>
         )}
         actionContent={(
-          <span className="openbitfun-nav-panel__miniapp-entry-apps">
+          <span className="alex-nav-panel__miniapp-entry-apps">
             {visibleApps.length > 0 ? (
               <>
                 {visibleApps.map((app) => {
@@ -72,7 +72,7 @@ const MiniAppEntry: React.FC<MiniAppEntryProps> = ({
                     <Tooltip key={app.id} content={app.name} placement="right">
                       <IconButton
                         className={[
-                          'openbitfun-nav-panel__miniapp-bubble',
+                          'alex-nav-panel__miniapp-bubble',
                           isAppActive && 'is-active',
                           customizingIdSet.has(app.id) && 'is-customizing',
                         ].filter(Boolean).join(' ')}
@@ -90,7 +90,7 @@ const MiniAppEntry: React.FC<MiniAppEntryProps> = ({
                   );
                 })}
                 {overflowCount > 0 ? (
-                  <span className="openbitfun-nav-panel__miniapp-bubble openbitfun-nav-panel__miniapp-bubble--more">
+                  <span className="alex-nav-panel__miniapp-bubble alex-nav-panel__miniapp-bubble--more">
                     +{overflowCount}
                   </span>
                 ) : null}

@@ -51,8 +51,8 @@ export const ChatComposerQueue = forwardRef<HTMLElement, ChatComposerQueueProps>
       <section
         {...props}
         className={classNames(styles.root, className)}
-        data-openbitfun-component="chat-composer-queue"
-        data-openbitfun-part="root"
+        data-alex-component="chat-composer-queue"
+        data-alex-part="root"
         ref={ref}
       />
     );
@@ -68,8 +68,8 @@ export const ChatComposerQueueHeader = forwardRef<
     <div
       {...props}
       className={classNames(styles.header, className)}
-      data-openbitfun-component="chat-composer-queue"
-      data-openbitfun-part="header"
+      data-alex-component="chat-composer-queue"
+      data-alex-part="header"
       ref={ref}
     />
   );
@@ -84,16 +84,16 @@ export const ChatComposerQueueTitle = forwardRef<
     <span
       {...props}
       className={classNames(styles.title, className)}
-      data-openbitfun-component="chat-composer-queue"
-      data-openbitfun-part="title"
+      data-alex-component="chat-composer-queue"
+      data-alex-part="title"
       ref={ref}
     >
       <OverflowText className={styles.titleLabel}>{children}</OverflowText>
       {count !== undefined && count !== null && (
         <span
           className={styles.totalCount}
-          data-openbitfun-component="chat-composer-queue"
-          data-openbitfun-part="totalCount"
+          data-alex-component="chat-composer-queue"
+          data-alex-part="totalCount"
         >
           {count}
         </span>
@@ -110,8 +110,8 @@ export const ChatComposerQueueList = forwardRef<
     <ul
       {...props}
       className={classNames(styles.list, className)}
-      data-openbitfun-component="chat-composer-queue"
-      data-openbitfun-part="list"
+      data-alex-component="chat-composer-queue"
+      data-alex-part="list"
       ref={ref}
     />
   );
@@ -125,9 +125,9 @@ export const ChatComposerQueueItem = forwardRef<
     <li
       {...props}
       className={classNames(styles.item, className)}
-      data-openbitfun-component="chat-composer-queue"
-      data-openbitfun-part="item"
-      data-openbitfun-state={state === "default" ? undefined : state}
+      data-alex-component="chat-composer-queue"
+      data-alex-part="item"
+      data-alex-state={state === "default" ? undefined : state}
       ref={ref}
     />
   );
@@ -141,8 +141,8 @@ export const ChatComposerQueueItemContent = forwardRef<
     <div
       {...props}
       className={classNames(styles.content, className)}
-      data-openbitfun-component="chat-composer-queue"
-      data-openbitfun-part="content"
+      data-alex-component="chat-composer-queue"
+      data-alex-part="content"
       ref={ref}
     />
   );
@@ -162,8 +162,8 @@ export const ChatComposerQueueAttachmentBadge = forwardRef<
       {...props}
       aria-label={label}
       className={classNames(styles.attachmentBadge, className)}
-      data-openbitfun-component="chat-composer-queue"
-      data-openbitfun-part="attachmentCount"
+      data-alex-component="chat-composer-queue"
+      data-alex-part="attachmentCount"
       ref={ref}
       title={label}
     >
@@ -180,8 +180,8 @@ export const ChatComposerQueueItemActions = forwardRef<
     <div
       {...props}
       className={classNames(styles.actions, className)}
-      data-openbitfun-component="chat-composer-queue"
-      data-openbitfun-part="actions"
+      data-alex-component="chat-composer-queue"
+      data-alex-part="actions"
       ref={ref}
     />
   );

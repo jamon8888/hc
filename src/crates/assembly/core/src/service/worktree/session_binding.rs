@@ -15,7 +15,7 @@ use crate::agentic::session::{SessionExecutionBindingError, SessionExecutionBind
 use crate::service::worktree::{
     WorktreeCreateRequest, WorktreeListRequest, WorktreeRemoveRequest, WorktreeService,
 };
-use openbitfun_core_types::{
+use alex_core_types::{
     SessionExecutionTarget, WorktreeError, WorktreeErrorCode, WorktreeLifecycle,
 };
 use serde::{Deserialize, Serialize};
@@ -159,7 +159,7 @@ async fn load_binding_context(
             let (project_workspace_path, session_storage_root) =
                 match requested_project_workspace_id {
                     Some(requested_project_workspace_id) => {
-                        use openbitfun_runtime_ports::SessionStorePort;
+                        use alex_runtime_ports::SessionStorePort;
                         let workspace = crate::service::workspace::get_global_workspace_service()
                             .ok_or_else(|| {
                                 error(
@@ -371,7 +371,7 @@ impl WorktreeService {
     pub async fn bind_session(
         request: WorktreeSessionBindingRequest,
     ) -> Result<WorktreeSessionBindingResult, WorktreeError> {
-        openbitfun_core_types::validate_session_id(&request.session_id)
+        alex_core_types::validate_session_id(&request.session_id)
             .map_err(|message| error(WorktreeErrorCode::InvalidPath, message))?;
         let _binding_guard = SESSION_BINDING_LOCKS.lock(&request.session_id).await;
         let context = load_binding_context(&request).await?;
@@ -518,7 +518,7 @@ mod tests {
         binding_action, error, SessionBindingAction, SessionBindingContext,
         WorktreeSessionBindingRequest, SESSION_BINDING_LOCKS,
     };
-    use openbitfun_core_types::{SessionExecutionTarget, WorktreeErrorCode};
+    use alex_core_types::{SessionExecutionTarget, WorktreeErrorCode};
     use std::time::Duration;
 
     #[test]
@@ -538,14 +538,14 @@ mod tests {
         let request: WorktreeSessionBindingRequest = serde_json::from_value(serde_json::json!({
             "requestId": "request-2",
             "sessionId": "session-2",
-            "projectWorkspacePath": "D:\\workspace\\OpenBitFun",
+            "projectWorkspacePath": "D:\\workspace\\Alex",
             "enabled": false
         }))
         .expect("request should deserialize");
 
         assert_eq!(
             request.project_workspace_path.as_deref(),
-            Some(r"D:\workspace\OpenBitFun")
+            Some(r"D:\workspace\Alex")
         );
     }
 

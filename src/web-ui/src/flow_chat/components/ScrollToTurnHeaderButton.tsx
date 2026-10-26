@@ -7,7 +7,7 @@ import { ArrowUp as LucideArrowUp } from 'lucide-react';
 
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { IconButton, Tooltip } from '@openbitfun/ui';
+import { IconButton, Tooltip } from '@alex/ui';
 import './ScrollToTurnHeaderButton.scss';
 
 interface ScrollToTurnHeaderButtonProps {
@@ -26,16 +26,16 @@ export const ScrollToTurnHeaderButton: React.FC<ScrollToTurnHeaderButtonProps> =
   const { t } = useTranslation('flow-chat');
 
   return (
-    <div data-openbitfun-product-component="scroll-to-turn-header-button" data-openbitfun-product-part="root" data-openbitfun-state={visible ? 'visible' : ''}
+    <div data-alex-product-component="scroll-to-turn-header-button" data-alex-product-part="root" data-alex-state={visible ? 'visible' : ''}
       className={`scroll-to-turn-header-trigger ${visible ? 'scroll-to-turn-header-trigger--visible' : ''} ${className}`}
       aria-hidden={!visible}
     >
-      <div data-openbitfun-product-component="scroll-to-turn-header-button" data-openbitfun-product-part="gradient" className="scroll-to-turn-header-trigger__gradient" />
-      <div data-openbitfun-product-component="scroll-to-turn-header-button" data-openbitfun-product-part="content" className="scroll-to-turn-header-trigger__content">
+      <div data-alex-product-component="scroll-to-turn-header-button" data-alex-product-part="gradient" className="scroll-to-turn-header-trigger__gradient" />
+      <div data-alex-product-component="scroll-to-turn-header-button" data-alex-product-part="content" className="scroll-to-turn-header-trigger__content">
         <Tooltip content={turnLabel || t('scroll.toCurrentTurn')}>
           <IconButton
-            data-openbitfun-product-component="scroll-to-turn-header-button"
-            data-openbitfun-product-part="button"
+            data-alex-product-component="scroll-to-turn-header-button"
+            data-alex-product-part="button"
             className="scroll-to-turn-header-trigger__btn"
             onClick={onClick}
             aria-label={turnLabel || t('scroll.toCurrentTurn')}

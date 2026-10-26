@@ -45,7 +45,7 @@ describe('ApiClient startup trace classification', () => {
   beforeEach(() => {
     activateSurface(LOCAL_SURFACE_ID);
     vi.clearAllMocks();
-    delete globalThis.__OPENBITFUN_PERF_TRACE_ENABLED__;
+    delete globalThis.__ALEX_PERF_TRACE_ENABLED__;
   });
 
   it('does not record optional get_config not found as a startup failure', async () => {
@@ -80,7 +80,7 @@ describe('ApiClient startup trace classification', () => {
     await client.invoke('restore_session_view', {
       request: {
         sessionId: 'history-1',
-        workspacePath: 'D:/workspace/OpenBitFun',
+        workspacePath: 'D:/workspace/Alex',
       },
     });
 
@@ -109,7 +109,7 @@ describe('ApiClient startup trace classification', () => {
     const client = new ApiClient({ enableLogging: false, retries: 0 });
 
     const error = await client.invoke('get_external_source_control_snapshot', {
-      request: { workspacePath: 'D:/workspace/OpenBitFun' },
+      request: { workspacePath: 'D:/workspace/Alex' },
     }).catch((caught: unknown) => caught as {
       code: string;
       details?: { originalError?: unknown };
@@ -291,14 +291,14 @@ describe('ApiClient startup trace classification', () => {
   });
 
   it('uses a bounded response estimate cap for session view restore when perf trace is enabled', async () => {
-    globalThis.__OPENBITFUN_PERF_TRACE_ENABLED__ = true;
+    globalThis.__ALEX_PERF_TRACE_ENABLED__ = true;
     adapterMocks.request.mockResolvedValueOnce({ turns: [] });
     const client = new ApiClient({ enableLogging: false, retries: 0 });
 
     await client.invoke('restore_session_view', {
       request: {
         sessionId: 'history-1',
-        workspacePath: 'D:/workspace/OpenBitFun',
+        workspacePath: 'D:/workspace/Alex',
       },
     });
 
@@ -309,14 +309,14 @@ describe('ApiClient startup trace classification', () => {
   });
 
   it('uses the Session response estimate cap for Turn windows', async () => {
-    globalThis.__OPENBITFUN_PERF_TRACE_ENABLED__ = true;
+    globalThis.__ALEX_PERF_TRACE_ENABLED__ = true;
     adapterMocks.request.mockResolvedValueOnce({ status: 'ready', turns: [] });
     const client = new ApiClient({ enableLogging: false, retries: 0 });
 
     await client.invoke('load_session_turn_window', {
       request: {
         sessionId: 'history-1',
-        workspacePath: 'D:/workspace/OpenBitFun',
+        workspacePath: 'D:/workspace/Alex',
         targetStorageTurnIndex: 4,
       },
     });
@@ -353,7 +353,7 @@ describe('ApiClient startup trace classification', () => {
     });
     const secondRequest = client.invoke('list_persisted_sessions_page', {
       request: {
-        workspacePath: 'D:/workspace/OpenBitFun',
+        workspacePath: 'D:/workspace/Alex',
         limit: 5,
       },
     });
@@ -380,14 +380,14 @@ describe('ApiClient startup trace classification', () => {
     const client = new ApiClient({ enableLogging: false, retries: 0 });
 
     await client.invoke('explorer_get_children', {
-      request: { path: 'D:/workspace/OpenBitFun' },
+      request: { path: 'D:/workspace/Alex' },
     });
     await client.invoke('start_file_watch', {
-      path: 'D:/workspace/OpenBitFun',
+      path: 'D:/workspace/Alex',
       recursive: false,
     });
     await client.invoke('start_file_watch', {
-      path: 'D:/workspace/OpenBitFun',
+      path: 'D:/workspace/Alex',
       recursive: true,
     });
 
@@ -405,6 +405,6 @@ describe('ApiClient startup trace classification', () => {
     }));
 
     const calls = traceMocks.recordApiCall.mock.calls.map(([call]) => call);
-    expect(JSON.stringify(calls)).not.toContain('D:/workspace/OpenBitFun');
+    expect(JSON.stringify(calls)).not.toContain('D:/workspace/Alex');
   });
 });

@@ -1,7 +1,7 @@
 //! Device identity for Remote Connect pairing and account device routing.
 //!
 //! `device_id` is generated once and persisted under
-//! `<OPENBITFUN_HOME>/device_identity.json` (normally `~/.openbitfun/device_identity.json`).
+//! `<ALEX_HOME>/device_identity.json` (normally `~/.alex/device_identity.json`).
 //! Hostname/MAC are refreshed for display only — they must not rewrite `device_id`,
 //! because macOS private Wi‑Fi addresses and interface order make MAC unstable.
 
@@ -73,7 +73,7 @@ impl DeviceIdentity {
 /// Unsupported or failed probes are omitted, never sent as destructive nulls.
 pub async fn local_device_metadata() -> serde_json::Value {
     async fn probe(program: &str, args: &[&str]) -> Option<String> {
-        let mut command = openbitfun_services_core::process_manager::create_tokio_command(program);
+        let mut command = alex_services_core::process_manager::create_tokio_command(program);
         command.args(args).kill_on_drop(true);
         let output = tokio::time::timeout(std::time::Duration::from_secs(5), command.output())
             .await
@@ -222,7 +222,7 @@ fn identity_file_path() -> Result<PathBuf> {
         }
     }
 
-    if let Ok(path) = std::env::var("OPENBITFUN_DEVICE_IDENTITY_PATH") {
+    if let Ok(path) = std::env::var("ALEX_DEVICE_IDENTITY_PATH") {
         let path = path.trim();
         if !path.is_empty() {
             return Ok(PathBuf::from(path));
@@ -230,7 +230,7 @@ fn identity_file_path() -> Result<PathBuf> {
     }
 
     let home = super::product_home_dir()
-        .ok_or_else(|| anyhow!("cannot determine OpenBitFun home directory"))?;
+        .ok_or_else(|| anyhow!("cannot determine Alex home directory"))?;
     Ok(home.join("device_identity.json"))
 }
 
@@ -278,7 +278,7 @@ mod tests {
     fn with_temp_identity_path<F: FnOnce()>(f: F) {
         let _guard = TEST_LOCK.lock().unwrap();
         let path = std::env::temp_dir().join(format!(
-            "openbitfun-device-identity-{}-{}.json",
+            "alex-device-identity-{}-{}.json",
             std::process::id(),
             uuid_like()
         ));

@@ -1,5 +1,5 @@
 [package]
-name = "openbitfun-basemind-integration"
+name = "alex-basemind-integration"
 version = "0.1.0"
 edition = "2024"
 description = "Basemind integration: PII detection, redaction, RAG, identity registry, vault"
@@ -8,7 +8,7 @@ categories = ["integration", "security", "privacy"]
 
 [features]
 default = ["basemind"]
-basemind = ["dep:anyhow", "dep:async-trait", "dep:base64", "dep:chrono", "dep:dashmap", "dep:hex", "dep:hmac", "dep:log", "dep:md5", "dep:regex", "dep:serde", "dep:serde_json", "dep:thiserror", "dep:tokio", "dep:tracing", "dep:uuid", "dep:reqwest", "dep:aes-gcm", "dep:scrypt", "dep:rand", "dep:sha2", "dep:url", "dep:openbitfun-runtime-ports", "dep:openbitfun-services-core", "dep:security-framework", "dep:security-framework-sys", "dep:windows", "dep:secret-service", "dep:keyring-core", "dep:windows-native-keyring-store", "dep:zbus-secret-service-keyring-store"]
+basemind = ["dep:anyhow", "dep:async-trait", "dep:base64", "dep:chrono", "dep:dashmap", "dep:hex", "dep:hmac", "dep:log", "dep:md5", "dep:regex", "dep:serde", "dep:serde_json", "dep:thiserror", "dep:tokio", "dep:tracing", "dep:uuid", "dep:reqwest", "dep:aes-gcm", "dep:scrypt", "dep:rand", "dep:sha2", "dep:url", "dep:alex-runtime-ports", "dep:alex-services-core", "dep:security-framework", "dep:security-framework-sys", "dep:windows", "dep:secret-service", "dep:keyring-core", "dep:windows-native-keyring-store", "dep:zbus-secret-service-keyring-store"]
 tools-rag = ["basemind"]
 document-read = ["basemind"]
 pseudonymization = ["basemind"]
@@ -34,7 +34,7 @@ url = { workspace = true, optional = true }
 
 # Runtime ports: workspace filesystem port (workspace_fs) + the RagSearchPort
 # seam implemented over RagSearchTool (D11).
-openbitfun-runtime-ports = { path = "../../contracts/runtime-ports", optional = true, features = ["workspace-ports", "rag-search", "document-redaction", "prompt-pseudonymization"] }
+alex-runtime-ports = { path = "../../contracts/runtime-ports", optional = true, features = ["workspace-ports", "rag-search", "document-redaction", "prompt-pseudonymization"] }
 
 # MCP HTTP client - raw reqwest, no rmcp client dependency.
 # Loopback plain HTTP only; workspace reqwest keeps default features (and TLS) off.
@@ -43,7 +43,7 @@ reqwest = { workspace = true, optional = true, features = ["json"] }
 # On-demand daemon spawn — the fork self-terminates an abandoned daemon, so
 # the first call after that has to bring it back. process-managed spawn is a
 # shared capability, not this crate's to reimplement.
-openbitfun-services-core = { path = "../services-core", optional = true, features = ["process-runtime"] }
+alex-services-core = { path = "../services-core", optional = true, features = ["process-runtime"] }
 
 # Vault crypto
 aes-gcm = { version = "0.10", optional = true }

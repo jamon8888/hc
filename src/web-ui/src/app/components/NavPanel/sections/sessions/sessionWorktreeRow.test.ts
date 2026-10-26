@@ -30,7 +30,7 @@ describe('worktree isolated session row', () => {
   });
 
   it('marks the row with an accessible worktree badge', () => {
-    expect(sessionsSection).toContain('openbitfun-nav-panel__inline-item-worktree-badge');
+    expect(sessionsSection).toContain('alex-nav-panel__inline-item-worktree-badge');
     expect(sessionsSection).toMatch(
       /aria-label=\{t\('nav\.sessions\.worktreeTooltip', \{ path: worktreeRootPath \}\)\}/,
     );
@@ -42,14 +42,14 @@ describe('worktree isolated session row', () => {
     // and the aria-label stay as the accessible explanation.
     expect(sessionsSection).not.toContain("t('nav.sessions.worktreeBadge')");
     expect(sessionsSection).toMatch(
-      /inline-item-worktree-badge"[\s\S]{0,400}?<FolderGit2 className="openbitfun-nav-panel__inline-item-worktree-icon" aria-hidden \/>\s*<\/span>/,
+      /inline-item-worktree-badge"[\s\S]{0,400}?<FolderGit2 className="alex-nav-panel__inline-item-worktree-icon" aria-hidden \/>\s*<\/span>/,
     );
     expect(sessionsSectionStyles).toMatch(
-      /&__inline-item-worktree-badge \{[\s\S]*?inline-size: var\(--openbitfun-control-icon-size-md\);/,
+      /&__inline-item-worktree-badge \{[\s\S]*?inline-size: var\(--alex-control-icon-size-md\);/,
     );
     // The glyph keeps a normal icon size inside the badge circle.
     expect(sessionsSectionStyles).toMatch(
-      /\.openbitfun-nav-panel__inline-item-worktree-icon \{[\s\S]*?inline-size: var\(--openbitfun-control-icon-size-xs\);/,
+      /\.alex-nav-panel__inline-item-worktree-icon \{[\s\S]*?inline-size: var\(--alex-control-icon-size-xs\);/,
     );
   });
 

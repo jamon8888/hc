@@ -3,20 +3,20 @@
 use crate::api::app_state::AppState;
 use crate::startup_trace::DesktopStartupTrace;
 use log::{error, info};
-use openbitfun_core::infrastructure::storage::StorageOptions;
-use openbitfun_core::service::git::{
+use alex_core::infrastructure::storage::StorageOptions;
+use alex_core::service::git::{
     build_git_changed_files_args, build_git_diff_args, parse_name_status_output, GitAddParams,
     GitChangedFile, GitChangedFilesParams, GitCommitParams, GitDiffParams, GitFileStatus,
     GitLogParams, GitPullParams, GitPushParams, GitService,
 };
-use openbitfun_core::service::git::{
+use alex_core::service::git::{
     trust, GitBranch, GitCommit, GitError, GitOperationResult, GitRepository, GitStatus,
     GitTrustOutcome, GitTrustReport, GitTrustState,
 };
-use openbitfun_core::service::remote_ssh::{
+use alex_core::service::remote_ssh::{
     build_remote_git_command as build_remote_git_command_shared, normalize_remote_workspace_path,
 };
-use openbitfun_core::service::workspace::WorktreeTopologyFreshness;
+use alex_core::service::workspace::WorktreeTopologyFreshness;
 use serde::{Deserialize, Serialize};
 use std::time::Instant;
 use tauri::State;
@@ -61,13 +61,13 @@ async fn resolve_remote_git_target(
     workspace_id: &str,
     repository_path: &str,
 ) -> Result<Option<RemoteGitTarget>, String> {
-    let service = openbitfun_core::service::workspace::get_global_workspace_service()
+    let service = alex_core::service::workspace::get_global_workspace_service()
         .ok_or("Workspace service is unavailable")?;
     let workspace = service
         .require_workspace(workspace_id)
         .await
         .map_err(|e| e.to_string())?;
-    if workspace.workspace_kind != openbitfun_core::service::workspace::WorkspaceKind::Remote {
+    if workspace.workspace_kind != alex_core::service::workspace::WorkspaceKind::Remote {
         return Ok(None);
     }
     let connection_id = workspace
@@ -85,7 +85,7 @@ async fn resolve_git_request(
     workspace_id: &mut Option<String>,
     repository_path: &mut String,
 ) -> Result<(), String> {
-    let service = openbitfun_core::service::workspace::get_global_workspace_service()
+    let service = alex_core::service::workspace::get_global_workspace_service()
         .ok_or("Workspace service is unavailable")?;
     let workspace = match workspace_id.as_deref() {
         Some(id) => service
@@ -784,7 +784,7 @@ fn remote_git_diagnostic(output: &RemoteGitOutput) -> String {
 
 /// Whether a remote `rev-parse --is-inside-work-tree` found a repository.
 ///
-/// Mirrors the local [`openbitfun_core::service::git::utils::is_git_repository`]:
+/// Mirrors the local [`alex_core::service::git::utils::is_git_repository`]:
 /// a repository Git refuses on ownership grounds still *is* one, and answering
 /// `false` there hides the recovery affordance behind "not a repository".
 fn remote_probe_found_repository(output: &RemoteGitOutput) -> bool {
@@ -1586,7 +1586,7 @@ pub async fn git_get_graph(
     mut workspace_id: Option<String>,
     max_count: Option<usize>,
     branch_name: Option<String>,
-) -> Result<openbitfun_core::service::git::GitGraph, String> {
+) -> Result<alex_core::service::git::GitGraph, String> {
     let mut repository_path = repository_path.unwrap_or_default();
     info!(
         "Getting git graph: repository_path={}, max_count={:?}, branch_name={:?}",
@@ -1720,7 +1720,7 @@ pub async fn git_cherry_pick_continue(
 pub async fn git_list_worktrees(
     state: State<'_, AppState>,
     mut request: GitRepositoryRequest,
-) -> Result<Vec<openbitfun_core::service::git::GitWorktreeInfo>, String> {
+) -> Result<Vec<alex_core::service::git::GitWorktreeInfo>, String> {
     resolve_git_request(&mut request.workspace_id, &mut request.repository_path).await?;
     info!("Listing worktrees for '{}'", request.repository_path);
 
@@ -1754,7 +1754,7 @@ pub async fn git_list_worktrees(
 pub async fn git_add_worktree(
     state: State<'_, AppState>,
     mut request: GitAddWorktreeRequest,
-) -> Result<openbitfun_core::service::git::GitWorktreeInfo, String> {
+) -> Result<alex_core::service::git::GitWorktreeInfo, String> {
     resolve_git_request(&mut request.workspace_id, &mut request.repository_path).await?;
     let create_branch = request.create_branch.unwrap_or(false);
     info!(

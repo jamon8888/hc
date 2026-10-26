@@ -55,7 +55,7 @@ import { contextMenuAppearanceDescriptor } from '@/shared/context-menu-system/ap
 import { contextListAppearanceDescriptor } from '@/shared/context-system/appearance';
 import { notificationAppearanceDescriptor } from '@/shared/notification-system/appearance';
 import { imageLightboxAppearanceDescriptor } from '@/shared/ui/ImageLightbox.appearance';
-import { canvasToolAppearanceDescriptor } from '@/tools/openbitfun-canvas/appearance';
+import { canvasToolAppearanceDescriptor } from '@/tools/alex-canvas/appearance';
 import { generativeWidgetAppearanceDescriptor } from '@/tools/generative-widget/appearance';
 import { editorToolAppearanceDescriptor } from '@/tools/editor/appearance';
 import { fileSystemAppearanceDescriptor } from '@/tools/file-system/appearance';
@@ -217,7 +217,7 @@ import { flowTextBlockAppearanceDescriptor } from '@/flow_chat/components/FlowTe
 import { chatInputApprovalBandAppearanceDescriptor } from '@/flow_chat/components/ChatInputApprovalBand.appearance';
 import { canvasToolCardAppearanceDescriptor } from '@/flow_chat/tool-cards/CanvasToolCard.appearance';
 import { computerUseToolCardAppearanceDescriptor } from '@/flow_chat/tool-cards/ComputerUseToolCard.appearance';
-import { openBitFunControlToolCardAppearanceDescriptor } from '@/flow_chat/tool-cards/OpenBitFunControlToolCard.appearance';
+import { openBitFunControlToolCardAppearanceDescriptor } from '@/flow_chat/tool-cards/AlexControlToolCard.appearance';
 import { miniAppToolDisplayAppearanceDescriptor } from '@/flow_chat/tool-cards/MiniAppToolDisplay.appearance';
 import { modelThinkingDisplayAppearanceDescriptor } from '@/flow_chat/tool-cards/ModelThinkingDisplay.appearance';
 import { toolTimeoutIndicatorAppearanceDescriptor } from '@/flow_chat/tool-cards/ToolTimeoutIndicator.appearance';

@@ -58,36 +58,36 @@ describe('ComposerVoiceInputButton', () => {
       root.render(<ComposerVoiceInputButton controller={createRecordingController()} />);
     });
 
-    const cancel = container.querySelector<HTMLButtonElement>('[data-openbitfun-action="cancel"] button');
-    const transcribe = container.querySelector<HTMLButtonElement>('[data-openbitfun-action="transcribe"] button');
-    const send = container.querySelector<HTMLButtonElement>('[data-openbitfun-action="send"] button');
-    const actionShells = container.querySelectorAll<HTMLElement>('[data-openbitfun-part="action"]');
+    const cancel = container.querySelector<HTMLButtonElement>('[data-alex-action="cancel"] button');
+    const transcribe = container.querySelector<HTMLButtonElement>('[data-alex-action="transcribe"] button');
+    const send = container.querySelector<HTMLButtonElement>('[data-alex-action="send"] button');
+    const actionShells = container.querySelectorAll<HTMLElement>('[data-alex-part="action"]');
 
     expect(actionShells).toHaveLength(3);
     actionShells.forEach((actionShell) => {
-      expect(actionShell.classList.contains('openbitfun-chat-input__voice-pill-action-shell')).toBe(true);
+      expect(actionShell.classList.contains('alex-chat-input__voice-pill-action-shell')).toBe(true);
     });
 
     expect(cancel).toMatchObject({
       dataset: expect.objectContaining({
-        openbitfunRole: 'composer-action',
-        openbitfunShape: 'circle',
-        openbitfunVariant: 'quiet',
+        alexRole: 'composer-action',
+        alexShape: 'circle',
+        alexVariant: 'quiet',
       }),
     });
     expect(transcribe).toMatchObject({
       dataset: expect.objectContaining({
-        openbitfunRole: 'composer-action',
-        openbitfunShape: 'circle',
-        openbitfunVariant: 'fill',
+        alexRole: 'composer-action',
+        alexShape: 'circle',
+        alexVariant: 'fill',
       }),
     });
     expect(send).toMatchObject({
       dataset: expect.objectContaining({
-        openbitfunRole: 'composer-action',
-        openbitfunShape: 'circle',
-        openbitfunTone: 'danger',
-        openbitfunVariant: 'primary',
+        alexRole: 'composer-action',
+        alexShape: 'circle',
+        alexTone: 'danger',
+        alexVariant: 'primary',
       }),
     });
   });

@@ -1,7 +1,7 @@
-@layer openbitfun.tokens.system {
-  :where([data-openbitfun-design-system-root]) {
-    --openbitfun-font-family-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
-    --openbitfun-font-family-control: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
-    --openbitfun-font-family-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, "PingFang SC", "Hiragino Sans GB", monospace;
+@layer alex.tokens.system {
+  :where([data-alex-design-system-root]) {
+    --alex-font-family-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+    --alex-font-family-control: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+    --alex-font-family-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, "PingFang SC", "Hiragino Sans GB", monospace;
   }
 }

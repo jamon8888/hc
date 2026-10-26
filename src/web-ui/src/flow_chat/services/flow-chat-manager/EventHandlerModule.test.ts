@@ -630,7 +630,7 @@ describe('dispatch optimistic turn reconciliation', () => {
       status: 'pending',
     });
     expect(turns?.[0]?.userMessage.metadata)
-      .not.toHaveProperty('__openbitfunOptimisticDispatchJobId');
+      .not.toHaveProperty('__alexOptimisticDispatchJobId');
     expect(context.deferredStorageIdentitySaves).not.toContain(
       'dispatch-session:dispatch_pending_job-1',
     );

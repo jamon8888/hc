@@ -1,7 +1,7 @@
 use super::subagent_api::local_workspace_from_request;
 use crate::api::app_state::AppState;
 use log::{debug, warn};
-use openbitfun_core::agentic::agents::{
+use alex_core::agentic::agents::{
     custom_agent_model_or_default, custom_agent_review_writable_tools, default_custom_agent_tools,
     default_custom_agent_user_context_policy, CustomAgentDetail, CustomAgentKind, CustomAgentLevel,
     CustomMode, CustomSubagent, UserContextPolicy, UserContextSection,
@@ -425,7 +425,7 @@ pub async fn delete_custom_agent(
     if let Err(error) = config_service
         .update_config(
             "",
-            |config: &mut openbitfun_core::service::config::GlobalConfig| {
+            |config: &mut alex_core::service::config::GlobalConfig| {
                 config.ai.agent_profiles.remove(&agent_id);
                 config.app.flow_chat.remove_mode_reference(&agent_id);
                 Ok(())
@@ -440,7 +440,7 @@ pub async fn delete_custom_agent(
     } else {
     }
 
-    if let Err(error) = openbitfun_core::service::config::reload_global_config().await {
+    if let Err(error) = alex_core::service::config::reload_global_config().await {
         warn!(
             "Failed to reload global config after custom agent deletion: agent_id={}, error={}",
             agent_id, error

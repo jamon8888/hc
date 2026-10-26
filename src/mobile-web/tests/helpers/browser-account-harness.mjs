@@ -289,7 +289,7 @@ export class RelayFixture {
     });
     // Account scenarios use English action labels independently of the host OS.
     await page.evaluateOnNewDocument(() => {
-      localStorage.setItem('openbitfun-mobile-language', 'en-US');
+      localStorage.setItem('alex-mobile-language', 'en-US');
     });
     if (init) await page.evaluateOnNewDocument(init);
     await page.goto(url, { waitUntil: 'networkidle0' });

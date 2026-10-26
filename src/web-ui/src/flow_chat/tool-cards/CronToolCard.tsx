@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { CronToolCard as CronToolCardView } from '@openbitfun/ui/flow-chat';
+import { CronToolCard as CronToolCardView } from '@alex/ui/flow-chat';
 import { useI18n } from '@/infrastructure/i18n';
 import type { CronSchedule } from '@/infrastructure/api';
 import { formatDateTime, formatScheduleSummary } from '@/app/scenes/todos/todoPresentation';
@@ -253,7 +253,7 @@ export const CronToolCard: React.FC<ToolCardProps> = React.memo(({ toolItem }) =
   };
 
   return (
-    <div ref={cardRootRef} data-openbitfun-adapter="cron" data-tool-card-id={toolId ?? ''}>
+    <div ref={cardRootRef} data-alex-adapter="cron" data-tool-card-id={toolId ?? ''}>
       <CronToolCardView
         status={status}
         isExpanded={isExpanded}

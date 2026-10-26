@@ -2,12 +2,12 @@
 
 use serde_json::{json, Value};
 
-use openbitfun_core::service::git::GitService;
+use alex_core::service::git::GitService;
 
 use crate::peer_host::args::{optional_string, request_value};
 
 async fn repository_path_for_workspace(request: &Value) -> Result<String, String> {
-    let service = openbitfun_core::service::workspace::get_global_workspace_service()
+    let service = alex_core::service::workspace::get_global_workspace_service()
         .ok_or("Workspace service is unavailable")?;
     let path = optional_string(request, "repositoryPath").unwrap_or_default();
     let workspace = match optional_string(request, "workspaceId") {
@@ -21,7 +21,7 @@ async fn repository_path_for_workspace(request: &Value) -> Result<String, String
             .map_err(|e| e.to_string())?
             .ok_or("Legacy Git workspace cannot be resolved; select a workspace by ID")?,
     };
-    if workspace.workspace_kind == openbitfun_core::service::workspace::WorkspaceKind::Remote {
+    if workspace.workspace_kind == alex_core::service::workspace::WorkspaceKind::Remote {
         return Err("CLI peer Git inspection does not support remote workspaces".into());
     }
     Ok(

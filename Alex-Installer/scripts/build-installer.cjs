@@ -1,8 +1,8 @@
 /**
- * OpenBitFun Installer build script.
+ * Alex Installer build script.
  *
  * Steps:
- * 1. Build OpenBitFun main app (optional).
+ * 1. Build Alex main app (optional).
  * 2. Prepare installer payload from built app binaries.
  * 3. Build installer app (Tauri).
  *
@@ -17,7 +17,7 @@ const fs = require("fs");
 const path = require("path");
 
 const ROOT = path.resolve(__dirname, "..");
-const OPENBITFUN_ROOT = path.resolve(ROOT, "..");
+const ALEX_ROOT = path.resolve(ROOT, "..");
 const PAYLOAD_DIR = path.join(ROOT, "src-tauri", "payload");
 
 const rawArgs = process.argv.slice(2);
@@ -27,13 +27,13 @@ const showHelp = rawArgs.includes("--help") || rawArgs.includes("-h");
 const STRICT_PAYLOAD_VALIDATION = !isDev;
 const MIN_APP_EXE_BYTES = 5 * 1024 * 1024;
 const REQUIRED_PAYLOAD_FILES = [
-  "openbitfun-desktop.exe",
+  "alex-desktop.exe",
   "frontend/dist/index.html",
   "mobile-web/dist/index.html",
   "resources/ext-host/extension-host.js",
   "resources/worker_host.js",
   "flashgrep/flashgrep-x86_64-pc-windows-msvc.exe",
-  "interpreter/openbitfun-bundled-tool.json",
+  "interpreter/alex-bundled-tool.json",
 ];
 
 function getMode(args) {
@@ -78,7 +78,7 @@ function run(cmd, cwd = ROOT) {
 
 function printHelpAndExit() {
   console.log(`
-OpenBitFun Installer build script
+Alex Installer build script
 
 Usage:
   node scripts/build-installer.cjs [options]
@@ -86,7 +86,7 @@ Usage:
 Options:
   --mode <fast|release>  Build mode (default: release)
   --fast                 Alias for --mode fast
-  --skip-app-build       Skip building main OpenBitFun app
+  --skip-app-build       Skip building main Alex app
   --app-exe <path>       Exact desktop executable to package. Required when the
                          desired build is outside the active Cargo target dir.
   --dev                  Run installer with tauri dev instead of tauri build
@@ -170,24 +170,24 @@ function getExpectedAppProfile(mode) {
 
 function resolveCargoTargetDir(env = process.env) {
   const configured = env.CARGO_TARGET_DIR;
-  if (!configured) return path.join(OPENBITFUN_ROOT, "target");
+  if (!configured) return path.join(ALEX_ROOT, "target");
   return path.isAbsolute(configured)
     ? path.normalize(configured)
-    : path.resolve(OPENBITFUN_ROOT, configured);
+    : path.resolve(ALEX_ROOT, configured);
 }
 
 function resolveAppExePath(mode, args = rawArgs, env = process.env) {
-  const configured = getArgValue(args, "--app-exe") || env.OPENBITFUN_INSTALLER_APP_EXE;
+  const configured = getArgValue(args, "--app-exe") || env.ALEX_INSTALLER_APP_EXE;
   if (configured) {
     return path.isAbsolute(configured)
       ? path.normalize(configured)
-      : path.resolve(OPENBITFUN_ROOT, configured);
+      : path.resolve(ALEX_ROOT, configured);
   }
 
   return path.join(
     resolveCargoTargetDir(env),
     getExpectedAppProfile(mode),
-    "openbitfun-desktop.exe"
+    "alex-desktop.exe"
   );
 }
 
@@ -214,7 +214,7 @@ function validateRequiredPayloadFiles(payloadDir, manifest) {
 // would leave the product with an agent it cannot start.
 function validateBundledInterpreterPackage(payloadDir) {
   const packageRoot = path.join(payloadDir, "interpreter");
-  const manifestPath = path.join(packageRoot, "openbitfun-bundled-tool.json");
+  const manifestPath = path.join(packageRoot, "alex-bundled-tool.json");
   let packageManifest;
   try {
     packageManifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
@@ -259,10 +259,10 @@ if (isDev) {
   log("Installer run mode: release (strict payload validation)");
 }
 
-// Step 1: Build main OpenBitFun app.
+// Step 1: Build main Alex app.
 if (!skipAppBuild) {
-  log("Step 1: Building OpenBitFun main application...");
-  run(getMainAppBuildCommand(buildMode), OPENBITFUN_ROOT);
+  log("Step 1: Building Alex main application...");
+  run(getMainAppBuildCommand(buildMode), ALEX_ROOT);
 } else {
   log("Step 1: Skipped (--skip-app-build)");
 }
@@ -275,8 +275,8 @@ log("Step 2: Preparing installer payload...");
 
   if (!appExePath && STRICT_PAYLOAD_VALIDATION) {
     error(
-      `Could not find the exact ${getExpectedAppProfile(buildMode)} OpenBitFun executable at ${expectedAppExePath}. ` +
-        "Build that profile first, set OPENBITFUN_INSTALLER_APP_EXE, or pass --app-exe."
+      `Could not find the exact ${getExpectedAppProfile(buildMode)} Alex executable at ${expectedAppExePath}. ` +
+        "Build that profile first, set ALEX_INSTALLER_APP_EXE, or pass --app-exe."
     );
   }
 
@@ -290,14 +290,14 @@ if (appExePath) {
     files: [],
   };
 
-  const destExe = path.join(PAYLOAD_DIR, "openbitfun-desktop.exe");
+  const destExe = path.join(PAYLOAD_DIR, "alex-desktop.exe");
   writeFileWithManifest(appExePath, destExe, manifest, PAYLOAD_DIR);
   log(`Copied: ${appExePath} -> ${destExe}`);
 
   const exeSize = fs.statSync(destExe).size;
   if (STRICT_PAYLOAD_VALIDATION && exeSize < MIN_APP_EXE_BYTES) {
     error(
-      `openbitfun-desktop.exe in payload is unexpectedly small (${exeSize} bytes). Refusing to continue.`
+      `alex-desktop.exe in payload is unexpectedly small (${exeSize} bytes). Refusing to continue.`
     );
   }
 
@@ -383,7 +383,7 @@ if (isDev) {
       "src-tauri",
       "target",
       installerTargetProfile,
-      "openbitfun-installer.exe"
+      "alex-installer.exe"
     )}`
   );
 }

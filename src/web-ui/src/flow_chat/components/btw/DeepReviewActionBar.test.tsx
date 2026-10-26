@@ -55,9 +55,9 @@ vi.mock('react-i18next', async () => {
   };
 });
 
-vi.mock('@openbitfun/ui', async importOriginal => ({
-  ...await importOriginal<typeof import('@openbitfun/ui')>(),
-  Icon: ({ name }: { name: string }) => <span data-openbitfun-component="icon" data-openbitfun-name={name} />,
+vi.mock('@alex/ui', async importOriginal => ({
+  ...await importOriginal<typeof import('@alex/ui')>(),
+  Icon: ({ name }: { name: string }) => <span data-alex-component="icon" data-alex-name={name} />,
   Button: ({
     children,
     disabled,
@@ -1165,9 +1165,9 @@ describeWithJsdom('DeepReviewActionBar', () => {
 
     const customToggle = container.querySelector<HTMLButtonElement>('.deep-review-action-bar__custom-toggle')!;
     await act(async () => customToggle.click());
-    const input = container.querySelector<HTMLTextAreaElement>('textarea[data-openbitfun-product-part="customInput"]')!;
+    const input = container.querySelector<HTMLTextAreaElement>('textarea[data-alex-product-part="customInput"]')!;
     expect(input.rows).toBe(2);
-    expect(input.getAttribute('data-openbitfun-part')).toBe('input');
+    expect(input.getAttribute('data-alex-part')).toBe('input');
     expect(input.parentElement?.getAttribute('data-auto-resize')).toBe('false');
     expect(input.parentElement?.getAttribute('data-resize')).toBe('vertical');
     const instructions = 'Keep existing data.\n保留兼容行为。';
@@ -1187,7 +1187,7 @@ describeWithJsdom('DeepReviewActionBar', () => {
     expect(sendMessageMock).not.toHaveBeenCalled();
 
     const legacy: AppearancePackage = {
-      schema: 'openbitfun.appearance', schemaVersion: APPEARANCE_SCHEMA_VERSION,
+      schema: 'alex.appearance', schemaVersion: APPEARANCE_SCHEMA_VERSION,
       id: 'test.review-input', name: 'Review input', version: '1.0.0', mode: 'dark',
       components: { 'deep-review-action-bar': { parts: {
         customInput: { base: { opacity: { kind: 'number', value: 0.6 } } },
@@ -1198,8 +1198,8 @@ describeWithJsdom('DeepReviewActionBar', () => {
     const snapshot = new AppearanceCompiler(new AppearanceRegistry()
       .registerComponent(deepReviewActionBarAppearanceDescriptor)).compile(restored, 1);
     expect(JSON.stringify(restored)).toBe(serialized);
-    document.documentElement.setAttribute('data-openbitfun-appearance', snapshot.id);
-    document.documentElement.setAttribute('data-openbitfun-appearance-revision', String(snapshot.revision));
+    document.documentElement.setAttribute('data-alex-appearance', snapshot.id);
+    document.documentElement.setAttribute('data-alex-appearance-revision', String(snapshot.revision));
     const style = document.createElement('style');
     style.textContent = snapshot.cssText;
     document.head.appendChild(style);
@@ -1244,7 +1244,7 @@ describeWithJsdom('DeepReviewActionBar', () => {
     const stagedPathButton = Array.from(container.querySelectorAll<HTMLButtonElement>('.deep-review-action-bar__decision-gate-option'))
       .find((button) => button.textContent?.includes('Staged path'));
     expect(stagedPathButton).toBeTruthy();
-    expect(stagedPathButton?.closest('[data-openbitfun-component="action-card"]')).not.toBeNull();
+    expect(stagedPathButton?.closest('[data-alex-component="action-card"]')).not.toBeNull();
     expect(container.querySelector('.deep-review-action-bar__decision-gate-options [role="radio"]')).toBeNull();
 
     await act(async () => {

@@ -52,23 +52,23 @@ describe('startup performance contract', () => {
   it('keeps the pre-React startup fallback vector-only', () => {
     const source = readSource('../../../index.html');
 
-    expect(source).toContain('<link rel="icon" type="image/png" href="/brand/openbitfun-app-icon.png" />');
+    expect(source).toContain('<link rel="icon" type="image/png" href="/brand/alex-app-icon.png" />');
     expect(source).not.toContain('rel="preload" as="image"');
-    expect(source).toContain('class="openbitfun-preload__logo"');
-    expect(source).toContain("url('/brand/openbitfun-mark.svg')");
-    expect(source).not.toContain('src="/brand/openbitfun-mark-dark-128.png"');
-    expect(source).not.toContain('src="/brand/openbitfun-mark-light-128.png"');
+    expect(source).toContain('class="alex-preload__logo"');
+    expect(source).toContain("url('/brand/alex-mark.svg')");
+    expect(source).not.toContain('src="/brand/alex-mark-dark-128.png"');
+    expect(source).not.toContain('src="/brand/alex-mark-light-128.png"');
     expect(source).not.toContain('Loading workspace...');
-    expect(source).not.toContain('openbitfun-preload__spinner');
+    expect(source).not.toContain('alex-preload__spinner');
     expect(source).not.toContain('aria-live="polite"');
 
     expect(source.indexOf('<script type="module" src="/src/main.tsx"></script>')).toBeLessThan(
-      source.indexOf('class="openbitfun-preload__logo"'),
+      source.indexOf('class="alex-preload__logo"'),
     );
   });
 
   it('keeps the startup mark as a reusable transparent vector asset', () => {
-    const asset = readSource('../../../public/brand/openbitfun-mark.svg');
+    const asset = readSource('../../../public/brand/alex-mark.svg');
 
     expect(asset).toContain('viewBox="0 0 120 120"');
     expect(asset).toContain('fill="none"');
@@ -84,12 +84,12 @@ describe('startup performance contract', () => {
     for (const styles of [source, componentStyles]) {
       expect(styles).toContain('width: 120px;');
       expect(styles).not.toContain('width: 144px;');
-      expect(styles).toContain('background-color: var(--openbitfun-color-content-on-light);');
-      expect(styles).toContain('background-color: var(--openbitfun-color-content-on-dark);');
-      expect(styles).toContain('color: var(--openbitfun-color-content-secondary);');
-      expect(styles).not.toContain('var(--openbitfun-color-content-on-dark) 80%, transparent');
-      expect(styles).toContain('var(--openbitfun-color-content-on-dark) 60%, transparent');
-      expect(styles).toContain('font-size: var(--openbitfun-type-label-md-font-size);');
+      expect(styles).toContain('background-color: var(--alex-color-content-on-light);');
+      expect(styles).toContain('background-color: var(--alex-color-content-on-dark);');
+      expect(styles).toContain('color: var(--alex-color-content-secondary);');
+      expect(styles).not.toContain('var(--alex-color-content-on-dark) 80%, transparent');
+      expect(styles).toContain('var(--alex-color-content-on-dark) 60%, transparent');
+      expect(styles).toContain('font-size: var(--alex-type-label-md-font-size);');
     }
   });
 
@@ -98,7 +98,7 @@ describe('startup performance contract', () => {
     const appSource = readSource('../App.tsx');
 
     expect(appSource).toContain('const MIN_SPLASH_MS = 650;');
-    expect(source).toContain('animation: openbitfun-startup-overlay-exit 0.24s ease-in-out both;');
+    expect(source).toContain('animation: alex-startup-overlay-exit 0.24s ease-in-out both;');
   });
 
   it('keeps editor and tool infrastructure out of the first startup module', () => {
@@ -133,22 +133,22 @@ describe('startup performance contract', () => {
     expect(mainSource).not.toContain('before_render_step", "initialize_frontend_log_level_sync"');
     expect(mainSource).toContain('initializeFrontendLogLevelSync');
     expect(mainSource).toContain('installFrontendLogLevelConfigWatcher');
-    expect(loggerSource).toContain('__OPENBITFUN_BOOTSTRAP_LOG_LEVEL__');
-    expect(appearanceSource).toContain('__OPENBITFUN_BOOTSTRAP_LOG_LEVEL__');
+    expect(loggerSource).toContain('__ALEX_BOOTSTRAP_LOG_LEVEL__');
+    expect(appearanceSource).toContain('__ALEX_BOOTSTRAP_LOG_LEVEL__');
   });
 
   it('keeps startup keybindings on the bootstrap path instead of a first-window IPC', () => {
     const configManagerSource = readSource('../../infrastructure/config/services/ConfigManager.ts');
     const appearanceSource = readSource('../../../../apps/desktop/src/appearance.rs');
 
-    expect(appearanceSource).toContain('__OPENBITFUN_BOOTSTRAP_KEYBINDINGS__');
+    expect(appearanceSource).toContain('__ALEX_BOOTSTRAP_KEYBINDINGS__');
     expect(appearanceSource).toContain('keybindings: global_config.app.keybindings');
     expect(appearanceSource).toContain('MAX_BOOTSTRAP_KEYBINDINGS_JSON_BYTES');
     expect(appearanceSource).toContain('.filter(|json| json.len() <= MAX_BOOTSTRAP_KEYBINDINGS_JSON_BYTES)');
     expect(configManagerSource).toContain('consumeBootstrapOptionalConfig');
-    expect(configManagerSource).toContain('__OPENBITFUN_BOOTSTRAP_KEYBINDINGS__');
+    expect(configManagerSource).toContain('__ALEX_BOOTSTRAP_KEYBINDINGS__');
     expect(configManagerSource).toContain("path !== 'app.keybindings'");
-    expect(configManagerSource).toContain('delete globalThis.__OPENBITFUN_BOOTSTRAP_KEYBINDINGS__');
+    expect(configManagerSource).toContain('delete globalThis.__ALEX_BOOTSTRAP_KEYBINDINGS__');
   });
 
   it('keeps workspace startup state on the bootstrap path with command fallback', () => {
@@ -157,16 +157,16 @@ describe('startup performance contract', () => {
     const desktopLibSource = readSource('../../../../apps/desktop/src/lib.rs');
     const desktopCommandsSource = readSource('../../../../apps/desktop/src/api/commands.rs');
 
-    expect(desktopAppearanceSource).toContain('__OPENBITFUN_BOOTSTRAP_WORKSPACE_STARTUP_STATE__');
+    expect(desktopAppearanceSource).toContain('__ALEX_BOOTSTRAP_WORKSPACE_STARTUP_STATE__');
     expect(desktopAppearanceSource).toContain('MAX_BOOTSTRAP_WORKSPACE_STATE_JSON_BYTES');
     expect(desktopLibSource).toContain('prepare_workspace_startup_bootstrap_snapshot');
     expect(desktopLibSource).toContain('tokio::task::block_in_place');
     expect(desktopLibSource).not.toContain('tauri::async_runtime::block_on(prepare_workspace_startup_bootstrap_snapshot');
     expect(desktopCommandsSource).toContain('initialize_workspace_startup_state_impl');
     expect(globalStateSource).toContain('consumeBootstrapWorkspaceStartupStateSnapshot');
-    expect(globalStateSource).toContain('__OPENBITFUN_BOOTSTRAP_WORKSPACE_STARTUP_STATE__');
+    expect(globalStateSource).toContain('__ALEX_BOOTSTRAP_WORKSPACE_STARTUP_STATE__');
     expect(globalStateSource).toContain(
-      'delete globalThis.__OPENBITFUN_BOOTSTRAP_WORKSPACE_STARTUP_STATE__'
+      'delete globalThis.__ALEX_BOOTSTRAP_WORKSPACE_STARTUP_STATE__'
     );
   });
 
@@ -279,10 +279,10 @@ describe('startup performance contract', () => {
   it('starts non-critical work after the startup overlay handoff', () => {
     const source = readSource('../../main.tsx');
 
-    expect(STARTUP_OVERLAY_HIDDEN_EVENT).toBe('openbitfun:startup-overlay-hidden');
+    expect(STARTUP_OVERLAY_HIDDEN_EVENT).toBe('alex:startup-overlay-hidden');
     expect(source).toContain('STARTUP_OVERLAY_HIDDEN_EVENT');
-    expect(source).not.toContain("signalName: 'openbitfun:interactive-shell-ready'");
-    expect(source).not.toContain("signalName: 'openbitfun:main-window-shown'");
+    expect(source).not.toContain("signalName: 'alex:interactive-shell-ready'");
+    expect(source).not.toContain("signalName: 'alex:main-window-shown'");
     expect(source).toContain('fallbackTimeoutMs: 10000');
   });
 
@@ -317,7 +317,7 @@ describe('startup performance contract', () => {
     expect(source).not.toMatch(/useAIInitialization/);
     expect(source).not.toMatch(/useCurrentModelConfig/);
     expect(source).not.toMatch(/from\s+['"]@\/infrastructure\/config\/services\/AIExperienceConfigService['"]/);
-    expect(source).toContain('openbitfun:interactive-shell-ready');
+    expect(source).toContain('alex:interactive-shell-ready');
     expect(source).toContain('STARTUP_OVERLAY_HIDDEN_EVENT');
   });
 
@@ -574,7 +574,7 @@ describe('startup performance contract', () => {
     const source = readSource('../App.tsx');
 
     expect(source).toContain('userCloseRequestedRef');
-    expect(source).toContain("listen('openbitfun_main_window_close_requested'");
+    expect(source).toContain("listen('alex_main_window_close_requested'");
     expect(source).toContain('user-close-requested');
     expect(source).toContain('startup-complete');
     expect(source).toContain('startup-watchdog');

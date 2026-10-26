@@ -183,7 +183,7 @@ export const FlowTextBlock = React.memo<FlowTextBlockProps>(({
   );
 
   const renderStructuredContent = () => (
-    <div className="deep-research-protocol" data-openbitfun-component="flow-text-block" data-openbitfun-part="protocol">
+    <div className="deep-research-protocol" data-alex-component="flow-text-block" data-alex-part="protocol">
       {parsedContent.segments.map((segment, index) => (
         segment.type === 'protocol'
           ? (
@@ -198,8 +198,8 @@ export const FlowTextBlock = React.memo<FlowTextBlockProps>(({
             : (
                 <div
                   className="text-content"
-                  data-openbitfun-component="flow-text-block"
-                  data-openbitfun-part="protocolTextContent"
+                  data-alex-component="flow-text-block"
+                  data-alex-part="protocolTextContent"
                   key={`text:${index}`}
                 >
                   {segment.content}
@@ -210,7 +210,7 @@ export const FlowTextBlock = React.memo<FlowTextBlockProps>(({
   );
 
   return (
-    <div data-openbitfun-component="flow-text-block" data-openbitfun-part="root" data-openbitfun-mode={textItem.isMarkdown ? 'markdown' : 'text'} data-openbitfun-state={isActivelyStreaming ? 'streaming' : ''}
+    <div data-alex-component="flow-text-block" data-alex-part="root" data-alex-mode={textItem.isMarkdown ? 'markdown' : 'text'} data-alex-state={isActivelyStreaming ? 'streaming' : ''}
       className={`flow-text-block ${className} ${isActivelyStreaming ? 'streaming flow-text-block--streaming' : ''}`}
       data-testid={testId}
       data-flow-item-id={textItem.id}
@@ -223,7 +223,7 @@ export const FlowTextBlock = React.memo<FlowTextBlockProps>(({
       ) : textItem.isMarkdown ? (
         renderMarkdown(displayContent)
       ) : (
-        <div data-openbitfun-component="flow-text-block" data-openbitfun-part="textContent" className="text-content">
+        <div data-alex-component="flow-text-block" data-alex-part="textContent" className="text-content">
           {displayContent}
         </div>
       )}

@@ -107,7 +107,7 @@ const Harness: React.FC<HarnessProps> = ({
 };
 
 const option = (kind: string) => document.querySelector<HTMLElement>(
-  `[data-openbitfun-context-kind="${kind}"]`,
+  `[data-alex-context-kind="${kind}"]`,
 );
 
 describe('ChatContextPicker overlay', () => {
@@ -179,7 +179,7 @@ describe('ChatContextPicker overlay', () => {
     const chosen = vi.fn();
     const skills = [{ name: 'pdf', key: 'user::codex::pdf', selectedForRuntime: false }, { name: 'pdf', key: 'project::codex::pdf', selectedForRuntime: true }];
     await act(async () => root.render(<Harness searchQuery="pdf" skills={skills} onSelectSkill={chosen} />));
-    const options = document.querySelectorAll<HTMLElement>('[data-openbitfun-context-kind="skill"]');
+    const options = document.querySelectorAll<HTMLElement>('[data-alex-context-kind="skill"]');
     expect(options).toHaveLength(1);
     expect(options[0].textContent).toBe('pdf');
     await act(async () => options[0].click());
@@ -208,7 +208,7 @@ describe('ChatContextPicker overlay', () => {
   afterEach(() => {
     vi.useRealTimers();
     act(() => root.unmount());
-    document.querySelector('[data-openbitfun-overlay-host="true"]')?.remove();
+    document.querySelector('[data-alex-overlay-host="true"]')?.remove();
     container.remove();
     vi.clearAllMocks();
   });
@@ -220,7 +220,7 @@ describe('ChatContextPicker overlay', () => {
     });
 
     const picker = document.querySelector<HTMLElement>('.chat-context-picker--overlay');
-    expect(picker?.closest('[data-openbitfun-overlay-host]')?.getAttribute('data-openbitfun-overlay-host')).toBe('true');
+    expect(picker?.closest('[data-alex-overlay-host]')?.getAttribute('data-alex-overlay-host')).toBe('true');
     expect(picker?.style.visibility).toBe('visible');
     expect(workspaceAPI.explorerGetChildren).toHaveBeenCalledWith(
       'workspace-id',
@@ -247,7 +247,7 @@ describe('ChatContextPicker overlay', () => {
     expect(option('skills')).toBeTruthy();
     expect(option('add-image')).toBeTruthy();
     expect(workspaceAPI.explorerGetChildren).not.toHaveBeenCalled();
-    expect(document.querySelector('[data-openbitfun-part="currentViewLabel"]')?.textContent)
+    expect(document.querySelector('[data-alex-part="currentViewLabel"]')?.textContent)
       .toBe('contextPicker.menuTitle');
 
     await act(async () => {
@@ -306,13 +306,13 @@ describe('ChatContextPicker overlay', () => {
       await Promise.resolve();
     });
 
-    const item = document.querySelector<HTMLElement>('[data-openbitfun-part="option"]');
-    expect(document.querySelector('[data-openbitfun-part="currentDirectoryPath"]')?.textContent)
+    const item = document.querySelector<HTMLElement>('[data-alex-part="option"]');
+    expect(document.querySelector('[data-alex-part="currentDirectoryPath"]')?.textContent)
       .toBe('workspace');
     expect(document.querySelector('.chat-context-picker__directory-label')?.getAttribute('title'))
       .toBe('workspace');
-    expect(item?.querySelector('[data-openbitfun-part="label"]')?.textContent).toBe('src');
-    expect(item?.querySelector('[data-openbitfun-part="metadata"]')).toBeNull();
+    expect(item?.querySelector('[data-alex-part="label"]')?.textContent).toBe('src');
+    expect(item?.querySelector('[data-alex-part="metadata"]')).toBeNull();
 
     vi.mocked(workspaceAPI.explorerGetChildren).mockResolvedValueOnce([
       {
@@ -327,14 +327,14 @@ describe('ChatContextPicker overlay', () => {
       await Promise.resolve();
     });
 
-    expect(document.querySelector('[data-openbitfun-part="currentDirectoryPath"]')?.textContent)
+    expect(document.querySelector('[data-alex-part="currentDirectoryPath"]')?.textContent)
       .toBe('workspace/src');
     expect(document.querySelector('.chat-context-picker__directory-label')?.getAttribute('title'))
       .toBe('workspace/src');
-    const nestedItem = document.querySelector('[data-openbitfun-part="option"]');
-    expect(nestedItem?.querySelector('[data-openbitfun-part="label"]')?.textContent)
+    const nestedItem = document.querySelector('[data-alex-part="option"]');
+    expect(nestedItem?.querySelector('[data-alex-part="label"]')?.textContent)
       .toBe('App.tsx');
-    expect(nestedItem?.querySelector('[data-openbitfun-part="metadata"]')).toBeNull();
+    expect(nestedItem?.querySelector('[data-alex-part="metadata"]')).toBeNull();
   });
 
   it('enters the Skill source and returns the selected Skill', async () => {
@@ -369,24 +369,24 @@ describe('ChatContextPicker overlay', () => {
     });
 
     const skillOptions = document.querySelectorAll<HTMLElement>(
-      '[data-openbitfun-context-kind="skill"]',
+      '[data-alex-context-kind="skill"]',
     );
-    expect(skillOptions[0]?.querySelector('[data-openbitfun-part="label"]')?.textContent)
+    expect(skillOptions[0]?.querySelector('[data-alex-part="label"]')?.textContent)
       .toBe(skill.name);
-    expect(skillOptions[0]?.querySelector('[data-openbitfun-part="label"]')
+    expect(skillOptions[0]?.querySelector('[data-alex-part="label"]')
       ?.getAttribute('data-overflow-behavior')).toBe('fade');
-    expect(skillOptions[0]?.querySelector('[data-openbitfun-part="label"] [data-overflow-style="ellipsis"]')
+    expect(skillOptions[0]?.querySelector('[data-alex-part="label"] [data-overflow-style="ellipsis"]')
       ?.getAttribute('data-overflow-behavior')).toBe('fade');
-    expect(skillOptions[0]?.querySelector('[data-openbitfun-part="metadata"]')?.textContent)
+    expect(skillOptions[0]?.querySelector('[data-alex-part="metadata"]')?.textContent)
       .toBe('Work with PDFs');
-    const description = skillOptions[0]?.querySelector('[data-openbitfun-part="skillDescription"]');
+    const description = skillOptions[0]?.querySelector('[data-alex-part="skillDescription"]');
     expect(description?.getAttribute('data-marquee-active')).toBeNull();
     expect(description?.getAttribute('data-marquee-trigger')).toBe('interaction');
     expect(description?.getAttribute('data-overflow-style')).toBe('ellipsis');
     expect(description?.getAttribute('title')).toBe('');
     expect(skillOptions[0]?.getAttribute('title')).toBe('');
-    expect(skillOptions[0]?.querySelector('[data-openbitfun-part="label"]')?.getAttribute('title')).toBe('');
-    expect(skillOptions[1]?.querySelector('[data-openbitfun-part="metadata"]')?.textContent)
+    expect(skillOptions[0]?.querySelector('[data-alex-part="label"]')?.getAttribute('title')).toBe('');
+    expect(skillOptions[1]?.querySelector('[data-alex-part="metadata"]')?.textContent)
       .toBe('Build presentations');
     expect(workspaceAPI.explorerGetChildren).not.toHaveBeenCalled();
 
@@ -398,8 +398,8 @@ describe('ChatContextPicker overlay', () => {
       }));
     });
 
-    expect(skillOptions[0]?.querySelector('[data-openbitfun-part="metadata"]')?.textContent).toBe('Work with PDFs');
-    expect(skillOptions[1]?.querySelector('[data-openbitfun-part="metadata"]')?.textContent)
+    expect(skillOptions[0]?.querySelector('[data-alex-part="metadata"]')?.textContent).toBe('Work with PDFs');
+    expect(skillOptions[1]?.querySelector('[data-alex-part="metadata"]')?.textContent)
       .toBe('Build presentations');
 
     await act(async () => {
@@ -422,7 +422,7 @@ describe('ChatContextPicker overlay', () => {
     ));
     await act(async () => option('skills')?.click());
 
-    const options = document.querySelectorAll('[data-openbitfun-context-kind="skill"]');
+    const options = document.querySelectorAll('[data-alex-context-kind="skill"]');
     expect(options).toHaveLength(skills.length);
     expect(options[23].textContent).toContain('skill-23');
     await act(async () => document.dispatchEvent(
@@ -545,7 +545,7 @@ describe('ChatContextPicker overlay', () => {
     expect(option('file')?.textContent).toContain('docs');
     expect(option('skill')?.textContent).toContain('docs-helper');
     expect(option('session')?.textContent).toContain('Docs migration');
-    expect(document.querySelector('[data-openbitfun-part="currentDirectoryPath"]')).toBeNull();
+    expect(document.querySelector('[data-alex-part="currentDirectoryPath"]')).toBeNull();
   });
 
   it('does not present a remote browse failure as an empty directory', async () => {
@@ -558,9 +558,9 @@ describe('ChatContextPicker overlay', () => {
       await Promise.resolve();
     });
 
-    expect(document.querySelector('[data-openbitfun-part="empty"][data-openbitfun-state~="error"]')?.textContent)
+    expect(document.querySelector('[data-alex-part="empty"][data-alex-state~="error"]')?.textContent)
       .toBe('contextPicker.browseUnavailable');
-    expect(document.querySelector('[data-openbitfun-part="empty"]:not([data-openbitfun-state~="error"])'))
+    expect(document.querySelector('[data-alex-part="empty"]:not([data-alex-state~="error"])'))
       .toBeNull();
   });
 
@@ -641,7 +641,7 @@ describe('ChatContextPicker overlay', () => {
     });
 
     expect(option('file')?.textContent).toContain('手写笔画标注项目');
-    expect(document.querySelector('[data-openbitfun-part="root"]')?.getAttribute('data-openbitfun-state'))
+    expect(document.querySelector('[data-alex-part="root"]')?.getAttribute('data-alex-state'))
       .toBe('loading');
 
     await act(async () => {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { PageHeader } from '@openbitfun/ui';
+import { PageHeader } from '@alex/ui';
 import { formatStandaloneUiText } from './standaloneUiCopy';
 import './ConfigPageHeader.scss';
 
@@ -20,30 +20,30 @@ export const ConfigPageHeader: React.FC<ConfigPageHeaderProps> = ({
   ...props
 }) => {
   return (
-    <div className={`openbitfun-config-page-header ${className}`} data-openbitfun-component="config" data-openbitfun-part="pageHeader" {...props}>
-      <div className="openbitfun-config-page-header__inner" data-openbitfun-component="config" data-openbitfun-part="pageHeaderInner">
-        <div className="openbitfun-config-page-header__left">
-          <div className="openbitfun-config-page-header__info" data-openbitfun-component="config" data-openbitfun-part="pageHeaderInfo">
+    <div className={`alex-config-page-header ${className}`} data-alex-component="config" data-alex-part="pageHeader" {...props}>
+      <div className="alex-config-page-header__inner" data-alex-component="config" data-alex-part="pageHeaderInner">
+        <div className="alex-config-page-header__left">
+          <div className="alex-config-page-header__info" data-alex-component="config" data-alex-part="pageHeaderInfo">
             <PageHeader
               level={2}
               size="md"
               title={(
                 <span
-                  className="openbitfun-config-page-header__title"
-                  data-openbitfun-component="config"
-                  data-openbitfun-part="pageHeaderTitle"
+                  className="alex-config-page-header__title"
+                  data-alex-component="config"
+                  data-alex-part="pageHeaderTitle"
                 >
                   {title}
                 </span>
               )}
               description={subtitle ? (
-                <span className="openbitfun-config-page-header__subtitle" data-openbitfun-component="config" data-openbitfun-part="pageHeaderSubtitle">{formatStandaloneUiText(subtitle)}</span>
+                <span className="alex-config-page-header__subtitle" data-alex-component="config" data-alex-part="pageHeaderSubtitle">{formatStandaloneUiText(subtitle)}</span>
               ) : undefined}
             />
           </div>
         </div>
         {extra && (
-          <div className="openbitfun-config-page-header__extra" data-openbitfun-component="config" data-openbitfun-part="pageHeaderExtra">
+          <div className="alex-config-page-header__extra" data-alex-component="config" data-alex-part="pageHeaderExtra">
             {extra}
           </div>
         )}

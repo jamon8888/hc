@@ -1,4 +1,4 @@
-import { Button, Icon } from '@openbitfun/ui';
+import { Button, Icon } from '@alex/ui';
 import React from 'react';
 import { RotateCcw } from 'lucide-react';
 import { InlineMarkdownPreview } from './InlineMarkdownPreview';

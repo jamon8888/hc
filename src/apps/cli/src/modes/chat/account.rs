@@ -67,7 +67,7 @@ impl ChatMode {
                         account.advance_github_login(transaction_id).await
                     })
                 });
-                use openbitfun_core::service::remote_connect::account_runtime::AccountLoginProgress;
+                use alex_core::service::remote_connect::account_runtime::AccountLoginProgress;
                 match result {
                     Ok(AccountLoginProgress::Authorization(authorization)) => {
                         chat_view.login_form_set_authorization(authorization)

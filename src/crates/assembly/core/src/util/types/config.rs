@@ -1,1 +1,1 @@
-pub use openbitfun_config_contracts::conversion::*;
+pub use alex_config_contracts::conversion::*;

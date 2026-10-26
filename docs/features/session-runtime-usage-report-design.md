@@ -372,7 +372,7 @@ Required change:
 - Use locale keys in `src/web-ui/src/locales/*/flow-chat.json` or a new localized report namespace.
 - Render Desktop reports from structured data through the frontend i18n layer, not from hard-coded backend prose.
 - CLI can start with English if the CLI has no locale pipeline, but the report DTO should not make localization impossible later.
-- Use `@openbitfun/ui` and semantic theme tokens for colors; do not hard-code status colors except through semantic variables.
+- Use `@alex/ui` and semantic theme tokens for colors; do not hard-code status colors except through semantic variables.
 
 ### 11. Report scope and workspace identity
 
@@ -688,8 +688,8 @@ Risk and drift controls:
 
 Required verification before merging P0:
 
-- `cargo check -p openbitfun-core --no-default-features --features agent-runtime`
-- `cargo test -p openbitfun-core --no-default-features --features agent-runtime --lib session_usage -- --nocapture`
+- `cargo check -p alex-core --no-default-features --features agent-runtime`
+- `cargo test -p alex-core --no-default-features --features agent-runtime --lib session_usage -- --nocapture`
 - Focused CLI command tests or manual CLI smoke if no existing helper test harness exists.
 - `pnpm run lint:web`
 - `pnpm run type-check:web`
@@ -946,7 +946,7 @@ This section turns the milestone plan into implementation-sized tasks. Each task
 - P0 reports tokens and available timing only. P0 does not introduce charts, cross-session summaries, or live header UI.
 - Runtime metrics collection must be append-only or summary-only; do not add per-token persistence.
 - Shared report logic belongs in its current platform-agnostic Rust owner. Desktop, server, and CLI keep only their entry adapters.
-- Desktop UI must use existing i18n, semantic theme tokens, and `@openbitfun/ui` primitives.
+- Desktop UI must use existing i18n, semantic theme tokens, and `@alex/ui` primitives.
 - Every report field that can be incomplete must carry coverage metadata instead of silently showing `0`.
 - Existing file diff behavior must not change while adding report links.
 - Report APIs must be scoped by workspace identity and remote identity, not only by session id.
@@ -1037,8 +1037,8 @@ Risks and mitigations:
 
 Verification:
 
-- `cargo test -p openbitfun-core --no-default-features --features agent-runtime --lib session_usage -- --nocapture` once tests exist.
-- `cargo check -p openbitfun-core --no-default-features --features agent-runtime`.
+- `cargo test -p alex-core --no-default-features --features agent-runtime --lib session_usage -- --nocapture` once tests exist.
+- `cargo check -p alex-core --no-default-features --features agent-runtime`.
 - DTO tests for workspace identity, report scope, in-progress reports, cache-unavailable coverage, and redaction metadata.
 
 ### Task 2: Non-model-visible local report item

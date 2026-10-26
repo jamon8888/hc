@@ -5,7 +5,7 @@ import com.openbitfun.mobile.core.persistence.iosSecureStore
 import kotlinx.coroutines.CoroutineScope
 
 public fun GeneralChatStore.Companion.create(scope: CoroutineScope): GeneralChatStore {
-    val persistence = iosPersistenceStores("openbitfun-mobile.db")
+    val persistence = iosPersistenceStores("alex-mobile.db")
     return GeneralChatStore.create(
         scope = scope,
         stream = GeneralChatStore.providerStream(),

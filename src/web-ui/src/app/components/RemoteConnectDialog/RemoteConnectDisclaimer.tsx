@@ -5,7 +5,7 @@ import {
   Disclosure,
   ScrollArea,
   StatusPill,
-} from '@openbitfun/ui';
+} from '@alex/ui';
 import React from 'react';
 import { useI18n } from '@/infrastructure/i18n';
 import './RemoteConnectDisclaimer.scss';
@@ -27,28 +27,28 @@ export const RemoteConnectDisclaimer: React.FC<RemoteConnectDisclaimerProps> = (
   return (
     <>
       <DialogBody>
-        <div data-openbitfun-product-component="remote-connect-disclaimer" data-openbitfun-product-part="root" className="openbitfun-remote-disclaimer">
-          <div className="openbitfun-remote-disclaimer__meta" data-openbitfun-product-component="remote-connect-disclaimer" data-openbitfun-product-part="meta">
+        <div data-alex-product-component="remote-connect-disclaimer" data-alex-product-part="root" className="alex-remote-disclaimer">
+          <div className="alex-remote-disclaimer__meta" data-alex-product-component="remote-connect-disclaimer" data-alex-product-part="meta">
             <StatusPill tone={agreed ? 'success' : 'warning'}>
               {t(agreed ? 'remoteConnect.disclaimerStatusAgreed' : 'remoteConnect.disclaimerStatusPending')}
             </StatusPill>
           </div>
 
-          <p className="openbitfun-remote-disclaimer__text" data-openbitfun-product-component="remote-connect-disclaimer" data-openbitfun-product-part="intro">{t('remoteConnect.disclaimerIntro')}</p>
+          <p className="alex-remote-disclaimer__text" data-alex-product-component="remote-connect-disclaimer" data-alex-product-part="intro">{t('remoteConnect.disclaimerIntro')}</p>
 
-          <h3 className="openbitfun-remote-disclaimer__section-title" data-openbitfun-product-component="remote-connect-disclaimer" data-openbitfun-product-part="title">
+          <h3 className="alex-remote-disclaimer__section-title" data-alex-product-component="remote-connect-disclaimer" data-alex-product-part="title">
             {t('remoteConnect.disclaimerKeyRisks')}
           </h3>
-          <ol className="openbitfun-remote-disclaimer__list openbitfun-remote-disclaimer__list--key" data-openbitfun-product-component="remote-connect-disclaimer" data-openbitfun-product-part="riskList">
+          <ol className="alex-remote-disclaimer__list alex-remote-disclaimer__list--key" data-alex-product-component="remote-connect-disclaimer" data-alex-product-part="riskList">
             <li>{t('remoteConnect.disclaimerItemGeneralRisk')}</li>
             <li>{t('remoteConnect.disclaimerItemSecurity')}</li>
             <li>{t('remoteConnect.disclaimerItemEncryption')}</li>
             <li>{t('remoteConnect.disclaimerItemPrivacy')}</li>
           </ol>
 
-          <Disclosure presentation="native" className="openbitfun-remote-disclaimer__details" data-openbitfun-product-component="remote-connect-disclaimer" data-openbitfun-product-part="details" summary={t('remoteConnect.disclaimerFullDetails')}>
-            <ScrollArea className="openbitfun-remote-disclaimer__list-scroll">
-              <ol className="openbitfun-remote-disclaimer__list" start={5}>
+          <Disclosure presentation="native" className="alex-remote-disclaimer__details" data-alex-product-component="remote-connect-disclaimer" data-alex-product-part="details" summary={t('remoteConnect.disclaimerFullDetails')}>
+            <ScrollArea className="alex-remote-disclaimer__list-scroll">
+              <ol className="alex-remote-disclaimer__list" start={5}>
                 <li>{t('remoteConnect.disclaimerItemOpenSource')}</li>
                 <li>{t('remoteConnect.disclaimerItemDataUsage')}</li>
                 <li>{t('remoteConnect.disclaimerItemCredentials')}</li>
@@ -68,12 +68,12 @@ export const RemoteConnectDisclaimer: React.FC<RemoteConnectDisclaimerProps> = (
 
       <DialogFooter
         separator
-        className="openbitfun-remote-disclaimer__actions"
-        data-openbitfun-product-component="remote-connect-disclaimer"
-        data-openbitfun-product-part="actions"
+        className="alex-remote-disclaimer__actions"
+        data-alex-product-component="remote-connect-disclaimer"
+        data-alex-product-part="actions"
       >
         <Button
-          className="openbitfun-remote-disclaimer__action"
+          className="alex-remote-disclaimer__action"
           variant={canAgree ? 'fill' : 'primary'}
           size="sm"
           onClick={onClose}
@@ -82,7 +82,7 @@ export const RemoteConnectDisclaimer: React.FC<RemoteConnectDisclaimerProps> = (
         </Button>
         {canAgree && (
           <Button
-            className="openbitfun-remote-disclaimer__action"
+            className="alex-remote-disclaimer__action"
             variant="primary"
             size="sm"
             onClick={onAgree}

@@ -7,7 +7,7 @@ import {
   diffResolvedTokens,
   mergeTokenDocuments,
   resolveTokens,
-} from "@openbitfun/token-engine";
+} from "@alex/token-engine";
 import {
   tokenCatalog,
   tokenModes,
@@ -540,14 +540,14 @@ test("semantic typography roles resolve to the canonical foundation", async () =
 test("generated CSS preserves semantic typography references", async () => {
   const css = await readFile(path.join(packageDirectory, "dist", "tokens.css"), "utf8");
 
-  assert.match(css, /--openbitfun-type-body-md-font-size: var\(--openbitfun-font-size-base\);/);
-  assert.match(css, /--openbitfun-type-flow-body-line-height: var\(--openbitfun-line-height-reading\);/);
-  assert.match(css, /--openbitfun-type-label-selected-font-weight: var\(--openbitfun-font-weight-semibold\);/);
-  assert.match(css, /--openbitfun-type-heading-compact-page-font-size: var\(--openbitfun-font-size-2xl-plus\);/);
-  assert.match(css, /--openbitfun-type-modifier-leading-ui-line-height: var\(--openbitfun-line-height-ui\);/);
-  assert.match(css, /--openbitfun-type-modifier-leading-support-line-height: var\(--openbitfun-line-height-support\);/);
-  assert.match(css, /--openbitfun-type-modifier-leading-balanced-line-height: var\(--openbitfun-line-height-balanced\);/);
-  assert.match(css, /--openbitfun-type-modifier-tracking-wider-letter-spacing: var\(--openbitfun-letter-spacing-wider\);/);
+  assert.match(css, /--alex-type-body-md-font-size: var\(--alex-font-size-base\);/);
+  assert.match(css, /--alex-type-flow-body-line-height: var\(--alex-line-height-reading\);/);
+  assert.match(css, /--alex-type-label-selected-font-weight: var\(--alex-font-weight-semibold\);/);
+  assert.match(css, /--alex-type-heading-compact-page-font-size: var\(--alex-font-size-2xl-plus\);/);
+  assert.match(css, /--alex-type-modifier-leading-ui-line-height: var\(--alex-line-height-ui\);/);
+  assert.match(css, /--alex-type-modifier-leading-support-line-height: var\(--alex-line-height-support\);/);
+  assert.match(css, /--alex-type-modifier-leading-balanced-line-height: var\(--alex-line-height-balanced\);/);
+  assert.match(css, /--alex-type-modifier-tracking-wider-letter-spacing: var\(--alex-letter-spacing-wider\);/);
 });
 
 test("runtime typography scaling uses the canonical complete size ladder", () => {
@@ -618,7 +618,7 @@ test("public token catalog exposes every system token in every density mode", ()
   assert.equal(tokenCatalog.length, Object.keys(tokens).length);
   assert.deepEqual(tokenModes, ["comfortable", "compact", "touch"]);
   for (const token of tokenCatalog) {
-    assert.equal(token.cssVariable.startsWith("--openbitfun-"), true);
+    assert.equal(token.cssVariable.startsWith("--alex-"), true);
     assert.deepEqual(Object.keys(token.values), tokenModes);
   }
 });

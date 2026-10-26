@@ -1,6 +1,6 @@
 # Alex AI Adapters
 
-Shared AI protocol adapters used by both `openbitfun-core` and the installer.
+Shared AI protocol adapters used by both `alex-core` and the installer.
 
 This crate owns the portable AI integration layer:
 
@@ -18,15 +18,15 @@ This crate intentionally does **not** own Alex runtime concerns such as:
 - application event systems
 - agent/session orchestration
 
-Those remain in `openbitfun-core`, which maps app config into the shared `AIConfig`
+Those remain in `alex-core`, which maps app config into the shared `AIConfig`
 and re-exports this crate where convenient.
 
 ## Module Guide
 
 - `client`: shared HTTP transport, retries, aggregation, health checks
 - `providers`: OpenAI / Anthropic / Gemini request and discovery adapters
-- `stream`: provider SSE parsing into unified streaming events from `openbitfun-agent-stream`
-- `tool_call_accumulator`: compatibility re-export; canonical implementation lives in `openbitfun-agent-stream`
+- `stream`: provider SSE parsing into unified streaming events from `alex-agent-stream`
+- `tool_call_accumulator`: compatibility re-export; canonical implementation lives in `alex-agent-stream`
 - `types`: portable request/response/config/message types
 
 ## Design Rule

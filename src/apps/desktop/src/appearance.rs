@@ -5,8 +5,8 @@ use std::time::Instant;
 
 use dark_light::Mode;
 use log::{debug, error, warn};
-use openbitfun_core::infrastructure::try_get_path_manager_arc;
-use openbitfun_core::service::config::types::GlobalConfig;
+use alex_core::infrastructure::try_get_path_manager_arc;
+use alex_core::service::config::types::GlobalConfig;
 use tauri::webview::PageLoadEvent;
 use tauri::{Manager, WebviewUrl};
 
@@ -203,7 +203,7 @@ impl AppearanceConfig {
         let default_appearance = Self::default();
         let default = StartupBootstrapConfig {
             appearance: default_appearance.clone(),
-            locale: openbitfun_core::service::i18n::default_locale_code().to_string(),
+            locale: alex_core::service::i18n::default_locale_code().to_string(),
             keybindings: None,
         };
         let path_manager = match try_get_path_manager_arc() {
@@ -252,7 +252,7 @@ impl AppearanceConfig {
                     .pointer("/i18n/currentLanguage")
                     .and_then(|value| value.as_str())
             })
-            .unwrap_or_else(|| openbitfun_core::service::i18n::default_locale_code())
+            .unwrap_or_else(|| alex_core::service::i18n::default_locale_code())
             .to_string();
 
         let appearance_selection = config_value
@@ -316,7 +316,7 @@ impl AppearanceConfig {
         let appearance_mode = if self.is_light { "light" } else { "dark" };
         let startup_locale = &bootstrap_config.locale;
         let startup_locale_json = serde_json::to_string(&startup_locale)
-            .unwrap_or_else(|_| format!("\"{}\"", openbitfun_core::service::i18n::default_locale_code()));
+            .unwrap_or_else(|_| format!("\"{}\"", alex_core::service::i18n::default_locale_code()));
         let show_startup_window_controls = !cfg!(target_os = "macos");
         let native_sidebar_material = cfg!(any(target_os = "windows", target_os = "macos"));
         let startup_trace_id_json = serde_json::to_string(startup_trace_id)
@@ -327,10 +327,10 @@ impl AppearanceConfig {
         .unwrap_or_else(|_| "\"warn\"".to_string());
         let perf_trace_enabled = cfg!(debug_assertions)
             || ((cfg!(feature = "devtools")
-                || std::env::var_os("OPENBITFUN_PERF_TRACE").is_some())
-                && std::env::var_os("OPENBITFUN_WEBDRIVER_PORT").is_some());
+                || std::env::var_os("ALEX_PERF_TRACE").is_some())
+                && std::env::var_os("ALEX_WEBDRIVER_PORT").is_some());
         let bootstrap_appearance_id_json =
-            serde_json::to_string(&self.id).unwrap_or_else(|_| "\"openbitfun-light\"".to_string());
+            serde_json::to_string(&self.id).unwrap_or_else(|_| "\"alex-light\"".to_string());
         let bootstrap_appearance_selection_json = self
             .selection_id
             .as_ref()
@@ -339,51 +339,51 @@ impl AppearanceConfig {
         let bootstrap_keybindings_assignment = serde_json::to_string(&bootstrap_config.keybindings)
             .ok()
             .filter(|json| json.len() <= MAX_BOOTSTRAP_KEYBINDINGS_JSON_BYTES)
-            .map(|json| format!("window.__OPENBITFUN_BOOTSTRAP_KEYBINDINGS__ = {json};"))
+            .map(|json| format!("window.__ALEX_BOOTSTRAP_KEYBINDINGS__ = {json};"))
             .unwrap_or_default();
         let bootstrap_workspace_startup_state_assignment = workspace_startup_state
             .and_then(|state| serde_json::to_string(state).ok())
             .filter(|json| json.len() <= MAX_BOOTSTRAP_WORKSPACE_STATE_JSON_BYTES)
             .map(|json| {
-                format!("window.__OPENBITFUN_BOOTSTRAP_WORKSPACE_STARTUP_STATE__ = {json};")
+                format!("window.__ALEX_BOOTSTRAP_WORKSPACE_STARTUP_STATE__ = {json};")
             })
             .unwrap_or_default();
 
         format!(
             r#"
             (function() {{
-                window.__OPENBITFUN_STARTUP_TRACE_ID__ = {startup_trace_id_json};
-                window.__OPENBITFUN_PERF_TRACE_ENABLED__ = {perf_trace_enabled};
-                window.__OPENBITFUN_BOOTSTRAP_LOG_LEVEL__ = {bootstrap_log_level_json};
-                window.__OPENBITFUN_BOOTSTRAP_LOCALE__ = {startup_locale_json};
-                window.__OPENBITFUN_SHOW_STARTUP_WINDOW_CONTROLS__ = {show_startup_window_controls};
-                window.__OPENBITFUN_BOOTSTRAP_APPEARANCE_ID__ = {bootstrap_appearance_id_json};
-                window.__OPENBITFUN_BOOTSTRAP_APPEARANCE_SELECTION__ = {bootstrap_appearance_selection_json};
+                window.__ALEX_STARTUP_TRACE_ID__ = {startup_trace_id_json};
+                window.__ALEX_PERF_TRACE_ENABLED__ = {perf_trace_enabled};
+                window.__ALEX_BOOTSTRAP_LOG_LEVEL__ = {bootstrap_log_level_json};
+                window.__ALEX_BOOTSTRAP_LOCALE__ = {startup_locale_json};
+                window.__ALEX_SHOW_STARTUP_WINDOW_CONTROLS__ = {show_startup_window_controls};
+                window.__ALEX_BOOTSTRAP_APPEARANCE_ID__ = {bootstrap_appearance_id_json};
+                window.__ALEX_BOOTSTRAP_APPEARANCE_SELECTION__ = {bootstrap_appearance_selection_json};
                 {bootstrap_keybindings_assignment}
                 {bootstrap_workspace_startup_state_assignment}
                 function applyAppearance() {{
                     var root = document.documentElement;
                     if (!root) return false;
                     
-                    root.setAttribute('data-openbitfun-appearance', '{id}');
-                    root.setAttribute('data-openbitfun-appearance-mode', '{appearance_mode}');
-                    root.setAttribute('data-openbitfun-design-system-root', '');
+                    root.setAttribute('data-alex-appearance', '{id}');
+                    root.setAttribute('data-alex-appearance-mode', '{appearance_mode}');
+                    root.setAttribute('data-alex-design-system-root', '');
                     root.setAttribute('data-color-scheme', '{appearance_mode}');
                     root.setAttribute('data-contrast', 'standard');
                     root.setAttribute('data-density', 'compact');
                     if ({native_sidebar_material}) {{
-                        root.setAttribute('data-openbitfun-native-material', 'sidebar');
+                        root.setAttribute('data-alex-native-material', 'sidebar');
                     }}
                     
-                    root.style.setProperty('--openbitfun-color-surface-canvas', '{bg_primary}');
-                    root.style.setProperty('--openbitfun-color-surface-panel', '{bg_secondary}');
-                    root.style.setProperty('--openbitfun-color-surface-tertiary', '{bg_primary}');
-                    root.style.setProperty('--openbitfun-color-surface-workbench', '{bg_primary}');
-                    root.style.setProperty('--openbitfun-color-surface-scene', '{bg_scene}');
-                    root.style.setProperty('--openbitfun-color-surface-chrome', '{bg_primary}');
-                    root.style.setProperty('--openbitfun-color-content-primary', '{text_primary}');
-                    root.style.setProperty('--openbitfun-color-content-muted', '{text_muted}');
-                    root.style.setProperty('--openbitfun-color-accent-default', '{accent_color}');
+                    root.style.setProperty('--alex-color-surface-canvas', '{bg_primary}');
+                    root.style.setProperty('--alex-color-surface-panel', '{bg_secondary}');
+                    root.style.setProperty('--alex-color-surface-tertiary', '{bg_primary}');
+                    root.style.setProperty('--alex-color-surface-workbench', '{bg_primary}');
+                    root.style.setProperty('--alex-color-surface-scene', '{bg_scene}');
+                    root.style.setProperty('--alex-color-surface-chrome', '{bg_primary}');
+                    root.style.setProperty('--alex-color-content-primary', '{text_primary}');
+                    root.style.setProperty('--alex-color-content-muted', '{text_muted}');
+                    root.style.setProperty('--alex-color-accent-default', '{accent_color}');
                     root.style.backgroundColor = {native_sidebar_material} ? 'transparent' : '{bg_primary}';
                     
                     if (document.body) {{
@@ -459,19 +459,19 @@ mod startup_appearance_tests {
 
         let script = appearance.generate_init_script("trace-id", &bootstrap, None);
 
-        assert!(script.contains("__OPENBITFUN_BOOTSTRAP_APPEARANCE_ID__"));
-        assert!(script.contains("__OPENBITFUN_BOOTSTRAP_APPEARANCE_SELECTION__"));
-        assert!(script.contains("data-openbitfun-appearance"));
-        assert!(script.contains("data-openbitfun-appearance-mode"));
-        assert!(script.contains("data-openbitfun-design-system-root"));
+        assert!(script.contains("__ALEX_BOOTSTRAP_APPEARANCE_ID__"));
+        assert!(script.contains("__ALEX_BOOTSTRAP_APPEARANCE_SELECTION__"));
+        assert!(script.contains("data-alex-appearance"));
+        assert!(script.contains("data-alex-appearance-mode"));
+        assert!(script.contains("data-alex-design-system-root"));
         assert!(script.contains("data-color-scheme"));
-        assert!(script.contains("--openbitfun-color-surface-canvas"));
-        assert!(script.contains("--openbitfun-color-surface-scene"));
-        assert!(script.contains("--openbitfun-color-content-primary"));
-        assert!(script.contains("--openbitfun-color-content-muted"));
-        assert!(script.contains("--openbitfun-color-accent-default"));
-        assert!(!script.contains("--openbitfun-appearance-token-"));
-        let retired_bootstrap_global = ["__OPENBITFUN_BOOTSTRAP", "THEME"].join("_");
+        assert!(script.contains("--alex-color-surface-canvas"));
+        assert!(script.contains("--alex-color-surface-scene"));
+        assert!(script.contains("--alex-color-content-primary"));
+        assert!(script.contains("--alex-color-content-muted"));
+        assert!(script.contains("--alex-color-accent-default"));
+        assert!(!script.contains("--alex-appearance-token-"));
+        let retired_bootstrap_global = ["__ALEX_BOOTSTRAP", "THEME"].join("_");
         let retired_background_token = ["--", "color-bg-"].concat();
         let retired_text_token = ["--", "color-text-"].concat();
         assert!(!script.contains(&retired_bootstrap_global));
@@ -501,7 +501,7 @@ fn use_development_frontend() -> bool {
     {
         // Isolated E2E can exercise the production protocol using a debug
         // executable and dist assets, without launching a development server.
-        !(std::env::var("OPENBITFUN_E2E_PACKAGED_FRONTEND").as_deref() == Ok("1")
+        !(std::env::var("ALEX_E2E_PACKAGED_FRONTEND").as_deref() == Ok("1")
             && std::env::var("OPENBITFUN_E2E_STORAGE_GUARD").as_deref() == Ok("1"))
     }
     #[cfg(not(debug_assertions))]
@@ -683,7 +683,7 @@ pub fn create_main_window(
             );
             #[cfg(any(debug_assertions, feature = "devtools"))]
             {
-                if std::env::var("OPENBITFUN_OPEN_DEVTOOLS")
+                if std::env::var("ALEX_OPEN_DEVTOOLS")
                     .map(|v| v == "1")
                     .unwrap_or(false)
                 {
@@ -982,9 +982,9 @@ pub async fn show_agent_companion_desktop_pet(app: tauri::AppHandle) -> Result<(
         return Ok(());
     }
 
-    let url = app_url(&app, "?openbitfunWindow=agent-companion");
+    let url = app_url(&app, "?alexWindow=agent-companion");
     let mut builder = tauri::WebviewWindowBuilder::new(&app, AGENT_COMPANION_WINDOW_LABEL, url)
-        .title("OpenBitFun Agent Companion")
+        .title("Alex Agent Companion")
         .inner_size(
             AGENT_COMPANION_WINDOW_MIN_SIZE,
             AGENT_COMPANION_WINDOW_MIN_SIZE,
@@ -1154,10 +1154,10 @@ mod development_frontend_tests {
             let base = origin.parse().unwrap();
             assert_eq!(development_frontend_url(Some(&base), "").unwrap(), base);
             assert_eq!(
-                development_frontend_url(Some(&base), "?openbitfunWindow=agent-companion")
+                development_frontend_url(Some(&base), "?alexWindow=agent-companion")
                     .unwrap()
                     .as_str(),
-                format!("{origin}?openbitfunWindow=agent-companion")
+                format!("{origin}?alexWindow=agent-companion")
             );
         }
     }

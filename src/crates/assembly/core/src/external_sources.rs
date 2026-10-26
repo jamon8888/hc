@@ -5,20 +5,20 @@
 
 pub use crate::instruction_sources::{instruction_source_catalog, InstructionSourceCatalog};
 
-pub use openbitfun_product_domains::external_integration_policy::{
+pub use alex_product_domains::external_integration_policy::{
     EffectiveExternalIntegrationPolicy, ExternalIntegrationAccess, ExternalIntegrationMode,
     ExternalIntegrationPolicyMutation, ExternalIntegrationPolicyOperation,
     ExternalIntegrationPolicyScope, ExternalIntegrationPolicySnapshot,
     ExternalIntegrationPolicyStatus,
 };
-pub use openbitfun_product_domains::external_source_control::{
+pub use alex_product_domains::external_source_control::{
     ExternalCapabilityKindV1, ExternalSourceControlActionV1, ExternalSourceControlRequestV1,
     ExternalSourceControlSnapshotV1, ExternalSourceRuntimeState, ExternalSourceSurfaceSnapshotV1,
     EXTERNAL_SOURCE_CONTROL_SCHEMA_V1,
 };
-use openbitfun_product_domains::external_sources::native_prompt_command_group_fingerprint;
-pub use openbitfun_product_domains::external_sources::ExternalSourceDiscoverySnapshotV1;
-pub use openbitfun_product_domains::external_sources::{
+use alex_product_domains::external_sources::native_prompt_command_group_fingerprint;
+pub use alex_product_domains::external_sources::ExternalSourceDiscoverySnapshotV1;
+pub use alex_product_domains::external_sources::{
     native_prompt_command_conflict_key, prompt_command_conflict_key, EcosystemId,
     ExpandedPromptCommand, ExternalIntegrationCapabilityId, ExternalMcpActivationState,
     ExternalMcpApprovalRequest, ExternalMcpCatalogEntry, ExternalMcpConflict,
@@ -35,7 +35,7 @@ pub use openbitfun_product_domains::external_sources::{
     PromptCommandInvocationOutcome, PromptCommandShellReviewDecision, PromptCommandShellReviewMode,
     PromptCommandShellReviewPlan, SourceKey,
 };
-pub use openbitfun_product_domains::external_subagents::{
+pub use alex_product_domains::external_subagents::{
     ExternalSubagentActivationState, ExternalSubagentCompatibilityState, ExternalSubagentConflict,
     ExternalSubagentConflictCandidate, ExternalSubagentModelBindingGroup,
     ExternalSubagentModelBindingMethod, ExternalSubagentModelBindingOption,
@@ -47,7 +47,7 @@ use crate::agentic::workspace::workspace_route_key;
 use crate::external_mcp::{
     reconcile_external_mcp_catalog, ExternalMcpDecision, ExternalMcpDecisions,
     ExternalMcpProductState, ExternalMcpRuntimePort, ExternalMcpRuntimeStatus, NativeMcpCandidate,
-    OpenBitFunExternalMcpRuntime, EXTERNAL_MCP_RUNTIME_FAILED,
+    AlexExternalMcpRuntime, EXTERNAL_MCP_RUNTIME_FAILED,
     EXTERNAL_MCP_RUNTIME_PREPARATION_FAILED, EXTERNAL_MCP_RUNTIME_STATUS_UNAVAILABLE,
 };
 use crate::external_subagents::{
@@ -64,45 +64,45 @@ use crate::external_tools::{
 use crate::service::config::{subscribe_config_updates, ConfigUpdateEvent};
 use dashmap::{mapref::entry::Entry, DashMap};
 use futures::future::join_all;
-use openbitfun_claude_code_adapter::{
+use alex_claude_code_adapter::{
     ClaudeCodeCommandProvider, ClaudeCodeMcpProvider, ClaudeCodeSubagentProvider,
 };
-use openbitfun_codex_adapter::{CodexMcpProvider, CodexSubagentProvider};
+use alex_codex_adapter::{CodexMcpProvider, CodexSubagentProvider};
 
-use openbitfun_dsh_adapter::DshMcpProvider;
-use openbitfun_external_sources::{
+use alex_dsh_adapter::DshMcpProvider;
+use alex_external_sources::{
     DeferredDiscovery, ExternalMcpDiscoveryResult, ExternalSourceControlPlane,
     ExternalSourceCoordinator, ExternalSourceDiscoveryResult, ExternalSubagentDiscoveryResult,
     ExternalToolDiscoveryResult, ExternalWorkspaceReferenceDiscoveryResult,
 };
-use openbitfun_opencode_adapter::{
+use alex_opencode_adapter::{
     OpenCodeCommandProvider, OpenCodeMcpProvider, OpenCodeSkillRootProvider,
     OpenCodeSubagentProvider, OpenCodeToolProvider, OpenCodeWorkspaceReferenceProvider,
 };
 #[cfg(test)]
-use openbitfun_opencode_adapter::{
+use alex_opencode_adapter::{
     OpenCodeCommandProviderOptions, OpenCodeMcpProviderOptions, OpenCodeSkillRootProviderOptions,
     OpenCodeSubagentProviderOptions,
 };
-use openbitfun_product_domains::external_integration_policy::{
+use alex_product_domains::external_integration_policy::{
     automatic_discovery_enabled, external_integration_policy_snapshot,
     incompatible_external_integration_policy_snapshot, ExternalIntegrationCapabilityDescriptor,
     ExternalIntegrationEcosystemDescriptor, ExternalIntegrationPolicyDocument,
     ExternalIntegrationPolicySettings, EXTERNAL_INTEGRATION_POLICY_SCHEMA_MAJOR,
 };
-use openbitfun_product_domains::external_sources::{
+use alex_product_domains::external_sources::{
     ExecutionDomainId, ExternalMcpRevisionKey, ExternalMcpSourceProvider, ExternalSourceContext,
     ExternalSourceScope, ExternalToolSourceProvider, PromptCommandConflict, PromptCommandExpansion,
     PromptCommandShellInvocation, PromptCommandShellPreference, PromptCommandSourceProvider,
 };
-use openbitfun_product_domains::external_subagents::ExternalSubagentSourceProvider;
-use openbitfun_product_domains::workspace_references::{
+use alex_product_domains::external_subagents::ExternalSubagentSourceProvider;
+use alex_product_domains::workspace_references::{
     ExternalWorkspaceReferenceSourceProvider, WorkspaceReferenceCatalogEntry,
     WorkspaceReferenceOrigin, WorkspaceReferenceSnapshot,
 };
-use openbitfun_services_core::json_store::JsonFileStore;
-use openbitfun_services_core::workspace_text::read_workspace_relative_text_bounded;
-use openbitfun_services_integrations::file_watch::{FileWatchService, FileWatcherConfig};
+use alex_services_core::json_store::JsonFileStore;
+use alex_services_core::workspace_text::read_workspace_relative_text_bounded;
+use alex_services_integrations::file_watch::{FileWatchService, FileWatcherConfig};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, BTreeSet};
@@ -120,14 +120,14 @@ use tool_runtime::exec_command::{
     exec_command_argv_for_isolated_shell, exec_command_noninteractive_env, ExecCommandShellKind,
 };
 
-pub use openbitfun_codex_adapter::BuiltinPetCatalog as ExternalBuiltinPetCatalog;
+pub use alex_codex_adapter::BuiltinPetCatalog as ExternalBuiltinPetCatalog;
 
 pub fn external_builtin_pet_sources(
     ecosystem_id: &str,
     only_id: Option<&str>,
 ) -> ExternalBuiltinPetCatalog {
     match ecosystem_id {
-        "codex" => openbitfun_codex_adapter::builtin_pet_sources(only_id),
+        "codex" => alex_codex_adapter::builtin_pet_sources(only_id),
         _ => ExternalBuiltinPetCatalog {
             pets: Vec::new(),
             diagnostics: vec!["Built-in pet source is unsupported".into()],
@@ -137,14 +137,14 @@ pub fn external_builtin_pet_sources(
 
 pub fn external_pet_source_root(ecosystem_id: &str) -> Option<PathBuf> {
     match ecosystem_id {
-        "codex" => Some(openbitfun_codex_adapter::pet_source_root()),
+        "codex" => Some(alex_codex_adapter::pet_source_root()),
         _ => None,
     }
 }
 
 const PROVIDER_DISCOVERY_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(5);
 const EXTERNAL_SOURCE_PREFERENCES_FILE: &str = "external-sources.json";
-const SUBAGENT_CONFLICT_RESELECTION_REQUIRED: &str = "__openbitfun_reselection_required__";
+const SUBAGENT_CONFLICT_RESELECTION_REQUIRED: &str = "__alex_reselection_required__";
 const OPENCODE_ECOSYSTEM_ID: &str = "opencode";
 const CLAUDE_CODE_ECOSYSTEM_ID: &str = "claude-code";
 const CODEX_ECOSYSTEM_ID: &str = "codex";
@@ -590,7 +590,7 @@ pub(crate) fn pi_configured_skill_roots(
     Vec<LocalConfiguredSkillRootContribution>,
     Vec<(String, String)>,
 ) {
-    let report = openbitfun_pi_adapter::PiSkillRootProvider::default().discover(workspace_root);
+    let report = alex_pi_adapter::PiSkillRootProvider::default().discover(workspace_root);
     let roots = report
         .roots
         .into_iter()
@@ -730,7 +730,7 @@ fn external_capability_descriptor(
 }
 
 /// Internal SDK-ready registration seam. Adapters only contribute discovery
-/// providers and metadata; execution remains owned by OpenBitFun policy/runtime.
+/// providers and metadata; execution remains owned by Alex policy/runtime.
 #[derive(Clone)]
 struct ExternalEcosystemRegistration {
     descriptor: ExternalIntegrationEcosystemDescriptor,
@@ -940,7 +940,7 @@ fn default_external_integration_registry() -> Vec<ExternalEcosystemRegistration>
 /// when the external source is offline or no longer present. This does no discovery.
 pub fn ecosystem_for_imported_mcp_candidate(candidate_id: &str) -> Option<String> {
     let qualified =
-        openbitfun_product_domains::external_sources::SourceQualifiedMcpServerId::from_stable_key(
+        alex_product_domains::external_sources::SourceQualifiedMcpServerId::from_stable_key(
             candidate_id.strip_prefix("external_mcp:")?,
         )?;
     default_external_integration_registry()
@@ -1830,7 +1830,7 @@ impl WorkspaceExternalSourceService {
             watch_states: tokio::sync::Mutex::new(BTreeMap::new()),
             refresh_gate: tokio::sync::Mutex::new(()),
             product_rebuild_gate: tokio::sync::Mutex::new(()),
-            mcp_runtime: Arc::new(OpenBitFunExternalMcpRuntime),
+            mcp_runtime: Arc::new(AlexExternalMcpRuntime),
             active_mcp_runtime_ids: tokio::sync::Mutex::new(BTreeSet::new()),
             initial_refresh_completed: AtomicBool::new(false),
             automatic_discovery_active: AtomicBool::new(automatic_discovery),
@@ -1991,7 +1991,7 @@ impl WorkspaceExternalSourceService {
         recovery_policy: WorkerRecoveryPolicy,
     ) -> Result<ExternalSourceCatalogSnapshot, String> {
         // Preferences are global to the local execution domain and may be
-        // changed by another OpenBitFun process. Synchronize before every refresh
+        // changed by another Alex process. Synchronize before every refresh
         // so a cached CLI/Desktop service cannot keep an externally disabled
         // source active.
         sync_service_preferences(self).await?;
@@ -2243,8 +2243,8 @@ impl WorkspaceExternalSourceService {
         .await;
         if let Err(error) = persist_observed_tool_conflicts(&state.conflicts).await {
             state.diagnostics.push(ExternalSourceDiagnostic {
-                severity: openbitfun_product_domains::external_sources::ExternalSourceDiagnosticSeverity::Warning,
-                asset_kind: openbitfun_product_domains::external_sources::ExternalSourceAssetKind::Tool,
+                severity: alex_product_domains::external_sources::ExternalSourceDiagnosticSeverity::Warning,
+                asset_kind: alex_product_domains::external_sources::ExternalSourceAssetKind::Tool,
                 code: "external_tool.conflict_history_write_failed".to_string(),
                 message: format!(
                     "Could not persist external tool conflict history; the current catalog remains fail-closed: {error}"
@@ -3041,7 +3041,7 @@ impl WorkspaceExternalSourceService {
 
     fn schedule_subagent_last_valid_expiry(
         self: &Arc<Self>,
-        snapshot: &openbitfun_external_sources::ExternalSubagentCoordinatorSnapshot,
+        snapshot: &alex_external_sources::ExternalSubagentCoordinatorSnapshot,
     ) {
         let schedule = self
             .subagent_expiry_schedule
@@ -3316,7 +3316,7 @@ impl WorkspaceExternalSourceService {
         self: &Arc<Self>,
         request: ExternalSourceControlRequestV1,
     ) -> ExternalSourceOperationResult<ExternalSourceSurfaceSnapshotV1> {
-        use openbitfun_product_domains::external_source_control::ExternalSourceOperationStage;
+        use alex_product_domains::external_source_control::ExternalSourceOperationStage;
 
         if let Err(detail) = request.validate() {
             return Err(ExternalSourceOperationError::invalid_request(detail)
@@ -4399,7 +4399,7 @@ impl WorkspaceExternalSourceService {
     fn watch_roots(
         &self,
         policy: &ExternalIntegrationPolicySnapshot,
-    ) -> Vec<openbitfun_product_domains::external_sources::ExternalWatchRoot> {
+    ) -> Vec<alex_product_domains::external_sources::ExternalWatchRoot> {
         let mut roots = BTreeMap::new();
         let mut provider_roots = Vec::new();
         let command_ecosystems =
@@ -4443,7 +4443,7 @@ impl WorkspaceExternalSourceService {
         roots
             .into_iter()
             .map(|(path, recursive)| {
-                openbitfun_product_domains::external_sources::ExternalWatchRoot { path, recursive }
+                alex_product_domains::external_sources::ExternalWatchRoot { path, recursive }
             })
             .collect()
     }
@@ -4451,31 +4451,31 @@ impl WorkspaceExternalSourceService {
 
 fn lock_coordinator(
     control_plane: &ExternalSourceControlPlane,
-) -> MutexGuard<'_, openbitfun_external_sources::ExternalSourceCoordinator> {
+) -> MutexGuard<'_, alex_external_sources::ExternalSourceCoordinator> {
     control_plane.lock_commands()
 }
 
 fn lock_tool_coordinator(
     control_plane: &ExternalSourceControlPlane,
-) -> MutexGuard<'_, openbitfun_external_sources::ExternalToolCoordinator> {
+) -> MutexGuard<'_, alex_external_sources::ExternalToolCoordinator> {
     control_plane.lock_tools()
 }
 
 fn lock_subagent_coordinator(
     control_plane: &ExternalSourceControlPlane,
-) -> MutexGuard<'_, openbitfun_external_sources::ExternalSubagentCoordinator> {
+) -> MutexGuard<'_, alex_external_sources::ExternalSubagentCoordinator> {
     control_plane.lock_subagents()
 }
 
 fn lock_mcp_coordinator(
     control_plane: &ExternalSourceControlPlane,
-) -> MutexGuard<'_, openbitfun_external_sources::ExternalMcpCoordinator> {
+) -> MutexGuard<'_, alex_external_sources::ExternalMcpCoordinator> {
     control_plane.lock_mcp()
 }
 
 fn lock_workspace_reference_coordinator(
     control_plane: &ExternalSourceControlPlane,
-) -> MutexGuard<'_, openbitfun_external_sources::ExternalWorkspaceReferenceCoordinator> {
+) -> MutexGuard<'_, alex_external_sources::ExternalWorkspaceReferenceCoordinator> {
     control_plane.lock_workspace_references()
 }
 
@@ -4839,11 +4839,11 @@ fn native_mcp_behavior_version(
     config: &crate::service::mcp::MCPServerConfig,
 ) -> Result<String, String> {
     let value = serde_json::to_value(config)
-        .map_err(|error| format!("Could not fingerprint OpenBitFun MCP configuration: {error}"))?;
+        .map_err(|error| format!("Could not fingerprint Alex MCP configuration: {error}"))?;
     let mut encoded = Vec::new();
     write_canonical_json(&value, &mut encoded)
-        .map_err(|error| format!("Could not fingerprint OpenBitFun MCP configuration: {error}"))?;
-    Ok(revision_key.opaque_revision("openbitfun.mcp.behavior.v1", [encoded.as_slice()]))
+        .map_err(|error| format!("Could not fingerprint Alex MCP configuration: {error}"))?;
+    Ok(revision_key.opaque_revision("alex.mcp.behavior.v1", [encoded.as_slice()]))
 }
 
 fn write_canonical_json(value: &serde_json::Value, output: &mut Vec<u8>) -> serde_json::Result<()> {
@@ -4886,7 +4886,7 @@ async fn load_native_mcp_candidates(
         .config_service()
         .load_all_configs()
         .await
-        .map_err(|error| format!("Could not read OpenBitFun MCP configuration: {error}"))?;
+        .map_err(|error| format!("Could not read Alex MCP configuration: {error}"))?;
     let mut candidates = Vec::with_capacity(configs.len());
     for config in configs {
         let behavior_version = native_mcp_behavior_version(revision_key, &config)?;
@@ -4894,7 +4894,7 @@ async fn load_native_mcp_candidates(
         candidates.push(NativeMcpCandidate {
             candidate_id,
             server_id: config.id,
-            display_name: format!("OpenBitFun: {}", config.name),
+            display_name: format!("Alex: {}", config.name),
             name: config.name,
             behavior_version,
             enabled: config.enabled,
@@ -4908,7 +4908,7 @@ async fn load_native_mcp_candidates(
     Ok(candidates)
 }
 
-/// Stable product identifier for a OpenBitFun-owned MCP configuration. Surfaces
+/// Stable product identifier for a Alex-owned MCP configuration. Surfaces
 /// use this only to correlate native list rows with conflict candidates; the
 /// underlying configuration id remains private to the MCP owner.
 pub fn native_mcp_candidate_id(server_id: &str) -> String {
@@ -4991,7 +4991,7 @@ fn stable_external_mcp_runtime_reason(reason: &str) -> &str {
 
 fn merge_mcp_state(
     snapshot: &mut ExternalSourceCatalogSnapshot,
-    coordinator_snapshot: &openbitfun_external_sources::ExternalMcpCoordinatorSnapshot,
+    coordinator_snapshot: &alex_external_sources::ExternalMcpCoordinatorSnapshot,
     state: ExternalMcpProductState,
 ) {
     let known_sources = snapshot
@@ -5030,7 +5030,7 @@ async fn service_for(
 }
 
 fn mcp_import_discovery_complete(
-    snapshot: &openbitfun_external_sources::ExternalMcpCoordinatorSnapshot,
+    snapshot: &alex_external_sources::ExternalMcpCoordinatorSnapshot,
 ) -> bool {
     !snapshot.discovery_pending
         && !snapshot
@@ -5458,7 +5458,7 @@ async fn persist_observed_subagent_conflicts_with_store(
 
 fn merge_subagent_state(
     snapshot: &mut ExternalSourceCatalogSnapshot,
-    coordinator_snapshot: &openbitfun_external_sources::ExternalSubagentCoordinatorSnapshot,
+    coordinator_snapshot: &alex_external_sources::ExternalSubagentCoordinatorSnapshot,
     state: &ExternalSubagentProductState,
     preference_revision: u64,
 ) {
@@ -6018,7 +6018,7 @@ fn validate_integration_policy_operation(
 ) -> Result<(), String> {
     let descriptors = default_external_integration_ecosystems();
     let validate_ecosystem =
-        |ecosystem_id: &openbitfun_product_domains::external_sources::EcosystemId| {
+        |ecosystem_id: &alex_product_domains::external_sources::EcosystemId| {
             descriptors
                 .iter()
                 .find(|descriptor| descriptor.ecosystem_id == *ecosystem_id)
@@ -6883,7 +6883,7 @@ async fn remember_native_prompt_command_conflict_choice(
             .any(|candidate| validate_conflict_preference(conflict_key, candidate).is_err())
         || native_candidate_ids.iter().any(|candidate| {
             !participants.contains(candidate)
-                || !candidate.starts_with("openbitfun.")
+                || !candidate.starts_with("alex.")
                 || validate_conflict_preference(conflict_key, candidate).is_err()
         })
     {
@@ -7321,7 +7321,7 @@ pub async fn workspace_reference_snapshot(
 
 fn compose_workspace_reference_snapshot(
     native_related_paths: &[crate::service::workspace::RelatedPath],
-    external: openbitfun_external_sources::ExternalWorkspaceReferenceCoordinatorSnapshot,
+    external: alex_external_sources::ExternalWorkspaceReferenceCoordinatorSnapshot,
     active_ecosystems: &BTreeSet<EcosystemId>,
 ) -> WorkspaceReferenceSnapshot {
     let external_sources = external
@@ -7388,7 +7388,7 @@ pub async fn get_external_source_control_snapshot(
     force_refresh: bool,
     host_capabilities: ExternalSourceHostCapabilities,
 ) -> ExternalSourceOperationResult<ExternalSourceSurfaceSnapshotV1> {
-    use openbitfun_product_domains::external_source_control::ExternalSourceOperationStage;
+    use alex_product_domains::external_source_control::ExternalSourceOperationStage;
 
     let service = if host_capabilities.can_execute_external_assets {
         service_for(workspace_id).await
@@ -7417,7 +7417,7 @@ pub async fn apply_external_source_control_action(
     workspace_id: Option<&str>,
     request: ExternalSourceControlRequestV1,
 ) -> ExternalSourceOperationResult<ExternalSourceSurfaceSnapshotV1> {
-    use openbitfun_product_domains::external_source_control::ExternalSourceOperationStage;
+    use alex_product_domains::external_source_control::ExternalSourceOperationStage;
 
     let operation_id = request.operation_id.clone();
     let service = service_for(workspace_id).await.map_err(|error| {
@@ -7672,7 +7672,7 @@ pub fn sanitize_external_source_operation_error(error: String) -> ExternalSource
 fn typed_control_operation_error(
     error: String,
     operation_id: &str,
-    stage: openbitfun_product_domains::external_source_control::ExternalSourceOperationStage,
+    stage: alex_product_domains::external_source_control::ExternalSourceOperationStage,
 ) -> ExternalSourceOperationError {
     let mut typed = sanitize_external_source_operation_error(error);
     if typed.correlation_id.is_none() {
@@ -7938,7 +7938,7 @@ mod tests {
             .ecosystems
             .insert(
                 EcosystemId::new("codex").unwrap(),
-                openbitfun_product_domains::external_integration_policy::ExternalEcosystemPolicy {
+                alex_product_domains::external_integration_policy::ExternalEcosystemPolicy {
                     mode: ExternalIntegrationMode::Disabled,
                     ..Default::default()
                 },
@@ -7998,7 +7998,7 @@ mod tests {
 
     #[test]
     fn imported_mcp_plan_does_not_treat_capacity_failures_as_an_empty_catalog() {
-        let mut snapshot = openbitfun_external_sources::ExternalMcpCoordinatorSnapshot {
+        let mut snapshot = alex_external_sources::ExternalMcpCoordinatorSnapshot {
             generation: 1,
             discovery_pending: false,
             sources: vec![],
@@ -8020,7 +8020,7 @@ mod tests {
     }
     #[test]
     fn imported_mcp_legacy_receipt_keeps_registered_origin_without_discovery() {
-        use openbitfun_product_domains::external_sources::SourceQualifiedMcpServerId;
+        use alex_product_domains::external_sources::SourceQualifiedMcpServerId;
         for (provider, ecosystem) in [
             ("codex.mcp", "codex"),
             ("claude-code.mcp", "claude-code"),
@@ -8043,14 +8043,14 @@ mod tests {
         assert!(ecosystem_for_imported_mcp_candidate("external_mcp:bad").is_none());
     }
     use crate::service::mcp::{ConfigLocation, MCPServerConfig, MCPServerType};
-    use openbitfun_product_domains::external_sources::{
+    use alex_product_domains::external_sources::{
         EcosystemId, ExternalSourceProviderError, ExternalSourceRecord, ExternalSourceScope,
         PromptCommandAvailability, PromptCommandCatalogEntry, PromptCommandConflict,
         PromptCommandConflictCandidate, PromptCommandDefinition, PromptCommandExecutionTarget,
         PromptCommandProviderIdentity, PromptCommandProviderSnapshot, PromptCommandShellExpansion,
         PromptCommandShellInvocation, PromptCommandShellPreference, SourceQualifiedCommandId,
     };
-    use openbitfun_product_domains::workspace_references::ExternalWorkspaceReferenceDefinition;
+    use alex_product_domains::workspace_references::ExternalWorkspaceReferenceDefinition;
     use std::sync::atomic::{AtomicUsize, Ordering};
 
     #[test]
@@ -8175,21 +8175,21 @@ mod tests {
         let host =
             resolve_prompt_command_shell(&PromptCommandShellPreference::HostDefault).unwrap();
         let preferred = resolve_prompt_command_shell(&PromptCommandShellPreference::Preferred {
-            executable: "openbitfun-missing-shell-for-test".to_string(),
+            executable: "alex-missing-shell-for-test".to_string(),
         })
         .unwrap();
 
         assert_eq!(preferred.path, host.path);
         assert!(
             resolve_prompt_command_shell(&PromptCommandShellPreference::Required {
-                executable: "openbitfun-missing-shell-for-test".to_string(),
+                executable: "alex-missing-shell-for-test".to_string(),
             })
             .is_err()
         );
         let required_one_of =
             resolve_prompt_command_shell(&PromptCommandShellPreference::RequiredOneOf {
                 executables: vec![
-                    "openbitfun-missing-shell-for-test".to_string(),
+                    "alex-missing-shell-for-test".to_string(),
                     host.path.to_string_lossy().to_string(),
                 ],
             })
@@ -8220,8 +8220,8 @@ mod tests {
         use std::ffi::OsString;
         use std::os::unix::ffi::OsStringExt;
 
-        let first = PathBuf::from(OsString::from_vec(b"/tmp/openbitfun-\x80".to_vec()));
-        let second = PathBuf::from(OsString::from_vec(b"/tmp/openbitfun-\x81".to_vec()));
+        let first = PathBuf::from(OsString::from_vec(b"/tmp/alex-\x80".to_vec()));
+        let second = PathBuf::from(OsString::from_vec(b"/tmp/alex-\x81".to_vec()));
         assert_ne!(
             prompt_command_shell_path_bytes(&first),
             prompt_command_shell_path_bytes(&second)
@@ -8347,10 +8347,10 @@ mod tests {
     fn effective_workspace_references_keep_native_order_before_external_aliases() {
         let native = vec![crate::service::workspace::RelatedPath {
             path: "D:/native-docs".to_string(),
-            description: Some("OpenBitFun workspace setting".to_string()),
+            description: Some("Alex workspace setting".to_string()),
         }];
         let source_key = SourceKey::new("opencode.references", "project-config").unwrap();
-        let external = openbitfun_external_sources::ExternalWorkspaceReferenceCoordinatorSnapshot {
+        let external = alex_external_sources::ExternalWorkspaceReferenceCoordinatorSnapshot {
             generation: 7,
             discovery_pending: false,
             sources: vec![ExternalSourceCatalogEntry {
@@ -8365,7 +8365,7 @@ mod tests {
                     location: "D:/workspace/opencode.json".to_string(),
                     execution_domain_id: ExecutionDomainId::new("local-user").unwrap(),
                     health:
-                        openbitfun_product_domains::external_sources::ExternalSourceHealth::Available,
+                        alex_product_domains::external_sources::ExternalSourceHealth::Available,
                     content_version: "source-v1".to_string(),
                     diagnostics: Vec::new(),
                 },
@@ -8653,7 +8653,7 @@ mod tests {
         ));
         assert!(!config_update_refreshes_external_model_bindings(
             &ConfigUpdateEvent::AppearanceUpdated {
-                appearance_id: "openbitfun-dark".to_string(),
+                appearance_id: "alex-dark".to_string(),
             }
         ));
     }
@@ -8696,7 +8696,7 @@ mod tests {
                     location: "/repo/.opencode/commands".to_string(),
                     execution_domain_id: ExecutionDomainId::new("local-user").unwrap(),
                     health:
-                        openbitfun_product_domains::external_sources::ExternalSourceHealth::Available,
+                        alex_product_domains::external_sources::ExternalSourceHealth::Available,
                     content_version: "source-v1".to_string(),
                     diagnostics: Vec::new(),
                 },
@@ -8723,7 +8723,7 @@ mod tests {
         };
         let native_v1 = NativePromptCommandDescriptor {
             command_name: "review".to_string(),
-            candidate_id: "openbitfun.desktop:action:review".to_string(),
+            candidate_id: "alex.desktop:action:review".to_string(),
             behavior_version: "native-v1".to_string(),
         };
         let first = project_native_prompt_command_conflicts(
@@ -8756,7 +8756,7 @@ mod tests {
 
         let cli_surface = NativePromptCommandDescriptor {
             command_name: "review".to_string(),
-            candidate_id: "openbitfun.cli:action:review".to_string(),
+            candidate_id: "alex.cli:action:review".to_string(),
             behavior_version: "native-v1".to_string(),
         };
         let isolated = project_native_prompt_command_conflicts(
@@ -8885,7 +8885,7 @@ mod tests {
     #[test]
     fn native_prompt_command_choice_does_not_mark_external_candidate_as_self_conflicted() {
         let mut config = ExternalSourcesConfig::default();
-        let native = "openbitfun.desktop:action:review".to_string();
+        let native = "alex.desktop:action:review".to_string();
         let external = "opencode.commands:project:review";
         let first_key = native_prompt_command_conflict_key(
             "local-user",
@@ -8991,8 +8991,8 @@ mod tests {
     #[test]
     fn native_prompt_command_reconfirmation_clears_the_whole_native_command_group() {
         let mut config = ExternalSourcesConfig::default();
-        let first = "openbitfun.desktop:action:review".to_string();
-        let second = "openbitfun.desktop:mode:review".to_string();
+        let first = "alex.desktop:action:review".to_string();
+        let second = "alex.desktop:mode:review".to_string();
         let external = "opencode.commands:project:review";
         let desktop_key = native_prompt_command_conflict_key(
             "local-user",
@@ -9003,7 +9003,7 @@ mod tests {
                 (external, "external-v1"),
             ],
         );
-        let cli = "openbitfun.cli:action:review".to_string();
+        let cli = "alex.cli:action:review".to_string();
         let cli_key = native_prompt_command_conflict_key(
             "local-user",
             "review",
@@ -9071,7 +9071,7 @@ mod tests {
                     location: raw_root.to_string(),
                     execution_domain_id: ExecutionDomainId::new("local-user").unwrap(),
                     health:
-                        openbitfun_product_domains::external_sources::ExternalSourceHealth::Partial,
+                        alex_product_domains::external_sources::ExternalSourceHealth::Partial,
                     content_version: "source-v1".to_string(),
                     diagnostics: vec![ExternalSourceDiagnostic::warning(
                         "future.tool.directory_read_failed",
@@ -9145,7 +9145,7 @@ mod tests {
                     location: location.to_string(),
                     execution_domain_id: ExecutionDomainId::new("peer-a").unwrap(),
                     health:
-                        openbitfun_product_domains::external_sources::ExternalSourceHealth::Available,
+                        alex_product_domains::external_sources::ExternalSourceHealth::Available,
                     content_version: "source-v1".to_string(),
                     diagnostics: Vec::new(),
                 },
@@ -9227,7 +9227,7 @@ mod tests {
                 location: raw_location.to_string_lossy().into_owned(),
                 execution_domain_id: ExecutionDomainId::new("local-user").unwrap(),
                 health:
-                    openbitfun_product_domains::external_sources::ExternalSourceHealth::Available,
+                    alex_product_domains::external_sources::ExternalSourceHealth::Available,
                 content_version: "source-v1".to_string(),
                 diagnostics: Vec::new(),
             },
@@ -9283,7 +9283,7 @@ mod tests {
                 location: format!("/{}", self.command_name),
                 execution_domain_id: context.execution_domain_id.clone(),
                 health:
-                    openbitfun_product_domains::external_sources::ExternalSourceHealth::Available,
+                    alex_product_domains::external_sources::ExternalSourceHealth::Available,
                 content_version: "source-v1".to_string(),
                 diagnostics: Vec::new(),
             };
@@ -9325,7 +9325,7 @@ mod tests {
         fn watch_roots(
             &self,
             _context: &ExternalSourceContext,
-        ) -> Vec<openbitfun_product_domains::external_sources::ExternalWatchRoot> {
+        ) -> Vec<alex_product_domains::external_sources::ExternalWatchRoot> {
             Vec::new()
         }
     }
@@ -9406,7 +9406,7 @@ mod tests {
             watch_states: tokio::sync::Mutex::new(BTreeMap::new()),
             refresh_gate: tokio::sync::Mutex::new(()),
             product_rebuild_gate: tokio::sync::Mutex::new(()),
-            mcp_runtime: Arc::new(OpenBitFunExternalMcpRuntime),
+            mcp_runtime: Arc::new(AlexExternalMcpRuntime),
             active_mcp_runtime_ids: tokio::sync::Mutex::new(BTreeSet::new()),
             initial_refresh_completed: AtomicBool::new(false),
             automatic_discovery_active: AtomicBool::new(false),
@@ -9745,13 +9745,13 @@ mod tests {
         assert_eq!(
             error.recovery_actions,
             vec![
-                openbitfun_product_domains::external_source_control::ExternalSourceRecoveryActionV1::Refresh,
+                alex_product_domains::external_source_control::ExternalSourceRecoveryActionV1::Refresh,
             ]
         );
         assert_eq!(
             error.stage,
             Some(
-                openbitfun_product_domains::external_source_control::ExternalSourceOperationStage::ApplyPreference
+                alex_product_domains::external_source_control::ExternalSourceOperationStage::ApplyPreference
             )
         );
 
@@ -9783,7 +9783,7 @@ mod tests {
         async fn install(
             &self,
             _candidate: &crate::external_mcp::ActiveExternalMcpCandidate,
-            _prepared: openbitfun_product_domains::external_sources::PreparedExternalMcpServer,
+            _prepared: alex_product_domains::external_sources::PreparedExternalMcpServer,
             _workspace_key: &str,
         ) -> Result<(), String> {
             self.calls.fetch_add(1, Ordering::SeqCst);
@@ -10247,7 +10247,7 @@ mod tests {
         assert!(!workspace_key.contains(&temp.path().to_string_lossy().to_string()));
 
         let ecosystem_id =
-            openbitfun_product_domains::external_sources::EcosystemId::new(OPENCODE_ECOSYSTEM_ID)
+            alex_product_domains::external_sources::EcosystemId::new(OPENCODE_ECOSYSTEM_ID)
                 .unwrap();
         let mut config = ExternalSourcesConfig::default();
         let user_mutation = ExternalIntegrationPolicyMutation {
@@ -10681,7 +10681,7 @@ mod tests {
     fn invocation_authorization_uses_the_execution_domain_preference_key() {
         let source = ExternalSourceRecord {
             key: SourceKey::new("opencode", "global-tools").unwrap(),
-            ecosystem_id: openbitfun_product_domains::external_sources::EcosystemId::new(
+            ecosystem_id: alex_product_domains::external_sources::EcosystemId::new(
                 "opencode",
             )
             .unwrap(),
@@ -10690,7 +10690,7 @@ mod tests {
             scope: ExternalSourceScope::UserGlobal,
             location: "/tools".to_string(),
             execution_domain_id: ExecutionDomainId::new("local-user").unwrap(),
-            health: openbitfun_product_domains::external_sources::ExternalSourceHealth::Available,
+            health: alex_product_domains::external_sources::ExternalSourceHealth::Available,
             content_version: "v1".to_string(),
             diagnostics: Vec::new(),
         };
@@ -10773,7 +10773,7 @@ mod tests {
             ),
             (
                 "native:prompt_command:local-user:help:old".to_string(),
-                "openbitfun.cli:help".to_string(),
+                "alex.cli:help".to_string(),
             ),
         ]);
         let mut lineage_keys = BTreeMap::from([
@@ -10789,7 +10789,7 @@ mod tests {
         let mut conflicted_ids = BTreeSet::from([
             "external-a".to_string(),
             "external-b".to_string(),
-            "openbitfun.cli:help".to_string(),
+            "alex.cli:help".to_string(),
         ]);
 
         ExternalSourceCoordinator::reconcile_conflict_preferences(
@@ -10797,8 +10797,8 @@ mod tests {
             &mut lineage_keys,
             &mut conflicted_ids,
             "native:prompt_command:local-user:help:new",
-            "openbitfun.cli:help",
-            &["openbitfun.cli:help".to_string()],
+            "alex.cli:help",
+            &["alex.cli:help".to_string()],
         );
 
         assert!(choices.contains_key("prompt_command:local-user:review:old"));

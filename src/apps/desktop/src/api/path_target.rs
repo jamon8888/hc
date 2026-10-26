@@ -2,14 +2,14 @@
 
 use crate::api::app_state::AppState;
 use base64::{engine::general_purpose::STANDARD as BASE64, Engine as _};
-use openbitfun_core::agentic::tools::workspace_paths::{
-    is_openbitfun_runtime_uri, parse_openbitfun_runtime_uri,
+use alex_core::agentic::tools::workspace_paths::{
+    is_alex_runtime_uri, parse_alex_runtime_uri,
 };
-use openbitfun_core::infrastructure::get_path_manager_arc;
-use openbitfun_core::infrastructure::FileOperationOptions;
-use openbitfun_core::service::remote_ssh::workspace_state::remote_workspace_runtime_root;
-use openbitfun_core::service::remote_ssh::{normalize_remote_workspace_path, RemoteWorkspaceEntry};
-use openbitfun_core::service::workspace::{WorkspaceInfo, WorkspaceKind};
+use alex_core::infrastructure::get_path_manager_arc;
+use alex_core::infrastructure::FileOperationOptions;
+use alex_core::service::remote_ssh::workspace_state::remote_workspace_runtime_root;
+use alex_core::service::remote_ssh::{normalize_remote_workspace_path, RemoteWorkspaceEntry};
+use alex_core::service::workspace::{WorkspaceInfo, WorkspaceKind};
 use serde::Serialize;
 use std::path::{Path, PathBuf};
 use std::time::SystemTime;
@@ -87,11 +87,11 @@ async fn resolve_runtime_artifact_path(
     raw_path: &str,
     workspace_id: Option<&str>,
 ) -> Result<Option<PathBuf>, String> {
-    if !is_openbitfun_runtime_uri(raw_path) {
+    if !is_alex_runtime_uri(raw_path) {
         return Ok(None);
     }
 
-    let parsed = parse_openbitfun_runtime_uri(raw_path).map_err(|e| e.to_string())?;
+    let parsed = parse_alex_runtime_uri(raw_path).map_err(|e| e.to_string())?;
     let id = if parsed.workspace_scope == "current" {
         match workspace_id {
             Some(id) => id.to_owned(),
@@ -155,7 +155,7 @@ pub async fn resolve_desktop_path_target(
             .map_err(|error| error.to_string())?,
     };
     if let Some(id) = connection {
-        let connection_id = openbitfun_core::service::filesystem::path_operations::resolve_explicit_path_connection(raw_path, &id).await?;
+        let connection_id = alex_core::service::filesystem::path_operations::resolve_explicit_path_connection(raw_path, &id).await?;
         return Ok(DesktopPathTarget::Remote {
             requested_path: raw_path.to_string(),
             entry: RemotePathConnection { connection_id },

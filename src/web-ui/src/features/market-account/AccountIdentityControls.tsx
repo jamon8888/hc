@@ -10,7 +10,7 @@ import { subscribeOverlayInteraction, createOverlayPortal, OverflowText,
   DialogHeader,
   DialogHeading,
   DialogTitle,
-} from '@openbitfun/ui';
+} from '@alex/ui';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Github, Loader2, LogOut } from 'lucide-react';
 import { getAppearanceOverlayHost } from '@/infrastructure/appearance/runtime/AppearanceOverlayHost';
@@ -174,9 +174,9 @@ export function AccountIdentityControls({
   return (
     <div
       className={['market-account-controls', className].filter(Boolean).join(' ')}
-      data-openbitfun-component="market-account-controls"
-      data-openbitfun-part="root"
-      data-openbitfun-state={account.status}
+      data-alex-component="market-account-controls"
+      data-alex-part="root"
+      data-alex-state={account.status}
     >
       {account.me ? (
         <div className="market-account-controls__menu-root" ref={menuRef}>
@@ -184,8 +184,8 @@ export function AccountIdentityControls({
             ref={menuTriggerRef}
             type="button"
             className="market-account-controls__identity-trigger"
-            data-openbitfun-component="market-account-controls"
-            data-openbitfun-part="identityTrigger"
+            data-alex-component="market-account-controls"
+            data-alex-part="identityTrigger"
             aria-haspopup="menu"
             aria-expanded={menuOpen}
             aria-label={t('market.account.menuLabel', { login: account.me.email ?? account.me.user.login })}
@@ -210,8 +210,8 @@ export function AccountIdentityControls({
             >
               <div
                 className="market-account-controls__profile"
-                data-openbitfun-component="market-account-controls"
-                data-openbitfun-part="profile"
+                data-alex-component="market-account-controls"
+                data-alex-part="profile"
               >
                 <Avatar key={account.me.email ?? account.me.user.login} size="md" src={account.me.user.avatarUrl} alt={account.me.email ?? account.me.user.login} aria-label={account.me.email ?? account.me.user.login}>
               {(account.me.email ?? account.me.user.login).trim().charAt(0).toUpperCase() || <Icon name="user" />}
@@ -261,8 +261,8 @@ export function AccountIdentityControls({
         <DialogBody>
         <div
           className="market-account-login"
-          data-openbitfun-component="market-account-controls"
-          data-openbitfun-part="login"
+          data-alex-component="market-account-controls"
+          data-alex-part="login"
         >
           <div className="market-account-login__mark" aria-hidden="true">
             <Github size={28} />
@@ -275,8 +275,8 @@ export function AccountIdentityControls({
             <div
               className="market-account-login__waiting"
               role="status"
-              data-openbitfun-component="market-account-controls"
-              data-openbitfun-part="waiting"
+              data-alex-component="market-account-controls"
+              data-alex-part="waiting"
             >
               <Loader2 size={16} className="market-account-controls__spinner" />
               <span>{t('market.account.waiting')}</span>
@@ -286,16 +286,16 @@ export function AccountIdentityControls({
             <p
               className="market-account-login__error"
               role="alert"
-              data-openbitfun-component="market-account-controls"
-              data-openbitfun-part="error"
+              data-alex-component="market-account-controls"
+              data-alex-part="error"
             >
               {errorText}
             </p>
           )}
           <div
             className="market-account-login__actions"
-            data-openbitfun-component="market-account-controls"
-            data-openbitfun-part="actions"
+            data-alex-component="market-account-controls"
+            data-alex-part="actions"
           >
             <Button variant="fill" onClick={closeLogin}>
               {t('market.account.cancel')}

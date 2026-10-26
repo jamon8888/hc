@@ -1,0 +1,12 @@
+# dsh-alex bundle patch: register the Alex SDK Host bridge in this profile.
+# The row below carries neutral defaults; override it in the profile's own
+# cordis.patch.yml when a custom host binary or tighter caps are needed, e.g.:
+#
+#   - id: alex
+#     config:
+#       hostPath: '/absolute/path/to/alex-sdk-host'
+#       queryTimeoutMs: 1800000
+#
+- insert:
+    - id: alex
+      name: 'dsh-alex'

@@ -16,7 +16,7 @@ import {
   DialogBody,
   DialogClose,
   DialogTitle,
-} from '@openbitfun/ui';
+} from '@alex/ui';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useI18n } from '@/infrastructure/i18n';
 import {
@@ -111,68 +111,68 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({
         open={isOpen}
         onOpenChange={(nextOpen) => { if (!nextOpen) onClose(); }}
         size="xl"
-        className="openbitfun-about-dialog"
+        className="alex-about-dialog"
         aria-label={t('about.dialogTitle')}
         data-testid="about-dialog-modal"
       >
-        <DialogClose className="openbitfun-about-dialog__close" />
-        <DialogBody className="openbitfun-about-dialog__modal-content" inset="none">
+        <DialogClose className="alex-about-dialog__close" />
+        <DialogBody className="alex-about-dialog__modal-content" inset="none">
           <div
-            className="openbitfun-about-dialog__content"
-            data-openbitfun-component="about-dialog"
-            data-openbitfun-part="root"
+            className="alex-about-dialog__content"
+            data-alex-component="about-dialog"
+            data-alex-part="root"
           >
-            <div className="openbitfun-about-dialog__body">
+            <div className="alex-about-dialog__body">
               <div
-                className="openbitfun-about-dialog__brand"
-                data-openbitfun-component="about-dialog"
-                data-openbitfun-part="hero"
+                className="alex-about-dialog__brand"
+                data-alex-component="about-dialog"
+                data-alex-part="hero"
                 aria-hidden="true"
               >
-                <div className="openbitfun-about-dialog__artwork">
+                <div className="alex-about-dialog__artwork">
                   <AboutBrandMark active={isOpen} />
                 </div>
-                <p className="openbitfun-about-dialog__brand-statement">
+                <p className="alex-about-dialog__brand-statement">
                   {t('about.brandStatement')}
                 </p>
               </div>
 
               <section
-                className="openbitfun-about-dialog__metadata"
-                data-openbitfun-component="about-dialog"
-                data-openbitfun-part="content"
+                className="alex-about-dialog__metadata"
+                data-alex-component="about-dialog"
+                data-alex-part="content"
                 aria-label={t('about.details')}
               >
-                <header className="openbitfun-about-dialog__brand-copy">
+                <header className="alex-about-dialog__brand-copy">
                   <DialogTitle
-                    className="openbitfun-about-dialog__title"
-                    data-openbitfun-component="about-dialog"
-                    data-openbitfun-part="title"
+                    className="alex-about-dialog__title"
+                    data-alex-component="about-dialog"
+                    data-alex-part="title"
                   >
                     {version.name}
                   </DialogTitle>
-                  <p className="openbitfun-about-dialog__tagline">{t('about.tagline')}</p>
+                  <p className="alex-about-dialog__tagline">{t('about.tagline')}</p>
                 </header>
 
-                <FieldGroup className="openbitfun-about-dialog__details" appearance="plain" dividers={false}>
+                <FieldGroup className="alex-about-dialog__details" appearance="plain" dividers={false}>
                   <FieldRow padding="none">
-                    <dl className="openbitfun-about-dialog__info-row" data-openbitfun-component="about-dialog" data-openbitfun-part="infoRow">
-                      <dt className="openbitfun-about-dialog__info-label" data-openbitfun-component="about-dialog" data-openbitfun-part="infoLabel">
+                    <dl className="alex-about-dialog__info-row" data-alex-component="about-dialog" data-alex-part="infoRow">
+                      <dt className="alex-about-dialog__info-label" data-alex-component="about-dialog" data-alex-part="infoLabel">
                         <span>{t('about.versionLabel')}</span>
                       </dt>
-                      <dd className="openbitfun-about-dialog__info-value-group">
+                      <dd className="alex-about-dialog__info-value-group">
                         <span
-                          className="openbitfun-about-dialog__info-value"
-                          data-openbitfun-component="about-dialog"
-                          data-openbitfun-part="infoValue"
+                          className="alex-about-dialog__info-value"
+                          data-alex-component="about-dialog"
+                          data-alex-part="infoValue"
                           data-testid="about-version-value"
                         >
                           {displayedVersion}
                         </span>
                         <span
-                          className="openbitfun-about-dialog__channel-badge"
-                          data-openbitfun-component="about-dialog"
-                          data-openbitfun-part="channelBadge"
+                          className="alex-about-dialog__channel-badge"
+                          data-alex-component="about-dialog"
+                          data-alex-part="channelBadge"
                         >
                           <StatusPill tone="neutral">{releaseLabel}</StatusPill>
                         </span>
@@ -181,12 +181,12 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({
                   </FieldRow>
 
                   <FieldRow padding="none">
-                    <dl className="openbitfun-about-dialog__info-row" data-openbitfun-component="about-dialog" data-openbitfun-part="infoRow">
-                      <dt className="openbitfun-about-dialog__info-label" data-openbitfun-component="about-dialog" data-openbitfun-part="infoLabel">
+                    <dl className="alex-about-dialog__info-row" data-alex-component="about-dialog" data-alex-part="infoRow">
+                      <dt className="alex-about-dialog__info-label" data-alex-component="about-dialog" data-alex-part="infoLabel">
                         <span>{t('about.buildDate')}</span>
                       </dt>
-                      <dd className="openbitfun-about-dialog__info-value-group">
-                        <span className="openbitfun-about-dialog__info-value" data-openbitfun-component="about-dialog" data-openbitfun-part="infoValue">
+                      <dd className="alex-about-dialog__info-value-group">
+                        <span className="alex-about-dialog__info-value" data-alex-component="about-dialog" data-alex-part="infoValue">
                           {formatBuildDate(version.buildDate)}
                         </span>
                       </dd>
@@ -194,23 +194,23 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({
                   </FieldRow>
 
                   <FieldRow padding="none">
-                    <dl className="openbitfun-about-dialog__info-row" data-openbitfun-component="about-dialog" data-openbitfun-part="infoRow">
-                      <dt className="openbitfun-about-dialog__info-label" data-openbitfun-component="about-dialog" data-openbitfun-part="infoLabel">
+                    <dl className="alex-about-dialog__info-row" data-alex-component="about-dialog" data-alex-part="infoRow">
+                      <dt className="alex-about-dialog__info-label" data-alex-component="about-dialog" data-alex-part="infoLabel">
                         <span>{t('about.commit')}</span>
                       </dt>
-                      <dd className="openbitfun-about-dialog__info-value-group">
+                      <dd className="alex-about-dialog__info-value-group">
                         <span
-                          className="openbitfun-about-dialog__info-value openbitfun-about-dialog__info-value--mono"
-                          data-openbitfun-component="about-dialog"
-                          data-openbitfun-part="infoValue"
+                          className="alex-about-dialog__info-value alex-about-dialog__info-value--mono"
+                          data-alex-component="about-dialog"
+                          data-alex-part="infoValue"
                         >
                           {version.gitCommit ?? t('about.notAvailable')}
                         </span>
                         {version.gitCommit ? (
                           <span
-                            className="openbitfun-about-dialog__copy-action"
-                            data-openbitfun-component="about-dialog"
-                            data-openbitfun-part="copyButton"
+                            className="alex-about-dialog__copy-action"
+                            data-alex-component="about-dialog"
+                            data-alex-part="copyButton"
                           >
                             <Tooltip content={t('about.copy')}>
                               <IconButton
@@ -228,15 +228,15 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({
                   </FieldRow>
 
                   <FieldRow padding="none">
-                    <dl className="openbitfun-about-dialog__info-row" data-openbitfun-component="about-dialog" data-openbitfun-part="infoRow">
-                      <dt className="openbitfun-about-dialog__info-label" data-openbitfun-component="about-dialog" data-openbitfun-part="infoLabel">
+                    <dl className="alex-about-dialog__info-row" data-alex-component="about-dialog" data-alex-part="infoRow">
+                      <dt className="alex-about-dialog__info-label" data-alex-component="about-dialog" data-alex-part="infoLabel">
                         <span>{t('about.branch')}</span>
                       </dt>
-                      <dd className="openbitfun-about-dialog__info-value-group">
+                      <dd className="alex-about-dialog__info-value-group">
                         <span
-                          className="openbitfun-about-dialog__info-value"
-                          data-openbitfun-component="about-dialog"
-                          data-openbitfun-part="infoValue"
+                          className="alex-about-dialog__info-value"
+                          data-alex-component="about-dialog"
+                          data-alex-part="infoValue"
                           data-testid="about-branch-value"
                           title={version.gitBranch}
                         >
@@ -247,15 +247,15 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({
                   </FieldRow>
 
                   <FieldRow padding="none">
-                    <dl className="openbitfun-about-dialog__info-row" data-openbitfun-component="about-dialog" data-openbitfun-part="infoRow">
-                      <dt className="openbitfun-about-dialog__info-label" data-openbitfun-component="about-dialog" data-openbitfun-part="infoLabel">
+                    <dl className="alex-about-dialog__info-row" data-alex-component="about-dialog" data-alex-part="infoRow">
+                      <dt className="alex-about-dialog__info-label" data-alex-component="about-dialog" data-alex-part="infoLabel">
                         <span>{t('about.license')}</span>
                       </dt>
-                      <dd className="openbitfun-about-dialog__info-value-group">
+                      <dd className="alex-about-dialog__info-value-group">
                         <span
-                          className="openbitfun-about-dialog__info-value"
-                          data-openbitfun-component="about-dialog"
-                          data-openbitfun-part="license"
+                          className="alex-about-dialog__info-value"
+                          data-alex-component="about-dialog"
+                          data-alex-part="license"
                           data-testid="about-license-value"
                         >
                           {licenseName}
@@ -269,29 +269,29 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({
             </div>
 
             <footer
-              className="openbitfun-about-dialog__footer"
-              data-openbitfun-component="about-dialog"
-              data-openbitfun-part="footer"
+              className="alex-about-dialog__footer"
+              data-alex-component="about-dialog"
+              data-alex-part="footer"
             >
               <div
-                className="openbitfun-about-dialog__star-callout"
-                data-openbitfun-component="about-dialog"
-                data-openbitfun-part="starCallout"
+                className="alex-about-dialog__star-callout"
+                data-alex-component="about-dialog"
+                data-alex-part="starCallout"
                 role="group"
-                aria-labelledby="openbitfun-about-star-title"
+                aria-labelledby="alex-about-star-title"
               >
-                <div className="openbitfun-about-dialog__star-copy">
-                  <h3 id="openbitfun-about-star-title" className="openbitfun-about-dialog__star-title">
+                <div className="alex-about-dialog__star-copy">
+                  <h3 id="alex-about-star-title" className="alex-about-dialog__star-title">
                     {t('about.githubStarTitle')}
                   </h3>
-                  <p className="openbitfun-about-dialog__star-description">
+                  <p className="alex-about-dialog__star-description">
                     {t('about.githubStarDescription')}
                   </p>
                 </div>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="openbitfun-about-dialog__star-button"
+                  className="alex-about-dialog__star-button"
                   leadingIcon={<Icon name="star" size="sm" aria-hidden="true" />}
                   onClick={handleGithubStar}
                   data-testid="about-github-star"
@@ -300,9 +300,9 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({
                 </Button>
               </div>
               <p
-                className="openbitfun-about-dialog__copyright"
-                data-openbitfun-component="about-dialog"
-                data-openbitfun-part="copyright"
+                className="alex-about-dialog__copyright"
+                data-alex-component="about-dialog"
+                data-alex-part="copyright"
               >
                 {legalCopyright}
               </p>

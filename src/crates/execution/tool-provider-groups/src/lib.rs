@@ -124,7 +124,7 @@ pub fn tool_feature_group(tool_name: &str) -> Option<ToolPackFeatureGroup> {
         | "AgentDelete" | "AgentWait" | "LaunchReviewAgent" | "Skill" | "AskUserQuestion"
         | "TodoWrite" | "get_goal" | "create_goal" | "update_goal" | "submit_code_review"
         | "GetToolSpec" | "CallDeferredTool" | "SessionControl" | "SessionMessage"
-        | "SessionHistory" | "Cron" | "PortForward" | "OpenBitFunControl" => {
+        | "SessionHistory" | "Cron" | "PortForward" | "AlexControl" => {
             Some(ToolPackFeatureGroup::AgentControl)
         }
         _ => None,
@@ -243,7 +243,7 @@ const PRODUCT_TOOL_PROVIDER_GROUP_PLAN: &[ToolProviderGroupPlan] = &[
             "update_goal",
             "GetToolSpec",
             "CallDeferredTool",
-            "OpenBitFunControl",
+            "AlexControl",
         ],
     },
     ToolProviderGroupPlan {
@@ -583,7 +583,7 @@ mod tests {
                 "update_goal",
                 "GetToolSpec",
                 "CallDeferredTool",
-                "OpenBitFunControl",
+                "AlexControl",
                 "SessionControl",
                 "SessionMessage",
                 "SessionHistory",

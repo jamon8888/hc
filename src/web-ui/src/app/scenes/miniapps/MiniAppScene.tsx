@@ -2,7 +2,7 @@
  * MiniAppScene — standalone scene tab for a single MiniApp.
  * Mounts MiniAppRunner; closing its scene stops the app through the shared lifecycle.
  */
-import { OverflowText, Button, Icon, IconButton, Tooltip } from '@openbitfun/ui';
+import { OverflowText, Button, Icon, IconButton, Tooltip } from '@alex/ui';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Loader2, AlertTriangle } from 'lucide-react';
 import { miniAppAPI } from '@/infrastructure/api/service-api/MiniAppAPI';
@@ -163,11 +163,11 @@ const MiniAppScene: React.FC<MiniAppSceneProps> = ({ appId }) => {
     <div
       className="miniapp-scene"
       data-miniapp-id={appId}
-      data-openbitfun-scene="miniapp"
-      data-openbitfun-part="root"
-      data-openbitfun-state={customizeOpen ? 'customizing' : undefined}
+      data-alex-scene="miniapp"
+      data-alex-part="root"
+      data-alex-state={customizeOpen ? 'customizing' : undefined}
     >
-      <div className="miniapp-scene__header" data-openbitfun-scene="miniapp" data-openbitfun-part="header">
+      <div className="miniapp-scene__header" data-alex-scene="miniapp" data-alex-part="header">
         <div className="miniapp-scene__header-center">
           {app ? (
             <OverflowText className="miniapp-scene__title">{appName}</OverflowText>
@@ -199,15 +199,15 @@ const MiniAppScene: React.FC<MiniAppSceneProps> = ({ appId }) => {
       <div className={[
         'miniapp-scene__content',
         customizeOpen && app && 'miniapp-scene__content--customizing',
-      ].filter(Boolean).join(' ')} data-openbitfun-scene="miniapp" data-openbitfun-part="content">
+      ].filter(Boolean).join(' ')} data-alex-scene="miniapp" data-alex-part="content">
         {loading && !app && (
-          <div className="miniapp-scene__loading" data-openbitfun-scene="miniapp" data-openbitfun-part="loading">
+          <div className="miniapp-scene__loading" data-alex-scene="miniapp" data-alex-part="loading">
             <Loader2 size={28} className="miniapp-scene__spinning" strokeWidth={1.5} />
             <span>{t('scene.loading')}</span>
           </div>
         )}
         {error && !app && (
-          <div className="miniapp-scene__error" data-openbitfun-scene="miniapp" data-openbitfun-part="error">
+          <div className="miniapp-scene__error" data-alex-scene="miniapp" data-alex-part="error">
             <AlertTriangle size={32} strokeWidth={1.5} />
             <p>{t('scene.loadFailed', { error })}</p>
             <Button variant="outline" size="sm" onClick={() => void load(appId)}>
@@ -216,7 +216,7 @@ const MiniAppScene: React.FC<MiniAppSceneProps> = ({ appId }) => {
           </div>
         )}
         {app && (
-          <div className="miniapp-scene__runner-shell" data-openbitfun-scene="miniapp" data-openbitfun-part="runner">
+          <div className="miniapp-scene__runner-shell" data-alex-scene="miniapp" data-alex-part="runner">
             {loading && (
               <div className="miniapp-scene__refresh-overlay" role="status" aria-live="polite">
                 <Loader2 size={20} className="miniapp-scene__spinning" strokeWidth={1.5} />
@@ -228,7 +228,7 @@ const MiniAppScene: React.FC<MiniAppSceneProps> = ({ appId }) => {
               strictRuntime={strictRuntime}
             />
             {customizePreview && (
-              <div className="miniapp-scene__preview-stage" role="region" aria-label={t('customize.previewTitle')} data-openbitfun-scene="miniapp" data-openbitfun-part="preview">
+              <div className="miniapp-scene__preview-stage" role="region" aria-label={t('customize.previewTitle')} data-alex-scene="miniapp" data-alex-part="preview">
                 <div className="miniapp-scene__preview-stage-header">
                   <div>
                     <span>{t('customize.previewTitle')}</span>
@@ -255,7 +255,7 @@ const MiniAppScene: React.FC<MiniAppSceneProps> = ({ appId }) => {
           </div>
         )}
         {customizeNotice && (
-          <div className="miniapp-scene__customize-notice" role="status" data-openbitfun-scene="miniapp" data-openbitfun-part="notice">
+          <div className="miniapp-scene__customize-notice" role="status" data-alex-scene="miniapp" data-alex-part="notice">
             <Icon name="check-circle" size="md" />
             <span>{customizeNotice}</span>
           </div>

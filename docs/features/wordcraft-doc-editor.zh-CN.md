@@ -7,7 +7,7 @@ WordCraft（上游 [storytold/wordcraft](https://github.com/storytold/wordcraft)
 
 ## 能力记录（唯一事实来源）
 
-`openbitfun_services_core::wordcraft::WordcraftProbe`（按需启用 `wordcraft` feature）产出唯一的
+`alex_services_core::wordcraft::WordcraftProbe`（按需启用 `wordcraft` feature）产出唯一的
 `WordcraftCapability` 记录，解析顺序为 **显式配置路径 → 系统 PATH → 托管组件**
 （`wordcraft` 组件，版本由 `PINNED_WORDCRAFT_VERSION` 固定）。状态：
 `available | unsupported | not-installed | error`；`message`/`remediation` 是可执行的用户文案；
@@ -81,11 +81,11 @@ WordCraft（上游 [storytold/wordcraft](https://github.com/storytold/wordcraft)
 
 按所有者选择，不做大而全：
 
-- Rust 焦点测试：`cargo test -p openbitfun-desktop --lib wordcraft`（表面），
-  `cargo test -p openbitfun-services-integrations --no-default-features --features mcp --lib
-  mcp::server::wordcraft`（会话与路由），`cargo test -p openbitfun-services-core
+- Rust 焦点测试：`cargo test -p alex-desktop --lib wordcraft`（表面），
+  `cargo test -p alex-services-integrations --no-default-features --features mcp --lib
+  mcp::server::wordcraft`（会话与路由），`cargo test -p alex-services-core
   --no-default-features --features wordcraft --lib wordcraft`（记录/探测/校验）。
-- 注册表：`cargo test -p openbitfun-desktop --lib remote_workspace_policy`；治理：
+- 注册表：`cargo test -p alex-desktop --lib remote_workspace_policy`；治理：
   `pnpm run check:core-boundaries`、`pnpm run fmt:rs`。
 - **设备门（按需，需要真实二进制）**：
   `node tests/e2e/scripts/wordcraft-doc-roundtrip.mjs [--cli <path>] [--strict]` ——

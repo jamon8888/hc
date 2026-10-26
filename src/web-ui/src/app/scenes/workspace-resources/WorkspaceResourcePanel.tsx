@@ -3,7 +3,7 @@ import { FilePlus, FolderPlus, List, RotateCw } from 'lucide-react';
 import {
   Icon, IconButton, NavigationPanel, NavigationPanelBody, NavigationPanelContent,
   NavigationPanelHeader, OverflowText, StatusPill, Tooltip,
-} from '@openbitfun/ui';
+} from '@alex/ui';
 import { useI18n } from '@/infrastructure/i18n';
 import { getWorkspaceDisplayName, useWorkspaceContext } from '@/infrastructure/contexts/WorkspaceContext';
 import { getActiveSurfaceScope, onSurfaceActivated } from '@/infrastructure/peer-device/deviceSurface';
@@ -116,12 +116,12 @@ function WorkspaceResourceContent({ resourceKey, workspace }: { resourceKey: str
   });
 
   return (
-    <NavigationPanel className="openbitfun-file-viewer-nav" aria-label={t('nav.resources.title')}
-      data-openbitfun-component="file-viewer-nav" data-openbitfun-part="root" data-testid="workspace-resources">
-      <NavigationPanelHeader className="openbitfun-file-viewer-nav__panel-header">
-        <div className="openbitfun-file-viewer-nav__workspace" data-openbitfun-component="file-viewer-nav" data-openbitfun-part="workspace">
-          <button type="button" data-overflow-trigger className="openbitfun-file-viewer-nav__workspace-button"
-            data-openbitfun-component="file-viewer-nav" data-openbitfun-part="workspaceButton"
+    <NavigationPanel className="alex-file-viewer-nav" aria-label={t('nav.resources.title')}
+      data-alex-component="file-viewer-nav" data-alex-part="root" data-testid="workspace-resources">
+      <NavigationPanelHeader className="alex-file-viewer-nav__panel-header">
+        <div className="alex-file-viewer-nav__workspace" data-alex-component="file-viewer-nav" data-alex-part="workspace">
+          <button type="button" data-overflow-trigger className="alex-file-viewer-nav__workspace-button"
+            data-alex-component="file-viewer-nav" data-alex-part="workspaceButton"
             disabled={openedWorkspacesList.length < 2 || busy} aria-haspopup="menu"
             aria-label={t('nav.resources.switchWorkspace')}
             onClick={event => showResourceMenu(event, openedWorkspacesList.map(item => ({
@@ -129,30 +129,30 @@ function WorkspaceResourceContent({ resourceKey, workspace }: { resourceKey: str
               onClick: () => openWorkspaceResources(item.id),
             })))}>
             <Icon name="folder" size="sm" />
-            <OverflowText className="openbitfun-file-viewer-nav__workspace-name">{workspaceName || t('nav.resources.title')}</OverflowText>
+            <OverflowText className="alex-file-viewer-nav__workspace-name">{workspaceName || t('nav.resources.title')}</OverflowText>
             {openedWorkspacesList.length > 1 && <Icon name="chevron-down" size="xs" />}
           </button>
-          {workspace && <span className="openbitfun-file-viewer-nav__location" data-overflow-trigger title={location}
-            data-openbitfun-component="file-viewer-nav" data-openbitfun-part="location">
+          {workspace && <span className="alex-file-viewer-nav__location" data-overflow-trigger title={location}
+            data-alex-component="file-viewer-nav" data-alex-part="location">
             <StatusPill tone="neutral">{location}</StatusPill>
           </span>}
         </div>
       </NavigationPanelHeader>
-      <NavigationPanelBody className="openbitfun-file-viewer-nav__body">
-        <NavigationPanelContent className="openbitfun-file-viewer-nav__content">
+      <NavigationPanelBody className="alex-file-viewer-nav__body">
+        <NavigationPanelContent className="alex-file-viewer-nav__content">
           {!workspace || (isRemote && !workspace.connectionId)
-            ? <p className="openbitfun-file-viewer-nav__empty">{workspace ? t('nav.resources.unavailable') : tFiles('empty.selectWorkspace')}</p> : (
-            <div ref={container} className="openbitfun-file-viewer-nav__sections"
-              data-openbitfun-component="file-viewer-nav" data-openbitfun-part="sections">
-              <section className="openbitfun-file-viewer-nav__section" aria-label={t('nav.resources.files')}
+            ? <p className="alex-file-viewer-nav__empty">{workspace ? t('nav.resources.unavailable') : tFiles('empty.selectWorkspace')}</p> : (
+            <div ref={container} className="alex-file-viewer-nav__sections"
+              data-alex-component="file-viewer-nav" data-alex-part="sections">
+              <section className="alex-file-viewer-nav__section" aria-label={t('nav.resources.files')}
                 style={{ flex: layout.filesCollapsed ? '0 0 auto' : showSplit ? `${1 - split.fraction} 1 0` : '1 1 0' }}>
-                <div className="openbitfun-file-viewer-nav__header" data-openbitfun-component="file-viewer-nav" data-openbitfun-part="header">
-                  <button type="button" data-overflow-trigger className="openbitfun-file-viewer-nav__section-toggle" aria-expanded={!layout.filesCollapsed}
+                <div className="alex-file-viewer-nav__header" data-alex-component="file-viewer-nav" data-alex-part="header">
+                  <button type="button" data-overflow-trigger className="alex-file-viewer-nav__section-toggle" aria-expanded={!layout.filesCollapsed}
                     aria-controls={filesId} onClick={() => updateLayout(resourceKey, { filesCollapsed: !layout.filesCollapsed })}>
                     <Icon name={layout.filesCollapsed ? 'chevron-right' : 'chevron-down'} size="xs" />
-                    <OverflowText className="openbitfun-file-viewer-nav__section-label">{t('nav.resources.files')}</OverflowText>
+                    <OverflowText className="alex-file-viewer-nav__section-label">{t('nav.resources.files')}</OverflowText>
                   </button>
-                  <div className="openbitfun-file-viewer-nav__actions" data-openbitfun-component="file-viewer-nav" data-openbitfun-part="actions">
+                  <div className="alex-file-viewer-nav__actions" data-alex-component="file-viewer-nav" data-alex-part="actions">
                     {layout.fileView === 'tree' && toolbar && <>
                       <Tooltip content={tTools('fileTree.newFile')}><IconButton size="xs" aria-label={tTools('fileTree.newFile')} icon={<FilePlus />} onClick={toolbar.onNewFile} /></Tooltip>
                       <Tooltip content={tTools('fileTree.newFolder')}><IconButton size="xs" aria-label={tTools('fileTree.newFolder')} icon={<FolderPlus />} onClick={toolbar.onNewFolder} /></Tooltip>
@@ -165,26 +165,26 @@ function WorkspaceResourceContent({ resourceKey, workspace }: { resourceKey: str
                     </Tooltip>
                   </div>
                 </div>
-                <div id={filesId} hidden={layout.filesCollapsed} className="openbitfun-file-viewer-nav__section-body">
+                <div id={filesId} hidden={layout.filesCollapsed} className="alex-file-viewer-nav__section-body">
                   <FilesPanel workspace={workspace} workspacePath={workspace.rootPath} searchStateKey={resourceKey} hideHeader hideExplorerToolbar onExplorerToolbarApi={setToolbar}
                     viewMode={layout.fileView} onViewModeChange={fileView => updateLayout(resourceKey, { fileView })} />
                 </div>
               </section>
-              {showSplit && <div className="openbitfun-file-viewer-nav__divider" role="separator" tabIndex={0}
-                data-openbitfun-component="file-viewer-nav" data-openbitfun-part="divider"
+              {showSplit && <div className="alex-file-viewer-nav__divider" role="separator" tabIndex={0}
+                data-alex-component="file-viewer-nav" data-alex-part="divider"
                 aria-label={t('nav.resources.resize')} aria-orientation="horizontal" aria-controls={terminalsId}
                 aria-valuemin={15} aria-valuemax={75} aria-valuenow={Math.round(split.fraction * 100)}
                 {...split.handlers} />}
-              <section className="openbitfun-file-viewer-nav__section openbitfun-file-viewer-nav__section--terminals" aria-label={t('nav.resources.terminals')}
+              <section className="alex-file-viewer-nav__section alex-file-viewer-nav__section--terminals" aria-label={t('nav.resources.terminals')}
                 style={{ flex: layout.terminalsCollapsed || !hasTerminalContent ? '0 0 auto' : showSplit ? `${split.fraction} 1 0` : '1 1 0' }}>
-                <div className="openbitfun-file-viewer-nav__header" data-openbitfun-component="file-viewer-nav" data-openbitfun-part="header">
-                  <button type="button" data-overflow-trigger className="openbitfun-file-viewer-nav__section-toggle" aria-expanded={!layout.terminalsCollapsed}
+                <div className="alex-file-viewer-nav__header" data-alex-component="file-viewer-nav" data-alex-part="header">
+                  <button type="button" data-overflow-trigger className="alex-file-viewer-nav__section-toggle" aria-expanded={!layout.terminalsCollapsed}
                     aria-controls={terminalsId} onClick={() => updateLayout(resourceKey, { terminalsCollapsed: !layout.terminalsCollapsed })}>
                     <Icon name={layout.terminalsCollapsed ? 'chevron-right' : 'chevron-down'} size="xs" />
-                    <OverflowText className="openbitfun-file-viewer-nav__section-label">{t('nav.resources.terminals')}</OverflowText>
-                    {terminals.entries.length > 0 && <span className="openbitfun-file-viewer-nav__count">{formatNumber(terminals.entries.length)}</span>}
+                    <OverflowText className="alex-file-viewer-nav__section-label">{t('nav.resources.terminals')}</OverflowText>
+                    {terminals.entries.length > 0 && <span className="alex-file-viewer-nav__count">{formatNumber(terminals.entries.length)}</span>}
                   </button>
-                  <div className="openbitfun-file-viewer-nav__actions" data-openbitfun-component="file-viewer-nav" data-openbitfun-part="actions">
+                  <div className="alex-file-viewer-nav__actions" data-alex-component="file-viewer-nav" data-alex-part="actions">
                     <Tooltip content={t('nav.shell.actions.refresh')}><IconButton size="xs" aria-label={t('nav.shell.actions.refresh')} icon={<RotateCw />}
                       disabled={busy || terminals.loading} onClick={() => run(terminals.refresh)} /></Tooltip>
                     <Tooltip content={t('nav.shell.actions.newTerminal')}><IconButton size="xs" aria-label={t('nav.shell.actions.newTerminal')} icon={<Icon name="plus" size="xs" />}
@@ -197,9 +197,9 @@ function WorkspaceResourceContent({ resourceKey, workspace }: { resourceKey: str
                       })))} />}
                   </div>
                 </div>
-                <div id={terminalsId} hidden={layout.terminalsCollapsed} className="openbitfun-file-viewer-nav__section-body">
-                  {error && <div className="openbitfun-file-viewer-nav__error" role="alert" title={error}
-                    data-openbitfun-component="file-viewer-nav" data-openbitfun-part="error">
+                <div id={terminalsId} hidden={layout.terminalsCollapsed} className="alex-file-viewer-nav__section-body">
+                  {error && <div className="alex-file-viewer-nav__error" role="alert" title={error}
+                    data-alex-component="file-viewer-nav" data-alex-part="error">
                     <span>{actionError ? t('nav.resources.actionFailed', { error: actionError }) : t('nav.resources.unavailable')}</span>
                     <IconButton size="xs" aria-label={t('nav.shell.actions.refresh')} icon={<RotateCw />} disabled={busy}
                       onClick={() => run(terminals.refresh)} />

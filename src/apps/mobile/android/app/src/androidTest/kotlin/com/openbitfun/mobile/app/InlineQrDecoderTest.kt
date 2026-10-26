@@ -22,7 +22,7 @@ class InlineQrDecoderTest {
         val blank = Bitmap.createBitmap(320, 320, Bitmap.Config.ARGB_8888).apply { eraseColor(Color.WHITE) }
         try {
             val codes = Tasks.await(scanner.process(InputImage.fromBitmap(bitmap, 0)), 20, TimeUnit.SECONDS)
-            assertEquals(listOf("openbitfun-qr-decoder-fixture"), codes.map { it.rawValue })
+            assertEquals(listOf("alex-qr-decoder-fixture"), codes.map { it.rawValue })
             val empty = Tasks.await(scanner.process(InputImage.fromBitmap(blank, 0)), 20, TimeUnit.SECONDS)
             assertTrue(empty.isEmpty())
         } finally {

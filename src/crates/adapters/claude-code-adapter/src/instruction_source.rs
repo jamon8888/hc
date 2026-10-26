@@ -1,10 +1,10 @@
-use openbitfun_services_core::bounded_fs::{
+use alex_services_core::bounded_fs::{
     collect_bounded_regular_files, BoundedDirectoryWalkError, BoundedDirectoryWalkLimits,
 };
-use openbitfun_services_core::instruction_scope::{
+use alex_services_core::instruction_scope::{
     parse_instruction_path_scope, InstructionPathScope,
 };
-use openbitfun_services_core::local_instructions::{
+use alex_services_core::local_instructions::{
     read_local_instruction_file, LocalInstructionFile, LocalInstructionFiles,
     MAX_LOCAL_INSTRUCTION_FILES, MAX_LOCAL_INSTRUCTION_TOTAL_BYTES,
 };

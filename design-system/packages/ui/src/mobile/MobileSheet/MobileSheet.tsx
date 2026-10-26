@@ -65,8 +65,8 @@ export const MobileSheet = forwardRef<HTMLDivElement, MobileSheetProps>(
     const ownerDocument = portalTarget?.ownerDocument
       ?? (typeof document === "undefined" ? null : document);
     const surfaceRef = useRef<HTMLDivElement | null>(null);
-    const titleId = `openbitfun-mobile-sheet-title-${useId()}`;
-    const descriptionId = `openbitfun-mobile-sheet-description-${useId()}`;
+    const titleId = `alex-mobile-sheet-title-${useId()}`;
+    const descriptionId = `alex-mobile-sheet-description-${useId()}`;
     const { present, state } = usePresence(open, EXIT_DURATION_MS);
 
     const close = useCallback((reason: MobileSheetCloseReason) => {
@@ -103,8 +103,8 @@ export const MobileSheet = forwardRef<HTMLDivElement, MobileSheetProps>(
       <Portal target={portalTarget} open={open} modal preventScroll={preventScroll}>
         <div
           className={styles.overlay}
-          data-openbitfun-component="mobile-sheet"
-          data-openbitfun-part="overlay"
+          data-alex-component="mobile-sheet"
+          data-alex-part="overlay"
           data-state={exiting ? "exiting" : "open"}
         >
           <div
@@ -116,28 +116,28 @@ export const MobileSheet = forwardRef<HTMLDivElement, MobileSheetProps>(
             aria-labelledby={ariaLabelledBy ?? (!ariaLabel ? titleId : undefined)}
             aria-modal="true"
             className={classNames(styles.root, className)}
-            data-openbitfun-component="mobile-sheet"
-            data-openbitfun-part="surface"
+            data-alex-component="mobile-sheet"
+            data-alex-part="surface"
             data-state={exiting ? "exiting" : "open"}
             ref={setSurfaceRef}
             role="dialog"
             tabIndex={-1}
           >
-            {showHandle && <div aria-hidden="true" className={styles.handle} data-openbitfun-part="handle" />}
-            <header className={styles.header} data-openbitfun-part="header">
-              <div className={styles.heading} data-openbitfun-part="heading">
+            {showHandle && <div aria-hidden="true" className={styles.handle} data-alex-part="handle" />}
+            <header className={styles.header} data-alex-part="header">
+              <div className={styles.heading} data-alex-part="heading">
                 <h2 className={styles.title} id={titleId}>{title}</h2>
                 {description !== undefined && description !== null && (
                   <p className={styles.description} id={descriptionId}>{description}</p>
                 )}
               </div>
               {headerAction !== undefined && headerAction !== null && (
-                <div className={styles.headerAction} data-openbitfun-part="header-action">{headerAction}</div>
+                <div className={styles.headerAction} data-alex-part="header-action">{headerAction}</div>
               )}
             </header>
-            <div className={styles.body} data-openbitfun-part="body">{children}</div>
+            <div className={styles.body} data-alex-part="body">{children}</div>
             {footer !== undefined && footer !== null && (
-              <footer className={styles.footer} data-openbitfun-part="footer">{footer}</footer>
+              <footer className={styles.footer} data-alex-part="footer">{footer}</footer>
             )}
           </div>
         </div>

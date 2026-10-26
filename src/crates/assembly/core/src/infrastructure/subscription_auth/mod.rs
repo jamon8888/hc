@@ -1,5 +1,5 @@
 //! Compatibility re-exports for subscription authentication.
 //!
-//! The provider-specific implementation lives in `openbitfun-ai-adapters`.
+//! The provider-specific implementation lives in `alex-ai-adapters`.
 
-pub use openbitfun_ai_adapters::subscription_auth::*;
+pub use alex_ai_adapters::subscription_auth::*;

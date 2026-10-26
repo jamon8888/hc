@@ -1,7 +1,7 @@
  
 
 import React from 'react';
-import { Icon } from '@openbitfun/ui';
+import { Icon } from '@alex/ui';
 import { FileIcon, Code, Network, Code2 as Code2Icon } from 'lucide-react';
 import { contextRegistry } from '../../services/ContextRegistry';
 import { 
@@ -43,7 +43,7 @@ export function registerDefaultContextTypes(): void {
     type: 'conversation-excerpt',
     displayName: i18nService.t('flow-chat:selection.annotation'),
     icon: React.createElement(Icon, { name: 'edit', size: 'sm' }),
-    color: 'var(--openbitfun-color-content-secondary)',
+    color: 'var(--alex-color-content-secondary)',
     category: 'reference',
     transformer: { type: 'conversation-excerpt', transform: formatConversationExcerpt },
     validator: {
@@ -63,7 +63,7 @@ export function registerDefaultContextTypes(): void {
       displayName: i18nService.t('components:contextSystem.contextRegistry.file.name'),
       description: i18nService.t('components:contextSystem.contextRegistry.file.description'),
       icon: React.createElement(FileIcon, { size: 16 }),
-      color: 'var(--openbitfun-color-accent-default)',
+      color: 'var(--alex-color-accent-default)',
       category: 'file',
       transformer: new FileContextTransformer(),
       validator: new FileContextValidator(),
@@ -86,7 +86,7 @@ export function registerDefaultContextTypes(): void {
       displayName: i18nService.t('components:contextSystem.contextRegistry.directory.name'),
       description: i18nService.t('components:contextSystem.contextRegistry.directory.description'),
       icon: React.createElement(FileIcon, { size: 16 }),
-      color: 'var(--openbitfun-color-accent-secondary)',
+      color: 'var(--alex-color-accent-secondary)',
       category: 'file',
       transformer: new FileContextTransformer() as any,
       validator: new FileContextValidator() as any,
@@ -108,7 +108,7 @@ export function registerDefaultContextTypes(): void {
       displayName: i18nService.t('components:contextSystem.contextRegistry.codeSnippet.name'),
       description: i18nService.t('components:contextSystem.contextRegistry.codeSnippet.description'),
       icon: React.createElement(Code, { size: 16 }),
-      color: 'var(--openbitfun-color-accent-secondary)',
+      color: 'var(--alex-color-accent-secondary)',
       category: 'code',
       transformer: new CodeSnippetContextTransformer(),
       validator: new CodeSnippetContextValidator(),
@@ -154,7 +154,7 @@ export function registerDefaultContextTypes(): void {
       displayName: i18nService.t('components:contextSystem.contextRegistry.image.name'),
       description: i18nService.t('components:contextSystem.contextRegistry.image.description'),
       icon: React.createElement(FileIcon, { size: 16 }),
-      color: 'var(--openbitfun-color-status-warning-content)',
+      color: 'var(--alex-color-status-warning-content)',
       category: 'media',
       transformer: new ImageContextTransformer(),
       validator: new ImageContextValidator(),

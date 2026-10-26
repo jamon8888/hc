@@ -4,13 +4,13 @@
 
 Scope: this guide applies to `src/crates/contracts/product-domains`.
 
-`openbitfun-product-domains` owns platform-agnostic product-domain contracts that can
+`alex-product-domains` owns platform-agnostic product-domain contracts that can
 compile without the full core runtime. Keep it focused on pure state, DTOs,
 policies, and narrow ports; concrete runtime behavior belongs outside this crate.
 
 ## Guardrails
 
-- Do not add a dependency from `openbitfun-product-domains` to `openbitfun-core`.
+- Do not add a dependency from `alex-product-domains` to `alex-core`.
 - Keep the default feature lightweight. Default builds must not pull runtime,
   service, desktop, network, process, AI, or tool-runtime dependencies.
 - This crate may own pure DTOs, enums, serialization contracts, search plans,
@@ -41,7 +41,7 @@ policies, and narrow ports; concrete runtime behavior belongs outside this crate
   typed peer capability list, and the exported artifact under `src/generated/`.
   Hosts and the Web UI derive their tables from it; it never executes anything.
   Design: `docs/architecture/remote-surface-contract.md`. Focused check:
-  `cargo test -p openbitfun-product-domains --no-default-features remote_surface`,
+  `cargo test -p alex-product-domains --no-default-features remote_surface`,
   then `pnpm run capabilities:generate` to refresh the generated projections.
 - `external-sources` may own open ecosystem/source identifiers, typed
   capability-provider ports, catalog DTOs, and version-sensitive conflict
@@ -60,10 +60,10 @@ policies, and narrow ports; concrete runtime behavior belongs outside this crate
 Use the smallest matching check for the changed surface:
 
 ```bash
-cargo test -p openbitfun-product-domains --no-default-features
-cargo test -p openbitfun-product-domains --features product-full
+cargo test -p alex-product-domains --no-default-features
+cargo test -p alex-product-domains --features product-full
 node scripts/check-core-boundaries.mjs
-cargo check -p openbitfun-core --features product-full
+cargo check -p alex-core --features product-full
 ```
 
 For documentation-only changes, run `git diff --check`.

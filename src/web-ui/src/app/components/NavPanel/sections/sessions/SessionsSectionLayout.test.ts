@@ -40,9 +40,9 @@ describe('SessionsSection layout styles', () => {
     const inlineListBlock = extractBlock(stylesheet, '&__inline-list');
     const inlineItemBlock = extractBlock(stylesheet, '&__inline-item');
 
-    expect(inlineListBlock).toContain('padding: 2px var(--openbitfun-space-1) 2px;');
-    expect(inlineListBlock).toContain('margin: 0 var(--openbitfun-space-1) 0 calc(var(--openbitfun-space-1) + 4px);');
-    expect(inlineListBlock).toContain('gap: calc(var(--openbitfun-space-1) / 2);');
+    expect(inlineListBlock).toContain('padding: 2px var(--alex-space-1) 2px;');
+    expect(inlineListBlock).toContain('margin: 0 var(--alex-space-1) 0 calc(var(--alex-space-1) + 4px);');
+    expect(inlineListBlock).toContain('gap: calc(var(--alex-space-1) / 2);');
     expect(inlineItemBlock).toContain('height: 26px;');
     expect(stylesheet).toContain('margin-top: 0;');
   });
@@ -58,13 +58,13 @@ describe('SessionsSection layout styles', () => {
     expect(mainBlock).not.toContain('padding-right');
     const trailingBlock = extractInlineItemBlock(stylesheet, 'trailing');
     expect(trailingBlock).toContain('display: grid;');
-    expect(trailingBlock).toContain('flex: 0 0 var(--openbitfun-space-5);');
+    expect(trailingBlock).toContain('flex: 0 0 var(--alex-space-5);');
     const statusBlock = extractInlineItemBlock(stylesheet, 'status');
     expect(statusBlock).toContain('grid-area: 1 / 1;');
     expect(statusBlock).not.toContain('margin-inline-end');
-    expect(statusBlock).toContain('.openbitfun-nav-panel__inline-item:hover &');
-    expect(statusBlock).toContain('.openbitfun-nav-panel__inline-item:focus-within &');
-    expect(statusBlock).toContain('.openbitfun-nav-panel__inline-item.is-menu-open &');
+    expect(statusBlock).toContain('.alex-nav-panel__inline-item:hover &');
+    expect(statusBlock).toContain('.alex-nav-panel__inline-item:focus-within &');
+    expect(statusBlock).toContain('.alex-nav-panel__inline-item.is-menu-open &');
     expect(statusBlock).toContain('visibility: hidden;');
     expect(stylesheet).not.toContain('padding-right: 24px;');
     expect(actionsBlock).not.toContain('display: none;');
@@ -73,8 +73,8 @@ describe('SessionsSection layout styles', () => {
     expect(actionsBlock).not.toContain('visibility: hidden;');
     expect(actionsBlock).toContain('opacity: 0;');
     expect(actionsBlock).toContain('pointer-events: none;');
-    expect(actionsBlock).toContain('.openbitfun-nav-panel__inline-item:hover &');
-    expect(actionsBlock).toContain('.openbitfun-nav-panel__inline-item:focus-within &');
+    expect(actionsBlock).toContain('.alex-nav-panel__inline-item:hover &');
+    expect(actionsBlock).toContain('.alex-nav-panel__inline-item:focus-within &');
     expect(actionsBlock).toContain('&.is-open');
     expect(actionsBlock).toContain('opacity: 1;');
   });
@@ -114,9 +114,9 @@ describe('SessionsSection layout styles', () => {
     // The toggle is a sibling of the rows, so both take their left padding from
     // one inherited rail. Context stylesheets that indent rows (see
     // WorkspaceListSection's 30px icon gutter) only have to move the rail.
-    expect(inlineListBlock).toContain('--openbitfun-nav-session-rail:');
-    expect(toggleBlock).toContain('padding: 0 var(--openbitfun-space-1) 0 var(--openbitfun-nav-session-rail);');
-    expect(inlineItemBlock).toContain('padding: 0 var(--openbitfun-space-1) 0 var(--openbitfun-nav-session-rail);');
+    expect(inlineListBlock).toContain('--alex-nav-session-rail:');
+    expect(toggleBlock).toContain('padding: 0 var(--alex-space-1) 0 var(--alex-nav-session-rail);');
+    expect(inlineItemBlock).toContain('padding: 0 var(--alex-space-1) 0 var(--alex-nav-session-rail);');
     expect(toggleBlock).toContain('justify-content: flex-start;');
     expect(toggleBlock).toContain('text-align: left;');
     expect(toggleBlock).toContain(`gap: ${inlineItemBlock.match(/gap: (\d+px);/)?.[1] ?? ''};`);
@@ -126,7 +126,7 @@ describe('SessionsSection layout styles', () => {
     const rowPaddingDecls = stylesheet.match(/&__inline-item \{[^}]*?padding(?:-left)?: [^;]+;/g) ?? [];
     expect(rowPaddingDecls.length).toBeGreaterThan(0);
     for (const decl of rowPaddingDecls) {
-      expect(decl).toContain('var(--openbitfun-nav-session-rail)');
+      expect(decl).toContain('var(--alex-nav-session-rail)');
     }
   });
 
@@ -134,10 +134,10 @@ describe('SessionsSection layout styles', () => {
     const stylesheet = readSessionsSectionStylesheet();
 
     expect(stylesheet).toContain(
-      'padding-left: calc(var(--openbitfun-nav-session-rail) + 14px);',
+      'padding-left: calc(var(--alex-nav-session-rail) + 14px);',
     );
     expect(
-      stylesheet.match(/left: calc\(var\(--openbitfun-nav-session-rail\) \+ 2px\);/g),
+      stylesheet.match(/left: calc\(var\(--alex-nav-session-rail\) \+ 2px\);/g),
     ).toHaveLength(2);
     expect(stylesheet).not.toContain('left: 8px;');
   });
@@ -156,9 +156,9 @@ describe('SessionsSection layout styles', () => {
     expect(labelBlock).toContain('flex: 1 1 auto;');
     expect(labelBlock).toContain('min-width: 0;');
     expect(labelBlock).not.toContain('text-overflow: ellipsis;');
-    expect(source).toMatch(/<OverflowText[^>]*className="openbitfun-nav-panel__inline-toggle-label"/);
+    expect(source).toMatch(/<OverflowText[^>]*className="alex-nav-panel__inline-toggle-label"/);
     // The chip is decorative; the full sentence stays on the button's aria-label.
-    expect(source).toContain('className="openbitfun-nav-panel__inline-toggle-count" aria-hidden');
+    expect(source).toContain('className="alex-nav-panel__inline-toggle-count" aria-hidden');
     expect(source).toContain("aria-label={t('nav.sessions.showMore', {");
     expect(source).toContain('aria-label={expandToggleLabels.ariaLabel}');
     expect(source).not.toContain('inline-toggle-dots');
@@ -174,21 +174,21 @@ describe('SessionsSection layout styles', () => {
     expect(labelBlock).toContain('flex: 1 1 0;');
     expect(labelBlock).toContain('overflow: hidden;');
     expect(labelBlock).not.toContain('text-overflow: ellipsis;');
-    expect(readSessionsSectionSource()).toMatch(/<OverflowText[^>]*behavior="marquee"[^>]*className="openbitfun-nav-panel__inline-item-label"/);
+    expect(readSessionsSectionSource()).toMatch(/<OverflowText[^>]*behavior="marquee"[^>]*className="alex-nav-panel__inline-item-label"/);
     expect(btwBadgeBlock).toContain('white-space: nowrap;');
     expect(btwBadgeBlock).toContain('overflow: visible;');
-    expect(btwBadgeBlock).toContain('color: color-mix(in srgb, color-mix(in srgb, var(--openbitfun-color-accent-default) 40%, transparent) 62%, var(--openbitfun-color-content-primary));');
-    expect(btwBadgeBlock).toContain('font-weight: var(--openbitfun-type-label-selected-font-weight);');
+    expect(btwBadgeBlock).toContain('color: color-mix(in srgb, color-mix(in srgb, var(--alex-color-accent-default) 40%, transparent) 62%, var(--alex-color-content-primary));');
+    expect(btwBadgeBlock).toContain('font-weight: var(--alex-type-label-selected-font-weight);');
     expect(btwBadgeBlock).toContain('opacity: 0.96;');
     expect(reviewBadgeBlock).toContain('white-space: nowrap;');
-    expect(reviewBadgeBlock).toContain('color: color-mix(in srgb, color-mix(in srgb, var(--openbitfun-color-accent-default) 40%, transparent) 82%, var(--openbitfun-color-content-primary));');
-    expect(reviewBadgeBlock).toContain('font-weight: var(--openbitfun-type-label-selected-font-weight);');
+    expect(reviewBadgeBlock).toContain('color: color-mix(in srgb, color-mix(in srgb, var(--alex-color-accent-default) 40%, transparent) 82%, var(--alex-color-content-primary));');
+    expect(reviewBadgeBlock).toContain('font-weight: var(--alex-type-label-selected-font-weight);');
     expect(backgroundSubagentBadgeBlock).toContain('flex: 0 0 auto;');
     expect(backgroundSubagentBadgeBlock).toContain('display: inline-grid;');
     expect(backgroundSubagentBadgeBlock).toContain('place-items: center;');
     expect(backgroundSubagentBadgeBlock).toContain('line-height: 0;');
-    expect(backgroundSubagentBadgeBlock).toContain('width: var(--openbitfun-control-icon-size-md);');
-    expect(backgroundSubagentBadgeBlock).toContain('height: var(--openbitfun-control-icon-size-md);');
+    expect(backgroundSubagentBadgeBlock).toContain('width: var(--alex-control-icon-size-md);');
+    expect(backgroundSubagentBadgeBlock).toContain('height: var(--alex-control-icon-size-md);');
     // The scheduled-job mark is not a chip beside the title: it is one 12px
     // secondary clock in the trailing cell, the same drawing and slot the session
     // status indicator uses, so no `cron` rule may come back to the stylesheet.
@@ -201,8 +201,8 @@ describe('SessionsSection layout styles', () => {
     expect(backgroundSubagentIconBlock).toContain('place-self: center;');
     expect(backgroundSubagentIconBlock).toContain('display: block;');
     expect(backgroundSubagentIconBlock).toContain('transform-origin: center center;');
-    expect(stylesheet).not.toContain('--openbitfun-subagent-bot-optical-y');
-    expect(stylesheet).not.toContain('translateY(var(--openbitfun-subagent-bot-optical-y))');
+    expect(stylesheet).not.toContain('--alex-subagent-bot-optical-y');
+    expect(stylesheet).not.toContain('translateY(var(--alex-subagent-bot-optical-y))');
   });
 
   it('ends session rows and the group toggle on the workspace trailing column', () => {
@@ -214,20 +214,20 @@ describe('SessionsSection layout styles', () => {
     // Session rows must end on that same column instead of the 8px reading
     // gutter, or their three-dot buttons sit left of the workspace ones.
     const rowBlock = stylesheet.slice(stylesheet.lastIndexOf('&__inline-item {'));
-    expect(rowBlock).toContain('padding-right: var(--openbitfun-space-1);');
-    expect(rowBlock).not.toContain('padding-right: var(--openbitfun-space-2);');
+    expect(rowBlock).toContain('padding-right: var(--alex-space-1);');
+    expect(rowBlock).not.toContain('padding-right: var(--alex-space-2);');
 
     // The toggle's state icon needs the row's trailing cell: flushed to the
     // padding edge its centre sat half a cell right of the dots' column.
     const toggleTrailingBlock = extractBlock(stylesheet, '&__inline-toggle-trailing');
     expect(toggleTrailingBlock).toContain('display: grid;');
-    expect(toggleTrailingBlock).toContain('flex: 0 0 var(--openbitfun-space-5);');
+    expect(toggleTrailingBlock).toContain('flex: 0 0 var(--alex-space-5);');
     expect(toggleTrailingBlock).toContain('place-items: center;');
     expect(extractInlineItemBlock(stylesheet, 'trailing')).toContain(
-      'flex: 0 0 var(--openbitfun-space-5);',
+      'flex: 0 0 var(--alex-space-5);',
     );
     expect(source).toMatch(
-      /className="openbitfun-nav-panel__inline-toggle-trailing"[\s\S]{0,400}?inline-toggle-chevron/,
+      /className="alex-nav-panel__inline-toggle-trailing"[\s\S]{0,400}?inline-toggle-chevron/,
     );
   });
 });

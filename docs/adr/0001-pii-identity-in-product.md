@@ -62,7 +62,7 @@ decision is expressed, not what it decides; D1–D10 stay locked.
   workspace, and confirm a guessed value. Cross-session unlinkability now rests on the
   hidden salt; within-session stability on the fixed `(salt, alias)` pair.
 - **Exposure seam.** The layer's outward face is `RagSearchPort`
-  (`contracts/runtime-ports`, feature `rag-search`): `openbitfun-core` implements the
+  (`contracts/runtime-ports`, feature `rag-search`): `alex-core` implements the
   agent `Tool` against the trait and is built **without** any dependency on
   `basemind-integration`; the concrete port is injected at the host composition root —
   same pattern as `RemoteExecPort`. This keeps the repository rule intact: product
@@ -71,7 +71,7 @@ decision is expressed, not what it decides; D1–D10 stay locked.
 
 **Version note.** Evidence (ADR context, tickets 01–02) was gathered against
 `jamon8888/basemind` **v0.33.0**; the pin is now **v0.34.0** (2026-10-19), recorded in
-code as `openbitfun_basemind_integration::BASEMIND_VERSION`. v0.34.0 is the upstream sync
+code as `alex_basemind_integration::BASEMIND_VERSION`. v0.34.0 is the upstream sync
 of `Goldziher/basemind` v0.29.3 into the fork (1,202 commits). The sync keeps the fork's
 PII, redaction and vault features end to end — the alternative this ADR rejected is still
 rejected, so the fork still offers no value-keyed identity primitive and the identity layer

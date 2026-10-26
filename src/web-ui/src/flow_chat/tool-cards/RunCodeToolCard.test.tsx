@@ -97,7 +97,7 @@ describe('RunCodeToolCard', () => {
 
   function expand() {
     const card = container.querySelector(
-      '[data-openbitfun-component="flow-chat-tool-card"][data-openbitfun-part="surface"][data-openbitfun-attention="ambient"]',
+      '[data-alex-component="flow-chat-tool-card"][data-alex-part="surface"][data-alex-attention="ambient"]',
     );
     expect(card).not.toBeNull();
     act(() => {

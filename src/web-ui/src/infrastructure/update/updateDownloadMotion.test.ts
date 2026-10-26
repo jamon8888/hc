@@ -26,8 +26,8 @@ beforeEach(() => {
   target.append(vessel);
   transfer = document.createElement('span');
   document.body.append(card, target, transfer);
-  target.style.setProperty('--openbitfun-motion-duration-slow', '420ms');
-  target.style.setProperty('--openbitfun-motion-duration-base', '220ms');
+  target.style.setProperty('--alex-motion-duration-slow', '420ms');
+  target.style.setProperty('--alex-motion-duration-base', '220ms');
   vi.spyOn(source, 'getBoundingClientRect').mockReturnValue(new DOMRect(180, 600, 120, 28));
   vi.spyOn(target, 'getBoundingClientRect').mockReturnValue(new DOMRect(160, 680, 28, 28));
   vi.stubGlobal('matchMedia', () => ({

@@ -87,7 +87,7 @@ val generateClientBuild by tasks.registering {
         val version = (groovy.json.JsonSlurper().parse(workspacePackageJson) as Map<String, Any?>)["version"] as? String
             ?: error("$workspacePackageJson has no \"version\"")
         val target = generatedClientBuildDir.get().asFile
-            .resolve("com/openbitfun/mobile/core/transport/WorkspacePackageVersion.kt")
+            .resolve("com/alex/mobile/core/transport/WorkspacePackageVersion.kt")
         target.parentFile.mkdirs()
         target.writeText(
             """
@@ -106,7 +106,7 @@ kotlin.sourceSets.commonMain { kotlin.srcDir(generateClientBuild) }
 // needs no node process.
 tasks.withType<Test>().configureEach {
     systemProperty(
-        "openbitfun.pairingUrl",
-        providers.gradleProperty("openbitfun.pairingUrl").getOrElse(""),
+        "alex.pairingUrl",
+        providers.gradleProperty("alex.pairingUrl").getOrElse(""),
     )
 }

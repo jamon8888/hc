@@ -1,11 +1,11 @@
-# @openbitfun/ui
+# @alex/ui
 
 Theme-independent React primitives and components.
 
 ```tsx
-import "@openbitfun/theme-openbitfun/default.css";
-import "@openbitfun/ui/styles.css";
-import { Button, ThemeRoot } from "@openbitfun/ui";
+import "@alex/theme-alex/default.css";
+import "@alex/ui/styles.css";
+import { Button, ThemeRoot } from "@alex/ui";
 
 export function Example() {
   return (
@@ -19,7 +19,7 @@ export function Example() {
 The package owns component anatomy, behavior, accessibility, and stable variants. It does not own theme selection persistence, product state, routes, locale resources, or platform APIs.
 
 Floating dialog/sheet overlays, menu popovers, select/combobox popups and tooltips declare
-`data-openbitfun-native-webview-occlusion` on their rendered floating surface.
+`data-alex-native-webview-occlusion` on their rendered floating surface.
 Native hosts use its visible bounds to temporarily hide overlapping child views;
 the components do not call platform APIs. Custom product popovers should declare
 the same marker on the floating element, including while its exit animation runs.
@@ -80,7 +80,7 @@ existing wrapping or inline composition without adding clipping, a marquee,
 or an automatic overflow tooltip. Static labels inherit the button's whitespace
 and line height; button variants, sizes, loading, and disabled behavior stay the
 same. An explicitly composed OverflowText child retains its own behavior.
-The public `data-openbitfun-part` slots are `root`, `content`, `label`,
+The public `data-alex-part` slots are `root`, `content`, `label`,
 `leading-icon`, `trailing-icon`, and `progress`; use them for scoped product
 layout instead of private CSS module classes.
 
@@ -108,7 +108,7 @@ by the component that needs them.
 ## Native scrollbars
 
 `styles.css` owns scrollbar presentation inside `ThemeRoot` (or
-`data-openbitfun-design-system-root`) and standalone `ScrollArea` viewports.
+`data-alex-design-system-root`) and standalone `ScrollArea` viewports.
 Native file trees, virtualized transcripts, navigation, menus, and dialogs use
 the same policy without wrappers, scroll listeners, or timers.
 
@@ -148,7 +148,7 @@ Standard button, menu, navigation, card, selection, and disclosure text slots
 already use this primitive; consumers should not wrap those slots a second time.
 
 ```tsx
-import { OverflowText } from "@openbitfun/ui";
+import { OverflowText } from "@alex/ui";
 
 // The surrounding layout owns the available width.
 <OverflowText>{description}</OverflowText>
@@ -229,7 +229,7 @@ updates immediately, without a live region. The outgoing visual copy is hidden
 from assistive technology.
 
 ```tsx
-import { RollingText, TabGroup } from "@openbitfun/ui";
+import { RollingText, TabGroup } from "@alex/ui";
 
 <RollingText transitionKey={record.id}>{record.title}</RollingText>
 
@@ -286,7 +286,7 @@ surfaces do not inherit desktop component geometry or ship desktop component
 styles:
 
 ```tsx
-import "@openbitfun/ui/mobile.css";
+import "@alex/ui/mobile.css";
 import {
   MobileActionSheet,
   MobileBadge,
@@ -311,7 +311,7 @@ import {
   MobileStatus,
   MobileTextField,
   MobileTextarea,
-} from "@openbitfun/ui/mobile";
+} from "@alex/ui/mobile";
 ```
 
 These components own mobile touch targets, pressed/focus/disabled states,
@@ -373,7 +373,7 @@ overview retains its original device/server SVGs and MacBook image in the Web UI
 Use a semantic `name` when available, or import the required Lucide glyph:
 
 ```tsx
-import { Icon } from "@openbitfun/ui";
+import { Icon } from "@alex/ui";
 import { Network } from "lucide-react";
 
 <Icon name="search" size="sm" />
@@ -382,7 +382,7 @@ import { Network } from "lucide-react";
 
 Do not set `strokeWidth` at product call sites. Button, menu, tab and navigation
 slots own final geometry and opacity; standalone named icons retain the public
-`--openbitfun-opacity-icon-artwork` treatment. Brand assets retain their original
+`--alex-opacity-icon-artwork` treatment. Brand assets retain their original
 geometry, and fixture fingerprints protect the five preserved masks.
 
 Use `canonicalIconNames` for galleries and pickers. Existing names remain
@@ -544,7 +544,7 @@ import {
   ReadFileToolCard,
   ToolCardCopyButton,
   ToolCardChangeSummary,
-} from "@openbitfun/ui/flow-chat";
+} from "@alex/ui/flow-chat";
 ```
 
 `ChatComposer` owns the reusable 32px context band and the compact/expanded
@@ -608,7 +608,7 @@ the rows (for example, `<ScrollArea><MenuList>...</MenuList></ScrollArea>`).
 Flex gap only reaches immediate children, so a plain wrapper loses that contract.
 Product code owns positioning and viewport limits, and must not patch private
 list/section-items/group-options gaps. A deliberate density variation belongs
-on the owning surface via `--openbitfun-overlay-menu-row-gap`.
+on the owning surface via `--alex-overlay-menu-row-gap`.
 
 Menus use `overlay.menu.inlineSize` by default. `Menu` / `MenuPopover` accept
 `inlineSize="content"` for short, product-owned surfaces such as a context menu:

@@ -1,1 +1,1 @@
-pub use openbitfun_core_types::Message;
+pub use alex_core_types::Message;

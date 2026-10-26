@@ -10,9 +10,9 @@ import {
 } from './generate-frontend-revision.mjs';
 
 async function frontendFixture() {
-  const root = await mkdtemp(path.join(tmpdir(), 'openbitfun-frontend-revision-'));
+  const root = await mkdtemp(path.join(tmpdir(), 'alex-frontend-revision-'));
   await mkdir(path.join(root, 'assets'));
-  await writeFile(path.join(root, 'index.html'), '<main>OpenBitFun</main>');
+  await writeFile(path.join(root, 'index.html'), '<main>Alex</main>');
   await writeFile(path.join(root, 'assets', 'app.js'), 'export const value = 1;');
   return root;
 }

@@ -1,5 +1,5 @@
 import React, { Suspense, useMemo } from 'react';
-import { TabGroup } from '@openbitfun/ui';
+import { TabGroup } from '@alex/ui';
 import { useSettingsStore } from '../settingsStore';
 import type { SettingsPageProps, SettingsViewId } from '../settingsTypes';
 import './SettingsViewPage.scss';
@@ -39,15 +39,15 @@ export const SettingsViewPage: React.FC<SettingsViewPageProps> = ({
 
   return (
     <div
-      className="openbitfun-settings-view-page"
-      data-openbitfun-component="settings-view-page"
-      data-openbitfun-part="root"
-      data-openbitfun-view={activeViewId}
+      className="alex-settings-view-page"
+      data-alex-component="settings-view-page"
+      data-alex-part="root"
+      data-alex-view={activeViewId}
     >
-      <div className="openbitfun-settings-view-page__tabs">
+      <div className="alex-settings-view-page__tabs">
         <TabGroup
           size="sm"
-          className="openbitfun-settings-view-page__tab-list"
+          className="alex-settings-view-page__tab-list"
           items={tabItems}
           onValueChange={handleChange}
           value={activeViewId}
@@ -55,21 +55,21 @@ export const SettingsViewPage: React.FC<SettingsViewPageProps> = ({
         {activeView && (
           <div
             aria-labelledby={`settings-view-${activeView.id}-tab`}
-            className="openbitfun-settings-view-page__tab-content"
+            className="alex-settings-view-page__tab-content"
             id={`settings-view-${activeView.id}-panel`}
             role="tabpanel"
           >
             <Suspense fallback={(
               <div
-                className="openbitfun-settings-view-page__loading"
-                data-openbitfun-component="settings-view-page"
-                data-openbitfun-part="loading"
+                className="alex-settings-view-page__loading"
+                data-alex-component="settings-view-page"
+                data-alex-part="loading"
                 aria-busy="true"
                 aria-hidden="true"
               >
-                <span className="openbitfun-settings-view-page__loading-line" data-openbitfun-component="settings-view-page" data-openbitfun-part="loadingLine" />
-                <span className="openbitfun-settings-view-page__loading-line" data-openbitfun-component="settings-view-page" data-openbitfun-part="loadingLine" />
-                <span className="openbitfun-settings-view-page__loading-block" data-openbitfun-component="settings-view-page" data-openbitfun-part="loadingBlock" />
+                <span className="alex-settings-view-page__loading-line" data-alex-component="settings-view-page" data-alex-part="loadingLine" />
+                <span className="alex-settings-view-page__loading-line" data-alex-component="settings-view-page" data-alex-part="loadingLine" />
+                <span className="alex-settings-view-page__loading-block" data-alex-component="settings-view-page" data-alex-part="loadingBlock" />
               </div>
             )}>
               {activeView.content}

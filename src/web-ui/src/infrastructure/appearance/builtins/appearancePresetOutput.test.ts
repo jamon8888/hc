@@ -1,4 +1,4 @@
-import { themeCssVariables, themes, type ThemeTokenName } from '@openbitfun/theme-openbitfun';
+import { themeCssVariables, themes, type ThemeTokenName } from '@alex/theme-alex';
 import { createHash } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 
@@ -46,66 +46,66 @@ function statusContrast(content: string, tint: string, background: string): numb
 
 describe('builtin appearance preset output', () => {
   it('keeps published light field states in root and chrome while preserving named palettes', () => {
-    const settings = getBuiltinAppearance('openbitfun-light')?.renderers?.['theme-tokens']?.settings;
+    const settings = getBuiltinAppearance('alex-light')?.renderers?.['theme-tokens']?.settings;
     for (const tokens of [settings?.tokens, settings?.scopes?.chrome].filter(Boolean)) {
       for (const [name, value] of Object.entries(themes.light)) {
         if (name.startsWith('color.field.') || name === 'color.actionCard.background' || name.startsWith('color.composer.')) expect(tokens?.[themeCssVariables[name as ThemeTokenName]]).toBe(value);
       }
     }
-    expect(settings?.tokens['--openbitfun-color-number-badge-background']).toBe(themes.light['color.numberBadge.background']);
-    expect(settings?.tokens['--openbitfun-color-key-hint-content']).toBe(themes.light['color.keyHint.content']);
-    expect(settings?.tokens['--openbitfun-color-scrollbar-thumb']).toBe(themes.light['color.scrollbar.thumb']);
-    expect(settings?.tokens['--openbitfun-color-field-border']).toBe('rgba(0, 0, 0, 0.08)');
-    expect(settings?.tokens['--openbitfun-color-field-border-hover']).toBe('rgba(0, 0, 0, 0.20)');
-    expect(settings?.tokens['--openbitfun-color-field-border-active']).toBe('rgba(0, 0, 0, 0.20)');
-    expect(settings?.tokens['--openbitfun-color-field-border-focus']).toBe(themes.light['color.field.borderFocus']);
-    expect(settings?.tokens['--openbitfun-color-field-group-background']).toBe('rgba(0, 0, 0, 0.03)');
-    expect(settings?.tokens['--openbitfun-color-field-placeholder']).toBe('rgba(0, 0, 0, 0.40)');
+    expect(settings?.tokens['--alex-color-number-badge-background']).toBe(themes.light['color.numberBadge.background']);
+    expect(settings?.tokens['--alex-color-key-hint-content']).toBe(themes.light['color.keyHint.content']);
+    expect(settings?.tokens['--alex-color-scrollbar-thumb']).toBe(themes.light['color.scrollbar.thumb']);
+    expect(settings?.tokens['--alex-color-field-border']).toBe('rgba(0, 0, 0, 0.08)');
+    expect(settings?.tokens['--alex-color-field-border-hover']).toBe('rgba(0, 0, 0, 0.20)');
+    expect(settings?.tokens['--alex-color-field-border-active']).toBe('rgba(0, 0, 0, 0.20)');
+    expect(settings?.tokens['--alex-color-field-border-focus']).toBe(themes.light['color.field.borderFocus']);
+    expect(settings?.tokens['--alex-color-field-group-background']).toBe('rgba(0, 0, 0, 0.03)');
+    expect(settings?.tokens['--alex-color-field-placeholder']).toBe('rgba(0, 0, 0, 0.40)');
     for (const palette of builtinAppearancePalettes) {
-      if (palette.id === 'openbitfun-light') continue;
+      if (palette.id === 'alex-light') continue;
       const tokens = getBuiltinAppearanceThemeTokens(palette.id);
-      expect(tokens['--openbitfun-color-action-card-background']).toBe(palette.colors.element.base);
-      expect(tokens['--openbitfun-color-field-border']).toBe(palette.colors.border.base);
-      expect(tokens['--openbitfun-color-field-border-focus']).toBe(palette.colors.accent[500]);
-      expect(tokens['--openbitfun-color-field-border-active']).toBe(palette.colors.accent[500]);
-      expect(tokens['--openbitfun-color-field-group-background']).toBe(palette.colors.background.tertiary);
-      expect(tokens['--openbitfun-color-field-placeholder']).toBe(palette.colors.text.muted);
+      expect(tokens['--alex-color-action-card-background']).toBe(palette.colors.element.base);
+      expect(tokens['--alex-color-field-border']).toBe(palette.colors.border.base);
+      expect(tokens['--alex-color-field-border-focus']).toBe(palette.colors.accent[500]);
+      expect(tokens['--alex-color-field-border-active']).toBe(palette.colors.accent[500]);
+      expect(tokens['--alex-color-field-group-background']).toBe(palette.colors.background.tertiary);
+      expect(tokens['--alex-color-field-placeholder']).toBe(palette.colors.text.muted);
     }
   });
   it('uses the public Button palette in default appearances without changing shared action colors', () => {
     for (const mode of ['light', 'dark'] as const) {
-      const appearance = getBuiltinAppearance(`openbitfun-${mode}`);
+      const appearance = getBuiltinAppearance(`alex-${mode}`);
       const settings = appearance?.renderers?.['theme-tokens']?.settings;
       for (const [name, value] of Object.entries(themes[mode])) {
         if (!name.startsWith('component.button.')) continue;
         expect(settings?.tokens[themeCssVariables[name as ThemeTokenName]]).toBe(value);
       }
     }
-    const light = getBuiltinAppearanceThemeTokens('openbitfun-light');
-    expect(light['--openbitfun-component-button-content']).toBe('rgba(0, 0, 0, 0.80)');
-    expect(light['--openbitfun-component-button-text-content']).toBe('#059cb0');
-    expect(light['--openbitfun-color-action-primary-background']).toBe('#101a27');
-    expect(light['--openbitfun-color-action-neutral-content']).toBe('rgba(0, 0, 0, 0.80)');
+    const light = getBuiltinAppearanceThemeTokens('alex-light');
+    expect(light['--alex-component-button-content']).toBe('rgba(0, 0, 0, 0.80)');
+    expect(light['--alex-component-button-text-content']).toBe('#059cb0');
+    expect(light['--alex-color-action-primary-background']).toBe('#101a27');
+    expect(light['--alex-color-action-neutral-content']).toBe('rgba(0, 0, 0, 0.80)');
   });
 
   it('preserves the action colors of branded presets through the Button contract', () => {
     for (const palette of builtinAppearancePalettes) {
-      if (palette.id === 'openbitfun-light' || palette.id === 'openbitfun-dark') continue;
+      if (palette.id === 'alex-light' || palette.id === 'alex-dark') continue;
       const tokens = getBuiltinAppearanceThemeTokens(palette.id);
-      expect(tokens['--openbitfun-component-button-primary-background']).toBe(tokens['--openbitfun-color-action-primary-background']);
-      expect(tokens['--openbitfun-component-button-text-content']).toBe(tokens['--openbitfun-color-accent-default']);
-      expect(tokens['--openbitfun-component-button-content']).toBe(tokens['--openbitfun-color-action-neutral-content']);
+      expect(tokens['--alex-component-button-primary-background']).toBe(tokens['--alex-color-action-primary-background']);
+      expect(tokens['--alex-component-button-text-content']).toBe(tokens['--alex-color-accent-default']);
+      expect(tokens['--alex-component-button-content']).toBe(tokens['--alex-color-action-neutral-content']);
     }
   });
 
   it('keeps menu label and caption colors consistent between the public light theme and product portals', () => {
-    const settings = getBuiltinAppearance('openbitfun-light')!.renderers!['theme-tokens']!.settings;
+    const settings = getBuiltinAppearance('alex-light')!.renderers!['theme-tokens']!.settings;
     for (const tokens of [settings.tokens, ...(settings.scopes?.chrome ? [settings.scopes.chrome] : [])]) {
-      expect(tokens['--openbitfun-color-action-neutral-content']).toBe(themes.light['color.action.neutral.content']);
-      expect(tokens['--openbitfun-color-content-caption']).toBe(themes.light['color.content.caption']);
+      expect(tokens['--alex-color-action-neutral-content']).toBe(themes.light['color.action.neutral.content']);
+      expect(tokens['--alex-color-content-caption']).toBe(themes.light['color.content.caption']);
     }
-    for (const palette of builtinAppearancePalettes.filter(p => p.id !== 'openbitfun-light')) {
-      expect(getBuiltinAppearanceThemeTokens(palette.id)['--openbitfun-color-action-neutral-content']).toBe(palette.colors.text.secondary);
+    for (const palette of builtinAppearancePalettes.filter(p => p.id !== 'alex-light')) {
+      expect(getBuiltinAppearanceThemeTokens(palette.id)['--alex-color-action-neutral-content']).toBe(palette.colors.text.secondary);
     }
   });
 
@@ -127,7 +127,7 @@ describe('builtin appearance preset output', () => {
         expect(appearance.colors.semantic[`${key}Bg`]).toBe(values[`color.status.${tone}.surface`]);
         expect(appearance.colors.semantic[`${key}Border`]).toBe(values[`color.status.${tone}.border`]);
         for (const role of ['emphasis', 'content', 'surface', 'border'] as const) {
-          expect(tokens[`--openbitfun-color-status-${tone}-${role}`]).toBe(values[`color.status.${tone}.${role}`]);
+          expect(tokens[`--alex-color-status-${tone}-${role}`]).toBe(values[`color.status.${tone}.${role}`]);
         }
       }
       expect(appearance.colors.git).toMatchObject({
@@ -142,8 +142,8 @@ describe('builtin appearance preset output', () => {
       expect(createSemanticColors(mode)).toEqual(appearance.colors.semantic);
       const chromeTokens = getBuiltinAppearance(appearance.id)?.renderers?.['theme-tokens']?.settings.scopes?.chrome;
       for (const tone of ['info', 'success', 'warning', 'danger'] as const) {
-        const contentKey = `--openbitfun-color-status-${tone}-content` as const;
-        const surfaceKey = `--openbitfun-color-status-${tone}-surface` as const;
+        const contentKey = `--alex-color-status-${tone}-content` as const;
+        const surfaceKey = `--alex-color-status-${tone}-surface` as const;
         for (const background of Object.values(appearance.colors.background)) {
           expect(statusContrast(tokens[contentKey], tokens[surfaceKey], background), `${appearance.id} ${tone}`).toBeGreaterThanOrEqual(4.5);
         }
@@ -197,7 +197,7 @@ describe('builtin appearance preset output', () => {
 
   it('keeps approved near-neutral preset stops scoped to their semantic roles', () => {
     const serializedAppearances = JSON.stringify(builtinAppearancePalettes).toLowerCase();
-    const lightAppearance = builtinAppearancePalettes.find(appearance => appearance.id === 'openbitfun-light');
+    const lightAppearance = builtinAppearancePalettes.find(appearance => appearance.id === 'alex-light');
 
     expect(lightAppearance?.colors.background.primary).toBe('#fdfdfd');
     expect(lightAppearance?.monaco?.colors.background).toBe('#ffffff');
@@ -208,8 +208,8 @@ describe('builtin appearance preset output', () => {
   });
 
   it('keeps the default light appearance on the neutral, navy, and restrained semantic palette', () => {
-    const lightAppearance = builtinAppearancePalettes.find(appearance => appearance.id === 'openbitfun-light');
-    const tokens = getBuiltinAppearanceThemeTokens('openbitfun-light');
+    const lightAppearance = builtinAppearancePalettes.find(appearance => appearance.id === 'alex-light');
+    const tokens = getBuiltinAppearanceThemeTokens('alex-light');
 
     expect(lightAppearance).toMatchObject({
       description: 'Light appearance - Crisp white surfaces, soft neutral grays, deep navy actions',
@@ -263,32 +263,32 @@ describe('builtin appearance preset output', () => {
       },
     });
     expect(tokens).toMatchObject({
-      '--openbitfun-color-surface-chrome': '#f8f8f9',
-      '--openbitfun-color-selection-surface': 'rgba(0, 0, 0, 0.08)',
-      '--openbitfun-component-config-page-section-background': '#f7f7f7',
-      '--openbitfun-component-config-page-section-border': 'rgba(16, 26, 39, 0.08)',
-      '--openbitfun-component-config-page-section-border-width': '1px',
-      '--openbitfun-component-config-page-divider': 'rgba(16, 26, 39, 0.08)',
+      '--alex-color-surface-chrome': '#f8f8f9',
+      '--alex-color-selection-surface': 'rgba(0, 0, 0, 0.08)',
+      '--alex-component-config-page-section-background': '#f7f7f7',
+      '--alex-component-config-page-section-border': 'rgba(16, 26, 39, 0.08)',
+      '--alex-component-config-page-section-border-width': '1px',
+      '--alex-component-config-page-divider': 'rgba(16, 26, 39, 0.08)',
     });
   });
 
   it('keeps settings row hover feedback separated from dark scene surfaces', () => {
     const darkAppearance = builtinAppearancePalettes.find(
-      appearance => appearance.id === 'openbitfun-dark',
+      appearance => appearance.id === 'alex-dark',
     );
-    const tokens = getBuiltinAppearanceThemeTokens('openbitfun-dark');
+    const tokens = getBuiltinAppearanceThemeTokens('alex-dark');
 
     expect(tokens).toMatchObject({
-      '--openbitfun-color-surface-scene': '#1c1c1f',
-      '--openbitfun-color-surface-tertiary': '#0e0e10',
-      '--openbitfun-color-action-quiet-hover': 'rgba(255, 255, 255, 0.06)',
-      '--openbitfun-color-action-neutral-surface': 'rgba(255, 255, 255, 0.1)',
-      '--openbitfun-component-config-page-row-hover-background': 'rgba(255, 255, 255, 0.1)',
+      '--alex-color-surface-scene': '#1c1c1f',
+      '--alex-color-surface-tertiary': '#0e0e10',
+      '--alex-color-action-quiet-hover': 'rgba(255, 255, 255, 0.06)',
+      '--alex-color-action-neutral-surface': 'rgba(255, 255, 255, 0.1)',
+      '--alex-component-config-page-row-hover-background': 'rgba(255, 255, 255, 0.1)',
     });
 
-    expect(tokens['--openbitfun-component-config-page-row-hover-background'])
+    expect(tokens['--alex-component-config-page-row-hover-background'])
       .toBe(darkAppearance?.colors.element.base);
-    expect(tokens['--openbitfun-component-config-page-row-hover-background'])
+    expect(tokens['--alex-component-config-page-row-hover-background'])
       .not.toBe(darkAppearance?.colors.element.soft);
 
     for (const appearance of builtinAppearancePalettes.filter(
@@ -296,7 +296,7 @@ describe('builtin appearance preset output', () => {
     )) {
       expect(
         getBuiltinAppearanceThemeTokens(appearance.id)[
-          '--openbitfun-component-config-page-row-hover-background'
+          '--alex-component-config-page-row-hover-background'
         ],
         appearance.id,
       ).toBe(appearance.colors.element.base);
@@ -305,10 +305,10 @@ describe('builtin appearance preset output', () => {
 
   it('keeps monochrome content readable while projecting inverse structural chrome', () => {
     const monochrome = builtinAppearancePalettes.find(
-      appearance => appearance.id === 'openbitfun-monochrome',
+      appearance => appearance.id === 'alex-monochrome',
     );
-    const monochromePackage = getBuiltinAppearance('openbitfun-monochrome');
-    const tokens = getBuiltinAppearanceThemeTokens('openbitfun-monochrome');
+    const monochromePackage = getBuiltinAppearance('alex-monochrome');
+    const tokens = getBuiltinAppearanceThemeTokens('alex-monochrome');
     const chromeTokens = monochromePackage?.renderers?.['theme-tokens']?.settings.scopes?.chrome;
 
     expect(monochrome).toMatchObject({
@@ -375,25 +375,25 @@ describe('builtin appearance preset output', () => {
       },
     });
     expect(tokens).toMatchObject({
-      '--openbitfun-color-surface-canvas': '#ffffff',
-      '--openbitfun-color-content-primary': 'rgba(0, 0, 0, 0.80)',
-      '--openbitfun-color-content-secondary': 'rgba(0, 0, 0, 0.60)',
-      '--openbitfun-color-content-disabled': 'rgba(0, 0, 0, 0.30)',
-      '--openbitfun-color-border-subtle': 'rgba(16, 26, 39, 0.08)',
-      '--openbitfun-color-border-default': 'rgba(16, 26, 39, 0.15)',
-      '--openbitfun-color-surface-subtle': 'rgba(16, 26, 39, 0.03)',
-      '--openbitfun-color-action-quiet-hover': '#f3f3f5',
-      '--openbitfun-color-scrollbar-thumb': 'rgba(0, 0, 0, 0.2)',
-      '--openbitfun-component-config-page-section-background': '#f3f3f5',
-      '--openbitfun-component-config-page-section-border': 'transparent',
-      '--openbitfun-component-config-page-section-border-width': '0',
-      '--openbitfun-component-config-page-section-shadow': 'none',
-      '--openbitfun-component-config-page-divider': 'rgba(16, 26, 39, 0.08)',
+      '--alex-color-surface-canvas': '#ffffff',
+      '--alex-color-content-primary': 'rgba(0, 0, 0, 0.80)',
+      '--alex-color-content-secondary': 'rgba(0, 0, 0, 0.60)',
+      '--alex-color-content-disabled': 'rgba(0, 0, 0, 0.30)',
+      '--alex-color-border-subtle': 'rgba(16, 26, 39, 0.08)',
+      '--alex-color-border-default': 'rgba(16, 26, 39, 0.15)',
+      '--alex-color-surface-subtle': 'rgba(16, 26, 39, 0.03)',
+      '--alex-color-action-quiet-hover': '#f3f3f5',
+      '--alex-color-scrollbar-thumb': 'rgba(0, 0, 0, 0.2)',
+      '--alex-component-config-page-section-background': '#f3f3f5',
+      '--alex-component-config-page-section-border': 'transparent',
+      '--alex-component-config-page-section-border-width': '0',
+      '--alex-component-config-page-section-shadow': 'none',
+      '--alex-component-config-page-divider': 'rgba(16, 26, 39, 0.08)',
     });
     expect(chromeTokens).toMatchObject({
-      '--openbitfun-color-surface-canvas': '#1c1c1f',
-      '--openbitfun-color-content-primary': '#f3f3f5',
-      '--openbitfun-color-action-quiet-hover': 'rgba(255, 255, 255, 0.06)',
+      '--alex-color-surface-canvas': '#1c1c1f',
+      '--alex-color-content-primary': '#f3f3f5',
+      '--alex-color-action-quiet-hover': 'rgba(255, 255, 255, 0.06)',
     });
   });
 
@@ -431,47 +431,47 @@ describe('builtin appearance preset output', () => {
       [
         {
           "hash": "c1e874f6aa8e76f70992f914dd3e268fea3c80b1758f2c814112c358ac3224ee",
-          "id": "openbitfun-light",
+          "id": "alex-light",
           "type": "light",
         },
         {
           "hash": "a12106a8d28d2fc4cccd3d6cdba4570e75ebeb92672b1c88def2cd7bf5a34249",
-          "id": "openbitfun-monochrome",
+          "id": "alex-monochrome",
           "type": "light",
         },
         {
           "hash": "b18ee250170c14726830a378a06cd54fc526e0aef74143483a93d4aab569a4ae",
-          "id": "openbitfun-slate",
+          "id": "alex-slate",
           "type": "dark",
         },
         {
           "hash": "a2ca57344daff77a16a36ab55c493149dbc001fd0bcd54f0201b4bbb9cf15a17",
-          "id": "openbitfun-dark",
+          "id": "alex-dark",
           "type": "dark",
         },
         {
           "hash": "e08f486027da6418dd85bd7cc86ece5534562d097b578c646830b5bef5aeeeac",
-          "id": "openbitfun-midnight",
+          "id": "alex-midnight",
           "type": "dark",
         },
         {
           "hash": "6a0c5e898964be2e52b5e80f624dcc188cdf5809cb9a9cc0396f84de2fbf4003",
-          "id": "openbitfun-china-style",
+          "id": "alex-china-style",
           "type": "light",
         },
         {
           "hash": "6ddb19ddfe815ee8158845ca299e2426e34c0812a7289b2f144e0b12e9962045",
-          "id": "openbitfun-china-night",
+          "id": "alex-china-night",
           "type": "dark",
         },
         {
           "hash": "0866746f62670fbd506356c2acc0556f9faf38412f2cbf08c432410ca9fbce12",
-          "id": "openbitfun-cyber",
+          "id": "alex-cyber",
           "type": "dark",
         },
         {
           "hash": "11da76fac143c9fcbf785a32e672a226684d8410042eb75e98ffd6f03ec99fc8",
-          "id": "openbitfun-tokyo-night",
+          "id": "alex-tokyo-night",
           "type": "dark",
         },
       ]

@@ -1,4 +1,4 @@
-import { Alert, Button, DialogBody, DialogClose, DialogFooter, DialogHeader, DialogHeading, DialogTitle } from '@openbitfun/ui';
+import { Alert, Button, DialogBody, DialogClose, DialogFooter, DialogHeader, DialogHeading, DialogTitle } from '@alex/ui';
 import ReactMarkdown from 'react-markdown';
 import { useI18n } from '@/infrastructure/i18n';
 import { systemAPI } from '@/infrastructure/api/service-api/SystemAPI';
@@ -30,41 +30,41 @@ export function AppUpdatePanel() {
 
   return (
     // Preserve the published Appearance ancestry for existing update skins.
-    <section className="openbitfun-update-details" data-testid="app-update-panel"
-      data-openbitfun-component="about-dialog" data-openbitfun-part="updateCard"
-      data-openbitfun-state={state.checkStatus === 'checking' ? 'checking' : downloading ? 'downloading'
+    <section className="alex-update-details" data-testid="app-update-panel"
+      data-alex-component="about-dialog" data-alex-part="updateCard"
+      data-alex-state={state.checkStatus === 'checking' ? 'checking' : downloading ? 'downloading'
         : state.error || state.checkError ? 'error' : state.status === 'ready' || state.status === 'installing' ? 'installed'
           : state.checkStatus === 'latest' ? 'latest' : undefined} aria-label={t('update.thisDevice')}>
-      <DialogHeader className="openbitfun-update-details__header">
+      <DialogHeader className="alex-update-details__header">
         <DialogHeading>
           <DialogTitle>
-            <span data-openbitfun-component="update" data-openbitfun-part="notesLabel">
-              {target ? <span className="openbitfun-update-details__versions"
-                data-openbitfun-component="update" data-openbitfun-part="versions">
-                <span data-openbitfun-component="update" data-openbitfun-part="versionRow">
-                  <span data-openbitfun-component="update" data-openbitfun-part="versionLabel">{productName}</span>
-                  <span className="openbitfun-update-details__version"
-                    data-openbitfun-component="update" data-openbitfun-part="versionValue">v{target}</span>
+            <span data-alex-component="update" data-alex-part="notesLabel">
+              {target ? <span className="alex-update-details__versions"
+                data-alex-component="update" data-alex-part="versions">
+                <span data-alex-component="update" data-alex-part="versionRow">
+                  <span data-alex-component="update" data-alex-part="versionLabel">{productName}</span>
+                  <span className="alex-update-details__version"
+                    data-alex-component="update" data-alex-part="versionValue">v{target}</span>
                 </span>
               </span> : t('update.detailsTitle')}
             </span>
           </DialogTitle>
         </DialogHeading>
-        <DialogClose className="openbitfun-update-details__close" />
+        <DialogClose className="alex-update-details__close" />
       </DialogHeader>
-      <DialogBody className="openbitfun-update-details__body">
-        <div className="openbitfun-update-panel" data-openbitfun-component="update" data-openbitfun-part="panel">
-          {(status || state.error || state.checkError) && <div className="openbitfun-update-panel__feedback"
-            data-openbitfun-component="about-dialog" data-openbitfun-part="updateFeedback">
-            {status && <p className="openbitfun-update-panel__status" role="status"
-              data-openbitfun-component="update" data-openbitfun-part="panelStatus">{status}</p>}
+      <DialogBody className="alex-update-details__body">
+        <div className="alex-update-panel" data-alex-component="update" data-alex-part="panel">
+          {(status || state.error || state.checkError) && <div className="alex-update-panel__feedback"
+            data-alex-component="about-dialog" data-alex-part="updateFeedback">
+            {status && <p className="alex-update-panel__status" role="status"
+              data-alex-component="update" data-alex-part="panelStatus">{status}</p>}
             {state.error && <Alert tone="error" showIcon message={formatUpdateInstallError(state.error, t)} />}
             {state.checkError && <Alert tone="error" showIcon message={formatUpdateInstallError(state.checkError, t)} />}
           </div>}
           {releaseNotes ? (
-            <section className="openbitfun-update-panel__notes" aria-label={t('update.releaseNotes')}
-              data-openbitfun-component="update" data-openbitfun-part="notes">
-              <div className="openbitfun-update-panel__prose" data-openbitfun-component="update" data-openbitfun-part="notesBody">
+            <section className="alex-update-panel__notes" aria-label={t('update.releaseNotes')}
+              data-alex-component="update" data-alex-part="notes">
+              <div className="alex-update-panel__prose" data-alex-component="update" data-alex-part="notesBody">
                 <ReactMarkdown skipHtml components={{
                   img: () => null,
                   ul: ({ children }) => <ul role="list">{children}</ul>,
@@ -76,23 +76,23 @@ export function AppUpdatePanel() {
               </div>
             </section>
           ) : (
-            <div className="openbitfun-update-panel__empty" aria-hidden="true"
-              data-openbitfun-component="update" data-openbitfun-part="releaseArtwork">
-              <span className="openbitfun-update-details__mark" />
+            <div className="alex-update-panel__empty" aria-hidden="true"
+              data-alex-component="update" data-alex-part="releaseArtwork">
+              <span className="alex-update-details__mark" />
             </div>
           )}
         </div>
       </DialogBody>
-      <DialogFooter separator className="openbitfun-update-details__footer">
-        <div className="openbitfun-update-panel__actions" data-openbitfun-component="about-dialog" data-openbitfun-part="updateActions">
+      <DialogFooter separator className="alex-update-details__footer">
+        <div className="alex-update-panel__actions" data-alex-component="about-dialog" data-alex-part="updateActions">
           {downloading ? (
-            <div className="openbitfun-update-progress__bar openbitfun-update-panel__progress"
+            <div className="alex-update-progress__bar alex-update-panel__progress"
               role="progressbar" aria-label={t('update.downloadingTitle')}
               aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent ?? undefined}
-              data-openbitfun-component="about-dialog" data-openbitfun-part="progress">
-              <div className={'openbitfun-update-progress__fill' + (fraction == null ? ' openbitfun-update-progress__fill--indeterminate' : '')}
+              data-alex-component="about-dialog" data-alex-part="progress">
+              <div className={'alex-update-progress__fill' + (fraction == null ? ' alex-update-progress__fill--indeterminate' : '')}
                 style={fraction == null ? undefined : { transform: `scaleX(${fraction})` }}
-                data-openbitfun-component="about-dialog" data-openbitfun-part="progressFill" />
+                data-alex-component="about-dialog" data-alex-part="progressFill" />
             </div>
           ) : (
             <>
@@ -100,7 +100,7 @@ export function AppUpdatePanel() {
                 onClick={() => skipped ? state.restoreReminder(target) : state.skipVersion(target)}>
                 {t(skipped ? 'update.restoreReminder' : 'update.skipVersion')}
               </Button>}
-              <div className="openbitfun-update-panel__primary-actions">
+              <div className="alex-update-panel__primary-actions">
                 {canDownload && <Button size="md" variant={state.version ? 'outline' : 'primary'}
                   disabled={busy} onClick={() => void state.startInstall(Boolean(state.version), target ?? undefined)}>
                   {t(state.error ? 'update.retryDownload' : 'update.downloadUpdate')}

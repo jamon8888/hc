@@ -18,10 +18,10 @@ describe('shared native scrollbar presentation', () => {
     }
     expect(stylesheet).toMatch(/::-webkit-resizer\s*\{\s*background:\s*transparent;/s);
     expect(stylesheet).toMatch(
-      /::-webkit-scrollbar-thumb\s*\{[^}]*background:\s*var\(--openbitfun-color-scrollbar-thumb\);/s,
+      /::-webkit-scrollbar-thumb\s*\{[^}]*background:\s*var\(--alex-color-scrollbar-thumb\);/s,
     );
     expect(stylesheet).toMatch(
-      /::-webkit-scrollbar-thumb:hover,[^{}]+::-webkit-scrollbar-thumb:active\s*\{[^}]*background:\s*var\(--openbitfun-color-scrollbar-thumb-hover\);/s,
+      /::-webkit-scrollbar-thumb:hover,[^{}]+::-webkit-scrollbar-thumb:active\s*\{[^}]*background:\s*var\(--alex-color-scrollbar-thumb-hover\);/s,
     );
   });
 
@@ -33,7 +33,7 @@ describe('shared native scrollbar presentation', () => {
 
     expect(interactionRules).toContain('(pointer: fine) and (forced-colors: none)');
     expect(interactionRules).toContain(
-      ':not(:hover, :focus-visible, :has(:focus-visible), [data-openbitfun-scrollbar-visibility="always"])',
+      ':not(:hover, :focus-visible, :has(:focus-visible), [data-alex-scrollbar-visibility="always"])',
     );
     expect(interactionRules).toContain('background: transparent;');
     expect(interactionRules).toContain('scrollbar-color: transparent transparent;');
@@ -43,7 +43,7 @@ describe('shared native scrollbar presentation', () => {
 
   it('guards standard width and color together so Safari 18 keeps the WebKit path', () => {
     expect(stylesheet).toMatch(
-      /@supports \(scrollbar-color: transparent transparent\)\s*\{[^{}]+\{\s*scrollbar-width:\s*thin;\s*scrollbar-color:\s*var\(--openbitfun-color-scrollbar-thumb\) transparent;/,
+      /@supports \(scrollbar-color: transparent transparent\)\s*\{[^{}]+\{\s*scrollbar-width:\s*thin;\s*scrollbar-color:\s*var\(--alex-color-scrollbar-thumb\) transparent;/,
     );
     expect(stylesheet.match(/scrollbar-width:\s*thin/g)).toHaveLength(1);
     expect(stylesheet).toMatch(

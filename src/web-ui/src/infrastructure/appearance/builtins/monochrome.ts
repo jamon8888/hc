@@ -16,7 +16,7 @@ const paper = STATIC_WHITE;
 const ink = chrome.colors.background.primary;
 
 export const openBitFunMonochromePalette: AppearancePalette = {
-  id: 'openbitfun-monochrome',
+  id: 'alex-monochrome',
   name: 'Black & White',
   type: 'light',
   description: 'Black-and-white contrast appearance - Deep black chrome, bright white workspace, soft neutral blocks',

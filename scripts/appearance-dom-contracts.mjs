@@ -18,7 +18,7 @@ function property(object, name) {
 export function collectForwardedTabProps(ast) {
   const tabGroupNames = new Set();
   for (const statement of ast.statements) {
-    if (!ts.isImportDeclaration(statement) || statement.moduleSpecifier.text !== '@openbitfun/ui') continue;
+    if (!ts.isImportDeclaration(statement) || statement.moduleSpecifier.text !== '@alex/ui') continue;
     const bindings = statement.importClause?.namedBindings;
     if (!bindings || !ts.isNamedImports(bindings)) continue;
     for (const binding of bindings.elements) {
@@ -55,12 +55,12 @@ export function collectForwardedTabProps(ast) {
 
 export function findDomAttribute(node, name) {
   if (overlayPropNodes.has(node) && [
-    'data-openbitfun-component', 'data-openbitfun-part',
-    'data-openbitfun-native-webview-occlusion', 'data-placement', 'data-state',
+    'data-alex-component', 'data-alex-part',
+    'data-alex-native-webview-occlusion', 'data-placement', 'data-state',
   ].includes(name)) return undefined;
   // TabGroup writes these after the spread, so caller values are not DOM evidence.
   if (ts.isObjectLiteralExpression(node)
-    && (name === 'data-openbitfun-part' || name === 'data-openbitfun-value')) return undefined;
+    && (name === 'data-alex-part' || name === 'data-alex-value')) return undefined;
   return ts.isObjectLiteralExpression(node)
     ? property(node, name)
     : node.attributes.properties.find(candidate => ts.isJsxAttribute(candidate) && candidate.name.text === name);
@@ -70,7 +70,7 @@ export function findDomAttribute(node, name) {
 export function collectForwardedOverlayProps(ast) {
   const names = new Set();
   for (const statement of ast.statements) {
-    if (!ts.isImportDeclaration(statement) || statement.moduleSpecifier.text !== '@openbitfun/ui') continue;
+    if (!ts.isImportDeclaration(statement) || statement.moduleSpecifier.text !== '@alex/ui') continue;
     const bindings = statement.importClause?.namedBindings;
     if (!bindings || !ts.isNamedImports(bindings)) continue;
     for (const binding of bindings.elements) {

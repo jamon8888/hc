@@ -11,10 +11,10 @@ A separate, optional desktop utility for importing old **BitFun** data into
 
 | Platform | Download | Launch |
 | --- | --- | --- |
-| Windows x64 | `openbitfun-data-migrator-v<version>-windows-x64.zip` | Extract, then double-click `openbitfun-data-migrator.exe` |
-| macOS Apple Silicon | `openbitfun-data-migrator-v<version>-macos-arm64.dmg` | Open the DMG and its Data Migrator app |
-| macOS Intel | `openbitfun-data-migrator-v<version>-macos-x64.dmg` | Open the DMG and its Data Migrator app |
-| Linux x64 | `openbitfun-data-migrator-v<version>-linux-x64.AppImage` | Make executable and launch in a desktop session |
+| Windows x64 | `alex-data-migrator-v<version>-windows-x64.zip` | Extract, then double-click `alex-data-migrator.exe` |
+| macOS Apple Silicon | `alex-data-migrator-v<version>-macos-arm64.dmg` | Open the DMG and its Data Migrator app |
+| macOS Intel | `alex-data-migrator-v<version>-macos-x64.dmg` | Open the DMG and its Data Migrator app |
+| Linux x64 | `alex-data-migrator-v<version>-linux-x64.AppImage` | Make executable and launch in a desktop session |
 
 Windows needs the Microsoft Edge WebView2 runtime. macOS uses the system WebView;
 Linux packages are built on Ubuntu 22.04. No login or network connection is
@@ -137,7 +137,7 @@ From the repository root with Rust, Node, pnpm and the platform's Tauri build pr
 pnpm install
 pnpm run data-migrator:dev       # independent window; no Desktop or dev server
 pnpm run data-migrator:build     # independent release bundle
-cargo build -p openbitfun-data-migrator --bin openbitfun-data-migrator
+cargo build -p alex-data-migrator --bin alex-data-migrator
 ```
 
 Direct Cargo builds embed the committed UI and design-system CSS. After changing

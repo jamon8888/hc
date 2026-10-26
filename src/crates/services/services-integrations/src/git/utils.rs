@@ -7,7 +7,7 @@ pub use super::{
 };
 use super::{GitCommandOutput, GitError, GitFileStatus};
 use git2::{Repository, Status, StatusOptions};
-use openbitfun_services_core::process_manager;
+use alex_services_core::process_manager;
 use std::path::Path;
 use std::process::Stdio;
 use std::time::Duration;

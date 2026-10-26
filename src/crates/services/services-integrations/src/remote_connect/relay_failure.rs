@@ -13,7 +13,7 @@ use crate::remote_connect::account::is_retired_official_relay;
 use crate::remote_connect::relay_http::is_transient_status;
 
 /// Machine-readable reason of a retired Relay version. Mirrors the relay's own
-/// answer (`retired_version` module in `openbitfun-relay-service`) and the
+/// answer (`retired_version` module in `alex-relay-service`) and the
 /// `deploy/relay-v1/nginx-retired-version.conf` snippet.
 pub const RELAY_VERSION_RETIRED_CODE: &str = "relay_version_retired";
 
@@ -61,7 +61,7 @@ const OUTDATED_MARKERS: &[&str] = &[
     "incompatible client build",
     "requires matching client versions",
     "update the controlling app",
-    "update openbitfun on every device",
+    "update alex on every device",
 ];
 
 /// Substrings that mean the account session must be re-established.
@@ -161,7 +161,7 @@ fn http_status(lower: &str) -> Option<u16> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use openbitfun_product_domains::account::DEFAULT_RELAY_URL;
+    use alex_product_domains::account::DEFAULT_RELAY_URL;
 
     #[test]
     fn a_retired_version_is_an_update_not_a_network_fault() {
@@ -185,7 +185,7 @@ mod tests {
         for message in [
             "incompatible client build: remote control requires matching client versions",
             "relay_session_history_retired",
-            "This relay does not store session history; update OpenBitFun on every device to continue.",
+            "This relay does not store session history; update Alex on every device to continue.",
         ] {
             assert_eq!(classify_relay_failure(message), RelayFailureKind::ClientOutdated, "{message}");
         }

@@ -52,11 +52,11 @@ export const optionalDependencyFeatureOwnerRules = [
       { depName: 'async-trait', ownerFeatures: ['permission', 'workspace-runtime'] },
       { depName: 'base64', ownerFeatures: ['pet-packages', 'credential-vault', 'filesystem'] },
       {
-        depName: 'openbitfun-core-types',
+        depName: 'alex-core-types',
         ownerFeatures: ['filesystem', 'local-storage', 'product-identity', 'workspace-persistence'],
       },
-      { depName: 'openbitfun-events', ownerFeatures: ['local-storage', 'session-event-format'] },
-      { depName: 'openbitfun-runtime-ports', ownerFeatures: ['permission', 'workspace-runtime', 'workspace-persistence', 'workspace-transfer'] },
+      { depName: 'alex-events', ownerFeatures: ['local-storage', 'session-event-format'] },
+      { depName: 'alex-runtime-ports', ownerFeatures: ['permission', 'workspace-runtime', 'workspace-persistence', 'workspace-transfer'] },
       { depName: 'chrono', ownerFeatures: ['filesystem', 'local-storage', 'workspace-persistence'] },
       { depName: 'chrono-tz', ownerFeatures: ['token-usage-statistics'] },
       { depName: 'dunce', ownerFeatures: ['pet-packages', 'runtime-ownership', 'workspace-identity', 'workspace-runtime'] },
@@ -123,8 +123,8 @@ export const optionalDependencyFeatureOwnerRules = [
       'runtime-ports optional capabilities must stay behind their exact contract slice',
     dependencies: [
       { depName: 'anyhow', ownerFeatures: ['workspace-ports'] },
-      { depName: 'openbitfun-core-types', ownerFeatures: ['agent-api', 'ts'] },
-      { depName: 'openbitfun-product-domains', ownerFeatures: ['permission', 'product-search', 'ts'] },
+      { depName: 'alex-core-types', ownerFeatures: ['agent-api', 'ts'] },
+      { depName: 'alex-product-domains', ownerFeatures: ['permission', 'product-search', 'ts'] },
       { depName: 'tokio', ownerFeatures: ['remote-exec-port', 'terminal-port', 'workspace-ports'] },
       { depName: 'tokio-util', ownerFeatures: ['workspace-ports'] },
       { depName: 'ts-rs', ownerFeatures: ['ts'] },
@@ -137,12 +137,12 @@ export const optionalDependencyFeatureOwnerRules = [
       'agent-runtime optional dependencies must stay behind the full runtime or native-hook owner slice',
     dependencies: [
       { depName: 'async-trait', ownerFeatures: ['agent-runtime', 'native-hook-runtime'] },
-      { depName: 'openbitfun-agent-stream', ownerFeatures: ['agent-runtime'] },
-      { depName: 'openbitfun-agent-tools', ownerFeatures: ['agent-runtime'] },
-      { depName: 'openbitfun-core-types', ownerFeatures: ['agent-runtime', 'definition-contracts'] },
-      { depName: 'openbitfun-events', ownerFeatures: ['agent-runtime'] },
-      { depName: 'openbitfun-runtime-ports', ownerFeatures: ['agent-runtime'] },
-      { depName: 'openbitfun-runtime-services', ownerFeatures: ['agent-runtime'] },
+      { depName: 'alex-agent-stream', ownerFeatures: ['agent-runtime'] },
+      { depName: 'alex-agent-tools', ownerFeatures: ['agent-runtime'] },
+      { depName: 'alex-core-types', ownerFeatures: ['agent-runtime', 'definition-contracts'] },
+      { depName: 'alex-events', ownerFeatures: ['agent-runtime'] },
+      { depName: 'alex-runtime-ports', ownerFeatures: ['agent-runtime'] },
+      { depName: 'alex-runtime-services', ownerFeatures: ['agent-runtime'] },
       { depName: 'dashmap', ownerFeatures: ['agent-runtime'] },
       { depName: 'hex', ownerFeatures: ['agent-runtime'] },
       { depName: 'log', ownerFeatures: ['agent-runtime', 'native-hook-runtime'] },
@@ -160,28 +160,28 @@ export const optionalDependencyFeatureOwnerRules = [
   {
     crateName: 'core',
     reason:
-      'openbitfun-core product/runtime optional dependencies must stay owned by explicit feature gates',
+      'alex-core product/runtime optional dependencies must stay owned by explicit feature gates',
     dependencies: [
       { depName: 'axum', ownerFeatures: ['mcp-runtime'] },
       { depName: 'base64', ownerFeatures: ['agent-runtime', 'dispatch-store'] },
       {
-        depName: 'openbitfun-ai-adapters',
+        depName: 'alex-ai-adapters',
         ownerFeatures: ['ai-adapter-runtime', 'subscription-auth'],
       },
-      { depName: 'openbitfun-agent-runtime', ownerFeatures: ['agent-runtime'] },
-      { depName: 'openbitfun-agent-workflows', ownerFeatures: ['deep-research'] },
-      { depName: 'openbitfun-agent-stream', ownerFeatures: ['agent-runtime'] },
-      { depName: 'openbitfun-agent-tools', ownerFeatures: ['agent-runtime', 'local-storage', 'mcp-runtime'] },
-      { depName: 'openbitfun-claude-code-adapter', ownerFeatures: ['external-sources'] },
-      { depName: 'openbitfun-codex-adapter', ownerFeatures: ['external-sources'] },
-      { depName: 'openbitfun-external-sources', ownerFeatures: ['external-sources'] },
-      { depName: 'openbitfun-legacy-migration-adapters', ownerFeatures: ['legacy-migration'] },
-      { depName: 'openbitfun-opencode-adapter', ownerFeatures: ['external-sources'] },
-      { depName: 'openbitfun-dsh-adapter', ownerFeatures: ['external-sources'] },
-      { depName: 'openbitfun-plugin-runtime-client', ownerFeatures: ['plugin-runtime'] },
-      { depName: 'openbitfun-product-capabilities', ownerFeatures: ['product-capabilities', 'tools-rag'] },
+      { depName: 'alex-agent-runtime', ownerFeatures: ['agent-runtime'] },
+      { depName: 'alex-agent-workflows', ownerFeatures: ['deep-research'] },
+      { depName: 'alex-agent-stream', ownerFeatures: ['agent-runtime'] },
+      { depName: 'alex-agent-tools', ownerFeatures: ['agent-runtime', 'local-storage', 'mcp-runtime'] },
+      { depName: 'alex-claude-code-adapter', ownerFeatures: ['external-sources'] },
+      { depName: 'alex-codex-adapter', ownerFeatures: ['external-sources'] },
+      { depName: 'alex-external-sources', ownerFeatures: ['external-sources'] },
+      { depName: 'alex-legacy-migration-adapters', ownerFeatures: ['legacy-migration'] },
+      { depName: 'alex-opencode-adapter', ownerFeatures: ['external-sources'] },
+      { depName: 'alex-dsh-adapter', ownerFeatures: ['external-sources'] },
+      { depName: 'alex-plugin-runtime-client', ownerFeatures: ['plugin-runtime'] },
+      { depName: 'alex-product-capabilities', ownerFeatures: ['product-capabilities', 'tools-rag'] },
       {
-        depName: 'openbitfun-product-domains',
+        depName: 'alex-product-domains',
         ownerFeatures: [
           'agent-runtime',
           'canvas-runtime',
@@ -192,9 +192,9 @@ export const optionalDependencyFeatureOwnerRules = [
           'ts',
         ],
       },
-      { depName: 'openbitfun-runtime-services', ownerFeatures: ['runtime-services'] },
+      { depName: 'alex-runtime-services', ownerFeatures: ['runtime-services'] },
       {
-        depName: 'openbitfun-services-integrations',
+        depName: 'alex-services-integrations',
         ownerFeatures: [
           'announcement',
           'canvas-runtime',
@@ -219,7 +219,7 @@ export const optionalDependencyFeatureOwnerRules = [
         ],
       },
       {
-        depName: 'openbitfun-tool-packs',
+        depName: 'alex-tool-packs',
         ownerFeatures: [
           'tool-packs',
           'tools-agent-control',
@@ -282,16 +282,16 @@ export const optionalDependencyFeatureOwnerRules = [
         depName: 'base64',
         ownerFeatures: ['mcp', 'miniapp-runtime', 'remote-connect', 'remote-persistence', 'remote-ssh-concrete', 'speech'],
       },
-      { depName: 'openbitfun-agent-runtime', ownerFeatures: ['hook-import'] },
-      { depName: 'openbitfun-agent-workflows', ownerFeatures: ['deep-research'] },
+      { depName: 'alex-agent-runtime', ownerFeatures: ['hook-import'] },
+      { depName: 'alex-agent-workflows', ownerFeatures: ['deep-research'] },
       {
-        depName: 'openbitfun-core-types',
+        depName: 'alex-core-types',
         ownerFeatures: ['deep-research', 'remote-connect', 'remote-ssh-concrete', 'speech'],
       },
-      { depName: 'openbitfun-product-domains', ownerFeatures: ['account-identity', 'canvas-runtime', 'function-agents', 'hook-import', 'miniapp-market', 'miniapp-runtime', 'miniapp-storage', 'plugin-source', 'remote-connect'] },
-      { depName: 'openbitfun-runtime-ports', ownerFeatures: ['deep-research', 'git', 'remote-connect', 'remote-ssh', 'remote-ssh-concrete', 'script-tool-runtime', 'web-tools'] },
+      { depName: 'alex-product-domains', ownerFeatures: ['account-identity', 'canvas-runtime', 'function-agents', 'hook-import', 'miniapp-market', 'miniapp-runtime', 'miniapp-storage', 'plugin-source', 'remote-connect'] },
+      { depName: 'alex-runtime-ports', ownerFeatures: ['deep-research', 'git', 'remote-connect', 'remote-ssh', 'remote-ssh-concrete', 'script-tool-runtime', 'web-tools'] },
       {
-        depName: 'openbitfun-services-core',
+        depName: 'alex-services-core',
         ownerFeatures: [
           'account-identity',
           'announcement',
@@ -396,16 +396,16 @@ function capabilityConsumer(edges, forwarders = [], activators = [], aggregates 
 
 export const capabilityContractDependencyRules = [
   {
-    packageName: 'openbitfun-runtime-ports',
+    packageName: 'alex-runtime-ports',
     manifestPath: 'src/crates/contracts/runtime-ports/Cargo.toml',
     featureProfiles: {
       default: [],
-      'agent-api': ['dep:openbitfun-core-types'],
+      'agent-api': ['dep:alex-core-types'],
       'git-port': [],
       'hook-function-runtime': [],
-      permission: ['dep:openbitfun-product-domains'],
+      permission: ['dep:alex-product-domains'],
       'plugin-runtime': [],
-      'product-search': ['dep:openbitfun-product-domains'],
+      'product-search': ['dep:alex-product-domains'],
       'document-redaction': [],
       'prompt-pseudonymization': [],
       'rag-search': [],
@@ -427,13 +427,13 @@ export const capabilityContractDependencyRules = [
         'dep:ts-rs',
         'agent-api',
         'permission',
-        'openbitfun-core-types/ts',
-        'openbitfun-product-domains?/ts',
+        'alex-core-types/ts',
+        'alex-product-domains?/ts',
       ],
       'workspace-ports': ['dep:anyhow', 'dep:tokio-util', 'dep:tokio', 'tokio/io-util'],
     },
     consumers: new Map([
-      ['openbitfun-agent-runtime', capabilityConsumer([
+      ['alex-agent-runtime', capabilityConsumer([
         capabilityEdge([
           'agent-api',
           'git-port',
@@ -445,18 +445,18 @@ export const capabilityContractDependencyRules = [
           'workspace-ports',
         ], { optional: true }),
       ], [], ['agent-runtime'])],
-      ['openbitfun-agent-runtime-ipc', capabilityConsumer([
+      ['alex-agent-runtime-ipc', capabilityConsumer([
         capabilityEdge(['agent-api', 'git-port']),
       ])],
-      ['openbitfun-agent-tools', capabilityConsumer([capabilityEdge()])],
-      ['openbitfun-app-server', capabilityConsumer([
+      ['alex-agent-tools', capabilityConsumer([capabilityEdge()])],
+      ['alex-app-server', capabilityConsumer([
         capabilityEdge(['agent-api', 'product-search']),
       ])],
-      ['openbitfun-app-server-protocol', capabilityConsumer(
+      ['alex-app-server-protocol', capabilityConsumer(
         [capabilityEdge(['agent-api', 'git-port'])],
         [capabilityForwarder('ts', 'ts')],
       )],
-      ['openbitfun-basemind-integration', capabilityConsumer(
+      ['alex-basemind-integration', capabilityConsumer(
         [
           capabilityEdge(
             [
@@ -472,10 +472,10 @@ export const capabilityContractDependencyRules = [
         ['basemind'],
         ['default', 'tools-rag', 'document-read', 'pseudonymization'],
       )],
-      ['openbitfun-cli', capabilityConsumer([
+      ['alex-cli', capabilityConsumer([
         capabilityEdge(['agent-api', 'git-port', 'permission', 'plugin-runtime', 'workspace-ports']),
       ])],
-      ['openbitfun-core', capabilityConsumer(
+      ['alex-core', capabilityConsumer(
         [capabilityEdge(['permission', 'workspace-ports'])],
         [
           capabilityForwarder('agent-runtime', 'agent-api'),
@@ -499,27 +499,27 @@ export const capabilityContractDependencyRules = [
         [],
         ['external-sources', 'mcp-runtime', 'opencode-plugin-host', 'product-full', 'remote-connect', 'tools-browser-web', 'tools-mcp'],
       )],
-      ['openbitfun-desktop', capabilityConsumer([
+      ['alex-desktop', capabilityConsumer([
         capabilityEdge(['agent-api', 'permission', 'workspace-ports']),
       ])],
-      ['openbitfun-opencode-adapter', capabilityConsumer([
+      ['alex-opencode-adapter', capabilityConsumer([
         capabilityEdge(['hook-function-runtime', 'plugin-runtime']),
         capabilityEdge(['script-tool-runtime'], { kind: 'dev' }),
       ])],
-      ['openbitfun-opencode-plugin-host', capabilityConsumer([
+      ['alex-opencode-plugin-host', capabilityConsumer([
         capabilityEdge(['hook-function-runtime']),
       ])],
-      ['openbitfun-dsh-adapter', capabilityConsumer([
+      ['alex-dsh-adapter', capabilityConsumer([
         capabilityEdge(['plugin-runtime']),
       ])],
-      ['openbitfun-plugin-runtime-client', capabilityConsumer([
+      ['alex-plugin-runtime-client', capabilityConsumer([
         capabilityEdge(['plugin-runtime']),
       ])],
-      ['openbitfun-product-capabilities', capabilityConsumer([
+      ['alex-product-capabilities', capabilityConsumer([
         capabilityEdge(['plugin-runtime']),
         capabilityEdge(['agent-api'], { kind: 'dev' }),
       ])],
-      ['openbitfun-runtime-services', capabilityConsumer([
+      ['alex-runtime-services', capabilityConsumer([
         capabilityEdge([
           'git-port',
           'remote-exec-port',
@@ -529,11 +529,11 @@ export const capabilityContractDependencyRules = [
           'workspace-ports',
         ]),
       ])],
-      ['openbitfun-sdk-host', capabilityConsumer([
+      ['alex-sdk-host', capabilityConsumer([
         capabilityEdge(['agent-api']),
         capabilityEdge(['permission'], { kind: 'dev' }),
       ])],
-      ['openbitfun-services-core', capabilityConsumer(
+      ['alex-services-core', capabilityConsumer(
         [capabilityEdge([], { optional: true })],
         [
           capabilityForwarder('permission', 'permission'),
@@ -543,7 +543,7 @@ export const capabilityContractDependencyRules = [
         ],
         ['permission', 'workspace-runtime', 'workspace-persistence', 'workspace-transfer'],
       )],
-      ['openbitfun-services-integrations', capabilityConsumer(
+      ['alex-services-integrations', capabilityConsumer(
         [capabilityEdge([], { optional: true })],
         [
           capabilityForwarder('deep-research', 'workspace-ports'),
@@ -568,7 +568,7 @@ export const capabilityContractDependencyRules = [
     ]),
   },
   {
-    packageName: 'openbitfun-agent-tools',
+    packageName: 'alex-agent-tools',
     manifestPath: 'src/crates/execution/tool-contracts/Cargo.toml',
     featureProfiles: {
       default: [],
@@ -578,22 +578,22 @@ export const capabilityContractDependencyRules = [
       'mcp-bridge': [],
     },
     consumers: new Map([
-      ['openbitfun-acp', capabilityConsumer(
+      ['alex-acp', capabilityConsumer(
         [capabilityEdge([], { optional: true })],
         [capabilityForwarder('client', 'acp-bridge')],
         ['server'],
         ['default'],
       )],
-      ['openbitfun-agent-runtime', capabilityConsumer(
+      ['alex-agent-runtime', capabilityConsumer(
         [capabilityEdge([], { optional: true })],
         [],
         ['agent-runtime'],
       )],
-      ['openbitfun-agent-stream', capabilityConsumer([
+      ['alex-agent-stream', capabilityConsumer([
         capabilityEdge([], { kind: 'dev' }),
       ])],
-      ['openbitfun-cli', capabilityConsumer([capabilityEdge()])],
-      ['openbitfun-core', capabilityConsumer(
+      ['alex-cli', capabilityConsumer([capabilityEdge()])],
+      ['alex-core', capabilityConsumer(
         [capabilityEdge([], { optional: true })],
         [
           capabilityForwarder('agent-runtime', 'computer-use-contract'),
@@ -617,11 +617,11 @@ export const capabilityContractDependencyRules = [
           'workspace-watch',
         ],
       )],
-      ['openbitfun-desktop', capabilityConsumer([
+      ['alex-desktop', capabilityConsumer([
         // Desktop owns native control resources and consumes portable control DTOs.
         capabilityEdge(['computer-use-contract', 'element-token']),
       ])],
-      ['openbitfun-services-integrations', capabilityConsumer(
+      ['alex-services-integrations', capabilityConsumer(
         [capabilityEdge([], { optional: true })],
         [capabilityForwarder('mcp', 'mcp-bridge')],
         ['remote-connect'],
@@ -631,12 +631,12 @@ export const capabilityContractDependencyRules = [
     ]),
   },
   {
-    packageName: 'openbitfun-agent-runtime',
+    packageName: 'alex-agent-runtime',
     manifestPath: 'src/crates/execution/agent-runtime/Cargo.toml',
     featureProfiles: {
       default: [],
       'definition-contracts': [
-        'dep:openbitfun-core-types',
+        'dep:alex-core-types',
         'dep:regex',
         'dep:serde',
         'dep:serde_yaml',
@@ -661,12 +661,12 @@ export const capabilityContractDependencyRules = [
         'definition-contracts',
         'native-hook-runtime',
         'dep:async-trait',
-        'dep:openbitfun-agent-stream',
-        'dep:openbitfun-agent-tools',
-        'dep:openbitfun-core-types',
-        'dep:openbitfun-events',
-        'dep:openbitfun-runtime-ports',
-        'dep:openbitfun-runtime-services',
+        'dep:alex-agent-stream',
+        'dep:alex-agent-tools',
+        'dep:alex-core-types',
+        'dep:alex-events',
+        'dep:alex-runtime-ports',
+        'dep:alex-runtime-services',
         'dep:dashmap',
         'dep:hex',
         'dep:log',
@@ -685,20 +685,20 @@ export const capabilityContractDependencyRules = [
       ],
     },
     consumers: new Map([
-      ['openbitfun-legacy-migration-adapters', capabilityConsumer([capabilityEdge(['definition-contracts'])])],
-      ['openbitfun-acp', capabilityConsumer(
+      ['alex-legacy-migration-adapters', capabilityConsumer([capabilityEdge(['definition-contracts'])])],
+      ['alex-acp', capabilityConsumer(
         [capabilityEdge([], { optional: true })],
         [capabilityForwarder('server', 'agent-runtime')],
         ['server'],
         ['default'],
       )],
-      ['openbitfun-app-server', capabilityConsumer([
+      ['alex-app-server', capabilityConsumer([
         capabilityEdge(['agent-runtime']),
       ])],
-      ['openbitfun-cli', capabilityConsumer([
+      ['alex-cli', capabilityConsumer([
         capabilityEdge(['agent-runtime']),
       ])],
-      ['openbitfun-core', capabilityConsumer(
+      ['alex-core', capabilityConsumer(
         [capabilityEdge([], { optional: true })],
         [
           capabilityForwarder('agent-runtime', 'agent-runtime'),
@@ -706,22 +706,22 @@ export const capabilityContractDependencyRules = [
         ['agent-runtime'],
         ['external-sources', 'mcp-runtime', 'opencode-plugin-host', 'plugin-runtime', 'product-search', 'product-full', 'remote-connect', 'tools-mcp'],
       )],
-      ['openbitfun-desktop', capabilityConsumer([
+      ['alex-desktop', capabilityConsumer([
         capabilityEdge(['agent-runtime']),
       ])],
-      ['openbitfun-product-capabilities', capabilityConsumer([
+      ['alex-product-capabilities', capabilityConsumer([
         capabilityEdge(['agent-runtime'], { kind: 'dev' }),
       ])],
-      ['openbitfun-sdk-host', capabilityConsumer([
+      ['alex-sdk-host', capabilityConsumer([
         capabilityEdge(['agent-runtime']),
       ])],
-      ['openbitfun-sdk-host-app', capabilityConsumer([
+      ['alex-sdk-host-app', capabilityConsumer([
         capabilityEdge(['agent-runtime']),
       ])],
-      ['openbitfun-server', capabilityConsumer([
+      ['alex-server', capabilityConsumer([
         capabilityEdge(['agent-runtime']),
       ])],
-      ['openbitfun-services-integrations', capabilityConsumer(
+      ['alex-services-integrations', capabilityConsumer(
         [capabilityEdge([], { optional: true })],
         [
           capabilityForwarder('hook-import', 'native-hook-settings'),
@@ -784,7 +784,7 @@ export const coreProductFullFeatureAssemblyRule = {
     'function-agents',
     'tool-packs',
   ],
-  reason: 'openbitfun-core product-full must explicitly assemble current owner feature groups',
+  reason: 'alex-core product-full must explicitly assemble current owner feature groups',
 };
 
 export const acpClientCoreFeatures = [
@@ -812,13 +812,13 @@ export const acpClosedFeatureProfileRules = [
     featureName: 'default',
     requiredFeatureRefs: ['client', 'server'],
     exact: true,
-    reason: 'openbitfun-acp default must preserve its complete client and server compatibility surface',
+    reason: 'alex-acp default must preserve its complete client and server compatibility surface',
   },
   {
     manifestPath: 'src/crates/interfaces/acp/Cargo.toml',
     featureName: 'client',
     requiredFeatureRefs: [
-      'openbitfun-agent-tools/acp-bridge',
+      'alex-agent-tools/acp-bridge',
       'dep:futures',
       'dep:serde',
       // The bundled DeepSeek Harness profile: `dirs` locates $DSH_HOME,
@@ -829,26 +829,26 @@ export const acpClosedFeatureProfileRules = [
       'dep:dirs',
       'dep:semver',
       'dep:tar',
-      'dep:openbitfun-core',
-      ...acpClientCoreFeatures.map((feature) => `openbitfun-core/${feature}`),
+      'dep:alex-core',
+      ...acpClientCoreFeatures.map((feature) => `alex-core/${feature}`),
     ],
     exact: true,
-    reason: 'openbitfun-acp client must own only external ACP agent and SSH transport capabilities',
+    reason: 'alex-acp client must own only external ACP agent and SSH transport capabilities',
   },
   {
     manifestPath: 'src/crates/interfaces/acp/Cargo.toml',
     featureName: 'server',
     requiredFeatureRefs: [
-      'dep:openbitfun-agent-tools',
-      'dep:openbitfun-agent-runtime',
-      'openbitfun-agent-runtime/agent-runtime',
-      'dep:openbitfun-core-types',
-      'dep:openbitfun-core',
+      'dep:alex-agent-tools',
+      'dep:alex-agent-runtime',
+      'alex-agent-runtime/agent-runtime',
+      'dep:alex-core-types',
+      'dep:alex-core',
       'dep:sha2',
-      ...acpServerCoreFeatures.map((feature) => `openbitfun-core/${feature}`),
+      ...acpServerCoreFeatures.map((feature) => `alex-core/${feature}`),
     ],
     exact: true,
-    reason: 'openbitfun-acp server must preserve the reviewed Agent Runtime capability surface without SSH transport',
+    reason: 'alex-acp server must preserve the reviewed Agent Runtime capability surface without SSH transport',
   },
 ];
 
@@ -856,7 +856,7 @@ export const coreClosedFeatureProfileRules = [
   {
     manifestPath: 'src/crates/interfaces/app-server/Cargo.toml',
     featureName: 'ts',
-    requiredFeatureRefs: ['openbitfun-app-server-protocol/ts'],
+    requiredFeatureRefs: ['alex-app-server-protocol/ts'],
     exact: true,
     reason: 'App Server must delegate TypeScript wire export to the protocol owner',
   },
@@ -878,9 +878,9 @@ export const coreClosedFeatureProfileRules = [
     manifestPath: 'src/crates/interfaces/app-server-protocol/Cargo.toml',
     featureName: 'ts',
     requiredFeatureRefs: [
-      'openbitfun-core-types/ts',
-      'openbitfun-product-domains/ts',
-      'openbitfun-runtime-ports/ts',
+      'alex-core-types/ts',
+      'alex-product-domains/ts',
+      'alex-runtime-ports/ts',
       'dep:ts-rs',
     ],
     exact: true,
@@ -891,27 +891,27 @@ export const coreClosedFeatureProfileRules = [
     featureName: 'default',
     requiredFeatureRefs: [],
     exact: true,
-    reason: 'openbitfun-core default must stay empty so product entrypoints select capabilities explicitly',
+    reason: 'alex-core default must stay empty so product entrypoints select capabilities explicitly',
   },
   {
     manifestPath: 'src/crates/assembly/core/Cargo.toml',
     featureName: 'agent-runtime',
     requiredFeatureRefs: [
       'ai-adapter-runtime',
-      'dep:openbitfun-agent-runtime',
-      'openbitfun-agent-runtime/agent-runtime',
-      'dep:openbitfun-agent-content',
-      'dep:openbitfun-agent-stream',
-      'dep:openbitfun-agent-tools',
-      'openbitfun-agent-tools/computer-use-contract',
-      'openbitfun-runtime-ports/agent-api',
-      'openbitfun-runtime-ports/git-port',
-      'openbitfun-runtime-ports/remote-exec-port',
-      'openbitfun-runtime-ports/remote-workspace-ports',
-      'openbitfun-runtime-ports/runtime-event-port',
-      'openbitfun-runtime-ports/terminal-port',
-      'openbitfun-runtime-ports/tool-runtime-handles',
-      'openbitfun-runtime-ports/workspace-ports',
+      'dep:alex-agent-runtime',
+      'alex-agent-runtime/agent-runtime',
+      'dep:alex-agent-content',
+      'dep:alex-agent-stream',
+      'dep:alex-agent-tools',
+      'alex-agent-tools/computer-use-contract',
+      'alex-runtime-ports/agent-api',
+      'alex-runtime-ports/git-port',
+      'alex-runtime-ports/remote-exec-port',
+      'alex-runtime-ports/remote-workspace-ports',
+      'alex-runtime-ports/runtime-event-port',
+      'alex-runtime-ports/terminal-port',
+      'alex-runtime-ports/tool-runtime-handles',
+      'alex-runtime-ports/workspace-ports',
       'dep:base64',
       'dep:dashmap',
       'dep:filetime',
@@ -929,22 +929,22 @@ export const coreClosedFeatureProfileRules = [
       'dep:tool-runtime',
       // Complete ExecCommand constraint syntax facts live in the tool owner.
       'tool-runtime/shell-analysis',
-      'openbitfun-services-core/memory-store',
-      'openbitfun-services-core/coordination-store',
-      'openbitfun-services-core/session-event-format',
-      'openbitfun-services-core/permission',
-      'openbitfun-services-core/runtime-ownership',
-      'openbitfun-services-core/session-git',
-      'openbitfun-services-core/token-usage-statistics',
-      'openbitfun-services-core/workspace-text-runtime',
+      'alex-services-core/memory-store',
+      'alex-services-core/coordination-store',
+      'alex-services-core/session-event-format',
+      'alex-services-core/permission',
+      'alex-services-core/runtime-ownership',
+      'alex-services-core/session-git',
+      'alex-services-core/token-usage-statistics',
+      'alex-services-core/workspace-text-runtime',
       'filesystem',
       'local-storage',
       'process-runtime',
       'terminal',
       'workspace-runtime',
       'product-capabilities',
-      'dep:openbitfun-product-domains',
-      'openbitfun-product-domains/external-sources',
+      'dep:alex-product-domains',
+      'alex-product-domains/external-sources',
       'runtime-services',
       'tool-packs',
       'tools-basic',
@@ -960,16 +960,16 @@ export const coreClosedFeatureProfileRules = [
     ],
     exact: true,
     reason:
-      'openbitfun-core agent-runtime is the reviewed Core Agent Runtime owner closure, not a product-full alias',
+      'alex-core agent-runtime is the reviewed Core Agent Runtime owner closure, not a product-full alias',
   },
   {
     manifestPath: 'src/crates/assembly/core/Cargo.toml',
     featureName: 'product-search',
     requiredFeatureRefs: [
       'agent-runtime',
-      'dep:openbitfun-product-domains',
-      'openbitfun-runtime-ports/product-search',
-      'openbitfun-services-core/session-search',
+      'dep:alex-product-domains',
+      'alex-runtime-ports/product-search',
+      'alex-services-core/session-search',
     ],
     allowedTransitiveFeatureRefs: [
       'ai-adapter-runtime',
@@ -988,7 +988,7 @@ export const coreClosedFeatureProfileRules = [
     ],
     exact: true,
     reason:
-      'openbitfun-core product-search must layer the derived Session index over the reviewed Agent Runtime baseline',
+      'alex-core product-search must layer the derived Session index over the reviewed Agent Runtime baseline',
   },
   {
     manifestPath: 'src/crates/assembly/core/Cargo.toml',
@@ -1001,16 +1001,16 @@ export const coreClosedFeatureProfileRules = [
   {
     manifestPath: 'src/crates/assembly/core/Cargo.toml',
     featureName: 'diagnostics',
-    requiredFeatureRefs: ['openbitfun-services-core/diagnostics'],
+    requiredFeatureRefs: ['alex-services-core/diagnostics'],
     exact: true,
-    reason: 'openbitfun-core diagnostics must preserve only the reusable diagnostic redaction facade',
+    reason: 'alex-core diagnostics must preserve only the reusable diagnostic redaction facade',
   },
   {
     manifestPath: 'src/crates/assembly/core/Cargo.toml',
     featureName: 'diff',
-    requiredFeatureRefs: ['openbitfun-services-core/diff'],
+    requiredFeatureRefs: ['alex-services-core/diff'],
     exact: true,
-    reason: 'openbitfun-core diff must preserve only the reusable local diff facade',
+    reason: 'alex-core diff must preserve only the reusable local diff facade',
   },
   {
     manifestPath: 'src/crates/assembly/core/Cargo.toml',
@@ -1020,13 +1020,13 @@ export const coreClosedFeatureProfileRules = [
       'model-catalog',
       'mcp-runtime',
       'script-tool-runtime',
-      'dep:openbitfun-opencode-adapter',
-      'dep:openbitfun-dsh-adapter',
-      'dep:openbitfun-pi-adapter',
-      'dep:openbitfun-claude-code-adapter',
-      'dep:openbitfun-codex-adapter',
-      'dep:openbitfun-external-sources',
-      'openbitfun-services-integrations/hook-import',
+      'dep:alex-opencode-adapter',
+      'dep:alex-dsh-adapter',
+      'dep:alex-pi-adapter',
+      'dep:alex-claude-code-adapter',
+      'dep:alex-codex-adapter',
+      'dep:alex-external-sources',
+      'alex-services-integrations/hook-import',
       'plugin-source',
       'file-watch',
       'workspace-watch',
@@ -1052,15 +1052,15 @@ export const coreClosedFeatureProfileRules = [
     ],
     exact: true,
     reason:
-      'openbitfun-core external-sources must compose only the reviewed source adapters, watchers, and Core runtime owner',
+      'alex-core external-sources must compose only the reviewed source adapters, watchers, and Core runtime owner',
   },
   {
     manifestPath: 'src/crates/assembly/core/Cargo.toml',
     featureName: 'plugin-runtime',
     requiredFeatureRefs: [
       'external-sources',
-      'dep:openbitfun-plugin-runtime-client',
-      'openbitfun-runtime-ports/plugin-runtime',
+      'dep:alex-plugin-runtime-client',
+      'alex-runtime-ports/plugin-runtime',
     ],
     allowedTransitiveFeatureRefs: [
       'agent-runtime',
@@ -1089,7 +1089,7 @@ export const coreClosedFeatureProfileRules = [
     ],
     exact: true,
     reason:
-      'openbitfun-core plugin-runtime must add only the executable client boundary to external source composition',
+      'alex-core plugin-runtime must add only the executable client boundary to external source composition',
   },
   {
     manifestPath: 'src/crates/assembly/core/Cargo.toml',
@@ -1098,8 +1098,8 @@ export const coreClosedFeatureProfileRules = [
       'plugin-runtime',
       'remote-connect',
       'git',
-      'dep:openbitfun-opencode-plugin-host',
-      'openbitfun-runtime-ports/hook-function-runtime',
+      'dep:alex-opencode-plugin-host',
+      'alex-runtime-ports/hook-function-runtime',
     ],
     allowedTransitiveFeatureRefs: [
       'agent-runtime',
@@ -1133,7 +1133,7 @@ export const coreClosedFeatureProfileRules = [
     featureName: 'model-catalog',
     requiredFeatureRefs: [
       'ai-adapter-runtime',
-      'openbitfun-services-integrations/models-dev',
+      'alex-services-integrations/models-dev',
       'runtime-services',
     ],
     exact: true,
@@ -1144,10 +1144,10 @@ export const coreClosedFeatureProfileRules = [
     featureName: 'mcp-runtime',
     requiredFeatureRefs: [
       'agent-runtime',
-      'openbitfun-agent-tools/mcp-bridge',
+      'alex-agent-tools/mcp-bridge',
       'dep:axum',
       'dep:reqwest',
-      'openbitfun-services-integrations/mcp',
+      'alex-services-integrations/mcp',
       'tokio/rt-multi-thread',
     ],
     allowedTransitiveFeatureRefs: [
@@ -1175,8 +1175,8 @@ export const coreClosedFeatureProfileRules = [
       'agent-runtime',
       'git',
       'model-catalog',
-      'openbitfun-services-integrations/remote-connect',
-      'openbitfun-services-core/workspace-transfer',
+      'alex-services-integrations/remote-connect',
+      'alex-services-core/workspace-transfer',
     ],
     allowedTransitiveFeatureRefs: [
       'ai-adapter-runtime',
@@ -1201,7 +1201,7 @@ export const coreClosedFeatureProfileRules = [
     featureName: 'workspace-search',
     requiredFeatureRefs: [
       'workspace-runtime',
-      'openbitfun-services-integrations/workspace-search',
+      'alex-services-integrations/workspace-search',
     ],
     allowedTransitiveFeatureRefs: ['filesystem', 'local-storage', 'process-runtime'],
     exact: true,
@@ -1212,7 +1212,7 @@ export const coreClosedFeatureProfileRules = [
     featureName: 'browser-control',
     requiredFeatureRefs: [
       'dep:tokio-tungstenite',
-      'openbitfun-services-integrations/browser-control',
+      'alex-services-integrations/browser-control',
       'tokio/net',
       'tokio/rt',
       'tokio/time',
@@ -1224,9 +1224,9 @@ export const coreClosedFeatureProfileRules = [
     manifestPath: 'src/crates/assembly/core/Cargo.toml',
     featureName: 'web-tools',
     requiredFeatureRefs: [
-      'openbitfun-runtime-ports/web-search-port',
-      'openbitfun-services-core/credential-vault',
-      'openbitfun-services-integrations/web-tools',
+      'alex-runtime-ports/web-search-port',
+      'alex-services-core/credential-vault',
+      'alex-services-integrations/web-tools',
       'tool-runtime/web-readable',
     ],
     exact: true,
@@ -1237,8 +1237,8 @@ export const coreClosedFeatureProfileRules = [
     manifestPath: 'src/crates/assembly/core/Cargo.toml',
     featureName: 'deep-research',
     requiredFeatureRefs: [
-      'dep:openbitfun-agent-workflows',
-      'openbitfun-services-integrations/deep-research',
+      'dep:alex-agent-workflows',
+      'alex-services-integrations/deep-research',
     ],
     exact: true,
     reason: 'deep-research must own only research report post-processing',
@@ -1247,8 +1247,8 @@ export const coreClosedFeatureProfileRules = [
     manifestPath: 'src/crates/assembly/core/Cargo.toml',
     featureName: 'script-tool-runtime',
     requiredFeatureRefs: [
-      'openbitfun-runtime-ports/script-tool-runtime',
-      'openbitfun-services-integrations/script-tool-runtime',
+      'alex-runtime-ports/script-tool-runtime',
+      'alex-services-integrations/script-tool-runtime',
     ],
     exact: true,
     reason: 'script-tool-runtime must own only external script tool execution support',
@@ -1271,7 +1271,7 @@ export const coreClosedFeatureProfileRules = [
   {
     manifestPath: 'src/crates/assembly/core/Cargo.toml',
     featureName: 'subscription-auth',
-    requiredFeatureRefs: ['openbitfun-ai-adapters?/subscription-auth'],
+    requiredFeatureRefs: ['alex-ai-adapters?/subscription-auth'],
     exact: true,
     reason:
       'subscription-auth must add local credential resolution only when the AI adapter runtime owner is selected',
@@ -1279,7 +1279,7 @@ export const coreClosedFeatureProfileRules = [
   {
     manifestPath: 'src/crates/assembly/core/Cargo.toml',
     featureName: 'ai-adapter-runtime',
-    requiredFeatureRefs: ['dep:openbitfun-ai-adapters'],
+    requiredFeatureRefs: ['dep:alex-ai-adapters'],
     exact: true,
     reason:
       'ai-adapter-runtime must own provider protocol clients without implicitly enabling local subscription credentials',
@@ -1288,7 +1288,7 @@ export const coreClosedFeatureProfileRules = [
     manifestPath: 'src/crates/assembly/core/Cargo.toml',
     featureName: 'tools-basic',
     requiredFeatureRefs: [
-      'openbitfun-tool-packs/basic',
+      'alex-tool-packs/basic',
       'workspace-search',
     ],
     allowedTransitiveFeatureRefs: [
@@ -1304,7 +1304,7 @@ export const coreClosedFeatureProfileRules = [
     manifestPath: 'src/crates/assembly/core/Cargo.toml',
     featureName: 'tools-git',
     requiredFeatureRefs: [
-      'openbitfun-tool-packs/git',
+      'alex-tool-packs/git',
       'git',
       'review-platform',
     ],
@@ -1315,7 +1315,7 @@ export const coreClosedFeatureProfileRules = [
     manifestPath: 'src/crates/assembly/core/Cargo.toml',
     featureName: 'tools-mcp',
     requiredFeatureRefs: [
-      'openbitfun-tool-packs/mcp',
+      'alex-tool-packs/mcp',
       'mcp-runtime',
     ],
     allowedTransitiveFeatureRefs: [
@@ -1341,7 +1341,7 @@ export const coreClosedFeatureProfileRules = [
     manifestPath: 'src/crates/assembly/core/Cargo.toml',
     featureName: 'tools-browser-web',
     requiredFeatureRefs: [
-      'openbitfun-tool-packs/browser-web',
+      'alex-tool-packs/browser-web',
       'browser-control',
       'web-tools',
     ],
@@ -1352,7 +1352,7 @@ export const coreClosedFeatureProfileRules = [
     manifestPath: 'src/crates/assembly/core/Cargo.toml',
     featureName: 'tools-computer-use',
     requiredFeatureRefs: [
-      'openbitfun-tool-packs/computer-use',
+      'alex-tool-packs/computer-use',
     ],
     exact: true,
     reason: 'tools-computer-use must own only the injected desktop automation tool',
@@ -1361,7 +1361,7 @@ export const coreClosedFeatureProfileRules = [
     manifestPath: 'src/crates/assembly/core/Cargo.toml',
     featureName: 'tools-image-analysis',
     requiredFeatureRefs: [
-      'openbitfun-tool-packs/image-analysis',
+      'alex-tool-packs/image-analysis',
     ],
     exact: true,
     reason: 'tools-image-analysis must own only explicit image inspection tools',
@@ -1369,7 +1369,7 @@ export const coreClosedFeatureProfileRules = [
   {
     manifestPath: 'src/crates/assembly/core/Cargo.toml',
     featureName: 'tools-pages',
-    requiredFeatureRefs: ['openbitfun-tool-packs/pages'],
+    requiredFeatureRefs: ['alex-tool-packs/pages'],
     exact: true,
     reason: 'tools-pages owns account publishing tools without MiniApp runtime dependencies',
   },
@@ -1377,12 +1377,12 @@ export const coreClosedFeatureProfileRules = [
     manifestPath: 'src/crates/assembly/core/Cargo.toml',
     featureName: 'tools-miniapp',
     requiredFeatureRefs: [
-      'openbitfun-tool-packs/miniapp',
-      'dep:openbitfun-product-domains',
-      'openbitfun-product-domains/appearance-market',
-      'openbitfun-product-domains/miniapp',
-      'openbitfun-services-integrations/miniapp-runtime',
-      'openbitfun-services-integrations/miniapp-market',
+      'alex-tool-packs/miniapp',
+      'dep:alex-product-domains',
+      'alex-product-domains/appearance-market',
+      'alex-product-domains/miniapp',
+      'alex-services-integrations/miniapp-runtime',
+      'alex-services-integrations/miniapp-market',
       'runtime-services',
       'dep:reqwest',
       'dep:semver',
@@ -1394,7 +1394,7 @@ export const coreClosedFeatureProfileRules = [
     manifestPath: 'src/crates/assembly/core/Cargo.toml',
     featureName: 'tools-creation',
     requiredFeatureRefs: [
-      'openbitfun-tool-packs/creation',
+      'alex-tool-packs/creation',
     ],
     exact: true,
     reason: 'tools-creation must own only Creative product-authoring tools',
@@ -1403,7 +1403,7 @@ export const coreClosedFeatureProfileRules = [
     manifestPath: 'src/crates/assembly/core/Cargo.toml',
     featureName: 'tools-canvas',
     requiredFeatureRefs: [
-      'openbitfun-tool-packs/canvas',
+      'alex-tool-packs/canvas',
       'canvas-runtime',
     ],
     exact: true,
@@ -1413,7 +1413,7 @@ export const coreClosedFeatureProfileRules = [
     manifestPath: 'src/crates/assembly/core/Cargo.toml',
     featureName: 'tools-agent-control',
     requiredFeatureRefs: [
-      'openbitfun-tool-packs/agent-control',
+      'alex-tool-packs/agent-control',
       'scheduled-jobs',
     ],
     exact: true,
@@ -1424,25 +1424,25 @@ export const coreClosedFeatureProfileRules = [
     featureName: 'function-agents',
     requiredFeatureRefs: [
       'ai-adapter-runtime',
-      'dep:openbitfun-product-domains',
-      'openbitfun-product-domains/function-agents',
-      'openbitfun-services-integrations/function-agents',
+      'dep:alex-product-domains',
+      'alex-product-domains/function-agents',
+      'alex-services-integrations/function-agents',
       'runtime-services',
     ],
     exact: true,
     reason:
-      'openbitfun-core function-agents must own only function-agent contracts and concrete Git/AI adapters',
+      'alex-core function-agents must own only function-agent contracts and concrete Git/AI adapters',
   },
   {
     manifestPath: 'src/crates/assembly/core/Cargo.toml',
     featureName: 'canvas-runtime',
     requiredFeatureRefs: [
-      'dep:openbitfun-product-domains',
-      'openbitfun-services-integrations/canvas-runtime',
+      'dep:alex-product-domains',
+      'alex-services-integrations/canvas-runtime',
     ],
     exact: true,
     reason:
-      'openbitfun-core canvas-runtime must extend only the product domain surface with Canvas runtime IO',
+      'alex-core canvas-runtime must extend only the product domain surface with Canvas runtime IO',
   },
   {
     manifestPath: 'src/crates/services/services-core/Cargo.toml',
@@ -1469,7 +1469,7 @@ export const coreClosedFeatureProfileRules = [
     manifestPath: 'src/crates/services/services-core/Cargo.toml',
     featureName: 'session-search',
     requiredFeatureRefs: [
-      'dep:openbitfun-product-domains',
+      'dep:alex-product-domains',
       'dep:rusqlite',
       'dep:tokio',
       'tokio/rt',
@@ -1488,7 +1488,7 @@ export const coreClosedFeatureProfileRules = [
   {
     manifestPath: 'src/crates/services/services-core/Cargo.toml',
     featureName: 'product-identity',
-    requiredFeatureRefs: ['dep:openbitfun-core-types'],
+    requiredFeatureRefs: ['dep:alex-core-types'],
     exact: true,
     reason: 'services-core product identity must remain a behavior-light stable contract re-export',
   },
@@ -1499,7 +1499,7 @@ export const coreClosedFeatureProfileRules = [
       'dep:base64',
       'dep:chrono',
       'dep:ignore',
-      'dep:openbitfun-core-types',
+      'dep:alex-core-types',
       'dep:regex',
       'dep:sha2',
       'dep:tokio',
@@ -1531,8 +1531,8 @@ export const coreClosedFeatureProfileRules = [
     manifestPath: 'src/crates/services/services-core/Cargo.toml',
     featureName: 'local-storage',
     requiredFeatureRefs: [
-      'dep:openbitfun-core-types',
-      'dep:openbitfun-events',
+      'dep:alex-core-types',
+      'dep:alex-events',
       'dep:chrono',
       'dep:fs2',
       'dep:libc',
@@ -1612,8 +1612,8 @@ export const coreClosedFeatureProfileRules = [
     manifestPath: 'src/crates/services/services-core/Cargo.toml',
     featureName: 'workspace-transfer',
     requiredFeatureRefs: [
-      'dep:anyhow', 'dep:openbitfun-runtime-ports',
-      'openbitfun-runtime-ports/workspace-ports', 'dep:sha2', 'dep:tokio',
+      'dep:anyhow', 'dep:alex-runtime-ports',
+      'alex-runtime-ports/workspace-ports', 'dep:sha2', 'dep:tokio',
       'tokio/fs', 'tokio/io-util', 'tokio/rt', 'tokio/sync',
     ],
     exact: true,
@@ -1625,9 +1625,9 @@ export const coreClosedFeatureProfileRules = [
     requiredFeatureRefs: [
       'dep:anyhow',
       'dep:async-trait',
-      'dep:openbitfun-runtime-ports',
-      'openbitfun-runtime-ports/runtime-event-port',
-      'openbitfun-runtime-ports/workspace-ports',
+      'dep:alex-runtime-ports',
+      'alex-runtime-ports/runtime-event-port',
+      'alex-runtime-ports/workspace-ports',
       'dep:dunce',
       'dep:filetime',
       'process-runtime',
@@ -1658,38 +1658,38 @@ export const coreClosedFeatureProfileRules = [
     requiredFeatureRefs: [
       'dep:base64',
       'local-storage',
-      'openbitfun-services-core/dispatch-workspace',
+      'alex-services-core/dispatch-workspace',
     ],
     exact: true,
-    reason: 'openbitfun-core dispatch-store must expose only the durable dispatch index facade',
+    reason: 'alex-core dispatch-store must expose only the durable dispatch index facade',
   },
   {
     manifestPath: 'src/crates/assembly/core/Cargo.toml',
     featureName: 'filesystem',
-    requiredFeatureRefs: ['openbitfun-services-core/filesystem'],
+    requiredFeatureRefs: ['alex-services-core/filesystem'],
     exact: true,
-    reason: 'openbitfun-core filesystem must select only the concrete local filesystem owner',
+    reason: 'alex-core filesystem must select only the concrete local filesystem owner',
   },
   {
     manifestPath: 'src/crates/assembly/core/Cargo.toml',
     featureName: 'local-storage',
-    requiredFeatureRefs: ['dep:openbitfun-agent-tools', 'openbitfun-services-core/local-storage'],
+    requiredFeatureRefs: ['dep:alex-agent-tools', 'alex-services-core/local-storage'],
     exact: true,
-    reason: 'openbitfun-core local-storage must select only reusable local persistence owners',
+    reason: 'alex-core local-storage must select only reusable local persistence owners',
   },
   {
     manifestPath: 'src/crates/assembly/core/Cargo.toml',
     featureName: 'process-runtime',
-    requiredFeatureRefs: ['openbitfun-services-core/process-runtime'],
+    requiredFeatureRefs: ['alex-services-core/process-runtime'],
     exact: true,
-    reason: 'openbitfun-core process-runtime must select only managed process and local action owners',
+    reason: 'alex-core process-runtime must select only managed process and local action owners',
   },
   {
     manifestPath: 'src/crates/assembly/core/Cargo.toml',
     featureName: 'terminal',
     requiredFeatureRefs: ['dep:terminal-core'],
     exact: true,
-    reason: 'openbitfun-core terminal must select only the standalone terminal service owner',
+    reason: 'alex-core terminal must select only the standalone terminal service owner',
   },
   {
     manifestPath: 'src/crates/assembly/core/Cargo.toml',
@@ -1699,14 +1699,14 @@ export const coreClosedFeatureProfileRules = [
       'filesystem',
       'local-storage',
       'process-runtime',
-      'openbitfun-services-core/markdown',
-      'openbitfun-services-core/workspace-identity',
-      'openbitfun-services-core/workspace-instructions',
-      'openbitfun-services-core/workspace-runtime',
-      'openbitfun-services-core/workspace-persistence',
+      'alex-services-core/markdown',
+      'alex-services-core/workspace-identity',
+      'alex-services-core/workspace-instructions',
+      'alex-services-core/workspace-runtime',
+      'alex-services-core/workspace-persistence',
     ],
     exact: true,
-    reason: 'openbitfun-core workspace-runtime must select only local workspace and runtime layout owners',
+    reason: 'alex-core workspace-runtime must select only local workspace and runtime layout owners',
   },
   {
     manifestPath: 'src/crates/assembly/core/Cargo.toml',
@@ -1714,48 +1714,48 @@ export const coreClosedFeatureProfileRules = [
     requiredFeatureRefs: ['workspace-runtime', 'dep:notify'],
     allowedTransitiveFeatureRefs: ['filesystem', 'local-storage', 'process-runtime'],
     exact: true,
-    reason: 'openbitfun-core workspace-watch must extend only local workspace runtime with identity watching',
+    reason: 'alex-core workspace-watch must extend only local workspace runtime with identity watching',
   },
   {
     manifestPath: 'src/crates/assembly/core/Cargo.toml',
     featureName: 'remote-workspace',
     requiredFeatureRefs: [
       'workspace-runtime',
-      'dep:openbitfun-services-integrations',
-      'openbitfun-services-integrations/remote-ssh',
+      'dep:alex-services-integrations',
+      'alex-services-integrations/remote-ssh',
     ],
     allowedTransitiveFeatureRefs: ['filesystem', 'local-storage', 'process-runtime'],
     exact: true,
-    reason: 'openbitfun-core remote-workspace must add only the remote workspace service surface',
+    reason: 'alex-core remote-workspace must add only the remote workspace service surface',
   },
   {
     manifestPath: 'src/crates/assembly/core/Cargo.toml',
     featureName: 'announcement',
-    requiredFeatureRefs: ['openbitfun-services-integrations/announcement'],
+    requiredFeatureRefs: ['alex-services-integrations/announcement'],
     exact: true,
-    reason: 'openbitfun-core announcement must select only the announcement owner capability',
+    reason: 'alex-core announcement must select only the announcement owner capability',
   },
   {
     manifestPath: 'src/crates/assembly/core/Cargo.toml',
     featureName: 'file-watch',
-    requiredFeatureRefs: ['openbitfun-services-integrations/file-watch'],
+    requiredFeatureRefs: ['alex-services-integrations/file-watch'],
     exact: true,
-    reason: 'openbitfun-core file-watch must select only the file-watch owner capability',
+    reason: 'alex-core file-watch must select only the file-watch owner capability',
   },
   {
     manifestPath: 'src/crates/assembly/core/Cargo.toml',
     featureName: 'git',
-    requiredFeatureRefs: ['openbitfun-services-integrations/git'],
+    requiredFeatureRefs: ['alex-services-integrations/git'],
     exact: true,
-    reason: 'openbitfun-core git must select only the Git owner capability',
+    reason: 'alex-core git must select only the Git owner capability',
   },
   {
     manifestPath: 'src/crates/assembly/core/Cargo.toml',
     featureName: 'review-platform',
-    requiredFeatureRefs: ['openbitfun-services-integrations/review-platform'],
+    requiredFeatureRefs: ['alex-services-integrations/review-platform'],
     exact: true,
     reason:
-      'openbitfun-core review-platform must select only the review platform owner capability',
+      'alex-core review-platform must select only the review platform owner capability',
   },
   {
     manifestPath: 'src/crates/assembly/core/Cargo.toml',
@@ -1763,14 +1763,14 @@ export const coreClosedFeatureProfileRules = [
     requiredFeatureRefs: ['announcement', 'file-watch', 'git', 'review-platform'],
     exact: true,
     reason:
-      'openbitfun-core service-integrations is a compatibility facade group, not a product capability umbrella',
+      'alex-core service-integrations is a compatibility facade group, not a product capability umbrella',
   },
   {
     manifestPath: 'src/crates/assembly/core/Cargo.toml',
     featureName: 'ssh-remote',
     requiredFeatureRefs: [
       'remote-workspace',
-      'openbitfun-services-integrations/remote-ssh-concrete',
+      'alex-services-integrations/remote-ssh-concrete',
     ],
     allowedTransitiveFeatureRefs: [
       'filesystem',
@@ -1780,7 +1780,7 @@ export const coreClosedFeatureProfileRules = [
     ],
     exact: true,
     reason:
-      'openbitfun-core ssh-remote must extend only the remote workspace surface with concrete SSH and must not pull product Dispatch assembly',
+      'alex-core ssh-remote must extend only the remote workspace surface with concrete SSH and must not pull product Dispatch assembly',
   },
 ];
 

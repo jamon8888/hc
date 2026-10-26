@@ -51,10 +51,10 @@ describe('FlowChat transcript rhythm', () => {
   it('keeps control actions distinct from discovery across model rounds, including deferred calls', () => {
     const read = modelRound('turn-1', 'read', [{ toolName: 'Read' }]);
     const discovery = modelRound('turn-1', 'discovery', [{
-      toolName: 'OpenBitFunControl', input: { action: 'get' },
+      toolName: 'AlexControl', input: { action: 'get' },
     }]);
     const control = modelRound('turn-1', 'control', [{
-      toolName: 'CallDeferredTool', input: { tool_name: 'OpenBitFunControl', args: { action: 'configure' } },
+      toolName: 'CallDeferredTool', input: { tool_name: 'AlexControl', args: { action: 'configure' } },
     }]);
     expect(isAmbientToolRunContinuationAfter(read, discovery)).toBe(true);
     expect(isAmbientToolRunContinuationAfter(discovery, control)).toBe(false);
@@ -65,23 +65,23 @@ describe('FlowChat transcript rhythm', () => {
     const toolStyles = readSource('../../_item-rhythm.scss');
 
     expect(toolStyles).toContain(
-      'margin: 0 0 var(--openbitfun-control-flow-chat-flow-item-gap) 0;',
+      'margin: 0 0 var(--alex-control-flow-chat-flow-item-gap) 0;',
     );
     expect(toolStyles).not.toContain(
-      'margin: 0 0 var(--openbitfun-control-flow-chat-card-gap) 0;',
+      'margin: 0 0 var(--alex-control-flow-chat-card-gap) 0;',
     );
     expect(toolStyles).toMatch(
-      /data-openbitfun-attention='ambient'[\s\S]*?data-openbitfun-expanded-shell='false'[\s\S]*?:has\([\s\S]*?\+ \.flowchat-flow-item[\s\S]*?margin-bottom: 0;/,
+      /data-alex-attention='ambient'[\s\S]*?data-alex-expanded-shell='false'[\s\S]*?:has\([\s\S]*?\+ \.flowchat-flow-item[\s\S]*?margin-bottom: 0;/,
     );
     expect(toolStyles).not.toContain(
-      "> [data-openbitfun-component='flow-chat-tool-card'][data-openbitfun-part='root'][data-openbitfun-expanded-shell='false']",
+      "> [data-alex-component='flow-chat-tool-card'][data-alex-part='root'][data-alex-expanded-shell='false']",
     );
     expect(toolStyles).not.toContain('+ .task-with-subagent-wrapper');
     for (const owner of ['./ModelRoundItem.scss', './ExploreRegion.scss', '../subagent/SubagentProjectionView.scss']) {
       expect(readSource(owner)).toContain('@include itemRhythm.apply');
     }
     for (const leaf of ['../FlowToolCard.scss', '../FlowTextBlock.scss', '../../tool-cards/ModelThinkingDisplay.scss']) {
-      expect(readSource(leaf)).not.toContain('margin: 0 0 var(--openbitfun-control-flow-chat-flow-item-gap) 0;');
+      expect(readSource(leaf)).not.toContain('margin: 0 0 var(--alex-control-flow-chat-flow-item-gap) 0;');
     }
   });
 
@@ -110,7 +110,7 @@ describe('FlowChat transcript rhythm', () => {
     const userMessageStyles = readSource('./UserMessageItem.scss');
 
     expect(rendererStyles).toMatch(
-      /\[data-item-type='user-message'\]:not\(\[data-virtual-index='0'\]\)\s*\{\s*padding-top: calc\(var\(--openbitfun-control-flow-chat-turn-gap\) \+ var\(--openbitfun-space-4\)\);/,
+      /\[data-item-type='user-message'\]:not\(\[data-virtual-index='0'\]\)\s*\{\s*padding-top: calc\(var\(--alex-control-flow-chat-turn-gap\) \+ var\(--alex-space-4\)\);/,
     );
     expect(rendererStyles).toContain(
       "&[data-turn-boundary-after='true']",
@@ -125,7 +125,7 @@ describe('FlowChat transcript rhythm', () => {
       '> .task-with-subagent-wrapper:is(',
     );
     expect(userMessageStyles).toMatch(
-      /margin:\s*0\.06rem\s*0\s*var\(--openbitfun-control-flow-chat-flow-item-gap\)/,
+      /margin:\s*0\.06rem\s*0\s*var\(--alex-control-flow-chat-flow-item-gap\)/,
     );
   });
 
@@ -161,7 +161,7 @@ describe('FlowChat transcript rhythm', () => {
       "&[data-ambient-tool-run-continuation-after='true']",
     );
     expect(rendererStyles).not.toContain(
-      "> [data-openbitfun-component='flow-chat-tool-card'][data-openbitfun-part='root'][data-openbitfun-expanded-shell='false']",
+      "> [data-alex-component='flow-chat-tool-card'][data-alex-part='root'][data-alex-expanded-shell='false']",
     );
     expect(rendererStyles).not.toContain(
       '.task-with-subagent-wrapper:last-child:not(.task-with-subagent-wrapper--expanded)',

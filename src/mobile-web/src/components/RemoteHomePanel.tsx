@@ -1,6 +1,6 @@
 import { Menu as LucideMenu } from 'lucide-react';
 import React from 'react';
-import { MobileIconButton } from '@openbitfun/ui/mobile';
+import { MobileIconButton } from '@alex/ui/mobile';
 import { useI18n } from '../i18n';
 
 interface RemoteHomePanelProps {

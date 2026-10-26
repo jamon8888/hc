@@ -1,4 +1,4 @@
-import { Input, Textarea, Button, IconButton } from '@openbitfun/ui';
+import { Input, Textarea, Button, IconButton } from '@alex/ui';
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { CubeFocus as MarketLogo, GithubLogo, IconContext } from '@phosphor-icons/react';
 import {
@@ -33,9 +33,9 @@ import {
 import { AccountSignIn } from './AccountSignIn';
 import { downloadUrl, loginUrl, marketApi, MarketApiError } from './api';
 import { formatCompactNumber, formatMarketDate, formatMarketDateTime } from './format';
-import { GetOpenBitFunCta } from './GetOpenBitFunCta';
+import { GetAlexCta } from './GetAlexCta';
 import { useLocale, type Locale, type MessageKey } from './i18n';
-import { OPENBITFUN_HOME_URL } from './links';
+import { ALEX_HOME_URL } from './links';
 import { MiniAppIcon } from './MiniAppIcon';
 import { marketImageSrcSet, marketImageUrl, retryOriginalMarketImage } from './marketImages';
 import { useTheme, type Theme } from './theme';
@@ -98,7 +98,7 @@ function App() {
 function GitHubIdentityPage({ complete }: { complete: boolean }) {
   const { t } = useLocale();
   useTheme();
-  useEffect(() => { document.title = `OpenBitFun · ${t(complete ? 'authComplete' : 'signIn')}`; }, [complete, t]);
+  useEffect(() => { document.title = `Alex · ${t(complete ? 'authComplete' : 'signIn')}`; }, [complete, t]);
   return <IconContext.Provider value={{ size: 24, weight: 'regular' }}>
     {complete ? <DesktopComplete t={t} /> : <AccountSignIn />}
   </IconContext.Provider>;
@@ -208,10 +208,10 @@ function MarketApp() {
         <footer>
           <div className="footer-brand">
             <MarketLogo weight="duotone" aria-hidden="true" />
-            <span>OpenBitFun MiniApp Market</span>
+            <span>Alex MiniApp Market</span>
           </div>
-          <a href={OPENBITFUN_HOME_URL} target="_blank" rel="noreferrer">
-            {t('openbitfunHome')}
+          <a href={ALEX_HOME_URL} target="_blank" rel="noreferrer">
+            {t('alexHome')}
             <ArrowSquareOut size={18} aria-hidden="true" />
           </a>
         </footer>
@@ -285,7 +285,7 @@ function Header({
             <MarketLogo size={25} weight="duotone" aria-hidden="true" />
           </span>
           <span className="brand-copy">
-            <strong>OpenBitFun</strong>
+            <strong>Alex</strong>
             <span>{t('market')}</span>
           </span>
         </Button>
@@ -478,7 +478,7 @@ function CatalogPage({
           </div>
           <h1>{t('headline')}</h1>
           <p>{t('intro')}</p>
-          <GetOpenBitFunCta placement="catalog" t={t} />
+          <GetAlexCta placement="catalog" t={t} />
         </div>
         <div className="hero-visual">
           <img src="/miniapp/og.png" alt={t('heroImageAlt')} />
@@ -803,7 +803,7 @@ function DetailPage({
               </Button>
             )}
           </div>
-          <GetOpenBitFunCta placement="listing" t={t} />
+          <GetAlexCta placement="listing" t={t} />
           <div className="rating-control" aria-label={t('ratingLabel')}>
             {[1, 2, 3, 4, 5].map((value) => (
               <IconButton
@@ -869,7 +869,7 @@ function DetailPage({
           <p className="prose">{app.changelog}</p>
         </div>
         <aside className="facts-panel">
-          <Fact label={t('requires')} value={`v${app.minOpenBitFunVersion}+`} />
+          <Fact label={t('requires')} value={`v${app.minAlexVersion}+`} />
           <Fact
             label={t('downloadsLabel')}
             value={formatCompactNumber(app.downloadCount, locale)}
@@ -1025,7 +1025,7 @@ function SubmitPage({
                 .split(',')
                 .map((tag) => tag.trim())
                 .filter(Boolean),
-              minOpenBitFunVersion: String(form.get('minOpenBitFunVersion')),
+              minAlexVersion: String(form.get('minAlexVersion')),
               changelog: String(form.get('changelog')),
               license:
                 licenseKind === 'spdx'
@@ -1085,8 +1085,8 @@ function SubmitPage({
         <fieldset>
           <legend>{t('releaseSection')}</legend>
           <div className="form-grid">
-            <Field label={t('minOpenBitFunVersionLabel')}>
-              <Input className="market-input" name="minOpenBitFunVersion" required defaultValue="1.0.0" />
+            <Field label={t('minAlexVersionLabel')}>
+              <Input className="market-input" name="minAlexVersion" required defaultValue="1.0.0" />
             </Field>
             <Field label={t('publicRepositoryOptional')}>
               <Input className="market-input" name="repositoryUrl" type="url" placeholder="https://github.com/…" />
@@ -1366,8 +1366,8 @@ function AdminPage({
                 />
                 <Fact label={t('releaseLabel')} value={`v${selected.submission.releaseNumber}`} />
                 <Fact
-                  label={t('minimumOpenBitFunLabel')}
-                  value={selected.submission.minOpenBitFunVersion}
+                  label={t('minimumAlexLabel')}
+                  value={selected.submission.minAlexVersion}
                 />
                 <Fact
                   label={t('licenseLabel')}

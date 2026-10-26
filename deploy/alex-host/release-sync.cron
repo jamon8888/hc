@@ -1,0 +1,6 @@
+# This file is the entire root crontab for the Alex origin.
+# Installing it replaces every root cron job. Back up `crontab -l` first.
+# Install with:
+#   crontab /root/repos/Alex/deploy/alex-host/release-sync.cron
+# Requires /root/repos/Alex checked out and /srv/alex-release created.
+*/10 * * * * /root/repos/Alex/scripts/alex-release-sync.sh >> /var/log/alex-release-sync.log 2>&1

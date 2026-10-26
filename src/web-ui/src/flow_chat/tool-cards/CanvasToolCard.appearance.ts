@@ -8,8 +8,8 @@ export const canvasToolCardAppearanceDescriptor: AppearanceSurfaceDescriptor = {
     { id: 'diagnosticList' },
   ],
   states: [
-    { id: 'clickable', selector: { kind: 'self', suffix: '[data-openbitfun-state~="clickable"]' } },
-    { id: 'failed', selector: { kind: 'self', suffix: '[data-openbitfun-state~="failed"]' } },
-    { id: 'loading', selector: { kind: 'self', suffix: '[data-openbitfun-state~="loading"]' } },
+    { id: 'clickable', selector: { kind: 'self', suffix: '[data-alex-state~="clickable"]' } },
+    { id: 'failed', selector: { kind: 'self', suffix: '[data-alex-state~="failed"]' } },
+    { id: 'loading', selector: { kind: 'self', suffix: '[data-alex-state~="loading"]' } },
   ],
 };

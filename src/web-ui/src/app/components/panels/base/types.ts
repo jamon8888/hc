@@ -3,7 +3,7 @@
  * Defines content types, interfaces, and configuration for the panel system.
  */
 
-import type { IconSource } from '@openbitfun/ui';
+import type { IconSource } from '@alex/ui';
 
 import type { PanelContent, PanelContentType } from '@/shared/types/panelContent';
 export type { PanelContent, PanelContentType } from '@/shared/types/panelContent';

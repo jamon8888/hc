@@ -7,7 +7,7 @@
 
 #[cfg(feature = "remote-connect")]
 use log::{debug, info};
-use openbitfun_agent_runtime::sdk::{
+use alex_agent_runtime::sdk::{
     AgentEventSource, AgentInteractionResponsePort, AgentModeCatalogEntry, AgentModeCatalogPort,
     AgentModeCatalogQuery, AgentRuntime, AgentRuntimeBuilder, AgentSessionCompactionPort,
     AgentSessionForkPort, AgentSessionLineagePort, AgentSessionModePort, AgentSessionModelPort,
@@ -15,20 +15,20 @@ use openbitfun_agent_runtime::sdk::{
     AgentSessionRevertPort, AgentSessionUsagePort, AgentTurnSettlementPort, RuntimeError,
 };
 #[cfg(feature = "remote-connect")]
-use openbitfun_agent_runtime::sdk::{
+use alex_agent_runtime::sdk::{
     AgentSessionModelSelection, AgentSessionModelSelectionUpdateRequest,
     AgentSessionModelUpdateRequest,
 };
-use openbitfun_events::AgenticEvent;
+use alex_events::AgenticEvent;
 #[cfg(feature = "remote-connect")]
-use openbitfun_runtime_ports::{
+use alex_runtime_ports::{
     AgentDialogSteerRequest, AgentInputAttachment, AgentSessionComposerUpdate,
     AgentSubmissionSource, AgentTurnCancellationRequest, DialogSteerOutcome,
     PermissionPolicyPreset, RemoteControlStatePort, RemoteControlStateRequest,
     RemoteControlStateSnapshot, RemoteSessionWorkspaceIdentity, RuntimeServiceCapability,
     RuntimeServicePort, ToolPermissionConfig,
 };
-use openbitfun_runtime_ports::{
+use alex_runtime_ports::{
     AgentDialogTurnPort, AgentDialogTurnRequest, AgentLifecycleDeliveryPort,
     AgentLocalCommandTurnPort, AgentSessionClosePort, AgentSessionCreateRequest,
     AgentSessionCreateResult, AgentSessionManagementPort, AgentSessionRevertRequest,
@@ -38,7 +38,7 @@ use openbitfun_runtime_ports::{
     AgentWorkspaceReferencePort, PortError, PortErrorKind, PortResult, SessionStorePort,
 };
 #[cfg(feature = "remote-connect")]
-use openbitfun_services_integrations::remote_connect::{
+use alex_services_integrations::remote_connect::{
     agent_input_attachment_from_remote_image_context, build_remote_chat_messages,
     build_remote_model_catalog,
     normalize_remote_model_selection as normalize_remote_model_selection_contract,
@@ -190,7 +190,7 @@ async fn configured_plugin_execution_root(
 #[cfg(feature = "opencode-plugin-host")]
 fn configured_plugin_root_from_session_facts(
     workspace_path: Option<&str>,
-    execution_target: Option<&openbitfun_core_types::SessionExecutionTarget>,
+    execution_target: Option<&alex_core_types::SessionExecutionTarget>,
     is_remote: bool,
 ) -> PortResult<Option<std::path::PathBuf>> {
     if is_remote {
@@ -327,12 +327,12 @@ struct ConfiguredPluginDialogTurnPort {
 impl AgentDialogTurnPort for ConfiguredPluginDialogTurnPort {
     async fn manage_dialog_queue(
         &self,
-        request: openbitfun_runtime_ports::DialogQueueRequest,
-    ) -> PortResult<openbitfun_runtime_ports::DialogQueueSnapshot> {
+        request: alex_runtime_ports::DialogQueueRequest,
+    ) -> PortResult<alex_runtime_ports::DialogQueueSnapshot> {
         if matches!(
             &request.action,
-            openbitfun_runtime_ports::DialogQueueAction::Submit { .. }
-                | openbitfun_runtime_ports::DialogQueueAction::Promote { .. }
+            alex_runtime_ports::DialogQueueAction::Submit { .. }
+                | alex_runtime_ports::DialogQueueAction::Promote { .. }
         ) {
             self.submission.ensure_session(&request.session_id).await;
         }
@@ -349,15 +349,15 @@ impl AgentDialogTurnPort for ConfiguredPluginDialogTurnPort {
 
     async fn steer_dialog_turn(
         &self,
-        request: openbitfun_runtime_ports::AgentDialogSteerRequest,
-    ) -> PortResult<openbitfun_runtime_ports::DialogSteerOutcome> {
+        request: alex_runtime_ports::AgentDialogSteerRequest,
+    ) -> PortResult<alex_runtime_ports::DialogSteerOutcome> {
         self.inner.steer_dialog_turn(request).await
     }
 
     async fn recover_interrupted_turn(
         &self,
-        request: openbitfun_runtime_ports::AgentDialogTurnRecoveryRequest,
-    ) -> PortResult<openbitfun_runtime_ports::AgentDialogTurnRecoveryOutcome> {
+        request: alex_runtime_ports::AgentDialogTurnRecoveryRequest,
+    ) -> PortResult<alex_runtime_ports::AgentDialogTurnRecoveryOutcome> {
         self.submission.ensure_session(&request.session_id).await;
         self.inner.recover_interrupted_turn(request).await
     }
@@ -400,25 +400,25 @@ fn remote_workspace_kind(
 
 #[cfg(feature = "remote-connect")]
 fn provider_catalog_source(
-    source: openbitfun_services_integrations::models_dev::ModelsDevSnapshotSource,
-) -> openbitfun_core_types::ProviderCatalogSource {
-    use openbitfun_services_integrations::models_dev::ModelsDevSnapshotSource;
+    source: alex_services_integrations::models_dev::ModelsDevSnapshotSource,
+) -> alex_core_types::ProviderCatalogSource {
+    use alex_services_integrations::models_dev::ModelsDevSnapshotSource;
     match source {
-        ModelsDevSnapshotSource::Cache => openbitfun_core_types::ProviderCatalogSource::Cache,
-        ModelsDevSnapshotSource::Bundled => openbitfun_core_types::ProviderCatalogSource::Bundle,
-        ModelsDevSnapshotSource::Empty => openbitfun_core_types::ProviderCatalogSource::OpenBitFun,
+        ModelsDevSnapshotSource::Cache => alex_core_types::ProviderCatalogSource::Cache,
+        ModelsDevSnapshotSource::Bundled => alex_core_types::ProviderCatalogSource::Bundle,
+        ModelsDevSnapshotSource::Empty => alex_core_types::ProviderCatalogSource::Alex,
     }
 }
 
 #[cfg(feature = "remote-connect")]
 fn reasoning_catalog_source(
-    source: openbitfun_services_integrations::models_dev::ModelsDevSnapshotSource,
-) -> openbitfun_core_types::ModelsDevCatalogSource {
-    use openbitfun_services_integrations::models_dev::ModelsDevSnapshotSource;
+    source: alex_services_integrations::models_dev::ModelsDevSnapshotSource,
+) -> alex_core_types::ModelsDevCatalogSource {
+    use alex_services_integrations::models_dev::ModelsDevSnapshotSource;
     match source {
-        ModelsDevSnapshotSource::Cache => openbitfun_core_types::ModelsDevCatalogSource::Cache,
-        ModelsDevSnapshotSource::Bundled => openbitfun_core_types::ModelsDevCatalogSource::Bundle,
-        ModelsDevSnapshotSource::Empty => openbitfun_core_types::ModelsDevCatalogSource::Empty,
+        ModelsDevSnapshotSource::Cache => alex_core_types::ModelsDevCatalogSource::Cache,
+        ModelsDevSnapshotSource::Bundled => alex_core_types::ModelsDevCatalogSource::Bundle,
+        ModelsDevSnapshotSource::Empty => alex_core_types::ModelsDevCatalogSource::Empty,
     }
 }
 
@@ -438,7 +438,7 @@ fn reasoning_catalog_source(
 fn remote_provider_catalog(
     models_dev: &crate::infrastructure::ai::reasoning_catalog::ModelsDevReasoningCatalogSnapshot,
     include_providers: bool,
-) -> openbitfun_core_types::ProviderCatalog {
+) -> alex_core_types::ProviderCatalog {
     let source = provider_catalog_source(models_dev.source);
     if include_providers {
         return resolve_builtin_provider_catalog(
@@ -458,7 +458,7 @@ fn remote_provider_catalog(
 fn remote_models_dev_reasoning_catalog(
     models_dev: &crate::infrastructure::ai::reasoning_catalog::ModelsDevReasoningCatalogSnapshot,
     include_catalog: bool,
-) -> Option<openbitfun_core_types::ModelsDevReasoningCatalog> {
+) -> Option<alex_core_types::ModelsDevReasoningCatalog> {
     if !include_catalog {
         return None;
     }
@@ -473,7 +473,7 @@ fn remote_models_dev_reasoning_catalog(
 #[cfg(feature = "remote-connect")]
 fn git_branch_for_workspace_path(path: &std::path::Path) -> Option<String> {
     let path_str = path.to_string_lossy();
-    openbitfun_services_integrations::git::execute_git_command_sync(
+    alex_services_integrations::git::execute_git_command_sync(
         &path_str,
         &["rev-parse", "--abbrev-ref", "HEAD"],
     )
@@ -702,7 +702,7 @@ async fn load_remote_session_metadata_for_workspace(
             format!("Failed to list sessions for workspace: {error}")
         })?;
 
-    use openbitfun_services_core::session::SessionRelationshipKind;
+    use alex_services_core::session::SessionRelationshipKind;
 
     Ok(metadata
         .into_iter()
@@ -710,7 +710,7 @@ async fn load_remote_session_metadata_for_workspace(
             // Legacy sessions keep their lineage in `custom_metadata`, so the
             // normalized view is the only source that sees every child session.
             let relationship =
-                openbitfun_services_core::session::normalized_session_relationship(&session);
+                alex_services_core::session::normalized_session_relationship(&session);
             let relationship_kind = relationship
                 .as_ref()
                 .and_then(|relationship| relationship.kind.as_ref())
@@ -1008,13 +1008,13 @@ fn core_agent_runtime_builder(
     session_restore: Arc<dyn AgentSessionRestorePort>,
     local_command_turn: Arc<dyn AgentLocalCommandTurnPort>,
     user_shell_command: Arc<dyn AgentUserShellCommandPort>,
-    transcript_reader: Arc<dyn openbitfun_runtime_ports::SessionTranscriptReader>,
+    transcript_reader: Arc<dyn alex_runtime_ports::SessionTranscriptReader>,
     thread_goal_management: Arc<dyn AgentThreadGoalManagementPort>,
     cancellation: Arc<dyn AgentTurnCancellationPort>,
     interaction_response: Arc<dyn AgentInteractionResponsePort>,
-    hook_registry: openbitfun_agent_runtime::native_hooks::RuntimeHookRegistry,
+    hook_registry: alex_agent_runtime::native_hooks::RuntimeHookRegistry,
 ) -> Result<AgentRuntimeBuilder, String> {
-    let agent_registry: Arc<dyn openbitfun_agent_runtime::sdk::RuntimeAgentRegistry> =
+    let agent_registry: Arc<dyn alex_agent_runtime::sdk::RuntimeAgentRegistry> =
         crate::agentic::agents::get_agent_registry();
     let mode_catalog: Arc<dyn AgentModeCatalogPort> = Arc::new(CoreAgentModeCatalogPort);
     Ok(AgentRuntimeBuilder::new()
@@ -1044,7 +1044,7 @@ impl AgentModeCatalogPort for CoreAgentModeCatalogPort {
     async fn list_modes(
         &self,
         query: AgentModeCatalogQuery,
-    ) -> openbitfun_runtime_ports::PortResult<Vec<AgentModeCatalogEntry>> {
+    ) -> alex_runtime_ports::PortResult<Vec<AgentModeCatalogEntry>> {
         let record =
             crate::service::workspace::legacy_compat::upgrade_optional_workspace_reference(
                 query.workspace_id.as_deref(),
@@ -1052,8 +1052,8 @@ impl AgentModeCatalogPort for CoreAgentModeCatalogPort {
             )
             .await
             .map_err(|error| {
-                openbitfun_runtime_ports::PortError::new(
-                    openbitfun_runtime_ports::PortErrorKind::InvalidRequest,
+                alex_runtime_ports::PortError::new(
+                    alex_runtime_ports::PortErrorKind::InvalidRequest,
                     error,
                 )
             })?;
@@ -1111,10 +1111,10 @@ impl ScheduledSessionManagementPort {
         &self,
         request: AgentSessionRevertRequest,
         undo: bool,
-    ) -> openbitfun_runtime_ports::PortResult<AgentSessionRevertResult> {
-        openbitfun_core_types::validate_session_id(&request.session_id).map_err(|message| {
-            openbitfun_runtime_ports::PortError::new(
-                openbitfun_runtime_ports::PortErrorKind::InvalidRequest,
+    ) -> alex_runtime_ports::PortResult<AgentSessionRevertResult> {
+        alex_core_types::validate_session_id(&request.session_id).map_err(|message| {
+            alex_runtime_ports::PortError::new(
+                alex_runtime_ports::PortErrorKind::InvalidRequest,
                 message,
             )
         })?;
@@ -1126,8 +1126,8 @@ impl ScheduledSessionManagementPort {
         )
         .await?;
         if workspace.is_remote() {
-            return Err(openbitfun_runtime_ports::PortError::new(
-                openbitfun_runtime_ports::PortErrorKind::NotAvailable,
+            return Err(alex_runtime_ports::PortError::new(
+                alex_runtime_ports::PortErrorKind::NotAvailable,
                 "Session undo and redo are unavailable for remote workspaces",
             ));
         }
@@ -1135,10 +1135,10 @@ impl ScheduledSessionManagementPort {
             .local_revert_workspace(&request.session_id)
             .await
             .map_err(|error| {
-                if matches!(&error, crate::util::errors::OpenBitFunError::Validation(message) if message == "Session undo and redo are unavailable for remote workspaces")
+                if matches!(&error, crate::util::errors::AlexError::Validation(message) if message == "Session undo and redo are unavailable for remote workspaces")
                 {
-                    openbitfun_runtime_ports::PortError::new(
-                        openbitfun_runtime_ports::PortErrorKind::NotAvailable,
+                    alex_runtime_ports::PortError::new(
+                        alex_runtime_ports::PortErrorKind::NotAvailable,
                         error.to_string(),
                     )
                 } else {
@@ -1185,14 +1185,14 @@ impl ScheduledSessionManagementPort {
         }
         let transcript = self
             .coordinator
-            .read_session_transcript_locked(openbitfun_runtime_ports::SessionTranscriptRequest {
+            .read_session_transcript_locked(alex_runtime_ports::SessionTranscriptRequest {
                 session_id: request.session_id.clone(),
                 turn_id: None,
             })
             .await
         .map_err(|error| {
-            openbitfun_runtime_ports::PortError::new(
-                openbitfun_runtime_ports::PortErrorKind::OutcomeUnknown,
+            alex_runtime_ports::PortError::new(
+                alex_runtime_ports::PortErrorKind::OutcomeUnknown,
                 format!(
                     "Session revert completed but the authoritative transcript could not be read: {error}"
                 ),
@@ -1219,24 +1219,24 @@ impl AgentSessionRevertPort for ScheduledSessionManagementPort {
     async fn undo_session(
         &self,
         request: AgentSessionRevertRequest,
-    ) -> openbitfun_runtime_ports::PortResult<AgentSessionRevertResult> {
+    ) -> alex_runtime_ports::PortResult<AgentSessionRevertResult> {
         self.apply_session_revert(request, true).await
     }
 
     async fn redo_session(
         &self,
         request: AgentSessionRevertRequest,
-    ) -> openbitfun_runtime_ports::PortResult<AgentSessionRevertResult> {
+    ) -> alex_runtime_ports::PortResult<AgentSessionRevertResult> {
         self.apply_session_revert(request, false).await
     }
 
     async fn rollback_session_to_turn(
         &self,
         request: AgentSessionRollbackToTurnRequest,
-    ) -> openbitfun_runtime_ports::PortResult<AgentSessionRollbackToTurnOutcome> {
-        openbitfun_core_types::validate_session_id(&request.session_id).map_err(|message| {
-            openbitfun_runtime_ports::PortError::new(
-                openbitfun_runtime_ports::PortErrorKind::InvalidRequest,
+    ) -> alex_runtime_ports::PortResult<AgentSessionRollbackToTurnOutcome> {
+        alex_core_types::validate_session_id(&request.session_id).map_err(|message| {
+            alex_runtime_ports::PortError::new(
+                alex_runtime_ports::PortErrorKind::InvalidRequest,
                 message,
             )
         })?;
@@ -1248,8 +1248,8 @@ impl AgentSessionRevertPort for ScheduledSessionManagementPort {
         )
         .await?;
         if workspace.is_remote() {
-            return Err(openbitfun_runtime_ports::PortError::new(
-                openbitfun_runtime_ports::PortErrorKind::NotAvailable,
+            return Err(alex_runtime_ports::PortError::new(
+                alex_runtime_ports::PortErrorKind::NotAvailable,
                 "Session rollback is unavailable for remote workspaces",
             ));
         }
@@ -1358,7 +1358,7 @@ impl AgentSessionRevertPort for ScheduledSessionManagementPort {
         }
         let (transcript, reload_reason) = match self
             .coordinator
-            .read_session_transcript_locked(openbitfun_runtime_ports::SessionTranscriptRequest {
+            .read_session_transcript_locked(alex_runtime_ports::SessionTranscriptRequest {
                 session_id: request.session_id.clone(),
                 turn_id: None,
             })
@@ -1366,7 +1366,7 @@ impl AgentSessionRevertPort for ScheduledSessionManagementPort {
         {
             Ok(transcript) => (transcript, None),
             Err(error) => (
-                openbitfun_runtime_ports::SessionTranscript {
+                alex_runtime_ports::SessionTranscript {
                     session_id: request.session_id.clone(),
                     messages: Vec::new(),
                 },
@@ -1403,7 +1403,7 @@ impl AgentDialogTurnPort for RejectBusyAgentDialogTurnPort {
     async fn submit_dialog_turn(
         &self,
         request: AgentDialogTurnRequest,
-    ) -> openbitfun_runtime_ports::PortResult<DialogSubmitOutcome> {
+    ) -> alex_runtime_ports::PortResult<DialogSubmitOutcome> {
         self.0
             .submit_agent_dialog_turn_reject_if_busy(request)
             .await
@@ -1411,8 +1411,8 @@ impl AgentDialogTurnPort for RejectBusyAgentDialogTurnPort {
 
     async fn steer_dialog_turn(
         &self,
-        request: openbitfun_runtime_ports::AgentDialogSteerRequest,
-    ) -> openbitfun_runtime_ports::PortResult<openbitfun_runtime_ports::DialogSteerOutcome> {
+        request: alex_runtime_ports::AgentDialogSteerRequest,
+    ) -> alex_runtime_ports::PortResult<alex_runtime_ports::DialogSteerOutcome> {
         AgentDialogTurnPort::steer_dialog_turn(self.0.as_ref(), request).await
     }
 }
@@ -1421,19 +1421,19 @@ impl AgentDialogTurnPort for RejectBusyAgentDialogTurnPort {
 impl AgentSessionManagementPort for ScheduledSessionManagementPort {
     async fn list_sessions(
         &self,
-        request: openbitfun_runtime_ports::AgentSessionListRequest,
-    ) -> openbitfun_runtime_ports::PortResult<Vec<openbitfun_runtime_ports::AgentSessionSummary>>
+        request: alex_runtime_ports::AgentSessionListRequest,
+    ) -> alex_runtime_ports::PortResult<Vec<alex_runtime_ports::AgentSessionSummary>>
     {
         AgentSessionManagementPort::list_sessions(self.coordinator.as_ref(), request).await
     }
 
     async fn delete_session(
         &self,
-        request: openbitfun_runtime_ports::AgentSessionDeleteRequest,
-    ) -> openbitfun_runtime_ports::PortResult<()> {
-        openbitfun_core_types::validate_session_id(&request.session_id).map_err(|message| {
-            openbitfun_runtime_ports::PortError::new(
-                openbitfun_runtime_ports::PortErrorKind::InvalidRequest,
+        request: alex_runtime_ports::AgentSessionDeleteRequest,
+    ) -> alex_runtime_ports::PortResult<()> {
+        alex_core_types::validate_session_id(&request.session_id).map_err(|message| {
+            alex_runtime_ports::PortError::new(
+                alex_runtime_ports::PortErrorKind::InvalidRequest,
                 message,
             )
         })?;
@@ -1447,8 +1447,8 @@ impl AgentSessionManagementPort for ScheduledSessionManagementPort {
             .await
             .map(|resolution| resolution.effective_storage_path)
             .map_err(|error| {
-                openbitfun_runtime_ports::PortError::new(
-                    openbitfun_runtime_ports::PortErrorKind::InvalidRequest,
+                alex_runtime_ports::PortError::new(
+                    alex_runtime_ports::PortErrorKind::InvalidRequest,
                     error.to_string(),
                 )
             })?;
@@ -1456,8 +1456,8 @@ impl AgentSessionManagementPort for ScheduledSessionManagementPort {
             .get_session_manager()
             .validate_session_storage_path_binding(&request.session_id, &storage_path)
             .map_err(|error| {
-                openbitfun_runtime_ports::PortError::new(
-                    openbitfun_runtime_ports::PortErrorKind::InvalidRequest,
+                alex_runtime_ports::PortError::new(
+                    alex_runtime_ports::PortErrorKind::InvalidRequest,
                     error.to_string(),
                 )
             })?;
@@ -1471,57 +1471,57 @@ impl AgentSessionManagementPort for ScheduledSessionManagementPort {
             .await
             .map_err(|error| {
                 let kind = match error {
-                    crate::util::errors::OpenBitFunError::Validation(_) => {
-                        openbitfun_runtime_ports::PortErrorKind::InvalidRequest
+                    crate::util::errors::AlexError::Validation(_) => {
+                        alex_runtime_ports::PortErrorKind::InvalidRequest
                     }
-                    crate::util::errors::OpenBitFunError::NotFound(_) => {
-                        openbitfun_runtime_ports::PortErrorKind::NotFound
+                    crate::util::errors::AlexError::NotFound(_) => {
+                        alex_runtime_ports::PortErrorKind::NotFound
                     }
-                    crate::util::errors::OpenBitFunError::Timeout(_) => {
-                        openbitfun_runtime_ports::PortErrorKind::Timeout
+                    crate::util::errors::AlexError::Timeout(_) => {
+                        alex_runtime_ports::PortErrorKind::Timeout
                     }
-                    crate::util::errors::OpenBitFunError::Cancelled(_) => {
-                        openbitfun_runtime_ports::PortErrorKind::Cancelled
+                    crate::util::errors::AlexError::Cancelled(_) => {
+                        alex_runtime_ports::PortErrorKind::Cancelled
                     }
-                    crate::util::errors::OpenBitFunError::SessionInUse { .. } => {
-                        openbitfun_runtime_ports::PortErrorKind::SessionInUse
+                    crate::util::errors::AlexError::SessionInUse { .. } => {
+                        alex_runtime_ports::PortErrorKind::SessionInUse
                     }
-                    crate::util::errors::OpenBitFunError::OutcomeUnknown(_) => {
-                        openbitfun_runtime_ports::PortErrorKind::OutcomeUnknown
+                    crate::util::errors::AlexError::OutcomeUnknown(_) => {
+                        alex_runtime_ports::PortErrorKind::OutcomeUnknown
                     }
-                    _ => openbitfun_runtime_ports::PortErrorKind::Backend,
+                    _ => alex_runtime_ports::PortErrorKind::Backend,
                 };
-                openbitfun_runtime_ports::PortError::new(kind, error.to_string())
+                alex_runtime_ports::PortError::new(kind, error.to_string())
             })?;
         AgentSessionManagementPort::delete_session(self.coordinator.as_ref(), request).await
     }
 
     async fn rename_session(
         &self,
-        request: openbitfun_runtime_ports::AgentSessionRenameRequest,
-    ) -> openbitfun_runtime_ports::PortResult<()> {
+        request: alex_runtime_ports::AgentSessionRenameRequest,
+    ) -> alex_runtime_ports::PortResult<()> {
         AgentSessionManagementPort::rename_session(self.coordinator.as_ref(), request).await
     }
 
     async fn archive_session(
         &self,
-        request: openbitfun_runtime_ports::AgentSessionArchiveRequest,
-    ) -> openbitfun_runtime_ports::PortResult<()> {
+        request: alex_runtime_ports::AgentSessionArchiveRequest,
+    ) -> alex_runtime_ports::PortResult<()> {
         AgentSessionManagementPort::archive_session(self.coordinator.as_ref(), request).await
     }
 
     async fn set_session_archived(
         &self,
-        request: openbitfun_runtime_ports::AgentSessionArchiveStateRequest,
-    ) -> openbitfun_runtime_ports::PortResult<()> {
+        request: alex_runtime_ports::AgentSessionArchiveStateRequest,
+    ) -> alex_runtime_ports::PortResult<()> {
         AgentSessionManagementPort::set_session_archived(self.coordinator.as_ref(), request).await
     }
 
     async fn resolve_session_workspace_binding(
         &self,
-        request: openbitfun_runtime_ports::AgentSessionWorkspaceRequest,
-    ) -> openbitfun_runtime_ports::PortResult<
-        Option<openbitfun_runtime_ports::AgentSessionWorkspaceBinding>,
+        request: alex_runtime_ports::AgentSessionWorkspaceRequest,
+    ) -> alex_runtime_ports::PortResult<
+        Option<alex_runtime_ports::AgentSessionWorkspaceBinding>,
     > {
         AgentSessionManagementPort::resolve_session_workspace_binding(
             self.coordinator.as_ref(),
@@ -1540,12 +1540,12 @@ enum SessionReleaseKind {
 impl ScheduledSessionManagementPort {
     async fn release_session(
         &self,
-        request: openbitfun_runtime_ports::AgentSessionReleaseRequest,
+        request: alex_runtime_ports::AgentSessionReleaseRequest,
         kind: SessionReleaseKind,
-    ) -> openbitfun_runtime_ports::PortResult<bool> {
-        openbitfun_core_types::validate_session_id(&request.session_id).map_err(|message| {
-            openbitfun_runtime_ports::PortError::new(
-                openbitfun_runtime_ports::PortErrorKind::InvalidRequest,
+    ) -> alex_runtime_ports::PortResult<bool> {
+        alex_core_types::validate_session_id(&request.session_id).map_err(|message| {
+            alex_runtime_ports::PortError::new(
+                alex_runtime_ports::PortErrorKind::InvalidRequest,
                 message,
             )
         })?;
@@ -1575,8 +1575,8 @@ impl ScheduledSessionManagementPort {
             .map_err(map_session_close_error)?;
         let cleanup_budget = close_deadline.saturating_duration_since(tokio::time::Instant::now());
         if cleanup_budget.is_zero() {
-            return Err(openbitfun_runtime_ports::PortError::new(
-                openbitfun_runtime_ports::PortErrorKind::Timeout,
+            return Err(alex_runtime_ports::PortError::new(
+                alex_runtime_ports::PortErrorKind::Timeout,
                 "Session close deadline was exhausted before resource release",
             ));
         }
@@ -1601,8 +1601,8 @@ impl ScheduledSessionManagementPort {
         })
         .await
         .map_err(|_| {
-            openbitfun_runtime_ports::PortError::new(
-                openbitfun_runtime_ports::PortErrorKind::Timeout,
+            alex_runtime_ports::PortError::new(
+                alex_runtime_ports::PortErrorKind::Timeout,
                 "Session resource release exceeded the Session close deadline",
             )
         })?
@@ -1614,46 +1614,46 @@ impl ScheduledSessionManagementPort {
 impl AgentSessionClosePort for ScheduledSessionManagementPort {
     async fn discard_transient_session(
         &self,
-        request: openbitfun_runtime_ports::AgentSessionReleaseRequest,
-    ) -> openbitfun_runtime_ports::PortResult<bool> {
+        request: alex_runtime_ports::AgentSessionReleaseRequest,
+    ) -> alex_runtime_ports::PortResult<bool> {
         self.release_session(request, SessionReleaseKind::DiscardTransient)
             .await
     }
 
     async fn unload_persisted_session(
         &self,
-        request: openbitfun_runtime_ports::AgentSessionReleaseRequest,
-    ) -> openbitfun_runtime_ports::PortResult<bool> {
+        request: alex_runtime_ports::AgentSessionReleaseRequest,
+    ) -> alex_runtime_ports::PortResult<bool> {
         self.release_session(request, SessionReleaseKind::UnloadPersisted)
             .await
     }
 }
 
 fn map_session_close_error(
-    error: crate::util::errors::OpenBitFunError,
-) -> openbitfun_runtime_ports::PortError {
+    error: crate::util::errors::AlexError,
+) -> alex_runtime_ports::PortError {
     let kind = match &error {
-        crate::util::errors::OpenBitFunError::Validation(_) => {
-            openbitfun_runtime_ports::PortErrorKind::InvalidRequest
+        crate::util::errors::AlexError::Validation(_) => {
+            alex_runtime_ports::PortErrorKind::InvalidRequest
         }
-        crate::util::errors::OpenBitFunError::NotFound(_) => {
-            openbitfun_runtime_ports::PortErrorKind::NotFound
+        crate::util::errors::AlexError::NotFound(_) => {
+            alex_runtime_ports::PortErrorKind::NotFound
         }
-        crate::util::errors::OpenBitFunError::Timeout(_) => {
-            openbitfun_runtime_ports::PortErrorKind::Timeout
+        crate::util::errors::AlexError::Timeout(_) => {
+            alex_runtime_ports::PortErrorKind::Timeout
         }
-        crate::util::errors::OpenBitFunError::Cancelled(_) => {
-            openbitfun_runtime_ports::PortErrorKind::Cancelled
+        crate::util::errors::AlexError::Cancelled(_) => {
+            alex_runtime_ports::PortErrorKind::Cancelled
         }
-        crate::util::errors::OpenBitFunError::SessionInUse { .. } => {
-            openbitfun_runtime_ports::PortErrorKind::SessionInUse
+        crate::util::errors::AlexError::SessionInUse { .. } => {
+            alex_runtime_ports::PortErrorKind::SessionInUse
         }
-        crate::util::errors::OpenBitFunError::OutcomeUnknown(_) => {
-            openbitfun_runtime_ports::PortErrorKind::OutcomeUnknown
+        crate::util::errors::AlexError::OutcomeUnknown(_) => {
+            alex_runtime_ports::PortErrorKind::OutcomeUnknown
         }
-        _ => openbitfun_runtime_ports::PortErrorKind::Backend,
+        _ => alex_runtime_ports::PortErrorKind::Backend,
     };
-    openbitfun_runtime_ports::PortError::new(kind, error.to_string())
+    alex_runtime_ports::PortError::new(kind, error.to_string())
 }
 
 fn scheduled_session_management_port(
@@ -1733,7 +1733,7 @@ impl CoreServiceAgentRuntime {
         path: &str,
         session_id: Option<&str>,
     ) -> Result<
-        openbitfun_services_integrations::remote_connect::file_projection::SessionFileTarget,
+        alex_services_integrations::remote_connect::file_projection::SessionFileTarget,
         String,
     > {
         Self::remote_file_target_with_identity(path, session_id)
@@ -1747,7 +1747,7 @@ impl CoreServiceAgentRuntime {
         session_id: Option<&str>,
     ) -> Result<
         (
-            openbitfun_services_integrations::remote_connect::file_projection::SessionFileTarget,
+            alex_services_integrations::remote_connect::file_projection::SessionFileTarget,
             String,
         ),
         String,
@@ -1794,7 +1794,7 @@ impl CoreServiceAgentRuntime {
         workspace_path: Option<&str>,
         remote_connection_id: Option<&str>,
     ) -> Result<
-        openbitfun_services_integrations::remote_connect::file_projection::SessionFileTarget,
+        alex_services_integrations::remote_connect::file_projection::SessionFileTarget,
         String,
     > {
         Self::scoped_remote_file_target_with_identity(
@@ -1821,7 +1821,7 @@ impl CoreServiceAgentRuntime {
         remote_connection_id: Option<&str>,
     ) -> Result<
         (
-            openbitfun_services_integrations::remote_connect::file_projection::SessionFileTarget,
+            alex_services_integrations::remote_connect::file_projection::SessionFileTarget,
             String,
         ),
         String,
@@ -1935,11 +1935,11 @@ impl CoreServiceAgentRuntime {
         session_id: Option<&str>,
         binding: WorkspaceBinding,
     ) -> Result<
-        openbitfun_services_integrations::remote_connect::file_projection::SessionFileTarget,
+        alex_services_integrations::remote_connect::file_projection::SessionFileTarget,
         String,
     > {
         use crate::agentic::tools::framework::ToolUseContext;
-        use openbitfun_services_integrations::remote_connect::file_projection::{
+        use alex_services_integrations::remote_connect::file_projection::{
             normalize_file_reference, SessionFileTarget,
         };
         let path = normalize_file_reference(path)?;
@@ -2028,7 +2028,7 @@ impl CoreServiceAgentRuntime {
     pub(crate) async fn load_relay_history_batch(
         session_id: &str,
         before: Option<usize>,
-    ) -> anyhow::Result<openbitfun_services_integrations::remote_connect::host_stream::HistoryBatch>
+    ) -> anyhow::Result<alex_services_integrations::remote_connect::host_stream::HistoryBatch>
     {
         let directory = Self::resolve_session_storage_dir(session_id)
             .await
@@ -2039,14 +2039,14 @@ impl CoreServiceAgentRuntime {
             .load_relay_history_turn(&directory, session_id, before)
             .await?;
         let records = tokio::task::spawn_blocking(move || {
-            openbitfun_services_integrations::remote_connect::session_records::records_from_turns(
+            alex_services_integrations::remote_connect::session_records::records_from_turns(
                 &turns,
                 &read_remote_chat_image_pixels,
             )
         })
         .await??;
         Ok(
-            openbitfun_services_integrations::remote_connect::host_stream::HistoryBatch {
+            alex_services_integrations::remote_connect::host_stream::HistoryBatch {
                 records,
                 before,
             },
@@ -2056,7 +2056,7 @@ impl CoreServiceAgentRuntime {
     /// One source read/commit owner for both migration and live block updates.
     #[cfg(feature = "remote-connect")]
     pub(crate) async fn synchronize_relay_session(
-        hub: &openbitfun_services_integrations::remote_connect::host_stream::HostStreamHub,
+        hub: &alex_services_integrations::remote_connect::host_stream::HostStreamHub,
         session_id: &str,
         turn_id: Option<&str>,
     ) -> Result<(), String> {
@@ -2071,7 +2071,7 @@ impl CoreServiceAgentRuntime {
             // Attachment paths are read and images re-encoded here, so the work
             // leaves the reactor rather than stalling the session's other events.
             tokio::task::spawn_blocking(move||{
-                openbitfun_services_integrations::remote_connect::session_records::records_from_turns(&turns,&read_remote_chat_image_pixels)
+                alex_services_integrations::remote_connect::session_records::records_from_turns(&turns,&read_remote_chat_image_pixels)
             }).await?
         }).await.map_err(|error|error.to_string())
     }
@@ -2355,7 +2355,7 @@ impl CoreServiceAgentRuntime {
         let session_restore = configured_plugin_session_restore_port(coordinator.clone());
         let local_command_turn: Arc<dyn AgentLocalCommandTurnPort> = coordinator.clone();
         let user_shell_command: Arc<dyn AgentUserShellCommandPort> = coordinator.clone();
-        let transcript_reader: Arc<dyn openbitfun_runtime_ports::SessionTranscriptReader> =
+        let transcript_reader: Arc<dyn alex_runtime_ports::SessionTranscriptReader> =
             coordinator.clone();
         let thread_goal_management: Arc<dyn AgentThreadGoalManagementPort> = coordinator.clone();
         let cancellation: Arc<dyn AgentTurnCancellationPort> = coordinator.clone();
@@ -2397,7 +2397,7 @@ impl CoreServiceAgentRuntime {
         let session_restore = configured_plugin_session_restore_port(coordinator.clone());
         let local_command_turn: Arc<dyn AgentLocalCommandTurnPort> = coordinator.clone();
         let user_shell_command: Arc<dyn AgentUserShellCommandPort> = coordinator.clone();
-        let transcript_reader: Arc<dyn openbitfun_runtime_ports::SessionTranscriptReader> =
+        let transcript_reader: Arc<dyn alex_runtime_ports::SessionTranscriptReader> =
             coordinator.clone();
         let thread_goal_management: Arc<dyn AgentThreadGoalManagementPort> = coordinator.clone();
         let cancellation: Arc<dyn AgentTurnCancellationPort> = coordinator.clone();
@@ -2445,7 +2445,7 @@ impl CoreServiceAgentRuntime {
         let session_restore = configured_plugin_session_restore_port(coordinator.clone());
         let local_command_turn: Arc<dyn AgentLocalCommandTurnPort> = coordinator.clone();
         let user_shell_command: Arc<dyn AgentUserShellCommandPort> = coordinator.clone();
-        let transcript_reader: Arc<dyn openbitfun_runtime_ports::SessionTranscriptReader> =
+        let transcript_reader: Arc<dyn alex_runtime_ports::SessionTranscriptReader> =
             coordinator.clone();
         let thread_goal_management: Arc<dyn AgentThreadGoalManagementPort> = coordinator.clone();
         let cancellation: Arc<dyn AgentTurnCancellationPort> = coordinator.clone();
@@ -2536,7 +2536,7 @@ impl CoreServiceAgentRuntime {
         let session_restore = configured_plugin_session_restore_port(coordinator.clone());
         let local_command_turn: Arc<dyn AgentLocalCommandTurnPort> = coordinator.clone();
         let user_shell_command: Arc<dyn AgentUserShellCommandPort> = coordinator.clone();
-        let transcript_reader: Arc<dyn openbitfun_runtime_ports::SessionTranscriptReader> =
+        let transcript_reader: Arc<dyn alex_runtime_ports::SessionTranscriptReader> =
             coordinator.clone();
         let thread_goal_management: Arc<dyn AgentThreadGoalManagementPort> = coordinator.clone();
         let session_compaction: Arc<dyn AgentSessionCompactionPort> = coordinator.clone();
@@ -2577,7 +2577,7 @@ impl CoreServiceAgentRuntime {
         session_usage: Arc<dyn AgentSessionUsagePort>,
         turn_settlement: Arc<dyn AgentTurnSettlementPort>,
         session_lineage: Arc<dyn AgentSessionLineagePort>,
-        services: openbitfun_runtime_services::RuntimeServices,
+        services: alex_runtime_services::RuntimeServices,
     ) -> Result<AgentRuntime, String> {
         let dialog_turn: Arc<dyn AgentDialogTurnPort> = scheduler.clone();
         Self::product_agent_runtime_with_dialog_turn(
@@ -2597,7 +2597,7 @@ impl CoreServiceAgentRuntime {
         coordinator: Arc<ConversationCoordinator>,
         scheduler: Arc<DialogScheduler>,
         event_source: AgentEventSource,
-        services: openbitfun_runtime_services::RuntimeServices,
+        services: alex_runtime_services::RuntimeServices,
     ) -> Result<AgentRuntime, String> {
         let dialog_turn: Arc<dyn AgentDialogTurnPort> =
             Arc::new(RejectBusyAgentDialogTurnPort(scheduler.clone()));
@@ -2621,7 +2621,7 @@ impl CoreServiceAgentRuntime {
         session_fork: Arc<dyn AgentSessionForkPort>,
         session_usage: Arc<dyn AgentSessionUsagePort>,
         turn_settlement: Arc<dyn AgentTurnSettlementPort>,
-        services: openbitfun_runtime_services::RuntimeServices,
+        services: alex_runtime_services::RuntimeServices,
     ) -> Result<AgentRuntime, String> {
         let dialog_turn: Arc<dyn AgentDialogTurnPort> = scheduler.clone();
         Self::product_agent_runtime_with_dialog_turn(
@@ -2646,7 +2646,7 @@ impl CoreServiceAgentRuntime {
         session_usage: Option<Arc<dyn AgentSessionUsagePort>>,
         turn_settlement: Option<Arc<dyn AgentTurnSettlementPort>>,
         session_lineage: Option<Arc<dyn AgentSessionLineagePort>>,
-        services: openbitfun_runtime_services::RuntimeServices,
+        services: alex_runtime_services::RuntimeServices,
     ) -> Result<AgentRuntime, String> {
         let dialog_turn = configured_plugin_dialog_turn_port(coordinator.clone(), dialog_turn);
         let submission = configured_plugin_submission_port(coordinator.clone());
@@ -2660,7 +2660,7 @@ impl CoreServiceAgentRuntime {
         let session_restore = configured_plugin_session_restore_port(coordinator.clone());
         let local_command_turn: Arc<dyn AgentLocalCommandTurnPort> = coordinator.clone();
         let user_shell_command: Arc<dyn AgentUserShellCommandPort> = coordinator.clone();
-        let transcript_reader: Arc<dyn openbitfun_runtime_ports::SessionTranscriptReader> =
+        let transcript_reader: Arc<dyn alex_runtime_ports::SessionTranscriptReader> =
             coordinator.clone();
         let thread_goal_management: Arc<dyn AgentThreadGoalManagementPort> = coordinator.clone();
         let session_compaction: Arc<dyn AgentSessionCompactionPort> = coordinator.clone();
@@ -2740,7 +2740,7 @@ impl crate::agentic::events::EventSubscriber for CoreRemoteSessionStateTrackerSu
     async fn on_event(
         &self,
         event: &crate::agentic::events::AgenticEvent,
-    ) -> openbitfun_agent_runtime::event_bus::EventSubscriberResult {
+    ) -> alex_agent_runtime::event_bus::EventSubscriberResult {
         self.0.handle_agentic_event(event);
         Ok(())
     }
@@ -2811,8 +2811,8 @@ impl<'a> CoreRemoteDialogRuntimeHost<'a> {
 
     pub(crate) async fn manage_dialog_queue(
         &self,
-        request: openbitfun_runtime_ports::DialogQueueRequest,
-    ) -> Result<openbitfun_runtime_ports::DialogQueueSnapshot, String> {
+        request: alex_runtime_ports::DialogQueueRequest,
+    ) -> Result<alex_runtime_ports::DialogQueueSnapshot, String> {
         let binding = self.resolve_binding_workspace(&request.session_id).await;
         if !self.remote_session_exists(&request.session_id).await? {
             let binding = binding
@@ -3162,7 +3162,7 @@ impl RemoteWorkspaceFileRuntimeHost for CoreRemoteWorkspaceFileRuntimeHost {
         path: &str,
         session_id: Option<&str>,
         max_bytes: u64,
-    ) -> Result<Option<openbitfun_runtime_ports::RemoteWorkspaceFileContent>, String> {
+    ) -> Result<Option<alex_runtime_ports::RemoteWorkspaceFileContent>, String> {
         CoreServiceAgentRuntime::remote_file_target(path, session_id)
             .await?
             .read(max_bytes)
@@ -3179,7 +3179,7 @@ impl RemoteWorkspaceFileRuntimeHost for CoreRemoteWorkspaceFileRuntimeHost {
         remote_connection_id: Option<&str>,
         offset: u64,
         limit: u64,
-    ) -> Result<Option<openbitfun_runtime_ports::RemoteWorkspaceFileChunk>, String> {
+    ) -> Result<Option<alex_runtime_ports::RemoteWorkspaceFileChunk>, String> {
         CoreServiceAgentRuntime::scoped_remote_file_target(
             path,
             session_id,
@@ -3200,7 +3200,7 @@ impl RemoteWorkspaceFileRuntimeHost for CoreRemoteWorkspaceFileRuntimeHost {
         workspace_id: Option<&str>,
         workspace_path: Option<&str>,
         remote_connection_id: Option<&str>,
-    ) -> Result<Option<openbitfun_runtime_ports::RemoteWorkspaceFileInfo>, String> {
+    ) -> Result<Option<alex_runtime_ports::RemoteWorkspaceFileInfo>, String> {
         CoreServiceAgentRuntime::scoped_remote_file_target(
             path,
             session_id,
@@ -3628,11 +3628,11 @@ impl RemoteInteractionRuntimeHost for CoreRemoteInteractionRuntimeHost {
                 tool_id,
                 match updated_input {
                     Some(updated_input) => {
-                        openbitfun_agent_runtime::sdk::PermissionReply::OnceWithInput {
+                        alex_agent_runtime::sdk::PermissionReply::OnceWithInput {
                             updated_input,
                         }
                     }
-                    None => openbitfun_agent_runtime::sdk::PermissionReply::Once,
+                    None => alex_agent_runtime::sdk::PermissionReply::Once,
                 },
             )
             .await
@@ -3643,7 +3643,7 @@ impl RemoteInteractionRuntimeHost for CoreRemoteInteractionRuntimeHost {
         self.coordinator()?
             .reply_to_tool(
                 tool_id,
-                openbitfun_agent_runtime::sdk::PermissionReply::Reject {
+                alex_agent_runtime::sdk::PermissionReply::Reject {
                     feedback: Some(reason),
                 },
             )
@@ -3783,15 +3783,15 @@ impl RemoteCancelRuntimeHost for CoreRemoteCancelRuntimeHost {
 mod tests {
     use std::collections::HashSet;
 
-    use openbitfun_runtime_ports::SessionTranscriptReader;
-    use openbitfun_services_integrations::remote_connect::no_host_image_pixels;
+    use alex_runtime_ports::SessionTranscriptReader;
+    use alex_services_integrations::remote_connect::no_host_image_pixels;
 
     use super::*;
     use crate::service::session::{
         DialogTurnData, DialogTurnKind, ModelRoundData, TextItemData, ThinkingItemData,
         ToolCallData, ToolItemData, TurnStatus, UserMessageData,
     };
-    use crate::OpenBitFunError;
+    use crate::AlexError;
 
     #[test]
     fn local_workspace_marker_is_not_remote_routing_authority() {
@@ -3909,7 +3909,7 @@ mod tests {
             agent_route_key: None,
             workspace_path: Some(workspace.root_path.to_string_lossy().into_owned()),
             project_workspace_path: None,
-            execution_target: Some(openbitfun_core_types::SessionExecutionTarget::local(
+            execution_target: Some(alex_core_types::SessionExecutionTarget::local(
                 "project-worktree",
             )),
             workspace_id: Some(workspace.id.clone()),
@@ -3985,7 +3985,7 @@ mod tests {
     #[cfg(feature = "opencode-plugin-host")]
     #[test]
     fn configured_plugins_recover_from_the_persisted_session_execution_root() {
-        let target = openbitfun_core_types::SessionExecutionTarget::local("restored-worktree");
+        let target = alex_core_types::SessionExecutionTarget::local("restored-worktree");
 
         assert_eq!(
             configured_plugin_root_from_session_facts(Some("project"), Some(&target), false,)
@@ -4013,13 +4013,13 @@ mod tests {
 
     #[test]
     fn session_close_preserves_writer_conflicts() {
-        let error = map_session_close_error(OpenBitFunError::SessionInUse {
+        let error = map_session_close_error(AlexError::SessionInUse {
             session_id: "session-1".to_string(),
         });
 
         assert_eq!(
             error.kind,
-            openbitfun_runtime_ports::PortErrorKind::SessionInUse
+            alex_runtime_ports::PortErrorKind::SessionInUse
         );
     }
 
@@ -4667,7 +4667,7 @@ mod history_workspace_identity_tests {
 mod remote_model_catalog_tests {
     use super::{remote_models_dev_reasoning_catalog, remote_provider_catalog};
     use crate::infrastructure::ai::reasoning_catalog::ModelsDevReasoningCatalogSnapshot;
-    use openbitfun_services_integrations::models_dev::ModelsDevSnapshotSource;
+    use alex_services_integrations::models_dev::ModelsDevSnapshotSource;
 
     fn empty_snapshot() -> ModelsDevReasoningCatalogSnapshot {
         ModelsDevReasoningCatalogSnapshot {

@@ -1,13 +1,13 @@
 use std::collections::HashMap;
 
-const REMOTE_ENV_BOOTSTRAP: &str = r#"__openbitfun_home="${HOME:-}"
-if [ -n "$__openbitfun_home" ]; then
-  if [ -s "$__openbitfun_home/.nvm/nvm.sh" ]; then
-    . "$__openbitfun_home/.nvm/nvm.sh" >/dev/null 2>&1
+const REMOTE_ENV_BOOTSTRAP: &str = r#"__alex_home="${HOME:-}"
+if [ -n "$__alex_home" ]; then
+  if [ -s "$__alex_home/.nvm/nvm.sh" ]; then
+    . "$__alex_home/.nvm/nvm.sh" >/dev/null 2>&1
   fi
-  for __openbitfun_dir in "$__openbitfun_home/.local/bin" "$__openbitfun_home/.cargo/bin" "$__openbitfun_home/.npm-global/bin"; do
-    if [ -d "$__openbitfun_dir" ]; then
-      PATH="$__openbitfun_dir:$PATH"
+  for __alex_dir in "$__alex_home/.local/bin" "$__alex_home/.cargo/bin" "$__alex_home/.npm-global/bin"; do
+    if [ -d "$__alex_dir" ]; then
+      PATH="$__alex_dir:$PATH"
     fi
   done
 fi

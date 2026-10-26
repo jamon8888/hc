@@ -410,7 +410,7 @@ export class OverlayLayerStack {
   private changed(): void {
     this.orderedLayers().forEach((layer, index) => {
       layer.element.style.zIndex = String(index + 1);
-      layer.element.dataset.openbitfunOverlayState = layer.open ? "open" : "exiting";
+      layer.element.dataset.alexOverlayState = layer.open ? "open" : "exiting";
       layer.element.hidden = !this.ancestorsOpen(layer);
       layer.element.style.pointerEvents = layer.modal && !layer.open ? "auto" : "none";
     });
@@ -435,7 +435,7 @@ export class OverlayLayerStack {
 
 // Root UI and the separately built mobile entry can coexist in a document.
 // A document-owned symbol keeps their module instances on the same coordinator.
-const DOCUMENT_STACK = Symbol.for("openbitfun.overlay-coordinator.v1");
+const DOCUMENT_STACK = Symbol.for("alex.overlay-coordinator.v1");
 const serverStack = new OverlayLayerStack();
 export function getOverlayLayerStack(ownerDocument?: Document | null): OverlayLayerStack {
   if (!ownerDocument) return serverStack;

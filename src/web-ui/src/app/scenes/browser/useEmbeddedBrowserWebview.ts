@@ -553,7 +553,7 @@ export function useEmbeddedBrowserWebview(options: UseEmbeddedBrowserWebviewOpti
     const observer = new MutationObserver(checkOverlays);
     observer.observe(doc.body, {
       childList: true, subtree: true, attributes: true,
-      attributeFilter: ['style', 'class', 'hidden', 'data-state', 'data-openbitfun-state', 'data-openbitfun-native-webview-occlusion'],
+      attributeFilter: ['style', 'class', 'hidden', 'data-state', 'data-alex-state', 'data-alex-native-webview-occlusion'],
     });
     checkOverlays();
     const handleToolbarActivating = () => {

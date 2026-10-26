@@ -1,9 +1,9 @@
 fn main() {
     for name in [
-        "OPENBITFUN_RELEASE_CHANNEL",
-        "OPENBITFUN_PRODUCT_ID",
-        "OPENBITFUN_DESKTOP_BINARY_NAME",
-        "OPENBITFUN_DATA_MIGRATOR_BINARY_NAME",
+        "ALEX_RELEASE_CHANNEL",
+        "ALEX_PRODUCT_ID",
+        "ALEX_DESKTOP_BINARY_NAME",
+        "ALEX_DATA_MIGRATOR_BINARY_NAME",
     ] {
         println!("cargo:rerun-if-env-changed={name}");
     }

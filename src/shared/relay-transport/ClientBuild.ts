@@ -18,7 +18,7 @@ import { version as PACKAGE_VERSION } from '../../../package.json';
  *  - increment only on a breaking change to the client control contract.
  *
  * Kept numerically identical to
- * `openbitfun_product_domains::account::CLIENT_PROTOCOL_VERSION` in
+ * `alex_product_domains::account::CLIENT_PROTOCOL_VERSION` in
  * `src/crates/contracts/product-domains/src/account.rs`; `clientBuild.contract.test.ts`
  * pins the two together so one side can never drift.
  */

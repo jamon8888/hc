@@ -288,11 +288,11 @@ standalone `.js` Tool 继续由 `ScriptToolRuntime` 为每个脚本启动 Node w
 
 当前 Rust 边界调整至少运行：
 
-- `cargo test --locked -p openbitfun-runtime-ports --no-default-features --features plugin-runtime --test plugin_runtime_contracts plugin_runtime_contracts`
-- `cargo test --locked -p openbitfun-runtime-ports --no-default-features --features plugin-runtime --test plugin_runtime_contracts plugin_runtime_diagnostics_contracts`
-- `cargo test -p openbitfun-plugin-runtime-client`
-- `cargo test -p openbitfun-opencode-adapter --test opencode_source_adapter`
-- `cargo test -p openbitfun-core --no-default-features --features plugin-runtime --lib plugin_runtime::tests`
+- `cargo test --locked -p alex-runtime-ports --no-default-features --features plugin-runtime --test plugin_runtime_contracts plugin_runtime_contracts`
+- `cargo test --locked -p alex-runtime-ports --no-default-features --features plugin-runtime --test plugin_runtime_contracts plugin_runtime_diagnostics_contracts`
+- `cargo test -p alex-plugin-runtime-client`
+- `cargo test -p alex-opencode-adapter --test opencode_source_adapter`
+- `cargo test -p alex-core --no-default-features --features plugin-runtime --lib plugin_runtime::tests`
 - `node scripts/check-core-boundaries.mjs`
 
 目标 Plugin Host 还必须使用固定版本真实 fixture 验证：

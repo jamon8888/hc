@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { Icon } from '@openbitfun/ui';
+import { Icon } from '@alex/ui';
 import { 
   Code, 
   FileText, 
@@ -267,8 +267,8 @@ export const PANEL_CONTENT_CONFIGS: Record<PanelContentType, PanelContentConfig>
     supportsDownload: false,
     showHeader: false
   },
-  'openbitfun-canvas': {
-    type: 'openbitfun-canvas',
+  'alex-canvas': {
+    type: 'alex-canvas',
     displayName: 'Alex Canvas',
     icon: { glyph: Network },
     supportsCopy: false,

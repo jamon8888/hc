@@ -9,7 +9,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.unit.dp
 import androidx.test.platform.app.InstrumentationRegistry
 import com.openbitfun.mobile.app.ui.account.AccountLoginPage
-import com.openbitfun.mobile.app.ui.theme.OpenBitFunTheme
+import com.openbitfun.mobile.app.ui.theme.AlexTheme
 import com.openbitfun.mobile.core.feature.account.AccountUiState
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -24,7 +24,7 @@ class AccountLoginPageTest {
         val width = mutableStateOf(386.dp)
         val opened = mutableListOf<String>()
         rule.setContent {
-            OpenBitFunTheme(dark = false) {
+            AlexTheme(dark = false) {
                 AccountLoginPage(state.value, {}, { state.value = AccountUiState.SigningIn },
                     Modifier.requiredWidth(width.value).testTag("login-panel"), opened::add)
             }
@@ -49,7 +49,7 @@ class AccountLoginPageTest {
     @Test fun browserFailureUsesTheExistingFooterToRetryTheSameAuthorization() {
         var attempts = 0
         rule.setContent {
-            OpenBitFunTheme(dark = false) {
+            AlexTheme(dark = false) {
                 AccountLoginPage(AccountUiState.Authorizing("https://github.com/login/oauth/authorize?state=retry"),
                     {}, { error("Must not start a second login transaction") }, Modifier.requiredWidth(386.dp),
                     openAuthorization = {

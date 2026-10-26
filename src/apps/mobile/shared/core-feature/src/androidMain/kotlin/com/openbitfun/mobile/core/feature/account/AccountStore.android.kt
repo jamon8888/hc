@@ -18,7 +18,7 @@ public fun AccountStore.Companion.create(
     log: CoreLog,
     legacyMobileDeviceNames: Set<String>,
 ): AccountStore {
-    val persistence = androidPersistenceStores(context.applicationContext, "openbitfun-mobile.db")
+    val persistence = androidPersistenceStores(context.applicationContext, "alex-mobile.db")
     return AccountStore.create(
         scope = scope,
         backend = AccountStore.backend(log, legacyMobileDeviceNames),
