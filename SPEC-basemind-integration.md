@@ -513,7 +513,11 @@ time and verified, rather than committed to the repository:
 
 - `resources/basemind/VERSION.json` pins the release (`jamon8888/basemind`,
   `v0.35.0`) and, per platform, the SHA-256 and size of both the release
-  archive and the binary inside it.
+  archive and the binary inside it. The optional `noavx2` x86_64 Linux
+  archive (v0.35.0 added it for hosts without AVX2) is pinned too and
+  selected by `OPENBITFUN_BASEMIND_NOAVX2=1` at bundle time — an explicit
+  opt-in, because the build host must not decide for every user of the
+  binary it produces.
 - `scripts/prepare-basemind-resource.mjs` downloads the archive for the
   build target, refuses an archive that does not match the pin, extracts the
   binary with the shared libraries it loads relative to itself, and verifies
@@ -1078,7 +1082,11 @@ identity registry and the session vault — carries its own schema and is unaffe
 v0.35.0 turns the privacy gateway on (§18): a `safe/` mirror makes a workspace protected,
 and the marker this product sets on its own daemon re-opens `redact_text` and `vault`
 there. v0.35.0 also folds in v0.34.1's NER windowing and coverage report, which the
-product's `ner_coverage_refusal` contract already enforces.
+product's `ner_coverage_refusal` contract already enforces. A daemon the previous build
+left running is stopped and relaunched at the pinned version by the client itself
+(`discover_or_ensure`), so the in-place upgrade does not hand the user a restart
+instruction; whether a hand-started daemon carries the gateway marker stays the
+residual risk §18 records.
 
 **Transport:** the daemon serves MCP over streamable HTTP at `POST /mcp?root=<abs
 workspace path>`, on the loopback address published in `<comms_dir>/http.addr` (line 1:
@@ -1147,6 +1155,13 @@ Pending follow-ups from the v0.35 landing:
       carries no marker; our own `redact_text`/`vault` refs would then be
       refused in a protected workspace. If that surfaces in practice, surface
       a state, do not retry silently.
+- [ ] The v0.35.0 daemon's first NER-backed call loads the model lazily and
+      takes ~20s on the reference Mac before it answers; the client's 30s
+      request timeout sits close to that on a cold daemon. Measured live at
+      the pin flip (a fresh workspace's `memory mode=documents` reported
+      `elapsed_us ≈ 2.0e7`). If first-call latency surfaces in practice,
+      consider a warmup call at daemon start or a longer first-request
+      budget before raising the global timeout.
 
 ---
 

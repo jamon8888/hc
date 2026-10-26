@@ -193,7 +193,8 @@ pub fn verify_version() -> Result<()> {
     }
     anyhow::bail!(
         "basemind daemon runs {version}, but this build targets {BASEMIND_VERSION}. \
-         Restart the daemon with the pinned version: `basemind comms stop && basemind comms start`."
+         The client restarts the daemon with the pinned version when it knows the \
+         sidecar binary; otherwise run: `basemind comms stop && basemind comms start`."
     )
 }
 
@@ -249,18 +250,47 @@ fn ensure(daemon_binary: &Path) -> Result<()> {
 /// sidecar binary is known, this brings the daemon back first: the product's
 /// PII surface stays available across daemon restarts instead of failing
 /// on an endpoint that only existed in the past.
+///
+/// A daemon of a foreign version is repaired rather than reported: the
+/// comms directory is held until the daemon is stopped, so an in-place
+/// product upgrade finds the previous build's daemon here, and the version
+/// error would otherwise ask the user to restart it by hand. The product
+/// owns its sidecar — it stops the stale daemon, brings back a marked one
+/// at the pinned version, and only a daemon that survives that (or a
+/// foreign daemon with no sidecar binary to restart from) surfaces the
+/// version error. Whether a running daemon carries the gateway marker is
+/// not observable, so the hand-started case stays the residual risk §18 of
+/// the spec records.
 #[cfg(feature = "basemind")]
 pub async fn discover_or_ensure(
     daemon_binary: Option<std::path::PathBuf>,
     wait_seconds: u64,
 ) -> Result<DaemonEndpoint> {
     if let Ok(endpoint) = discover() {
-        return Ok(endpoint);
+        if verify_version().is_ok() {
+            return Ok(endpoint);
+        }
+        let Some(binary) = daemon_binary.as_deref() else {
+            // Without the sidecar binary the restart cannot be performed,
+            // so the version error is the honest state, not a silent reuse
+            // of a daemon this build cannot call.
+            verify_version()?;
+            return Ok(endpoint);
+        };
+        stop_daemon(binary)?;
+        ensure(binary)?;
+        return await_endpoint(wait_seconds).await;
     }
     let Some(binary) = daemon_binary else {
         return discover();
     };
     ensure(&binary)?;
+    await_endpoint(wait_seconds).await
+}
+
+/// Poll the portfile until the (re)started daemon publishes its endpoint.
+#[cfg(feature = "basemind")]
+async fn await_endpoint(wait_seconds: u64) -> Result<DaemonEndpoint> {
     let deadline = std::time::Instant::now() + std::time::Duration::from_secs(wait_seconds);
     loop {
         if let Ok(endpoint) = discover() {
@@ -275,4 +305,33 @@ pub async fn discover_or_ensure(
         }
         tokio::time::sleep(std::time::Duration::from_millis(200)).await;
     }
+}
+
+/// Stop the daemon that holds the comms directory, and clear the endpoint
+/// it published.
+///
+/// The fork's `comms stop` verb stops whatever holds the comms directory.
+/// The portfile is removed best-effort afterwards so the poll cannot hand a
+/// caller the stopped daemon's endpoint before the replacement publishes
+/// its own.
+#[cfg(feature = "basemind")]
+fn stop_daemon(daemon_binary: &Path) -> Result<()> {
+    use openbitfun_services_core::process_manager::create_command;
+
+    let mut command = create_command(daemon_binary);
+    command
+        .arg("comms")
+        .arg("stop")
+        .stdin(std::process::Stdio::null());
+    if let Some(comms_dir) = std::env::var_os(COMMS_DIR_ENV) {
+        command.env(COMMS_DIR_ENV, comms_dir);
+    }
+    let status = command
+        .status()
+        .map_err(|error| anyhow::anyhow!("basemind comms stop failed to launch: {error}"))?;
+    if !status.success() {
+        anyhow::bail!("basemind comms stop exited with {status}");
+    }
+    std::fs::remove_file(portfile_path(&comms_dir())).ok();
+    Ok(())
 }

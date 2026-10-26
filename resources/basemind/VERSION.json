@@ -41,6 +41,14 @@
         "sha256": "36457b97479e55ef058cbdd39142b4ffd49d01465cdd06b0dd59cb94d47ba9a1",
         "size": 323056577
       }
+    },
+    "basemind-x86_64-unknown-linux-gnu-noavx2.tar.gz": {
+      "sha256": "63b2209b29eff371cbaac31364f1596522f4a60edec0d499711c823ca8232b83",
+      "size": 120174389,
+      "binary": {
+        "sha256": "c7092df59792ed11e41c88094697aff82b538b64907a58585db4608b74135bd9",
+        "size": 305719633
+      }
     }
   },
   "ner_model": {

@@ -31,6 +31,18 @@ test('unsupported targets fail explicitly', () => {
   assert.throws(() => basemindBinaryName('riscv64-unknown-linux-gnu'), /Unsupported/);
 });
 
+test('the noavx2 flavor selects its own pinned archive, only where it exists', () => {
+  assert.equal(
+    basemindArchiveName('x86_64-unknown-linux-gnu', 'noavx2'),
+    'basemind-x86_64-unknown-linux-gnu-noavx2.tar.gz',
+  );
+  assert.throws(
+    () => basemindArchiveName('x86_64-pc-windows-msvc', 'noavx2'),
+    /only published for x86_64-unknown-linux-gnu/,
+  );
+  assert.throws(() => basemindArchiveName('x86_64-unknown-linux-gnu', 'bogus'), /Unsupported Basemind flavor/);
+});
+
 test('the host target triple follows the build host', () => {
   assert.equal(basemindHostTargetTriple({ platform: 'darwin', arch: 'arm64' }), 'aarch64-apple-darwin');
   assert.equal(basemindHostTargetTriple({ platform: 'darwin', arch: 'x64' }), 'x86_64-apple-darwin');
@@ -118,5 +130,89 @@ test('a verified download is unpacked, and a corrupt download never replaces it'
   } finally {
     rmSync(resourceDir, { recursive: true, force: true });
     rmSync(stage, { recursive: true, force: true });
+  }
+});
+
+test('the noavx2 flavor pins, verifies, and installs its own archive', () => {
+  const target = 'x86_64-unknown-linux-gnu';
+  const archive = basemindArchiveName(target, 'noavx2');
+  const resourceDir = mkdtempSync(join(tmpdir(), 'basemind-noavx2-'));
+  const stage = mkdtempSync(join(tmpdir(), 'basemind-noavx2-arch-'));
+  try {
+    const bytes = Buffer.from('noavx2 sidecar');
+    writeFileSync(join(stage, 'basemind'), bytes);
+    const archivePath = join(stage, archive);
+    execFileSync('tar', ['-czf', archivePath, '-C', stage, 'basemind']);
+    const archiveBytes = readFileSync(archivePath);
+    const manifest = {
+      repo: 'jamon8888/basemind',
+      tag: 'v0.35.0',
+      assets: {
+        [archive]: {
+          sha256: createHash('sha256').update(archiveBytes).digest('hex'),
+          size: archiveBytes.length,
+          binary: { sha256: createHash('sha256').update(bytes).digest('hex'), size: bytes.length },
+        },
+      },
+    };
+    let requested = null;
+    const path = ensureBasemindBinary({
+      resourceDir,
+      target,
+      flavor: 'noavx2',
+      manifest,
+      download(url, destination) {
+        requested = url;
+        writeFileSync(destination, archiveBytes);
+      },
+    });
+    assert.equal(requested, `https://github.com/jamon8888/basemind/releases/download/v0.35.0/${archive}`);
+    assert.deepEqual(readFileSync(path), bytes);
+  } finally {
+    rmSync(resourceDir, { recursive: true, force: true });
+    rmSync(stage, { recursive: true, force: true });
+  }
+});
+
+test('OPENBITFUN_BASEMIND_NOAVX2=1 opts the default flavor into noavx2', () => {
+  const previous = process.env.OPENBITFUN_BASEMIND_NOAVX2;
+  process.env.OPENBITFUN_BASEMIND_NOAVX2 = '1';
+  try {
+    const target = 'x86_64-unknown-linux-gnu';
+    const archive = basemindArchiveName(target, 'noavx2');
+    const resourceDir = mkdtempSync(join(tmpdir(), 'basemind-noavx2-env-'));
+    const stage = mkdtempSync(join(tmpdir(), 'basemind-noavx2-env-arch-'));
+    try {
+      const bytes = Buffer.from('noavx2 sidecar');
+      writeFileSync(join(stage, 'basemind'), bytes);
+      const archivePath = join(stage, archive);
+      execFileSync('tar', ['-czf', archivePath, '-C', stage, 'basemind']);
+      const archiveBytes = readFileSync(archivePath);
+      const path = ensureBasemindBinary({
+        resourceDir,
+        target,
+        manifest: {
+          repo: 'jamon8888/basemind',
+          tag: 'v0.35.0',
+          assets: {
+            [archive]: {
+              sha256: createHash('sha256').update(archiveBytes).digest('hex'),
+              size: archiveBytes.length,
+              binary: { sha256: createHash('sha256').update(bytes).digest('hex'), size: bytes.length },
+            },
+          },
+        },
+        download(url, destination) {
+          writeFileSync(destination, archiveBytes);
+        },
+      });
+      assert.deepEqual(readFileSync(path), bytes);
+    } finally {
+      rmSync(resourceDir, { recursive: true, force: true });
+      rmSync(stage, { recursive: true, force: true });
+    }
+  } finally {
+    if (previous === undefined) delete process.env.OPENBITFUN_BASEMIND_NOAVX2;
+    else process.env.OPENBITFUN_BASEMIND_NOAVX2 = previous;
   }
 });

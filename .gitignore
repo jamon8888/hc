@@ -138,6 +138,7 @@ src/apps/mobile/android/.kotlin/
 /resources/basemind/*.dylib
 /resources/basemind/*.so
 /resources/basemind/*.download-*
+/resources/basemind/.staging-*
 
 # Downloaded Open Interpreter release assets (metadata stays tracked).
 /resources/interpreter/.cache/

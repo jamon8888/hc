@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { chmodSync, closeSync, existsSync, mkdirSync, openSync, readFileSync, readSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { chmodSync, closeSync, existsSync, mkdirSync, openSync, readFileSync, readSync, readdirSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -42,9 +42,23 @@ export function basemindHostTargetTriple({
 }
 
 /** The release archive for a target triple. */
-export function basemindArchiveName(target) {
+export function basemindArchiveName(target, flavor = 'default') {
   if (!SUPPORTED_TARGETS.has(target)) {
     throw new Error(`Unsupported Basemind target: ${target}`);
+  }
+  if (flavor === 'noavx2') {
+    // v0.35.0 publishes the no-AVX2 onnxruntime build only for x86_64
+    // Linux; selecting it anywhere else would pin an archive that does
+    // not exist.
+    if (target !== 'x86_64-unknown-linux-gnu') {
+      throw new Error(
+        `The noavx2 Basemind flavor is only published for x86_64-unknown-linux-gnu, not ${target}`,
+      );
+    }
+    return `basemind-${target}-noavx2.tar.gz`;
+  }
+  if (flavor !== 'default') {
+    throw new Error(`Unsupported Basemind flavor: ${flavor}`);
   }
   // The Windows release ships a zip; every other platform ships a tarball.
   const extension = target === 'x86_64-pc-windows-msvc' ? 'zip' : 'tar.gz';
@@ -142,7 +156,13 @@ export function ensureBasemindBinary(options = {}) {
   const resourceDir = options.resourceDir || RESOURCE_DIR;
   const manifest = options.manifest || JSON.parse(readFileSync(join(RESOURCE_DIR, 'VERSION.json'), 'utf8'));
   const target = options.target || basemindHostTargetTriple();
-  const archiveName = basemindArchiveName(target);
+  // The noavx2 flavor is an explicit opt-in: the build host bundles for
+  // every user of the produced binary, so the build host's own CPU
+  // features must not decide the archive. Set OPENBITFUN_BASEMIND_NOAVX2=1
+  // (or pass `flavor`) when bundling for x86_64 Linux hosts without AVX2.
+  const flavor = options.flavor
+    || (process.env.OPENBITFUN_BASEMIND_NOAVX2 === '1' ? 'noavx2' : 'default');
+  const archiveName = basemindArchiveName(target, flavor);
   const binaryName = basemindBinaryName(target);
   const asset = manifest.assets?.[archiveName];
   if (!asset || !/^[a-f0-9]{64}$/.test(asset.sha256) || !Number.isSafeInteger(asset.size) || asset.size <= 0) {
@@ -166,6 +186,13 @@ export function ensureBasemindBinary(options = {}) {
     mkdirSync(resourceDir, { recursive: true });
     const archivePath = join(resourceDir, archiveName);
     const temporaryArchive = `${archivePath}.download-${randomUUID()}`;
+    // The tree stages outside the shared resourceDir and installs only
+    // after the binary verifies. Two builds for the same target share this
+    // directory, and an extract that wrote the binary in place would let
+    // one build tear the file the other verifies and returns — and a
+    // rejected download would leave the previous sidecar destroyed.
+    const stagingDir = join(resourceDir, `.staging-${randomUUID()}`);
+    mkdirSync(stagingDir, { recursive: true });
     try {
       const url = `https://github.com/${manifest.repo}/releases/download/${manifest.tag}/${archiveName}`;
       (options.download || downloadBasemind)(url, temporaryArchive);
@@ -175,16 +202,25 @@ export function ensureBasemindBinary(options = {}) {
       }
       // The archive is verified; the binary inside it is what ships, so it
       // is verified too.
-      const extracted = extractBinary(temporaryArchive, binaryName, resourceDir);
+      const extracted = extractBinary(temporaryArchive, binaryName, stagingDir);
       const extractedBytes = readFileSync(extracted);
       if (extractedBytes.length !== asset.binary.size
         || createHash('sha256').update(extractedBytes).digest('hex') !== asset.binary.sha256) {
-        rmSync(extracted, { force: true });
         throw new Error(`Basemind binary SHA-256 or size mismatch: ${binaryName}`);
       }
-      renameSync(extracted, binaryPath);
+      // Install the verified tree, binary first. Each entry moves with one
+      // rename; a whole-tree swap is not possible because the resourceDir
+      // also carries the manifest and the other targets' files, so a crash
+      // mid-install can mix trees — a rerun repairs, and every installed
+      // file is individually intact.
+      for (const entry of readdirSync(stagingDir).sort()) {
+        const destination = join(resourceDir, entry);
+        rmSync(destination, { recursive: true, force: true });
+        renameSync(join(stagingDir, entry), destination);
+      }
     } finally {
       rmSync(temporaryArchive, { force: true });
+      rmSync(stagingDir, { recursive: true, force: true });
     }
   }
   if (!binaryName.endsWith('.exe')) chmodSync(binaryPath, 0o755);
