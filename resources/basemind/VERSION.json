@@ -1,45 +1,45 @@
 {
   "repo": "jamon8888/basemind",
-  "tag": "v0.34.0",
+  "tag": "v0.35.0",
   "assets": {
     "basemind-x86_64-apple-darwin.tar.gz": {
-      "sha256": "3de4666aca6652ed43a9724506e41cc511405642899d4463fb815f70f6cbf56b",
-      "size": 106987507,
+      "sha256": "0558c3699e71598bc813fa302e6113ae7799812f2b0c28d6ebf0427d5b50a3e9",
+      "size": 107162699,
       "binary": {
-        "sha256": "bd52827a36adb1cee7ea1788608f7de19fa1a575ad9648e72da7c65e8f3fb345",
-        "size": 305222032
+        "sha256": "cba33fb0561c0ff482d38e600d2ea21774f8d9b311d707fd8552327117782b23",
+        "size": 305639536
       }
     },
     "basemind-x86_64-pc-windows-msvc.zip": {
-      "sha256": "869118761a47a79c18b9a065d3aa4aac9ea967454a81daa1426af3d6344bf395",
-      "size": 79598519,
+      "sha256": "427362eadc62c326b185935c0b64dc59bc31f0633741019e2696ccb7d8f7e7ad",
+      "size": 79814436,
       "binary": {
-        "sha256": "a45f8c6f662f321cb93513f178df733ee77972fb827a42fb1013c9ac0fe5ee90",
-        "size": 252552192
+        "sha256": "f329b42a60dbab1b0d97b5fc442416c2e4f92b7a8dc4c84c9e16062822bb6359",
+        "size": 253241856
       }
     },
     "basemind-x86_64-unknown-linux-gnu.tar.gz": {
-      "sha256": "c73fb961ce5f045bca36fefcaf62f79402b5f4007fe08c21d47dcd7953838b03",
-      "size": 97048120,
+      "sha256": "fe61d73ff2306367d5f462f8e7699495714c60d935a17a2e479fddb431bd8d6e",
+      "size": 97256429,
       "binary": {
-        "sha256": "f7680a2319a890415cb9fe2bb1a03c5a018c0347c98f8aaf38ce748867edfac0",
-        "size": 332911201
+        "sha256": "c7a3e8fe4864946cabccb79f3db5eea750d18a3f78e585d267e9ffa9fc4c0840",
+        "size": 333427297
       }
     },
     "basemind-aarch64-apple-darwin.tar.gz": {
-      "sha256": "e00713356bbbd944c4a275dcc857e4e0a6bcd8b3e27cefeb2f78c09760b926d6",
-      "size": 95413055,
+      "sha256": "6f39d448ba463da9394240581a47cc77345b0283f1c968b4c9f9a13759824057",
+      "size": 95581169,
       "binary": {
-        "sha256": "5161e2e9968fcb09d75abe8096b7f6958228ff507dc9d3e7aad2d67a4068718d",
-        "size": 317393840
+        "sha256": "e701573eb1e616ad543bce32ff5109904971d00a16160ecb0fbf5bd6abcac53e",
+        "size": 317788288
       }
     },
     "basemind-aarch64-unknown-linux-gnu.tar.gz": {
-      "sha256": "eaafe39652d6ff5e3356b8ba743689205d9445cfaf80ca532180e45549cbfbe3",
-      "size": 106119554,
+      "sha256": "6cb98d554cec3fc181dda50a79ba14ea43b08975eb199a42a604d5a5110441b5",
+      "size": 106345865,
       "binary": {
-        "sha256": "06d5995a24e68dd01e503d9c01948dec0ef89f5f77bdee94a1e9a960684201e5",
-        "size": 322401217
+        "sha256": "36457b97479e55ef058cbdd39142b4ffd49d01465cdd06b0dd59cb94d47ba9a1",
+        "size": 323056577
       }
     }
   },

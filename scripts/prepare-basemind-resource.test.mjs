@@ -43,7 +43,7 @@ test('the host target triple follows the build host', () => {
 test('the pinned version matches the integration crate', () => {
   // The sidecar and the product must agree on the fork version: the
   // desktop refuses a daemon that reports a different one.
-  assert.equal(basemindPinnedVersion(), '0.34.0');
+  assert.equal(basemindPinnedVersion(), '0.35.0');
 });
 
 test('a verified download is unpacked, and a corrupt download never replaces it', () => {

@@ -31,8 +31,15 @@ use std::path::{Path, PathBuf};
 /// `jamon8888/basemind` fork. The sync keeps the fork's PII, redaction and
 /// vault features end to end, and adds the MCP resources and the
 /// `redact_text` `file_path` extraction this integration uses.
+///
+/// v0.35.0 adds the privacy gateway boundary (fork ADR-0015): a workspace
+/// carrying a `safe/` mirror is protected, and `redact_text` / `vault` are
+/// withheld there from any daemon that does not carry the
+/// `BASEMIND_GATEWAY_TOKEN` marker this product sets on its own daemon. It
+/// also ships the NER windowing and its coverage report (first released as
+/// v0.34.1), which `ner_coverage_refusal` enforces.
 #[cfg(feature = "basemind")]
-pub const BASEMIND_VERSION: &str = "0.34.0";
+pub const BASEMIND_VERSION: &str = "0.35.0";
 
 /// Environment variable the fork uses to override the comms directory.
 #[cfg(feature = "basemind")]
