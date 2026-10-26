@@ -1099,4 +1099,51 @@ treat the list as the original expectation, not as an open dependency.
 
 ---
 
+## 18. Gateway Wiring Pre-Staged for the Fork's v0.35 (ADR-0015, PR #93)
+
+The fork's next release moves the privacy gateway into basemind (ADR-0015): a
+workspace carrying a `safe/` mirror is **protected** — `redact_text` and `vault`
+are withheld from the agent surface, and re-opened only for a basemind process
+marked with `BASEMIND_GATEWAY_TOKEN`. The product **is** the gateway, so the
+following is pre-staged now, against the v0.34.0 pin, and needs no further code
+when v0.35 lands beyond the pin flip (§12 / `daemon::BASEMIND_VERSION` +
+`resources/basemind/VERSION.json`):
+
+- **Gateway capability** (`gateway.rs`): the token constant, a per-launch
+  random token generator (OS randomness, never reused), and a fail-closed
+  protected-workspace probe mirroring the fork's `safe`-entry check (a symlink
+  counts; an inspection error counts as protected). The desktop launch path
+  (`start_bundled_basemind_daemon`) sets the marker on the sidecar command's
+  environment only — never process-wide — so an agent sandbox cannot inherit
+  it. Residual risk stays where basemind's ADR-0015 records it.
+- **NER coverage contract** (fork v0.34.1, additive): `ner_truncated` on a
+  `redact_text` answer means PII past the cut was never redacted; per D7 the
+  refusal stays loud. `ner_coverage_refusal` is enforced at all three
+  consumers: the document redaction port, the RAG safety pass, and
+  `RedactionStore::record` (nothing persists before the check). A v0.34.0
+  sidecar that omits the field is unaffected.
+- **Pseudonym caveat** (ADR-0015 §3): a dictionary value appears in the
+  redacted text as the code name, while the rehydration map still carries the
+  token. The store records the entity as revealable with zero occurrences —
+  covered by `a_pseudonymised_value_stays_revealable_without_a_token_in_the_text`.
+- **TAX_ID** (ADR-0015 §4): handled generically by `category_of` /
+  `category_of_token`; the Web UI tone (`RevealableEntityBadge`) and the
+  `entityTypes.TAX_ID` i18n keys already exist in all runtime locales.
+
+Still pending the v0.35 landing:
+
+- [ ] Flip the pin: `daemon::BASEMIND_VERSION`, `resources/basemind/VERSION.json`
+      tag + checksums (`scripts/prepare-basemind-resource.mjs`).
+- [ ] Decide whether `redact_text` calls should set `require_ner` (only safe
+      once the NER model dir is confirmed present on first-use machines).
+- [ ] Adopt the native `pseudonyms` field in place of the product's own
+      prompt pseudonymization pass where the fork's dictionary is strictly
+      better (§11.4); malformed entries abort the call fail-closed.
+- [ ] A daemon started outside the product (`basemind comms start` by hand)
+      carries no marker; our own `redact_text`/`vault` refs would then be
+      refused in a protected workspace. If that surfaces in practice, surface
+      a state, do not retry silently.
+
+---
+
 *End of Specification*

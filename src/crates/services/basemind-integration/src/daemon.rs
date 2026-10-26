@@ -201,10 +201,21 @@ pub fn verify_version() -> Result<()> {
 fn ensure(daemon_binary: &Path) -> Result<()> {
     use openbitfun_services_core::process_manager::create_command;
 
+    // A restart is a launch: the daemon the product brings back is the
+    // gateway's own, marked like the startup command marks it, so the
+    // withheld tools reopen for the restarted process too. A token that
+    // cannot be minted fails the ensure — silently spawning an unmarked
+    // daemon would refuse the protected-workspace tools once the fork pins
+    // the gateway boundary, which is a degradation the caller must see.
+    let gateway_token = crate::gateway::generate_gateway_token().map_err(|error| {
+        anyhow::anyhow!("basemind daemon ensure could not mint a gateway token: {error}")
+    })?;
+
     let mut command = create_command(daemon_binary);
     command
         .arg("comms")
         .arg("start")
+        .env(crate::gateway::GATEWAY_TOKEN_ENV, gateway_token)
         .stdin(std::process::Stdio::null())
         .stdout(std::process::Stdio::null())
         .stderr(std::process::Stdio::null());

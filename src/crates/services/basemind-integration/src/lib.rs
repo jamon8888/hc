@@ -11,6 +11,8 @@ pub mod daemon;
 #[cfg(feature = "basemind")]
 pub mod document_convert;
 #[cfg(feature = "basemind")]
+pub mod gateway;
+#[cfg(feature = "basemind")]
 pub mod identity_registry;
 #[cfg(feature = "basemind")]
 pub mod ipc;
@@ -41,6 +43,8 @@ pub use self::daemon::{
 };
 #[cfg(feature = "basemind")]
 pub use self::document_convert::BasemindDocumentRedactor;
+#[cfg(feature = "basemind")]
+pub use self::gateway::{generate_gateway_token, is_protected_workspace, GATEWAY_TOKEN_ENV};
 #[cfg(feature = "basemind")]
 pub use self::identity_registry::IdentityRegistry;
 #[cfg(feature = "basemind")]

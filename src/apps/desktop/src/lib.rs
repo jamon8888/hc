@@ -2431,8 +2431,29 @@ pub(crate) fn basemind_ner_model_dir() -> Option<std::path::PathBuf> {
 /// spawns the daemon when no daemon holds the comms directory and is a no-op
 /// when one already does. The daemon publishes its address and bearer token
 /// in the portfile the client reads, so nothing else has to be wired here.
+///
+/// The basemind fork's privacy gateway (ADR-0015) withholds `redact_text`
+/// and `vault` in any workspace that carries a `safe/` mirror, and re-opens
+/// them only for a process marked with `BASEMIND_GATEWAY_TOKEN`. The product
+/// is the gateway (ADR 0001: the values live in the product's redaction
+/// store), so the daemon we start carries the marker. The token is generated
+/// per launch and set on this command's environment only — never on the
+/// process-wide environment — so an agent sandbox cannot inherit it.
 fn start_bundled_basemind_daemon(path: &std::path::Path) {
     use openbitfun_core::util::process_manager::create_command;
+
+    // Randomness failure is an error, not a panic: the host reports it and
+    // skips the launch, and the feature degrades loudly through the probe.
+    let token = match openbitfun_basemind_integration::generate_gateway_token() {
+        Ok(token) => token,
+        Err(error) => {
+            log::warn!(
+                "Failed to generate the Basemind gateway token, skipping the daemon launch: {}",
+                error
+            );
+            return;
+        }
+    };
 
     let mut command = create_command(path);
     // The pinned fork keeps the streamable-HTTP MCP front-end opt-in: without
@@ -2444,6 +2465,7 @@ fn start_bundled_basemind_daemon(path: &std::path::Path) {
     command
         .arg("comms")
         .arg("start")
+        .env(openbitfun_basemind_integration::GATEWAY_TOKEN_ENV, token)
         .stdin(std::process::Stdio::null())
         .stdout(std::process::Stdio::null())
         .stderr(std::process::Stdio::null());
