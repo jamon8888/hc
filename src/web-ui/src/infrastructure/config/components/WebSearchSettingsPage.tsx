@@ -186,8 +186,8 @@ const WebSearchSettingsPage: React.FC = () => {
     },
     {
       value: 'alex_search_http',
-      label: t('providers.alexSearchHttp'),
-      description: t('providerDescriptions.alexSearchHttp'),
+      label: t('providers.openbitfunSearchHttp'),
+      description: t('providerDescriptions.openbitfunSearchHttp'),
     },
   ], [t]);
   const authOptions = useMemo<SelectOption[]>(() => [

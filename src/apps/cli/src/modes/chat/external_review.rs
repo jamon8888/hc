@@ -961,9 +961,9 @@ fn external_tool_run_location_label(execution_domain_id: &str) -> &'static str {
 
 fn external_source_diagnostic_summary(code: &str) -> &'static str {
     if code.contains("preference_read_failed") {
-        "OpenBitFun could not verify saved tool confirmations. Affected tools remain disabled; check OpenBitFun settings storage, then refresh."
+        "OpenBitFun could not verify saved tool confirmations. Affected tools remain disabled; check Alex settings storage, then refresh."
     } else if code.contains("conflict_history_write_failed") {
-        "OpenBitFun could not save conflict information. Affected names remain unavailable; check OpenBitFun settings storage, then refresh."
+        "Alex could not save conflict information. Affected names remain unavailable; check Alex settings storage, then refresh."
     } else if code.contains("discovery_in_progress") {
         "One source is still being checked. Existing content remains available."
     } else if code.contains("timeout") {

@@ -14,7 +14,7 @@
         "errors.installPath.notAbsolute",
         "errors.installPath.filesystemRoot",
         "errors.installPath.pathNotDirectory",
-        "errors.installPath.directoryMustBeEmptyOrAlex",
+        "errors.installPath.directoryMustBeEmptyOrOpenBitFun",
         "errors.installPath.inspectDirectoryFailed",
         "errors.installPath.directoryNotWritable",
         "errors.installPath.parentNotWritable"

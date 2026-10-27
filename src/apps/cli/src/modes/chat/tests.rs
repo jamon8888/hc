@@ -2348,7 +2348,7 @@ mod tests {
                 "candidates": [{
                     "candidateId": "alex:review",
                     "displayName": "Alex review",
-                    "sourceLabel": "OpenBitFun",
+                    "sourceLabel": "Alex",
                     "external": false
                 }, {
                     "candidateId": "external_subagent:opencode:review:v1",
@@ -2503,7 +2503,7 @@ mod tests {
 
         let agents = external_agent_review_text(Some(&snapshot));
         assert!(agents.contains("Alex could not save conflict information"));
-        assert!(agents.contains("check OpenBitFun settings storage, then refresh"));
+        assert!(agents.contains("check Alex settings storage, then refresh"));
         assert!(agents.contains("external_subagent.conflict_history_write_failed"));
         assert!(agents.contains("future_host.agent_map_invalid"));
 

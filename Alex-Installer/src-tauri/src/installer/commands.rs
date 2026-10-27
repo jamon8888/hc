@@ -1235,7 +1235,7 @@ fn prepare_install_target(requested_path: &Path) -> Result<PathBuf, String> {
         }
         if directory_has_entries(&install_path)? && !install_path.join(MAIN_APP_EXE).exists() {
             return Err(format!(
-                "{}directory_must_be_empty_or_alex",
+                "{}directory_must_be_empty_or_openbitfun",
                 INSTALL_PATH_ERR_PREFIX
             ));
         }

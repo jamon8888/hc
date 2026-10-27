@@ -2859,7 +2859,7 @@ mod tests {
     /// of a project onto one directory and made the second one fail to provision.
     #[test]
     fn every_job_of_one_project_gets_its_own_worktree_directory() {
-        let name = |job_id: &str| worktree_directory_name(Some("OpenBitFun"), None, job_id);
+        let name = |job_id: &str| worktree_directory_name(Some("Alex"), None, job_id);
         let first = name("dispatch-3d82ff46-bbf9-44c3-9c0f-2a1b0c4d5e6f");
         let second = name("dispatch-ac8fe8a3-85c7-4091-9ba4-856db2d55c2b");
 
