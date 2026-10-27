@@ -22,7 +22,7 @@ fn builtin_skill(dir_name: &str) -> SkillInfo {
         path: format!("/tmp/{}", dir_name),
         level: SkillLocation::User,
         source_slot: "openbitfun-system".to_string(),
-        source_id: "alex".to_string(),
+        source_id: "openbitfun".to_string(),
         source_label: "Alex".to_string(),
         installation_source: None,
         import_origin: None,
@@ -40,13 +40,13 @@ fn builtin_skill(dir_name: &str) -> SkillInfo {
 
 fn custom_user_skill(dir_name: &str) -> SkillInfo {
     SkillInfo {
-        key: format!("user::alex::{}", dir_name),
+        key: format!("user::openbitfun::{}", dir_name),
         name: dir_name.to_string(),
         description: String::new(),
         path: format!("/tmp/{}", dir_name),
         level: SkillLocation::User,
-        source_slot: "alex".to_string(),
-        source_id: "alex".to_string(),
+        source_slot: "openbitfun".to_string(),
+        source_id: "openbitfun".to_string(),
         source_label: "Alex".to_string(),
         installation_source: None,
         import_origin: None,
@@ -94,7 +94,7 @@ fn import_origin_round_trips_without_changing_native_ownership_or_legacy_payload
     });
     let decoded: SkillInfo = serde_json::from_value(serde_json::to_value(&skill).unwrap()).unwrap();
     assert_eq!(decoded.import_origin, skill.import_origin);
-    assert_eq!(decoded.source_id, "alex");
+    assert_eq!(decoded.source_id, "openbitfun");
     assert_eq!(decoded.parser_source_slot(), "home.claude");
     assert!(decoded.is_native());
 }
@@ -115,7 +115,7 @@ fn native_ownership_rejects_discovery_sources_and_honors_legacy_slots() {
         assert!(!skill.is_native(), "{source}");
     }
     for (slot, expected) in [
-        ("alex", true),
+        ("openbitfun", true),
         ("openbitfun-system", true),
         ("home.claude", false),
         ("codex", false),
@@ -146,7 +146,7 @@ fn skill_source_dialect_is_derived_from_the_stable_source_slot() {
         .unwrap_or_else(|error| panic!("unexpected dialect for {source_slot}: {error}"));
         assert_eq!(parsed.name, "slot-fallback");
     }
-    for source_slot in ["alex", "cursor", "opencode", "agents"] {
+    for source_slot in ["openbitfun", "cursor", "opencode", "agents"] {
         assert!(SkillData::from_markdown_for_source_slot(
             "/workspace/root/strict".to_string(),
             markdown,
@@ -350,7 +350,7 @@ fn claude_preferences_degrade_without_bypassing_execution_constraints() {
         &markdown.replace("description:", "name: review\ndescription:"),
         SkillLocation::User,
         true,
-        "alex",
+        "openbitfun",
     )
     .unwrap();
     assert!(generic.compatibility_warnings.is_empty());
@@ -413,13 +413,13 @@ fn codex_skill_falls_back_to_directory_name_but_keeps_description_required() {
 
 fn project_skill(dir_name: &str) -> SkillInfo {
     SkillInfo {
-        key: format!("project::alex::{}", dir_name),
+        key: format!("project::openbitfun::{}", dir_name),
         name: dir_name.to_string(),
         description: String::new(),
         path: format!("/workspace/.openbitfun/skills/{}", dir_name),
         level: SkillLocation::Project,
-        source_slot: "alex".to_string(),
-        source_id: "alex".to_string(),
+        source_slot: "openbitfun".to_string(),
+        source_id: "openbitfun".to_string(),
         source_label: "Alex".to_string(),
         installation_source: None,
         import_origin: None,
@@ -610,7 +610,7 @@ fn builtin_skill_catalog_and_mode_policy_are_runtime_owned() {
 fn skill_discovery_root_facts_are_runtime_owned() {
     assert_eq!(USER_SKILL_KEY_PREFIX, "user");
     assert_eq!(PROJECT_SKILL_KEY_PREFIX, "project");
-    assert_eq!(ALEX_USER_SKILL_SLOT, "alex");
+    assert_eq!(ALEX_USER_SKILL_SLOT, "openbitfun");
     assert_eq!(ALEX_SYSTEM_SKILL_SLOT, "openbitfun-system");
     assert_eq!(ALEX_SYSTEM_SKILL_DIR, ".system");
 
@@ -621,7 +621,7 @@ fn skill_discovery_root_facts_are_runtime_owned() {
     assert_eq!(
         project_roots,
         [
-            (".openbitfun", "alex", "alex", "Alex"),
+            (".openbitfun", "openbitfun", "openbitfun", "Alex"),
             (".claude", "claude", "claude-code", "Claude Code"),
             (".codex", "codex", "codex", "Codex"),
             (".cursor", "cursor", "cursor", "Cursor"),
@@ -663,14 +663,14 @@ fn skill_discovery_root_facts_are_runtime_owned() {
 #[test]
 fn skill_source_identity_is_serialized_without_changing_slot_identity() {
     let mut info = project_skill("pdf");
-    info.source_id = "alex".to_string();
+    info.source_id = "openbitfun".to_string();
     info.source_label = "OpenBitFun".to_string();
     info.allow_user_invocation = false;
     info.argument_hint = Some("[file]".to_string());
 
     let value = serde_json::to_value(info).expect("skill info should serialize");
-    assert_eq!(value["sourceSlot"], "alex");
-    assert_eq!(value["sourceId"], "alex");
+    assert_eq!(value["sourceSlot"], "openbitfun");
+    assert_eq!(value["sourceId"], "openbitfun");
     assert_eq!(value["sourceLabel"], "OpenBitFun");
     assert_eq!(value["allowUserInvocation"], false);
     assert_eq!(value["argumentHint"], "[file]");
@@ -785,19 +785,19 @@ fn skill_resolution_applies_builtin_and_user_override_rules() {
 fn user_mode_skill_overrides_share_key_normalization_rules() {
     let overrides = alex_agent_runtime::skills::normalize_user_mode_skill_overrides(
         vec![
-            " user::alex::pdf ".to_string(),
+            " user::openbitfun::pdf ".to_string(),
             String::new(),
-            "user::alex::pdf".to_string(),
+            "user::openbitfun::pdf".to_string(),
         ],
         vec![
-            "user::alex::pdf".to_string(),
-            " user::alex::docx ".to_string(),
-            "user::alex::docx".to_string(),
+            "user::openbitfun::pdf".to_string(),
+            " user::openbitfun::docx ".to_string(),
+            "user::openbitfun::docx".to_string(),
         ],
     );
 
-    assert_eq!(overrides.disabled_skills, vec!["user::alex::pdf"]);
-    assert_eq!(overrides.enabled_skills, vec!["user::alex::docx"]);
+    assert_eq!(overrides.disabled_skills, vec!["user::openbitfun::pdf"]);
+    assert_eq!(overrides.enabled_skills, vec!["user::openbitfun::docx"]);
 }
 
 #[test]
@@ -816,8 +816,8 @@ Use the pdf workflow.
         true,
     )
     .expect("valid skill markdown should parse");
-    data.key = "project::alex::pdf".to_string();
-    data.source_slot = "alex".to_string();
+    data.key = "project::openbitfun::pdf".to_string();
+    data.source_slot = "openbitfun".to_string();
 
     assert_eq!(data.name, "pdf");
     assert_eq!(data.description, "Work with PDF files.");
@@ -831,7 +831,7 @@ Use the pdf workflow.
     assert!(!assistant.contains("from stable key"));
 
     let stable_assistant = render_loaded_skill_for_assistant(&data, true);
-    assert!(stable_assistant.contains("from stable key 'project::alex::pdf'"));
+    assert!(stable_assistant.contains("from stable key 'project::openbitfun::pdf'"));
 }
 
 #[test]
@@ -1052,7 +1052,7 @@ Use the presentation workflow.
     let candidate = SkillCandidate::from_data(
         data,
         "openbitfun-system",
-        "alex",
+        "openbitfun",
         "OpenBitFun",
         "user",
         10,
@@ -1069,7 +1069,7 @@ Use the presentation workflow.
     };
     let visible = resolve_visible_skills(vec![candidate.clone(), project_presentation.clone()]);
     assert_eq!(visible.len(), 1);
-    assert_eq!(visible[0].key, "project::alex::ppt-design");
+    assert_eq!(visible[0].key, "project::openbitfun::ppt-design");
 
     let annotated = sort_skills(annotate_shadowed_skills(vec![
         candidate,
@@ -1082,7 +1082,7 @@ Use the presentation workflow.
     assert!(user_presentation.is_shadowed);
     assert_eq!(
         user_presentation.shadowed_by_key.as_deref(),
-        Some("project::alex::ppt-design")
+        Some("project::openbitfun::ppt-design")
     );
 }
 
@@ -1164,7 +1164,7 @@ fn mode_skill_candidate_filtering_and_info_are_runtime_owned() {
 
     let project_doc = infos
         .iter()
-        .find(|skill| skill.skill.key == "project::alex::project-doc")
+        .find(|skill| skill.skill.key == "project::openbitfun::project-doc")
         .expect("project skill should be listed");
     assert!(!project_doc.effective_enabled);
     assert!(!project_doc.selected_for_runtime);

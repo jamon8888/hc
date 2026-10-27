@@ -14,13 +14,13 @@ import {
 
 function skill(overrides: Partial<SkillInfo> = {}): SkillInfo {
   return {
-    key: 'project::alex::pdf',
+    key: 'project::openbitfun::pdf',
     name: 'pdf',
     description: 'PDF workflow',
     path: '/workspace/.openbitfun/skills/pdf',
     level: 'project',
-    sourceSlot: 'alex',
-    sourceId: 'alex',
+    sourceSlot: 'openbitfun',
+    sourceId: 'openbitfun',
     sourceLabel: 'Alex',
     dirName: 'pdf',
     isBuiltin: false,
@@ -42,7 +42,7 @@ function modeSkill(overrides: Partial<ModeSkillInfo> = {}): ModeSkillInfo {
 
 describe('skill source presentation', () => {
   it('keeps legacy native and imported copies while excluding external identities from native management', () => {
-    expect(isAlexManagedSkill(skill({ sourceId: undefined, sourceSlot: 'alex-user' }))).toBe(true);
+    expect(isAlexManagedSkill(skill({ sourceId: undefined, sourceSlot: 'openbitfun-user' }))).toBe(true);
     expect(isAlexManagedSkill(skill({ installationSource: 'github:example/external-skill' }))).toBe(true);
     expect(isAlexManagedSkill(skill({ sourceId: undefined, sourceSlot: 'home.codex' }))).toBe(false);
     expect(isAlexManagedSkill(skill({ sourceId: 'claude-code', sourceLabel: 'Alex' }))).toBe(false);
@@ -56,8 +56,8 @@ describe('skill source presentation', () => {
     expect(getSkillSourceId(skill({ sourceId: '', sourceSlot: 'home.pi' }))).toBe('pi');
     expect(getSkillSourceId(skill({ sourceId: '', sourceSlot: 'home.agents' }))).toBe('agent-skills');
     expect(getSkillSourceId(skill({ sourceId: '', sourceSlot: 'config.opencode.custom-root' }))).toBe('opencode');
-    expect(getSkillSourceId(skill({ sourceId: '', sourceSlot: 'openbitfun-system' }))).toBe('alex');
-    expect(getSkillSourceId(skill({ sourceId: '', sourceSlot: '' }))).toBe('alex');
+    expect(getSkillSourceId(skill({ sourceId: '', sourceSlot: 'openbitfun-system' }))).toBe('openbitfun');
+    expect(getSkillSourceId(skill({ sourceId: '', sourceSlot: '' }))).toBe('openbitfun');
     expect(getSkillSourceId(skill({ sourceId: 'future-agent', sourceLabel: 'Codex' }))).toBe('future-agent');
   });
 
