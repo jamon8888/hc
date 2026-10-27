@@ -45,7 +45,7 @@ Keep the importable project isolated from source and report files:
     surface-plan.json
   contact-sheet.png
   asset-preview-sheet.png
-  <skin-id>.alex-appearance
+  <skin-id>.openbitfun-appearance
   host-verification.json
   skin-build.json
   runtime-checklist.json

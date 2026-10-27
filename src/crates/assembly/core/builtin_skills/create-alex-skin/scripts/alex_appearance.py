@@ -13,7 +13,7 @@ from pathlib import Path, PurePosixPath
 from typing import Any, Callable, Iterable, Mapping, Sequence
 
 
-SCHEMA = "alex.appearance"
+SCHEMA = "openbitfun.appearance"
 SCHEMA_VERSION = 2
 REGISTRY_PATH = Path(__file__).resolve().parent.parent / "references" / "appearance-registry.json"
 MANIFEST_NAME = "appearance.json"
@@ -225,7 +225,7 @@ def load_registry() -> dict[str, Any]:
         registry = json.loads(REGISTRY_PATH.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as error:
         raise AppearanceError(f"Could not load bundled Appearance registry: {error}") from error
-    if registry.get("schema") != "alex.appearance.registry" or registry.get("schemaVersion") != 2:
+    if registry.get("schema") != "openbitfun.appearance.registry" or registry.get("schemaVersion") != 2:
         raise AppearanceError("Bundled Appearance registry has an unsupported schema")
     return registry
 
@@ -810,7 +810,7 @@ class ManifestValidator:
             return self.validate_mermaid(settings)
         if renderer_id == "generative-widget":
             return self.validate_widget(settings)
-        if renderer_id == "alex-canvas":
+        if renderer_id == "openbitfun-canvas":
             return self.validate_canvas(settings)
         return [f"Unsupported renderer: {renderer_id}"]
 
@@ -1564,9 +1564,9 @@ def command_build(args: argparse.Namespace, registry: Mapping[str, Any]) -> None
     manifest["integrity"] = {"sha256": digests}
     manifest_path.write_bytes(manifest_bytes(manifest))
     validate_project(project, registry)
-    output = Path(args.output).resolve() if args.output else project.with_suffix(".alex-appearance")
-    if output.suffix != ".alex-appearance":
-        raise AppearanceError("Output filename must end in .alex-appearance")
+    output = Path(args.output).resolve() if args.output else project.with_suffix(".openbitfun-appearance")
+    if output.suffix != ".openbitfun-appearance":
+        raise AppearanceError("Output filename must end in .openbitfun-appearance")
     output.parent.mkdir(parents=True, exist_ok=True)
     if output.exists() and not args.force:
         raise AppearanceError(f"Output already exists: {output}; pass --force")
@@ -1594,9 +1594,9 @@ def command_build(args: argparse.Namespace, registry: Mapping[str, Any]) -> None
 def source_kind(path: Path) -> str:
     if path.is_dir():
         return "project"
-    if path.is_file() and path.suffix == ".alex-appearance":
+    if path.is_file() and path.suffix == ".openbitfun-appearance":
         return "archive"
-    raise AppearanceError("Input must be an Appearance project directory or .alex-appearance archive")
+    raise AppearanceError("Input must be an Appearance project directory or .openbitfun-appearance archive")
 
 
 def command_validate(args: argparse.Namespace, registry: Mapping[str, Any]) -> None:
@@ -1733,7 +1733,7 @@ def command_contract(args: argparse.Namespace, registry: Mapping[str, Any]) -> N
 
 
 def create_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Build and validate Alex .alex-appearance packages")
+    parser = argparse.ArgumentParser(description="Build and validate Alex .openbitfun-appearance packages")
     subparsers = parser.add_subparsers(dest="command", required=True)
     init = subparsers.add_parser("init", help="initialize a minimal sparse Appearance project")
     init.add_argument("project")

@@ -6,7 +6,7 @@ import { appearancePackageValidator, assertValidAppearancePackage } from './Appe
 
 function validPackage(): AppearancePackage {
   return {
-    schema: 'alex.appearance',
+    schema: 'openbitfun.appearance',
     schemaVersion: APPEARANCE_SCHEMA_VERSION,
     id: 'test.appearance',
     name: 'Test Appearance',

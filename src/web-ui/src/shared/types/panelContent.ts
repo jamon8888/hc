@@ -28,7 +28,7 @@ export type PanelContentType =
   | 'review-platform-pr-detail'
   | 'terminal'
   | 'generative-widget'
-  | 'alex-canvas'
+  | 'openbitfun-canvas'
   | 'browser'
   | 'html-preview'
   | 'redacted-document-viewer';

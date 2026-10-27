@@ -19,7 +19,7 @@ import { withLegacyActionCardToken } from './actionCardThemeCompatibility';
 import { withLegacyIndicatorTokens } from './indicatorThemeCompatibility';
 import { withLegacyComposerTokens } from './composerThemeCompatibility';
 
-const COMPOSITION_LAYERS = Symbol('alex.appearance.composition-layers');
+const COMPOSITION_LAYERS = Symbol('openbitfun.appearance.composition-layers');
 
 interface AppearanceCompositionLayers {
   base: AppearancePackage;
@@ -180,10 +180,10 @@ function mergeRenderers(
         },
       },
     } : base?.['generative-widget'],
-    'alex-canvas': override?.['alex-canvas'] ? {
+    'openbitfun-canvas': override?.['openbitfun-canvas'] ? {
       version: 1,
-      settings: { ...base?.['alex-canvas']?.settings, ...override['alex-canvas'].settings },
-    } : base?.['alex-canvas'],
+      settings: { ...base?.['openbitfun-canvas']?.settings, ...override['openbitfun-canvas'].settings },
+    } : base?.['openbitfun-canvas'],
   };
 }
 

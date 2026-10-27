@@ -49,7 +49,7 @@ pub(super) const BUILTIN_SKILL_SPECS: &[BuiltinSkillSpec] = &[
         group: BuiltinSkillGroup::Canvas,
     },
     BuiltinSkillSpec {
-        dir_name: "alex-canvas",
+        dir_name: "openbitfun-canvas",
         group: BuiltinSkillGroup::Canvas,
     },
     BuiltinSkillSpec {

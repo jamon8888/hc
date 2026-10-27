@@ -419,8 +419,8 @@ Second paragraph.
   });
 
   it.each([
-    '[Open Canvas](alex-canvas://session/session_1/canvas/canvas_1)',
-    'alex-canvas://session/session_1/canvas/canvas_1',
+    '[Open Canvas](openbitfun-canvas://session/session_1/canvas/canvas_1)',
+    'openbitfun-canvas://session/session_1/canvas/canvas_1',
   ])('opens Canvas artifact links in the Canvas panel: %s', async (content) => {
     openSessionHost({
       workspaceId: SESSION_WORKSPACE.id,
@@ -450,10 +450,10 @@ Second paragraph.
 
       expect(useAgentCanvasStore.getState().primaryGroup.tabs).toHaveLength(1);
       expect(useAgentCanvasStore.getState().primaryGroup.tabs[0].content).toMatchObject({
-        type: 'alex-canvas',
+        type: 'openbitfun-canvas',
         title: 'Alex Canvas',
         data: {
-          artifactReference: 'alex-canvas://session/session_1/canvas/canvas_1',
+          artifactReference: 'openbitfun-canvas://session/session_1/canvas/canvas_1',
           workspaceId: SESSION_WORKSPACE.id,
           workspacePath: '/srv/project',
           remoteConnectionId: 'remote-connection-1',
@@ -461,7 +461,7 @@ Second paragraph.
           _source: { type: 'markdown-link' },
         },
         metadata: {
-          artifactReference: 'alex-canvas://session/session_1/canvas/canvas_1',
+          artifactReference: 'openbitfun-canvas://session/session_1/canvas/canvas_1',
           fromMarkdown: true,
         },
 

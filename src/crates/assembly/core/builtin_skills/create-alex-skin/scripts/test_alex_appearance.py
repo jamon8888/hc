@@ -10,7 +10,7 @@ import sync_registry as registry_sync
 
 def base_manifest() -> dict[str, object]:
     return {
-        "schema": "alex.appearance",
+        "schema": "openbitfun.appearance",
         "schemaVersion": 2,
         "id": "validator-test",
         "name": "Validator Test",
@@ -170,7 +170,7 @@ class ManifestValidatorTests(unittest.TestCase):
 
     def test_registry_contract_comparison_ignores_provenance_only_changes(self) -> None:
         current = {
-            "schema": "alex.appearance.registry",
+            "schema": "openbitfun.appearance.registry",
             "schemaVersion": 2,
             "sourceRevision": "old-revision",
             "generatedAt": "old-time",

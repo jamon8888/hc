@@ -214,5 +214,5 @@ Before calling `CreateCanvas`, verify:
 
 Call `CreateCanvas` with a concise title and the complete TSX source. In the
 final response, mention the Canvas title and trace or case source used, but do
-not print the internal `alex-canvas://...` reference; Alex renders its
+not print the internal `openbitfun-canvas://...` reference; Alex renders its
 openable card automatically below the response.

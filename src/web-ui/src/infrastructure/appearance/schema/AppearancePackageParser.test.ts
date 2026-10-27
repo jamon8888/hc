@@ -26,7 +26,7 @@ function webmHeader(): Uint8Array {
 
 function manifest(): AppearancePackage {
   return {
-    schema: 'alex.appearance',
+    schema: 'openbitfun.appearance',
     schemaVersion: APPEARANCE_SCHEMA_VERSION,
     id: 'test.archive',
     name: 'Archive',
@@ -121,7 +121,7 @@ describe('AppearancePackageParser', () => {
 
   it('rejects unknown schemas', async () => {
     const unsupported = { ...manifest(), schema: 'example.unknown' };
-    await expect(parser.parse(await archive(unsupported))).rejects.toThrow('Schema must be alex.appearance');
+    await expect(parser.parse(await archive(unsupported))).rejects.toThrow('Schema must be openbitfun.appearance');
   });
 
   it('imports validated background video metadata and its poster', async () => {

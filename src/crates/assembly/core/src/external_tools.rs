@@ -2368,7 +2368,7 @@ async fn local_candidate(tool: &Arc<dyn Tool>) -> ExternalToolConflictCandidate 
     let provider_id = dynamic
         .as_ref()
         .map(|info| info.provider_id.clone())
-        .unwrap_or_else(|| "alex.builtin".to_string());
+        .unwrap_or_else(|| "openbitfun.builtin".to_string());
     let candidate_id = format!("registry:{provider_id}:{}", tool.name());
     let description = tool.description().await.unwrap_or_default();
     let schema = serde_json::to_vec(&tool.input_schema()).unwrap_or_default();
@@ -2645,7 +2645,7 @@ mod tests {
     #[test]
     fn changed_conflict_stays_unavailable_after_an_external_choice() {
         let candidates = vec![candidate(
-            "registry:alex.builtin:read",
+            "registry:openbitfun.builtin:read",
             ExternalToolConflictCandidateKind::BuiltIn,
         )];
         let choices = BTreeMap::from([(

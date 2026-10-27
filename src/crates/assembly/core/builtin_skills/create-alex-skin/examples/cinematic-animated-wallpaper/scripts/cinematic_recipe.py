@@ -17,8 +17,8 @@ import alex_appearance as appearance  # noqa: E402
 from build_support import atomic_write_json, read_json  # noqa: E402
 
 
-PALETTE_SCHEMA = "alex.appearance.cinematic-palette"
-SURFACE_PLAN_SCHEMA = "alex.appearance.style-surface-plan"
+PALETTE_SCHEMA = "openbitfun.appearance.cinematic-palette"
+SURFACE_PLAN_SCHEMA = "openbitfun.appearance.style-surface-plan"
 STYLE_ID = "cinematic-animated-wallpaper"
 PALETTE_KEYS = {
     "background",
@@ -357,7 +357,7 @@ def build_renderers(colors: Mapping[str, str], appearance_id: str) -> dict[str, 
                 "vars": widget_tokens,
             },
         },
-        "alex-canvas": {
+        "openbitfun-canvas": {
             "version": 1,
             "settings": {
                 "id": appearance_id,
@@ -410,7 +410,7 @@ def build_manifest(
 ) -> dict[str, Any]:
     colors = palette["colors"]
     manifest: dict[str, Any] = {
-        "schema": "alex.appearance",
+        "schema": "openbitfun.appearance",
         "schemaVersion": 2,
         "id": appearance_id,
         "name": name,

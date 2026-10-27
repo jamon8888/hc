@@ -34,7 +34,7 @@ fn write_package(workspace: &Path, source: &[u8], declared_hash: &str) {
         }],
     });
     std::fs::write(
-        package.join("alex.plugin.json"),
+        package.join("openbitfun.plugin.json"),
         serde_json::to_vec_pretty(&manifest).expect("serialize manifest"),
     )
     .expect("write manifest");
@@ -334,7 +334,7 @@ fn plugin_deactivate_cleans_residual_records_without_revoking_source_approval() 
     write_package(&workspace, PLUGIN_SOURCE, &sha256(PLUGIN_SOURCE));
     activate_package(&workspace, &user_root, &home_root);
     std::fs::write(
-        workspace.join(".openbitfun/plugins/acme.demo/alex.plugin.json"),
+        workspace.join(".openbitfun/plugins/acme.demo/openbitfun.plugin.json"),
         "{not-json",
     )
     .expect("corrupt package manifest");
@@ -349,7 +349,7 @@ fn plugin_deactivate_cleans_residual_records_without_revoking_source_approval() 
     assert!(stdout(&corrupt).contains("is unavailable"));
     assert!(stdout(&corrupt).contains("saved activation state was cleared"));
     assert!(stdout(&corrupt).contains("[error:invalid_manifest]"));
-    assert!(stdout(&corrupt).contains("alex.plugin.json"));
+    assert!(stdout(&corrupt).contains("openbitfun.plugin.json"));
 
     write_package(&workspace, PLUGIN_SOURCE, &sha256(PLUGIN_SOURCE));
     activate_package(&workspace, &user_root, &home_root);

@@ -1,5 +1,5 @@
 {
-  "schema": "alex.appearance.style-surface-plan",
+  "schema": "openbitfun.appearance.style-surface-plan",
   "schemaVersion": 1,
   "scope": "example-style-selection",
   "styleId": "cinematic-animated-wallpaper",

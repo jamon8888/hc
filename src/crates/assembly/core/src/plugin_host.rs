@@ -626,7 +626,7 @@ pub async fn ensure_configured_plugin_instance(
     }
 
     let sequence = NEXT_INSTANCE_SEQUENCE.fetch_add(1, Ordering::Relaxed);
-    let instance_id = format!("alex:host:{}:{sequence}", client.generation());
+    let instance_id = format!("openbitfun:host:{}:{sequence}", client.generation());
     let revision = format!("revision-{sequence}");
     let generation_material =
         format!("{config_fingerprint}\n{workspace_config_fingerprint}\n{prepared_fingerprint}");

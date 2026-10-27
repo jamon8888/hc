@@ -115,7 +115,7 @@ class CinematicContractTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             output = Path(temporary)
             build_support.atomic_write_json(output / "skin-build.json", {
-                "schema": "alex.appearance.unsupported-build",
+                "schema": "openbitfun.appearance.unsupported-build",
                 "schemaVersion": 1,
             })
             with self.assertRaisesRegex(contract.CinematicContractError, "Unsupported cinematic build config"):
@@ -174,7 +174,7 @@ class CinematicContractTests(unittest.TestCase):
             )
             config_path = output / "skin-build.json"
             config = json.loads(config_path.read_text(encoding="utf-8"))
-            self.assertEqual("alex.appearance.recipe-build", config["schema"])
+            self.assertEqual("openbitfun.appearance.recipe-build", config["schema"])
             self.assertEqual("cinematic-animated-wallpaper", config["recipe"]["id"])
             self.assertEqual("sources/surface-plan.json", config["inputs"]["surfacePlan"]["path"])
             self.assertEqual("auto", config["assetBuild"]["videoQuality"])
@@ -188,7 +188,7 @@ class CinematicContractTests(unittest.TestCase):
             self.assertEqual(430, video["width"])
             self.assertEqual(180, video["height"])
             self.assertTrue(all(entry["lossless"] for entry in resolved["static"].values()))
-            archive = output / "pipeline-fixture.alex-appearance"
+            archive = output / "pipeline-fixture.openbitfun-appearance"
             manifest = json.loads((output / "package" / "appearance.json").read_text(encoding="utf-8"))
             host_video = host_verifier.verify_video_assets(archive, manifest)["background"]
             self.assertEqual("1:1", host_video["sampleAspectRatio"])
@@ -220,12 +220,12 @@ class CinematicContractTests(unittest.TestCase):
                 check=True,
             )
             config = json.loads(config_path.read_text(encoding="utf-8"))
-            self.assertEqual("alex.appearance.recipe-build", config["schema"])
+            self.assertEqual("openbitfun.appearance.recipe-build", config["schema"])
             self.assertTrue(config["verification"]["projectValidation"])
             self.assertTrue(config["verification"]["archiveValidation"])
             self.assertFalse(config["verification"]["runtimeVisualInspection"])
             self.assertTrue((output / "asset-preview-sheet.png").is_file())
-            self.assertTrue((output / "pipeline-fixture.alex-appearance").is_file())
+            self.assertTrue((output / "pipeline-fixture.openbitfun-appearance").is_file())
 
 
 if __name__ == "__main__":

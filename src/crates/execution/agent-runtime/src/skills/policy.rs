@@ -296,7 +296,7 @@ mod tests {
         for skill in [
             "agent-eval-canvas",
             "docs-canvas",
-            "alex-canvas",
+            "openbitfun-canvas",
             "pr-review-canvas",
         ] {
             for mode_id in [

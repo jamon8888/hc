@@ -74,7 +74,7 @@ const round: ModelRound = {
 
 // This package uses the pre-migration component/part/state names on disk.
 const legacyPackage: AppearancePackage = {
-  schema: 'alex.appearance', schemaVersion: APPEARANCE_SCHEMA_VERSION,
+  schema: 'openbitfun.appearance', schemaVersion: APPEARANCE_SCHEMA_VERSION,
   id: 'test.message-actions', name: 'Message actions', version: '1.0.0', mode: 'dark',
   components: {
     'model-round-item': { parts: {

@@ -1023,7 +1023,7 @@ const FlexiblePanel: React.FC<ExtendedFlexiblePanelProps> = memo(({
           </React.Suspense>
         );
 
-      case 'alex-canvas':
+      case 'openbitfun-canvas':
         return (
           <React.Suspense fallback={<div className="alex-flexible-panel__loading" data-alex-component="flexible-panel" data-alex-part="loading" data-alex-state="loading">Loading Canvas preview...</div>}>
             <AlexCanvasPanel

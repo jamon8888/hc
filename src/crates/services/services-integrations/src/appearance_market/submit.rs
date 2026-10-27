@@ -120,12 +120,12 @@ pub async fn submit_appearance_package(
         .and_then(|name| name.to_str())
         .is_some_and(|name| {
             name.to_ascii_lowercase()
-                .ends_with(".alex-appearance")
+                .ends_with(".openbitfun-appearance")
         });
     if !has_expected_extension {
         return Err(submission_error(
             "invalid_package_extension",
-            "Marketplace packages must use the .alex-appearance extension.",
+            "Marketplace packages must use the .openbitfun-appearance extension.",
         ));
     }
 

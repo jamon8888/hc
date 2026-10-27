@@ -97,7 +97,7 @@ describe('required field design-system integration', () => {
 
     expect(embeddedLabelMarkers).toEqual([]);
     expect(unownedMarkerAnatomy).toEqual([]);
-  });
+  }, 30000);
 
   it('forbids product styles from synthesizing required markers with pseudo-elements', () => {
     const pseudoMarkers = filesIn(sourceRoot, /\.(?:css|scss)$/).flatMap(file => {

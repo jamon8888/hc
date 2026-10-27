@@ -473,7 +473,7 @@ export function buildBuiltinAppearance(palette: AppearancePalette): AppearancePa
   });
 
   return {
-    schema: 'alex.appearance',
+    schema: 'openbitfun.appearance',
     schemaVersion: 2,
     id: palette.id,
     name: palette.name,
@@ -590,7 +590,7 @@ export function buildBuiltinAppearance(palette: AppearancePalette): AppearancePa
           vars: createWidgetAppearanceVars(themeTokens),
         },
       },
-      'alex-canvas': {
+      'openbitfun-canvas': {
         version: 1,
         settings: {
           id: `builtin.${palette.id}`,

@@ -1,5 +1,5 @@
 {
-  "schema": "alex.appearance.cinematic-palette",
+  "schema": "openbitfun.appearance.cinematic-palette",
   "schemaVersion": 1,
   "id": "cold-cinematic",
   "colors": {

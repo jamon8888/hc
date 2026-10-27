@@ -1187,7 +1187,7 @@ describeWithJsdom('DeepReviewActionBar', () => {
     expect(sendMessageMock).not.toHaveBeenCalled();
 
     const legacy: AppearancePackage = {
-      schema: 'alex.appearance', schemaVersion: APPEARANCE_SCHEMA_VERSION,
+      schema: 'openbitfun.appearance', schemaVersion: APPEARANCE_SCHEMA_VERSION,
       id: 'test.review-input', name: 'Review input', version: '1.0.0', mode: 'dark',
       components: { 'deep-review-action-bar': { parts: {
         customInput: { base: { opacity: { kind: 'number', value: 0.6 } } },

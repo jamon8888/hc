@@ -122,7 +122,7 @@ def main() -> int:
         tree_evidence = run(["git", "diff", "--no-ext-diff", "HEAD"], repo) + "\n" + status
         snapshot = export_registry(repo)
         output_value = {
-            "schema": "alex.appearance.registry",
+            "schema": "openbitfun.appearance.registry",
             "schemaVersion": 2,
             "generatedFrom": revision,
             "generatedAt": dt.datetime.now(dt.timezone.utc).isoformat(),

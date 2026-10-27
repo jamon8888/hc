@@ -1,4 +1,4 @@
-//! PublishAppearance tool — submit a local `.alex-appearance` archive to
+//! PublishAppearance tool — submit a local `.openbitfun-appearance` archive to
 //! the public Skin market for human review.
 
 use crate::agentic::tools::framework::{PermissionIntent, Tool, ToolResult, ToolUseContext};
@@ -39,9 +39,9 @@ impl Tool for PublishAppearanceTool {
     }
 
     async fn description(&self) -> AlexResult<String> {
-        Ok(r#"Submit a local `.alex-appearance` package to the Alex Skin market for human review.
+        Ok(r#"Submit a local `.openbitfun-appearance` package to the Alex Skin market for human review.
 
-The product calls catalog entries "Skins", but package/runtime identifiers always remain Appearance: `appearance.json`, schema `alex.appearance`, and extension `.alex-appearance`. Pass an absolute local path to a completed archive. The package itself supplies the public name, description, author, version, mode and preview; the tool derives the marketplace slug and next release number from submission history.
+The product calls catalog entries "Skins", but package/runtime identifiers always remain Appearance: `appearance.json`, schema `openbitfun.appearance`, and extension `.openbitfun-appearance`. Pass an absolute local path to a completed archive. The package itself supplies the public name, description, author, version, mode and preview; the tool derives the marketplace slug and next release number from submission history.
 
 The caller must explicitly provide the package's SPDX license expression. If the package is not under a standard SPDX license, provide `custom_license_url` instead. The package is validated locally before upload and validated again by the server. If sign-in is required, the tool returns a GitHub authorization URL; show it to the user and call this tool again after authorization.
 
@@ -60,7 +60,7 @@ This is an outward-facing publication action. Use it only when the user explicit
             "properties": {
                 "package_path": {
                     "type": "string",
-                    "description": "Absolute local path to a `.alex-appearance` archive. Remote SSH workspace paths are not supported."
+                    "description": "Absolute local path to a `.openbitfun-appearance` archive. Remote SSH workspace paths are not supported."
                 },
                 "slug": {
                     "type": "string",
@@ -204,7 +204,7 @@ This is an outward-facing publication action. Use it only when the user explicit
     ) -> AlexResult<Vec<ToolResult>> {
         if context.is_remote() {
             return Err(AlexError::validation(
-                "PublishAppearance reads a package from the local desktop host and cannot use a remote SSH workspace path. Export the .alex-appearance package to the local device, switch to a local workspace, and call the tool again.",
+                "PublishAppearance reads a package from the local desktop host and cannot use a remote SSH workspace path. Export the .openbitfun-appearance package to the local device, switch to a local workspace, and call the tool again.",
             ));
         }
         let package_path = required_local_package_path(input)?;
@@ -421,9 +421,9 @@ fn required_local_package_path(input: &Value) -> AlexResult<PathBuf> {
             "package_path must be an absolute local path.",
         ));
     }
-    if !raw.to_ascii_lowercase().ends_with(".alex-appearance") {
+    if !raw.to_ascii_lowercase().ends_with(".openbitfun-appearance") {
         return Err(AlexError::validation(
-            "package_path must end in .alex-appearance.",
+            "package_path must end in .openbitfun-appearance.",
         ));
     }
     Ok(path.to_path_buf())
@@ -509,7 +509,7 @@ mod tests {
         let intents = tool
             .permission_intents(
                 &json!({
-                    "package_path": "/tmp/calm.alex-appearance",
+                    "package_path": "/tmp/calm.openbitfun-appearance",
                     "slug": "calm-skin",
                     "license_spdx": "MIT",
                     "repository_url": "https://example.com/calm",
@@ -521,7 +521,7 @@ mod tests {
             .unwrap();
         assert_eq!(
             intents[0].resources,
-            ["appearance:calm-skin; release=next; package=/tmp/calm.alex-appearance; license=SPDX: MIT; repository=https://example.com/calm; min-version=1.2.3".to_string()]
+            ["appearance:calm-skin; release=next; package=/tmp/calm.openbitfun-appearance; license=SPDX: MIT; repository=https://example.com/calm; min-version=1.2.3".to_string()]
         );
         assert!(intents[0].save_resources.is_empty());
         assert_eq!(

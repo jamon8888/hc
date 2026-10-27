@@ -2,7 +2,7 @@
 
 ## Package shape
 
-- Archive extension: `.alex-appearance`
+- Archive extension: `.openbitfun-appearance`
 - Archive format: ZIP
 - Root manifest: `appearance.json`
 - `schema`: `openbitfun.appearance`

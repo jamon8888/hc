@@ -333,7 +333,7 @@ enum Commands {
 
     /// Inspect and review Alex-managed plugin packages
     ///
-    /// Package layout: <package-root>/<package-id>/alex.plugin.json
+    /// Package layout: <package-root>/<package-id>/openbitfun.plugin.json
     Plugins {
         #[command(subcommand)]
         action: Option<PluginAction>,

@@ -230,7 +230,7 @@ mod tests {
             .unwrap();
         let preview = preview_output.into_inner();
         let manifest = serde_json::json!({
-            "schema": "alex.appearance",
+            "schema": "openbitfun.appearance",
             "schemaVersion": 1,
             "id": package_id,
             "name": "Aurora",

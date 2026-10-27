@@ -65,7 +65,7 @@ impl ManagedPackageFixture {
             }]
         });
         fs::write(
-            package.join("alex.plugin.json"),
+            package.join("openbitfun.plugin.json"),
             serde_json::to_vec_pretty(&manifest).expect("serialize manifest"),
         )
         .expect("write manifest");
@@ -96,7 +96,7 @@ impl ManagedPackageFixture {
         fs::create_dir_all(file_path.parent().expect("declared file parent"))
             .expect("create declared file parent");
         fs::write(&file_path, content).expect("write declared file");
-        let manifest_path = self.package.join("alex.plugin.json");
+        let manifest_path = self.package.join("openbitfun.plugin.json");
         let mut manifest: serde_json::Value =
             serde_json::from_slice(&fs::read(&manifest_path).expect("read plugin manifest"))
                 .expect("parse plugin manifest");

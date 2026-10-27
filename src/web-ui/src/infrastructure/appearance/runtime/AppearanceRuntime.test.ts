@@ -10,7 +10,7 @@ import { AppearanceRuntime } from './AppearanceRuntime';
 
 function pkg(id: string, background: string): AppearancePackage {
   return {
-    schema: 'alex.appearance',
+    schema: 'openbitfun.appearance',
     schemaVersion: 2,
     id,
     name: id,
@@ -74,7 +74,7 @@ describe('AppearanceRuntime', () => {
       .freeze();
     const runtime = new AppearanceRuntime(registry);
     const assetPackage: AppearancePackage = {
-      schema: 'alex.appearance',
+      schema: 'openbitfun.appearance',
       schemaVersion: 2,
       id: 'test.assets',
       name: 'Assets',
@@ -118,7 +118,7 @@ describe('AppearanceRuntime', () => {
       .freeze();
     const runtime = new AppearanceRuntime(registry);
     const assetPackage: AppearancePackage = {
-      schema: 'alex.appearance',
+      schema: 'openbitfun.appearance',
       schemaVersion: 2,
       id: 'test.assets',
       name: 'Assets',
@@ -164,7 +164,7 @@ describe('AppearanceRuntime', () => {
     vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined);
     const runtime = new AppearanceRuntime(new AppearanceRegistry().freeze());
     const assetPackage: AppearancePackage = {
-      schema: 'alex.appearance',
+      schema: 'openbitfun.appearance',
       schemaVersion: 2,
       id: 'test.video-background',
       name: 'Video Background',
@@ -232,7 +232,7 @@ describe('AppearanceRuntime', () => {
       .freeze();
     const runtime = new AppearanceRuntime(registry);
     const basePackage: AppearancePackage = {
-      schema: 'alex.appearance',
+      schema: 'openbitfun.appearance',
       schemaVersion: 2,
       id: 'test.computed-style',
       name: 'Computed Style',

@@ -389,10 +389,10 @@ pub fn validate_appearance_package(bytes: &[u8]) -> SkinMarketResult<ValidatedAp
 }
 
 fn validate_manifest(manifest: &AppearanceManifest) -> SkinMarketResult<()> {
-    if manifest.schema != "alex.appearance" || manifest.schema_version != 1 {
+    if manifest.schema != "openbitfun.appearance" || manifest.schema_version != 1 {
         return Err(SkinMarketError::bad_request(
             "unsupported_manifest_schema",
-            "Appearance packages must use alex.appearance schema version 1.",
+            "Appearance packages must use openbitfun.appearance schema version 1.",
         ));
     }
     validate_identifier(&manifest.id, "package id")?;
@@ -969,7 +969,7 @@ mod tests {
 
     fn manifest() -> Value {
         serde_json::json!({
-            "schema": "alex.appearance",
+            "schema": "openbitfun.appearance",
             "schemaVersion": 1,
             "id": "example.aurora",
             "name": "Aurora",

@@ -131,7 +131,7 @@ describe('toolbar icon actions and legacy Appearance hooks', () => {
       <ScrollToTurnHeaderButton visible onClick={vi.fn()} />
     </>));
     const pkg: AppearancePackage = {
-      schema: 'alex.appearance', schemaVersion: APPEARANCE_SCHEMA_VERSION,
+      schema: 'openbitfun.appearance', schemaVersion: APPEARANCE_SCHEMA_VERSION,
       id: 'test.toolbar-scroll', name: 'Toolbar and scroll controls', version: '1.0.0', mode: 'dark',
       components: {
         'toolbar-mode': { parts: { overflowTrigger: { states: { expanded: { opacity: { kind: 'number', value: 0.41 } } } } } },

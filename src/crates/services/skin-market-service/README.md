@@ -2,7 +2,7 @@
 
 This crate owns the concrete HTTP, SQLite, artifact, validation, review and
 retention behavior for the public Skin catalog. “Skin” is product copy only;
-the package/runtime contract remains Appearance (`.alex-appearance`,
+the package/runtime contract remains Appearance (`.openbitfun-appearance`,
 `appearance.json`, `openbitfun.appearance`). Stable DTOs and pure state policy live
 in `alex-product-domains::appearance_market`.
 

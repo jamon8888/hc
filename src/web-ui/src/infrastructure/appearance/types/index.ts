@@ -1,4 +1,4 @@
-export const APPEARANCE_SCHEMA = 'alex.appearance' as const;
+export const APPEARANCE_SCHEMA = 'openbitfun.appearance' as const;
 export const APPEARANCE_SCHEMA_VERSION = 2 as const;
 export const SYSTEM_APPEARANCE_ID = 'system' as const;
 
@@ -384,7 +384,7 @@ export type AppearanceRendererId =
   | 'xterm'
   | 'mermaid'
   | 'generative-widget'
-  | 'alex-canvas';
+  | 'openbitfun-canvas';
 
 export type AppearanceThemeTokenName =
   | `--alex-color-${string}`
@@ -509,7 +509,7 @@ export interface AppearanceRendererSettingsMap {
   xterm: XtermAppearanceSettings;
   mermaid: MermaidAppearanceSettings;
   'generative-widget': WidgetAppearanceSettings;
-  'alex-canvas': CanvasAppearanceSettings;
+  'openbitfun-canvas': CanvasAppearanceSettings;
 }
 
 export type AppearanceRendererSettings = AppearanceRendererSettingsMap[AppearanceRendererId];

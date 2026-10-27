@@ -76,7 +76,7 @@ mod tests {
         );
         for mode_id in ["Standard", "Claw", "Creative", "Cowork", "DeepResearch"] {
             assert_eq!(
-                resolve_builtin_default_enabled("alex-canvas", mode_id),
+                resolve_builtin_default_enabled("openbitfun-canvas", mode_id),
                 Some(false),
                 "Canvas skills must stay opt-in for mode {mode_id}"
             );

@@ -700,7 +700,7 @@ export const WorkspaceToolsPlugin: Plugin = async () => ({
                 }));
             }
             fs::write(
-                package.join("alex.plugin.json"),
+                package.join("openbitfun.plugin.json"),
                 serde_json::to_vec_pretty(&serde_json::json!({
                     "schemaVersion": 1,
                     "id": "acme.demo",

@@ -466,7 +466,7 @@ mod tests {
                 "conflictKey": "conflict-v1",
                 "toolName": "review",
                 "candidates": [{
-                    "candidateId": "alex:review",
+                    "candidateId": "openbitfun:review",
                     "displayName": "Alex review",
                     "kind": "built_in",
                     "providerId": "alex",
@@ -667,7 +667,7 @@ mod tests {
             parse_external_tool_review_action("choose 1 1", Some(&snapshot), None).unwrap(),
             ExternalToolReviewAction::Choose {
                 conflict_key: "conflict-v1".to_string(),
-                candidate_id: "alex:review".to_string(),
+                candidate_id: "openbitfun:review".to_string(),
             }
         );
         let notice = external_tool_pending_notice_key(&snapshot).unwrap();
@@ -2346,7 +2346,7 @@ mod tests {
                 "conflictKey": "conflict-v1",
                 "logicalId": "review",
                 "candidates": [{
-                    "candidateId": "alex:review",
+                    "candidateId": "openbitfun:review",
                     "displayName": "Alex review",
                     "sourceLabel": "Alex",
                     "external": false
@@ -2462,7 +2462,7 @@ mod tests {
             parse_external_agent_review_action("choose 1 1", Some(&snapshot), None).unwrap(),
             ExternalAgentReviewAction::Choose {
                 conflict_key: "conflict-v1".to_string(),
-                candidate_id: "alex:review".to_string(),
+                candidate_id: "openbitfun:review".to_string(),
                 approve_external: false,
                 expected_subagent_generation: 4,
                 expected_preference_revision: 7,

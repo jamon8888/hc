@@ -24,7 +24,7 @@ use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 use tokio::fs;
 use tokio::task;
 
-const PLUGIN_MANIFEST_FILE: &str = "alex.plugin.json";
+const PLUGIN_MANIFEST_FILE: &str = "openbitfun.plugin.json";
 const MAX_MANIFEST_BYTES: u64 = 64 * 1024;
 const MAX_PACKAGE_FILE_BYTES: u64 = 1024 * 1024;
 const MAX_PACKAGE_BYTES: u64 = 16 * 1024 * 1024;
@@ -3372,7 +3372,7 @@ mod tests {
             }],
         });
         tokio::fs::write(
-            package.join("alex.plugin.json"),
+            package.join("openbitfun.plugin.json"),
             serde_json::to_vec_pretty(&manifest).expect("serialize manifest"),
         )
         .await
@@ -3709,7 +3709,7 @@ mod tests {
         tokio::fs::write(
             fixture
                 .workspace_root
-                .join("acme.demo/alex.plugin.json"),
+                .join("acme.demo/openbitfun.plugin.json"),
             b"{not-json",
         )
         .await
@@ -4525,7 +4525,7 @@ mod tests {
         assert_eq!(
             discovery.packages[0].identity.content_hash,
             PluginPackageManifest::parse_json(
-                &tokio::fs::read_to_string(root.join("acme.demo/alex.plugin.json"))
+                &tokio::fs::read_to_string(root.join("acme.demo/openbitfun.plugin.json"))
                     .await
                     .expect("read manifest")
             )
@@ -4674,7 +4674,7 @@ mod tests {
             .await
             .expect("create unrelated package");
         tokio::fs::write(
-            workspace_root.join("broken.unrelated/alex.plugin.json"),
+            workspace_root.join("broken.unrelated/openbitfun.plugin.json"),
             b"not json",
         )
         .await
@@ -4798,7 +4798,7 @@ mod tests {
             }],
         });
         tokio::fs::write(
-            package.join("alex.plugin.json"),
+            package.join("openbitfun.plugin.json"),
             serde_json::to_vec_pretty(&manifest).expect("serialize manifest"),
         )
         .await

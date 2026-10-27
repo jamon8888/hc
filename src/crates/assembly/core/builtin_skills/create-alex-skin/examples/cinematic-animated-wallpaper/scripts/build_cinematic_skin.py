@@ -27,7 +27,7 @@ ASSET_BUILDER = SCRIPT_DIR / "build_assets.py"
 SCAFFOLD = SCRIPT_DIR / "scaffold_cinematic.py"
 BUILD_CONFIG_NAME = "skin-build.json"
 RUNTIME_CHECKLIST_NAME = "runtime-checklist.json"
-BUILD_CONFIG_SCHEMA = "alex.appearance.recipe-build"
+BUILD_CONFIG_SCHEMA = "openbitfun.appearance.recipe-build"
 RECIPE_ID = "cinematic-animated-wallpaper"
 
 
@@ -182,7 +182,7 @@ def build_skin(options: BuildOptions) -> dict[str, Any]:
     build.copy_input(options.surface_plan, plan_copy)
     build.run(scaffold_command(options, palette_copy, plan_copy))
 
-    archive = options.output / f"{options.appearance_id}.alex-appearance"
+    archive = options.output / f"{options.appearance_id}.openbitfun-appearance"
     build.validate_project(package)
     build.build_archive(package, archive)
     build.validate_archive(archive)

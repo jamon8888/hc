@@ -267,8 +267,8 @@ export const PANEL_CONTENT_CONFIGS: Record<PanelContentType, PanelContentConfig>
     supportsDownload: false,
     showHeader: false
   },
-  'alex-canvas': {
-    type: 'alex-canvas',
+  'openbitfun-canvas': {
+    type: 'openbitfun-canvas',
     displayName: 'Alex Canvas',
     icon: { glyph: Network },
     supportsCopy: false,

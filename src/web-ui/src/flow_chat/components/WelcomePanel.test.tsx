@@ -145,7 +145,7 @@ describe('WelcomePanel Git summary loading', () => {
 
   it('keeps saved welcome action styles targeting the migrated Button', async () => {
     const legacyPackage: AppearancePackage = {
-      schema: 'alex.appearance', schemaVersion: APPEARANCE_SCHEMA_VERSION,
+      schema: 'openbitfun.appearance', schemaVersion: APPEARANCE_SCHEMA_VERSION,
       id: 'test.welcome', name: 'Welcome', version: '1.0.0', mode: 'dark',
       components: {
         'welcome-panel': { parts: {

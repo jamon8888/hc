@@ -16,7 +16,7 @@ const log = createLogger('SkillsScene:useInstalledSkills');
 function installedSkillGroup(skill: SkillInfo): InstalledFilter {
   if (skill.isBuiltin) return 'builtin';
   const sourceId = getSkillOriginSourceId(skill);
-  return sourceId === 'alex' ? skill.level : `source:${sourceId}`;
+  return sourceId === 'openbitfun' ? skill.level : `source:${sourceId}`;
 }
 
 interface UseInstalledSkillsOptions {

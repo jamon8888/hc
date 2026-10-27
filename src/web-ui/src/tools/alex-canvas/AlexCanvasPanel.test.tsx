@@ -117,7 +117,7 @@ describe('AlexCanvasPanel message boundary', () => {
       root.render(
         <AlexCanvasPanel
           workspaceId="canvas-workspace-id"
-          artifactReference="alex-canvas://session/session_1/canvas/canvas_1"
+          artifactReference="openbitfun-canvas://session/session_1/canvas/canvas_1"
           html="<!doctype html><html><body>Canvas</body></html>"
         />,
       );
@@ -139,7 +139,7 @@ describe('AlexCanvasPanel message boundary', () => {
       root.render(
         <AlexCanvasPanel
           workspaceId="canvas-workspace-id"
-          artifactReference="alex-canvas://session/session_1/canvas/canvas_1"
+          artifactReference="openbitfun-canvas://session/session_1/canvas/canvas_1"
           html="<!doctype html><html><body>Canvas</body></html>"
         />,
       );
@@ -176,7 +176,7 @@ describe('AlexCanvasPanel message boundary', () => {
       root.render(
         <AlexCanvasPanel
           workspaceId="canvas-workspace-id"
-          artifactReference="alex-canvas://session/session_1/canvas/canvas_1"
+          artifactReference="openbitfun-canvas://session/session_1/canvas/canvas_1"
           html={`<!doctype html><html><body><script data-revision="rev_1">window.AlexCanvasRuntime.mount(Canvas);</script></body></html>`}
           workspacePath="/repo"
         />,

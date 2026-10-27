@@ -208,7 +208,7 @@ describe('AppearanceMarketDialog', () => {
     mocks.downloadRelease.mockReset().mockResolvedValue(new Uint8Array([1, 2, 3]).buffer);
     mocks.listSubmissions.mockReset().mockResolvedValue([]);
     mocks.chooseSubmissionPackage.mockReset()
-      .mockResolvedValue('/tmp/ocean-night.alex-appearance');
+      .mockResolvedValue('/tmp/ocean-night.openbitfun-appearance');
     mocks.submitPackage.mockReset().mockResolvedValue({
       submissionId: 'submission-upload',
       slug: 'ocean-night',
@@ -555,7 +555,7 @@ describe('AppearanceMarketDialog', () => {
     await act(async () => submitButton?.click());
 
     await vi.waitFor(() => expect(mocks.submitPackage).toHaveBeenCalledWith({
-      packagePath: '/tmp/ocean-night.alex-appearance',
+      packagePath: '/tmp/ocean-night.openbitfun-appearance',
       slug: undefined,
       minAlexVersion: '1.0.0',
       changelog: undefined,

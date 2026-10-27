@@ -29,7 +29,7 @@ fn canvas_artifact_ref_uses_logical_uri_not_path() {
 
     assert_eq!(
         uri,
-        "alex-canvas://session/session%201/canvas/canvas%201"
+        "openbitfun-canvas://session/session%201/canvas/canvas%201"
     );
     assert!(!uri.contains("/Users/"));
     assert!(!uri.contains("\\"));
@@ -41,10 +41,10 @@ fn canvas_artifact_ref_uses_logical_uri_not_path() {
 #[test]
 fn canvas_artifact_ref_rejects_unsafe_path_segments() {
     for uri in [
-        "alex-canvas://session/..%2Fother/canvas/canvas_1",
-        "alex-canvas://session/../canvas/canvas_1",
-        "alex-canvas://session/session_1/canvas/canvas%2Fwith%2Fslash",
-        "alex-canvas://session/session%5C1/canvas/canvas_1",
+        "openbitfun-canvas://session/..%2Fother/canvas/canvas_1",
+        "openbitfun-canvas://session/../canvas/canvas_1",
+        "openbitfun-canvas://session/session_1/canvas/canvas%2Fwith%2Fslash",
+        "openbitfun-canvas://session/session%5C1/canvas/canvas_1",
     ] {
         assert!(
             parse_canvas_artifact_ref(uri).is_err(),

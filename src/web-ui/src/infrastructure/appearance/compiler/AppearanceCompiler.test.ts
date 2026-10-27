@@ -40,7 +40,7 @@ describe('AppearanceCompiler', () => {
 
   it('keeps product Appearance selectors distinct from design-system anatomy', () => {
     const pkg: AppearancePackage = {
-      schema: 'alex.appearance',
+      schema: 'openbitfun.appearance',
       schemaVersion: APPEARANCE_SCHEMA_VERSION,
       id: 'test.product-surface',
       name: 'Product Surface',
@@ -68,7 +68,7 @@ describe('AppearanceCompiler', () => {
 
   it('targets the renamed context picker for legacy file-picker Appearance packages', () => {
     const pkg: AppearancePackage = {
-      schema: 'alex.appearance',
+      schema: 'openbitfun.appearance',
       schemaVersion: APPEARANCE_SCHEMA_VERSION,
       id: 'test.legacy-context-picker',
       name: 'Legacy Context Picker',
@@ -95,7 +95,7 @@ describe('AppearanceCompiler', () => {
 
   it('rejects retired Settings surface ids without rewriting the package', () => {
     const pkg: AppearancePackage = {
-      schema: 'alex.appearance',
+      schema: 'openbitfun.appearance',
       schemaVersion: 2,
       id: 'test.legacy-settings-surface',
       name: 'Legacy Settings Surface',
@@ -143,7 +143,7 @@ describe('AppearanceCompiler', () => {
 
   it('rejects retired split execution facets without rewriting the package', () => {
     const pkg: AppearancePackage = {
-      schema: 'alex.appearance',
+      schema: 'openbitfun.appearance',
       schemaVersion: 2,
       id: 'test.split-execution-settings',
       name: 'Split Execution Settings',
@@ -171,7 +171,7 @@ describe('AppearanceCompiler', () => {
 
   it('rejects retired appearance Settings parts without rewriting the package', () => {
     const pkg: AppearancePackage = {
-      schema: 'alex.appearance',
+      schema: 'openbitfun.appearance',
       schemaVersion: 2,
       id: 'test.legacy-appearance-settings-cards',
       name: 'Legacy Appearance Settings Cards',
@@ -195,7 +195,7 @@ describe('AppearanceCompiler', () => {
     const visible = { kind: 'number', value: 0.9 } as const;
     const retired = { kind: 'number', value: 0.4 } as const;
     const pkg: AppearancePackage = {
-      schema: 'alex.appearance',
+      schema: 'openbitfun.appearance',
       schemaVersion: 2,
       id: 'test.retired-product-actions',
       name: 'Retired Product Actions',
@@ -242,7 +242,7 @@ describe('AppearanceCompiler', () => {
   it('rejects retired component surfaces without rewriting the package', () => {
     const visible = { kind: 'number', value: 0.9 } as const;
     const pkg: AppearancePackage = {
-      schema: 'alex.appearance',
+      schema: 'openbitfun.appearance',
       schemaVersion: 2,
       id: 'test.retired-component-surfaces',
       name: 'Retired Component Surfaces',
@@ -263,7 +263,7 @@ describe('AppearanceCompiler', () => {
   it('compiles canonical Settings surface ids', () => {
     const accent = { kind: 'hex', value: '#4488ff' } as const;
     const pkg: AppearancePackage = {
-      schema: 'alex.appearance',
+      schema: 'openbitfun.appearance',
       schemaVersion: APPEARANCE_SCHEMA_VERSION,
       id: 'test.settings-surfaces',
       name: 'Settings Surfaces',
@@ -310,7 +310,7 @@ describe('AppearanceCompiler', () => {
 
   it('calculates real contrast diagnostics for structured colors', () => {
     const pkg: AppearancePackage = {
-      schema: 'alex.appearance',
+      schema: 'openbitfun.appearance',
       schemaVersion: APPEARANCE_SCHEMA_VERSION,
       id: 'test.low-contrast',
       name: 'Low Contrast',
@@ -337,7 +337,7 @@ describe('AppearanceCompiler', () => {
 
   it('uses important declarations only for explicitly overriding parts', () => {
     const pkg: AppearancePackage = {
-      schema: 'alex.appearance',
+      schema: 'openbitfun.appearance',
       schemaVersion: APPEARANCE_SCHEMA_VERSION,
       id: 'test.cascade-override',
       name: 'Cascade Override',
@@ -361,7 +361,7 @@ describe('AppearanceCompiler', () => {
 
   it('keeps non-forceable layout declarations in the normal cascade', () => {
     const pkg: AppearancePackage = {
-      schema: 'alex.appearance',
+      schema: 'openbitfun.appearance',
       schemaVersion: APPEARANCE_SCHEMA_VERSION,
       id: 'test.property-level-override',
       name: 'Property Level Override',
@@ -393,7 +393,7 @@ describe('AppearanceCompiler', () => {
 
   it('normalizes side borders and outlines into deterministic CSS', () => {
     const pkg: AppearancePackage = {
-      schema: 'alex.appearance',
+      schema: 'openbitfun.appearance',
       schemaVersion: APPEARANCE_SCHEMA_VERSION,
       id: 'test.border-normalization',
       name: 'Border Normalization',
@@ -426,7 +426,7 @@ describe('AppearanceCompiler', () => {
 
   it('combines materials in declaration order before applying the part base', () => {
     const pkg: AppearancePackage = {
-      schema: 'alex.appearance',
+      schema: 'openbitfun.appearance',
       schemaVersion: APPEARANCE_SCHEMA_VERSION,
       id: 'test.material-composition',
       name: 'Material Composition',
@@ -468,7 +468,7 @@ describe('AppearanceCompiler', () => {
 
   it('does not synthesize retired component baselines for an explicit product-surface override', () => {
     const pkg: AppearancePackage = {
-      schema: 'alex.appearance',
+      schema: 'openbitfun.appearance',
       schemaVersion: APPEARANCE_SCHEMA_VERSION,
       id: 'test.layered-cascade',
       name: 'Layered Cascade',
@@ -496,7 +496,7 @@ describe('AppearanceCompiler', () => {
 
   it('compiles structured layout, media, transform, and filter values without CSS passthrough', () => {
     const pkg: AppearancePackage = {
-      schema: 'alex.appearance',
+      schema: 'openbitfun.appearance',
       schemaVersion: APPEARANCE_SCHEMA_VERSION,
       id: 'test.structured-style',
       name: 'Structured Style',
@@ -548,7 +548,7 @@ describe('AppearanceCompiler', () => {
 
   it('compiles layered package assets into aligned host-owned background declarations', () => {
     const pkg: AppearancePackage = {
-      schema: 'alex.appearance',
+      schema: 'openbitfun.appearance',
       schemaVersion: APPEARANCE_SCHEMA_VERSION,
       id: 'test.layered-backgrounds',
       name: 'Layered Backgrounds',
@@ -615,7 +615,7 @@ describe('AppearanceCompiler', () => {
       })
       .freeze();
     const pkg: AppearancePackage = {
-      schema: 'alex.appearance',
+      schema: 'openbitfun.appearance',
       schemaVersion: APPEARANCE_SCHEMA_VERSION,
       id: 'test.ancestor-state',
       name: 'Ancestor State',
@@ -643,7 +643,7 @@ describe('AppearanceCompiler', () => {
   it('targets multiple parts, facets, and states across complex product surfaces', () => {
     const accent = { kind: 'hex', value: '#ff3366' } as const;
     const pkg: AppearancePackage = {
-      schema: 'alex.appearance',
+      schema: 'openbitfun.appearance',
       schemaVersion: APPEARANCE_SCHEMA_VERSION,
       id: 'test.product-surfaces',
       name: 'Product Surfaces',
@@ -693,7 +693,7 @@ describe('AppearanceCompiler', () => {
   it('compiles dedicated contracts for large interactive owners', () => {
     const accent = { kind: 'hex', value: '#33ffaa' } as const;
     const pkg: AppearancePackage = {
-      schema: 'alex.appearance',
+      schema: 'openbitfun.appearance',
       schemaVersion: APPEARANCE_SCHEMA_VERSION,
       id: 'test.large-owners',
       name: 'Large Owners',

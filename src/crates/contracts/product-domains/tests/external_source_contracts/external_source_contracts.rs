@@ -1348,7 +1348,7 @@ fn external_mcp_decisions_change_only_with_behavior_domain_or_conflict_participa
         "/workspace-a",
         "github",
         [
-            ("alex:github", "native-v1"),
+            ("openbitfun:github", "native-v1"),
             (stable_id.as_str(), "behavior-v1"),
         ],
     );
@@ -1358,7 +1358,7 @@ fn external_mcp_decisions_change_only_with_behavior_domain_or_conflict_participa
         "GITHUB",
         [
             (stable_id.as_str(), "behavior-v1"),
-            ("alex:github", "native-v1"),
+            ("openbitfun:github", "native-v1"),
         ],
     );
     let participant_updated = external_mcp_conflict_key(
@@ -1366,7 +1366,7 @@ fn external_mcp_decisions_change_only_with_behavior_domain_or_conflict_participa
         "/workspace-a",
         "github",
         [
-            ("alex:github", "native-v1"),
+            ("openbitfun:github", "native-v1"),
             (stable_id.as_str(), "behavior-v2"),
         ],
     );
@@ -1379,7 +1379,7 @@ fn external_mcp_decisions_change_only_with_behavior_domain_or_conflict_participa
             "/workspace-b",
             "github",
             [
-                ("alex:github", "native-v1"),
+                ("openbitfun:github", "native-v1"),
                 (stable_id.as_str(), "behavior-v1"),
             ],
         )

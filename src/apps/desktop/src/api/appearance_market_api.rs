@@ -280,10 +280,10 @@ fn normalize_manual_submission(
         .and_then(|name| name.to_str())
         .is_some_and(|name| {
             name.to_ascii_lowercase()
-                .ends_with(".alex-appearance")
+                .ends_with(".openbitfun-appearance")
         })
     {
-        return Err("Skin submissions must use a .alex-appearance package.".to_string());
+        return Err("Skin submissions must use a .openbitfun-appearance package.".to_string());
     }
     let fallback_name = package_path
         .file_stem()
@@ -437,9 +437,9 @@ mod tests {
     #[test]
     fn normalizes_manual_submission_defaults_without_opening_the_package() {
         let package_path = if cfg!(windows) {
-            r"C:\tmp\Ocean Night.alex-appearance"
+            r"C:\tmp\Ocean Night.openbitfun-appearance"
         } else {
-            "/tmp/Ocean Night.alex-appearance"
+            "/tmp/Ocean Night.openbitfun-appearance"
         };
         let normalized = normalize_manual_submission(AppearanceMarketSubmitPackageRequest {
             package_path: package_path.to_string(),
@@ -467,9 +467,9 @@ mod tests {
     #[test]
     fn manual_submission_requires_exactly_one_license_form() {
         let package_path = if cfg!(windows) {
-            r"C:\tmp\ocean-night.alex-appearance"
+            r"C:\tmp\ocean-night.openbitfun-appearance"
         } else {
-            "/tmp/ocean-night.alex-appearance"
+            "/tmp/ocean-night.openbitfun-appearance"
         };
         let result = normalize_manual_submission(AppearanceMarketSubmitPackageRequest {
             package_path: package_path.to_string(),

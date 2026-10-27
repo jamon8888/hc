@@ -45,7 +45,7 @@ import RevealableEntityBadge from './RevealableEntityBadge';
 const log = createLogger('Markdown');
 const COMPUTER_LINK_PREFIX = 'computer://';
 const FILE_LINK_PREFIX = 'file://';
-const CANVAS_LINK_PREFIX = 'alex-canvas://';
+const CANVAS_LINK_PREFIX = 'openbitfun-canvas://';
 const WORKSPACE_FOLDER_PLACEHOLDER = '{{workspaceFolder}}';
 
 const MarkdownMathRenderer = React.lazy(() => import('./MarkdownMathRenderer'));
@@ -149,13 +149,13 @@ function mayNeedWorkspacePathForMarkdownLinks(content: string): boolean {
   // while false negatives could make relative local links display poorly.
   if (
     hasMarkdownLinkSyntax &&
-    /!?\[[^\]]+\]\(\s*(?!https?:|mailto:|data:|asset:|tauri:|visualization:|tab:|alex-canvas:|#)[^)]+\)/i.test(content)
+    /!?\[[^\]]+\]\(\s*(?!https?:|mailto:|data:|asset:|tauri:|visualization:|tab:|openbitfun-canvas:|#)[^)]+\)/i.test(content)
   ) {
     return true;
   }
 
   return hasRawAnchorSyntax &&
-    /<a\s+[^>]*href=["']\s*(?!https?:|mailto:|visualization:|tab:|alex-canvas:|#)[^"']+["']/i.test(content);
+    /<a\s+[^>]*href=["']\s*(?!https?:|mailto:|visualization:|tab:|openbitfun-canvas:|#)[^"']+["']/i.test(content);
 }
 
 function mayContainMarkdownMath(content: string): boolean {
@@ -277,8 +277,8 @@ const sanitizeSchema = {
   },
   protocols: {
     ...defaultSchema.protocols,
-    href: [...(defaultSchema.protocols?.href || []), 'alex-canvas', 'computer', 'file', 'tab', 'visualization', 'alex'],
-    src: [...(defaultSchema.protocols?.src || []), 'asset', 'data', 'http', 'https', 'tauri', 'computer', 'file', 'alex'],
+    href: [...(defaultSchema.protocols?.href || []), 'openbitfun-canvas', 'computer', 'file', 'tab', 'visualization', 'openbitfun'],
+    src: [...(defaultSchema.protocols?.src || []), 'asset', 'data', 'http', 'https', 'tauri', 'computer', 'file', 'openbitfun'],
   },
 };
 
@@ -305,7 +305,7 @@ function remarkAutolinkInternalLinks() {
         return;
       }
 
-      const re = /(computer:\/\/|file:\/\/|alex-canvas:\/\/)[^\s<>()]+/g;
+      const re = /(computer:\/\/|file:\/\/|openbitfun-canvas:\/\/)[^\s<>()]+/g;
       let match: RegExpExecArray | null;
       let lastIndex = 0;
       const nextChildren: any[] = [];

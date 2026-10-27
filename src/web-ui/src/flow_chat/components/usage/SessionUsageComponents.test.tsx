@@ -1144,7 +1144,7 @@ describe('Session usage report UI components', () => {
 
   it('preserves initial-tab updates and saved appearance selectors on the native tabs', () => {
     const legacyPackage: AppearancePackage = {
-      schema: 'alex.appearance', schemaVersion: APPEARANCE_SCHEMA_VERSION,
+      schema: 'openbitfun.appearance', schemaVersion: APPEARANCE_SCHEMA_VERSION,
       id: 'test.usage-tabs', name: 'Usage tabs', version: '1.0.0', mode: 'dark',
       components: { 'session-usage-panel': { parts: { tab: { contexts: [{
         when: { facets: { tab: 'models' }, states: ['active'] },

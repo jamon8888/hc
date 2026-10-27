@@ -141,7 +141,7 @@ try {
         key = (str(item.get("path", "$")), str(item.get("code", "HOST_WARNING")), str(item.get("message", "")))
         issues[key] = item
     return {
-        "schema": "alex.appearance.host-verification",
+        "schema": "openbitfun.appearance.host-verification",
         "schemaVersion": 1,
         "appearanceId": manifest.get("id"),
         "source": str(source),
@@ -159,7 +159,7 @@ try {
 def create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Validate and compile an Appearance with the real Alex host")
     parser.add_argument("repo", help="Alex repository root")
-    parser.add_argument("source", help="Appearance project directory or .alex-appearance archive")
+    parser.add_argument("source", help="Appearance project directory or .openbitfun-appearance archive")
     parser.add_argument("--report", help="write a JSON verification report")
     parser.add_argument("--strict-warnings", action="store_true", help="fail verification when warnings are present")
     parser.add_argument("--allow-warnings", action="store_true", help=argparse.SUPPRESS)

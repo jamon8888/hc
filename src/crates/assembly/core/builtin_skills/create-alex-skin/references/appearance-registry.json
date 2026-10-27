@@ -1,5 +1,5 @@
 {
-  "schema": "alex.appearance.registry",
+  "schema": "openbitfun.appearance.registry",
   "schemaVersion": 2,
   "generatedFrom": "68a853e10a3e2c18d85a3f5fca29bc09b4e8313d",
   "generatedAt": "2026-08-30T22:40:41.595382+00:00",
@@ -15761,7 +15761,7 @@
     "xterm",
     "mermaid",
     "generative-widget",
-    "alex-canvas"
+    "openbitfun-canvas"
   ],
   "defaultForceableProperties": [
     "backgroundColor",

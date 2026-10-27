@@ -106,7 +106,7 @@ describe('AppearancePackageConfigSection', () => {
 
     expect(html).not.toContain('package.market.open');
     expect(html).not.toContain('package.import');
-    expect(html).not.toContain('accept=".alex-appearance,.zip,application/zip"');
+    expect(html).not.toContain('accept=".openbitfun-appearance,.zip,application/zip"');
     expect(html).not.toContain('appearance-package-config__file-input');
     expect(html).toContain('aria-label="package.export"');
     expect(html).toContain('aria-label="package.delete"');

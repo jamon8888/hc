@@ -5,7 +5,7 @@ import { useI18n } from '../i18n';
 import type { RemoteModelCatalog, RemoteModelConfig } from '../services/RemoteSessionManager';
 import ComposerSelectionSurface from './ComposerSelectionSurface';
 
-const MOBILE_LAST_SELECTED_MODEL_ID_KEY = 'alex.mobile.last_selected_model_id';
+const MOBILE_LAST_SELECTED_MODEL_ID_KEY = 'openbitfun.mobile.last_selected_model_id';
 
 const SparklesIcon: React.FC<{ className?: string; size?: number }> = ({ className, size = 10 }) => (
   <LucideSparkles className={className} width={size} height={size} stroke="currentColor" aria-hidden="true" />

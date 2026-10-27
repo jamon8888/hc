@@ -253,8 +253,8 @@ export class AppearanceRuntime {
         return adapter.apply(next?.mermaid, previous?.mermaid, context);
       case 'generative-widget':
         return adapter.apply(next?.['generative-widget'], previous?.['generative-widget'], context);
-      case 'alex-canvas':
-        return adapter.apply(next?.['alex-canvas'], previous?.['alex-canvas'], context);
+      case 'openbitfun-canvas':
+        return adapter.apply(next?.['openbitfun-canvas'], previous?.['openbitfun-canvas'], context);
     }
   }
 

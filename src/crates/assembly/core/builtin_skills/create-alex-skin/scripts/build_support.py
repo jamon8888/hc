@@ -17,7 +17,7 @@ APPEARANCE_TOOL = SKILL_ROOT / "scripts" / "alex_appearance.py"
 HOST_VERIFY = SKILL_ROOT / "scripts" / "verify_host.py"
 SYNC_REGISTRY = SKILL_ROOT / "scripts" / "sync_registry.py"
 REGISTRY_PATH = SKILL_ROOT / "references" / "appearance-registry.json"
-RUNTIME_CHECKLIST_SCHEMA = "alex.appearance.runtime-checklist"
+RUNTIME_CHECKLIST_SCHEMA = "openbitfun.appearance.runtime-checklist"
 
 
 class BuildSupportError(ValueError):
