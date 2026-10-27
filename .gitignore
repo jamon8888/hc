@@ -90,7 +90,7 @@ tmp/
 Cross.toml
 
 # Alex sandbox data - auto managed
-.alex/
+.openbitfun/
 .cursor
 .cursor/rules/no-cargo.mdc
 .sisyphus/
@@ -99,7 +99,7 @@ Cross.toml
 ASSETS_LICENSES.md
 
 external/
-/.alex/search/flashgrep-index/
+/.openbitfun/search/flashgrep-index/
 .agents/
 /.flashgrep-index-engine/
 
@@ -122,7 +122,7 @@ src/apps/mobile/android/*/build/
 src/apps/mobile/android/local.properties
 src/apps/mobile/android/.kotlin/
 /src/apps/mobile/ios/build/
-.alex/
+.openbitfun/
 .bitfun/
 
 # Downloaded Flashgrep release assets (metadata stays tracked).

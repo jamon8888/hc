@@ -29,7 +29,7 @@ const DESKTOP_PREVIEW_REBUILD_INPUTS = [
   path.join(ROOT_DIR, 'src', 'crates'),
 ];
 const DESKTOP_PREVIEW_REBUILD_IGNORED_DIRS = new Set([
-  '.alex',
+  '.openbitfun',
   '.git',
   'coverage',
   'dist',

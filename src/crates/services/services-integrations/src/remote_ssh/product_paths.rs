@@ -50,11 +50,11 @@ mod tests {
     fn default_remote_paths_use_the_compiled_product_identity() {
         assert_eq!(
             product_data_path("/home/user", &["dispatch", "install"]),
-            "/home/user/.alex/dispatch/install"
+            "/home/user/.openbitfun/dispatch/install"
         );
         assert_eq!(
             product_home_shell_path(&["relay-deploy", "relay.port"]),
-            "$HOME/.alex/relay-deploy/relay.port"
+            "$HOME/.openbitfun/relay-deploy/relay.port"
         );
     }
 
@@ -68,6 +68,6 @@ mod tests {
 
     #[test]
     fn root_base_keeps_its_leading_separator() {
-        assert_eq!(product_data_path("/", &["bin"]), "/.alex/bin");
+        assert_eq!(product_data_path("/", &["bin"]), "/.openbitfun/bin");
     }
 }

@@ -909,7 +909,7 @@ mod tests {
                         "commitCount": 1,
                         "changes": [{ "status": "A", "path": "new.txt" }],
                         "truncatedChanges": false,
-                        "bundlePath": "/home/u/.alex/dispatch/workspaces/job-1/result.bundle",
+                        "bundlePath": "/home/u/.openbitfun/dispatch/workspaces/job-1/result.bundle",
                         "bundleSha256": self.declared_digest,
                         "bundleSize": self.bundle.len() as u64,
                     }))

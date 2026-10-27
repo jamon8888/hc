@@ -45,7 +45,7 @@ const AUTO_DELETE_LIMIT_MAX = 100;
 const WORKTREE_REMOVE_ANIMATION_MS = 180;
 
 const DEFAULT_SETTINGS: WorktreeSettings = {
-  rootPath: '~/.alex/worktrees',
+  rootPath: '~/.openbitfun/worktrees',
   branchPrefix: 'alex/',
   copyLocalChanges: false,
   autoDeleteEnabled: true,

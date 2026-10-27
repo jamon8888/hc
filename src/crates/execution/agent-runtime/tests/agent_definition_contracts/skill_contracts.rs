@@ -416,7 +416,7 @@ fn project_skill(dir_name: &str) -> SkillInfo {
         key: format!("project::alex::{}", dir_name),
         name: dir_name.to_string(),
         description: String::new(),
-        path: format!("/workspace/.alex/skills/{}", dir_name),
+        path: format!("/workspace/.openbitfun/skills/{}", dir_name),
         level: SkillLocation::Project,
         source_slot: "alex".to_string(),
         source_id: "alex".to_string(),
@@ -621,7 +621,7 @@ fn skill_discovery_root_facts_are_runtime_owned() {
     assert_eq!(
         project_roots,
         [
-            (".alex", "alex", "alex", "Alex"),
+            (".openbitfun", "alex", "alex", "Alex"),
             (".claude", "claude", "claude-code", "Claude Code"),
             (".codex", "codex", "codex", "Codex"),
             (".cursor", "cursor", "cursor", "Cursor"),
@@ -810,7 +810,7 @@ description: Work with PDF files.
 Use the pdf workflow.
 "#;
     let mut data = SkillData::from_markdown(
-        "/workspace/.alex/skills/pdf".to_string(),
+        "/workspace/.openbitfun/skills/pdf".to_string(),
         markdown,
         SkillLocation::Project,
         true,
@@ -826,7 +826,7 @@ Use the pdf workflow.
 
     let assistant = render_loaded_skill_for_assistant(&data, false);
     assert!(assistant.contains("Skill 'pdf' loaded successfully."));
-    assert!(assistant.contains("relative to /workspace/.alex/skills/pdf"));
+    assert!(assistant.contains("relative to /workspace/.openbitfun/skills/pdf"));
     assert!(assistant.contains("<skill_content>\nUse the pdf workflow.\n\n</skill_content>"));
     assert!(!assistant.contains("from stable key"));
 

@@ -93,7 +93,7 @@ async function showUsageModal(): Promise<void> {
       import('/src/flow_chat/components/usage/sessionUsageModalState.ts'),
     ]);
 
-    await appearanceService.activate('alex-light');
+    await appearanceService.activate('openbitfun-light');
     await i18nService.changeLanguage('zh-CN');
     modalState.openSessionUsageModal({
       sessionId: fixture.sessionId,

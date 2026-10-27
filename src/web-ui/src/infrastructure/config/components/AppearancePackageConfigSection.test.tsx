@@ -31,7 +31,7 @@ vi.mock('@/infrastructure/appearance', async importOriginal => ({
   useAppearance: () => ({
     appearances: [
       {
-        id: 'alex-dark',
+        id: 'openbitfun-dark',
         name: 'Dark',
         description: 'Default dark appearance',
         version: '1.0.0',
@@ -39,7 +39,7 @@ vi.mock('@/infrastructure/appearance', async importOriginal => ({
         source: 'builtin',
       },
       {
-        id: 'alex-light',
+        id: 'openbitfun-light',
         name: 'Light',
         description: 'Default light appearance',
         version: '1.0.0',
@@ -239,12 +239,12 @@ describe('AppearancePackageConfigSection', () => {
       expect(builtinSelect).not.toBeNull();
       await act(async () => {
         if (builtinSelect) {
-          builtinSelect.value = 'alex-light';
+          builtinSelect.value = 'openbitfun-light';
           builtinSelect.dispatchEvent(new Event('change', { bubbles: true }));
         }
         await Promise.resolve();
       });
-      expect(selectAppearanceMock).toHaveBeenCalledWith('alex-light');
+      expect(selectAppearanceMock).toHaveBeenCalledWith('openbitfun-light');
 
       const importedCard = container.querySelector<HTMLButtonElement>(
         '[data-appearance-id="sample.appearance"] .appearance-package-config__card-select',
@@ -254,7 +254,7 @@ describe('AppearancePackageConfigSection', () => {
         await Promise.resolve();
       });
       expect(importedCard?.closest('[data-alex-component="action-card"]')).not.toBeNull();
-      expect(selectAppearanceMock.mock.calls).toEqual([['alex-light'], ['sample.appearance']]);
+      expect(selectAppearanceMock.mock.calls).toEqual([['openbitfun-light'], ['sample.appearance']]);
     } finally {
       act(() => root.unmount());
     }

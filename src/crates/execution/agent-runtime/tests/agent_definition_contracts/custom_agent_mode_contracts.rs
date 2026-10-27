@@ -234,7 +234,7 @@ Act as a focused project specialist.
 fn custom_mode_discovery_rejects_project_scoped_modes_without_dropping_valid_agents() {
     let workspace = TestTempDir::new("alex-runtime-custom-mode-workspace");
     let user_root = TestTempDir::new("alex-runtime-custom-mode-user");
-    let project_agents_dir = workspace.path.join(".alex").join("agents");
+    let project_agents_dir = workspace.path.join(".openbitfun").join("agents");
     let user_agents_dir = user_root.path.join("agents");
     fs::create_dir_all(&project_agents_dir).expect("project agents dir should be created");
     fs::create_dir_all(&user_agents_dir).expect("user agents dir should be created");
@@ -373,7 +373,7 @@ fn custom_agent_discovery_ignores_non_alex_agent_dirs() {
     let workspace = TestTempDir::new("alex-runtime-custom-agent-workspace");
     let user_root = TestTempDir::new("alex-runtime-custom-agent-user");
     let home = TestTempDir::new("alex-runtime-custom-agent-home");
-    let project_alex = workspace.path.join(".alex").join("agents");
+    let project_alex = workspace.path.join(".openbitfun").join("agents");
     let project_claude = workspace.path.join(".claude").join("agents");
     let user_agents = user_root.path.join("agents");
     let home_claude = home.path.join(".claude").join("agents");

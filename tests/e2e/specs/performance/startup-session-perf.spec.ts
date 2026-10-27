@@ -52,9 +52,9 @@ function defaultAlexHome(): string {
     return process.env.ALEX_E2E_HOME;
   }
   if (process.env.ALEX_E2E_USE_REAL_PROFILE === '1') {
-    return process.env.ALEX_HOME || path.join(os.homedir(), '.alex');
+    return process.env.ALEX_HOME || path.join(os.homedir(), '.openbitfun');
   }
-  return path.resolve(__dirname, '..', '..', '.alex', 'runtime', 'home');
+  return path.resolve(__dirname, '..', '..', '.openbitfun', 'runtime', 'home');
 }
 
 type LongSessionWindowRect = {

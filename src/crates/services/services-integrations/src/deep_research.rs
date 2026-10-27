@@ -61,7 +61,7 @@ pub struct RenumberStats {
 /// fire-and-await without affecting the surrounding agent flow.
 ///
 /// Operates on the per-session WORK_DIR at
-/// `<workspace>/.alex/sessions/<session_id>/research/`, where both the
+/// `<workspace>/.openbitfun/sessions/<session_id>/research/`, where both the
 /// report and the audit files live.
 pub async fn run_for_session_workspace(
     fs: &dyn WorkspaceFileSystem,

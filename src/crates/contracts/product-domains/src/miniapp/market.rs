@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
 pub const MARKET_API_VERSION: &str = "v1";
-pub const MARKET_PACKAGE_CONTENT_TYPE: &str = "application/vnd.alex.miniapp+zip";
+pub const MARKET_PACKAGE_CONTENT_TYPE: &str = "application/vnd.openbitfun.miniapp+zip";
 pub const MARKET_MAX_PACKAGE_BYTES: u64 = 20 * 1024 * 1024;
 pub const MARKET_MAX_UNCOMPRESSED_BYTES: u64 = 64 * 1024 * 1024;
 pub const MARKET_MAX_SCREENSHOT_BYTES: u64 = 5 * 1024 * 1024;

@@ -46,7 +46,7 @@ export function dataMigratorEnvironment(environment = process.env) {
     CI: 'true',
     ALEX_PRODUCT_ID: 'alex',
     ALEX_DATA_NAMESPACE: 'alex',
-    ALEX_HIDDEN_DATA_DIRECTORY: '.alex',
+    ALEX_HIDDEN_DATA_DIRECTORY: '.openbitfun',
     ALEX_PRODUCT_BINARY_NAME: 'alex-data-migrator',
     ALEX_PRODUCT_DISPLAY_NAME: 'Alex Data Migrator',
   };

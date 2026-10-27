@@ -2,8 +2,8 @@
  * Design system reference:
  *   palette  ─ Inherits Alex host theme (--alex-* tokens). Surfaces,
  *              text and borders all proxy through host vars so the dashboard
- *              reads as a native Alex panel under both alex-dark and
- *              alex-light. The host contract owns first-paint defaults.
+ *              reads as a native Alex panel under both openbitfun-dark and
+ *              openbitfun-light. The host contract owns first-paint defaults.
  *   accent   ─ host primary (cool blue / slate) for hero/streak/heatmap
  *              accents. Diff stats keep semantic green/red so additions and
  *              deletions stay glanceable.

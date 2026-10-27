@@ -13,7 +13,7 @@ import { saveElementScreenshot, saveStepScreenshot } from '../helpers/screenshot
 
 async function ensureLightAppearance(): Promise<void> {
   const isLight = await browser.execute(() => (
-    document.documentElement.getAttribute('data-alex-appearance') === 'alex-light'
+    document.documentElement.getAttribute('data-alex-appearance') === 'openbitfun-light'
   ));
   if (isLight) return;
 
@@ -26,12 +26,12 @@ async function ensureLightAppearance(): Promise<void> {
   const picker = await $('[data-testid="appearance-palette-select"]');
   await picker.waitForDisplayed({ timeout: 10_000 });
   await picker.click();
-  const lightOption = await $('[data-testid="appearance-palette-option"][data-appearance-id="alex-light"]');
+  const lightOption = await $('[data-testid="appearance-palette-option"][data-appearance-id="openbitfun-light"]');
   await lightOption.waitForDisplayed({ timeout: 10_000 });
   await lightOption.click();
 
   await browser.waitUntil(async () => browser.execute(() => (
-    document.documentElement.getAttribute('data-alex-appearance') === 'alex-light'
+    document.documentElement.getAttribute('data-alex-appearance') === 'openbitfun-light'
   )), {
     timeout: 10_000,
     timeoutMsg: 'The native app did not switch to the light Appearance',

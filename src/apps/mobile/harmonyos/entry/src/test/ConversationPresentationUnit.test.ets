@@ -608,7 +608,7 @@ export default function conversationPresentationUnitTest() {
         id: 'plan-1',
         name: 'Write',
         status: 'completed',
-        input_preview: '{"file_path":"/repo/.alex/plans/mobile.plan.md"}'
+        input_preview: '{"file_path":"/repo/.openbitfun/plans/mobile.plan.md"}'
       };
       const groups = ToolCollapsePolicy.collapsedGroups([
         toolStatus('1', 'Read', 'completed'),
@@ -617,7 +617,7 @@ export default function conversationPresentationUnitTest() {
       ]);
       expect(groups.length).assertEqual(3);
       expect(groups[1].tools[0].name).assertEqual('Write');
-      expect(PlanToolPolicy.descriptor(planTool)?.file_path || '').assertEqual('/repo/.alex/plans/mobile.plan.md');
+      expect(PlanToolPolicy.descriptor(planTool)?.file_path || '').assertEqual('/repo/.openbitfun/plans/mobile.plan.md');
       expect(PlanToolPolicy.canBuild(planTool)).assertTrue();
     });
 

@@ -2032,7 +2032,7 @@ mod tests {
             .expect("started audit");
         let probe = DispatchSshProbe {
             cli_installed: true,
-            cli_path: Some("/home/user/.alex/bin/alex".to_string()),
+            cli_path: Some("/home/user/.openbitfun/bin/alex".to_string()),
             os: "Linux".to_string(),
             arch: "x86_64".to_string(),
             install_supported: true,

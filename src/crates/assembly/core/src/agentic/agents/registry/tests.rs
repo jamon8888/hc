@@ -1410,7 +1410,7 @@ impl CustomAgentTestEnv {
     fn new(prefix: &str) -> Self {
         let root = std::env::temp_dir().join(format!("{prefix}-{}", unique_suffix()));
         let workspace_root = root.join("workspace");
-        let workspace_agents_dir = workspace_root.join(".alex").join("agents");
+        let workspace_agents_dir = workspace_root.join(".openbitfun").join("agents");
         let user_agents_dir = root.join("user-root").join("agents");
         std::fs::create_dir_all(&workspace_agents_dir)
             .expect("workspace agents dir should be created");

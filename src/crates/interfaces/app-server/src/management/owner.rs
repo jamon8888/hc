@@ -1812,7 +1812,7 @@ mod tests {
                 },
                 alex_core::native_hooks::NativeHookFileView {
                     scope: "project",
-                    path: PathBuf::from("D:/secret/project/.alex/config/hooks.json"),
+                    path: PathBuf::from("D:/secret/project/.openbitfun/config/hooks.json"),
                     exists: true,
                     loaded: true,
                 },
@@ -1830,7 +1830,7 @@ mod tests {
                 matcher: "Bash".to_string(),
                 matcher_is_valid: true,
                 scope: "project",
-                source: "D:/secret/project/.alex/config/hooks.json".to_string(),
+                source: "D:/secret/project/.openbitfun/config/hooks.json".to_string(),
                 handlers: vec![alex_core::native_hooks::NativeHookHandlerView {
                     command: format!("secret-token {}", "x".repeat(240)),
                     timeout_seconds: 5,
@@ -1839,7 +1839,7 @@ mod tests {
             }],
             total_handlers: 1,
             issues: vec![
-                "Failed to read hook configuration: path=D:/secret/project/.alex/config/hooks.json"
+                "Failed to read hook configuration: path=D:/secret/project/.openbitfun/config/hooks.json"
                     .to_string(),
             ],
         }
@@ -1906,7 +1906,7 @@ mod tests {
 
         assert_eq!(
             overview.files[1].location,
-            "<workspace>/.alex/config/hooks.json"
+            "<workspace>/.openbitfun/config/hooks.json"
         );
         assert!(overview.files[2].location.starts_with("<managed-hooks>/"));
         assert!(overview.rules[0].handlers[0].command_truncated);
@@ -1921,7 +1921,7 @@ mod tests {
         for secret in ["D:/secret/project", "C:/Users/private", "secret-token"] {
             assert!(!debug.contains(secret), "native Hook Debug leaked {secret}");
         }
-        assert!(overview.issues[0].contains("<workspace>/.alex/config/hooks.json"));
+        assert!(overview.issues[0].contains("<workspace>/.openbitfun/config/hooks.json"));
         assert!(!overview.issues[0].contains("D:/secret/project"));
     }
 

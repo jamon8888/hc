@@ -5,7 +5,7 @@
 //! agent runtime dispatch sites:
 //!
 //! - Settings discovery: user scope `~/.config/alex/config/hooks.json`
-//!   plus project scope `{project}/.alex/config/hooks.json`, both using the
+//!   plus project scope `{project}/.openbitfun/config/hooks.json`, both using the
 //!   Codex-compatible `hooks.json` document schema.
 //! - Gating: `hooks.enabled` and `hooks.project_hooks_enabled` in the app
 //!   settings document. Project hooks are disabled by default because they

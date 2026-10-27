@@ -64,7 +64,7 @@ const DEFAULT_CONFIG: WebSearchConfig = {
 
 const ALEX_PROTOCOL_REQUEST_EXAMPLE = `POST <configured endpoint>
 Content-Type: application/json
-Accept: application/vnd.alex.web-search.v1+json
+Accept: application/vnd.openbitfun.web-search.v1+json
 
 {
   "query": "Rust async runtime",

@@ -120,7 +120,7 @@ mod tests {
     fn remote_permission_path_is_workspace_scoped() {
         assert_eq!(
             project_permission_file_path_for_remote("/home/user/project/"),
-            "/home/user/project/.alex/config/tool_permissions.json"
+            "/home/user/project/.openbitfun/config/tool_permissions.json"
         );
     }
 }

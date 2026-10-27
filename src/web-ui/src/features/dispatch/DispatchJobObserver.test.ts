@@ -679,7 +679,7 @@ describe('DispatchJobObserver', () => {
     registerRunningJob();
     dispatchJobStore.getState().registerJob({
       ...dispatchJobStore.getState().jobs['job-1'],
-      baselineWorktreePath: '/source/.alex/worktrees/missing-baseline',
+      baselineWorktreePath: '/source/.openbitfun/worktrees/missing-baseline',
     });
     mocks.checkPathExists.mockResolvedValue(false);
     mocks.status.mockResolvedValue(status());
@@ -688,7 +688,7 @@ describe('DispatchJobObserver', () => {
     await vi.advanceTimersByTimeAsync(0);
 
     expect(mocks.checkPathExists).toHaveBeenCalledWith(
-      '/source/.alex/worktrees/missing-baseline',
+      '/source/.openbitfun/worktrees/missing-baseline',
     );
     expect(dispatchJobStore.getState().jobs['job-1'].baselineWorktreeMissing)
       .toBe(true);

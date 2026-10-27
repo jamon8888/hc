@@ -131,7 +131,7 @@ mod debug_policy_tests {
     }
 }
 
-/// Same directory as agent `screenshot` debug (`workspace/.alex/computer_use_debug`), when PathManager is available.
+/// Same directory as agent `screenshot` debug (`workspace/.openbitfun/computer_use_debug`), when PathManager is available.
 fn computer_use_ocr_debug_dir() -> PathBuf {
     if let Ok(pm) = try_get_path_manager_arc() {
         return pm

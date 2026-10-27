@@ -6,7 +6,7 @@
 
 const DEFAULT_PRODUCT_ID: &str = "alex";
 const DEFAULT_DATA_NAMESPACE: &str = "alex";
-const DEFAULT_HIDDEN_DATA_DIRECTORY: &str = ".alex";
+const DEFAULT_HIDDEN_DATA_DIRECTORY: &str = ".openbitfun";
 
 /// Stable identifier for the product family represented by this artifact.
 pub const fn product_id() -> &'static str {
@@ -42,6 +42,6 @@ mod tests {
     fn default_identity_is_alex() {
         assert_eq!(product_id(), "alex");
         assert_eq!(data_namespace(), "alex");
-        assert_eq!(hidden_data_directory(), ".alex");
+        assert_eq!(hidden_data_directory(), ".openbitfun");
     }
 }

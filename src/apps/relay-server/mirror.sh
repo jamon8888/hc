@@ -356,14 +356,14 @@ alex_mirror_backup_file() {
   if [ ! -e "$src" ]; then
     return 0
   fi
-  alex_mirror_priv mkdir -p "$dest_dir" 2>/dev/null || mkdir -p "$HOME/.alex/mirror-backup" 2>/dev/null || true
+  alex_mirror_priv mkdir -p "$dest_dir" 2>/dev/null || mkdir -p "$HOME/.openbitfun/mirror-backup" 2>/dev/null || true
   local base dest
   base="$(basename "$src")"
   if alex_mirror_priv test -d "$dest_dir" 2>/dev/null; then
     dest="${dest_dir}/mirror-backup-${stamp}-${base}"
     alex_mirror_priv cp -a "$src" "$dest" 2>/dev/null || true
   else
-    dest="$HOME/.alex/mirror-backup/mirror-backup-${stamp}-${base}"
+    dest="$HOME/.openbitfun/mirror-backup/mirror-backup-${stamp}-${base}"
     mkdir -p "$(dirname "$dest")" 2>/dev/null || true
     cp -a "$src" "$dest" 2>/dev/null || true
   fi
@@ -604,7 +604,7 @@ alex_mirror_write_docker_daemon_json() {
   py="$(mktemp)"
   added_tmp="$(mktemp)"
   daemon_json="${ALEX_DOCKER_DAEMON_JSON:-/etc/docker/daemon.json}"
-  state_dir="$HOME/.alex/mirror-state"
+  state_dir="$HOME/.openbitfun/mirror-state"
   state_file="${state_dir}/docker-added-mirrors"
   created_state="${state_dir}/docker-daemon-created.cksum"
   mkdir -p "$state_dir" 2>/dev/null || true
@@ -825,10 +825,10 @@ alex_mirror_restore_apt() {
 
 alex_mirror_remove_docker_daemon() {
   local daemon_json="${ALEX_DOCKER_DAEMON_JSON:-/etc/docker/daemon.json}"
-  local state_file="$HOME/.alex/mirror-state/docker-added-mirrors"
-  local created_state="$HOME/.alex/mirror-state/docker-daemon-created.cksum"
-  local version_file="$HOME/.alex/mirror-state/version"
-  local mode_file="$HOME/.alex/mirror-mode"
+  local state_file="$HOME/.openbitfun/mirror-state/docker-added-mirrors"
+  local created_state="$HOME/.openbitfun/mirror-state/docker-daemon-created.cksum"
+  local version_file="$HOME/.openbitfun/mirror-state/version"
+  local mode_file="$HOME/.openbitfun/mirror-mode"
   local managed=0 mirrors_to_remove="" tmp py status expected_checksum actual_checksum
 
   if [ -f "$state_file" ]; then
@@ -963,15 +963,15 @@ alex_mirror_remove_cargo_managed_block() {
     && ! alex_mirror_priv grep -q '^# >>> ALEX-CN-MIRROR$' "$cfg" 2>/dev/null; then
     return 0
   fi
-  mkdir -p "$HOME/.alex/mirror-backup" 2>/dev/null || true
-  backup="$HOME/.alex/mirror-backup/cargo-config.toml.$(date +%Y%m%d%H%M%S)"
+  mkdir -p "$HOME/.openbitfun/mirror-backup" 2>/dev/null || true
+  backup="$HOME/.openbitfun/mirror-backup/cargo-config.toml.$(date +%Y%m%d%H%M%S)"
   if cp -a "$cfg" "$backup" 2>/dev/null || alex_mirror_priv cp -a "$cfg" "$backup" 2>/dev/null; then
     :
   else
     echo ">>> cargo mirror: cannot back up ${cfg}; leaving it untouched" >&2
     return 1
   fi
-  alex_mirror_chown_to_home_owner "$HOME/.alex/mirror-backup" "$backup"
+  alex_mirror_chown_to_home_owner "$HOME/.openbitfun/mirror-backup" "$backup"
   tmp="$(mktemp)"
   # shellcheck disable=SC2016
   if ! awk '
@@ -1014,10 +1014,10 @@ alex_mirror_apply_host() {
   if [ "${ALEX_MIRROR_MODE:-global}" != "cn" ]; then
     return 0
   fi
-  mkdir -p "$HOME/.alex/mirror-state" 2>/dev/null || true
-  echo "2" >"$HOME/.alex/mirror-state/version" 2>/dev/null || true
+  mkdir -p "$HOME/.openbitfun/mirror-state" 2>/dev/null || true
+  echo "2" >"$HOME/.openbitfun/mirror-state/version" 2>/dev/null || true
   alex_mirror_chown_to_home_owner \
-    "$HOME/.alex" "$HOME/.alex/mirror-state" "$HOME/.alex/mirror-state/version"
+    "$HOME/.openbitfun" "$HOME/.openbitfun/mirror-state" "$HOME/.openbitfun/mirror-state/version"
   echo ">>> Applying China host mirrors (apt / docker; Cargo stays build-local)..."
   alex_mirror_apply_apt || true
   alex_mirror_apply_docker_daemon || true
@@ -1025,9 +1025,9 @@ alex_mirror_apply_host() {
   # global Cargo config; older versions did and could create duplicate TOML
   # tables or root-owned ~/.cargo directories.
   alex_mirror_remove_cargo_managed_block || true
-  mkdir -p "$HOME/.alex" 2>/dev/null || true
-  echo "cn" >"$HOME/.alex/mirror-mode" 2>/dev/null || true
-  alex_mirror_chown_to_home_owner "$HOME/.alex" "$HOME/.alex/mirror-mode"
+  mkdir -p "$HOME/.openbitfun" 2>/dev/null || true
+  echo "cn" >"$HOME/.openbitfun/mirror-mode" 2>/dev/null || true
+  alex_mirror_chown_to_home_owner "$HOME/.openbitfun" "$HOME/.openbitfun/mirror-mode"
 }
 
 # Undo a partially applied Aliyun docker-ce repository.
@@ -1249,9 +1249,9 @@ alex_mirror_init() {
     alex_mirror_apply_host
   else
     alex_mirror_restore_host
-    mkdir -p "$HOME/.alex" 2>/dev/null || true
-    echo "global" >"$HOME/.alex/mirror-mode" 2>/dev/null || true
-    alex_mirror_chown_to_home_owner "$HOME/.alex" "$HOME/.alex/mirror-mode"
+    mkdir -p "$HOME/.openbitfun" 2>/dev/null || true
+    echo "global" >"$HOME/.openbitfun/mirror-mode" 2>/dev/null || true
+    alex_mirror_chown_to_home_owner "$HOME/.openbitfun" "$HOME/.openbitfun/mirror-mode"
   fi
 }
 

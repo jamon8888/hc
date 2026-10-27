@@ -1182,7 +1182,7 @@ mod tests {
         assert_eq!(target.workspace.line_ending, "lf");
         assert!(!target.workspace.insert_final_newline);
         assert!(target.tool_permissions.interaction.auto_approve_ask);
-        assert_eq!(target.appearance.selection, "alex-dark");
+        assert_eq!(target.appearance.selection, "openbitfun-dark");
         assert_eq!(
             target.ai.default_models.primary.as_deref(),
             Some("legacy-model")

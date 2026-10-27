@@ -294,7 +294,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ className = '' }) => {
     const initializeFlowChat = async () => {
       if (!currentWorkspace?.rootPath) return;
 
-      // Remote session index and turns live under ~/.alex/remote_ssh/... (local disk).
+      // Remote session index and turns live under ~/.openbitfun/remote_ssh/... (local disk).
       // Always initialize FlowChat so historical sessions list even when SSH is not connected yet.
       try {
         const explicitPreferredMode =

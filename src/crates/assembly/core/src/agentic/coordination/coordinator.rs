@@ -2849,7 +2849,7 @@ Update the persona files and delete BOOTSTRAP.md as soon as bootstrap is complet
         workspace_path: &str,
         // Pre-resolved on-disk session storage path (mirror dir for remote workspaces).
         // When present we use it directly so we never re-resolve without remote SSH info
-        // (which would slugify a raw remote POSIX path under `~/.alex/projects/`).
+        // (which would slugify a raw remote POSIX path under `~/.openbitfun/projects/`).
         resolved_session_storage_path: Option<&std::path::Path>,
         status: crate::service::session::TurnStatus,
         user_message_metadata: Option<serde_json::Value>,
@@ -18906,7 +18906,7 @@ mod tests {
         crate::service::workspace::legacy_compat::register_local_fixture_blocking(workspace.path());
         let permission_path = workspace
             .path()
-            .join(".alex")
+            .join(".openbitfun")
             .join("config")
             .join("tool_permissions.json");
         tokio::fs::create_dir_all(permission_path.parent().expect("permission parent"))

@@ -1963,8 +1963,8 @@ export default function transportAndGeneralChatUnitTest() {
         mime_type: 'image/png'
       }]), '{"cmd":"steer_turn","session_id":"s1","turn_id":"turn-1","content":"continue","display_content":"continue","image_contexts":[{"id":"img1","data_url":"data:image/png;base64,abc","mime_type":"image/png"}]}');
       expectCommandJson(
-        RemoteCommandFactory.buildPlan('s1', '/repo/.alex/plans/mobile.plan.md', 'Mobile plan', 'code'),
-        '{"cmd":"build_plan","session_id":"s1","plan_file_path":"/repo/.alex/plans/mobile.plan.md","plan_name":"Mobile plan","agent_type":"code"}'
+        RemoteCommandFactory.buildPlan('s1', '/repo/.openbitfun/plans/mobile.plan.md', 'Mobile plan', 'code'),
+        '{"cmd":"build_plan","session_id":"s1","plan_file_path":"/repo/.openbitfun/plans/mobile.plan.md","plan_name":"Mobile plan","agent_type":"code"}'
       );
       expectCommandJson(RemoteCommandFactory.getSessionMessages('s1'), '{"cmd":"get_session_messages","session_id":"s1"}');
       expectCommandJson(RemoteCommandFactory.pollSession('s1', 7, 3, 2), '{"cmd":"poll_session","session_id":"s1","since_version":7,"known_msg_count":3,"known_model_catalog_version":2}');

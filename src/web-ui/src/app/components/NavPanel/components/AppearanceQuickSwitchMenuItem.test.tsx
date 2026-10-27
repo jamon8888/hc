@@ -12,7 +12,7 @@ vi.mock('@/infrastructure/appearance', () => ({
   useAppearance: () => ({
     appearances: [
       {
-        id: 'alex-light',
+        id: 'openbitfun-light',
         name: 'Alex Light',
         version: '1.0.0',
         mode: 'light',
@@ -26,10 +26,10 @@ vi.mock('@/infrastructure/appearance', () => ({
         source: 'imported',
       },
     ],
-    current: { id: 'alex-light', name: 'Alex Light' },
+    current: { id: 'openbitfun-light', name: 'Alex Light' },
     initialized: true,
     select: selectAppearance,
-    selectedAppearanceId: 'alex-light',
+    selectedAppearanceId: 'openbitfun-light',
     status: 'ready',
   }),
 }));
@@ -40,7 +40,7 @@ vi.mock('@/infrastructure/i18n/hooks/useI18n', () => ({
       const translations: Record<string, string> = namespace === 'settings/application'
         ? {
             'appearance.systemAppearance': 'Match system',
-            'appearance.presets.alex-light.name': 'Light',
+            'appearance.presets.openbitfun-light.name': 'Light',
           }
         : {
             'nav.settingsMenu.theme': 'Theme',
@@ -120,7 +120,7 @@ describe('AppearanceQuickSwitchMenuItem', () => {
 
     const submenu = document.querySelector('[data-testid="nav-settings-appearance-menu"]');
     const selected = document.querySelector(
-      '[data-testid="nav-settings-appearance-option"][data-appearance-id="alex-light"]',
+      '[data-testid="nav-settings-appearance-option"][data-appearance-id="openbitfun-light"]',
     );
     expect(submenu).not.toBeNull();
     expect(selected?.getAttribute('role')).toBe('menuitemradio');

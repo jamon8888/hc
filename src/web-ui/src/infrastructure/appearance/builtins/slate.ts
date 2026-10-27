@@ -31,7 +31,7 @@ const SLATE_PURPLE_HOVER = '#9dacf5';
 
 export const openBitFunSlatePalette: AppearancePalette = {
 
-  id: 'alex-slate',
+  id: 'openbitfun-slate',
   name: 'Slate',
   type: 'dark',
   description: 'Slate gray geometric appearance - Deep immersion, high contrast grayscale aesthetics',

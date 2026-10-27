@@ -8,7 +8,7 @@
 //! unusable without the separate install key.
 //!
 //! File location: `<ALEX_HOME>/relay-v1.0.0/account_session.enc` when configured,
-//! otherwise `~/.alex/relay-v1.0.0/account_session.enc`.
+//! otherwise `~/.openbitfun/relay-v1.0.0/account_session.enc`.
 //! Format: base64(nonce || ciphertext) where the plaintext is a JSON
 //! payload `{ token, user_id, master_key_b64, relay_url }`.
 

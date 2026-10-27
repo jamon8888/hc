@@ -1047,7 +1047,7 @@ mod tests {
 
     #[test]
     fn write_success_result_reports_non_blocking_plan_issues() {
-        let logical_path = ".alex/plans/example.plan.md";
+        let logical_path = ".openbitfun/plans/example.plan.md";
         let content = "---\nname: Example\noverview: Overview\ntodos: []\n---\n";
         let issues = diagnose_plan_artifact(content);
 
@@ -1172,7 +1172,7 @@ mod tests {
 
         assert_eq!(
             FileWriteTool::fallback_file_path(&context),
-            ".alex/tmp/write_456789abcdef.tmp"
+            ".openbitfun/tmp/write_456789abcdef.tmp"
         );
     }
 
@@ -1190,7 +1190,7 @@ mod tests {
             .await
             .expect("malformed payload should be preserved");
 
-        let fallback_directory = root.join(".alex").join("tmp");
+        let fallback_directory = root.join(".openbitfun").join("tmp");
         let entries = std::fs::read_dir(&fallback_directory)
             .expect("read workspace fallback directory")
             .collect::<Result<Vec<_>, _>>()

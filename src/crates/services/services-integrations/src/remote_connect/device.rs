@@ -1,7 +1,7 @@
 //! Device identity for Remote Connect pairing and account device routing.
 //!
 //! `device_id` is generated once and persisted under
-//! `<ALEX_HOME>/device_identity.json` (normally `~/.alex/device_identity.json`).
+//! `<ALEX_HOME>/device_identity.json` (normally `~/.openbitfun/device_identity.json`).
 //! Hostname/MAC are refreshed for display only — they must not rewrite `device_id`,
 //! because macOS private Wi‑Fi addresses and interface order make MAC unstable.
 

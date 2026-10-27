@@ -42,19 +42,19 @@ export class TaskBoardPage extends BasePage {
 
   async ensureLightAppearance(): Promise<void> {
     const isLight = await browser.execute(() => (
-      document.documentElement.getAttribute('data-alex-appearance') === 'alex-light'
+      document.documentElement.getAttribute('data-alex-appearance') === 'openbitfun-light'
     ));
     if (isLight) return;
 
     await this.clickByTestId('nav-footer-settings-item', 10_000);
     await this.clickByTestId('nav-settings-theme-item', 10_000);
     await this.clickByTestId('appearance-palette-select', 10_000);
-    const lightOption = await $('[data-testid="appearance-palette-option"][data-appearance-id="alex-light"]');
+    const lightOption = await $('[data-testid="appearance-palette-option"][data-appearance-id="openbitfun-light"]');
     await lightOption.waitForClickable({ timeout: 10_000 });
     await lightOption.click();
 
     await browser.waitUntil(async () => browser.execute(() => (
-      document.documentElement.getAttribute('data-alex-appearance') === 'alex-light'
+      document.documentElement.getAttribute('data-alex-appearance') === 'openbitfun-light'
     )), {
       timeout: 10_000,
       timeoutMsg: 'Task Board E2E could not switch the native app to the light Appearance',

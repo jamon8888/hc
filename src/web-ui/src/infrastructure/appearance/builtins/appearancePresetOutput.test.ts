@@ -46,7 +46,7 @@ function statusContrast(content: string, tint: string, background: string): numb
 
 describe('builtin appearance preset output', () => {
   it('keeps published light field states in root and chrome while preserving named palettes', () => {
-    const settings = getBuiltinAppearance('alex-light')?.renderers?.['theme-tokens']?.settings;
+    const settings = getBuiltinAppearance('openbitfun-light')?.renderers?.['theme-tokens']?.settings;
     for (const tokens of [settings?.tokens, settings?.scopes?.chrome].filter(Boolean)) {
       for (const [name, value] of Object.entries(themes.light)) {
         if (name.startsWith('color.field.') || name === 'color.actionCard.background' || name.startsWith('color.composer.')) expect(tokens?.[themeCssVariables[name as ThemeTokenName]]).toBe(value);
@@ -62,7 +62,7 @@ describe('builtin appearance preset output', () => {
     expect(settings?.tokens['--alex-color-field-group-background']).toBe('rgba(0, 0, 0, 0.03)');
     expect(settings?.tokens['--alex-color-field-placeholder']).toBe('rgba(0, 0, 0, 0.40)');
     for (const palette of builtinAppearancePalettes) {
-      if (palette.id === 'alex-light') continue;
+      if (palette.id === 'openbitfun-light') continue;
       const tokens = getBuiltinAppearanceThemeTokens(palette.id);
       expect(tokens['--alex-color-action-card-background']).toBe(palette.colors.element.base);
       expect(tokens['--alex-color-field-border']).toBe(palette.colors.border.base);
@@ -81,7 +81,7 @@ describe('builtin appearance preset output', () => {
         expect(settings?.tokens[themeCssVariables[name as ThemeTokenName]]).toBe(value);
       }
     }
-    const light = getBuiltinAppearanceThemeTokens('alex-light');
+    const light = getBuiltinAppearanceThemeTokens('openbitfun-light');
     expect(light['--alex-component-button-content']).toBe('rgba(0, 0, 0, 0.80)');
     expect(light['--alex-component-button-text-content']).toBe('#059cb0');
     expect(light['--alex-color-action-primary-background']).toBe('#101a27');
@@ -90,7 +90,7 @@ describe('builtin appearance preset output', () => {
 
   it('preserves the action colors of branded presets through the Button contract', () => {
     for (const palette of builtinAppearancePalettes) {
-      if (palette.id === 'alex-light' || palette.id === 'alex-dark') continue;
+      if (palette.id === 'openbitfun-light' || palette.id === 'openbitfun-dark') continue;
       const tokens = getBuiltinAppearanceThemeTokens(palette.id);
       expect(tokens['--alex-component-button-primary-background']).toBe(tokens['--alex-color-action-primary-background']);
       expect(tokens['--alex-component-button-text-content']).toBe(tokens['--alex-color-accent-default']);
@@ -99,12 +99,12 @@ describe('builtin appearance preset output', () => {
   });
 
   it('keeps menu label and caption colors consistent between the public light theme and product portals', () => {
-    const settings = getBuiltinAppearance('alex-light')!.renderers!['theme-tokens']!.settings;
+    const settings = getBuiltinAppearance('openbitfun-light')!.renderers!['theme-tokens']!.settings;
     for (const tokens of [settings.tokens, ...(settings.scopes?.chrome ? [settings.scopes.chrome] : [])]) {
       expect(tokens['--alex-color-action-neutral-content']).toBe(themes.light['color.action.neutral.content']);
       expect(tokens['--alex-color-content-caption']).toBe(themes.light['color.content.caption']);
     }
-    for (const palette of builtinAppearancePalettes.filter(p => p.id !== 'alex-light')) {
+    for (const palette of builtinAppearancePalettes.filter(p => p.id !== 'openbitfun-light')) {
       expect(getBuiltinAppearanceThemeTokens(palette.id)['--alex-color-action-neutral-content']).toBe(palette.colors.text.secondary);
     }
   });
@@ -197,7 +197,7 @@ describe('builtin appearance preset output', () => {
 
   it('keeps approved near-neutral preset stops scoped to their semantic roles', () => {
     const serializedAppearances = JSON.stringify(builtinAppearancePalettes).toLowerCase();
-    const lightAppearance = builtinAppearancePalettes.find(appearance => appearance.id === 'alex-light');
+    const lightAppearance = builtinAppearancePalettes.find(appearance => appearance.id === 'openbitfun-light');
 
     expect(lightAppearance?.colors.background.primary).toBe('#fdfdfd');
     expect(lightAppearance?.monaco?.colors.background).toBe('#ffffff');
@@ -208,8 +208,8 @@ describe('builtin appearance preset output', () => {
   });
 
   it('keeps the default light appearance on the neutral, navy, and restrained semantic palette', () => {
-    const lightAppearance = builtinAppearancePalettes.find(appearance => appearance.id === 'alex-light');
-    const tokens = getBuiltinAppearanceThemeTokens('alex-light');
+    const lightAppearance = builtinAppearancePalettes.find(appearance => appearance.id === 'openbitfun-light');
+    const tokens = getBuiltinAppearanceThemeTokens('openbitfun-light');
 
     expect(lightAppearance).toMatchObject({
       description: 'Light appearance - Crisp white surfaces, soft neutral grays, deep navy actions',
@@ -274,9 +274,9 @@ describe('builtin appearance preset output', () => {
 
   it('keeps settings row hover feedback separated from dark scene surfaces', () => {
     const darkAppearance = builtinAppearancePalettes.find(
-      appearance => appearance.id === 'alex-dark',
+      appearance => appearance.id === 'openbitfun-dark',
     );
-    const tokens = getBuiltinAppearanceThemeTokens('alex-dark');
+    const tokens = getBuiltinAppearanceThemeTokens('openbitfun-dark');
 
     expect(tokens).toMatchObject({
       '--alex-color-surface-scene': '#1c1c1f',
@@ -305,10 +305,10 @@ describe('builtin appearance preset output', () => {
 
   it('keeps monochrome content readable while projecting inverse structural chrome', () => {
     const monochrome = builtinAppearancePalettes.find(
-      appearance => appearance.id === 'alex-monochrome',
+      appearance => appearance.id === 'openbitfun-monochrome',
     );
-    const monochromePackage = getBuiltinAppearance('alex-monochrome');
-    const tokens = getBuiltinAppearanceThemeTokens('alex-monochrome');
+    const monochromePackage = getBuiltinAppearance('openbitfun-monochrome');
+    const tokens = getBuiltinAppearanceThemeTokens('openbitfun-monochrome');
     const chromeTokens = monochromePackage?.renderers?.['theme-tokens']?.settings.scopes?.chrome;
 
     expect(monochrome).toMatchObject({
@@ -431,47 +431,47 @@ describe('builtin appearance preset output', () => {
       [
         {
           "hash": "c1e874f6aa8e76f70992f914dd3e268fea3c80b1758f2c814112c358ac3224ee",
-          "id": "alex-light",
+          "id": "openbitfun-light",
           "type": "light",
         },
         {
           "hash": "a12106a8d28d2fc4cccd3d6cdba4570e75ebeb92672b1c88def2cd7bf5a34249",
-          "id": "alex-monochrome",
+          "id": "openbitfun-monochrome",
           "type": "light",
         },
         {
           "hash": "b18ee250170c14726830a378a06cd54fc526e0aef74143483a93d4aab569a4ae",
-          "id": "alex-slate",
+          "id": "openbitfun-slate",
           "type": "dark",
         },
         {
           "hash": "a2ca57344daff77a16a36ab55c493149dbc001fd0bcd54f0201b4bbb9cf15a17",
-          "id": "alex-dark",
+          "id": "openbitfun-dark",
           "type": "dark",
         },
         {
           "hash": "e08f486027da6418dd85bd7cc86ece5534562d097b578c646830b5bef5aeeeac",
-          "id": "alex-midnight",
+          "id": "openbitfun-midnight",
           "type": "dark",
         },
         {
           "hash": "6a0c5e898964be2e52b5e80f624dcc188cdf5809cb9a9cc0396f84de2fbf4003",
-          "id": "alex-china-style",
+          "id": "openbitfun-china-style",
           "type": "light",
         },
         {
           "hash": "6ddb19ddfe815ee8158845ca299e2426e34c0812a7289b2f144e0b12e9962045",
-          "id": "alex-china-night",
+          "id": "openbitfun-china-night",
           "type": "dark",
         },
         {
           "hash": "0866746f62670fbd506356c2acc0556f9faf38412f2cbf08c432410ca9fbce12",
-          "id": "alex-cyber",
+          "id": "openbitfun-cyber",
           "type": "dark",
         },
         {
           "hash": "11da76fac143c9fcbf785a32e672a226684d8410042eb75e98ffd6f03ec99fc8",
-          "id": "alex-tokyo-night",
+          "id": "openbitfun-tokyo-night",
           "type": "dark",
         },
       ]

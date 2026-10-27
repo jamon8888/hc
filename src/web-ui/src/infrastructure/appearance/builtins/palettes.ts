@@ -19,8 +19,8 @@ import { openBitFunSlatePalette } from './slate';
 import { openBitFunTokyoNightPalette } from './tokyoNight';
 import type { AppearancePalette, AppearancePaletteId } from './AppearancePalette';
 
-export const DEFAULT_LIGHT_APPEARANCE_ID: AppearancePaletteId = 'alex-light';
-export const DEFAULT_DARK_APPEARANCE_ID: AppearancePaletteId = 'alex-dark';
+export const DEFAULT_LIGHT_APPEARANCE_ID: AppearancePaletteId = 'openbitfun-light';
+export const DEFAULT_DARK_APPEARANCE_ID: AppearancePaletteId = 'openbitfun-dark';
 
 export const builtinAppearancePalettes: readonly AppearancePalette[] = Object.freeze([
   openBitFunLightPalette,

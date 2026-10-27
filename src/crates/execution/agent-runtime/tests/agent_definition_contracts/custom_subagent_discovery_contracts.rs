@@ -36,7 +36,7 @@ fn custom_subagent_discovery_preserves_alex_priority_and_ignores_foreign_agent_d
     let alex_user = TestTempDir::new("alex-runtime-subagent-user");
     let home = TestTempDir::new("alex-runtime-subagent-home");
 
-    let project_alex = workspace.path.join(".alex").join("agents");
+    let project_alex = workspace.path.join(".openbitfun").join("agents");
     let project_claude = workspace.path.join(".claude").join("agents");
     let user_alex = alex_user.path.join("agents");
     let home_claude = home.path.join(".claude").join("agents");
@@ -126,7 +126,7 @@ fn custom_subagent_discovery_preserves_alex_priority_and_ignores_foreign_agent_d
 #[test]
 fn custom_subagent_discovery_reports_parse_errors_without_dropping_valid_files() {
     let workspace = TestTempDir::new("alex-runtime-subagent-invalid");
-    let project_alex = workspace.path.join(".alex").join("agents");
+    let project_alex = workspace.path.join(".openbitfun").join("agents");
     fs::create_dir_all(&project_alex).expect("project agents dir should be created");
     let broken_path = project_alex.join("broken.md");
     fs::write(&broken_path, "No front matter").expect("broken markdown file should be written");

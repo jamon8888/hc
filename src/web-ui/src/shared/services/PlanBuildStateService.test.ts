@@ -68,7 +68,7 @@ describe('PlanBuildStateService', () => {
 
   function target(name: string): PlanFileRef {
     const value = {
-      planFilePath: `/workspace/.alex/plans/${name}.plan.md`,
+      planFilePath: `/workspace/.openbitfun/plans/${name}.plan.md`,
       workspacePath: '/workspace',
     };
     trackedTargets.push(value);
@@ -157,7 +157,7 @@ describe('PlanBuildStateService', () => {
   });
 
   it('keys build state by workspace ID and routes file IO through the workspace', async () => {
-    const planFilePath = '/workspace/.alex/plans/shared-path.plan.md';
+    const planFilePath = '/workspace/.openbitfun/plans/shared-path.plan.md';
     const inWorkspaceA: PlanFileRef = { planFilePath, workspaceId: 'workspace-a', workspacePath: '/workspace' };
     const inWorkspaceB: PlanFileRef = { planFilePath, workspaceId: 'workspace-b', workspacePath: '/workspace' };
     trackedTargets.push(inWorkspaceA, inWorkspaceB);

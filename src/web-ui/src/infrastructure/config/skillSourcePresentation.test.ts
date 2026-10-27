@@ -17,7 +17,7 @@ function skill(overrides: Partial<SkillInfo> = {}): SkillInfo {
     key: 'project::alex::pdf',
     name: 'pdf',
     description: 'PDF workflow',
-    path: '/workspace/.alex/skills/pdf',
+    path: '/workspace/.openbitfun/skills/pdf',
     level: 'project',
     sourceSlot: 'alex',
     sourceId: 'alex',

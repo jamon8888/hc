@@ -878,11 +878,11 @@ mod tests {
     async fn workspace_io_glob_preserves_static_scope_and_alex_hidden_exception() {
         let root = make_temp_dir("workspace-io-scope");
         fs::create_dir_all(root.join("src/deep")).unwrap();
-        fs::create_dir_all(root.join(".alex")).unwrap();
+        fs::create_dir_all(root.join(".openbitfun")).unwrap();
         fs::write(root.join("src/lib.rs"), "").unwrap();
         fs::write(root.join("src/deep/mod.rs"), "").unwrap();
-        fs::write(root.join(".gitignore"), ".alex/\n").unwrap();
-        fs::write(root.join(".alex/.hidden.json"), "{}").unwrap();
+        fs::write(root.join(".gitignore"), ".openbitfun/\n").unwrap();
+        fs::write(root.join(".openbitfun/.hidden.json"), "{}").unwrap();
         let fs_provider = crate::agentic::workspace::LocalWorkspaceFs;
         let result = collect_workspace_glob(&fs_provider, &root.to_string_lossy(), "src/*.rs", 10)
             .await
@@ -895,7 +895,7 @@ mod tests {
         let result = collect_workspace_glob(
             &fs_provider,
             &root.to_string_lossy(),
-            ".alex/**/*.json",
+            ".openbitfun/**/*.json",
             10,
         )
         .await

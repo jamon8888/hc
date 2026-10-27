@@ -1480,7 +1480,7 @@ export default function conversationStateUnitTest() {
         workspaceKind: 'normal'
       }];
       const assistants: AssistantEntry[] = [{
-        path: '/workspace/Alex/.alex/assistants/default.md',
+        path: '/workspace/Alex/.openbitfun/assistants/default.md',
         name: 'Default',
         assistant_id: 'default'
       }];

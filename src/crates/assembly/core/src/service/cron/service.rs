@@ -1510,7 +1510,7 @@ mod tests {
     fn materialize_workspace_ref_normalizes_windows_style_paths() {
         let workspace = materialize_workspace_ref(CronWorkspaceRef {
             workspace_id: None,
-            workspace_path: r"c:\Users\wsp\.alex\personal_assistant\workspace\".to_string(),
+            workspace_path: r"c:\Users\wsp\.openbitfun\personal_assistant\workspace\".to_string(),
             project_workspace_path: None,
             execution_target: None,
             remote_connection_id: None,
@@ -1519,7 +1519,7 @@ mod tests {
 
         assert_eq!(
             workspace.workspace_path,
-            "C:/Users/wsp/.alex/personal_assistant/workspace"
+            "C:/Users/wsp/.openbitfun/personal_assistant/workspace"
         );
     }
 
@@ -1527,7 +1527,7 @@ mod tests {
     fn workspace_filter_uses_id_even_when_paths_differ() {
         let workspace = CronWorkspaceRef {
             workspace_id: Some("local_workspace".to_string()),
-            workspace_path: r"C:\Users\wsp\.alex\personal_assistant\workspace".to_string(),
+            workspace_path: r"C:\Users\wsp\.openbitfun\personal_assistant\workspace".to_string(),
             project_workspace_path: None,
             execution_target: None,
             remote_connection_id: None,

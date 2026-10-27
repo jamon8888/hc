@@ -3,12 +3,12 @@ import { SYSTEM_THEME_ID, type ThemeId, type ThemePreferenceId } from '../types/
 import type { InstallerTheme } from './installerThemesData';
 import { findInstallerThemeById } from './installerThemesData';
 
-/** Same rule as main app `getSystemPreferredDefaultThemeId`: dark -> alex-dark, else alex-light. */
+/** Same rule as main app `getSystemPreferredDefaultThemeId`: dark -> openbitfun-dark, else openbitfun-light. */
 export function getSystemPreferredBuiltinThemeId(): ThemeId {
   if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
-    return 'alex-light';
+    return 'openbitfun-light';
   }
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'alex-dark' : 'alex-light';
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'openbitfun-dark' : 'openbitfun-light';
 }
 
 export function applyInstallerThemeToDocument(theme: InstallerTheme): void {

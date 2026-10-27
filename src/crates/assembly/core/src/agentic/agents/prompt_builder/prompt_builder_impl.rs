@@ -603,7 +603,7 @@ Do not read from, modify, create, move, or delete files outside this workspace u
         }
 
         // Replace {SESSION_ID} — used by deep-research Pro mode to anchor a per-session
-        // work_dir under .alex/sessions/{SESSION_ID}/research/. Falls back to a
+        // work_dir under .openbitfun/sessions/{SESSION_ID}/research/. Falls back to a
         // timestamp slug when no session is bound (e.g. one-shot prompt builds in tests).
         let mut resolved_session_id: Option<String> = None;
         if result.contains(PLACEHOLDER_SESSION_ID)
@@ -1031,7 +1031,7 @@ mod tests {
 
         assert_eq!(
             prompt,
-            "[View full report](.alex/sessions/session-1/research/report.md)"
+            "[View full report](.openbitfun/sessions/session-1/research/report.md)"
         );
     }
 
@@ -1047,7 +1047,7 @@ mod tests {
 
         assert_eq!(
             prompt,
-            "[View full report](computer://.alex/sessions/session-1/research/report.md)"
+            "[View full report](computer://.openbitfun/sessions/session-1/research/report.md)"
         );
     }
 

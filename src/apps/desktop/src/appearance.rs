@@ -330,7 +330,7 @@ impl AppearanceConfig {
                 || std::env::var_os("ALEX_PERF_TRACE").is_some())
                 && std::env::var_os("ALEX_WEBDRIVER_PORT").is_some());
         let bootstrap_appearance_id_json =
-            serde_json::to_string(&self.id).unwrap_or_else(|_| "\"alex-light\"".to_string());
+            serde_json::to_string(&self.id).unwrap_or_else(|_| "\"openbitfun-light\"".to_string());
         let bootstrap_appearance_selection_json = self
             .selection_id
             .as_ref()

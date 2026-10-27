@@ -47,7 +47,7 @@ impl ManagedPackageFixture {
         ));
         let workspace = root.join("workspace");
         let user_data = root.join("user");
-        let package = workspace.join(".alex/plugins/acme.demo");
+        let package = workspace.join(".openbitfun/plugins/acme.demo");
         let plugin_path = package.join(relative_path.replace('/', std::path::MAIN_SEPARATOR_STR));
         fs::create_dir_all(plugin_path.parent().expect("plugin parent")).expect("create package");
         fs::create_dir_all(user_data.join("plugins")).expect("create user package root");
@@ -73,7 +73,7 @@ impl ManagedPackageFixture {
         let service = ManagedPluginSourceService::new(
             user_data.join("plugins"),
             user_data.clone(),
-            workspace.join(".alex/plugins"),
+            workspace.join(".openbitfun/plugins"),
             workspace.clone(),
             user_data.join("runtime/plugin-trust.json"),
         );

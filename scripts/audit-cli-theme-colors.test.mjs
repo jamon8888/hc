@@ -46,7 +46,7 @@ test('collectPresetColorEntriesFromJson reads opencode theme colors', () => {
 });
 
 test('collectPresetColorEntriesFromJson resolves defs and light/dark variants', () => {
-  const entries = collectPresetColorEntriesFromJson('alex-light.json', JSON.stringify({
+  const entries = collectPresetColorEntriesFromJson('openbitfun-light.json', JSON.stringify({
     defs: {
       neutral: '#00000080',
     },
@@ -57,9 +57,9 @@ test('collectPresetColorEntriesFromJson resolves defs and light/dark variants', 
   }));
 
   assert.deepEqual(entries, [
-    { file: 'alex-light.json', key: 'background', color: '#7f7f7f' },
-    { file: 'alex-light.json', key: 'primary.dark', color: '#808080' },
-    { file: 'alex-light.json', key: 'primary.light', color: '#7f7f7f' },
+    { file: 'openbitfun-light.json', key: 'background', color: '#7f7f7f' },
+    { file: 'openbitfun-light.json', key: 'primary.dark', color: '#808080' },
+    { file: 'openbitfun-light.json', key: 'primary.light', color: '#7f7f7f' },
   ]);
 });
 
@@ -68,12 +68,12 @@ test('isRuntimePresetEntry separates consumed CLI keys from OpenCode compatibili
   assert.equal(CLI_RUNTIME_THEME_KEYS.has('markdownText'), false);
 
   assert.equal(isRuntimePresetEntry({
-    file: 'alex-light.json',
+    file: 'openbitfun-light.json',
     key: 'primary.light',
     color: '#7f7f7f',
   }), true);
   assert.equal(isRuntimePresetEntry({
-    file: 'alex-light.json',
+    file: 'openbitfun-light.json',
     key: 'syntaxKeyword',
     color: '#7c6b99',
   }), false);

@@ -216,7 +216,7 @@ pub struct SessionConfig {
     /// determines locality; absence of credentials must never select local I/O.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub remote_connection_id: Option<String>,
-    /// SSH config `host` for locating `~/.alex/remote_ssh/{host}/.../sessions` when disconnected.
+    /// SSH config `host` for locating `~/.openbitfun/remote_ssh/{host}/.../sessions` when disconnected.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub remote_ssh_host: Option<String>,
     /// Model config ID used by this session (for token usage tracking)

@@ -107,7 +107,7 @@ impl PathManager {
         Self::env_path("ALEX_HOME").or_else(|| Self::env_path("ALEX_E2E_HOME"))
     }
 
-    /// Get assistant home root directory: ~/.alex/
+    /// Get assistant home root directory: ~/.openbitfun/
     pub fn product_home_dir(&self) -> PathBuf {
         if let Some(path) = &self.product_home_override {
             return path.clone();
@@ -117,7 +117,7 @@ impl PathManager {
             .join(hidden_data_directory())
     }
 
-    /// Get assistant workspace base directory: ~/.alex/personal_assistant/
+    /// Get assistant workspace base directory: ~/.openbitfun/personal_assistant/
     ///
     /// `override_root` is reserved for future user customization.
     pub fn assistant_workspace_base_dir(&self, override_root: Option<&Path>) -> PathBuf {
@@ -127,13 +127,13 @@ impl PathManager {
             .join("personal_assistant")
     }
 
-    /// Get the default assistant workspace directory: ~/.alex/personal_assistant/workspace
+    /// Get the default assistant workspace directory: ~/.openbitfun/personal_assistant/workspace
     pub fn default_assistant_workspace_dir(&self, override_root: Option<&Path>) -> PathBuf {
         self.assistant_workspace_base_dir(override_root)
             .join("workspace")
     }
 
-    /// Get a named assistant workspace directory: ~/.alex/personal_assistant/workspace-<id>
+    /// Get a named assistant workspace directory: ~/.openbitfun/personal_assistant/workspace-<id>
     pub fn assistant_workspace_dir(
         &self,
         assistant_id: &str,
@@ -158,7 +158,7 @@ impl PathManager {
     /// True if `path` is this machine's Alex **assistant** workspace directory.
     ///
     /// Used so remote-workspace registry (especially roots like `/`) does not
-    /// mis-classify client paths such as `/Users/.../.alex/personal_assistant/workspace-*`
+    /// mis-classify client paths such as `/Users/.../.openbitfun/personal_assistant/workspace-*`
     /// as SSH remote paths.
     pub fn is_local_assistant_workspace_path(&self, path: &str) -> bool {
         let p = Path::new(path);
@@ -284,12 +284,12 @@ impl PathManager {
         self.user_data_dir().join("agent-runtime").join("ownership")
     }
 
-    /// Get user memory workspace root directory: ~/.alex/memories/
+    /// Get user memory workspace root directory: ~/.openbitfun/memories/
     pub fn memories_root_dir(&self) -> PathBuf {
         self.product_home_dir().join("memories")
     }
 
-    /// Root for per-host, per-remote-path workspace mirrors: `~/.alex/remote_ssh/`.
+    /// Root for per-host, per-remote-path workspace mirrors: `~/.openbitfun/remote_ssh/`.
     ///
     /// Session/chat persistence for SSH workspaces lives under
     /// `{this}/{sanitized_host}/{remote_path_segments}/sessions/`.
@@ -359,12 +359,12 @@ impl PathManager {
         self.user_root.join("temp")
     }
 
-    /// Get project config root directory: {project}/.alex/
+    /// Get project config root directory: {project}/.openbitfun/
     pub fn project_root(&self, workspace_path: &Path) -> PathBuf {
         workspace_path.join(hidden_data_directory())
     }
 
-    /// Get the shared runtime projects root directory: ~/.alex/projects/
+    /// Get the shared runtime projects root directory: ~/.openbitfun/projects/
     pub fn projects_root(&self) -> PathBuf {
         self.product_home_dir().join("projects")
     }
@@ -374,53 +374,53 @@ impl PathManager {
         self.product_home_dir().join("worktrees")
     }
 
-    /// Get the runtime root for a workspace: ~/.alex/projects/<workspace-slug>/
+    /// Get the runtime root for a workspace: ~/.openbitfun/projects/<workspace-slug>/
     pub fn project_runtime_root(&self, workspace_path: &Path) -> PathBuf {
         self.projects_root()
             .join(self.project_runtime_slug(workspace_path))
     }
 
-    /// Get project internal config directory: {project}/.alex/config/
+    /// Get project internal config directory: {project}/.openbitfun/config/
     pub fn project_internal_config_dir(&self, workspace_path: &Path) -> PathBuf {
         self.project_root(workspace_path).join("config")
     }
 
-    /// Get project agent profiles file: {project}/.alex/config/agent_profiles.json
+    /// Get project agent profiles file: {project}/.openbitfun/config/agent_profiles.json
     pub fn project_agent_profiles_file(&self, workspace_path: &Path) -> PathBuf {
         self.project_internal_config_dir(workspace_path)
             .join("agent_profiles.json")
     }
 
-    /// Get project tool permission rules file: {project}/.alex/config/tool_permissions.json
+    /// Get project tool permission rules file: {project}/.openbitfun/config/tool_permissions.json
     pub fn project_permission_file(&self, workspace_path: &Path) -> PathBuf {
         self.project_internal_config_dir(workspace_path)
             .join("tool_permissions.json")
     }
 
-    /// Get project mode skills file: {project}/.alex/config/mode_skills.json
+    /// Get project mode skills file: {project}/.openbitfun/config/mode_skills.json
     pub fn project_mode_skills_file(&self, workspace_path: &Path) -> PathBuf {
         self.project_internal_config_dir(workspace_path)
             .join("mode_skills.json")
     }
 
-    /// Get project subagent overrides file: {project}/.alex/config/agent_subagents.json
+    /// Get project subagent overrides file: {project}/.openbitfun/config/agent_subagents.json
     pub fn project_agent_subagents_file(&self, workspace_path: &Path) -> PathBuf {
         self.project_internal_config_dir(workspace_path)
             .join("agent_subagents.json")
     }
 
-    /// Get project agent hooks file: {project}/.alex/config/hooks.json
+    /// Get project agent hooks file: {project}/.openbitfun/config/hooks.json
     pub fn project_hooks_file(&self, workspace_path: &Path) -> PathBuf {
         self.project_internal_config_dir(workspace_path)
             .join("hooks.json")
     }
 
-    /// Get project agent directory: {project}/.alex/agents/
+    /// Get project agent directory: {project}/.openbitfun/agents/
     pub fn project_agents_dir(&self, workspace_path: &Path) -> PathBuf {
         self.project_root(workspace_path).join("agents")
     }
 
-    /// Get project-level rules directory: {project}/.alex/rules/
+    /// Get project-level rules directory: {project}/.openbitfun/rules/
     pub fn project_rules_dir(&self, workspace_path: &Path) -> PathBuf {
         self.project_root(workspace_path).join("rules")
     }
@@ -430,17 +430,17 @@ impl PathManager {
         self.project_root(workspace_path).join("plugins")
     }
 
-    /// Get project snapshots directory: ~/.alex/projects/<workspace-slug>/snapshots/
+    /// Get project snapshots directory: ~/.openbitfun/projects/<workspace-slug>/snapshots/
     pub fn project_snapshots_dir(&self, workspace_path: &Path) -> PathBuf {
         self.project_runtime_root(workspace_path).join("snapshots")
     }
 
-    /// Get project sessions directory: ~/.alex/projects/<workspace-slug>/sessions/
+    /// Get project sessions directory: ~/.openbitfun/projects/<workspace-slug>/sessions/
     pub fn project_sessions_dir(&self, workspace_path: &Path) -> PathBuf {
         self.project_runtime_root(workspace_path).join("sessions")
     }
 
-    /// Get project plans directory: ~/.alex/projects/<workspace-slug>/plans/
+    /// Get project plans directory: ~/.openbitfun/projects/<workspace-slug>/plans/
     pub fn project_plans_dir(&self, workspace_path: &Path) -> PathBuf {
         self.project_runtime_root(workspace_path).join("plans")
     }
@@ -591,7 +591,7 @@ impl PathManager {
             .unwrap_or_else(|| user_root.clone());
         Self {
             user_root,
-            product_home_override: Some(base.join("home").join(".alex")),
+            product_home_override: Some(base.join("home").join(".openbitfun")),
             project_runtime_slug_cache: Arc::new(Mutex::new(HashMap::new())),
         }
     }
@@ -748,7 +748,7 @@ mod tests {
         assert_eq!(pm.user_plugins_dir(), pm.user_data_dir().join("plugins"));
         assert_eq!(
             pm.project_plugins_dir(workspace),
-            workspace.join(".alex").join("plugins")
+            workspace.join(".openbitfun").join("plugins")
         );
         assert_eq!(
             pm.project_plugin_trust_file(workspace),

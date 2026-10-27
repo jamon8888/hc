@@ -1,7 +1,7 @@
 /* Regex Playground — developer-tool theme.
  * Design system reference:
  *   palette  ─ Inherits Alex host theme (--alex-* tokens) so it reads
- *              as a native panel under both alex-dark and alex-light.
+ *              as a native panel under both openbitfun-dark and openbitfun-light.
  *              Local --rx-* tokens are derived from the required host vars;
  *              the host contract owns first-paint defaults.
  *   accent   ─ host primary (cool blue / slate) for focus & active states;

@@ -20,7 +20,7 @@ fn sha256(bytes: &[u8]) -> String {
 }
 
 fn write_package(workspace: &Path, source: &[u8], declared_hash: &str) {
-    let package = workspace.join(".alex/plugins/acme.demo");
+    let package = workspace.join(".openbitfun/plugins/acme.demo");
     std::fs::create_dir_all(package.join(".opencode/plugins")).expect("create package directories");
     std::fs::write(package.join(".opencode/plugins/demo.ts"), source).expect("write plugin source");
     let manifest = serde_json::json!({
@@ -260,7 +260,7 @@ fn plugin_source_cli_lifecycle_and_doctor_exit_codes() {
     assert!(stdout(&changed).contains("acme.demo 1.0.0 (workspace, unreviewed)"));
 
     std::fs::write(
-        workspace.join(".alex/plugins/acme.demo/.opencode/plugins/demo.ts"),
+        workspace.join(".openbitfun/plugins/acme.demo/.opencode/plugins/demo.ts"),
         b"tampered",
     )
     .expect("tamper package");
@@ -300,7 +300,7 @@ fn plugin_deactivate_cleans_residual_records_without_revoking_source_approval() 
     assert!(approve.status.success(), "{}", stderr(&approve));
     activate_package(&workspace, &user_root, &home_root);
 
-    std::fs::remove_dir_all(workspace.join(".alex/plugins/acme.demo"))
+    std::fs::remove_dir_all(workspace.join(".openbitfun/plugins/acme.demo"))
         .expect("remove package");
     let missing = run_cli(
         &workspace,
@@ -334,7 +334,7 @@ fn plugin_deactivate_cleans_residual_records_without_revoking_source_approval() 
     write_package(&workspace, PLUGIN_SOURCE, &sha256(PLUGIN_SOURCE));
     activate_package(&workspace, &user_root, &home_root);
     std::fs::write(
-        workspace.join(".alex/plugins/acme.demo/alex.plugin.json"),
+        workspace.join(".openbitfun/plugins/acme.demo/alex.plugin.json"),
         "{not-json",
     )
     .expect("corrupt package manifest");
@@ -353,8 +353,8 @@ fn plugin_deactivate_cleans_residual_records_without_revoking_source_approval() 
 
     write_package(&workspace, PLUGIN_SOURCE, &sha256(PLUGIN_SOURCE));
     activate_package(&workspace, &user_root, &home_root);
-    std::fs::remove_dir_all(workspace.join(".alex/plugins")).expect("remove plugin root");
-    std::fs::write(workspace.join(".alex/plugins"), "not a directory")
+    std::fs::remove_dir_all(workspace.join(".openbitfun/plugins")).expect("remove plugin root");
+    std::fs::write(workspace.join(".openbitfun/plugins"), "not a directory")
         .expect("make plugin root unreadable");
 
     let incomplete = run_cli(

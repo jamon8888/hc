@@ -8711,14 +8711,14 @@ mod tests {
     #[test]
     fn mkdir_all_prefixes_expand_absolute_posix_path() {
         assert_eq!(
-            sftp_mkdir_all_prefixes("/home/wgq/workspace/bot_detection/.alex/bin"),
+            sftp_mkdir_all_prefixes("/home/wgq/workspace/bot_detection/.openbitfun/bin"),
             vec![
                 "/home".to_string(),
                 "/home/wgq".to_string(),
                 "/home/wgq/workspace".to_string(),
                 "/home/wgq/workspace/bot_detection".to_string(),
-                "/home/wgq/workspace/bot_detection/.alex".to_string(),
-                "/home/wgq/workspace/bot_detection/.alex/bin".to_string(),
+                "/home/wgq/workspace/bot_detection/.openbitfun".to_string(),
+                "/home/wgq/workspace/bot_detection/.openbitfun/bin".to_string(),
             ]
         );
     }

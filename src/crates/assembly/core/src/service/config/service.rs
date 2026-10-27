@@ -2158,7 +2158,7 @@ mod tests {
         let (service, _dir) = test_service("appearance-selection").await;
 
         service
-            .set_config("appearance.selection", "alex-dark")
+            .set_config("appearance.selection", "openbitfun-dark")
             .await
             .expect("appearance selection should save");
 
@@ -2166,14 +2166,14 @@ mod tests {
             .get_config(Some("appearance.selection"))
             .await
             .expect("appearance selection should load");
-        assert_eq!(selection, "alex-dark");
+        assert_eq!(selection, "openbitfun-dark");
 
         let export: GlobalConfig = service
             .get_config(None)
             .await
             .expect("full config should load");
         let serialized = serde_json::to_value(export).expect("config should serialize");
-        assert_eq!(serialized["appearance"]["selection"], "alex-dark");
+        assert_eq!(serialized["appearance"]["selection"], "openbitfun-dark");
         assert!(serialized.get("theme").is_none());
         assert!(serialized.get("themes").is_none());
     }

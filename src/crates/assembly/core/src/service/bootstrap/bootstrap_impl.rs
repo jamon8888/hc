@@ -402,7 +402,7 @@ mod tests {
         let content = fs::read_to_string(workspace_root.join(".gitignore"))
             .await
             .expect("Failed to read .gitignore");
-        assert_eq!(content, "target/\n.env\n.alex/\n");
+        assert_eq!(content, "target/\n.env\n.openbitfun/\n");
 
         fs::remove_dir_all(&workspace_root)
             .await
@@ -415,7 +415,7 @@ mod tests {
         fs::create_dir_all(&workspace_root)
             .await
             .expect("Failed to create temp workspace");
-        fs::write(workspace_root.join(".gitignore"), "target/\n.alex/\n")
+        fs::write(workspace_root.join(".gitignore"), "target/\n.openbitfun/\n")
             .await
             .expect("Failed to seed .gitignore");
 
@@ -426,7 +426,7 @@ mod tests {
         let content = fs::read_to_string(workspace_root.join(".gitignore"))
             .await
             .expect("Failed to read .gitignore");
-        assert_eq!(content, "target/\n.alex/\n");
+        assert_eq!(content, "target/\n.openbitfun/\n");
 
         fs::remove_dir_all(&workspace_root)
             .await

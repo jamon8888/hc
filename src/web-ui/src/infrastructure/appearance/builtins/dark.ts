@@ -31,7 +31,7 @@ const DARK_PURPLE_HOVER = '#7c3aed';
 
 export const openBitFunDarkPalette: AppearancePalette = {
 
-  id: 'alex-dark',
+  id: 'openbitfun-dark',
   name: 'Dark',
   type: 'dark',
   description: 'Default dark appearance',

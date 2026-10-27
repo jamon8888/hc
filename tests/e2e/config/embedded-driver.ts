@@ -25,7 +25,7 @@ function projectRoot(): string {
 function e2eRuntimeRoot(): string {
   return process.env.OPENBITFUN_E2E_STORAGE_ROOT
     ? path.resolve(process.env.OPENBITFUN_E2E_STORAGE_ROOT)
-    : path.join(projectRoot(), 'tests', 'e2e', '.alex', 'runtime');
+    : path.join(projectRoot(), 'tests', 'e2e', '.openbitfun', 'runtime');
 }
 
 function setDefaultEnvPath(name: string, value: string): void {

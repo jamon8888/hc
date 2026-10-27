@@ -683,7 +683,7 @@ export const WorkspaceToolsPlugin: Plugin = async () => ({
             let temp = tempfile::tempdir().expect("tempdir");
             let workspace = temp.path().join("workspace");
             let user = temp.path().join("user");
-            let package = workspace.join(".alex/plugins/acme.demo");
+            let package = workspace.join(".openbitfun/plugins/acme.demo");
             let source_path = package.join(files[0].0);
             fs::create_dir_all(user.join("plugins")).expect("create user plugins");
             let mut manifest_files = Vec::new();
@@ -714,7 +714,7 @@ export const WorkspaceToolsPlugin: Plugin = async () => ({
             let service = Arc::new(ManagedPluginSourceService::new(
                 user.join("plugins"),
                 user.clone(),
-                workspace.join(".alex/plugins"),
+                workspace.join(".openbitfun/plugins"),
                 workspace.clone(),
                 user.join("runtime/plugin-trust.json"),
             ));
@@ -814,10 +814,10 @@ export const WorkspaceToolsPlugin: Plugin = async () => ({
                 if package_id == "acme.demo"
         ));
         fixture.activate().await;
-        fs::remove_dir_all(fixture.workspace.join(".alex/plugins"))
+        fs::remove_dir_all(fixture.workspace.join(".openbitfun/plugins"))
             .expect("remove plugin root");
         fs::write(
-            fixture.workspace.join(".alex/plugins"),
+            fixture.workspace.join(".openbitfun/plugins"),
             "not a directory",
         )
         .expect("make plugin root unreadable");

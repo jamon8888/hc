@@ -2269,12 +2269,12 @@ mod opencode_configured_skill_tests {
         let temp = tempfile::tempdir().unwrap();
         let project = temp.path().join("project");
         write(
-            project.join(".alex/skills/review/SKILL.md"),
+            project.join(".openbitfun/skills/review/SKILL.md"),
             &skill("review"),
         );
         write(project.join("custom/review/SKILL.md"), &skill("review"));
         let standard = SkillRegistry::scan_skills_in_dir(&SkillRootEntry {
-            path: project.join(".alex/skills"),
+            path: project.join(".openbitfun/skills"),
             level: SkillLocation::Project,
             slot: "alex",
             source_id: "alex",
@@ -2296,7 +2296,7 @@ mod opencode_configured_skill_tests {
         ));
 
         assert_eq!(resolved.len(), 1);
-        assert!(resolved[0].path.contains(".alex"));
+        assert!(resolved[0].path.contains(".openbitfun"));
     }
 
     #[tokio::test]
@@ -2560,7 +2560,7 @@ mod remote_scan_tests {
         }
         async fn is_dir(&self, path: &str) -> anyhow::Result<bool> {
             self.round_trip().await;
-            Ok(path.contains("/.alex/")
+            Ok(path.contains("/.openbitfun/")
                 || path.contains("/.codex/")
                 || (self.installation_lock.is_some() && path.contains("/.agents/")))
         }
@@ -2670,7 +2670,7 @@ mod remote_scan_tests {
         // The same project catalog on disk must retain the remote scan's source
         // precedence and invocation policy, without involving user-global skills.
         let local_root = tempfile::tempdir().unwrap();
-        for parent in [".alex", ".codex"] {
+        for parent in [".openbitfun", ".codex"] {
             for index in 0..13 {
                 let name = format!("skill-{index:02}");
                 let dir = local_root.path().join(parent).join("skills").join(&name);

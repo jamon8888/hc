@@ -78,7 +78,7 @@ fn user_settings_path_is_always_present_and_project_path_is_gated() {
     assert_eq!(with_project[1].0, AgentHookScope::Project);
     assert_eq!(
         with_project[1].1,
-        workspace.join(".alex/config/hooks.json")
+        workspace.join(".openbitfun/config/hooks.json")
     );
 
     // No workspace means no project layer even when project hooks are enabled.

@@ -467,7 +467,7 @@ mod tests {
             .find_skill_by_key_for_workspace(source_key, Some(root))
             .await
             .expect("discovered review skill");
-        import_copy_as(source, root.join(".alex/skills"), None)
+        import_copy_as(source, root.join(".openbitfun/skills"), None)
             .await
             .expect("imported review skill");
         registry
@@ -588,7 +588,7 @@ mod tests {
             source_guidance.guidance,
             "Review $target for Claude compatibility."
         );
-        assert!(!temp.path().join(".alex/skills").exists());
+        assert!(!temp.path().join(".openbitfun/skills").exists());
         let imported = import_review_skill(temp.path(), source_key).await;
 
         let descriptor = review_capability_catalog(&context)

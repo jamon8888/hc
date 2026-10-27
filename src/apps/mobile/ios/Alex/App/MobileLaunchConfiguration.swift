@@ -310,7 +310,7 @@ private extension MobileAppModel {
         ]
         workspaceCatalog = [(path: "/workspace/OpenBitFun", name: "OpenBitFun", selected: true, remoteConnectionId: nil, remoteSshHost: nil, workspaceId: nil)]
         remoteAssistants = [
-            MobileAssistantOption(path: "/workspace/Alex/.alex/assistants/review", name: "代码审查助手")
+            MobileAssistantOption(path: "/workspace/Alex/.openbitfun/assistants/review", name: "代码审查助手")
         ]
         remoteHasMore = true
         rebuildRemoteWorkspaceGroups()

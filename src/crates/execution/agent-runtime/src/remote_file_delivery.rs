@@ -73,8 +73,8 @@ mod tests {
     #[test]
     fn remote_delivery_links_use_computer_scheme() {
         assert_eq!(
-            user_workspace_relative_file_link(r".alex\sessions\s1\research\report.md", true),
-            "computer://.alex/sessions/s1/research/report.md"
+            user_workspace_relative_file_link(r".openbitfun\sessions\s1\research\report.md", true),
+            "computer://.openbitfun/sessions/s1/research/report.md"
         );
     }
 }

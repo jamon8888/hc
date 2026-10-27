@@ -1278,10 +1278,10 @@ mod tests {
                 repo_id: "repo".to_string(),
                 repo_path: "/repo".to_string(),
                 storage_root: "/repo/.openbitfun/search/flashgrep-index".to_string(),
-                base_snapshot_root: "/repo/.alex/search/flashgrep-index/base-snapshot"
+                base_snapshot_root: "/repo/.openbitfun/search/flashgrep-index/base-snapshot"
                     .to_string(),
                 workspace_overlay_root:
-                    "/repo/.alex/search/flashgrep-index/workspace-overlay".to_string(),
+                    "/repo/.openbitfun/search/flashgrep-index/workspace-overlay".to_string(),
                 phase: WorkspaceSearchRepoPhase::Ready,
                 snapshot_key: None,
                 base_head_commit: None,
@@ -1358,10 +1358,10 @@ mod tests {
                 repo_id: "repo".to_string(),
                 repo_path: "/repo".to_string(),
                 storage_root: "/repo/.openbitfun/search/flashgrep-index".to_string(),
-                base_snapshot_root: "/repo/.alex/search/flashgrep-index/base-snapshot"
+                base_snapshot_root: "/repo/.openbitfun/search/flashgrep-index/base-snapshot"
                     .to_string(),
                 workspace_overlay_root:
-                    "/repo/.alex/search/flashgrep-index/workspace-overlay".to_string(),
+                    "/repo/.openbitfun/search/flashgrep-index/workspace-overlay".to_string(),
                 phase: WorkspaceSearchRepoPhase::Ready,
                 snapshot_key: None,
                 base_head_commit: None,

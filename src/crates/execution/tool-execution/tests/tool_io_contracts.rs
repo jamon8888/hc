@@ -319,7 +319,7 @@ fn remote_glob_commands_preprocess_static_pattern_prefix() {
     assert!(!rg_command.contains("--hidden"));
     assert!(!rg_command.contains("--sort"));
 
-    let alex_rg_command = build_remote_rg_command("/home/user/repo", ".alex/**/*.json");
+    let alex_rg_command = build_remote_rg_command("/home/user/repo", ".openbitfun/**/*.json");
     assert!(alex_rg_command.contains("--no-ignore"));
     assert!(alex_rg_command.contains("--hidden"));
     assert!(!alex_rg_command.contains("--sort"));

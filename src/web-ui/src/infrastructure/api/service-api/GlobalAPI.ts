@@ -98,7 +98,7 @@ export interface OpenRemoteWorkspaceRequest {
   remotePath: string;
   connectionId: string;
   connectionName: string;
-  /** Passed through to Rust so session files map to ~/.alex/remote_ssh/{host}/... before/during connect. */
+  /** Passed through to Rust so session files map to ~/.openbitfun/remote_ssh/{host}/... before/during connect. */
   sshHost?: string;
 }
 

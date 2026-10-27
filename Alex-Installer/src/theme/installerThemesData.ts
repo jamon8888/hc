@@ -101,7 +101,7 @@ const DARK_TONE = createTone('dark');
 const LIGHT_TONE = createTone('light');
 
 function createBuiltinInstallerTheme(
-  id: Extract<ThemeId, 'alex-dark' | 'alex-light'>,
+  id: Extract<ThemeId, 'openbitfun-dark' | 'openbitfun-light'>,
   name: string,
   type: Extract<ThemeDataName, 'dark' | 'light'>,
 ): InstallerTheme {
@@ -147,45 +147,45 @@ function createInstallerTheme(seed: ThemeSeed): InstallerTheme {
 }
 
 export const THEMES: InstallerTheme[] = [
-  createBuiltinInstallerTheme('alex-dark', 'Dark', 'dark'),
-  createBuiltinInstallerTheme('alex-light', 'Light', 'light'),
+  createBuiltinInstallerTheme('openbitfun-dark', 'Dark', 'dark'),
+  createBuiltinInstallerTheme('openbitfun-light', 'Light', 'light'),
   createInstallerTheme({
-    id: 'alex-midnight',
+    id: 'openbitfun-midnight',
     name: 'Midnight',
     type: 'dark',
     background: { primary: MIDNIGHT_CARD_BACKGROUND, secondary: DARK_CARD_SURFACE },
     accent: DEFAULT_BLUE,
   }),
   createInstallerTheme({
-    id: 'alex-china-style',
+    id: 'openbitfun-china-style',
     name: 'Ink Charm',
     type: 'light',
     background: { primary: '#faf8f0', secondary: '#f5f3e8' },
     accent: '#2e5e8a',
   }),
   createInstallerTheme({
-    id: 'alex-china-night',
+    id: 'openbitfun-china-night',
     name: 'Ink Night',
     type: 'dark',
     background: { primary: '#1a1814', secondary: DARK_CARD_SURFACE },
     accent: '#73a5cc',
   }),
   createInstallerTheme({
-    id: 'alex-cyber',
+    id: 'openbitfun-cyber',
     name: 'Cyber',
     type: 'dark',
     background: { primary: '#0e0e10', secondary: DARK_CARD_SURFACE },
     accent: '#00e6ff',
   }),
   createInstallerTheme({
-    id: 'alex-tokyo-night',
+    id: 'openbitfun-tokyo-night',
     name: 'Tokyo Night',
     type: 'dark',
     background: { primary: '#1a1b26', secondary: DARK_CARD_SURFACE },
     accent: '#7aa2f7',
   }),
   createInstallerTheme({
-    id: 'alex-slate',
+    id: 'openbitfun-slate',
     name: 'Slate',
     type: 'dark',
     background: { primary: DARK_CARD_SURFACE },
@@ -194,18 +194,18 @@ export const THEMES: InstallerTheme[] = [
 ];
 
 export const THEME_DISPLAY_ORDER: ThemeId[] = [
-  'alex-light',
-  'alex-slate',
-  'alex-dark',
-  'alex-midnight',
-  'alex-china-style',
-  'alex-china-night',
-  'alex-cyber',
-  'alex-tokyo-night',
+  'openbitfun-light',
+  'openbitfun-slate',
+  'openbitfun-dark',
+  'openbitfun-midnight',
+  'openbitfun-china-style',
+  'openbitfun-china-night',
+  'openbitfun-cyber',
+  'openbitfun-tokyo-night',
 ];
 
 export function findInstallerThemeById(id: ThemeId): InstallerTheme {
   return THEMES.find((theme) => theme.id === id)
-    ?? THEMES.find((theme) => theme.id === 'alex-light')
+    ?? THEMES.find((theme) => theme.id === 'openbitfun-light')
     ?? THEMES[0];
 }

@@ -512,7 +512,7 @@ pub fn validate_dispatch_protocol(protocol: &Value, approval_policy: Option<&str
 ///
 /// This function fails closed when the build has no release trust root, a
 /// checksum/signature is absent, or either verification fails. It never uses
-/// sudo and writes only below `~/.local/bin` and `~/.alex`.
+/// sudo and writes only below `~/.local/bin` and `~/.openbitfun`.
 pub async fn install_cli_start(
     manager: &SSHConnectionManager,
     connection_id: &str,
@@ -3127,14 +3127,14 @@ mod tests {
     #[test]
     fn generated_install_scripts_are_lf_only_and_never_use_sudo() {
         let body = install_body_script(
-            "/home/user/.alex/dispatch/install",
-            "/home/user/.alex/dispatch/install/archive.tar.gz",
+            "/home/user/.openbitfun/dispatch/install",
+            "/home/user/.openbitfun/dispatch/install/archive.tar.gz",
             "1.2.3",
             &ArchiveSource::TargetDownload,
         );
         let driver = install_driver_script(
-            "/home/user/.alex/dispatch/install",
-            "/home/user/.alex/dispatch/install/install-cli-body.sh",
+            "/home/user/.openbitfun/dispatch/install",
+            "/home/user/.openbitfun/dispatch/install/install-cli-body.sh",
             "alex-install-test-token",
         );
         for (name, script) in [("body", body), ("driver", driver)] {
@@ -3280,14 +3280,14 @@ mod tests {
         assert!(validate_managed_result_path(
             "/home/user",
             "job-1",
-            "/home/user/.alex/dispatch/workspaces/job-1/result.bundle"
+            "/home/user/.openbitfun/dispatch/workspaces/job-1/result.bundle"
         )
         .is_ok());
         for hostile in [
             "/home/user/.ssh/id_ed25519",
-            "/home/user/.alex/dispatch/workspaces/job-2/result.bundle",
-            "/home/user/.alex/dispatch/workspaces/job-1/../../../.ssh/id_ed25519",
-            "/home/user/.alex/dispatch/workspaces/job-1/current/secret",
+            "/home/user/.openbitfun/dispatch/workspaces/job-2/result.bundle",
+            "/home/user/.openbitfun/dispatch/workspaces/job-1/../../../.ssh/id_ed25519",
+            "/home/user/.openbitfun/dispatch/workspaces/job-1/current/secret",
         ] {
             assert!(
                 validate_managed_result_path("/home/user", "job-1", hostile).is_err(),
@@ -3353,8 +3353,8 @@ mod tests {
     #[test]
     fn the_install_path_uses_the_shared_staging_and_commit_implementation() {
         let release = install_body_script(
-            "/home/user/.alex/dispatch/install",
-            "/home/user/.alex/dispatch/install/archive.tar.gz",
+            "/home/user/.openbitfun/dispatch/install",
+            "/home/user/.openbitfun/dispatch/install/archive.tar.gz",
             "1.2.3",
             &ArchiveSource::TargetDownload,
         );
@@ -3598,8 +3598,8 @@ mod tests {
     #[test]
     fn install_body_stages_only_the_alex_binary_under_its_real_name() {
         let body = install_body_script(
-            "/home/user/.alex/dispatch/install",
-            "/home/user/.alex/dispatch/install/archive.tar.gz",
+            "/home/user/.openbitfun/dispatch/install",
+            "/home/user/.openbitfun/dispatch/install/archive.tar.gz",
             "1.2.3",
             &ArchiveSource::TargetDownload,
         );
@@ -3776,20 +3776,20 @@ mod tests {
     fn generated_install_scripts_parse_as_bash() {
         for script in [
             install_body_script(
-                "/home/user/.alex/dispatch/install",
-                "/home/user/.alex/dispatch/install/archive.tar.gz",
+                "/home/user/.openbitfun/dispatch/install",
+                "/home/user/.openbitfun/dispatch/install/archive.tar.gz",
                 "1.2.3",
                 &ArchiveSource::TargetDownload,
             ),
             install_driver_script(
-                "/home/user/.alex/dispatch/install",
-                "/home/user/.alex/dispatch/install/install-cli-body.sh",
+                "/home/user/.openbitfun/dispatch/install",
+                "/home/user/.openbitfun/dispatch/install/install-cli-body.sh",
                 "alex-install-test-token",
             ),
             target_download_script(
                 RemoteDownloader::Curl,
                 RemoteDigestTool::Sha256Sum,
-                "/home/user/.alex/dispatch/install/archive.tar.gz",
+                "/home/user/.openbitfun/dispatch/install/archive.tar.gz",
                 "https://example.invalid/archive.tar.gz",
                 "https://alex.example.invalid/archive.tar.gz",
                 &"a".repeat(64),
@@ -3797,7 +3797,7 @@ mod tests {
             target_download_script(
                 RemoteDownloader::Wget,
                 RemoteDigestTool::Shasum,
-                "/home/user/.alex/dispatch/install/archive.tar.gz",
+                "/home/user/.openbitfun/dispatch/install/archive.tar.gz",
                 "https://example.invalid/archive.tar.gz",
                 "https://alex.example.invalid/archive.tar.gz",
                 &"a".repeat(64),

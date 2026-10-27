@@ -117,7 +117,7 @@ impl Default for UiConfig {
     fn default() -> Self {
         Self {
             theme: "dark".to_string(),
-            theme_id: "alex-dark".to_string(),
+            theme_id: "openbitfun-dark".to_string(),
             show_tips: true,
             animation: true,
             color_scheme: "default".to_string(),
@@ -290,7 +290,7 @@ mod tests {
         let serialized = toml::to_string(&config).unwrap();
 
         assert_eq!(config.ui.theme, "dark");
-        assert_eq!(config.ui.theme_id, "alex-dark");
+        assert_eq!(config.ui.theme_id, "openbitfun-dark");
         assert!(config.ui.show_tips);
         assert!(config.ui.animation);
         assert_eq!(config.ui.color_scheme, "default");

@@ -299,7 +299,7 @@ impl std::fmt::Debug for SkillMarketSource {
 ///
 /// Hook declarations themselves live in `hooks.json` documents (user scope:
 /// `config/hooks.json` next to this file; project scope:
-/// `{project}/.alex/config/hooks.json`), not in this settings document.
+/// `{project}/.openbitfun/config/hooks.json`), not in this settings document.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(default)]
 pub struct AgentHooksConfig {

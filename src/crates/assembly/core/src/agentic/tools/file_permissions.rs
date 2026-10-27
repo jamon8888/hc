@@ -548,6 +548,6 @@ mod tests {
             .expect("fallback write intent");
         assert!(fallback[0].resources[0]
             .replace('\\', "/")
-            .ends_with("/.alex/tmp/write_toolcall123.tmp"));
+            .ends_with("/.openbitfun/tmp/write_toolcall123.tmp"));
     }
 }

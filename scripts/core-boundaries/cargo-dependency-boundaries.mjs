@@ -11,7 +11,7 @@ import {
 } from './rules/feature-rules.mjs';
 
 const SKIPPED_DIRECTORIES = new Set([
-  '.alex',
+  '.openbitfun',
   '.claude',
   '.cursor',
   '.git',

@@ -1,6 +1,6 @@
 //! PID-file based liveness tracking for the CLI daemon.
 //!
-//! The daemon records its pid in `~/.alex/cli_daemon.pid` so interactive
+//! The daemon records its pid in `~/.openbitfun/cli_daemon.pid` so interactive
 //! CLI processes can detect a running daemon and yield device routing to it
 //! (same-machine processes share one `device_id`; last AuthConnect wins).
 

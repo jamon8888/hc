@@ -85,7 +85,7 @@ describe('AlexControl presentation bridge', () => {
   it('acknowledges a GUI-applied appearance without waiting on its own config mutation', async () => {
     vi.spyOn(appearanceService, 'getSnapshot').mockReturnValue({
       ...appearanceService.getSnapshot(),
-      selectedAppearanceId: 'alex-dark',
+      selectedAppearanceId: 'openbitfun-dark',
     });
     const reload = vi.spyOn(configManager, 'applyExternalReload').mockResolvedValue(undefined);
     const reconcile = vi.spyOn(appearanceService, 'reconcilePersistedState').mockResolvedValue(undefined);
@@ -94,7 +94,7 @@ describe('AlexControl presentation bridge', () => {
       capabilityId: 'setting.application.appearance',
       optionId: 'theme',
       changedPaths: ['appearance.selection'],
-      value: 'alex-dark',
+      value: 'openbitfun-dark',
     })).resolves.toEqual({ status: 'alreadyApplied' });
     expect(reload).not.toHaveBeenCalled();
     expect(reconcile).not.toHaveBeenCalled();
@@ -105,7 +105,7 @@ describe('AlexControl presentation bridge', () => {
       ...appearanceService.getSnapshot(),
       status: 'applying',
       selectedAppearanceId: 'system',
-      pendingSelectionId: 'alex-dark',
+      pendingSelectionId: 'openbitfun-dark',
     });
     const pendingApplied = vi.spyOn(appearanceService, 'hasAppliedPendingSelection')
       .mockReturnValue(true);
@@ -116,9 +116,9 @@ describe('AlexControl presentation bridge', () => {
       capabilityId: 'setting.application.appearance',
       optionId: 'theme',
       changedPaths: ['appearance.selection'],
-      value: 'alex-dark',
+      value: 'openbitfun-dark',
     })).resolves.toEqual({ status: 'alreadyApplied' });
-    expect(pendingApplied).toHaveBeenCalledWith('alex-dark');
+    expect(pendingApplied).toHaveBeenCalledWith('openbitfun-dark');
     expect(reload).not.toHaveBeenCalled();
     expect(reconcile).not.toHaveBeenCalled();
   });
@@ -135,7 +135,7 @@ describe('AlexControl presentation bridge', () => {
       capabilityId: 'setting.application.appearance',
       optionId: 'theme',
       changedPaths: ['appearance.selection'],
-      value: 'alex-tokyo-night',
+      value: 'openbitfun-tokyo-night',
     })).resolves.toEqual({ status: 'applied' });
     expect(reload).toHaveBeenCalledOnce();
     expect(reconcile).toHaveBeenCalledOnce();
@@ -158,7 +158,7 @@ describe('AlexControl presentation bridge', () => {
   it('reconciles the previous appearance when the native transaction rolls back', async () => {
     vi.spyOn(appearanceService, 'getSnapshot').mockReturnValue({
       ...appearanceService.getSnapshot(),
-      selectedAppearanceId: 'alex-dark',
+      selectedAppearanceId: 'openbitfun-dark',
     });
     const reload = vi.spyOn(configManager, 'applyExternalReload').mockResolvedValue(undefined);
     const reconcile = vi.spyOn(appearanceService, 'reconcilePersistedState').mockResolvedValue(undefined);

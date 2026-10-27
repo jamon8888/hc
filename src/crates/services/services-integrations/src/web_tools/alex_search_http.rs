@@ -13,7 +13,7 @@ use serde::{Deserialize, Serialize};
 use std::net::IpAddr;
 
 const ALEX_SEARCH_TIMEOUT_SECS: u64 = 60;
-const ALEX_SEARCH_MEDIA_TYPE: &str = "application/vnd.alex.web-search.v1+json";
+const ALEX_SEARCH_MEDIA_TYPE: &str = "application/vnd.openbitfun.web-search.v1+json";
 
 pub enum AlexSearchHttpAuth {
     None,

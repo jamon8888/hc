@@ -67,7 +67,7 @@ pub struct WorkspaceCreateOptions {
     pub tags: Vec<String>,
     /// See [`crate::service::workspace::manager::WorkspaceOpenOptions::remote_connection_id`].
     pub remote_connection_id: Option<String>,
-    /// SSH `host` from connection config; used for `~/.alex/remote_ssh/...` and stable remote ids.
+    /// SSH `host` from connection config; used for `~/.openbitfun/remote_ssh/...` and stable remote ids.
     pub remote_ssh_host: Option<String>,
     /// Deterministic id for [`WorkspaceKind::Remote`] (host + remote path hash).
     pub stable_workspace_id: Option<String>,

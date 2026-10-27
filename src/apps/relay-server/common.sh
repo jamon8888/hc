@@ -71,12 +71,12 @@ compose() {
 # Make DOCKER_CONFIG usable by the current user.
 #
 # A root-run Docker install (or an earlier `sudo -E docker`) can leave
-# ~/.alex/docker-config and its config.json owned by root, and every later
+# ~/.openbitfun/docker-config and its config.json owned by root, and every later
 # unprivileged docker call then reports
 #   WARNING: Error loading config file: .../config.json: permission denied
 # before misbehaving. Repair it, or fall back to a per-uid dir we can read.
 fix_docker_config() {
-  export DOCKER_CONFIG="${DOCKER_CONFIG:-$HOME/.alex/docker-config}"
+  export DOCKER_CONFIG="${DOCKER_CONFIG:-$HOME/.openbitfun/docker-config}"
   mkdir -p "$DOCKER_CONFIG" 2>/dev/null || true
   docker_config_usable() {
     [ -r "$DOCKER_CONFIG" ] && [ -w "$DOCKER_CONFIG" ] &&
@@ -92,7 +92,7 @@ fix_docker_config() {
       sudo chown -R "$(id -un):$(id -gn)" "$DOCKER_CONFIG" 2>/dev/null || true
   fi
   if ! docker_config_usable; then
-    DOCKER_CONFIG="$HOME/.alex/docker-config-$(id -u)"
+    DOCKER_CONFIG="$HOME/.openbitfun/docker-config-$(id -u)"
     export DOCKER_CONFIG
     mkdir -p "$DOCKER_CONFIG"
     echo "         Using DOCKER_CONFIG=$DOCKER_CONFIG instead."

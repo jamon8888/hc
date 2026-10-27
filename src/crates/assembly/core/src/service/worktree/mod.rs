@@ -2285,7 +2285,7 @@ mod tests {
         let user_root = std::env::temp_dir().join("alex-worktree-root-test");
         let path_manager = PathManager::with_user_root_for_tests(user_root);
         let settings = WorktreeSettings {
-            root_path: r"~\.alex\worktrees".to_string(),
+            root_path: r"~\.openbitfun\worktrees".to_string(),
             ..WorktreeSettings::default()
         };
 

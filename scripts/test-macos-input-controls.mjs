@@ -56,8 +56,8 @@ try {
       build.once('close', code => code === 0 && executable ? resolve(executable) : reject(new Error(`Test build failed (${code}) or produced no executable`)));
     });
   }
-  const targetBinary = await bundleExecutable('Alex Input Target', 'dev.alex.input-fixture.target');
-  const observerBinary = await bundleExecutable('Alex Input Observer', 'dev.alex.input-fixture.observer');
+  const targetBinary = await bundleExecutable('Alex Input Target', 'dev.openbitfun.input-fixture.target');
+  const observerBinary = await bundleExecutable('Alex Input Observer', 'dev.openbitfun.input-fixture.observer');
   await run(binary, ['--wait-input-idle', '20']);
   fixture = spawn(targetBinary, [result], { cwd: root, stdio: ['ignore', 'pipe', 'inherit'], windowsHide: true });
   const [pid] = await new Promise((resolve, reject) => {

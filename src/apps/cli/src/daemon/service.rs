@@ -303,7 +303,7 @@ fn platform_service_active() -> Option<bool> {
 }
 
 /// Install and start the auto-start service. Requires a persisted account
-/// session (the daemon logs in from `~/.alex/account_session.enc`).
+/// session (the daemon logs in from `~/.openbitfun/account_session.enc`).
 pub(crate) fn install_service() -> Result<()> {
     ensure_persisted_account_session()?;
     let executable = current_exe_path()?;

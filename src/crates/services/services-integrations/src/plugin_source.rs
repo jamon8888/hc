@@ -3391,7 +3391,7 @@ mod tests {
             let temp = tempfile::tempdir().expect("tempdir");
             let workspace = temp.path().join("workspace");
             let fixture = Self {
-                workspace_root: workspace.join(".alex/plugins"),
+                workspace_root: workspace.join(".openbitfun/plugins"),
                 trust_path: temp.path().join("state/trust.json"),
                 workspace,
                 _temp: temp,
@@ -4554,7 +4554,7 @@ mod tests {
     async fn fixed_package_reads_are_serialized_per_service_instance() {
         let temp = tempfile::tempdir().expect("tempdir");
         let workspace = temp.path().join("workspace");
-        let workspace_root = workspace.join(".alex/plugins");
+        let workspace_root = workspace.join(".openbitfun/plugins");
         let user_root = temp.path().join("user/plugins");
         tokio::fs::create_dir_all(&user_root)
             .await
@@ -4601,7 +4601,7 @@ mod tests {
         let service = ManagedPluginSourceService::new(
             temp.path().join("user/plugins"),
             temp.path().join("user"),
-            workspace.join(".alex/plugins"),
+            workspace.join(".openbitfun/plugins"),
             workspace.clone(),
             temp.path().join("trust.json"),
         );
@@ -4652,7 +4652,7 @@ mod tests {
     async fn selected_package_load_ignores_unrelated_invalid_package_content() {
         let temp = tempfile::tempdir().expect("tempdir");
         let workspace = temp.path().join("workspace");
-        let workspace_root = workspace.join(".alex/plugins");
+        let workspace_root = workspace.join(".openbitfun/plugins");
         let user_root = temp.path().join("user/plugins");
         tokio::fs::create_dir_all(&user_root)
             .await
@@ -4869,8 +4869,8 @@ mod tests {
         tokio::fs::create_dir_all(outside.join("plugins"))
             .await
             .expect("create outside plugins");
-        symlink(&outside, workspace.join(".alex")).expect("link workspace plugin parent");
-        let root = workspace.join(".alex/plugins");
+        symlink(&outside, workspace.join(".openbitfun")).expect("link workspace plugin parent");
+        let root = workspace.join(".openbitfun/plugins");
         let store = ProductPluginSourceStore::new(
             vec![PluginPackageRoot::new(root, PluginPackageScope::Workspace)
                 .with_containment_root(workspace)],

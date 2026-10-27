@@ -379,7 +379,7 @@ describe('compatibility discovery lifecycle', () => {
   it('counts external Skills once, focuses the header from legacy settings links, and reloads on host changes', async () => {
     mocks.skills = [
       { key: 'project::codex::sample', name: 'sample', sourceId: 'codex', sourceSlot: 'codex', path: '/workspace/.codex/skills/sample' },
-      { key: 'project::alex::sample', name: 'sample', sourceId: 'alex', sourceSlot: 'alex', path: '/workspace/.alex/skills/sample', importOrigin: { sourceId: 'codex' } },
+      { key: 'project::alex::sample', name: 'sample', sourceId: 'alex', sourceSlot: 'alex', path: '/workspace/.openbitfun/skills/sample', importOrigin: { sourceId: 'codex' } },
     ];
     mocks.getDiscoverySnapshot.mockResolvedValue(snapshot(true, false, true));
     await renderMcp();

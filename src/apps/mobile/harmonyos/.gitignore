@@ -17,8 +17,8 @@
 /alex_*.jpeg
 /alex_*_layout.json
 /alex_layout*.json
-.alex/
-/.alex/search/flashgrep-index/
+.openbitfun/
+/.openbitfun/search/flashgrep-index/
 
 # Signing credentials and installable artifacts
 /signing.local.json5

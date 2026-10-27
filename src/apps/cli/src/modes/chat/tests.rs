@@ -954,7 +954,7 @@ mod tests {
                 },
                 NativeHookFileView {
                     scope: "project".to_string(),
-                    location: "<workspace>/.alex/config/hooks.json".to_string(),
+                    location: "<workspace>/.openbitfun/config/hooks.json".to_string(),
                     exists: true,
                     loaded: false,
                 },

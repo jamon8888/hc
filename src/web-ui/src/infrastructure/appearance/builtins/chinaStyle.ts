@@ -31,7 +31,7 @@ const chinaStyleBorder = (alpha: number | string) => rgbaFromHex(CHINA_STYLE_BOR
 
 export const openBitFunChinaStylePalette: AppearancePalette = {
 
-  id: 'alex-china-style',
+  id: 'openbitfun-china-style',
   name: 'Ink Charm',
   type: 'light',
   description: 'Chinese style appearance - Rice paper and ink, blue and vermilion, warm and elegant',

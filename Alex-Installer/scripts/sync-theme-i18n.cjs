@@ -5,14 +5,14 @@ const INSTALLER_ROOT = path.resolve(__dirname, "..");
 const PROJECT_ROOT = path.resolve(INSTALLER_ROOT, "..");
 
 const THEME_IDS = [
-  "alex-dark",
-  "alex-light",
-  "alex-midnight",
-  "alex-china-style",
-  "alex-china-night",
-  "alex-cyber",
-  "alex-slate",
-  "alex-tokyo-night",
+  "openbitfun-dark",
+  "openbitfun-light",
+  "openbitfun-midnight",
+  "openbitfun-china-style",
+  "openbitfun-china-night",
+  "openbitfun-cyber",
+  "openbitfun-slate",
+  "openbitfun-tokyo-night",
 ];
 
 function readJson(filePath) {

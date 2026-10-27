@@ -1191,7 +1191,7 @@ async fn remote_connect_command_owner_builds_a_projected_plan_with_hidden_execut
         &host,
         &RemoteCommand::BuildPlan {
             session_id: "session-1".to_string(),
-            plan_file_path: "/repo/.alex/plans/mobile.plan.md".to_string(),
+            plan_file_path: "/repo/.openbitfun/plans/mobile.plan.md".to_string(),
             plan_name: Some("Mobile plan".to_string()),
             agent_type: Some("code".to_string()),
         },
@@ -1209,7 +1209,7 @@ async fn remote_connect_command_owner_builds_a_projected_plan_with_hidden_execut
     let submitted = host.submitted_dialog();
     assert_eq!(
         submitted.content,
-        remote_plan_build_content("/repo/.alex/plans/mobile.plan.md")
+        remote_plan_build_content("/repo/.openbitfun/plans/mobile.plan.md")
     );
     assert_eq!(
         submitted.display_content.as_deref(),
@@ -1224,18 +1224,18 @@ fn remote_connect_plan_projection_covers_legacy_create_and_modern_write_tools() 
         "CreatePlan",
         Some(&serde_json::json!({ "name": "Legacy plan" })),
         Some(&serde_json::json!({
-            "plan_file_path": "/repo/.alex/plans/legacy.plan.md",
+            "plan_file_path": "/repo/.openbitfun/plans/legacy.plan.md",
             "overview": "Ship the mobile flow"
         })),
     )
     .expect("legacy CreatePlan is projected");
     assert_eq!(legacy.name, "Legacy plan");
-    assert_eq!(legacy.file_path, "/repo/.alex/plans/legacy.plan.md");
+    assert_eq!(legacy.file_path, "/repo/.openbitfun/plans/legacy.plan.md");
 
     let modern = project_remote_plan_tool(
         "Write",
         Some(&serde_json::json!({
-            "file_path": "/repo/.alex/plans/modern.plan.md"
+            "file_path": "/repo/.openbitfun/plans/modern.plan.md"
         })),
         None,
     )

@@ -15,9 +15,9 @@ function defaultAlexHome() {
     return process.env.ALEX_E2E_HOME;
   }
   if (process.env.ALEX_E2E_USE_REAL_PROFILE === '1') {
-    return process.env.ALEX_HOME || path.join(os.homedir(), '.alex');
+    return process.env.ALEX_HOME || path.join(os.homedir(), '.openbitfun');
   }
-  return path.resolve(__dirname, '..', '.alex', 'runtime', 'home');
+  return path.resolve(__dirname, '..', '.openbitfun', 'runtime', 'home');
 }
 
 function defaultAlexUserRoot() {
@@ -27,7 +27,7 @@ function defaultAlexUserRoot() {
   if (process.env.ALEX_E2E_USE_REAL_PROFILE === '1') {
     return null;
   }
-  return path.resolve(__dirname, '..', '.alex', 'runtime', 'user-root');
+  return path.resolve(__dirname, '..', '.openbitfun', 'runtime', 'user-root');
 }
 
 function parseArgs(argv) {
@@ -166,8 +166,8 @@ Options:
   --last-active-step-ms <n> lastActiveAt decrement per session index. Default: 1000
   --session-prefix <text>   Session id prefix. Default: perf-long-session
   --scenario <name>         Fixture shape: mixed-visible, dense-visible, explore-only, or user-only-latest. Default: mixed-visible
-  --alex-home <path>      Alex home root. Default: ALEX_E2E_HOME or isolated tests/e2e/.alex/runtime/home; ALEX_HOME is used only with ALEX_E2E_USE_REAL_PROFILE=1
-  --alex-user-root <path> Alex user config root for seeding active workspace. Default: ALEX_E2E_USER_ROOT or isolated tests/e2e/.alex/runtime/user-root; skipped for real profile unless provided
+  --alex-home <path>      Alex home root. Default: ALEX_E2E_HOME or isolated tests/e2e/.openbitfun/runtime/home; ALEX_HOME is used only with ALEX_E2E_USE_REAL_PROFILE=1
+  --alex-user-root <path> Alex user config root for seeding active workspace. Default: ALEX_E2E_USER_ROOT or isolated tests/e2e/.openbitfun/runtime/user-root; skipped for real profile unless provided
   --cleanup                 Remove generated sessions for the prefix.
 `);
 }

@@ -584,11 +584,11 @@
               "AskUserQuestion"
             ],
             "workflowZh": [
-              "复杂任务用 TodoWrite 维护当前进度；正式计划产物通过 Write 写入项目的 .alex/plans 目录",
+              "复杂任务用 TodoWrite 维护当前进度；正式计划产物通过 Write 写入项目的 .openbitfun/plans 目录",
               "缺少会改变结果的用户选择时用 AskUserQuestion；能从仓库或当前上下文查明的信息不重复询问"
             ],
             "workflowEn": [
-              "Use TodoWrite to maintain progress for complex work; create formal plan artifacts with Write under the project's .alex/plans directory",
+              "Use TodoWrite to maintain progress for complex work; create formal plan artifacts with Write under the project's .openbitfun/plans directory",
               "Use AskUserQuestion only for a missing choice that changes the outcome; do not ask again for facts available from the repository or current context"
             ]
           },
@@ -5520,7 +5520,7 @@
             ]
           },
           "evidence": [
-            "source:src/web-ui/src/locales/zh-CN/settings/application.json#appearance.presets.alex-tokyo-night.name"
+            "source:src/web-ui/src/locales/zh-CN/settings/application.json#appearance.presets.openbitfun-tokyo-night.name"
           ]
         },
         {
@@ -8217,8 +8217,8 @@
         },
         {
           "id": "project-hooks",
-          "titleZh": "对可信仓库单独启用项目级 .alex/config/hooks.json",
-          "titleEn": "Enable project-level .alex/config/hooks.json separately for trusted repositories",
+          "titleZh": "对可信仓库单独启用项目级 .openbitfun/config/hooks.json",
+          "titleEn": "Enable project-level .openbitfun/config/hooks.json separately for trusted repositories",
           "destination": {
             "kind": "settings",
             "pageId": "tools.automation",
@@ -8234,7 +8234,7 @@
             ]
           },
           "evidence": [
-            "source:src/web-ui/src/locales/zh-CN/settings/hooks.json#.alex/config/hooks.json"
+            "source:src/web-ui/src/locales/zh-CN/settings/hooks.json#.openbitfun/config/hooks.json"
           ]
         },
         {

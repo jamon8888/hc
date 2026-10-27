@@ -404,7 +404,7 @@ mod tests {
         assert_eq!(skill.name, "plan");
         assert!(skill
             .content
-            .contains(".alex/plans/<short-kebab-name>.plan.md"));
+            .contains(".openbitfun/plans/<short-kebab-name>.plan.md"));
         assert!(skill.content.contains("status: pending"));
     }
 

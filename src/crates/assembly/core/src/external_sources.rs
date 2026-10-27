@@ -8653,7 +8653,7 @@ mod tests {
         ));
         assert!(!config_update_refreshes_external_model_bindings(
             &ConfigUpdateEvent::AppearanceUpdated {
-                appearance_id: "alex-dark".to_string(),
+                appearance_id: "openbitfun-dark".to_string(),
             }
         ));
     }

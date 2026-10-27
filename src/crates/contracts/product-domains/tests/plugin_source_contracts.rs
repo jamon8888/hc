@@ -11,7 +11,7 @@ const HASH_A: &str = "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 const HASH_B: &str = "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
 const PROJECT: &str = "project-1";
 const WORKSPACE: &str = "workspace-1";
-const SOURCE_PATH: &str = "file:///workspace/.alex/plugins/acme.demo";
+const SOURCE_PATH: &str = "file:///workspace/.openbitfun/plugins/acme.demo";
 
 fn source(content_hash: &str, source_path: &str) -> PluginPackageSourceIdentity {
     PluginPackageSourceIdentity {
@@ -201,7 +201,7 @@ fn manifest_and_trust_identity_reject_terminal_spoofing_characters() {
 #[test]
 fn trust_store_invalidates_changed_package_identity_and_advances_epoch_once() {
     let mut store = PluginTrustStore::new(1);
-    let original = source(HASH_A, "file:///workspace/.alex/plugins/acme.demo");
+    let original = source(HASH_A, "file:///workspace/.openbitfun/plugins/acme.demo");
 
     assert_eq!(store.epoch(), 1);
     assert_eq!(
@@ -235,7 +235,7 @@ fn trust_store_invalidates_changed_package_identity_and_advances_epoch_once() {
         .expect("idempotent trust decision"));
     assert_eq!(store.epoch(), 2);
 
-    let changed = source(HASH_B, "file:///workspace/.alex/plugins/acme.demo");
+    let changed = source(HASH_B, "file:///workspace/.openbitfun/plugins/acme.demo");
     assert!(store
         .reconcile_sources("project-1", "workspace-1", std::slice::from_ref(&changed))
         .expect("reconcile changed source"));
@@ -291,7 +291,7 @@ fn absent_sources_preserve_review_history_until_a_replacement_is_discovered() {
 #[test]
 fn trust_decisions_are_scoped_to_project_and_workspace() {
     let mut store = PluginTrustStore::new(1);
-    let package = source(HASH_A, "file:///workspace/.alex/plugins/acme.demo");
+    let package = source(HASH_A, "file:///workspace/.openbitfun/plugins/acme.demo");
 
     store
         .apply_decision(
@@ -320,7 +320,7 @@ fn trust_decisions_are_scoped_to_project_and_workspace() {
 #[test]
 fn revoke_requires_an_existing_source_approval() {
     let mut store = PluginTrustStore::new(1);
-    let package = source(HASH_A, "file:///workspace/.alex/plugins/acme.demo");
+    let package = source(HASH_A, "file:///workspace/.openbitfun/plugins/acme.demo");
 
     assert!(store
         .apply_decision(
@@ -366,7 +366,7 @@ fn trust_store_rejects_unknown_schema_and_duplicate_identity_records() {
 
     let identity = serde_json::to_value(source(
         HASH_A,
-        "file:///workspace/.alex/plugins/acme.demo",
+        "file:///workspace/.openbitfun/plugins/acme.demo",
     ))
     .expect("serialize source identity");
     let duplicate_records = serde_json::json!({
@@ -387,7 +387,7 @@ fn trust_store_rejects_unknown_schema_and_duplicate_identity_records() {
                     "packageId": "acme.demo",
                     "version": "2.0.0",
                     "adapter": "test_adapter",
-                    "sourcePath": "file:///workspace/.alex/plugins/acme.demo",
+                    "sourcePath": "file:///workspace/.openbitfun/plugins/acme.demo",
                     "contentHash": HASH_B
                 },
                 "trustLevel": "denied",
@@ -636,7 +636,7 @@ fn activation_authority_requires_the_exact_activated_package() {
     let issued_epoch = authority.activation_epoch();
     assert_eq!(issued_epoch, store.activation_epoch());
     assert!(store.is_activation_current(&authority));
-    let mut other = source(HASH_B, "file:///workspace/.alex/plugins/acme.other");
+    let mut other = source(HASH_B, "file:///workspace/.openbitfun/plugins/acme.other");
     other.package_id = "acme.other".to_string();
     approve_source(&mut store, &other);
     activate_source(&mut store, &other);

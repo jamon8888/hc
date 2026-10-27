@@ -5,7 +5,7 @@ use sha2::{Digest, Sha256};
 
 pub const APPEARANCE_MARKET_API_VERSION: &str = "v1";
 pub const APPEARANCE_MARKET_PACKAGE_CONTENT_TYPE: &str =
-    "application/vnd.alex.appearance+zip";
+    "application/vnd.openbitfun.appearance+zip";
 pub const APPEARANCE_MARKET_MAX_PACKAGE_BYTES: u64 = 96 * 1024 * 1024;
 pub const APPEARANCE_MARKET_MAX_UNCOMPRESSED_BYTES: u64 = 128 * 1024 * 1024;
 pub const APPEARANCE_MARKET_MAX_MANIFEST_BYTES: u64 = 256 * 1024;

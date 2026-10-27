@@ -39,7 +39,7 @@ const lightNavyHover = (alpha: number | string) => rgbaFromHex(LIGHT_NAVY_HOVER,
 
 export const openBitFunLightPalette: AppearancePalette = {
 
-  id: 'alex-light',
+  id: 'openbitfun-light',
   name: 'Light',
   type: 'light',
   description: 'Light appearance - Crisp white surfaces, soft neutral grays, deep navy actions',

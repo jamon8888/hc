@@ -30,7 +30,7 @@ const midnightAccent = (alpha: number | string) => rgbaFromHex(MIDNIGHT_ACCENT, 
 
 export const openBitFunMidnightPalette: AppearancePalette = {
 
-  id: 'alex-midnight',
+  id: 'openbitfun-midnight',
   name: 'Midnight',
   type: 'dark',
   description: 'Midnight gray dark appearance - Professional and elegant, inspired by JetBrains IDE',

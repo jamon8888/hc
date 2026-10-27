@@ -174,7 +174,7 @@ describe('L0 Appearance', () => {
   });
 
   it('should project the neutral and navy light palette into the native app', async () => {
-    await selectAppearance('alex-light');
+    await selectAppearance('openbitfun-light');
 
     const lightNavigation = await browser.execute(() => {
       const styles = window.getComputedStyle(document.documentElement);
@@ -210,7 +210,7 @@ describe('L0 Appearance', () => {
   });
 
   it('should compile inverse new-session hover colors for the light appearance', async () => {
-    await selectAppearance('alex-light');
+    await selectAppearance('openbitfun-light');
 
     const hoverContract = await browser.execute(() => {
       const styleRules: CSSStyleRule[] = [];
@@ -269,7 +269,7 @@ describe('L0 Appearance', () => {
   });
 
   it('should lift only the scene viewport above the light navigation shell', async () => {
-    await selectAppearance('alex-light');
+    await selectAppearance('openbitfun-light');
     await waitForDisplayed('.alex-workspace-body__scene-area');
     await waitForDisplayed('.alex-scene-viewport');
 
@@ -317,7 +317,7 @@ describe('L0 Appearance', () => {
   });
 
   it('should keep Mini Apps and the selected navigation surface visually light', async () => {
-    await selectAppearance('alex-light');
+    await selectAppearance('openbitfun-light');
 
     const navBack = await waitForDisplayed(
       '[data-alex-component="nav-bar"][data-alex-part="back"]:not(.is-inactive)',
@@ -670,7 +670,7 @@ describe('L0 Appearance', () => {
       ));
       const lightInverseRule = styleRules.find(rule => (
         rule.selectorText.includes('data-alex-appearance')
-        && rule.selectorText.includes('alex-light')
+        && rule.selectorText.includes('openbitfun-light')
         && rule.selectorText.includes('.miniapp-card')
       ));
 
@@ -717,7 +717,7 @@ describe('L0 Appearance', () => {
   });
 
   it('should render monochrome structural chrome against a white workspace', async () => {
-    await selectAppearance('alex-monochrome');
+    await selectAppearance('openbitfun-monochrome');
     await browser.execute(() => {
       if (document.activeElement instanceof HTMLElement) {
         document.activeElement.blur();
@@ -801,7 +801,7 @@ describe('L0 Appearance', () => {
     });
 
     expect(contrastPresentation).toEqual({
-      appearanceId: 'alex-monochrome',
+      appearanceId: 'openbitfun-monochrome',
       appearanceMode: 'light',
       contentBackgroundToken: '#ffffff',
       contentTextToken: '#1c1c1f',

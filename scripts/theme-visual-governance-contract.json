@@ -7,7 +7,7 @@
       "owner": "src/web-ui/src/app/layout; src/web-ui/src/app/components/NavPanel",
       "platforms": ["desktop-webview", "web"],
       "formFactors": ["desktop", "narrow"],
-      "themes": ["dark", "light", "system", "alex-monochrome"],
+      "themes": ["dark", "light", "system", "openbitfun-monochrome"],
       "states": ["default", "hover", "focus", "selected", "disabled"],
       "tokenFamilies": ["--alex-color-surface-*", "--alex-color-content-*", "--alex-color-border-*", "--alex-color-action-*", "--alex-component-scene-*", "--alex-nav-*"],
       "evidence": [
@@ -31,7 +31,7 @@
       "owner": "src/web-ui/src/flow_chat; src/web-ui/src/app/scenes/session",
       "platforms": ["desktop-webview", "web"],
       "formFactors": ["desktop", "narrow"],
-      "themes": ["dark", "light", "system", "alex-monochrome"],
+      "themes": ["dark", "light", "system", "openbitfun-monochrome"],
       "states": ["default", "streaming", "hover", "focus", "selected", "error", "empty"],
       "tokenFamilies": ["--alex-color-surface-*", "--alex-color-content-*", "--alex-color-accent-*", "--alex-color-action-*", "--alex-color-status-*", "--alex-domain-tool-*"],
       "evidence": [
@@ -175,7 +175,7 @@
       "owner": "src/web-ui/src/app/scenes/settings; src/web-ui/src/infrastructure/appearance",
       "platforms": ["desktop-webview", "web"],
       "formFactors": ["desktop", "narrow"],
-      "themes": ["dark", "light", "system", "alex-monochrome"],
+      "themes": ["dark", "light", "system", "openbitfun-monochrome"],
       "states": ["default", "selected", "hover", "focus", "imported-appearance", "system-appearance"],
       "tokenFamilies": ["--alex-color-*", "--alex-shadow-*", "--alex-effect-*", "--alex-opacity-*", "--alex-component-config-page-*", "--alex-domain-*"],
       "evidence": [
@@ -219,7 +219,7 @@
       "owner": "Alex-Installer/src/theme; Alex-Installer/src/pages; Alex-Installer/src/styles",
       "platforms": ["installer"],
       "formFactors": ["desktop", "narrow"],
-      "themes": ["dark", "light", "system", "alex-dark", "alex-light", "alex-midnight", "alex-china-style", "alex-china-night", "alex-cyber", "alex-slate", "alex-tokyo-night"],
+      "themes": ["dark", "light", "system", "openbitfun-dark", "openbitfun-light", "openbitfun-midnight", "openbitfun-china-style", "openbitfun-china-night", "openbitfun-cyber", "openbitfun-slate", "openbitfun-tokyo-night"],
       "states": ["theme-setup", "language", "options", "loading", "progress", "error", "completed", "hover", "focus"],
       "tokenFamilies": ["@alex/theme-alex", "--alex-color-surface-*", "--alex-color-content-*", "--alex-color-border-*", "--alex-color-action-*", "--alex-color-accent-*", "--alex-color-status-*"],
       "evidence": [

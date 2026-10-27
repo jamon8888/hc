@@ -175,12 +175,12 @@ const deletedSessions = new Set();
 
 const assistants = [
   {
-    path: '/workspace/.alex/assistants/daily',
+    path: '/workspace/.openbitfun/assistants/daily',
     name: 'Daily Assistant',
     assistant_id: 'assistant-daily-preview',
   },
   {
-    path: '/workspace/.alex/assistants/research',
+    path: '/workspace/.openbitfun/assistants/research',
     name: 'Research Assistant',
     assistant_id: 'assistant-research-preview',
   },

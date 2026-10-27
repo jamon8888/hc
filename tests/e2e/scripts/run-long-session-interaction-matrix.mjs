@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(SCRIPT_DIR, '..', '..', '..');
 const REPORT_DIR = path.join(ROOT, 'tests', 'e2e', 'reports', 'performance');
-const PERF_RUN_ROOT = path.join(ROOT, 'tests', 'e2e', '.alex', 'perf-runs');
+const PERF_RUN_ROOT = path.join(ROOT, 'tests', 'e2e', '.openbitfun', 'perf-runs');
 const FIXTURE_SCRIPT = path.join(ROOT, 'tests', 'e2e', 'scripts', 'generate-long-session-fixture.mjs');
 const DEFAULT_LONG_SESSION_TARGET_ID = 'perf-long-session-001';
 const DEFAULT_RAPID_SWITCH_SESSION_IDS = [

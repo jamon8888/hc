@@ -372,7 +372,7 @@ mod tests {
         }
 
         async fn read_file_text(&self, path: &str) -> anyhow::Result<String> {
-            if path == "/remote/project/.alex/skills/remote-only/SKILL.md" {
+            if path == "/remote/project/.openbitfun/skills/remote-only/SKILL.md" {
                 return Ok(r#"---
 name: remote-only-skill-for-test
 description: Remote project skill visible only through workspace services.
@@ -392,29 +392,29 @@ Use the remote project skill.
         async fn exists(&self, path: &str) -> anyhow::Result<bool> {
             Ok(matches!(
                 path,
-                "/remote/project/.alex/skills"
-                    | "/remote/project/.alex/skills/remote-only"
-                    | "/remote/project/.alex/skills/remote-only/SKILL.md"
+                "/remote/project/.openbitfun/skills"
+                    | "/remote/project/.openbitfun/skills/remote-only"
+                    | "/remote/project/.openbitfun/skills/remote-only/SKILL.md"
             ))
         }
 
         async fn is_file(&self, path: &str) -> anyhow::Result<bool> {
-            Ok(path == "/remote/project/.alex/skills/remote-only/SKILL.md")
+            Ok(path == "/remote/project/.openbitfun/skills/remote-only/SKILL.md")
         }
 
         async fn is_dir(&self, path: &str) -> anyhow::Result<bool> {
             Ok(matches!(
                 path,
-                "/remote/project/.alex/skills"
-                    | "/remote/project/.alex/skills/remote-only"
+                "/remote/project/.openbitfun/skills"
+                    | "/remote/project/.openbitfun/skills/remote-only"
             ))
         }
 
         async fn read_dir(&self, path: &str) -> anyhow::Result<Vec<WorkspaceDirEntry>> {
-            if path == "/remote/project/.alex/skills" {
+            if path == "/remote/project/.openbitfun/skills" {
                 return Ok(vec![WorkspaceDirEntry {
                     name: "remote-only".to_string(),
-                    path: "/remote/project/.alex/skills/remote-only".to_string(),
+                    path: "/remote/project/.openbitfun/skills/remote-only".to_string(),
                     is_dir: true,
                     is_symlink: false,
                     modified: None,
@@ -456,7 +456,7 @@ Use the remote project skill.
         async fn read_file_text(&self, path: &str) -> anyhow::Result<String> {
             if path == "/remote/project/.claude/skills/remote-review/SKILL.md"
                 || (self.imported
-                    && path == "/remote/project/.alex/skills/remote-review/SKILL.md")
+                    && path == "/remote/project/.openbitfun/skills/remote-review/SKILL.md")
             {
                 return Ok(
                     "---\ndescription: Review a remote target.\narguments: target focus\nmodel: opus\n---\n\nReview $target for $focus.\nContext: !`git diff`\n"
@@ -465,7 +465,7 @@ Use the remote project skill.
             }
             if self.imported
                 && path
-                    == "/remote/project/.alex/skills/remote-review/.alex-import.json"
+                    == "/remote/project/.openbitfun/skills/remote-review/.alex-import.json"
             {
                 return Ok(json!({ "schemaVersion": 1, "importId": "remote-import", "sourceKey": "project::claude::remote-review", "sourcePath": "/remote/project/.claude/skills/remote-review", "sourceId": "claude-code", "sourceLabel": "Claude Code", "sourceSlot": "claude", "fingerprint": "fixture" }).to_string());
             }
@@ -482,7 +482,7 @@ Use the remote project skill.
 
         async fn is_file(&self, path: &str) -> anyhow::Result<bool> {
             Ok(path == "/remote/project/.claude/skills/remote-review/SKILL.md" || (self.imported && matches!(path,
-                "/remote/project/.alex/skills/remote-review/SKILL.md" | "/remote/project/.alex/skills/remote-review/.alex-import.json")))
+                "/remote/project/.openbitfun/skills/remote-review/SKILL.md" | "/remote/project/.openbitfun/skills/remote-review/.alex-import.json")))
         }
 
         async fn is_dir(&self, path: &str) -> anyhow::Result<bool> {
@@ -492,14 +492,14 @@ Use the remote project skill.
             ) || (self.imported
                 && matches!(
                     path,
-                    "/remote/project/.alex/skills"
-                        | "/remote/project/.alex/skills/remote-review"
+                    "/remote/project/.openbitfun/skills"
+                        | "/remote/project/.openbitfun/skills/remote-review"
                 )))
         }
 
         async fn read_dir(&self, path: &str) -> anyhow::Result<Vec<WorkspaceDirEntry>> {
             if path == "/remote/project/.claude/skills"
-                || (self.imported && path == "/remote/project/.alex/skills")
+                || (self.imported && path == "/remote/project/.openbitfun/skills")
             {
                 return Ok(vec![WorkspaceDirEntry {
                     name: "remote-review".to_string(),
@@ -541,7 +541,7 @@ Use the remote project skill.
             .unwrap();
         crate::agentic::tools::implementations::skills::registry::imports::import_copy_as(
             source,
-            root.join(".alex/skills"),
+            root.join(".openbitfun/skills"),
             target_name.map(str::to_string),
         )
         .await
@@ -572,7 +572,7 @@ Use the remote project skill.
     async fn stable_key_loads_source_without_changing_original_name_resolution() {
         let temp = tempfile::tempdir().unwrap();
         for (directory, body) in [
-            (".alex/skills/same", "default body"),
+            (".openbitfun/skills/same", "default body"),
             (".codex/skills/nested/same", "chosen body"),
         ] {
             let path = temp.path().join(directory);
@@ -708,13 +708,13 @@ Use the remote project skill.
                 .count(),
             7
         );
-        assert!(!temp.path().join(".alex/skills").exists());
+        assert!(!temp.path().join(".openbitfun/skills").exists());
     }
 
     #[tokio::test]
     async fn skill_call_expands_arguments_in_loaded_prompt() {
         let temp = tempfile::tempdir().expect("tempdir");
-        let skill_dir = temp.path().join(".alex/skills/argument-skill");
+        let skill_dir = temp.path().join(".openbitfun/skills/argument-skill");
         fs::create_dir_all(&skill_dir).expect("skill directory");
         fs::write(
             skill_dir.join("SKILL.md"),
@@ -1189,19 +1189,19 @@ Use the remote project skill.
 
         async fn read_file_text(&self, path: &str) -> anyhow::Result<String> {
             match path {
-                "/remote/project/.alex/skills/z-last/SKILL.md" => {
+                "/remote/project/.openbitfun/skills/z-last/SKILL.md" => {
                     Ok("---\nname: z-last\ndescription: last\n---\n\nz\n".to_string())
                 }
-                "/remote/project/.alex/skills/z-last/agents/openai.yaml" => {
+                "/remote/project/.openbitfun/skills/z-last/agents/openai.yaml" => {
                     Ok("policy:\n  allow_implicit_invocation: false\n".to_string())
                 }
-                "/remote/project/.alex/skills/a-first/SKILL.md" => {
+                "/remote/project/.openbitfun/skills/a-first/SKILL.md" => {
                     Ok("---\nname: A-First\ndescription: first\n---\n\na\n".to_string())
                 }
-                "/remote/project/.alex/skills/dup-one/SKILL.md" => {
+                "/remote/project/.openbitfun/skills/dup-one/SKILL.md" => {
                     Ok("---\nname: dup\ndescription: dup one\n---\n\none\n".to_string())
                 }
-                "/remote/project/.alex/skills/dup-two/SKILL.md" => {
+                "/remote/project/.openbitfun/skills/dup-two/SKILL.md" => {
                     Ok("---\nname: dup\ndescription: dup two\n---\n\ntwo\n".to_string())
                 }
                 _ => anyhow::bail!("not found: {}", path),
@@ -1219,52 +1219,52 @@ Use the remote project skill.
         async fn is_file(&self, path: &str) -> anyhow::Result<bool> {
             Ok(matches!(
                 path,
-                "/remote/project/.alex/skills/z-last/SKILL.md"
-                    | "/remote/project/.alex/skills/z-last/agents/openai.yaml"
-                    | "/remote/project/.alex/skills/a-first/SKILL.md"
-                    | "/remote/project/.alex/skills/dup-one/SKILL.md"
-                    | "/remote/project/.alex/skills/dup-two/SKILL.md"
+                "/remote/project/.openbitfun/skills/z-last/SKILL.md"
+                    | "/remote/project/.openbitfun/skills/z-last/agents/openai.yaml"
+                    | "/remote/project/.openbitfun/skills/a-first/SKILL.md"
+                    | "/remote/project/.openbitfun/skills/dup-one/SKILL.md"
+                    | "/remote/project/.openbitfun/skills/dup-two/SKILL.md"
             ))
         }
 
         async fn is_dir(&self, path: &str) -> anyhow::Result<bool> {
             Ok(matches!(
                 path,
-                "/remote/project/.alex/skills"
-                    | "/remote/project/.alex/skills/z-last"
-                    | "/remote/project/.alex/skills/a-first"
-                    | "/remote/project/.alex/skills/dup-one"
-                    | "/remote/project/.alex/skills/dup-two"
+                "/remote/project/.openbitfun/skills"
+                    | "/remote/project/.openbitfun/skills/z-last"
+                    | "/remote/project/.openbitfun/skills/a-first"
+                    | "/remote/project/.openbitfun/skills/dup-one"
+                    | "/remote/project/.openbitfun/skills/dup-two"
             ))
         }
 
         async fn read_dir(&self, path: &str) -> anyhow::Result<Vec<WorkspaceDirEntry>> {
             match path {
-                "/remote/project/.alex/skills" => Ok(vec![
+                "/remote/project/.openbitfun/skills" => Ok(vec![
                     WorkspaceDirEntry {
                         name: "z-last".to_string(),
-                        path: "/remote/project/.alex/skills/z-last".to_string(),
+                        path: "/remote/project/.openbitfun/skills/z-last".to_string(),
                         is_dir: true,
                         is_symlink: false,
                         modified: None,
                     },
                     WorkspaceDirEntry {
                         name: "a-first".to_string(),
-                        path: "/remote/project/.alex/skills/a-first".to_string(),
+                        path: "/remote/project/.openbitfun/skills/a-first".to_string(),
                         is_dir: true,
                         is_symlink: false,
                         modified: None,
                     },
                     WorkspaceDirEntry {
                         name: "dup-two".to_string(),
-                        path: "/remote/project/.alex/skills/dup-two".to_string(),
+                        path: "/remote/project/.openbitfun/skills/dup-two".to_string(),
                         is_dir: true,
                         is_symlink: false,
                         modified: None,
                     },
                     WorkspaceDirEntry {
                         name: "dup-one".to_string(),
-                        path: "/remote/project/.alex/skills/dup-one".to_string(),
+                        path: "/remote/project/.openbitfun/skills/dup-one".to_string(),
                         is_dir: true,
                         is_symlink: false,
                         modified: None,

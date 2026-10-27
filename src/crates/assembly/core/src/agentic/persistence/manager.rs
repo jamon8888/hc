@@ -652,7 +652,7 @@ impl PersistenceManager {
     ///
     /// Callers may pass either a logical workspace root or an already-resolved
     /// managed sessions directory. Local workspace roots are slugified under
-    /// `~/.alex/projects/`; already-resolved local/remote sessions
+    /// `~/.openbitfun/projects/`; already-resolved local/remote sessions
     /// directories are used as-is.
     fn project_sessions_dir(&self, workspace_path: &Path) -> PathBuf {
         if self.is_resolved_sessions_dir(workspace_path) {
