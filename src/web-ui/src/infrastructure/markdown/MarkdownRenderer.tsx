@@ -53,7 +53,7 @@ const ThinkingMarkdown = React.lazy(() => import('./ThinkingMarkdown'));
 const InlineFragment = ({ children }: { children?: ReactNode }) => <>{children}</>;
 
 function markdownUrlTransform(value: string, key?: string): string {
-  if (/^alex:\/\/(?:runtime|current-session)\//.test(value)) return value;
+  if (/^openbitfun:\/\/(?:runtime|current-session)\//.test(value)) return value;
   // These references are resolved through the owning host, never by the browser.
   if (/^(computer:\/\/|file:)/i.test(value)) return value;
   if (key === 'src' && /^data:image\/(png|jpeg|gif|webp|bmp|svg\+xml|avif);base64,/i.test(value)) return value;
@@ -350,7 +350,7 @@ function remarkAutolinkInternalLinks() {
 }
 
 function normalizeFileLikeHref(rawHref: string): string {
-  if (/^alex:\/\/(?:runtime|current-session)\//.test(rawHref)) return rawHref;
+  if (/^openbitfun:\/\/(?:runtime|current-session)\//.test(rawHref)) return rawHref;
   let filePath = rawHref;
 
   if (rawHref.startsWith(COMPUTER_LINK_PREFIX)) {
@@ -408,7 +408,7 @@ function isAbsoluteFilesystemPath(filePath: string): boolean {
 }
 
 function resolveBaseRelativePath(targetPath: string, basePath?: string): string {
-  if (/^alex:\/\/(?:runtime|current-session)\//.test(targetPath)) return targetPath;
+  if (/^openbitfun:\/\/(?:runtime|current-session)\//.test(targetPath)) return targetPath;
   if (!targetPath || !basePath || isAbsoluteFilesystemPath(targetPath)) {
     return targetPath;
   }

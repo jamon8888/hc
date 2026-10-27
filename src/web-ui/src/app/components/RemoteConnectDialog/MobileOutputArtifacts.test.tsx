@@ -23,7 +23,7 @@ describe('mobile output artifact rendering', () => {
     'reads %s from the session and displays transferred bytes', async source => {
       const read = vi.fn().mockResolvedValue('data:image/png;base64,YQ==');
       await act(async () => root.render(<ArtifactImageReader.Provider value={read}><MarkdownContent content={`![Preview](${source})`} /></ArtifactImageReader.Provider>));
-      expect(read).toHaveBeenCalledWith(source.startsWith('alex:') ? source : source.startsWith('file:') ? '/workspace/preview.png' : source.includes('%') ? 'preview 图.png' : 'preview.png');
+      expect(read).toHaveBeenCalledWith(source.startsWith('openbitfun:') ? source : source.startsWith('file:') ? '/workspace/preview.png' : source.includes('%') ? 'preview 图.png' : 'preview.png');
       expect(container.querySelector('img')?.src).toBe('data:image/png;base64,YQ==');
     },
   );

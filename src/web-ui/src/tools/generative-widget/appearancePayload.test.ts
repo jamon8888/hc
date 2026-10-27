@@ -16,7 +16,7 @@ import {
 } from './appearancePayload';
 
 const CANONICAL_THEME_VARIABLE_NAMES = Object.values(themeCssVariables);
-const SHARED_THEME_VARIABLE_NAMES_HASH = '208ee459d220e280ec9f60089c51d353ee8e51846d1976f8c73e08f2c182b2a8';
+const SHARED_THEME_VARIABLE_NAMES_HASH = 'c1a064d75473584bd2c16d6c5c07b7903e242234ef9cec50e68a6e18561f8956';
 // Button owns these state colors independently of the existing shared actions.
 // Keep the original shared contract intact and enumerate this addition exactly.
 const BUTTON_THEME_VARIABLE_NAMES = [

@@ -74,7 +74,7 @@ describe('builtin appearance preset output', () => {
   });
   it('uses the public Button palette in default appearances without changing shared action colors', () => {
     for (const mode of ['light', 'dark'] as const) {
-      const appearance = getBuiltinAppearance(`alex-${mode}`);
+      const appearance = getBuiltinAppearance(`openbitfun-${mode}`);
       const settings = appearance?.renderers?.['theme-tokens']?.settings;
       for (const [name, value] of Object.entries(themes[mode])) {
         if (!name.startsWith('component.button.')) continue;

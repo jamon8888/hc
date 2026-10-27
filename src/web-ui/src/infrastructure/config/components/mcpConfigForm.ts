@@ -317,7 +317,7 @@ export function importMcpServers(document: McpConfigDocument, candidates: McpImp
     const id = candidate.targetId.trim();
     validateId(id);
     if (Object.prototype.hasOwnProperty.call(servers, id)) throw new McpConfigFormError('idConflict', 'id');
-    const { _alexImport: _untrustedOrigin, ...entry } = candidate.config;
+    const { _openbitfunImport: _untrustedOrigin, ...entry } = candidate.config;
     // Import is a configuration write, never permission to execute a program.
     servers = { ...servers, [id]: { ...entry, enabled: false } };
   }
