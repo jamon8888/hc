@@ -5,7 +5,7 @@ export type Locale = 'en-US' | 'zh-CN';
 type MessageKey = keyof typeof messages['en-US'];
 type MessageValues = Record<string, string | number>;
 
-const LOCALE_STORAGE_KEY = 'alex-skin-market-locale';
+const LOCALE_STORAGE_KEY = 'openbitfun-skin-market-locale';
 
 const messages = {
   'en-US': {

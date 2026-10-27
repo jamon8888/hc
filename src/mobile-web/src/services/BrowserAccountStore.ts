@@ -7,7 +7,7 @@ import { pairingRelayUrl } from './pairingLink';
 const DATABASE = 'alex-mobile-account';
 const ACCOUNTS = 'accounts';
 const CHANGE_CHANNEL = 'alex.mobile.account.changed';
-const LEGACY_SESSION_KEY = 'alex.mobile.account_session.v2';
+const LEGACY_SESSION_KEY = 'openbitfun.mobile.account_session.v2';
 
 interface BrowserAccountRecord {
   version: 1;

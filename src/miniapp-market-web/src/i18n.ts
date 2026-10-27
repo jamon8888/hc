@@ -547,7 +547,7 @@ export function initialLocale(): Locale {
   const requested = resolveMarketLocale(new URLSearchParams(window.location.search).get('locale'));
   if (requested) return requested;
   let stored: string | null = null;
-  try { stored = localStorage.getItem('alex-market-locale'); } catch { /* Storage can be blocked in an auth popup. */ }
+  try { stored = localStorage.getItem('openbitfun-market-locale'); } catch { /* Storage can be blocked in an auth popup. */ }
   return resolveMarketLocale(stored) ?? resolveMarketLocale(navigator.language) ?? localeContract.fallbackLocale as Locale;
 }
 
@@ -556,7 +556,7 @@ export function useLocale() {
   const t = useCallback((key: MessageKey) => messages[locale][key], [locale]);
   useEffect(() => {
     document.documentElement.lang = locale;
-    try { localStorage.setItem('alex-market-locale', locale); } catch { /* Keep the selected language in memory. */ }
+    try { localStorage.setItem('openbitfun-market-locale', locale); } catch { /* Keep the selected language in memory. */ }
   }, [locale]);
   return {
     locale,

@@ -4,7 +4,7 @@ import { themes } from '@alex/theme-alex';
 // light/dark flash without requiring an inline script under the mobile CSP.
 let initialTheme: 'dark' | 'light' = 'dark';
 try {
-  const savedTheme = localStorage.getItem('alex-mobile-theme');
+  const savedTheme = localStorage.getItem('openbitfun-mobile-theme');
   if (savedTheme === 'dark' || savedTheme === 'light') {
     initialTheme = savedTheme;
   }

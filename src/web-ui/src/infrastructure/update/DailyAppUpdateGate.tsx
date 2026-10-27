@@ -19,7 +19,7 @@ export function DailyAppUpdateGate(): ReactElement | null {
   useEffect(() => {
     if (!canCheckForAppUpdates()) return;
     const onStorage = (event: StorageEvent) => {
-      if (event.key !== 'alex:update:skippedVersion' && event.key !== null) return;
+      if (event.key !== 'openbitfun:update:skippedVersion' && event.key !== null) return;
       const skippedVersion = getSkippedVersion();
       const current = useUpdateInstallStore.getState();
       useUpdateInstallStore.setState({

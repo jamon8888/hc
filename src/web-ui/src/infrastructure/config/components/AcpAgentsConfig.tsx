@@ -49,7 +49,7 @@ import './AcpAgentsConfig.scss';
 
 const log = createLogger('AcpAgentsConfig');
 const HIDDEN_REMOTE_CONNECTION_IDS_STORAGE_KEY =
-  'alex:settings:acp-agents:hidden-remote-connections:v1';
+  'openbitfun:settings:acp-agents:hidden-remote-connections:v1';
 
 function loadHiddenRemoteConnectionIds(): Set<string> {
   try {

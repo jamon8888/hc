@@ -10,7 +10,7 @@ vi.mock('@/infrastructure/api/service-api/ExternalHooksAPI', () => ({ externalHo
 import { applyImportUndo, matchesSkillReceipt, prepareMcpUndo, readSkillImportReceipt, rememberSkillImport } from './ecosystemImportUndo';
 
 const native = { key: 'native-demo', path: '/native/demo', sourceId: 'alex', level: 'user', isBuiltin: false } as SkillInfo;
-const key = (source: string) => `alex:external-skill-import:v2:${JSON.stringify(['local', '', source])}`;
+const key = (source: string) => `openbitfun:external-skill-import:v2:${JSON.stringify(['local', '', source])}`;
 
 describe('external import undo ownership and compatibility', () => {
   beforeEach(() => { vi.resetAllMocks(); localStorage.clear(); resetDeviceSurfaceForTest(); });

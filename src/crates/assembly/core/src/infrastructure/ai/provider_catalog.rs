@@ -134,7 +134,7 @@ fn promoted_catalog_source(
                 .any(|provider_id| catalog.provider_facts(provider_id).is_some())
         })
     });
-    if has_bound_catalog_data && source == ProviderCatalogSource::Alex {
+    if has_bound_catalog_data && source == ProviderCatalogSource::OpenBitFun {
         ProviderCatalogSource::Mixed
     } else {
         source
@@ -540,7 +540,7 @@ fn curated_model_fallback(
         display_name: None,
         description: None,
         recommended,
-        source: ProviderCatalogModelSource::Alex,
+        source: ProviderCatalogModelSource::OpenBitFun,
         catalog_provider_ids: provider.catalog_provider_ids.clone(),
         endpoint_ids: provider
             .endpoints
@@ -759,7 +759,7 @@ mod tests {
         let unavailable = resolve_builtin_provider_catalog(
             None,
             "none".to_string(),
-            ProviderCatalogSource::Alex,
+            ProviderCatalogSource::OpenBitFun,
         );
         let qwen = unavailable
             .providers
@@ -772,9 +772,9 @@ mod tests {
                 .map(|model| (model.id.as_str(), model.source))
                 .collect::<Vec<_>>(),
             [
-                ("qwen3.7-plus", ProviderCatalogModelSource::Alex),
-                ("qwen3.7-max", ProviderCatalogModelSource::Alex),
-                ("qwen3.6-flash", ProviderCatalogModelSource::Alex),
+                ("qwen3.7-plus", ProviderCatalogModelSource::OpenBitFun),
+                ("qwen3.7-max", ProviderCatalogModelSource::OpenBitFun),
+                ("qwen3.6-flash", ProviderCatalogModelSource::OpenBitFun),
             ]
         );
 
@@ -796,7 +796,7 @@ mod tests {
         assert!(qwen
             .models
             .iter()
-            .all(|model| model.source == ProviderCatalogModelSource::Alex));
+            .all(|model| model.source == ProviderCatalogModelSource::OpenBitFun));
     }
 
     #[test]
@@ -824,7 +824,7 @@ mod tests {
             .models
             .iter()
             .any(|model| model.id == "qwen-early-access"
-                && model.source == ProviderCatalogModelSource::Alex
+                && model.source == ProviderCatalogModelSource::OpenBitFun
                 && !model.recommended));
         assert!(!resolved
             .models

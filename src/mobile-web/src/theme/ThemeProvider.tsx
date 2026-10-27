@@ -10,7 +10,7 @@ interface ThemeContextValue {
   toggleTheme: () => void;
 }
 
-const STORAGE_KEY = 'alex-mobile-theme';
+const STORAGE_KEY = 'openbitfun-mobile-theme';
 
 function commitThemeDOM(id: ThemeId) {
   const root = document.documentElement;

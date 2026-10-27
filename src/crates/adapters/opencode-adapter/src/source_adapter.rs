@@ -887,7 +887,7 @@ impl OpenCodeInvalidProjection {
         );
         let manifest = PluginManifestRef {
             manifest_id: format!("{plugin_id}:alex.plugin"),
-            schema_version: "alex.plugin.package.v1".to_string(),
+            schema_version: "openbitfun.plugin.package.v1".to_string(),
             path: Some(package_uri.to_string()),
         };
         Self {

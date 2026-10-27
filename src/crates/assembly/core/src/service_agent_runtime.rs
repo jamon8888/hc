@@ -406,7 +406,7 @@ fn provider_catalog_source(
     match source {
         ModelsDevSnapshotSource::Cache => alex_core_types::ProviderCatalogSource::Cache,
         ModelsDevSnapshotSource::Bundled => alex_core_types::ProviderCatalogSource::Bundle,
-        ModelsDevSnapshotSource::Empty => alex_core_types::ProviderCatalogSource::Alex,
+        ModelsDevSnapshotSource::Empty => alex_core_types::ProviderCatalogSource::OpenBitFun,
     }
 }
 

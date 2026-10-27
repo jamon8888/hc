@@ -125,7 +125,7 @@ describe('Remote Connect safety contracts', () => {
     );
 
     expect(methods).toContain("id: 'lan'");
-    expect(methods).toContain("id: 'alex_server'");
+    expect(methods).toContain("id: 'openbitfun_server'");
     expect(methods).not.toContain("id: 'ngrok'");
     expect(methods).not.toContain("id: 'custom_server'");
     expect(methods).toContain("id: 'telegram'");

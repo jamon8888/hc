@@ -15,7 +15,7 @@ it('reads legacy prompt records and does not repeat a version on another day', (
 });
 
 it('preserves malformed records and accepts additive fields in valid snapshots', () => {
-  const key = 'alex:update:checkSnapshot';
+  const key = 'openbitfun:update:checkSnapshot';
   localStorage.setItem(key, '{invalid');
   expect(readAppUpdateSnapshot()).toBeNull();
   expect(localStorage.getItem(key)).toBe('{invalid');
@@ -26,7 +26,7 @@ it('preserves malformed records and accepts additive fields in valid snapshots',
 });
 
 it.each(['1.0.0', '1.0.1', '1.0.1-rc.1', '1.0.1+build', 'invalid'])('ignores a cached non-upgrade to %s without deleting the record', latestVersion => {
-  const key = 'alex:update:checkSnapshot';
+  const key = 'openbitfun:update:checkSnapshot';
   const record = JSON.stringify({ checkedAt: Date.now(), result: {
     updateAvailable: true, currentVersion: '1.0.1', latestVersion, releaseNotes: null, releaseDate: null,
   } });

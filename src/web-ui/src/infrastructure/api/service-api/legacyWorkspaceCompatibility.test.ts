@@ -42,8 +42,8 @@ describe('temporary Skill receipt upgrade', () => {
       removeItem: (key: string) => { values.delete(key); }, clear: () => values.clear(),
     } satisfies Storage;
   }
-  const oldKey = 'alex:external-skill-import:' + JSON.stringify(['/repo', '/source']);
-  const newKey = 'alex:external-skill-import:v2:' + JSON.stringify(['local', 'parent-id', '/source']);
+  const oldKey = 'openbitfun:external-skill-import:' + JSON.stringify(['/repo', '/source']);
+  const newKey = 'openbitfun:external-skill-import:v2:' + JSON.stringify(['local', 'parent-id', '/source']);
   it('copies exact old bytes to the ID owner and preserves a removal tombstone', () => {
     const data = storage();
     const raw = '{"schemaVersion":1,"future":"preserve"}';
@@ -58,8 +58,8 @@ describe('temporary Skill receipt upgrade', () => {
   it('does not turn an old project receipt with a missing root into a global receipt', () => {
     const data = storage();
     const source = '/source';
-    const oldGlobal = 'alex:external-skill-import:' + JSON.stringify(['', source]);
-    const target = 'alex:external-skill-import:v2:' + JSON.stringify(['local', '', source]);
+    const oldGlobal = 'openbitfun:external-skill-import:' + JSON.stringify(['', source]);
+    const target = 'openbitfun:external-skill-import:v2:' + JSON.stringify(['local', '', source]);
     const raw = JSON.stringify({ schemaVersion: 1, sourcePath: source, level: 'project' });
     data.setItem(oldGlobal, raw);
     migrateLegacySkillReceipts(data, [parent]);

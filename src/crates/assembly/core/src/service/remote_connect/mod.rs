@@ -83,8 +83,8 @@ pub enum ConnectionMethod {
     Lan {
         ip: Option<String>,
     },
-    #[serde(rename = "alex_server")]
-    AlexServer,
+    #[serde(rename = "openbitfun_server")]
+    OpenBitFunServer,
     BotFeishu,
     BotTelegram,
     BotWeixin,
@@ -94,7 +94,7 @@ pub enum ConnectionMethod {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RemoteConnectConfig {
     pub lan_port: u16,
-    pub alex_server_url: String,
+    pub openbitfun_server_url: String,
     pub bot_feishu: Option<bot::BotConfig>,
     pub bot_telegram: Option<bot::BotConfig>,
     pub bot_weixin: Option<bot::BotConfig>,
@@ -105,7 +105,7 @@ impl Default for RemoteConnectConfig {
     fn default() -> Self {
         Self {
             lan_port: 9700,
-            alex_server_url: alex_product_domains::account::DEFAULT_RELAY_URL
+            openbitfun_server_url: alex_product_domains::account::DEFAULT_RELAY_URL
                 .to_string(),
             bot_feishu: None,
             bot_telegram: None,
@@ -261,7 +261,7 @@ impl RemoteConnectService {
     pub async fn available_methods(&self) -> Vec<ConnectionMethod> {
         vec![
             ConnectionMethod::Lan { ip: None },
-            ConnectionMethod::AlexServer,
+            ConnectionMethod::OpenBitFunServer,
             ConnectionMethod::BotFeishu,
             ConnectionMethod::BotTelegram,
             ConnectionMethod::BotWeixin,
@@ -282,7 +282,7 @@ impl RemoteConnectService {
                 Some(ip) => lan::build_lan_relay_url_with_ip(self.config.lan_port, ip)?,
                 None => lan::build_lan_relay_url(self.config.lan_port)?,
             },
-            ConnectionMethod::AlexServer => self.config.alex_server_url.clone(),
+            ConnectionMethod::OpenBitFunServer => self.config.openbitfun_server_url.clone(),
             _ => anyhow::bail!("connection method does not use a relay"),
         };
         self.stop_relay_inner().await;

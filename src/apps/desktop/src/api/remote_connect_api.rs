@@ -1840,8 +1840,8 @@ pub async fn remote_connect_get_methods() -> Result<Vec<ConnectionMethodInfo>, S
                 available: true,
                 description: "Same local network".into(),
             },
-            ConnectionMethod::AlexServer => ConnectionMethodInfo {
-                id: "alex_server".into(),
+            ConnectionMethod::OpenBitFunServer => ConnectionMethodInfo {
+                id: "openbitfun_server".into(),
                 name: "Alex Server".into(),
                 available: true,
                 description: "Official Alex relay".into(),
@@ -1878,7 +1878,7 @@ fn parse_connection_method(
         "lan" => Ok(ConnectionMethod::Lan {
             ip: lan_ip.filter(|s| !s.is_empty()),
         }),
-        "alex_server" => Ok(ConnectionMethod::AlexServer),
+        "openbitfun_server" => Ok(ConnectionMethod::OpenBitFunServer),
         "bot_feishu" => Ok(ConnectionMethod::BotFeishu),
         "bot_telegram" => Ok(ConnectionMethod::BotTelegram),
         "bot_weixin" => Ok(ConnectionMethod::BotWeixin),
@@ -3383,7 +3383,7 @@ mod sync_state_tests {
     fn relay_status_has_one_account_device_contract_for_both_endpoints() {
         for (method, endpoint) in [
             (
-                serde_json::json!("alex_server"),
+                serde_json::json!("openbitfun_server"),
                 "https://remote.openbitfun.com/v/1.0.2",
             ),
             (

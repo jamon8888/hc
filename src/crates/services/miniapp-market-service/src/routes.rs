@@ -2931,7 +2931,7 @@ mod tests {
         });
         let app = api_router(state.clone());
         let cookie =
-            "alex_market_session=web-session-token; alex_market_csrf=csrf-token";
+            "openbitfun_market_session=web-session-token; openbitfun_market_csrf=csrf-token";
 
         let response = app
             .clone()

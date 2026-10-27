@@ -1,7 +1,7 @@
 import type { ModeSkillInfo, SkillInfo } from './types';
 
 const SOURCE_LABEL_BY_ID: Record<string, string> = {
-  alex: 'Alex',
+  'openbitfun': 'Alex',
   'openbitfun-system': 'Alex',
   'claude-code': 'Claude Code',
   claude: 'Claude Code',
@@ -55,13 +55,13 @@ export function getSkillSourceLabel(
 
 /** Stable ecosystem identity shared by user and project discovery slots. */
 export function getSkillSourceId(skill: SkillInfo): string {
-  const identity = (skill.sourceId?.trim() || skill.sourceSlot?.trim() || 'alex')
+  const identity = (skill.sourceId?.trim() || skill.sourceSlot?.trim() || 'openbitfun')
     .toLowerCase()
     .replace(/^(home|config)\./, '');
   if (identity === 'claude') return 'claude-code';
   if (identity === 'dsh') return 'deepseek-harness';
   if (identity === 'agents') return 'agent-skills';
-  if (identity === 'openbitfun-system' || identity === 'alex-user') return 'alex';
+  if (identity === 'openbitfun-system' || identity === 'openbitfun-user') return 'openbitfun';
   if (identity.startsWith('opencode.')) return 'opencode';
   return identity;
 }
@@ -77,7 +77,7 @@ export function getEcosystemSourceLabel(sourceId?: string): string | undefined {
 
 /** Discovery is broader than installation; native management only owns native copies. */
 export function isAlexManagedSkill(skill: SkillInfo): boolean {
-  return skill.isBuiltin || getSkillSourceId(skill) === 'alex';
+  return skill.isBuiltin || getSkillSourceId(skill) === 'openbitfun';
 }
 
 export function canDeleteSkill(skill: SkillInfo): boolean {
@@ -85,10 +85,10 @@ export function canDeleteSkill(skill: SkillInfo): boolean {
 
   const sourceId = skill.sourceId?.trim().toLowerCase();
   if (sourceId) {
-    return sourceId === 'alex' || sourceId === 'openbitfun-system';
+    return sourceId === 'openbitfun' || sourceId === 'openbitfun-system';
   }
 
-  return skill.sourceSlot?.trim().toLowerCase().startsWith('alex') ?? false;
+  return skill.sourceSlot?.trim().toLowerCase().startsWith('openbitfun') ?? false;
 }
 
 export interface SkillOriginLabels {

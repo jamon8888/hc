@@ -744,7 +744,7 @@ describe('AcpAgentsConfig', () => {
 
   it('restores a hidden remote server from the hidden list', async () => {
     localStorage.setItem(
-      'alex:settings:acp-agents:hidden-remote-connections:v1',
+      'openbitfun:settings:acp-agents:hidden-remote-connections:v1',
       JSON.stringify(['huawei-server'])
     );
     listSavedConnectionsMock.mockResolvedValue([{
@@ -792,7 +792,7 @@ describe('AcpAgentsConfig', () => {
 
   it('does not probe hidden remote servers until they are restored', async () => {
     localStorage.setItem(
-      'alex:settings:acp-agents:hidden-remote-connections:v1',
+      'openbitfun:settings:acp-agents:hidden-remote-connections:v1',
       JSON.stringify(['huawei-server'])
     );
     listSavedConnectionsMock.mockResolvedValue([{

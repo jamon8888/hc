@@ -4843,7 +4843,7 @@ fn native_mcp_behavior_version(
     let mut encoded = Vec::new();
     write_canonical_json(&value, &mut encoded)
         .map_err(|error| format!("Could not fingerprint Alex MCP configuration: {error}"))?;
-    Ok(revision_key.opaque_revision("alex.mcp.behavior.v1", [encoded.as_slice()]))
+    Ok(revision_key.opaque_revision("openbitfun.mcp.behavior.v1", [encoded.as_slice()]))
 }
 
 fn write_canonical_json(value: &serde_json::Value, output: &mut Vec<u8>) -> serde_json::Result<()> {

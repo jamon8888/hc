@@ -1,5 +1,5 @@
 (function () {
-  var storageKey = 'alex-market-theme';
+  var storageKey = 'openbitfun-market-theme';
   var storedTheme = null;
 
   try {

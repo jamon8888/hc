@@ -7,8 +7,8 @@ use serde::Deserialize;
 use std::time::Duration;
 use url::Url;
 
-const SKIN_SESSION_COOKIE: &str = "alex_skin_session";
-const SKIN_CSRF_COOKIE: &str = "alex_skin_csrf";
+const SKIN_SESSION_COOKIE: &str = "openbitfun_skin_session";
+const SKIN_CSRF_COOKIE: &str = "openbitfun_skin_csrf";
 
 #[derive(Debug, Clone)]
 pub(crate) struct IdentityVerifier {
@@ -239,7 +239,7 @@ mod tests {
             axum::routing::post(|headers: HeaderMap| async move {
                 assert_eq!(
                     headers.get(header::COOKIE).unwrap(),
-                    "alex_skin_session=session-token; alex_skin_csrf=csrf-token"
+                    "openbitfun_skin_session=session-token; openbitfun_skin_csrf=csrf-token"
                 );
                 assert_eq!(headers.get("x-csrf-token").unwrap(), "csrf-token");
                 assert!(headers.get(header::AUTHORIZATION).is_none());
@@ -261,7 +261,7 @@ mod tests {
         let mut headers = HeaderMap::new();
         headers.insert(
             header::COOKIE,
-            "unrelated=private; alex_skin_session=session-token; alex_skin_csrf=csrf-token"
+            "unrelated=private; openbitfun_skin_session=session-token; openbitfun_skin_csrf=csrf-token"
                 .parse()
                 .unwrap(),
         );

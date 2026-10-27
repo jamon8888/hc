@@ -30,7 +30,7 @@ export interface QueueStorage {
   put(record: QueueOutboxRecord): Promise<void>;
   remove(key: string): Promise<void>;
 }
-const DB_NAME = 'alex.host-dialog-queue.v1';
+const DB_NAME = 'openbitfun.host-dialog-queue.v1';
 const STORE = 'outbox';
 function openDatabase(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {

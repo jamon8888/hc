@@ -92,7 +92,7 @@ export const useWorkspaceSessionViewStore = create<WorkspaceSessionViewState>()(
       requestCollapseAll: () => set(state => ({ collapseAllRequestId: state.collapseAllRequestId + 1 })),
     }),
     {
-      name: 'alex.workspace-session-view.v2',
+      name: 'openbitfun.workspace-session-view.v2',
       version: 3,
       storage: createJSONStorage(() => localStorage),
       partialize: ({ grouping, ordering, show, filters }) => ({ grouping, ordering, show, filters }),

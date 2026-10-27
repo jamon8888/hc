@@ -26,7 +26,7 @@ use uuid::Uuid;
 
 const STRUCTURED_MEMORY_RELATIVE_PATH: &str = "data/memories/memories.sqlite";
 const LEGACY_STRUCTURED_MEMORY_SCHEMA: &str = "bitfun.memory.stage1.v1";
-const FILE_MEMORY_SCHEMA: &str = "alex.memory-files.v1";
+const FILE_MEMORY_SCHEMA: &str = "openbitfun.memory-files.v1";
 const MAX_MEMORY_FILE_COUNT: usize = 4_096;
 const MAX_MEMORY_FILE_BYTES: u64 = 64 * 1024 * 1024;
 const MAX_MEMORY_TOTAL_BYTES: u64 = 512 * 1024 * 1024;

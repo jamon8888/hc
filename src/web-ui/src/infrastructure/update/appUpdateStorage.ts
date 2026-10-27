@@ -2,10 +2,10 @@ import type { CheckForUpdatesResponse } from '@/infrastructure/api/service-api/S
 import { isAppVersion, isNewerAppVersion } from './appUpdateVersion';
 
 // Keep legacy keys readable by older installs. Dismissal never changes the skipped version.
-const LAST_DAILY_PROMPT_DATE_KEY = 'alex:update:lastDailyPromptDate';
-const LAST_PROMPTED_LATEST_KEY = 'alex:update:lastPromptedLatestVersion';
-const SKIPPED_VERSION_KEY = 'alex:update:skippedVersion';
-const CHECK_SNAPSHOT_KEY = 'alex:update:checkSnapshot';
+const LAST_DAILY_PROMPT_DATE_KEY = 'openbitfun:update:lastDailyPromptDate';
+const LAST_PROMPTED_LATEST_KEY = 'openbitfun:update:lastPromptedLatestVersion';
+const SKIPPED_VERSION_KEY = 'openbitfun:update:skippedVersion';
+const CHECK_SNAPSHOT_KEY = 'openbitfun:update:checkSnapshot';
 
 export interface AppUpdateSnapshot {
   result: CheckForUpdatesResponse;

@@ -3,7 +3,7 @@
   "catalog_kind": "alex_builtin_provider_overlay",
   "providers": [
     {
-      "id": "alex",
+      "id": "openbitfun",
       "display_order": 0,
       "region": "any",
       "name": "OpenBitFun",

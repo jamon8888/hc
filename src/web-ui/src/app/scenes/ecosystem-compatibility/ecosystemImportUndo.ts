@@ -16,7 +16,7 @@ export interface SkillImportReceipt {
 
 const receipts = new Map<string, SkillImportReceipt>();
 const receiptKey = (sourcePath: string, workspaceId?: string) =>
-  `alex:external-skill-import:v2:${JSON.stringify([getActiveSurfaceScope().surfaceId, workspaceId ?? '', sourcePath])}`;
+  `openbitfun:external-skill-import:v2:${JSON.stringify([getActiveSurfaceScope().surfaceId, workspaceId ?? '', sourcePath])}`;
 
 /** Only native copy identities are saved; external content and credentials never enter browser storage. */
 export function readSkillImportReceipt(sourcePath: string, workspaceId?: string): SkillImportReceipt | null {

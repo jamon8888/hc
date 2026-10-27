@@ -90,7 +90,7 @@ function isWeixinRasterQrSrc(raw: string): boolean {
 
 const NETWORK_TABS: { id: NetworkTab; labelKey: string }[] = [
   { id: 'lan', labelKey: 'remoteConnect.methodSameNetwork' },
-  { id: 'alex_server', labelKey: 'remoteConnect.methodOpenBitFunRelay' },
+  { id: 'openbitfun_server', labelKey: 'remoteConnect.methodOpenBitFunRelay' },
 ];
 
 const BOT_TABS: { id: BotTab; label: string }[] = [
@@ -921,7 +921,7 @@ export const RemoteConnectDialog: React.FC<RemoteConnectDialogProps> = ({
     const invitation = connectionOwner === 'network' ? connectionResult : null;
     const relayUrl = invitationRelayUrl(invitation)
       ?? (networkConnection.method === networkTab ? networkConnection.relayUrl : null)
-      ?? (networkTab === 'alex_server' ? OFFICIAL_RELAY_URL : selectedLanIp ? `http://${selectedLanIp}:9700` : '');
+      ?? (networkTab === 'openbitfun_server' ? OFFICIAL_RELAY_URL : selectedLanIp ? `http://${selectedLanIp}:9700` : '');
     return <RemoteNetworkConnections
       status={status}
       method={networkTab}

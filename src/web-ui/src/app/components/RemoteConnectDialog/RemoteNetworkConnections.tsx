@@ -7,7 +7,7 @@ import { RemotePairingCard } from './RemotePairingCard';
 
 interface RemoteNetworkConnectionsProps {
   status: RemoteConnectStatus | null;
-  method: 'alex_server' | 'lan';
+  method: 'openbitfun_server' | 'lan';
   settings?: ReactNode;
   title: string;
   relayUrl: string;

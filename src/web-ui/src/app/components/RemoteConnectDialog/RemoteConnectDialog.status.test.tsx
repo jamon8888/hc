@@ -79,7 +79,7 @@ function status(overrides: Partial<RemoteConnectStatus> = {}): RemoteConnectStat
 
 function invitation(relay = relayA): ConnectionResult {
   return {
-    method: relay === relayA ? 'alex_server' : { lan: { ip: '192.168.1.2' } },
+    method: relay === relayA ? 'openbitfun_server' : { lan: { ip: '192.168.1.2' } },
     qr_data: null, qr_svg: null,
     qr_url: `${relay}/#/pair?did=desktop`,
     bot_pairing_code: null, bot_link: null, pairing_state: 'waiting_for_scan',
@@ -128,7 +128,7 @@ async function render(initialGroup?: 'network' | 'bot') { await act(async () => 
 async function openNetwork() { await click(overviewNetwork()); }
 async function generateInvitation() {
   await openNetwork();
-  await click(element('#remote-connect-network-tab-alex_server'));
+  await click(element('#remote-connect-network-tab-openbitfun_server'));
   await clickText('remoteConnect.showConnectionCode');
 }
 async function closeDialog() {
@@ -201,7 +201,7 @@ describe('Remote Connect shared status through the real dialog and sidebar', () 
   });
 
   it.each([
-    ['alex_server', relayA], ['lan', 'http://192.168.1.2:9700'],
+    ['openbitfun_server', relayA], ['lan', 'http://192.168.1.2:9700'],
   ] as const)('uses identical connection, QR, presence and disconnect actions for %s', async (method, relay) => {
     await render('network');
     await click(element(`#remote-connect-network-tab-${method}`));
@@ -244,7 +244,7 @@ describe('Remote Connect shared status through the real dialog and sidebar', () 
     expect(attachedMobile()).not.toBeNull();
     await click(element('[data-testid="reopen-remote-connect"]'));
     await openNetwork();
-    await click(element('#remote-connect-network-tab-alex_server'));
+    await click(element('#remote-connect-network-tab-openbitfun_server'));
     expect(cardStatus()).toBe('remoteConnect.stateConnected');
     await clickText('remoteConnect.showConnectionCode');
     expect(boundary.startConnection).toHaveBeenCalledTimes(2);
@@ -276,7 +276,7 @@ describe('Remote Connect shared status through the real dialog and sidebar', () 
     boundary.getStatus.mockReturnValueOnce(pending.promise);
     await render('network');
     await click(element('#remote-connect-network-tab-lan'));
-    boundary.backend = status({ relay_connected: true, relay_url: relayA, active_method: 'alex_server' });
+    boundary.backend = status({ relay_connected: true, relay_url: relayA, active_method: 'openbitfun_server' });
     await act(async () => { pending.resolve(boundary.backend!); });
     expect(element('#remote-connect-network-tab-lan').getAttribute('aria-selected')).toBe('true');
     expect(boundary.startConnection).not.toHaveBeenCalled();
@@ -302,7 +302,7 @@ describe('Remote Connect shared status through the real dialog and sidebar', () 
     await generateInvitation();
     await closeDialog();
     await act(async () => {
-      boundary.backend = status({ relay_connected: true, relay_url: relayA, active_method: 'alex_server' });
+      boundary.backend = status({ relay_connected: true, relay_url: relayA, active_method: 'openbitfun_server' });
       pending.resolve(invitation());
     });
     expect(boundary.stopConnection).toHaveBeenCalledOnce();
@@ -311,7 +311,7 @@ describe('Remote Connect shared status through the real dialog and sidebar', () 
   });
 
   it('fences stale connected replies when an explicit disconnect wins', async () => {
-    const connected = status({ relay_connected: true, relay_url: relayA, active_method: 'alex_server', clients: [{ id: 'phone', name: 'Safari' }] });
+    const connected = status({ relay_connected: true, relay_url: relayA, active_method: 'openbitfun_server', clients: [{ id: 'phone', name: 'Safari' }] });
     boundary.backend = connected;
     await render('network');
     const before = deferred<RemoteConnectStatus>();

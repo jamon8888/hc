@@ -26,7 +26,7 @@ export class MarketApiError extends Error {
 }
 
 function csrfToken(): string | undefined {
-  const prefix = 'alex_market_csrf=';
+  const prefix = 'openbitfun_market_csrf=';
   return document.cookie
     .split(';')
     .map((item) => item.trim())
