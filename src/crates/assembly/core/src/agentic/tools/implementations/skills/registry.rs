@@ -2278,7 +2278,7 @@ mod opencode_configured_skill_tests {
             level: SkillLocation::Project,
             slot: "alex",
             source_id: "alex",
-            source_label: "OpenBitFun",
+            source_label: "Alex",
             priority: 0,
             is_builtin: false,
         })

@@ -4809,7 +4809,7 @@ Update the persona files and delete BOOTSTRAP.md as soon as bootstrap is complet
         workspace_path: &str,
         remote_connection_id: Option<&str>,
         remote_ssh_host: Option<&str>,
-    ) -> OpenBitFunResult<SessionStoragePathResolution> {
+    ) -> AlexResult<SessionStoragePathResolution> {
         let request = SessionStoragePathRequest {
             workspace_path: PathBuf::from(workspace_path),
             remote_connection_id: remote_connection_id.map(ToOwned::to_owned),
@@ -9169,7 +9169,7 @@ Update the persona files and delete BOOTSTRAP.md as soon as bootstrap is complet
             .effective_session_storage_path(session_id)
             .await
             .ok_or_else(|| {
-                OpenBitFunError::NotFound(format!("Session storage path not found: {session_id}"))
+                AlexError::NotFound(format!("Session storage path not found: {session_id}"))
             })?;
         let _mutation_guard = self
             .session_manager

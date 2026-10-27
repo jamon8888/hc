@@ -9,7 +9,7 @@ use alex_core_types::errors::{
 use serde::Serialize;
 use thiserror::Error;
 
-impl From<alex_services_core::storage_error::StorageError> for OpenBitFunError {
+impl From<alex_services_core::storage_error::StorageError> for AlexError {
     fn from(error: alex_services_core::storage_error::StorageError) -> Self {
         use alex_services_core::storage_error::StorageError;
         match error {

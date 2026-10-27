@@ -135,7 +135,7 @@ impl MiniAppStorage {
             .map_err(map_storage_error)
     }
 
-    pub async fn load_app_storage(&self, app_id: &str) -> OpenBitFunResult<serde_json::Value> {
+    pub async fn load_app_storage(&self, app_id: &str) -> AlexResult<serde_json::Value> {
         self.inner
             .load_app_storage(app_id)
             .await
@@ -432,17 +432,17 @@ impl MiniAppStoragePort for MiniAppStorage {
     }
 }
 
-fn map_storage_error(error: MiniAppStorageError) -> OpenBitFunError {
+fn map_storage_error(error: MiniAppStorageError) -> AlexError {
     match error.kind() {
-        MiniAppStorageErrorKind::NotFound => OpenBitFunError::NotFound(error.message().to_string()),
+        MiniAppStorageErrorKind::NotFound => AlexError::NotFound(error.message().to_string()),
         MiniAppStorageErrorKind::Validation => {
             AlexError::validation(error.message().to_string())
         }
         MiniAppStorageErrorKind::Deserialization => {
             AlexError::parse(error.message().to_string())
         }
-        MiniAppStorageErrorKind::Io => OpenBitFunError::io(error.message().to_string()),
-        MiniAppStorageErrorKind::Backend => OpenBitFunError::service(error.message().to_string()),
+        MiniAppStorageErrorKind::Io => AlexError::io(error.message().to_string()),
+        MiniAppStorageErrorKind::Backend => AlexError::service(error.message().to_string()),
     }
 }
 

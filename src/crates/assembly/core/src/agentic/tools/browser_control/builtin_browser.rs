@@ -97,7 +97,7 @@ pub fn builtin_browser_host_available() -> bool {
 fn host() -> AlexResult<Arc<dyn BuiltInBrowserHost>> {
     read_lock(host_slot()).clone().ok_or_else(|| {
         AlexError::tool(
-            "OpenBitFun's built-in browser automation host is unavailable in this runtime. This capability requires an active Desktop product surface."
+            "Alex's built-in browser automation host is unavailable in this runtime. This capability requires an active Desktop product surface."
                 .to_string(),
         )
     })

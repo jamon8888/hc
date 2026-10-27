@@ -384,7 +384,7 @@ impl ChatMode {
                         server_type: format!("{:?}", config.server_type).to_ascii_lowercase(),
                         status,
                         tool_count,
-                        source_label: "OpenBitFun".to_string(),
+                        source_label: "Alex".to_string(),
                         external: false,
                         detail: native_mcp_detail(&config),
                         action,

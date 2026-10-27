@@ -677,7 +677,7 @@ fn canvas_source_preview(source: &str) -> String {
 
 fn canvas_storage_for_context(
     context: &ToolUseContext,
-) -> OpenBitFunResult<Arc<dyn CanvasStoragePort>> {
+) -> AlexResult<Arc<dyn CanvasStoragePort>> {
     context.canvas_storage().ok_or_else(|| {
         AlexError::tool(
             "Canvas storage is unavailable for this execution context; use a workspace-backed session",

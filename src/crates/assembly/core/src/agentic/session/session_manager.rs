@@ -7387,7 +7387,7 @@ impl SessionManager {
         let storage = self
             .effective_storage_path_for_config(&session.config)
             .await
-            .ok_or_else(|| OpenBitFunError::Validation("Session storage is unavailable".into()))?;
+            .ok_or_else(|| AlexError::Validation("Session storage is unavailable".into()))?;
         let index = session.dialog_turn_ids.len();
         let timestamp = SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)

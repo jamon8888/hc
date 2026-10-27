@@ -1,6 +1,6 @@
 //! Current Workspace registry persistence contract and validation.
 
-use crate::storage_error::{StorageError as OpenBitFunError, StorageResult as OpenBitFunResult};
+use crate::storage_error::{StorageError as AlexError, StorageResult as AlexResult};
 use crate::workspace_records::{PrimaryAssistantKey, WorkspaceInfo, WorkspaceKind};
 use alex_core_types::product_identity::product_id;
 use serde::{Deserialize, Serialize};

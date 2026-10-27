@@ -3,7 +3,7 @@
 //! Runtime coordination and offline legacy import both open this database, but
 //! neither should carry a private copy of its versioning and repair rules.
 
-use crate::storage_error::{StorageError as OpenBitFunError, StorageResult as OpenBitFunResult};
+use crate::storage_error::{StorageError as AlexError, StorageResult as AlexResult};
 use rusqlite::Connection;
 
 pub const COORDINATION_SCHEMA_VERSION: i64 = 2;

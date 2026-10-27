@@ -3,7 +3,7 @@ use super::types::{
     InstalledSpeechModelArtifactRecord, InstalledSpeechModelFileRecord, InstalledSpeechModelRecord,
     SpeechModelArtifact, SpeechModelInstallState, SpeechModelManifest, SpeechModelStatus,
 };
-use super::{OpenBitFunError, OpenBitFunResult, SpeechStoragePaths};
+use super::{AlexError, AlexResult, SpeechStoragePaths};
 use chrono::Utc;
 use serde::Deserialize;
 use serde_json::json;

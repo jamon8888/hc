@@ -246,7 +246,7 @@ mod windows {
         log::error!("Automatic WebView2 recovery budget exhausted; requesting user action");
         app.dialog()
             .message(
-                "OpenBitFun's display stopped responding and automatic recovery was paused to avoid a restart loop. Restart OpenBitFun now?",
+                "Alex's display stopped responding and automatic recovery was paused to avoid a restart loop. Restart OpenBitFun now?",
             )
             .title("Alex display recovery")
             .kind(MessageDialogKind::Error)

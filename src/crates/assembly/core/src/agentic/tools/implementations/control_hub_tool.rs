@@ -1129,7 +1129,7 @@ Branch on `ok` and `error.code`, not on English messages.
                         "open_builtin",
                         ControlHubError::new(
                             ErrorCode::NotAvailable,
-                            "OpenBitFun's built-in browser requires an active Desktop product surface; it is unavailable in this runtime.",
+                            "Alex's built-in browser requires an active Desktop product surface; it is unavailable in this runtime.",
                         )
                         .with_hint(
                             "Use target='external' for a CDP browser in CLI/headless runtimes, or open this task in Alex Desktop.",
@@ -1735,7 +1735,7 @@ Branch on `ok` and `error.code`, not on English messages.
                             "tab_new",
                             ControlHubError::new(
                                 ErrorCode::NotAvailable,
-                                "OpenBitFun's built-in browser requires an active Desktop product surface.",
+                                "Alex's built-in browser requires an active Desktop product surface.",
                             ),
                         ));
                     }

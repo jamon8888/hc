@@ -66,7 +66,7 @@ impl PathManager {
         )
     }
 
-    fn validate_e2e_storage_guard() -> OpenBitFunResult<()> {
+    fn validate_e2e_storage_guard() -> AlexResult<()> {
         if !Self::env_flag_enabled("OPENBITFUN_E2E_STORAGE_GUARD") {
             return Ok(());
         }

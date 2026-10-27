@@ -16,7 +16,7 @@ pub struct EffectiveSessionStorageTarget {
 /// Enumerate registered workspace IDs, then ask the persistence owner for roots.
 /// A failed resolution is never replaced by the logical execution directory.
 pub async fn collect_effective_session_storage_targets(
-) -> crate::OpenBitFunResult<Vec<EffectiveSessionStorageTarget>> {
+) -> crate::AlexResult<Vec<EffectiveSessionStorageTarget>> {
     let service = get_global_workspace_service()
         .ok_or_else(|| crate::AlexError::service("Workspace service is unavailable"))?;
     let mut targets = Vec::new();
