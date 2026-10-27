@@ -81,7 +81,7 @@ impl PathManager {
         }
 
         Err(AlexError::config(
-            "ALEX_E2E_STORAGE_GUARD requires isolated OPENBITFUN_E2E_USER_ROOT and OPENBITFUN_E2E_HOME storage roots",
+            "ALEX_E2E_STORAGE_GUARD requires isolated ALEX_E2E_USER_ROOT and ALEX_E2E_HOME storage roots",
         ))
     }
 
