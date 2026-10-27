@@ -88,8 +88,8 @@ const identityRules = Object.freeze([
   Object.freeze({
     id: 'noncanonical-alex-casing',
     description: 'non-canonical Alex casing',
-    pattern: /alex/giu,
-    isViolation: (value) => !['OpenBitFun', 'openBitFun', 'openbitfun', 'OPENBITFUN'].includes(value),
+    pattern: /(?<![a-zA-Z])alex(?![a-zA-Z])/giu,
+    isViolation: (value) => !['Alex', 'alex', 'ALEX'].includes(value),
     allowedFiles: noncanonicalIdentityDataBoundaryFiles,
   }),
   Object.freeze({

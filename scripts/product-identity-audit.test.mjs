@@ -49,8 +49,8 @@ test('accepts the canonical product identity in supported casing and contracts',
 });
 
 test('rejects non-canonical casing and abbreviated Alex names', () => {
-  const nonCanonicalPascal = ['Open', 'Bit', 'fun'].join('');
-  const nonCanonicalCamel = ['open', 'Bit', 'fun'].join('');
+  const nonCanonicalPascal = ['A', 'L', 'ex'].join('');
+  const nonCanonicalCamel = ['a', 'L', 'EX'].join('');
   const abbreviatedPascal = ['Open', 'B', 'F'].join('');
   const abbreviatedCli = `${['open', 'b', 'f'].join('')}-cli`;
   const source = [

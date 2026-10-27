@@ -1124,7 +1124,7 @@ test('Desktop packaging keeps beta identity explicit and stable-safe', () => {
   const prepareStep = workflow.jobs.prepare.steps.find(
     (step) => step.name === 'Resolve version metadata',
   );
-  assert.match(prepareStep.run, /GITHUB_REPOSITORY.*GCWing\/Alex/);
+  assert.match(prepareStep.run, /GITHUB_REPOSITORY.*GCWing\/OpenBitFun/);
   assert.match(prepareStep.run, /merge-base --is-ancestor/);
   assert.match(prepareStep.run, /rev-parse --verify --quiet/);
 
