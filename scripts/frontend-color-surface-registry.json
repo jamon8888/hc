@@ -196,8 +196,8 @@
         "platform": "android",
         "extensions": [".kt"],
         "excludePaths": [
-          "com/alex/mobile/app/ui/theme/generated",
-          "com/alex/mobile/app/ui/preview/generated"
+          "com/openbitfun/mobile/app/ui/theme/generated",
+          "com/openbitfun/mobile/app/ui/preview/generated"
         ]
       }
     },

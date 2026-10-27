@@ -114,7 +114,7 @@ test('maps representative changes to the smallest predictive validation', () => 
     },
     {
       paths: [
-        'src/apps/mobile/android/app/src/main/kotlin/com/alex/MainActivity.kt',
+        'src/apps/mobile/android/app/src/main/kotlin/com/openbitfun/MainActivity.kt',
         'src/apps/mobile/shared/core-feature/src/commonMain/kotlin/Feature.kt',
         'src/apps/mobile/ios/Alex/App.swift',
         'src/apps/mobile/harmonyos/entry/src/main/ets/pages/Index.ets',
@@ -272,7 +272,7 @@ test('combines mobile-web with other surfaces without native-mobile noise', () =
   assert.deepEqual(
     classifyBuildImpact([
       'src/mobile-web/src/App.tsx',
-      'src/apps/mobile/android/app/src/main/kotlin/com/alex/MainActivity.kt',
+      'src/apps/mobile/android/app/src/main/kotlin/com/openbitfun/MainActivity.kt',
     ]),
     expected({
       rustRequired: false,

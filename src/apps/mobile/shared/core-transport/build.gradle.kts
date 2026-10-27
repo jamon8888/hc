@@ -87,7 +87,7 @@ val generateClientBuild by tasks.registering {
         val version = (groovy.json.JsonSlurper().parse(workspacePackageJson) as Map<String, Any?>)["version"] as? String
             ?: error("$workspacePackageJson has no \"version\"")
         val target = generatedClientBuildDir.get().asFile
-            .resolve("com/alex/mobile/core/transport/WorkspacePackageVersion.kt")
+            .resolve("com/openbitfun/mobile/core/transport/WorkspacePackageVersion.kt")
         target.parentFile.mkdirs()
         target.writeText(
             """

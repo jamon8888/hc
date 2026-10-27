@@ -45,7 +45,7 @@ class ClientBuildContractTest {
 
     @Test
     fun kotlinTransportReportsTheBuildOnLoginAndOnEveryHandshake() {
-        val transport = "src/apps/mobile/shared/core-transport/src/commonMain/kotlin/com/alex/mobile/core/transport"
+        val transport = "src/apps/mobile/shared/core-transport/src/commonMain/kotlin/com/openbitfun/mobile/core/transport"
         val realtime = source("$transport/AccountRealtime.kt")
         assertTrue(realtime.contains("put(\"clientVersion\", CLIENT_VERSION)"))
         assertTrue(realtime.contains("put(\"clientProtocol\", CLIENT_PROTOCOL_VERSION)"))
