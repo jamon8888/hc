@@ -1,13 +1,13 @@
 {
   "schemaVersion": 2,
   "generatedFrom": "src/shared/interactive-capabilities/catalog.json",
-  "catalogDigest": "1079dbf9acd4553eb63143eb39df8933bce073a9ba4336cfe77a53f20bddfc7e",
+  "catalogDigest": "e492403a09398f61e7269b79efca461714893e8dec067e50afd614c5ffcd7f58",
   "commandCount": 672,
   "coverage": {
     "commandCount": 672,
     "documentedCommandCount": 620,
     "implementationCommandCount": 52,
-    "implementationDigest": "52880dcf80e6220c8ad428315f5f04528d1dce802e1de3592d2426fce12d75b1"
+    "implementationDigest": "e5a8aadf588dacbe606957605d1674b953ce5421129556cb062d605af7f10fc0"
   },
   "commands": [
     {
@@ -5517,22 +5517,6 @@
       "remoteWorkspacePolicy": "RemoteRouted"
     },
     {
-      "id": "mark_announcement_seen",
-      "moduleId": "announcement",
-      "capabilityId": "setting.application.general",
-      "capabilityIds": [
-        "setting.application.general"
-      ],
-      "documentedItemIds": [
-        "setting.application.general:announcements"
-      ],
-      "visibility": "documented",
-      "rustPath": "api::announcement_api::mark_announcement_seen",
-      "sourceFile": "src/apps/desktop/src/api/announcement_api.rs",
-      "signature": "fn mark_announcement_seen( state: State<'_, AppState>, request: AnnouncementIdRequest, ) -> Result<(), String>",
-      "remoteWorkspacePolicy": "WorkspaceAgnostic"
-    },
-    {
       "id": "mark_alex_control_surface_ready",
       "moduleId": "alex_control_host",
       "capabilityId": null,
@@ -5554,6 +5538,22 @@
       "rustPath": "alex_control_host::mark_alex_control_surface_unready",
       "sourceFile": "src/apps/desktop/src/alex_control_host.rs",
       "signature": "fn mark_alex_control_surface_unready()",
+      "remoteWorkspacePolicy": "WorkspaceAgnostic"
+    },
+    {
+      "id": "mark_announcement_seen",
+      "moduleId": "announcement",
+      "capabilityId": "setting.application.general",
+      "capabilityIds": [
+        "setting.application.general"
+      ],
+      "documentedItemIds": [
+        "setting.application.general:announcements"
+      ],
+      "visibility": "documented",
+      "rustPath": "api::announcement_api::mark_announcement_seen",
+      "sourceFile": "src/apps/desktop/src/api/announcement_api.rs",
+      "signature": "fn mark_announcement_seen( state: State<'_, AppState>, request: AnnouncementIdRequest, ) -> Result<(), String>",
       "remoteWorkspacePolicy": "WorkspaceAgnostic"
     },
     {
@@ -7586,6 +7586,18 @@
       "remoteWorkspacePolicy": "LegacyUnaudited"
     },
     {
+      "id": "report_alex_control_result",
+      "moduleId": "alex_control_host",
+      "capabilityId": null,
+      "capabilityIds": [],
+      "documentedItemIds": [],
+      "visibility": "internal",
+      "rustPath": "alex_control_host::report_alex_control_result",
+      "sourceFile": "src/apps/desktop/src/alex_control_host.rs",
+      "signature": "fn report_alex_control_result( request: ReportAlexControlResultRequest, ) -> Result<(), String>",
+      "remoteWorkspacePolicy": "WorkspaceAgnostic"
+    },
+    {
       "id": "report_canvas_runtime_error",
       "moduleId": "canvas",
       "capabilityId": "feature.canvas",
@@ -7630,18 +7642,6 @@
       "sourceFile": "src/apps/desktop/src/api/commands.rs",
       "signature": "fn report_ide_control_result(request: IdeControlResultRequest) -> Result<(), String>",
       "remoteWorkspacePolicy": "LegacyUnaudited"
-    },
-    {
-      "id": "report_alex_control_result",
-      "moduleId": "alex_control_host",
-      "capabilityId": null,
-      "capabilityIds": [],
-      "documentedItemIds": [],
-      "visibility": "internal",
-      "rustPath": "alex_control_host::report_alex_control_result",
-      "sourceFile": "src/apps/desktop/src/alex_control_host.rs",
-      "signature": "fn report_alex_control_result( request: ReportAlexControlResultRequest, ) -> Result<(), String>",
-      "remoteWorkspacePolicy": "WorkspaceAgnostic"
     },
     {
       "id": "reset_agent_profile_config",

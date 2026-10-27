@@ -733,10 +733,10 @@ static BUILTIN_OPENCODE_THEMES: Lazy<HashMap<&'static str, OpencodeThemeJson>> =
             )),
         ),
         parse(
-            "alex-ink-night",
+            "openbitfun-ink-night",
             include_str!(concat!(
                 env!("CARGO_MANIFEST_DIR"),
-                "/themes/presets/alex-ink-night.json"
+                "/themes/presets/openbitfun-ink-night.json"
             )),
         ),
         parse(

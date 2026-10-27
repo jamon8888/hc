@@ -4,8 +4,8 @@
   "title": "Alex Playbook",
   "origin": "https://playbook.openbitfun.com",
   "source": "src/shared/interactive-capabilities/catalog.json",
-  "digest": "1079dbf9acd4553eb63143eb39df8933bce073a9ba4336cfe77a53f20bddfc7e",
-  "ownerDigest": "c636ad3c1880179a303addbae83782888ece86d7d6bc2ad545b290e4be04af43",
+  "digest": "e492403a09398f61e7269b79efca461714893e8dec067e50afd614c5ffcd7f58",
+  "ownerDigest": "97fdf1ccd6b569a515ddc78ad654ec364337c1a897b2fbdd9ce64e0aa95024e1",
   "searchAcceptance": [
     {
       "id": "companion-pet-mixed",

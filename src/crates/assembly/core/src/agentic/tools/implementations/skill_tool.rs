@@ -36,7 +36,7 @@ How to use skills:
 - Examples:
   - `command: "writing-skills"` - invoke the writing-skills skill
   - `command: "review", arguments: "src/main.rs carefully"` - invoke a skill with arguments
-  - `command: "user::alex-system::ppt-design"` - invoke a specific built-in skill by stable key
+  - `command: "user::openbitfun-system::ppt-design"` - invoke a specific built-in skill by stable key
 
 Important:
 - Only use skills listed in the current skill listing's <available_skills> section, unless a trusted host task explicitly supplies an exact stable key
@@ -136,7 +136,7 @@ impl Tool for SkillTool {
             "properties": {
                 "command": {
                     "type": "string",
-                    "description": "The skill name or stable key. E.g., \"writing-skills\" or \"user::alex-system::ppt-design\""
+                    "description": "The skill name or stable key. E.g., \"writing-skills\" or \"user::openbitfun-system::ppt-design\""
                 },
                 "arguments": {
                     "type": "string",
@@ -1149,7 +1149,7 @@ Use the remote project skill.
 
         let results = SkillTool::new()
             .call_impl(
-                &json!({ "command": "user::alex-system::ppt-design" }),
+                &json!({ "command": "user::openbitfun-system::ppt-design" }),
                 &context,
             )
             .await
@@ -1164,8 +1164,8 @@ Use the remote project skill.
             panic!("expected result payload");
         };
         assert_eq!(data["skill_name"], "ppt-design");
-        assert_eq!(data["skill_key"], "user::alex-system::ppt-design");
-        assert_eq!(data["source_slot"], "alex-system");
+        assert_eq!(data["skill_key"], "user::openbitfun-system::ppt-design");
+        assert_eq!(data["source_slot"], "openbitfun-system");
         assert_eq!(data["source_id"], "alex");
         assert_eq!(data["source_label"], "Alex");
         assert!(data["content"]
@@ -1173,7 +1173,7 @@ Use the remote project skill.
             .unwrap_or_default()
             .contains("references/editable-pptx.md"));
         let assistant = result_for_assistant.as_deref().unwrap_or_default();
-        assert!(assistant.contains("from stable key 'user::alex-system::ppt-design'"));
+        assert!(assistant.contains("from stable key 'user::openbitfun-system::ppt-design'"));
         assert!(assistant.contains("<skill_content>\n"));
         assert!(assistant.contains("\n</skill_content>"));
         assert!(assistant.contains("references/editable-pptx.md"));

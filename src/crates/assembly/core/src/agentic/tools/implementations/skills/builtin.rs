@@ -334,7 +334,7 @@ mod tests {
         };
 
         let skill = SkillData::from_markdown(
-            "/alex-system/create-agent".to_string(),
+            "/openbitfun-system/create-agent".to_string(),
             embedded_skill_text("create-agent/SKILL.md"),
             SkillLocation::User,
             true,
@@ -394,7 +394,7 @@ mod tests {
     fn plan_skill_embeds_a_valid_plan_artifact_workflow() {
         let text = embedded_skill_text("plan/SKILL.md");
         let skill = SkillData::from_markdown(
-            "/alex-system/plan".to_string(),
+            "/openbitfun-system/plan".to_string(),
             text,
             SkillLocation::User,
             true,
@@ -412,7 +412,7 @@ mod tests {
     fn debug_skill_embeds_the_canonical_name_and_log_receiver() {
         let text = embedded_skill_text("debug/SKILL.md");
         let skill = SkillData::from_markdown(
-            "/alex-system/debug".to_string(),
+            "/openbitfun-system/debug".to_string(),
             text,
             SkillLocation::User,
             true,
@@ -477,7 +477,7 @@ mod tests {
                         "{source}/SKILL.md references missing built-in skill {target}/SKILL.md"
                     );
                 }
-                if let Some(target) = token.strip_prefix("user::alex-system::") {
+                if let Some(target) = token.strip_prefix("user::openbitfun-system::") {
                     assert!(
                         BUILTIN_SKILLS_DIR.get_dir(target).is_some(),
                         "{source}/SKILL.md references missing stable skill key {token}"

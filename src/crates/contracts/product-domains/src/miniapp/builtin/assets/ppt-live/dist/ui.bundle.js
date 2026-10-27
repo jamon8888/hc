@@ -37304,7 +37304,7 @@ function exportFormatTone(formatId) {
 }
 
 // src/crates/contracts/product-domains/src/miniapp/builtin/assets/ppt-live/src/agent-prompt.js
-var PPT_DESIGN_SKILL_KEY = "user::alex-system::ppt-design";
+var PPT_DESIGN_SKILL_KEY = "user::openbitfun-system::ppt-design";
 function serializeInput(input) {
   try {
     return JSON.stringify(input ?? {}, null, 2);

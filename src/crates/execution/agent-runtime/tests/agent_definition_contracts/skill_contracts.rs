@@ -16,12 +16,12 @@ use alex_agent_runtime::skills::{
 
 fn builtin_skill(dir_name: &str) -> SkillInfo {
     SkillInfo {
-        key: format!("user::alex-system::{}", dir_name),
+        key: format!("user::openbitfun-system::{}", dir_name),
         name: dir_name.to_string(),
         description: String::new(),
         path: format!("/tmp/{}", dir_name),
         level: SkillLocation::User,
-        source_slot: "alex-system".to_string(),
+        source_slot: "openbitfun-system".to_string(),
         source_id: "alex".to_string(),
         source_label: "Alex".to_string(),
         installation_source: None,
@@ -116,7 +116,7 @@ fn native_ownership_rejects_discovery_sources_and_honors_legacy_slots() {
     }
     for (slot, expected) in [
         ("alex", true),
-        ("alex-system", true),
+        ("openbitfun-system", true),
         ("home.claude", false),
         ("codex", false),
     ] {
@@ -611,7 +611,7 @@ fn skill_discovery_root_facts_are_runtime_owned() {
     assert_eq!(USER_SKILL_KEY_PREFIX, "user");
     assert_eq!(PROJECT_SKILL_KEY_PREFIX, "project");
     assert_eq!(ALEX_USER_SKILL_SLOT, "alex");
-    assert_eq!(ALEX_SYSTEM_SKILL_SLOT, "alex-system");
+    assert_eq!(ALEX_SYSTEM_SKILL_SLOT, "openbitfun-system");
     assert_eq!(ALEX_SYSTEM_SKILL_DIR, ".system");
 
     let project_roots = PROJECT_SKILL_ROOTS
@@ -1043,7 +1043,7 @@ description: Design presentation slides.
 Use the presentation workflow.
 "#;
     let data = SkillData::from_markdown(
-        "/tmp/alex-system/ppt-design".to_string(),
+        "/tmp/openbitfun-system/ppt-design".to_string(),
         markdown,
         SkillLocation::User,
         false,
@@ -1051,7 +1051,7 @@ Use the presentation workflow.
     .expect("valid built-in skill markdown should parse");
     let candidate = SkillCandidate::from_data(
         data,
-        "alex-system",
+        "openbitfun-system",
         "alex",
         "OpenBitFun",
         "user",
@@ -1059,8 +1059,8 @@ Use the presentation workflow.
         true,
     );
 
-    assert_eq!(candidate.info.key, "user::alex-system::ppt-design");
-    assert_eq!(candidate.info.source_slot, "alex-system");
+    assert_eq!(candidate.info.key, "user::openbitfun-system::ppt-design");
+    assert_eq!(candidate.info.source_slot, "openbitfun-system");
     assert_eq!(candidate.info.group_key.as_deref(), Some("office"));
 
     let project_presentation = SkillCandidate {
@@ -1077,7 +1077,7 @@ Use the presentation workflow.
     ]));
     let user_presentation = annotated
         .iter()
-        .find(|skill| skill.key == "user::alex-system::ppt-design")
+        .find(|skill| skill.key == "user::openbitfun-system::ppt-design")
         .expect("user built-in skill should be present");
     assert!(user_presentation.is_shadowed);
     assert_eq!(
@@ -1314,7 +1314,7 @@ fn explicit_invocation_hidden_builtin_fallback_is_runtime_owned() {
         Some("Standard"),
     ) {
         ExplicitSkillInvocationResolution::Found(skill) => {
-            assert_eq!(skill.key, "user::alex-system::gstack-review");
+            assert_eq!(skill.key, "user::openbitfun-system::gstack-review");
         }
         other => panic!("expected hidden gstack fallback, got {other:?}"),
     }
@@ -1358,7 +1358,7 @@ fn explicit_invocation_reaches_default_hidden_agent_browser() {
             Some(mode_id),
         ) {
             ExplicitSkillInvocationResolution::Found(skill) => {
-                assert_eq!(skill.key, "user::alex-system::agent-browser");
+                assert_eq!(skill.key, "user::openbitfun-system::agent-browser");
             }
             other => {
                 panic!("expected hidden agent-browser fallback for mode {mode_id}, got {other:?}")

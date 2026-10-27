@@ -18,12 +18,12 @@ mod tests {
 
     fn builtin_skill(dir_name: &str) -> SkillInfo {
         SkillInfo {
-            key: format!("user::alex-system::{}", dir_name),
+            key: format!("user::openbitfun-system::{}", dir_name),
             name: dir_name.to_string(),
             description: String::new(),
             path: format!("/tmp/{}", dir_name),
             level: SkillLocation::User,
-            source_slot: "alex-system".to_string(),
+            source_slot: "openbitfun-system".to_string(),
             source_id: "alex".to_string(),
             source_label: "Alex".to_string(),
             installation_source: None,

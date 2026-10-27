@@ -165,8 +165,8 @@ test('shared element helper preserves editor interaction markup', () => {
 test('prompt pins the stable skill key and workspace-relative delivery contract', () => {
   const prompt = buildAgentPrompt({ instruction: '生成两页协议说明' });
 
-  assert.equal(PPT_DESIGN_SKILL_KEY, 'user::alex-system::ppt-design');
-  assert.match(prompt, /user::alex-system::ppt-design/);
+  assert.equal(PPT_DESIGN_SKILL_KEY, 'user::openbitfun-system::ppt-design');
+  assert.match(prompt, /user::openbitfun-system::ppt-design/);
   assert.match(prompt, /工作区根目录下的 `project\.json`/);
   assert.match(prompt, /工作区根目录下的 `slides\/slide-NN\.html`/);
   assert.match(prompt, /`project\.json` 的 `status` 设为 `"complete"`/);

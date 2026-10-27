@@ -2,7 +2,7 @@ import type { ModeSkillInfo, SkillInfo } from './types';
 
 const SOURCE_LABEL_BY_ID: Record<string, string> = {
   alex: 'Alex',
-  'alex-system': 'Alex',
+  'openbitfun-system': 'Alex',
   'claude-code': 'Claude Code',
   claude: 'Claude Code',
   codex: 'Codex',
@@ -61,7 +61,7 @@ export function getSkillSourceId(skill: SkillInfo): string {
   if (identity === 'claude') return 'claude-code';
   if (identity === 'dsh') return 'deepseek-harness';
   if (identity === 'agents') return 'agent-skills';
-  if (identity === 'alex-system' || identity === 'alex-user') return 'alex';
+  if (identity === 'openbitfun-system' || identity === 'alex-user') return 'alex';
   if (identity.startsWith('opencode.')) return 'opencode';
   return identity;
 }
@@ -85,7 +85,7 @@ export function canDeleteSkill(skill: SkillInfo): boolean {
 
   const sourceId = skill.sourceId?.trim().toLowerCase();
   if (sourceId) {
-    return sourceId === 'alex' || sourceId === 'alex-system';
+    return sourceId === 'alex' || sourceId === 'openbitfun-system';
   }
 
   return skill.sourceSlot?.trim().toLowerCase().startsWith('alex') ?? false;

@@ -562,7 +562,7 @@ mod tests {
         let prompt_source = include_str!("builtin/assets/ppt-live/src/agent-prompt.js");
         assert!(adapter_source.contains("sessionId: options.sessionId"));
         assert!(adapter_source.contains("buildAgentPrompt"));
-        assert!(prompt_source.contains("user::alex-system::ppt-design"));
+        assert!(prompt_source.contains("user::openbitfun-system::ppt-design"));
         assert!(prompt_source.contains("export function buildAgentPrompt"));
         assert!(!adapter_source.contains("app.ai"));
         assert!(!adapter_source.contains("installFallbackBackend"));
@@ -608,7 +608,7 @@ mod tests {
         assert!(include_str!("builtin/assets/ppt-live/ui.js")
             .contains("installAlexBackendAdapter"));
         // The single cowork agent turn loads the stable ppt-design skill key.
-        assert!(prompt_source.contains("user::alex-system::ppt-design"));
+        assert!(prompt_source.contains("user::openbitfun-system::ppt-design"));
         let ppt_live_source = include_str!("builtin/assets/ppt-live/ui.js");
         // PPT Live registers bounded content into the host's standard floating
         // ChatInput. It must not request a private composer layout or panel.

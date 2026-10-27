@@ -36,7 +36,7 @@ describe('renderer appearance contracts', () => {
   it('enforces Monaco theme names before Monaco is attached', async () => {
     const adapter = new MonacoAppearanceAdapter();
     const validSettings = {
-      id: 'appearance-alex-linglong',
+      id: 'appearance-openbitfun-linglong',
       base: 'vs-dark' as const,
       inherit: true,
       rules: [],
@@ -44,13 +44,13 @@ describe('renderer appearance contracts', () => {
     };
 
     expect(adapter.validate(validSettings)).toEqual([]);
-    expect(adapter.validate({ ...validSettings, id: 'appearance.alex-linglong' })).toContain(
+    expect(adapter.validate({ ...validSettings, id: 'appearance.openbitfun-linglong' })).toContain(
       'id must contain only lowercase letters, digits, and hyphens',
     );
     await expect(adapter.apply(
-      { ...validSettings, id: 'appearance.alex-linglong' },
+      { ...validSettings, id: 'appearance.openbitfun-linglong' },
       undefined,
-      { revision: 1, appearanceId: 'alex-linglong', mode: 'dark', globals: {}, assets: {} },
+      { revision: 1, appearanceId: 'openbitfun-linglong', mode: 'dark', globals: {}, assets: {} },
     )).rejects.toThrow('Invalid Monaco appearance');
   });
 
