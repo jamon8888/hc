@@ -22,7 +22,7 @@ async fn standalone_sdk_host_negotiates_and_shuts_down_without_cli() {
     .current_dir(&workspace)
     .env_remove("ALEX_USER_ROOT")
     .env_remove("ALEX_HOME")
-    .env("OPENBITFUN_E2E_STORAGE_GUARD", "1")
+    .env("ALEX_E2E_STORAGE_GUARD", "1")
     .env("ALEX_E2E_USER_ROOT", &user_root)
     .env("ALEX_E2E_HOME", &home_root)
     .env("APPDATA", &config_root)

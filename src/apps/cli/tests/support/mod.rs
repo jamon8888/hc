@@ -246,7 +246,7 @@ impl CliTestEnvironment {
             .current_dir(&self.workspace)
             .env_remove("ALEX_USER_ROOT")
             .env_remove("ALEX_HOME")
-            .env("OPENBITFUN_E2E_STORAGE_GUARD", "1")
+            .env("ALEX_E2E_STORAGE_GUARD", "1")
             .env("ALEX_E2E_USER_ROOT", &self.user_root)
             .env("ALEX_E2E_HOME", &self.home_root)
             .env("APPDATA", &self.config_root)
@@ -265,7 +265,7 @@ impl CliTestEnvironment {
         command.cwd(&self.workspace);
         command.env_remove("ALEX_USER_ROOT");
         command.env_remove("ALEX_HOME");
-        command.env("OPENBITFUN_E2E_STORAGE_GUARD", "1");
+        command.env("ALEX_E2E_STORAGE_GUARD", "1");
         command.env("ALEX_E2E_USER_ROOT", &self.user_root);
         command.env("ALEX_E2E_HOME", &self.home_root);
         command.env("APPDATA", &self.config_root);
@@ -280,7 +280,7 @@ impl CliTestEnvironment {
         command
             .env_remove("ALEX_USER_ROOT")
             .env_remove("ALEX_HOME")
-            .env("OPENBITFUN_E2E_STORAGE_GUARD", "1")
+            .env("ALEX_E2E_STORAGE_GUARD", "1")
             .env("ALEX_E2E_USER_ROOT", &self.user_root)
             .env("ALEX_E2E_HOME", &self.home_root)
             .env("APPDATA", &self.config_root)

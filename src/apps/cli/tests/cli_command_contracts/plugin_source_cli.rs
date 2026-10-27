@@ -47,7 +47,7 @@ fn run_cli(workspace: &Path, user_root: &Path, home_root: &Path, args: &[&str]) 
         .current_dir(workspace)
         .env_remove("ALEX_USER_ROOT")
         .env_remove("ALEX_HOME")
-        .env("OPENBITFUN_E2E_STORAGE_GUARD", "1")
+        .env("ALEX_E2E_STORAGE_GUARD", "1")
         .env("ALEX_E2E_USER_ROOT", user_root)
         .env("ALEX_E2E_HOME", home_root)
         .env("APPDATA", &config_root)
@@ -128,7 +128,7 @@ fn plugin_source_cli_rejects_unavailable_product_paths() {
             .env_remove("ALEX_HOME")
             .env_remove("ALEX_E2E_USER_ROOT")
             .env_remove("ALEX_E2E_HOME")
-            .env("OPENBITFUN_E2E_STORAGE_GUARD", "1")
+            .env("ALEX_E2E_STORAGE_GUARD", "1")
             .env("APPDATA", &config_root)
             .env("XDG_CONFIG_HOME", &config_root)
             .output()
@@ -136,7 +136,7 @@ fn plugin_source_cli_rejects_unavailable_product_paths() {
 
     assert!(!output.status.success());
     assert!(stderr(&output).contains("Configuration error"));
-    assert!(stderr(&output).contains("OPENBITFUN_E2E_STORAGE_GUARD"));
+    assert!(stderr(&output).contains("ALEX_E2E_STORAGE_GUARD"));
 }
 
 #[test]

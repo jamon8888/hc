@@ -232,7 +232,7 @@ mod tests {
         .env("ALEX_CREATION_CRUD_TEST", "1")
         .env("ALEX_USER_ROOT", root.path().join("user"))
         .env("ALEX_HOME", root.path().join("home"))
-        .env("OPENBITFUN_E2E_STORAGE_GUARD", "1")
+        .env("ALEX_E2E_STORAGE_GUARD", "1")
         .output()
         .unwrap();
         assert!(

@@ -2431,7 +2431,7 @@ mod tests {
         .env(CHILD_ENV, &alex_home)
         .env("ALEX_HOME", &alex_home)
         .env("ALEX_USER_ROOT", &user_root)
-        .env("OPENBITFUN_E2E_STORAGE_GUARD", "1")
+        .env("ALEX_E2E_STORAGE_GUARD", "1")
         .env_remove("ALEX_E2E_HOME")
         .env_remove("ALEX_E2E_USER_ROOT")
         .output()

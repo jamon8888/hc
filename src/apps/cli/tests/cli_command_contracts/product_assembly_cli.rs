@@ -13,7 +13,7 @@ fn doctor_reports_the_validated_cli_runtime_assembly() {
             .current_dir(&workspace)
             .env_remove("ALEX_USER_ROOT")
             .env_remove("ALEX_HOME")
-            .env("OPENBITFUN_E2E_STORAGE_GUARD", "1")
+            .env("ALEX_E2E_STORAGE_GUARD", "1")
             .env("ALEX_E2E_USER_ROOT", &user_root)
             .env("ALEX_E2E_HOME", &home_root)
             .env("APPDATA", &config_root)
@@ -62,7 +62,7 @@ fn health_reports_assembly_and_compatibility_boundaries() {
             .current_dir(&workspace)
             .env_remove("ALEX_USER_ROOT")
             .env_remove("ALEX_HOME")
-            .env("OPENBITFUN_E2E_STORAGE_GUARD", "1")
+            .env("ALEX_E2E_STORAGE_GUARD", "1")
             .env("ALEX_E2E_USER_ROOT", &user_root)
             .env("ALEX_E2E_HOME", &home_root)
             .env("APPDATA", &config_root)
@@ -114,7 +114,7 @@ fn doctor_rejects_incomplete_e2e_storage_roots() {
             .env_remove("ALEX_E2E_USER_ROOT")
             .env_remove("ALEX_HOME")
             .env_remove("ALEX_E2E_HOME")
-            .env("OPENBITFUN_E2E_STORAGE_GUARD", "1")
+            .env("ALEX_E2E_STORAGE_GUARD", "1")
             .env("APPDATA", &config_root)
             .env("XDG_CONFIG_HOME", &config_root)
             .env("HOME", &home_root);
@@ -129,7 +129,7 @@ fn doctor_rejects_incomplete_e2e_storage_roots() {
         let stderr = String::from_utf8_lossy(&output.stderr);
         assert!(!output.status.success(), "{case_name}: {stderr}");
         assert!(
-            stderr.contains("OPENBITFUN_E2E_STORAGE_GUARD requires isolated")
+            stderr.contains("ALEX_E2E_STORAGE_GUARD requires isolated")
                 && stderr.contains("ALEX_E2E_USER_ROOT")
                 && stderr.contains("ALEX_E2E_HOME"),
             "{case_name}: {stderr}"

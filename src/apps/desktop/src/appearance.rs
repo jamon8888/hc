@@ -502,7 +502,7 @@ fn use_development_frontend() -> bool {
         // Isolated E2E can exercise the production protocol using a debug
         // executable and dist assets, without launching a development server.
         !(std::env::var("ALEX_E2E_PACKAGED_FRONTEND").as_deref() == Ok("1")
-            && std::env::var("OPENBITFUN_E2E_STORAGE_GUARD").as_deref() == Ok("1"))
+            && std::env::var("ALEX_E2E_STORAGE_GUARD").as_deref() == Ok("1"))
     }
     #[cfg(not(debug_assertions))]
     {

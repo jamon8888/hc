@@ -67,7 +67,7 @@ impl PathManager {
     }
 
     fn validate_e2e_storage_guard() -> AlexResult<()> {
-        if !Self::env_flag_enabled("OPENBITFUN_E2E_STORAGE_GUARD") {
+        if !Self::env_flag_enabled("ALEX_E2E_STORAGE_GUARD") {
             return Ok(());
         }
 
@@ -81,7 +81,7 @@ impl PathManager {
         }
 
         Err(AlexError::config(
-            "OPENBITFUN_E2E_STORAGE_GUARD requires isolated OPENBITFUN_E2E_USER_ROOT and OPENBITFUN_E2E_HOME storage roots",
+            "ALEX_E2E_STORAGE_GUARD requires isolated OPENBITFUN_E2E_USER_ROOT and OPENBITFUN_E2E_HOME storage roots",
         ))
     }
 
@@ -837,7 +837,7 @@ mod tests {
             "ALEX_E2E_USER_ROOT",
             "ALEX_HOME",
             "ALEX_E2E_HOME",
-            "OPENBITFUN_E2E_STORAGE_GUARD",
+            "ALEX_E2E_STORAGE_GUARD",
         ]);
         let temp_root = std::env::temp_dir().join("alex-e2e-path-manager-test");
         let user_root = temp_root.join("user-root");
@@ -863,18 +863,18 @@ mod tests {
             "ALEX_E2E_USER_ROOT",
             "ALEX_HOME",
             "ALEX_E2E_HOME",
-            "OPENBITFUN_E2E_STORAGE_GUARD",
+            "ALEX_E2E_STORAGE_GUARD",
         ]);
 
         std::env::remove_var("ALEX_USER_ROOT");
         std::env::remove_var("ALEX_E2E_USER_ROOT");
         std::env::remove_var("ALEX_HOME");
         std::env::remove_var("ALEX_E2E_HOME");
-        std::env::set_var("OPENBITFUN_E2E_STORAGE_GUARD", "1");
+        std::env::set_var("ALEX_E2E_STORAGE_GUARD", "1");
 
         let error = PathManager::new().expect_err("guard should reject real-profile storage");
         let message = error.to_string();
-        assert!(message.contains("OPENBITFUN_E2E_STORAGE_GUARD"));
+        assert!(message.contains("ALEX_E2E_STORAGE_GUARD"));
         assert!(message.contains("ALEX_E2E_USER_ROOT"));
     }
 
