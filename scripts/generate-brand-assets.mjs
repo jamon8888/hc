@@ -389,12 +389,12 @@ async function generateBrandAssets() {
   }
 
   await writePng(
-    outputPath('src', 'apps', 'mobile', 'ios', 'OpenBitFun', 'Resources.xcassets', 'AppIcon.appiconset', 'alex-app-icon.png'),
+    outputPath('src', 'apps', 'mobile', 'ios', 'Alex', 'Resources.xcassets', 'AppIcon.appiconset', 'alex-app-icon.png'),
     // App Store icons must be opaque; iOS applies its own corner mask.
     await sharp(applicationIconLarge).flatten({ background: '#000000' }).png().toBuffer(),
   );
   await writePng(
-    outputPath('src', 'apps', 'mobile', 'ios', 'OpenBitFun', 'Resources.xcassets', 'OpenBitFunMark.imageset', 'alex-mark-light.png'),
+    outputPath('src', 'apps', 'mobile', 'ios', 'Alex', 'Resources.xcassets', 'AlexMark.imageset', 'alex-mark-light.png'),
     lightMark,
   );
 
