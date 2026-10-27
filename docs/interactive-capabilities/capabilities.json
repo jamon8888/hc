@@ -4,7 +4,7 @@
   "title": "Alex Playbook",
   "origin": "https://playbook.openbitfun.com",
   "source": "src/shared/interactive-capabilities/catalog.json",
-  "digest": "e492403a09398f61e7269b79efca461714893e8dec067e50afd614c5ffcd7f58",
+  "digest": "6a7d299be0e64441d1fe6cdc6a4cf02c2af8bef3975f4c086c13d1bdc57d50e2",
   "ownerDigest": "97fdf1ccd6b569a515ddc78ad654ec364337c1a897b2fbdd9ce64e0aa95024e1",
   "searchAcceptance": [
     {
@@ -25351,11 +25351,11 @@
               "PublishAppearance"
             ],
             "workflowZh": [
-              "仅在用户明确要求对外投稿时调用 PublishAppearance，并使用本机绝对 `.alex-appearance` 路径及用户确认的许可证",
+              "仅在用户明确要求对外投稿时调用 PublishAppearance，并使用本机绝对 `.openbitfun-appearance` 路径及用户确认的许可证",
               "登录或校验返回待处理状态时展示具体下一步；工具不支持远程 SSH 路径，也不能把提交审核报告为已经上架"
             ],
             "workflowEn": [
-              "Call PublishAppearance only after an explicit external-submission request, using a local absolute `.alex-appearance` path and a user-confirmed license",
+              "Call PublishAppearance only after an explicit external-submission request, using a local absolute `.openbitfun-appearance` path and a user-confirmed license",
               "Show the exact next step for pending authentication or validation; remote SSH paths are unsupported and submission for review is not publication"
             ]
           }
@@ -25497,9 +25497,9 @@
         "Change the interface language to English",
         "Open Appearance settings",
         "PublishAppearance",
-        "仅在用户明确要求对外投稿时调用 PublishAppearance，并使用本机绝对 `.alex-appearance` 路径及用户确认的许可证",
+        "仅在用户明确要求对外投稿时调用 PublishAppearance，并使用本机绝对 `.openbitfun-appearance` 路径及用户确认的许可证",
         "登录或校验返回待处理状态时展示具体下一步；工具不支持远程 SSH 路径，也不能把提交审核报告为已经上架",
-        "Call PublishAppearance only after an explicit external-submission request, using a local absolute `.alex-appearance` path and a user-confirmed license",
+        "Call PublishAppearance only after an explicit external-submission request, using a local absolute `.openbitfun-appearance` path and a user-confirmed license",
         "Show the exact next step for pending authentication or validation; remote SSH paths are unsupported and submission for review is not publication"
       ],
       "docsUrl": "https://playbook.openbitfun.com/capabilities/setting.application.appearance/"
