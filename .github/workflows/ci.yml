@@ -295,6 +295,7 @@ jobs:
           fi
 
       - name: Check compilation
+        timeout-minutes: 20
         run: cargo check --locked --workspace
 
       - name: Save Sherpa native libraries
@@ -319,6 +320,7 @@ jobs:
 
       - name: Run full core library tests on Linux
         if: runner.os == 'Linux'
+        timeout-minutes: 20
         run: cargo test --locked -p alex-core --features product-full --lib
 
       - name: Run desktop library tests
@@ -552,7 +554,7 @@ jobs:
     name: Frontend Build
     runs-on: ubuntu-latest
     env:
-      NODE_OPTIONS: --max-old-space-size=6144
+      NODE_OPTIONS: --max-old-space-size=8192
     needs: build-impact
     steps:
       - uses: actions/checkout@v5
@@ -665,6 +667,7 @@ jobs:
 
       - name: Build web UI
         if: needs.build-impact.outputs.frontend_required != 'false'
+        timeout-minutes: 15
         run: pnpm run build:web
 
       - name: Type-check mobile web
