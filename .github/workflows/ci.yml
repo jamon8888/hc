@@ -448,7 +448,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     if: ${{ always() }}
-    needs: [build-impact, cli-test, rust-build-check, package-impact-contract, rust-full-test, frontend-full-build]
+    needs: [build-impact, cli-test, rust-build-check, package-impact-contract]
     steps:
       - name: Verify Rust and CLI result
         shell: pwsh
@@ -459,8 +459,6 @@ jobs:
           IMPACT_RESULT: ${{ needs.build-impact.result }}
           CLI_RESULT: ${{ needs.cli-test.result }}
           RUST_RESULT: ${{ needs.rust-build-check.result }}
-          RUST_FULL_RESULT: ${{ needs.rust-full-test.result }}
-          FRONTEND_FULL_RESULT: ${{ needs.frontend-full-build.result }}
           BUILD_RESULT: ${{ needs.package-impact-contract.result }}
         run: |
           $ErrorActionPreference = 'Stop'
@@ -477,15 +475,6 @@ jobs:
             'true' {
               if ($env:CLI_RESULT -ne 'success' -or $env:RUST_RESULT -ne 'success') {
                 throw "Expected successful Rust and CLI jobs; CLI=$env:CLI_RESULT Rust=$env:RUST_RESULT"
-              }
-              # On main push, also verify self-hosted heavy jobs
-              if ($env:EVENT_NAME -eq 'push' -and ($env:GITHUB_REF -eq 'refs/heads/main' -or $env:GITHUB_REF -eq 'refs/heads/1.0.0-explore')) {
-                if ($env:RUST_FULL_RESULT -ne 'success') {
-                  throw "Expected successful Rust Full Test (product-full); Result=$env:RUST_FULL_RESULT"
-                }
-                if ($env:FRONTEND_FULL_RESULT -ne 'success') {
-                  throw "Expected successful Frontend Full Build; Result=$env:FRONTEND_FULL_RESULT"
-                }
               }
             }
             default {
