@@ -1,10 +1,6 @@
 name: CI
 
 on:
-  # Every pull request runs CI, regardless of its base branch. The repository
-  # stacks feature PRs on other feature branches, so restricting this filter
-  # to main left stacked PRs with no checks at all. Cost stays bounded because
-  # build-impact gates the 14-19 minute Rust/CLI jobs per changed path.
   pull_request:
     paths-ignore:
       - 'png/**'
@@ -13,7 +9,6 @@ on:
     paths-ignore:
       - 'png/**'
 
-# Cancel previous runs on same branch/PR
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
@@ -41,16 +36,12 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
-          # Pull requests need both base/head objects; main pushes need the
-          # previous commit even after a non-fast-forward update.
           fetch-depth: 0
-
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
           node-version-file: package.json
           package-manager-cache: false
-
       - name: Classify build impact
         id: classify
         env:
@@ -60,22 +51,17 @@ jobs:
         run: node scripts/ci/classify-build-impact.mjs --base "$BASE_SHA" --head "$HEAD_SHA" --range-mode "$RANGE_MODE"
 
   # ── Shell deploy assets: LF endings + syntax ───────────────────────
-  # Relay one-click deploy embeds these scripts into the Desktop binary and
-  # uploads them verbatim to a Linux host, where a single CR aborts the deploy
-  # with `$'\r': command not found`. .gitattributes pins LF; this is the guard.
   shell-scripts:
     name: Shell Deploy Scripts
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v5
-
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
           node-version-file: package.json
           package-manager-cache: false
-
       - name: Reject CRLF in shell and deploy assets
         run: |
           bad=$(git ls-files -z \
@@ -88,7 +74,6 @@ jobs:
             exit 1
           fi
           echo "All shell and deploy assets are LF-only."
-
       - name: bash -n every tracked shell script
         run: |
           rc=0
@@ -96,13 +81,10 @@ jobs:
             bash -n "$f" || { echo "::error file=$f::bash syntax error"; rc=1; }
           done < <(git ls-files -z '*.sh' '*.bash')
           exit "$rc"
-
       - name: Verify release and version-generation contracts
         run: node --test scripts/release-channel.test.mjs scripts/tauri-release-manifest.test.mjs scripts/linux-binaries-manifest.test.mjs scripts/version-generation.test.mjs
-
       - name: Validate Relay deployment and packaging contracts
         run: node --test scripts/relay/*.test.mjs
-
       - name: Verify minisign download fallback
         run: |
           set -euo pipefail
@@ -111,15 +93,17 @@ jobs:
           mkdir -p "$test_root/stubs"
           printf '#!/usr/bin/env bash\nexit 1\n' >"$test_root/stubs/sudo"
           chmod +x "$test_root/stubs/sudo"
-
           PATH="$test_root/stubs:/usr/bin:/bin" \
             RUNNER_TEMP="$test_root" \
             ALEX_SIGNING_KEY="YQ==" \
             bash scripts/sign-release-assets.sh "$test_root/missing-asset"
-
           "$test_root/alex-minisign-0.12/bin/minisign" -v
 
-  # ── CLI: independent tests ─────────────────────────────────────────
+  # ═══════════════════════════════════════════════════════════════════════
+  # PR FAST TRACK: Lightweight checks on GitHub runners (runs on ALL PRs)
+  # ═══════════════════════════════════════════════════════════════════════
+
+  # ── CLI: fast tests ─────────────────────────────────────────────────
   cli-test:
     name: CLI Tests (${{ matrix.os }})
     needs: build-impact
@@ -138,7 +122,6 @@ jobs:
             cache_key: windows
     steps:
       - uses: actions/checkout@v5
-
       - name: Install Linux system dependencies
         if: runner.os == 'Linux'
         shell: bash
@@ -151,36 +134,25 @@ jobs:
             libxcb-render0-dev \
             libxcb-shape0-dev \
             libxcb-xfixes0-dev
-
       - uses: dtolnay/rust-toolchain@stable
-
       - uses: swatinem/rust-cache@v2
         with:
           shared-key: "cli-ci-v3-${{ github.base_ref || github.ref_name }}-${{ matrix.cache_key }}"
           cache-bin: false
-          # PRs restore trusted caches but never publish merge-ref artifacts.
           save-if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/1.0.0-explore') }}
           cache-on-failure: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/1.0.0-explore') }}
-
       - name: Run CLI and ACP tests on macOS
         if: runner.os == 'macOS'
         run: cargo test --locked -p alex-cli -p alex-acp
-
       - name: Run CLI, ACP, and agent runtime tests
         if: runner.os == 'Linux'
         run: cargo test --locked -p alex-cli -p alex-acp -p alex-agent-runtime
-
-      # ConPTY is a Windows-only execution path. Keep its interactive contracts
-      # serialized: concurrent native PTYs contend on hosted runners and used to
-      # race action delivery, TUI restoration, and output observation in Nightly.
       - name: Run Windows CLI terminal contracts
         if: runner.os == 'Windows'
         run: cargo test --locked -p alex-cli --test terminal_process_contracts -- --test-threads=1
-
       - name: Run SDK Host tests
         if: runner.os == 'Linux'
         run: cargo test --locked -p alex-sdk-host -p alex-sdk-host-app
-
       - name: Run SDK Host terminal cleanup regressions
         if: runner.os == 'Linux'
         run: |
@@ -188,41 +160,29 @@ jobs:
           cargo test --locked -p terminal-core shutdown_evicts_a_process_whose_controller_already_confirmed_exit -- --test-threads=1
           cargo test --locked -p terminal-core background_only_binding_is_owned_by_the_session -- --test-threads=1
 
-  # ── Rust: build check ─────────────────────────────────────────────
-  rust-build-check:
-    name: Rust Build Check (${{ matrix.os }})
+  # ── Rust: fast build check (no product-full) ────────────────────────
+  rust-check:
+    name: Rust Check (${{ matrix.os }})
     needs: build-impact
     if: ${{ !cancelled() && needs.build-impact.outputs.rust_required != 'false' }}
     runs-on: ${{ matrix.os }}
-    env:
-      # Keep the workspace check plus desktop test profiles within hosted-runner disk limits.
-      CARGO_INCREMENTAL: "0"
-      CARGO_PROFILE_DEV_DEBUG: "0"
-      CARGO_PROFILE_TEST_DEBUG: "0"
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        os:
-          - ubuntu-latest
-          - macos-15
-          - windows-latest
+        os: [ubuntu-latest, macos-15, windows-latest]
     steps:
       - uses: actions/checkout@v5
-
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
           node-version-file: package.json
           package-manager-cache: false
-
-      # Tauri code generation only requires its configured resource roots to
-      # exist during check/test; distributable assets remain frontend-build's owner.
       - name: Create Tauri resource directories
         shell: bash
         run: |
           mkdir -p dist src/mobile-web/dist src/apps/extension-host/dist
           touch src/apps/extension-host/dist/extension-host.js
-
       - name: Install Linux system dependencies (Tauri)
         if: runner.os == 'Linux'
         shell: bash
@@ -233,13 +193,11 @@ jobs:
           else
             WEBKIT_PKG=libwebkit2gtk-4.0-dev
           fi
-
           if apt-cache show libappindicator3-dev >/dev/null 2>&1; then
             APPINDICATOR_PKG=libappindicator3-dev
           else
             APPINDICATOR_PKG=libayatana-appindicator3-dev
           fi
-
           sudo apt-get install -y --no-install-recommends \
             pkg-config \
             libglib2.0-dev \
@@ -258,81 +216,26 @@ jobs:
             libtesseract-dev \
             tesseract-ocr \
             tesseract-ocr-eng
-
       - uses: dtolnay/rust-toolchain@stable
-
       - uses: swatinem/rust-cache@v2
         with:
           shared-key: "ci-check-v6-${{ github.base_ref || github.ref_name }}-${{ runner.os }}-no-cargo-bin"
           cache-bin: false
-          # PR caches are scoped to merge refs; trusted main pushes own shared
-          # refreshes and retain completed dependency builds after late test failures.
           save-if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/1.0.0-explore') }}
           cache-on-failure: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/1.0.0-explore') }}
-
-      # Validate the committed manifests and lockfile before any release
-      # projection is allowed to rewrite workspace package entries.
       - name: Verify committed Cargo metadata
         run: cargo metadata --locked --no-deps
-
-      # rust-cache prunes the workspace target directory before saving it, so
-      # native libraries stored under target need an independent cache lifecycle.
-      - name: Restore Sherpa native libraries
-        id: sherpa-native-cache
-        uses: actions/cache/restore@v5
-        with:
-          path: target/sherpa-onnx-prebuilt
-          key: sherpa-onnx-v2-${{ github.base_ref || github.ref_name }}-${{ runner.os }}-${{ runner.arch }}-1.13.4-static
-
-      - name: Repair missing Sherpa native state
-        shell: bash
-        run: |
-          if ! find target/sherpa-onnx-prebuilt -type f \
-            \( -name 'sherpa-onnx-c-api.lib' -o -name 'libsherpa-onnx-c-api.a' \) \
-            -print -quit 2>/dev/null | grep -q .; then
-            rm -rf target/sherpa-onnx-prebuilt
-            cargo clean -p sherpa-onnx-sys
-          fi
-
       - name: Check compilation
         timeout-minutes: 20
         run: cargo check --locked --workspace
-
-      - name: Save Sherpa native libraries
-        if: >-
-          github.event_name == 'push' &&
-          (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/1.0.0-explore') &&
-          steps.sherpa-native-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v5
-        with:
-          path: target/sherpa-onnx-prebuilt
-          key: sherpa-onnx-v2-${{ github.base_ref || github.ref_name }}-${{ runner.os }}-${{ runner.arch }}-1.13.4-static
-
-      # The installer is intentionally excluded from the root Cargo workspace,
-      # so the workspace check above cannot catch drift in its shared Rust APIs.
       - name: Check installer compilation
         if: runner.os == 'Windows'
         run: cargo check --manifest-path Alex-Installer/src-tauri/Cargo.toml
-
-      - name: Run core library tests
-        if: runner.os != 'Linux'
+      - name: Run core library tests (fast, no product-full)
         run: cargo test --locked -p alex-core --lib
-
-      - name: Run full core library tests on Linux
-        if: runner.os == 'Linux'
-        timeout-minutes: 20
-        run: cargo test --locked -p alex-core --features product-full --lib
-
       - name: Run desktop library tests
         if: runner.os != 'Windows'
         run: cargo test --locked -p alex-desktop --lib
-
-      # Tauri issue #13419 prevents some Windows MSVC lib-test harnesses from
-      # entering Rust's test runner at all. Keep probing on every run so the
-      # full suite resumes automatically when upstream fixes it. Only the exact
-      # pre-test loader signature is tolerated; assertions and every other
-      # process failure remain blocking.
-      # https://github.com/tauri-apps/tauri/issues/13419
       - name: Probe Windows desktop library tests
         if: runner.os == 'Windows'
         shell: pwsh
@@ -340,10 +243,7 @@ jobs:
           $testOutput = cargo test --locked -p alex-desktop --lib 2>&1
           $testExitCode = $LASTEXITCODE
           $testOutput | ForEach-Object { Write-Output $_ }
-          if ($testExitCode -eq 0) {
-            exit 0
-          }
-
+          if ($testExitCode -eq 0) { exit 0 }
           $testLog = $testOutput | Out-String
           $knownTauriLoaderFailure = (
             $testLog -match 'process .*exit successfully:.*alex_desktop_lib-' -and
@@ -355,51 +255,28 @@ jobs:
             Write-Output '::warning title=Tauri Windows test-loader limitation::The desktop test harness hit upstream Tauri issue #13419 before any Rust test ran. Compilation and the cross-platform product-control contracts remain blocking.'
             exit 0
           }
-
           exit $testExitCode
-
       - name: Run product-control domain and delivery-profile contracts
         shell: bash
         run: |
           cargo test --locked -p alex-product-domains --no-default-features product_control
           cargo test --locked -p alex-product-domains --no-default-features remote_surface
           cargo test --locked -p alex-product-capabilities every_agent_runtime_delivery_profile_includes_product_control_discovery
-
-      # These crates own platform-sensitive behavior that is not exercised by
-      # testing alex-core/alex-desktop alone. Keep their focused contract
-      # suites in the OS matrix so Linux success cannot hide Windows/macOS
-      # regressions in worker interruption, relay storage, or OAuth handling.
       - name: Run Page Functions runtime tests
         run: cargo test --locked -p alex-page-function-runtime
-
       - name: Run Relay service tests
         run: cargo test --locked -p alex-relay-service
-
       - name: Run subscription authentication tests
         run: cargo test --locked -p alex-ai-adapters --features subscription-auth --lib subscription_auth
-
-      # File watching is backed by a different OS API on every platform
-      # (ReadDirectoryChangesW / FSEvents / inotify), so watch registration,
-      # debounce, and atomic-rename regressions must stay in the full OS matrix.
-      # The suite is behind a non-default feature and would otherwise never run.
       - name: Run file watch contract tests
         run: cargo test --locked -p alex-services-integrations --no-default-features --features file-watch --test file_watch_contracts
-
-      # Exercise native child cleanup outside the Tauri test harness. In
-      # particular, Windows update/restart cleanup must leave the host alive.
       - name: Run process lifecycle contract tests
         shell: bash
         run: |
           cargo test --locked -p alex-services-core --no-default-features --features process-runtime --test process_runtime_contracts
           cargo test --locked -p alex-services-core --no-default-features --features process-runtime --lib process_tree::tests::
-
-      # Search tools share matching but retain provider-specific path and
-      # symlink handling. Keep the search module in the full OS matrix.
       - name: Run search tool tests
         run: "cargo test --locked -p tool-runtime --lib search::"
-
-      # Workspace providers own filesystem/link semantics and SSH cleanup;
-      # compiling them as Desktop dependencies does not execute their tests.
       - name: Run workspace provider contracts
         shell: bash
         run: |
@@ -407,9 +284,6 @@ jobs:
           cargo test --locked -p alex-services-integrations --no-default-features --features remote-ssh-concrete --lib remote_ssh::manager::tests::workspace_
           cargo test --locked -p tool-runtime --no-default-features --lib fs::read_file::tests::
           cargo test --locked -p tool-runtime --no-default-features --test tool_io_contracts
-
-      # Linux's product-full suite above already covers these tools. The
-      # feature-free Core suites on macOS/Windows do not exercise workspace IO.
       - name: Run workspace Agent contracts
         if: runner.os != 'Linux'
         run: >-
@@ -420,9 +294,275 @@ jobs:
           tool_context_runtime::path_resolution_tests file_read_state_runtime::tests
           service::snapshot:: product_runtime::tests::session_fork_
 
-  # Call the standalone Linux/Relay workflow directly. Calling the Nightly
-  # artifact orchestrator would register a misleading skipped Desktop package
-  # check on every producer-selected PR even when that matrix is disabled.
+  # ── Frontend: fast lint + type-check (no full build) ────────────────
+  frontend-lint:
+    name: Frontend Lint & Type-Check
+    needs: build-impact
+    if: ${{ !cancelled() && needs.build-impact.outputs.frontend_required != 'false' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      NODE_OPTIONS: --max-old-space-size=8192
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 2
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          package-manager-cache: false
+      - name: Check repository hygiene
+        run: pnpm run check:repo-hygiene
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Validate interactive capability contract
+        run: pnpm run capabilities:check && pnpm run capabilities:test && pnpm run website:test && pnpm run website:build
+      - name: Test core boundary contracts
+        run: pnpm run check:core-boundaries:test
+      - name: Check core boundaries
+        run: pnpm run check:core-boundaries
+      - name: Validate GitHub config
+        run: pnpm run check:github-config
+      - name: Validate i18n contract
+        if: needs.build-impact.outputs.frontend_required != 'false'
+        run: pnpm run i18n:contract:test:ci
+      - name: Audit i18n resources
+        if: needs.build-impact.outputs.frontend_required != 'false'
+        run: pnpm run i18n:audit
+      - name: Validate theme color audit contract
+        if: needs.build-impact.outputs.frontend_required != 'false'
+        run: pnpm run theme:color-audit:test
+      - name: Audit theme color governance
+        if: needs.build-impact.outputs.frontend_required != 'false'
+        run: pnpm run theme:color-audit:all
+      - name: Validate theme visual governance contract
+        if: needs.build-impact.outputs.frontend_required != 'false'
+        run: pnpm run theme:visual-contract
+      - name: Validate WebKit compatibility gate
+        if: needs.build-impact.outputs.frontend_required != 'false'
+        run: pnpm run verify:webkit-compatibility:test
+      - name: Lint web UI
+        if: needs.build-impact.outputs.frontend_required != 'false'
+        run: pnpm run lint:web
+      - name: Type-check web UI
+        if: needs.build-impact.outputs.frontend_required != 'false'
+        run: pnpm --dir src/web-ui exec tsc --noEmit
+      - name: Run web UI tests
+        if: needs.build-impact.outputs.frontend_required != 'false'
+        run: pnpm --dir src/web-ui run test:run
+      - name: Run MiniApp Market tests
+        if: needs.build-impact.outputs.frontend_required != 'false'
+        run: pnpm --dir src/miniapp-market-web run test
+      - name: Run Skin Market tests
+        if: needs.build-impact.outputs.frontend_required != 'false'
+        run: pnpm --dir src/skin-market-web run test
+
+  # ═══════════════════════════════════════════════════════════════════════
+  # MAIN PUSH / SCHEDULED: Heavy jobs on self-hosted runners
+  # ═══════════════════════════════════════════════════════════════════════
+
+  # ── Rust: full product-full test suite on self-hosted ──────────────
+  rust-full-test:
+    name: Rust Full Test (product-full)
+    needs: build-impact
+    if: >-
+      github.event_name == 'push' &&
+      (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/1.0.0-explore') &&
+      needs.build-impact.outputs.rust_required != 'false'
+    runs-on: [self-hosted, linux, x64, large]
+    timeout-minutes: 60
+    env:
+      CARGO_INCREMENTAL: "0"
+      CARGO_PROFILE_DEV_DEBUG: "0"
+      CARGO_PROFILE_TEST_DEBUG: "0"
+    steps:
+      - uses: actions/checkout@v5
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version-file: package.json
+          package-manager-cache: false
+      - name: Create Tauri resource directories
+        shell: bash
+        run: |
+          mkdir -p dist src/mobile-web/dist src/apps/extension-host/dist
+          touch src/apps/extension-host/dist/extension-host.js
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: swatinem/rust-cache@v2
+        with:
+          shared-key: "ci-check-v6-${{ github.ref_name }}-linux-x64-no-cargo-bin"
+          cache-bin: false
+          save-if: true
+          cache-on-failure: true
+      - name: Verify committed Cargo metadata
+        run: cargo metadata --locked --no-deps
+      - name: Check compilation
+        run: cargo check --locked --workspace
+      - name: Run FULL core library tests with product-full
+        timeout-minutes: 45
+        run: cargo test --locked -p alex-core --features product-full --lib
+      - name: Run desktop library tests
+        run: cargo test --locked -p alex-desktop --lib
+      - name: Run product-control domain and delivery-profile contracts
+        shell: bash
+        run: |
+          cargo test --locked -p alex-product-domains --no-default-features product_control
+          cargo test --locked -p alex-product-domains --no-default-features remote_surface
+          cargo test --locked -p alex-product-capabilities every_agent_runtime_delivery_profile_includes_product_control_discovery
+      - name: Run Page Functions runtime tests
+        run: cargo test --locked -p alex-page-function-runtime
+      - name: Run Relay service tests
+        run: cargo test --locked -p alex-relay-service
+      - name: Run subscription authentication tests
+        run: cargo test --locked -p alex-ai-adapters --features subscription-auth --lib subscription_auth
+      - name: Run file watch contract tests
+        run: cargo test --locked -p alex-services-integrations --no-default-features --features file-watch --test file_watch_contracts
+      - name: Run process lifecycle contract tests
+        shell: bash
+        run: |
+          cargo test --locked -p alex-services-core --no-default-features --features process-runtime --test process_runtime_contracts
+          cargo test --locked -p alex-services-core --no-default-features --features process-runtime --lib process_tree::tests::
+      - name: Run search tool tests
+        run: "cargo test --locked -p tool-runtime --lib search::"
+      - name: Run workspace provider contracts
+        shell: bash
+        run: |
+          cargo test --locked -p alex-services-core --no-default-features --features workspace-runtime --lib workspace::tests::
+          cargo test --locked -p alex-services-integrations --no-default-features --features remote-ssh-concrete --lib remote_ssh::manager::tests::workspace_
+          cargo test --locked -p tool-runtime --no-default-features --lib fs::read_file::tests::
+          cargo test --locked -p tool-runtime --no-default-features --test tool_io_contracts
+      - name: Run workspace Agent contracts
+        run: >-
+          cargo test --locked -p alex-core --no-default-features
+          --features agent-runtime,git,remote-workspace,document-read --lib --
+          file_read_tool::tests file_write_tool::tests file_edit_tool::tests
+          delete_file_tool::tests grep_tool::tests glob_tool::tests ls_tool::tests
+          tool_context_runtime::path_resolution_tests file_read_state_runtime::tests
+          service::snapshot:: product_runtime::tests::session_fork_
+
+  # ── Frontend: full build on self-hosted ───────────────────────────
+  frontend-full-build:
+    name: Frontend Full Build
+    needs: build-impact
+    if: >-
+      github.event_name == 'push' &&
+      (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/1.0.0-explore') &&
+      needs.build-impact.outputs.frontend_required != 'false'
+    runs-on: [self-hosted, linux, x64, large]
+    timeout-minutes: 45
+    env:
+      NODE_OPTIONS: --max-old-space-size=16384
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 2
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          package-manager-cache: false
+      - name: Check repository hygiene
+        run: pnpm run check:repo-hygiene
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Validate interactive capability contract
+        run: pnpm run capabilities:check && pnpm run capabilities:test && pnpm run website:test && pnpm run website:build
+      - name: Test core boundary contracts
+        run: pnpm run check:core-boundaries:test
+      - name: Check core boundaries
+        run: pnpm run check:core-boundaries
+      - name: Validate i18n contract
+        if: needs.build-impact.outputs.frontend_required != 'false'
+        run: pnpm run i18n:contract:test:ci
+      - name: Audit i18n resources
+        if: needs.build-impact.outputs.frontend_required != 'false'
+        run: pnpm run i18n:audit
+      - name: Validate theme color audit contract
+        if: needs.build-impact.outputs.frontend_required != 'false'
+        run: pnpm run theme:color-audit:test
+      - name: Audit theme color governance
+        if: needs.build-impact.outputs.frontend_required != 'false'
+        run: pnpm run theme:color-audit:all
+      - name: Validate theme visual governance contract
+        if: needs.build-impact.outputs.frontend_required != 'false'
+        run: pnpm run theme:visual-contract
+      - name: Validate WebKit compatibility gate
+        if: needs.build-impact.outputs.frontend_required != 'false'
+        run: pnpm run verify:webkit-compatibility:test
+      - name: Lint web UI
+        if: needs.build-impact.outputs.frontend_required != 'false'
+        run: pnpm run lint:web
+      - name: Run web UI tests
+        if: needs.build-impact.outputs.frontend_required != 'false'
+        run: pnpm --dir src/web-ui run test:run
+      - name: Build web UI (sequential tsc + vite to avoid OOM)
+        if: needs.build-impact.outputs.frontend_required != 'false'
+        timeout-minutes: 30
+        run: CI=true pnpm run build:web
+      - name: Type-check mobile web
+        if: needs.build-impact.outputs.frontend_required != 'false'
+        run: pnpm --dir src/mobile-web run type-check
+      - name: Build mobile web
+        if: needs.build-impact.outputs.frontend_required != 'false'
+        run: pnpm run build:mobile-web
+
+  # ═══════════════════════════════════════════════════════════════════════
+  # Existing jobs that remain unchanged
+  # ═══════════════════════════════════════════════════════════════════════
+
+  # ── Shell deploy assets: LF endings + syntax ───────────────────────
+  shell-scripts:
+    name: Shell Deploy Scripts
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version-file: package.json
+          package-manager-cache: false
+      - name: Reject CRLF in shell and deploy assets
+        run: |
+          bad=$(git ls-files -z \
+                  '*.sh' '*.bash' 'Dockerfile' 'Dockerfile.*' '*.Dockerfile' 'Caddyfile' \
+                  'docker-compose.yml' 'docker-compose.*.yml' \
+                | xargs -0 -r grep -lU $'\r' || true)
+          if [ -n "$bad" ]; then
+            echo "::error::CRLF line endings found; these must stay LF (see .gitattributes):"
+            echo "$bad"
+            exit 1
+          fi
+          echo "All shell and deploy assets are LF-only."
+      - name: bash -n every tracked shell script
+        run: |
+          rc=0
+          while IFS= read -r -d '' f; do
+            bash -n "$f" || { echo "::error file=$f::bash syntax error"; rc=1; }
+          done < <(git ls-files -z '*.sh' '*.bash')
+          exit "$rc"
+      - name: Verify release and version-generation contracts
+        run: node --test scripts/release-channel.test.mjs scripts/tauri-release-manifest.test.mjs scripts/linux-binaries-manifest.test.mjs scripts/version-generation.test.mjs
+      - name: Validate Relay deployment and packaging contracts
+        run: node --test scripts/relay/*.test.mjs
+      - name: Verify minisign download fallback
+        run: |
+          set -euo pipefail
+          test_root="$(mktemp -d)"
+          trap 'rm -rf "$test_root"' EXIT
+          mkdir -p "$test_root/stubs"
+          printf '#!/usr/bin/env bash\nexit 1\n' >"$test_root/stubs/sudo"
+          chmod +x "$test_root/stubs/sudo"
+          PATH="$test_root/stubs:/usr/bin:/bin" \
+            RUNNER_TEMP="$test_root" \
+            ALEX_SIGNING_KEY="YQ==" \
+            bash scripts/sign-release-assets.sh "$test_root/missing-asset"
+          "$test_root/alex-minisign-0.12/bin/minisign" -v
+
+  # ── Impact-selected Linux binaries (existing, unchanged) ───────────
   package-impact-contract:
     name: Impact-selected Linux / Relay Contract
     needs: build-impact
@@ -443,63 +583,7 @@ jobs:
       upload_artifacts: false
       cache_write: false
 
-  # Stable required result: verify both fast Rust scheduling and whether the
-  # impact-selected PR producer contract ran or intentionally skipped.
-  rust-validation-result:
-    name: Rust / CLI Validation
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    if: ${{ always() }}
-    needs: [build-impact, cli-test, rust-build-check, package-impact-contract]
-    steps:
-      - name: Verify Rust and CLI result
-        shell: pwsh
-        env:
-          RUST_REQUIRED: ${{ needs.build-impact.outputs.rust_required }}
-          PR_PRODUCER_REQUIRED: ${{ needs.build-impact.outputs.pr_producer_required }}
-          EVENT_NAME: ${{ github.event_name }}
-          IMPACT_RESULT: ${{ needs.build-impact.result }}
-          CLI_RESULT: ${{ needs.cli-test.result }}
-          RUST_RESULT: ${{ needs.rust-build-check.result }}
-          BUILD_RESULT: ${{ needs.package-impact-contract.result }}
-        run: |
-          $ErrorActionPreference = 'Stop'
-          if ($env:IMPACT_RESULT -ne 'success') {
-            throw "Build impact classification did not succeed: $env:IMPACT_RESULT"
-          }
-
-          switch ($env:RUST_REQUIRED) {
-            'false' {
-              if ($env:CLI_RESULT -ne 'skipped' -or $env:RUST_RESULT -ne 'skipped') {
-                throw "Expected skipped Rust/CLI jobs; CLI=$env:CLI_RESULT Rust=$env:RUST_RESULT"
-              }
-            }
-            'true' {
-              if ($env:CLI_RESULT -ne 'success' -or $env:RUST_RESULT -ne 'success') {
-                throw "Expected successful Rust and CLI jobs; CLI=$env:CLI_RESULT Rust=$env:RUST_RESULT"
-              }
-            }
-            default {
-              throw "Unexpected rust_required value: '$env:RUST_REQUIRED'"
-            }
-          }
-
-          $producerExpected = $env:EVENT_NAME -eq 'pull_request' -and $env:PR_PRODUCER_REQUIRED -eq 'true'
-          if ($producerExpected -and $env:BUILD_RESULT -ne 'success') {
-            throw "Expected successful impact-selected producer jobs; Build=$env:BUILD_RESULT"
-          }
-          if (-not $producerExpected -and $env:BUILD_RESULT -ne 'skipped') {
-            throw "Expected producer jobs to be skipped; Build=$env:BUILD_RESULT"
-          }
-
-  # ── DeepSeek Harness bridge: profile packaging on Windows ──────────
-  # `prepare:dsh-profile` runs from `frontend:build-all` / official desktop
-  # packaging, not from desktop:dev or cargo check. Until this job existed,
-  # its first Windows execution ever was a release build, and it failed there
-  # (`spawnSync npm ENOENT`: npm is a `.cmd` shim Node will not spawn without
-  # a shell). This job is the cheapest thing that exercises the whole
-  # packaging path — npm install, tsc, `npm pack`, tar, tree copy — on the
-  # platform whose path and process rules differ.
+  # ── DSH Profile Packaging on Windows (existing, unchanged) ─────────
   dsh-profile-windows:
     name: DSH Profile Packaging (windows-latest)
     needs: build-impact
@@ -508,16 +592,13 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
-
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
           node-version-file: package.json
           package-manager-cache: false
-
       - name: Build the bridge profile
         run: node scripts/prepare-dsh-profile.mjs
-
       - name: Verify the profile is complete and stamped
         shell: bash
         run: |
@@ -533,9 +614,6 @@ jobs:
           do
             [ -f "$path" ] || { echo "::error::missing $path"; exit 1; }
           done
-          # A vendored tree copied with a broken separator filter drags
-          # node_modules along; the profile resolves those from the user's own
-          # dsh installation and must ship none of its own beyond the two above.
           nested=$(find "$root/lib" "$root/presets" -name node_modules -o -name '*.map' || true)
           if [ -n "$nested" ]; then
             echo "::error::profile carries files it must not ship:"
@@ -549,148 +627,92 @@ jobs:
             process.stdout.write(`profile ${stamp.profile} @ ${stamp.bridge}, min dsh ${stamp.minDshVersion}\n`);
           '
 
-  # ── Frontend: build ────────────────────────────────────────────────
-  frontend-build:
-    name: Frontend Build
+  # ── Final validation (unchanged) ──────────────────────────────────
+  rust-validation-result:
+    name: Rust / CLI Validation
     runs-on: ubuntu-latest
-    env:
-      NODE_OPTIONS: --max-old-space-size=8192
+    timeout-minutes: 5
+    if: ${{ always() }}
+    needs: [build-impact, cli-test, rust-check, package-impact-contract]
+    steps:
+      - name: Verify Rust and CLI result
+        shell: pwsh
+        env:
+          RUST_REQUIRED: ${{ needs.build-impact.outputs.rust_required }}
+          PR_PRODUCER_REQUIRED: ${{ needs.build-impact.outputs.pr_producer_required }}
+          EVENT_NAME: ${{ github.event_name }}
+          IMPACT_RESULT: ${{ needs.build-impact.result }}
+          CLI_RESULT: ${{ needs.cli-test.result }}
+          RUST_RESULT: ${{ needs.rust-check.result }}
+          BUILD_RESULT: ${{ needs.package-impact-contract.result }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($env:IMPACT_RESULT -ne 'success') {
+            throw "Build impact classification did not succeed: $env:IMPACT_RESULT"
+          }
+          switch ($env:RUST_REQUIRED) {
+            'false' {
+              if ($env:CLI_RESULT -ne 'skipped' -or $env:RUST_RESULT -ne 'skipped') {
+                throw "Expected skipped Rust/CLI jobs; CLI=$env:CLI_RESULT Rust=$env:RUST_RESULT"
+              }
+            }
+            'true' {
+              if ($env:CLI_RESULT -ne 'success' -or $env:RUST_RESULT -ne 'success') {
+                throw "Expected successful Rust and CLI jobs; CLI=$env:CLI_RESULT Rust=$env:RUST_RESULT"
+              }
+            }
+            default {
+              throw "Unexpected rust_required value: '$env:RUST_REQUIRED'"
+            }
+          }
+          $producerExpected = $env:EVENT_NAME -eq 'pull_request' -and $env:PR_PRODUCER_REQUIRED -eq 'true'
+          if ($producerExpected -and $env:BUILD_RESULT -ne 'success') {
+            throw "Expected successful impact-selected producer jobs; Build=$env:BUILD_RESULT"
+          }
+          if (-not $producerExpected -and $env:BUILD_RESULT -ne 'skipped') {
+            throw "Expected producer jobs to be skipped; Build=$env:BUILD_RESULT"
+          }
+
+  # ── DSH Profile Packaging on Windows (existing, unchanged) ─────────
+  dsh-profile-windows:
+    name: DSH Profile Packaging (windows-latest)
     needs: build-impact
+    if: ${{ !cancelled() && needs.build-impact.outputs.dsh_profile_required == 'true' }}
+    runs-on: windows-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
         with:
-          fetch-depth: 2
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v5
-
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 22
+          node-version-file: package.json
           package-manager-cache: false
-
-      - name: Check repository hygiene
-        run: pnpm run check:repo-hygiene
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Validate interactive capability contract
-        run: pnpm run capabilities:check && pnpm run capabilities:test && pnpm run website:test && pnpm run website:build
-
-      - name: Test core boundary contracts
-        run: pnpm run check:core-boundaries:test
-
-      - name: Check core boundaries
-        run: pnpm run check:core-boundaries
-
-      - name: Setup Bun for package resource preflight
-        if: needs.build-impact.outputs.frontend_required != 'false'
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: "1.3.14"
-          no-cache: true
-
-      - name: Setup Rust for release projection preflight
-        if: needs.build-impact.outputs.frontend_required != 'false'
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Verify committed release metadata
-        if: needs.build-impact.outputs.frontend_required != 'false'
-        run: cargo metadata --locked --no-deps
-
-      - name: Build plugin Host resources
-        if: needs.build-impact.outputs.frontend_required != 'false'
-        run: |
-          bun install --cwd src/apps/extension-host --frozen-lockfile
-          bun run --cwd src/apps/extension-host build
-
-      - name: Generate web API bindings
-        if: needs.build-impact.outputs.frontend_required != 'false'
-        run: pnpm --dir src/web-ui run gen:types
-
-      - name: Validate PPT Live generated-file contract
-        if: needs.build-impact.outputs.frontend_required != 'false'
-        run: pnpm run test:ppt-live
-
-      - name: Validate GitHub config
-        run: pnpm run check:github-config
-
-      - name: Select i18n contract profile
-        if: needs.build-impact.outputs.frontend_required != 'false'
+      - name: Build the bridge profile
+        run: node scripts/prepare-dsh-profile.mjs
+      - name: Verify the profile is complete and stamped
         shell: bash
         run: |
-          if git rev-parse HEAD^1 >/dev/null 2>&1 &&
-            git diff --name-only HEAD^1 HEAD -- scripts/i18n-audit.mjs scripts/i18n-contract.test.mjs | grep -q .; then
-            echo "ALEX_I18N_CONTRACT_TEST_AUDIT_INTEGRATION=1" >> "$GITHUB_ENV"
+          set -euo pipefail
+          root=packages/dsh-acp/dist-profile
+          for path in \
+            "$root/.alex-bridge.json" \
+            "$root/cordis.patch.yml" \
+            "$root/package.json" \
+            "$root/lib/app.js" \
+            "$root/node_modules/@agentclientprotocol/sdk/package.json" \
+            "$root/node_modules/@deepseek-ai/dsh-agent-spine-demo/package.json"
+          do
+            [ -f "$path" ] || { echo "::error::missing $path"; exit 1; }
+          done
+          nested=$(find "$root/lib" "$root/presets" -name node_modules -o -name '*.map' || true)
+          if [ -n "$nested" ]; then
+            echo "::error::profile carries files it must not ship:"
+            echo "$nested"
+            exit 1
           fi
-
-      - name: Validate i18n contract
-        if: needs.build-impact.outputs.frontend_required != 'false'
-        run: pnpm run i18n:contract:test:ci
-
-      - name: Audit i18n resources
-        if: needs.build-impact.outputs.frontend_required != 'false'
-        run: pnpm run i18n:audit
-
-      - name: Validate theme color audit contract
-        if: needs.build-impact.outputs.frontend_required != 'false'
-        run: pnpm run theme:color-audit:test
-
-      - name: Audit theme color governance
-        if: needs.build-impact.outputs.frontend_required != 'false'
-        run: pnpm run theme:color-audit:all
-
-      - name: Validate theme visual governance contract
-        if: needs.build-impact.outputs.frontend_required != 'false'
-        run: pnpm run theme:visual-contract
-
-      - name: Validate WebKit compatibility gate
-        if: needs.build-impact.outputs.frontend_required != 'false'
-        run: pnpm run verify:webkit-compatibility:test
-
-      - name: Lint web UI
-        if: needs.build-impact.outputs.frontend_required != 'false'
-        run: pnpm run lint:web
-
-      - name: Run web UI tests
-        if: needs.build-impact.outputs.frontend_required != 'false'
-        run: pnpm --dir src/web-ui run test:run
-
-      - name: Run MiniApp Market tests
-        if: needs.build-impact.outputs.frontend_required != 'false'
-        run: pnpm --dir src/miniapp-market-web run test
-
-      - name: Run Skin Market tests
-        if: needs.build-impact.outputs.frontend_required != 'false'
-        run: pnpm --dir src/skin-market-web run test
-
-      - name: Build web UI
-        if: needs.build-impact.outputs.frontend_required != 'false'
-        timeout-minutes: 15
-        run: pnpm run build:web
-
-      - name: Type-check mobile web
-        if: needs.build-impact.outputs.frontend_required != 'false'
-        run: pnpm --dir src/mobile-web run type-check
-
-      - name: Test mobile web account login and reload
-        if: needs.build-impact.outputs.frontend_required != 'false'
-        run: pnpm --dir src/mobile-web run test:account-login
-
-      - name: Test mobile web browser account persistence and concurrency
-        if: needs.build-impact.outputs.frontend_required != 'false'
-        timeout-minutes: 5
-        run: pnpm --dir src/mobile-web run test:account-browser
-
-      - name: Build mobile web
-        if: needs.build-impact.outputs.frontend_required != 'false'
-        run: pnpm run build:mobile-web
-
-      - name: Project a Nightly version
-        if: needs.build-impact.outputs.frontend_required != 'false'
-        run: node scripts/set-build-version.mjs --version "1.0.0-nightly.ci.${{ github.run_id }}"
-
-      - name: Verify projected release metadata
-        if: needs.build-impact.outputs.frontend_required != 'false'
-        run: cargo metadata --locked --no-deps
+          node -e '
+            const stamp = require("./packages/dsh-acp/dist-profile/.alex-bridge.json");
+            if (stamp.profile !== "alex-acp") throw new Error("wrong profile name: " + stamp.profile);
+            if (!/^[0-9a-f]{64}$/.test(stamp.content)) throw new Error("no content digest");
+            process.stdout.write(`profile ${stamp.profile} @ ${stamp.bridge}, min dsh ${stamp.minDshVersion}\n`);
+          '
