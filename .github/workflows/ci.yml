@@ -319,11 +319,11 @@ jobs:
 
       - name: Run full core library tests on Linux
         if: runner.os == 'Linux'
-        run: cargo test --locked -p openbitfun-core --features product-full --lib
+        run: cargo test --locked -p alex-core --features product-full --lib
 
       - name: Run desktop library tests
         if: runner.os != 'Windows'
-        run: cargo test --locked -p openbitfun-desktop --lib
+        run: cargo test --locked -p alex-desktop --lib
 
       # Tauri issue #13419 prevents some Windows MSVC lib-test harnesses from
       # entering Rust's test runner at all. Keep probing on every run so the
@@ -335,7 +335,7 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          $testOutput = cargo test --locked -p openbitfun-desktop --lib 2>&1
+          $testOutput = cargo test --locked -p alex-desktop --lib 2>&1
           $testExitCode = $LASTEXITCODE
           $testOutput | ForEach-Object { Write-Output $_ }
           if ($testExitCode -eq 0) {
@@ -359,37 +359,37 @@ jobs:
       - name: Run product-control domain and delivery-profile contracts
         shell: bash
         run: |
-          cargo test --locked -p openbitfun-product-domains --no-default-features product_control
-          cargo test --locked -p openbitfun-product-domains --no-default-features remote_surface
-          cargo test --locked -p openbitfun-product-capabilities every_agent_runtime_delivery_profile_includes_product_control_discovery
+          cargo test --locked -p alex-product-domains --no-default-features product_control
+          cargo test --locked -p alex-product-domains --no-default-features remote_surface
+          cargo test --locked -p alex-product-capabilities every_agent_runtime_delivery_profile_includes_product_control_discovery
 
       # These crates own platform-sensitive behavior that is not exercised by
       # testing openbitfun-core/openbitfun-desktop alone. Keep their focused contract
       # suites in the OS matrix so Linux success cannot hide Windows/macOS
       # regressions in worker interruption, relay storage, or OAuth handling.
       - name: Run Page Functions runtime tests
-        run: cargo test --locked -p openbitfun-page-function-runtime
+        run: cargo test --locked -p alex-page-function-runtime
 
       - name: Run Relay service tests
-        run: cargo test --locked -p openbitfun-relay-service
+        run: cargo test --locked -p alex-relay-service
 
       - name: Run subscription authentication tests
-        run: cargo test --locked -p openbitfun-ai-adapters --features subscription-auth --lib subscription_auth
+        run: cargo test --locked -p alex-ai-adapters --features subscription-auth --lib subscription_auth
 
       # File watching is backed by a different OS API on every platform
       # (ReadDirectoryChangesW / FSEvents / inotify), so watch registration,
       # debounce, and atomic-rename regressions must stay in the full OS matrix.
       # The suite is behind a non-default feature and would otherwise never run.
       - name: Run file watch contract tests
-        run: cargo test --locked -p openbitfun-services-integrations --no-default-features --features file-watch --test file_watch_contracts
+        run: cargo test --locked -p alex-services-integrations --no-default-features --features file-watch --test file_watch_contracts
 
       # Exercise native child cleanup outside the Tauri test harness. In
       # particular, Windows update/restart cleanup must leave the host alive.
       - name: Run process lifecycle contract tests
         shell: bash
         run: |
-          cargo test --locked -p openbitfun-services-core --no-default-features --features process-runtime --test process_runtime_contracts
-          cargo test --locked -p openbitfun-services-core --no-default-features --features process-runtime --lib process_tree::tests::
+          cargo test --locked -p alex-services-core --no-default-features --features process-runtime --test process_runtime_contracts
+          cargo test --locked -p alex-services-core --no-default-features --features process-runtime --lib process_tree::tests::
 
       # Search tools share matching but retain provider-specific path and
       # symlink handling. Keep the search module in the full OS matrix.
@@ -401,8 +401,8 @@ jobs:
       - name: Run workspace provider contracts
         shell: bash
         run: |
-          cargo test --locked -p openbitfun-services-core --no-default-features --features workspace-runtime --lib workspace::tests::
-          cargo test --locked -p openbitfun-services-integrations --no-default-features --features remote-ssh-concrete --lib remote_ssh::manager::tests::workspace_
+          cargo test --locked -p alex-services-core --no-default-features --features workspace-runtime --lib workspace::tests::
+          cargo test --locked -p alex-services-integrations --no-default-features --features remote-ssh-concrete --lib remote_ssh::manager::tests::workspace_
           cargo test --locked -p tool-runtime --no-default-features --lib fs::read_file::tests::
           cargo test --locked -p tool-runtime --no-default-features --test tool_io_contracts
 
@@ -411,7 +411,7 @@ jobs:
       - name: Run workspace Agent contracts
         if: runner.os != 'Linux'
         run: >-
-          cargo test --locked -p openbitfun-core --no-default-features
+          cargo test --locked -p alex-core --no-default-features
           --features agent-runtime,git,remote-workspace,document-read --lib --
           file_read_tool::tests file_write_tool::tests file_edit_tool::tests
           delete_file_tool::tests grep_tool::tests glob_tool::tests ls_tool::tests
@@ -735,40 +735,40 @@ jobs:
         run: cargo check --locked --workspace
       - name: Run FULL core library tests with product-full
         timeout-minutes: 45
-        run: cargo test --locked -p openbitfun-core --features product-full --lib
+        run: cargo test --locked -p alex-core --features product-full --lib
       - name: Run desktop library tests
-        run: cargo test --locked -p openbitfun-desktop --lib
+        run: cargo test --locked -p alex-desktop --lib
       - name: Run product-control domain and delivery-profile contracts
         shell: bash
         run: |
-          cargo test --locked -p openbitfun-product-domains --no-default-features product_control
-          cargo test --locked -p openbitfun-product-domains --no-default-features remote_surface
-          cargo test --locked -p openbitfun-product-capabilities every_agent_runtime_delivery_profile_includes_product_control_discovery
+          cargo test --locked -p alex-product-domains --no-default-features product_control
+          cargo test --locked -p alex-product-domains --no-default-features remote_surface
+          cargo test --locked -p alex-product-capabilities every_agent_runtime_delivery_profile_includes_product_control_discovery
       - name: Run Page Functions runtime tests
-        run: cargo test --locked -p openbitfun-page-function-runtime
+        run: cargo test --locked -p alex-page-function-runtime
       - name: Run Relay service tests
-        run: cargo test --locked -p openbitfun-relay-service
+        run: cargo test --locked -p alex-relay-service
       - name: Run subscription authentication tests
-        run: cargo test --locked -p openbitfun-ai-adapters --features subscription-auth --lib subscription_auth
+        run: cargo test --locked -p alex-ai-adapters --features subscription-auth --lib subscription_auth
       - name: Run file watch contract tests
-        run: cargo test --locked -p openbitfun-services-integrations --no-default-features --features file-watch --test file_watch_contracts
+        run: cargo test --locked -p alex-services-integrations --no-default-features --features file-watch --test file_watch_contracts
       - name: Run process lifecycle contract tests
         shell: bash
         run: |
-          cargo test --locked -p openbitfun-services-core --no-default-features --features process-runtime --test process_runtime_contracts
-          cargo test --locked -p openbitfun-services-core --no-default-features --features process-runtime --lib process_tree::tests::
+          cargo test --locked -p alex-services-core --no-default-features --features process-runtime --test process_runtime_contracts
+          cargo test --locked -p alex-services-core --no-default-features --features process-runtime --lib process_tree::tests::
       - name: Run search tool tests
         run: "cargo test --locked -p tool-runtime --lib search::"
       - name: Run workspace provider contracts
         shell: bash
         run: |
-          cargo test --locked -p openbitfun-services-core --no-default-features --features workspace-runtime --lib workspace::tests::
-          cargo test --locked -p openbitfun-services-integrations --no-default-features --features remote-ssh-concrete --lib remote_ssh::manager::tests::workspace_
+          cargo test --locked -p alex-services-core --no-default-features --features workspace-runtime --lib workspace::tests::
+          cargo test --locked -p alex-services-integrations --no-default-features --features remote-ssh-concrete --lib remote_ssh::manager::tests::workspace_
           cargo test --locked -p tool-runtime --no-default-features --lib fs::read_file::tests::
           cargo test --locked -p tool-runtime --no-default-features --test tool_io_contracts
       - name: Run workspace Agent contracts
         run: >-
-          cargo test --locked -p openbitfun-core --no-default-features
+          cargo test --locked -p alex-core --no-default-features
           --features agent-runtime,git,remote-workspace,document-read --lib --
           file_read_tool::tests file_write_tool::tests file_edit_tool::tests
           delete_file_tool::tests grep_tool::tests glob_tool::tests ls_tool::tests
