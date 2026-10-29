@@ -59,7 +59,7 @@ if ! command -v minisign >/dev/null 2>&1; then
         MINISIGN_ROOT="${RUNNER_TEMP:-${TMPDIR:-/tmp}}/alex-minisign-${MINISIGN_VERSION}"
         MINISIGN_ARCHIVE="$MINISIGN_ROOT/minisign-linux.tar.gz"
         mkdir -p "$MINISIGN_ROOT/bin"
-        curl --fail --location --retry 3 \
+        curl --fail --location --retry 5 --retry-delay 5 --retry-connrefused --connect-timeout 30 --max-time 120 \
           "https://github.com/jedisct1/minisign/releases/download/${MINISIGN_VERSION}/minisign-${MINISIGN_VERSION}-linux.tar.gz" \
           --output "$MINISIGN_ARCHIVE"
         printf '%s  %s\n' "$MINISIGN_ARCHIVE_SHA256" "$MINISIGN_ARCHIVE" | sha256sum --check --status
