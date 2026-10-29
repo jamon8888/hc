@@ -226,3 +226,4 @@ You export your files in open formats, then everything is deleted upon confirmat
 
 *Alex est un produit Hacienda — Alex is a Hacienda product.*
 *Draft v2 — liens, tarifs et certifications à valider avant publication.*
+# CI trigger
