@@ -14,9 +14,9 @@
 /.appanalyzer
 
 # Local emulator verification artifacts
-/openbitfun_*.jpeg
-/openbitfun_*_layout.json
-/openbitfun_layout*.json
+/alex_*.jpeg
+/alex_*_layout.json
+/alex_layout*.json
 .openbitfun/
 /.openbitfun/search/flashgrep-index/
 

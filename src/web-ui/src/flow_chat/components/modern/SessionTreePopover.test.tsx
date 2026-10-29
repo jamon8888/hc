@@ -29,11 +29,11 @@ vi.mock('../../store/FlowChatStore', () => ({
   },
 }));
 
-vi.mock('@openbitfun/ui', async importOriginal => {
+vi.mock('@alex/ui', async importOriginal => {
   const ReactModule = await import('react');
 
   return {
-    ...await importOriginal<typeof import('@openbitfun/ui')>(),
+    ...await importOriginal<typeof import('@alex/ui')>(),
     Spinner: () => <span data-testid="dot-matrix-loader" />,
     IconButton: ReactModule.forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement> & {
       tooltip?: string;
@@ -87,7 +87,7 @@ describe('SessionTreePopover', () => {
   afterEach(() => {
     act(() => root.unmount());
     container.remove();
-    document.querySelector('[data-openbitfun-overlay-host="true"]')?.remove();
+    document.querySelector('[data-alex-overlay-host="true"]')?.remove();
     vi.restoreAllMocks();
   });
 
@@ -162,7 +162,7 @@ describe('SessionTreePopover', () => {
     });
 
     const panel = document.querySelector<HTMLElement>('.session-tree-popover__panel');
-    expect(panel?.closest('[data-openbitfun-overlay-host]')?.getAttribute('data-openbitfun-overlay-host')).toBe('true');
+    expect(panel?.closest('[data-alex-overlay-host]')?.getAttribute('data-alex-overlay-host')).toBe('true');
     expect(panel?.style.visibility).toBe('visible');
     const actionButton = panel?.querySelector<HTMLButtonElement>(
       '[aria-label="flowChatHeader.agentTreeActions"]',
@@ -229,11 +229,11 @@ describe('SessionTreePopover', () => {
     subagentNodes.forEach((node) => {
       const sessionId = node.dataset.sessionId!;
       const avatar = node.querySelector<HTMLElement>(
-        '[data-openbitfun-component="subagent-avatar"]',
+        '[data-alex-component="subagent-avatar"]',
       )!;
       const presentation = resolveSubagentAvatarPresentation(sessionId);
 
-      expect(avatar.dataset.openbitfunAvatarId).toBe(presentation.avatarId);
+      expect(avatar.dataset.alexAvatarId).toBe(presentation.avatarId);
       expect(avatar.querySelector('img')?.getAttribute('src')).toBe(getSubagentAvatarDefinition(presentation.avatarId).src);
     });
 

@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::PathBuf;
 
-pub use openbitfun_runtime_ports::RelatedPath;
+pub use alex_runtime_ports::RelatedPath;
 
 /// Workspace type.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
@@ -29,7 +29,7 @@ pub enum WorkspaceStatus {
     Archived,
 }
 
-pub use openbitfun_core_types::WorkspaceKind;
+pub use alex_core_types::WorkspaceKind;
 
 /// Stable identity of the assistant workspace that owns the primary role.
 ///

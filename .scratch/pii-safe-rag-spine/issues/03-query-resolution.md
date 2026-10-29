@@ -33,7 +33,7 @@ Fog: query-resolution mechanic.
 amended; opaque HMAC token — D3 clarified; `rag_search` exposed as a port —
 `RagSearchPort` in `contracts/runtime-ports`, feature `rag-search`). Written into
 corrected SPEC §4; implemented in `services/basemind-integration/src/query_resolution.rs`
-(`QueryResolver`), consumed through the port by the `Tool` wrapper in `openbitfun-core`.
+(`QueryResolver`), consumed through the port by the `Tool` wrapper in `alex-core`.
 
 Pipeline (all of it inside the port implementation; `session_id` comes from
 `ToolUseContext`, never from the query text):

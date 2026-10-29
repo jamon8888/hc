@@ -7,7 +7,7 @@
  * directly with explicit success or failure feedback.
  */
 
-import { OverflowText, Button, Empty, Icon } from '@openbitfun/ui';
+import { OverflowText, Button, Empty, Icon } from '@alex/ui';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { RotateCcw, Inbox } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -115,14 +115,14 @@ const ArchivedRow: React.FC<ArchivedRowProps> = ({
   const dateStr = formatDateTime(session.lastActiveAt);
 
   return (
-    <div data-openbitfun-component="archived-sessions-config" data-openbitfun-part="row" className="archived-sessions-config__row">
-      <div data-openbitfun-component="archived-sessions-config" data-openbitfun-part="rowInfo" className="archived-sessions-config__row-info">
+    <div data-alex-component="archived-sessions-config" data-alex-part="row" className="archived-sessions-config__row">
+      <div data-alex-component="archived-sessions-config" data-alex-part="rowInfo" className="archived-sessions-config__row-info">
         <OverflowText className="archived-sessions-config__row-name">{displayName}</OverflowText>
         {dateStr && (
           <span className="archived-sessions-config__row-date">{dateStr}</span>
         )}
       </div>
-      <div data-openbitfun-component="archived-sessions-config" data-openbitfun-part="rowActions" className="archived-sessions-config__row-actions">
+      <div data-alex-component="archived-sessions-config" data-alex-part="rowActions" className="archived-sessions-config__row-actions">
         <Button
           size="sm"
           variant="outline"
@@ -244,8 +244,8 @@ const ArchivedSessionsConfig: React.FC = () => {
     const handler = () => {
       void loadArchived(true);
     };
-    window.addEventListener('openbitfun:session-archived', handler);
-    return () => window.removeEventListener('openbitfun:session-archived', handler);
+    window.addEventListener('alex:session-archived', handler);
+    return () => window.removeEventListener('alex:session-archived', handler);
   }, [loadArchived]);
 
   // ── Group entries by workspace ───────────────────────────────────────────
@@ -452,7 +452,7 @@ const ArchivedSessionsConfig: React.FC = () => {
   const hasEntries = entries.length > 0;
 
   const headerExtra = (
-    <div data-openbitfun-component="archived-sessions-config" data-openbitfun-part="headerActions" className="archived-sessions-config__header-actions">
+    <div data-alex-component="archived-sessions-config" data-alex-part="headerActions" className="archived-sessions-config__header-actions">
       <ConfigRefreshButton
         tooltip={t('actions.refresh')}
         onClick={() => { void loadArchived(true); }}
@@ -475,7 +475,7 @@ const ArchivedSessionsConfig: React.FC = () => {
   );
 
   return (
-    <ConfigPageLayout data-openbitfun-component="archived-sessions-config" data-openbitfun-part="root" className="archived-sessions-config">
+    <ConfigPageLayout data-alex-component="archived-sessions-config" data-alex-part="root" className="archived-sessions-config">
       <ConfigPageHeader
         title={t('nav.sessions.archivedSessions')}
         subtitle={t('nav.sessions.archivedSessionsDescription')}
@@ -498,11 +498,11 @@ const ArchivedSessionsConfig: React.FC = () => {
             />
           ))}
           {loading ? (
-            <div data-openbitfun-component="archived-sessions-config" data-openbitfun-part="loading" className="archived-sessions-config__loading">
+            <div data-alex-component="archived-sessions-config" data-alex-part="loading" className="archived-sessions-config__loading">
               {t('nav.sessions.loading')}
             </div>
           ) : !hasEntries && loadFailures.length === 0 ? (
-            <div data-openbitfun-component="archived-sessions-config" data-openbitfun-part="empty" className="archived-sessions-config__empty">
+            <div data-alex-component="archived-sessions-config" data-alex-part="empty" className="archived-sessions-config__empty">
               <Empty
                 icon={<Inbox aria-hidden />}
                 title={t('nav.sessions.noArchivedSessions')}
@@ -513,11 +513,11 @@ const ArchivedSessionsConfig: React.FC = () => {
             {Array.from(grouped.entries()).map(([workspaceKey, group]) => {
               const isCollapsed = collapsedWorkspaces.has(workspaceKey);
               return (
-              <div data-openbitfun-component="archived-sessions-config" data-openbitfun-part="group" data-openbitfun-state={isCollapsed ? 'collapsed' : undefined} key={workspaceKey} className="archived-sessions-config__group">
+              <div data-alex-component="archived-sessions-config" data-alex-part="group" data-alex-state={isCollapsed ? 'collapsed' : undefined} key={workspaceKey} className="archived-sessions-config__group">
                 <button data-overflow-trigger
                   type="button"
-                  data-openbitfun-component="archived-sessions-config"
-                  data-openbitfun-part="groupHeader"
+                  data-alex-component="archived-sessions-config"
+                  data-alex-part="groupHeader"
                   className="archived-sessions-config__group-header"
                   onClick={() => toggleWorkspace(workspaceKey)}
                   aria-expanded={!isCollapsed}
@@ -533,7 +533,7 @@ const ArchivedSessionsConfig: React.FC = () => {
                   </span>
                 </button>
                 {!isCollapsed && (
-                <div data-openbitfun-component="archived-sessions-config" data-openbitfun-part="groupList" className="archived-sessions-config__group-list">
+                <div data-alex-component="archived-sessions-config" data-alex-part="groupList" className="archived-sessions-config__group-list">
                   {group.entries.map(entry => (
                     <ArchivedRow
                       key={archivedEntryIdentityKey(entry)}

@@ -96,7 +96,7 @@ export interface CanvasStateOptions<T> {
  */
 export declare function useCanvasState<T>(key: string, defaultValue: T, options?: CanvasStateOptions<T>): [T, SetCanvasState<T>];
 /**
- * Action requests that a Canvas can dispatch to the OpenBitFun host.
+ * Action requests that a Canvas can dispatch to the Alex host.
  */
 export type CanvasAction =
     | {
@@ -135,7 +135,7 @@ export type CanvasAction =
  * `line`, `column`, and `lineEnd` fields navigate to a position or range.
  *
  * **`openSession`** — Switch the IDE to an existing conversation.
- * `sessionId` is the OpenBitFun session UUID.
+ * `sessionId` is the Alex session UUID.
  *
  * @example
  * ```tsx
@@ -158,7 +158,7 @@ export type CanvasAction =
  *       onClick={() =>
  *         dispatch({
  *           type: "copyText",
- *           text: "Canvas summary copied from OpenBitFun",
+ *           text: "Canvas summary copied from Alex",
  *         })
  *       }
  *     >

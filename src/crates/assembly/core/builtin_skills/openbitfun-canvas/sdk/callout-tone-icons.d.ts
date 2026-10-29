@@ -1,7 +1,7 @@
 import type { JSX } from "react";
 type CalloutToneIconGlyph = "info" | "warning" | "circles-check" | "exclamation-circle";
 type CalloutToneForIcon = "info" | "success" | "warning" | "danger" | "neutral";
-/** Maps `Callout` tone to the same status icons used by `OpenBitFun UI` toasts. */
+/** Maps `Callout` tone to the same status icons used by `Alex UI` toasts. */
 export declare const calloutToneIconGlyph: Record<Exclude<CalloutToneForIcon, "neutral">, CalloutToneIconGlyph>;
 export declare function CalloutToneIcon({ tone, color }: {
     tone: CalloutToneForIcon;

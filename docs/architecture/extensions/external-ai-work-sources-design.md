@@ -142,7 +142,7 @@ ACP 配置嵌入时也只展示所选产品的 clients，并隐藏包含全部�
 - Skill 使用现有扫描报告按稳定 sourceId 归属筛选，展示该生态的诊断。目录包复制完整依赖，PI/DSH 支持的 Markdown 单文件转换为独立 SKILL.md 包；包内链接依赖明确拒绝。
   当前 Host 通过扫描报告的可选 importOperationsVersion 协商新导入能力；旧 Host 保留原有目录导入路径。
   版本 2 支持可选 targetName：确认页可为同名项指定独立目录及调用名称，仅修改副本的 frontmatter name；旧 Host 不接收改名请求。
-  add_skill 的 sourceKey 对应已发现来源；复制先在临时目录校验、写入 `.openbitfun-import.json`，再发布到用户/项目原生目录。
+  add_skill 的 sourceKey 对应已发现来源；复制先在临时目录校验、写入 `.alex-import.json`，再发布到用户/项目原生目录。
   来源 ID、位置、解析方言、内容摘要和导入 ID 随副本保存；sourceId 仍为 Alex，原始来源单独用于标签和筛选。
   发现目录与原生运行时目录分离：未导入的外部 Skill 不进入对话候选、模式技能列表、提示词目录或名称/key 调用入口；旧来源 key 不会自动重定向到副本。
   本地与远程工作区执行相同过滤，撤销后重新解析即失去调用资格。已批准插件通过独立发布 owner 提供的 Skill 贡献保持原有执行契约。
@@ -454,7 +454,7 @@ Plugin Host Runtime、已退役的 LSP Runtime，以及通用动态模型路由�
 | Agent | 用户/项目声明的安全子集与 `primary/subagent/all` role | 用户/项目 `agents/**/*.md` 的主 Agent/Subagent 共用安全子集 | 用户/项目 `[agents]`、角色文件与安全配置层的 Subagent 子集 | prompt、描述、继承/不透明模型引用、OpenCode 不透明 variant、Claude/Codex reasoning effort 和可表达工具请求进入既有归属模块；OpenCode/Claude 按 role 投影主选择器或 Task，Codex 保持 Subagent。无 profile 的显式模型引用可唯一精确匹配，variant/effort profile 必须由用户绑定到现有配置后才可激活。来源请求、profile、实际模型和解析方式在 Web/TUI 可见。权限、私有 MCP/Hook、reasoning summary/verbosity、采样、并发等没有对应实现的字段仍会阻止或降级。 |
 | MCP | 用户/显式目录/项目配置的安全子集 | user/project/local 原生层的安全子集 | 用户与项目 `config.toml` 原生层的安全子集 | 支持可表达的 stdio 与 HTTPS Streamable HTTP；发现不启动 Server，首次激活继续经 Alex MCP 审批。OAuth、remote executor、per-tool policy 等不完整语义明确降级。 |
 | Standalone Tool | 已有单文件 JavaScript 子集 | 无稳定的 runtime-free standalone Tool 来源 | 无稳定的 runtime-free standalone Tool 来源 | TypeScript、package/plugin Tool 与动态工具注册依赖独立 Plugin Host，不在声明式 adapter 中猜测。 |
-| Skill | 由现有 Skill 加载模块发现 `.opencode` 标准根及 OpenCode 本地配置根 | 由现有 Skill 加载模块发现 `.claude` 标准根；目录名是调用身份，描述可回退正文首段，`when_to_use` 合入索引，声明参数可做纯文本命名展开 | 由现有 Skill 加载模块发现 `.codex`、`.agents` 标准根；`.codex` 缺少 `name` 时回退目录名 | OpenCode V1 `skills.paths`/当前本地字符串数组只经 `openbitfun-core/external_sources` 组合边界投影根目录，递归、加载、覆盖、模式开关与执行仍由同一个 Skill 模块负责；URL 不加载。 |
+| Skill | 由现有 Skill 加载模块发现 `.opencode` 标准根及 OpenCode 本地配置根 | 由现有 Skill 加载模块发现 `.claude` 标准根；目录名是调用身份，描述可回退正文首段，`when_to_use` 合入索引，声明参数可做纯文本命名展开 | 由现有 Skill 加载模块发现 `.codex`、`.agents` 标准根；`.codex` 缺少 `name` 时回退目录名 | OpenCode V1 `skills.paths`/当前本地字符串数组只经 `alex-core/external_sources` 组合边界投影根目录，递归、加载、覆盖、模式开关与执行仍由同一个 Skill 模块负责；URL 不加载。 |
 | Hook | 静态目录 | 脱敏目录；同步 command 子集可审阅导入 | 脱敏目录；同步 command 子集可审阅导入 | 仅复制到私有原生快照并由 `AgentHookEngine` 执行；OpenCode、非 command、异步、未知或依赖未观察激活语义的 handler 不导入。 |
 
 生态原生语义由各 adapter 以契约测试固定，不抽象成全局优先级：

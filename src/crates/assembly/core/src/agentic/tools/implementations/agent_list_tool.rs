@@ -3,7 +3,7 @@ use crate::agentic::coordination::get_global_coordinator;
 use crate::agentic::tools::framework::{
     PermissionIntent, Tool, ToolRenderOptions, ToolResult, ToolUseContext, ValidationResult,
 };
-use crate::util::errors::{OpenBitFunError, OpenBitFunResult};
+use crate::util::errors::{AlexError, AlexResult};
 use async_trait::async_trait;
 use serde_json::{json, Value};
 
@@ -20,21 +20,21 @@ impl AgentListTool {
         Self
     }
 
-    fn validate_request(input: &Value, context: Option<&ToolUseContext>) -> OpenBitFunResult<()> {
+    fn validate_request(input: &Value, context: Option<&ToolUseContext>) -> AlexResult<()> {
         let object = input.as_object().ok_or_else(|| {
-            OpenBitFunError::tool("AgentList input must be an object".to_string())
+            AlexError::tool("AgentList input must be an object".to_string())
         })?;
         if let Some(field) = object.keys().next() {
-            return Err(OpenBitFunError::tool(format!(
+            return Err(AlexError::tool(format!(
                 "AgentList does not accept field '{field}'"
             )));
         }
         if let Some(context) = context {
             let agent_type = context.agent_type.as_deref().ok_or_else(|| {
-                OpenBitFunError::tool("agent_type is required in context".to_string())
+                AlexError::tool("agent_type is required in context".to_string())
             })?;
             if !is_swarm_planner_agent_type(agent_type) {
-                return Err(OpenBitFunError::tool(
+                return Err(AlexError::tool(
                     "AgentList is available only to Ultra and SwarmPlanner".to_string(),
                 ));
             }
@@ -49,7 +49,7 @@ impl Tool for AgentListTool {
         "AgentList"
     }
 
-    async fn description(&self) -> OpenBitFunResult<String> {
+    async fn description(&self) -> AlexResult<String> {
         Ok("List direct child agents and their latest status.".to_string())
     }
 
@@ -73,7 +73,7 @@ impl Tool for AgentListTool {
         &self,
         _input: &Value,
         _context: &ToolUseContext,
-    ) -> OpenBitFunResult<Vec<PermissionIntent>> {
+    ) -> AlexResult<Vec<PermissionIntent>> {
         Ok(Vec::new())
     }
 
@@ -101,13 +101,13 @@ impl Tool for AgentListTool {
         &self,
         input: &Value,
         context: &ToolUseContext,
-    ) -> OpenBitFunResult<Vec<ToolResult>> {
+    ) -> AlexResult<Vec<ToolResult>> {
         Self::validate_request(input, Some(context))?;
         let session_id = context.session_id.as_deref().ok_or_else(|| {
-            OpenBitFunError::tool("session_id is required in context".to_string())
+            AlexError::tool("session_id is required in context".to_string())
         })?;
         let coordinator = get_global_coordinator()
-            .ok_or_else(|| OpenBitFunError::tool("coordinator not initialized".to_string()))?;
+            .ok_or_else(|| AlexError::tool("coordinator not initialized".to_string()))?;
         let agents = coordinator
             .direct_child_agents(session_id)
             .await?
@@ -147,7 +147,7 @@ mod tests {
             custom_data: HashMap::new(),
             computer_use_host: None,
             runtime_tool_restrictions: ToolRuntimeRestrictions::default(),
-            runtime_handles: openbitfun_runtime_ports::ToolRuntimeHandles::default(),
+            runtime_handles: alex_runtime_ports::ToolRuntimeHandles::default(),
         }
     }
 

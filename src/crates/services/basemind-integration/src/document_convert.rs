@@ -13,7 +13,7 @@ use crate::ipc::BasemindClient;
 #[cfg(feature = "basemind")]
 use anyhow::Result;
 #[cfg(feature = "basemind")]
-use openbitfun_runtime_ports::{
+use alex_runtime_ports::{
     DocumentRedactionError, DocumentRedactionErrorKind, DocumentRedactionPort, RedactedDocument,
 };
 
@@ -69,7 +69,7 @@ impl DocumentRedactionPort for BasemindDocumentRedactor {
             .as_object()
             .cloned()
             .unwrap_or_default();
-        let mut entities: Vec<openbitfun_runtime_ports::RedactedEntity> = Vec::new();
+        let mut entities: Vec<alex_runtime_ports::RedactedEntity> = Vec::new();
         for (token, value) in &rehydration {
             let original = value.as_str().unwrap_or_default();
             if original.is_empty() {
@@ -82,7 +82,7 @@ impl DocumentRedactionPort for BasemindDocumentRedactor {
                 .find(|entity| entity.entity_id == entity_id)
             {
                 Some(entity) => entity.occurrence_count += 1,
-                None => entities.push(openbitfun_runtime_ports::RedactedEntity {
+                None => entities.push(alex_runtime_ports::RedactedEntity {
                     entity_id,
                     entity_type: category,
                     occurrence_count: 1,

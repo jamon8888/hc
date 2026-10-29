@@ -60,7 +60,7 @@ const messages = {
     detailBack: 'Back to Skin Market',
     detailDownload: 'Download appearance',
     compatibility: 'Compatibility',
-    minOpenBitFun: 'Alex {version} or newer',
+    minAlex: 'Alex {version} or newer',
     requiredCapabilities: 'Required capabilities',
     noExtraCapabilities: 'No additional capabilities required',
     whatsNew: 'What changed',
@@ -81,13 +81,13 @@ const messages = {
     notFoundTitle: 'This appearance is not here',
     notFoundBody: 'The link may be outdated, or the release may no longer be public.',
     backToCatalog: 'Browse appearances',
-    openbitfunHome: 'Alex website',
-    getOpenBitFunTitle: 'New to Alex?',
-    getOpenBitFunCatalogNote:
+    alexHome: 'Alex website',
+    getAlexTitle: 'New to Alex?',
+    getAlexCatalogNote:
       'Appearances apply inside the Alex desktop client. Download it once, then install any appearance from this market.',
-    getOpenBitFunListingNote:
+    getAlexListingNote:
       'This appearance applies inside the Alex desktop client. Download it first, then import the package.',
-    getOpenBitFunAction: 'Download Alex',
+    getAlexAction: 'Download Alex',
     refresh: 'Refresh',
     submissionsTitle: 'My submissions',
     submissionsIntro: 'Track appearance packages submitted from Alex Agent and respond to review feedback.',
@@ -197,7 +197,7 @@ const messages = {
     detailBack: '返回 Skin 市场',
     detailDownload: '下载外观包',
     compatibility: '兼容性',
-    minOpenBitFun: '需要 Alex {version} 或更高版本',
+    minAlex: '需要 Alex {version} 或更高版本',
     requiredCapabilities: '所需能力',
     noExtraCapabilities: '不需要额外能力',
     whatsNew: '更新说明',
@@ -218,13 +218,13 @@ const messages = {
     notFoundTitle: '这里没有这个外观',
     notFoundBody: '链接可能已经失效，或者该版本不再公开。',
     backToCatalog: '浏览外观',
-    openbitfunHome: 'Alex 官网',
-    getOpenBitFunTitle: '没有 Alex？',
-    getOpenBitFunCatalogNote:
+    alexHome: 'Alex 官网',
+    getAlexTitle: '没有 Alex？',
+    getAlexCatalogNote:
       '外观需要在 Alex 客户端里生效。下载客户端后，就能安装市场里的任意外观。',
-    getOpenBitFunListingNote:
+    getAlexListingNote:
       '这个外观需要在 Alex 客户端里生效。先下载客户端，再导入外观包即可。',
-    getOpenBitFunAction: '下载 Alex 客户端',
+    getAlexAction: '下载 Alex 客户端',
     refresh: '刷新',
     submissionsTitle: '我的投稿',
     submissionsIntro: '查看通过 Alex 智能体投稿的外观包，并跟进审核意见。',

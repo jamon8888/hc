@@ -2,14 +2,14 @@
 
 use crate::api::app_state::AppState;
 use crate::startup_trace::DesktopStartupTrace;
-use openbitfun_acp::client::{
+use alex_acp::client::{
     AcpAvailableCommand, AcpClientInfo, AcpClientPermissionResponse, AcpClientRequirementProbe,
     AcpClientStreamEvent, AcpSessionOptions, CreateAcpFlowSessionRecordResponse,
     SetAcpSessionConfigOptionRequest, SetAcpSessionModelRequest,
     SubmitAcpPermissionResponseRequest,
 };
-use openbitfun_core::service::workspace::WorkspaceInfo;
-use openbitfun_runtime_ports::SessionStorePort;
+use alex_core::service::workspace::WorkspaceInfo;
+use alex_runtime_ports::SessionStorePort;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use std::time::Instant;
@@ -29,7 +29,7 @@ struct AcpWorkspaceScope {
 impl AcpWorkspaceScope {
     async fn from_workspace(workspace: WorkspaceInfo) -> Result<Self, String> {
         let session_storage_path =
-            openbitfun_core::agentic::session::CoreSessionStorePort::default()
+            alex_core::agentic::session::CoreSessionStorePort::default()
                 .resolve_workspace_storage(&workspace.id)
                 .await
                 .map(|resolution| resolution.effective_storage_path)
@@ -211,7 +211,7 @@ fn emit_acp_model_round_completed(
     turn_id: &str,
     round_id: String,
     has_tool_calls: bool,
-) -> Result<(), openbitfun_core::util::errors::OpenBitFunError> {
+) -> Result<(), alex_core::util::errors::AlexError> {
     app_handle
         .emit(
             "agentic://model-round-completed",
@@ -222,7 +222,7 @@ fn emit_acp_model_round_completed(
                 "hasToolCalls": has_tool_calls,
             }),
         )
-        .map_err(|e| openbitfun_core::util::errors::OpenBitFunError::service(e.to_string()))
+        .map_err(|e| alex_core::util::errors::AlexError::service(e.to_string()))
 }
 
 #[tauri::command]
@@ -473,14 +473,14 @@ pub async fn start_acp_dialog_turn(
                                     }),
                                 )
                                 .map_err(|e| {
-                                    openbitfun_core::util::errors::OpenBitFunError::service(
+                                    alex_core::util::errors::AlexError::service(
                                         e.to_string(),
                                     )
                                 })?;
                         }
                         AcpClientStreamEvent::AgentText(text) => {
                             let round_id = current_round_id.clone().ok_or_else(|| {
-                                openbitfun_core::util::errors::OpenBitFunError::service(
+                                alex_core::util::errors::AlexError::service(
                                     "ACP text arrived before model round start".to_string(),
                                 )
                             })?;
@@ -496,14 +496,14 @@ pub async fn start_acp_dialog_turn(
                                     }),
                                 )
                                 .map_err(|e| {
-                                    openbitfun_core::util::errors::OpenBitFunError::service(
+                                    alex_core::util::errors::AlexError::service(
                                         e.to_string(),
                                     )
                                 })?;
                         }
                         AcpClientStreamEvent::AgentThought(text) => {
                             let round_id = current_round_id.clone().ok_or_else(|| {
-                                openbitfun_core::util::errors::OpenBitFunError::service(
+                                alex_core::util::errors::AlexError::service(
                                     "ACP thought arrived before model round start".to_string(),
                                 )
                             })?;
@@ -521,14 +521,14 @@ pub async fn start_acp_dialog_turn(
                                     }),
                                 )
                                 .map_err(|e| {
-                                    openbitfun_core::util::errors::OpenBitFunError::service(
+                                    alex_core::util::errors::AlexError::service(
                                         e.to_string(),
                                     )
                                 })?;
                         }
                         AcpClientStreamEvent::ToolEvent(tool_event) => {
                             let round_id = current_round_id.clone().ok_or_else(|| {
-                                openbitfun_core::util::errors::OpenBitFunError::service(
+                                alex_core::util::errors::AlexError::service(
                                     "ACP tool event arrived before model round start".to_string(),
                                 )
                             })?;
@@ -545,7 +545,7 @@ pub async fn start_acp_dialog_turn(
                                     }),
                                 )
                                 .map_err(|e| {
-                                    openbitfun_core::util::errors::OpenBitFunError::service(
+                                    alex_core::util::errors::AlexError::service(
                                         e.to_string(),
                                     )
                                 })?;
@@ -565,7 +565,7 @@ pub async fn start_acp_dialog_turn(
                                     }),
                                 )
                                 .map_err(|e| {
-                                    openbitfun_core::util::errors::OpenBitFunError::service(
+                                    alex_core::util::errors::AlexError::service(
                                         e.to_string(),
                                     )
                                 })?;
@@ -581,7 +581,7 @@ pub async fn start_acp_dialog_turn(
                                     }),
                                 )
                                 .map_err(|e| {
-                                    openbitfun_core::util::errors::OpenBitFunError::service(
+                                    alex_core::util::errors::AlexError::service(
                                         e.to_string(),
                                     )
                                 })?;
@@ -598,7 +598,7 @@ pub async fn start_acp_dialog_turn(
                                     }),
                                 )
                                 .map_err(|e| {
-                                    openbitfun_core::util::errors::OpenBitFunError::service(
+                                    alex_core::util::errors::AlexError::service(
                                         e.to_string(),
                                     )
                                 })?;
@@ -613,7 +613,7 @@ pub async fn start_acp_dialog_turn(
                                     }),
                                 )
                                 .map_err(|e| {
-                                    openbitfun_core::util::errors::OpenBitFunError::service(
+                                    alex_core::util::errors::AlexError::service(
                                         e.to_string(),
                                     )
                                 })?;
@@ -639,7 +639,7 @@ pub async fn start_acp_dialog_turn(
                                     }),
                                 )
                                 .map_err(|e| {
-                                    openbitfun_core::util::errors::OpenBitFunError::service(
+                                    alex_core::util::errors::AlexError::service(
                                         e.to_string(),
                                     )
                                 })?;
@@ -664,7 +664,7 @@ pub async fn start_acp_dialog_turn(
                                     }),
                                 )
                                 .map_err(|e| {
-                                    openbitfun_core::util::errors::OpenBitFunError::service(
+                                    alex_core::util::errors::AlexError::service(
                                         e.to_string(),
                                     )
                                 })?;

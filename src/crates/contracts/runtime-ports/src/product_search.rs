@@ -1,6 +1,6 @@
 use crate::PortResult;
 use async_trait::async_trait;
-use openbitfun_product_domains::product_search::{
+use alex_product_domains::product_search::{
     SessionContentSearchRequest, SessionContentSearchResponse,
 };
 

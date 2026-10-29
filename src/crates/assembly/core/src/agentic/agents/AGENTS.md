@@ -18,11 +18,11 @@
 Main-mode desktop defaults and explicit user exclusions:
 
 ```bash
-cargo test -p openbitfun-core --no-default-features --features agent-runtime,git,tools-computer-use --lib direct_desktop_policy_tests
+cargo test -p alex-core --no-default-features --features agent-runtime,git,tools-computer-use --lib direct_desktop_policy_tests
 ```
 
 Prompt routing and optional delegation are checked in the owning content crate:
 
 ```bash
-cargo test -p openbitfun-agent-content --test prompt_catalog_contracts
+cargo test -p alex-agent-content --test prompt_catalog_contracts
 ```

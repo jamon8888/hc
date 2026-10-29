@@ -4,7 +4,7 @@ use crate::agentic::tools::framework::{
     PermissionIntent, Tool, ToolPathResolution, ToolResult, ToolUseContext, ValidationResult,
 };
 use crate::agentic::tools::ToolPathOperation;
-use crate::util::errors::{OpenBitFunError, OpenBitFunResult};
+use crate::util::errors::{AlexError, AlexResult};
 use async_trait::async_trait;
 use serde_json::{json, Value};
 use tool_runtime::fs::edit_file::{apply_edit_to_content, edit_success_message, EditContentError};
@@ -55,13 +55,13 @@ impl FileEditTool {
     async fn read_current_file_content(
         context: &ToolUseContext,
         resolved: &ToolPathResolution,
-    ) -> OpenBitFunResult<String> {
+    ) -> AlexResult<String> {
         context
             .file_system_for_path(resolved)?
             .read_file_text(&resolved.resolved_path)
             .await
             .map_err(|error| {
-                OpenBitFunError::tool(format!(
+                AlexError::tool(format!(
                     "Failed to read file {}: {:#}",
                     resolved.logical_path, error
                 ))
@@ -75,7 +75,7 @@ impl Tool for FileEditTool {
         "Edit"
     }
 
-    async fn description(&self) -> OpenBitFunResult<String> {
+    async fn description(&self) -> AlexResult<String> {
         Ok(EDIT_TOOL_PROMPT.to_string())
     }
 
@@ -122,11 +122,11 @@ impl Tool for FileEditTool {
         &self,
         input: &Value,
         context: &ToolUseContext,
-    ) -> OpenBitFunResult<Vec<PermissionIntent>> {
+    ) -> AlexResult<Vec<PermissionIntent>> {
         let file_path = input
             .get("file_path")
             .and_then(Value::as_str)
-            .ok_or_else(|| OpenBitFunError::validation("file_path is required".to_string()))?;
+            .ok_or_else(|| AlexError::validation("file_path is required".to_string()))?;
         file_permission_intents_allowing_managed_plan_edits("edit", [file_path], context)
     }
 
@@ -270,21 +270,21 @@ impl Tool for FileEditTool {
         &self,
         input: &Value,
         context: &ToolUseContext,
-    ) -> OpenBitFunResult<Vec<ToolResult>> {
+    ) -> AlexResult<Vec<ToolResult>> {
         let file_path = input
             .get("file_path")
             .and_then(|v| v.as_str())
-            .ok_or_else(|| OpenBitFunError::tool("file_path is required".to_string()))?;
+            .ok_or_else(|| AlexError::tool("file_path is required".to_string()))?;
 
         let new_string = input
             .get("new_string")
             .and_then(|v| v.as_str())
-            .ok_or_else(|| OpenBitFunError::tool("new_string is required".to_string()))?;
+            .ok_or_else(|| AlexError::tool("new_string is required".to_string()))?;
 
         let old_string = input
             .get("old_string")
             .and_then(|v| v.as_str())
-            .ok_or_else(|| OpenBitFunError::tool("old_string is required".to_string()))?;
+            .ok_or_else(|| AlexError::tool("old_string is required".to_string()))?;
 
         let replace_all = input
             .get("replace_all")
@@ -306,19 +306,19 @@ impl Tool for FileEditTool {
         let edit_result = apply_edit_to_content(&content, old_string, new_string, replace_all)
             .map_err(|error| {
                 if let Some(detail) = error.detail() {
-                    OpenBitFunError::ClassifiedTool {
+                    AlexError::ClassifiedTool {
                         message: file_tool_guidance_message(error.to_string()),
                         detail,
                     }
                 } else {
-                    OpenBitFunError::tool(error.to_string())
+                    AlexError::tool(error.to_string())
                 }
             })?;
         file_system
             .write_file(&resolved.resolved_path, edit_result.new_content.as_bytes())
             .await
             .map_err(|error| {
-                OpenBitFunError::tool(format!(
+                AlexError::tool(format!(
                     "Failed to write file {}: {:#}",
                     resolved.logical_path, error
                 ))

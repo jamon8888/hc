@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 use std::path::PathBuf;
 
-use openbitfun_agent_runtime::skills::{
+use alex_agent_runtime::skills::{
     annotate_shadowed_skills, build_mode_skill_infos, builtin_skill_group_key,
     filter_candidates_for_mode, filter_implicitly_invocable_skills, filter_user_invocable_skills,
     is_skill_globally_enabled, render_loaded_skill_for_assistant, resolve_builtin_default_enabled,
@@ -9,7 +9,7 @@ use openbitfun_agent_runtime::skills::{
     resolve_skill_state_for_mode, resolve_user_config_skill_root, resolve_visible_skills,
     sort_skills, ExplicitSkillInvocationResolution, ModeSkillStateReason, SkillCandidate,
     SkillData, SkillInfo, SkillLocation, SkillParseError, UserModeSkillOverrides,
-    OPENBITFUN_SYSTEM_SKILL_DIR, OPENBITFUN_SYSTEM_SKILL_SLOT, OPENBITFUN_USER_SKILL_SLOT,
+    ALEX_SYSTEM_SKILL_DIR, ALEX_SYSTEM_SKILL_SLOT, ALEX_USER_SKILL_SLOT,
     PROJECT_SKILL_KEY_PREFIX, PROJECT_SKILL_ROOTS, USER_CONFIG_SKILL_ROOTS, USER_HOME_SKILL_ROOTS,
     USER_SKILL_KEY_PREFIX,
 };
@@ -23,7 +23,7 @@ fn builtin_skill(dir_name: &str) -> SkillInfo {
         level: SkillLocation::User,
         source_slot: "openbitfun-system".to_string(),
         source_id: "openbitfun".to_string(),
-        source_label: "OpenBitFun".to_string(),
+        source_label: "Alex".to_string(),
         installation_source: None,
         import_origin: None,
         entry_file: None,
@@ -47,7 +47,7 @@ fn custom_user_skill(dir_name: &str) -> SkillInfo {
         level: SkillLocation::User,
         source_slot: "openbitfun".to_string(),
         source_id: "openbitfun".to_string(),
-        source_label: "OpenBitFun".to_string(),
+        source_label: "Alex".to_string(),
         installation_source: None,
         import_origin: None,
         entry_file: None,
@@ -82,7 +82,7 @@ fn import_origin_round_trips_without_changing_native_ownership_or_legacy_payload
     assert!(legacy.get("importOrigin").is_none());
     let mut skill: SkillInfo = serde_json::from_value(legacy.clone()).unwrap();
     assert_eq!(serde_json::to_value(&skill).unwrap(), legacy);
-    skill.import_origin = Some(openbitfun_agent_runtime::skills::SkillImportOrigin {
+    skill.import_origin = Some(alex_agent_runtime::skills::SkillImportOrigin {
         schema_version: 1,
         import_id: "import-1".into(),
         source_key: "user::home.claude::demo".into(),
@@ -420,7 +420,7 @@ fn project_skill(dir_name: &str) -> SkillInfo {
         level: SkillLocation::Project,
         source_slot: "openbitfun".to_string(),
         source_id: "openbitfun".to_string(),
-        source_label: "OpenBitFun".to_string(),
+        source_label: "Alex".to_string(),
         installation_source: None,
         import_origin: None,
         entry_file: None,
@@ -455,14 +455,14 @@ fn builtin_skill_catalog_and_mode_policy_are_runtime_owned() {
         assert_eq!(builtin_skill_group_key(removed), None);
     }
     assert_eq!(
-        builtin_skill_group_key("create-openbitfun-skin"),
+        builtin_skill_group_key("create-alex-skin"),
         Some("meta")
     );
     assert_eq!(builtin_skill_group_key("commit-push-pr"), Some("meta"));
     assert_eq!(builtin_skill_group_key("find-skills"), Some("meta"));
     assert_eq!(builtin_skill_group_key("miniapp-dev"), Some("miniapp"));
     assert_eq!(
-        builtin_skill_group_key("openbitfun-frontend-dev"),
+        builtin_skill_group_key("alex-frontend-dev"),
         Some("creation")
     );
     assert_eq!(
@@ -487,7 +487,7 @@ fn builtin_skill_catalog_and_mode_policy_are_runtime_owned() {
         Some(true)
     );
     assert_eq!(
-        resolve_builtin_default_enabled("create-openbitfun-skin", "DeepResearch"),
+        resolve_builtin_default_enabled("create-alex-skin", "DeepResearch"),
         Some(true)
     );
     for mode in ["Standard", "Claw", "Creative", "Cowork", "DeepResearch"] {
@@ -523,11 +523,11 @@ fn builtin_skill_catalog_and_mode_policy_are_runtime_owned() {
         Some(true)
     );
     assert_eq!(
-        resolve_builtin_default_enabled("openbitfun-frontend-dev", "Creative"),
+        resolve_builtin_default_enabled("alex-frontend-dev", "Creative"),
         Some(true)
     );
     assert_eq!(
-        resolve_builtin_default_enabled("openbitfun-frontend-dev", "Standard"),
+        resolve_builtin_default_enabled("alex-frontend-dev", "Standard"),
         Some(false)
     );
     assert_eq!(
@@ -610,9 +610,9 @@ fn builtin_skill_catalog_and_mode_policy_are_runtime_owned() {
 fn skill_discovery_root_facts_are_runtime_owned() {
     assert_eq!(USER_SKILL_KEY_PREFIX, "user");
     assert_eq!(PROJECT_SKILL_KEY_PREFIX, "project");
-    assert_eq!(OPENBITFUN_USER_SKILL_SLOT, "openbitfun");
-    assert_eq!(OPENBITFUN_SYSTEM_SKILL_SLOT, "openbitfun-system");
-    assert_eq!(OPENBITFUN_SYSTEM_SKILL_DIR, ".system");
+    assert_eq!(ALEX_USER_SKILL_SLOT, "openbitfun");
+    assert_eq!(ALEX_SYSTEM_SKILL_SLOT, "openbitfun-system");
+    assert_eq!(ALEX_SYSTEM_SKILL_DIR, ".system");
 
     let project_roots = PROJECT_SKILL_ROOTS
         .iter()
@@ -783,7 +783,7 @@ fn skill_resolution_applies_builtin_and_user_override_rules() {
 
 #[test]
 fn user_mode_skill_overrides_share_key_normalization_rules() {
-    let overrides = openbitfun_agent_runtime::skills::normalize_user_mode_skill_overrides(
+    let overrides = alex_agent_runtime::skills::normalize_user_mode_skill_overrides(
         vec![
             " user::openbitfun::pdf ".to_string(),
             String::new(),
@@ -1369,7 +1369,7 @@ fn explicit_invocation_reaches_default_hidden_agent_browser() {
 
 #[test]
 fn skill_scan_reports_tolerate_older_shapes_and_escape_diagnostics() {
-    use openbitfun_agent_runtime::skills::{SkillScanDiagnostic, SkillScanReport};
+    use alex_agent_runtime::skills::{SkillScanDiagnostic, SkillScanReport};
     let legacy = serde_json::json!({"skills": ["pdf"]});
     let report: SkillScanReport<String> = serde_json::from_value(legacy.clone()).unwrap();
     assert!(report.diagnostics.is_empty());

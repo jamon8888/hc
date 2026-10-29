@@ -1,16 +1,16 @@
 [package]
-name = "openbitfun-transport"
+name = "alex-transport"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
-description = "OpenBitFun Transport Layer - Cross-platform communication adapters"
+description = "Alex Transport Layer - Cross-platform communication adapters"
 
 [lib]
-name = "openbitfun_transport"
+name = "alex_transport"
 
 [dependencies]
 # Events layer
-openbitfun-events = { path = "../../contracts/events" }
+alex-events = { path = "../../contracts/events" }
 
 # Inherited from workspace
 async-trait = { workspace = true }

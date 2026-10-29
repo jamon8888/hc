@@ -1,5 +1,5 @@
 /**
- * Form primitives for `openbitfun/canvas`. Provides themed, controlled form controls
+ * Form primitives for `alex/canvas`. Provides themed, controlled form controls
  * for interactive canvas apps with persistent state. All `onChange` callbacks
  * receive the **value directly** (not a DOM event), so they pair naturally
  * with `useCanvasState`:

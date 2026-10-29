@@ -1,5 +1,5 @@
 import React from 'react';
-import { MobileButton, MobileStatus } from '@openbitfun/ui/mobile';
+import { MobileButton, MobileStatus } from '@alex/ui/mobile';
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
@@ -44,9 +44,9 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
             height: '100%',
             padding: '32px',
             textAlign: 'center',
-            background: 'var(--openbitfun-color-surface-canvas)',
-            color: 'var(--openbitfun-color-content-primary)',
-            fontFamily: 'var(--openbitfun-type-body-md-font-family)',
+            background: 'var(--alex-color-surface-canvas)',
+            color: 'var(--alex-color-content-primary)',
+            fontFamily: 'var(--alex-type-body-md-font-family)',
           }}
         />
       );

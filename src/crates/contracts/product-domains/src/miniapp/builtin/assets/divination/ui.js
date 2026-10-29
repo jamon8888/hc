@@ -1031,7 +1031,7 @@ function userSalt() {
 }
 
 function generateFortuneIndices(date) {
-  const seed = hashSeed(userSalt() + '|openbitfun-divination|' + date);
+  const seed = hashSeed(userSalt() + '|alex-divination|' + date);
   const rand = mulberry32(seed);
 
   const cardIdx = Math.floor(rand() * CARD_VISUALS.length);

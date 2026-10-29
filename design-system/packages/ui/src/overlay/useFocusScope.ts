@@ -17,7 +17,7 @@ export function useFocusScope({
   active, autoFocus = true, containerRef, initialFocusRef, ownerDocument,
   restoreFocus = true, trapFocus = true,
 }: UseFocusScopeOptions): void {
-  const identity = useRef(Symbol("openbitfun-focus-scope"));
+  const identity = useRef(Symbol("alex-focus-scope"));
   useIsomorphicLayoutEffect(() => {
     if (!active) return;
     const container = containerRef.current;

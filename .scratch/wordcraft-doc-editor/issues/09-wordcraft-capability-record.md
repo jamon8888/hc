@@ -18,7 +18,7 @@ per the nearest local AGENTS.md.
 
 ## Answer
 
-Landed in `openbitfun-services-core` behind the new `wordcraft` feature (composed with the
+Landed in `alex-services-core` behind the new `wordcraft` feature (composed with the
 existing `process-runtime` owner):
 
 - `src/crates/services/services-core/src/wordcraft.rs` — the factual record + probe:
@@ -44,10 +44,10 @@ existing `process-runtime` owner):
 Verification at the owner (services-core AGENTS.md commands):
 
 ```bash
-cargo test -p openbitfun-services-core --no-default-features --features wordcraft --lib wordcraft   # 6/6 pass
-cargo test -p openbitfun-services-core --no-default-features --features process-runtime --lib managed_runtime  # 3/3 pass
-cargo test -p openbitfun-services-core --no-default-features --features wordcraft --lib             # 32/32 pass
-cargo check -p openbitfun-services-core --no-default-features --features process-runtime            # clean
+cargo test -p alex-services-core --no-default-features --features wordcraft --lib wordcraft   # 6/6 pass
+cargo test -p alex-services-core --no-default-features --features process-runtime --lib managed_runtime  # 3/3 pass
+cargo test -p alex-services-core --no-default-features --features wordcraft --lib             # 32/32 pass
+cargo check -p alex-services-core --no-default-features --features process-runtime            # clean
 pnpm run check:core-boundaries          # pass
 pnpm run check:core-boundaries:test     # 148/148 pass
 ```

@@ -3,24 +3,24 @@
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  border-color: var(--openbitfun-color-border-subtle);
-  background-color: color-mix(in srgb, var(--openbitfun-color-surface-raised) 94%, transparent);
-  -webkit-backdrop-filter: var(--openbitfun-effect-blur-medium);
-  backdrop-filter: var(--openbitfun-effect-blur-medium);
-  box-shadow: var(--openbitfun-shadow-inner-highlight), var(--openbitfun-shadow-overlay);
+  border-color: var(--alex-color-border-subtle);
+  background-color: color-mix(in srgb, var(--alex-color-surface-raised) 94%, transparent);
+  -webkit-backdrop-filter: var(--alex-effect-blur-medium);
+  backdrop-filter: var(--alex-effect-blur-medium);
+  box-shadow: var(--alex-shadow-inner-highlight), var(--alex-shadow-overlay);
 
   // An even, low-contrast cool wash supplies depth without a directional hotspot.
   &::before {
     position: absolute;
     z-index: -1;
-    inset: calc(-1 * var(--openbitfun-space-6));
+    inset: calc(-1 * var(--alex-space-6));
     background-image: linear-gradient(
       135deg,
-      color-mix(in srgb, var(--openbitfun-color-status-info-emphasis) 6%, transparent),
-      color-mix(in srgb, var(--openbitfun-color-accent-default) 5%, transparent) 50%,
-      color-mix(in srgb, var(--openbitfun-color-status-info-emphasis) 6%, transparent)
+      color-mix(in srgb, var(--alex-color-status-info-emphasis) 6%, transparent),
+      color-mix(in srgb, var(--alex-color-accent-default) 5%, transparent) 50%,
+      color-mix(in srgb, var(--alex-color-status-info-emphasis) 6%, transparent)
     );
-    filter: var(--openbitfun-effect-blur-medium);
+    filter: var(--alex-effect-blur-medium);
     pointer-events: none;
     content: '';
   }
@@ -28,35 +28,35 @@
   :where([data-color-scheme='dark']) & {
     background-color: color-mix(
       in srgb,
-      color-mix(in srgb, var(--openbitfun-color-surface-raised) 96%, var(--openbitfun-color-content-on-dark)) 92%,
+      color-mix(in srgb, var(--alex-color-surface-raised) 96%, var(--alex-color-content-on-dark)) 92%,
       transparent
     );
-    box-shadow: var(--openbitfun-shadow-inner-highlight-hover), var(--openbitfun-shadow-overlay);
+    box-shadow: var(--alex-shadow-inner-highlight-hover), var(--alex-shadow-overlay);
 
     &::before {
       background-image:
         linear-gradient(
           180deg,
-          color-mix(in srgb, var(--openbitfun-color-content-on-dark) 3%, transparent),
+          color-mix(in srgb, var(--alex-color-content-on-dark) 3%, transparent),
           transparent 50%,
-          color-mix(in srgb, var(--openbitfun-color-content-on-dark) 1.5%, transparent)
+          color-mix(in srgb, var(--alex-color-content-on-dark) 1.5%, transparent)
         ),
         linear-gradient(
           135deg,
-          color-mix(in srgb, var(--openbitfun-color-status-info-content) 10%, transparent),
+          color-mix(in srgb, var(--alex-color-status-info-content) 10%, transparent),
           color-mix(
             in srgb,
-            color-mix(in srgb, var(--openbitfun-component-update-material-cyan) 70%, var(--openbitfun-color-content-on-dark)) 9%,
+            color-mix(in srgb, var(--alex-component-update-material-cyan) 70%, var(--alex-color-content-on-dark)) 9%,
             transparent
           ) 50%,
-          color-mix(in srgb, var(--openbitfun-color-status-info-content) 10%, transparent)
+          color-mix(in srgb, var(--alex-color-status-info-content) 10%, transparent)
         );
     }
   }
 
   [data-contrast='high'] & {
-    border-color: var(--openbitfun-color-border-default);
-    background-color: var(--openbitfun-color-surface-raised);
+    border-color: var(--alex-color-border-default);
+    background-color: var(--alex-color-surface-raised);
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
     box-shadow: none;
@@ -65,8 +65,8 @@
   }
 
   @media (prefers-contrast: more), (forced-colors: active), (prefers-reduced-transparency: reduce) {
-    border-color: var(--openbitfun-color-border-default);
-    background-color: var(--openbitfun-color-surface-raised);
+    border-color: var(--alex-color-border-default);
+    background-color: var(--alex-color-surface-raised);
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
     box-shadow: none;

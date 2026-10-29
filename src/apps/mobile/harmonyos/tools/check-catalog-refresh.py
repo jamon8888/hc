@@ -32,7 +32,7 @@ def main():
     parser.add_argument('--dark', action='store_true')
     args = parser.parse_args()
     command = [args.hdc] + (['-t', args.device] if args.device else [])
-    output = Path(tempfile.mkdtemp(prefix='openbitfun-catalog-'))
+    output = Path(tempfile.mkdtemp(prefix='alex-catalog-'))
     print(f'Evidence: {output}', flush=True)
 
     def run(*parts):
@@ -43,7 +43,7 @@ def main():
         run('shell', 'aa', 'force-stop', bundle)
         params = ['shell', 'aa', 'start', '-a', 'EntryAbility', '-b', bundle]
         if preview:
-            params += ['--ps', 'openbitfunDesignPreview',
+            params += ['--ps', 'alexDesignPreview',
                        'catalog-refresh-dark' if args.dark else 'catalog-refresh']
         run(*params)
 
@@ -96,7 +96,7 @@ def main():
                             if node.get('id') == 'catalog-selected')
             assert selected == ('/preview-after' if mode == 'picker' else 'Session after'), (mode, selected)
             print(f'PASS {mode}: same-ID content and click use the current snapshot', flush=True)
-        remote_image = '/data/local/tmp/openbitfun-catalog-refresh.jpeg'
+        remote_image = '/data/local/tmp/alex-catalog-refresh.jpeg'
         run('shell', 'snapshot_display', '-f', remote_image)
         run('file', 'recv', remote_image, str(output / 'catalog-refresh.jpeg'))
     finally:

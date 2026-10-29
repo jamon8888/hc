@@ -22,7 +22,7 @@
         const root = document.documentElement;
         const dark = theme === 'dark'
           || (theme === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
-        root.setAttribute('data-openbitfun-design-system-root', '');
+        root.setAttribute('data-alex-design-system-root', '');
         root.dataset.theme = theme;
         root.dataset.colorScheme = dark ? 'dark' : 'light';
         root.dataset.contrast = 'standard';

@@ -673,7 +673,7 @@ mod tests {
 
     fn make_temp_workspace() -> (std::path::PathBuf, std::path::PathBuf, std::path::PathBuf) {
         let base = std::env::temp_dir().join(format!(
-            "openbitfun-remote-connect-test-{}",
+            "alex-remote-connect-test-{}",
             uuid::Uuid::new_v4()
         ));
         let workspace = base.join("workspace");

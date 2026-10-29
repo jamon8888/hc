@@ -88,15 +88,26 @@ if (designSystemCode !== 0) {
   process.exit();
 }
 
-// Step 3: type-check and Vite build run in parallel. Use the raw tools here so
-// the web-ui package lifecycle hooks do not rebuild the same design-system
-// artifacts concurrently while TypeScript is reading them.
+// Step 3: type-check and Vite build. Run in parallel locally, but sequentially
+// in CI to avoid OOM on shared runners where both processes can exceed memory
+// limits simultaneously. Locally, parallel execution is preserved for speed.
+const isCI = process.env.CI === 'true';
 const tasks = [
-  runPrefixed('type-check', 'pnpm', ['--dir', 'src/web-ui', 'exec', 'tsc', '--noEmit'], ROOT_DIR),
-  runPrefixed('vite-build', 'pnpm', ['--dir', 'src/web-ui', 'exec', 'vite', 'build'], ROOT_DIR),
+  () => runPrefixed('type-check', 'pnpm', ['--dir', 'src/web-ui', 'exec', 'tsc', '--noEmit'], ROOT_DIR),
+  () => runPrefixed('vite-build', 'pnpm', ['--dir', 'src/web-ui', 'exec', 'vite', 'build'], ROOT_DIR),
 ];
 
-const buildCodes = await Promise.all(tasks);
+let buildCodes;
+if (isCI) {
+  // In CI, run sequentially to avoid OOM from parallel tsc + vite on shared runners
+  buildCodes = [];
+  for (const task of tasks) {
+    buildCodes.push(await task());
+  }
+} else {
+  // Locally, run in parallel to save wall-clock time
+  buildCodes = await Promise.all(tasks.map(t => t()));
+}
 const failed = buildCodes.some((code) => code !== 0);
 if (failed) {
   process.stderr.write('[build-web-parallel] build:web failed (see output above)\n');

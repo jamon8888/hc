@@ -1,4 +1,4 @@
-//! Discovery of tool packages that ship inside the OpenBitFun product bundle.
+//! Discovery of tool packages that ship inside the Alex product bundle.
 //!
 //! Some third-party tools are packaged with the product so a user does not
 //! have to install them before they work (see `resources/interpreter/README.md`).
@@ -16,16 +16,16 @@ use std::path::{Component, Path, PathBuf};
 use serde::Deserialize;
 
 /// The manifest every bundled tool package carries next to its files.
-const BUNDLED_TOOL_MANIFEST: &str = "openbitfun-bundled-tool.json";
+const BUNDLED_TOOL_MANIFEST: &str = "alex-bundled-tool.json";
 
 /// Overrides the directory a bundled tool package is read from.
 ///
 /// The desktop app resolves its own resource directory at startup; this
 /// override exists for the cases where that is not enough, such as a build
 /// that runs the product from a staging directory.
-const BUNDLED_TOOL_DIR_ENV: &str = "OPENBITFUN_BUNDLED_TOOL_DIR";
+const BUNDLED_TOOL_DIR_ENV: &str = "ALEX_BUNDLED_TOOL_DIR";
 
-/// A tool package that ships inside the OpenBitFun product bundle.
+/// A tool package that ships inside the Alex product bundle.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct BundledToolPackage {
     /// The tool's stable id, e.g. `interpreter`.
@@ -90,8 +90,8 @@ fn bundled_tool_containers(tool_id: &str) -> Vec<PathBuf> {
                     directory.join("../Resources").join(tool_id),
                     directory.join("../Resources/resources").join(tool_id),
                     // Linux package layouts.
-                    directory.join("../lib/openbitfun/resources").join(tool_id),
-                    directory.join("../share/openbitfun/resources").join(tool_id),
+                    directory.join("../lib/alex/resources").join(tool_id),
+                    directory.join("../share/alex/resources").join(tool_id),
                 ]
                 .into_iter()
                 .map(PathBuf::from),
@@ -216,7 +216,7 @@ mod tests {
             .map(|elapsed| elapsed.as_nanos())
             .unwrap_or_default();
         let path = std::env::temp_dir().join(format!(
-            "openbitfun-bundled-tools-{name}-{nanos}-{}",
+            "alex-bundled-tools-{name}-{nanos}-{}",
             COUNTER.fetch_add(1, Ordering::Relaxed)
         ));
         fs::create_dir_all(&path).expect("temp dir");

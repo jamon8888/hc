@@ -1,5 +1,5 @@
 /**
- * OpenBitFun global styles entry point.
+ * Alex global styles entry point.
  * Uses component library design tokens.
  */
 
@@ -12,55 +12,55 @@
 
 /*
  * Generic document styles belong below component-owned rules. Keeping them in
- * openbitfun.base prevents selectors such as :focus-visible, :disabled, and img from
+ * alex.base prevents selectors such as :focus-visible, :disabled, and img from
  * overriding independently packaged component anatomy.
  */
-@layer openbitfun.base {
+@layer alex.base {
 /* Root element styles */
 html {
-  font-size: var(--openbitfun-type-flow-title-font-size);
+  font-size: var(--alex-type-flow-title-font-size);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
 
 body {
-  font-family:var(--openbitfun-type-body-sm-font-family);
-  font-size: var(--openbitfun-type-body-md-font-size);
-  line-height: var(--openbitfun-type-body-sm-line-height);
-  color: var(--openbitfun-color-content-primary);
-  background: var(--openbitfun-color-surface-canvas);
+  font-family:var(--alex-type-body-sm-font-family);
+  font-size: var(--alex-type-body-md-font-size);
+  line-height: var(--alex-type-body-sm-line-height);
+  color: var(--alex-color-content-primary);
+  background: var(--alex-color-surface-canvas);
   overflow: hidden;
 }
 
 /* Link styles */
 a {
-  color: var(--openbitfun-color-accent-default);
+  color: var(--alex-color-accent-default);
   text-decoration: none;
-  transition: color var(--openbitfun-motion-duration-fast) var(--openbitfun-motion-easing-standard);
+  transition: color var(--alex-motion-duration-fast) var(--alex-motion-easing-standard);
 }
 
 a:hover {
-  color: color-mix(in srgb, var(--openbitfun-color-accent-default) 40%, transparent);
+  color: color-mix(in srgb, var(--alex-color-accent-default) 40%, transparent);
   text-decoration: underline;
 }
 
 /* Text selection styles */
 ::selection {
-  background: var(--openbitfun-color-action-secondary-pressed);
-  color: var(--openbitfun-color-content-primary);
+  background: var(--alex-color-action-secondary-pressed);
+  color: var(--alex-color-content-primary);
 }
 
 ::-moz-selection {
-  background: var(--openbitfun-color-action-secondary-pressed);
-  color: var(--openbitfun-color-content-primary);
+  background: var(--alex-color-action-secondary-pressed);
+  color: var(--alex-color-content-primary);
 }
 
 /* Focus styles */
 :focus-visible {
-  outline: 2px solid color-mix(in srgb, var(--openbitfun-color-accent-default) 40%, transparent);
+  outline: 2px solid color-mix(in srgb, var(--alex-color-accent-default) 40%, transparent);
   outline-offset: 2px;
-  border-radius: var(--openbitfun-radius-sm);
+  border-radius: var(--alex-radius-sm);
 }
 }
 
@@ -77,10 +77,10 @@ a:hover {
   outline-offset: 0;
 }
 
-@layer openbitfun.base {
+@layer alex.base {
 /* Disabled state */
 :disabled {
-  opacity: var(--openbitfun-opacity-disabled);
+  opacity: var(--alex-opacity-disabled);
   cursor: default;
 }
 
@@ -88,7 +88,7 @@ a:hover {
 img {
   max-width: 100%;
   height: auto;
-  border-radius: var(--openbitfun-radius-sm);
+  border-radius: var(--alex-radius-sm);
 }
 
 /* Table styles */
@@ -100,24 +100,24 @@ table {
 th,
 td {
   text-align: left;
-  padding: var(--openbitfun-space-2) var(--openbitfun-space-3);
-  border-bottom: 1px solid var(--openbitfun-color-border-default);
+  padding: var(--alex-space-2) var(--alex-space-3);
+  border-bottom: 1px solid var(--alex-color-border-default);
 }
 
 th {
-  font-weight: var(--openbitfun-type-label-selected-font-weight);
-  color: var(--openbitfun-color-content-primary);
-  background: var(--openbitfun-color-action-neutral-surface);
+  font-weight: var(--alex-type-label-selected-font-weight);
+  color: var(--alex-color-content-primary);
+  background: var(--alex-color-action-neutral-surface);
 }
 
 /* Code styles */
 code,
 pre {
-  font-family: var(--openbitfun-type-code-md-font-family);
-  font-size: var(--openbitfun-type-label-md-font-size);
-  background: var(--openbitfun-color-action-neutral-surface);
-  border: 1px solid var(--openbitfun-color-border-default);
-  border-radius: var(--openbitfun-radius-sm);
+  font-family: var(--alex-type-code-md-font-family);
+  font-size: var(--alex-type-label-md-font-size);
+  background: var(--alex-color-action-neutral-surface);
+  border: 1px solid var(--alex-color-border-default);
+  border-radius: var(--alex-radius-sm);
 }
 
 code {
@@ -125,9 +125,9 @@ code {
 }
 
 pre {
-  padding: var(--openbitfun-space-3);
+  padding: var(--alex-space-3);
   overflow-x: auto;
-  line-height: var(--openbitfun-type-body-lg-line-height);
+  line-height: var(--alex-type-body-lg-line-height);
 }
 
 pre code {
@@ -138,11 +138,11 @@ pre code {
 
 /* Blockquote styles */
 blockquote {
-  margin: var(--openbitfun-space-4) 0;
-  padding: var(--openbitfun-space-3) var(--openbitfun-space-4);
-  border-left: 3px solid var(--openbitfun-color-accent-default);
-  background: var(--openbitfun-color-action-neutral-surface);
-  border-radius: 0 var(--openbitfun-radius-base) var(--openbitfun-radius-base) 0;
+  margin: var(--alex-space-4) 0;
+  padding: var(--alex-space-3) var(--alex-space-4);
+  border-left: 3px solid var(--alex-color-accent-default);
+  background: var(--alex-color-action-neutral-surface);
+  border-radius: 0 var(--alex-radius-base) var(--alex-radius-base) 0;
   font-style: italic;
 }
 
@@ -150,18 +150,18 @@ blockquote {
 hr:not(:is(.m-editor hr)) {
   border: none;
   height: 1px;
-  background: var(--openbitfun-color-border-default);
-  margin: var(--openbitfun-space-5) 0;
+  background: var(--alex-color-border-default);
+  margin: var(--alex-space-5) 0;
 }
 
 /* List styles */
 ul,
 ol {
-  padding-left: var(--openbitfun-space-5);
+  padding-left: var(--alex-space-5);
 }
 
 li {
-  margin-bottom: var(--openbitfun-space-1);
+  margin-bottom: var(--alex-space-1);
 }
 }
 
@@ -178,25 +178,25 @@ li {
 /* Loading state */
 .loading {
   pointer-events: none;
-  opacity: var(--openbitfun-opacity-hover);
+  opacity: var(--alex-opacity-hover);
 }
 
 /* Error state */
 .error {
-  color: var(--openbitfun-color-status-danger-content);
-  border-color: var(--openbitfun-color-status-danger-content);
+  color: var(--alex-color-status-danger-content);
+  border-color: var(--alex-color-status-danger-content);
 }
 
 /* Success state */
 .success {
-  color: var(--openbitfun-color-status-success-content);
-  border-color: var(--openbitfun-color-status-success-content);
+  color: var(--alex-color-status-success-content);
+  border-color: var(--alex-color-status-success-content);
 }
 
 /* Warning state */
 .warning {
-  color: var(--openbitfun-color-status-warning-content);
-  border-color: var(--openbitfun-color-status-warning-content);
+  color: var(--alex-color-status-warning-content);
+  border-color: var(--alex-color-status-warning-content);
 }
 
 /* Accessibility helpers */
@@ -228,11 +228,11 @@ li {
   }
 }
 
-:root[data-openbitfun-appearance-mode='light'] {
+:root[data-alex-appearance-mode='light'] {
   color-scheme: light;
 }
 
-:root[data-openbitfun-appearance-mode='dark'] {
+:root[data-alex-appearance-mode='dark'] {
   color-scheme: dark;
 }
 
@@ -264,7 +264,7 @@ html::before {
 /* Hide top-right floating debug info */
 div[style*="position: fixed"][style*="top"][style*="right"],
 div[style*="position:fixed"][style*="top"][style*="right"] {
-  &:not(.openbitfun-notification-container):not(.openbitfun-notification-center):not([class*="openbitfun"]) {
+  &:not(.alex-notification-container):not(.alex-notification-center):not([class*="alex"]) {
     display: none !important;
   }
 }
@@ -283,7 +283,7 @@ body > div[style*="z-index:999999"] {
 @media print {
   * {
     background: transparent !important;
-    color: var(--openbitfun-color-content-on-light) !important;
+    color: var(--alex-color-content-on-light) !important;
     box-shadow: none !important;
     text-shadow: none !important;
   }
@@ -299,7 +299,7 @@ body > div[style*="z-index:999999"] {
 
   pre,
   blockquote {
-    border: 1px solid color-mix(in srgb, var(--openbitfun-color-content-on-light) 40%, transparent);
+    border: 1px solid color-mix(in srgb, var(--alex-color-content-on-light) 40%, transparent);
     page-break-inside: avoid;
   }
 

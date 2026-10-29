@@ -27,7 +27,7 @@ $turn-rail-width: 20px;
   // and the content starts 18px of inset plus 12px of content padding, so 30px,
   // from the panel edge.
   @container flow-chat-transcript (min-width: 0px) {
-    width: calc(100% - #{$turn-rail-offset + $turn-rail-width} - var(--openbitfun-space-1) - var(--openbitfun-space-2));
+    width: calc(100% - #{$turn-rail-offset + $turn-rail-width} - var(--alex-space-1) - var(--alex-space-2));
   }
 }
 
@@ -35,10 +35,10 @@ $turn-rail-width: 20px;
 // User-message decoration may extend into this gutter without moving its text.
 @mixin content-column {
   box-sizing: border-box;
-  padding-inline: var(--openbitfun-control-flow-chat-content-padding-inline);
+  padding-inline: var(--alex-control-flow-chat-content-padding-inline);
 
   @media (max-width: 768px) {
-    padding-inline: var(--openbitfun-control-flow-chat-content-padding-inline-mobile);
+    padding-inline: var(--alex-control-flow-chat-content-padding-inline-mobile);
   }
 }
 
@@ -50,17 +50,17 @@ $action-size: 28px;
   align-items: center;
   justify-content: flex-end;
   flex-wrap: wrap;
-  column-gap: var(--openbitfun-space-2);
+  column-gap: var(--alex-space-2);
   row-gap: 0;
   min-block-size: $action-size;
   // Align the last icon frame with the text edge, keeping its full hit target.
-  margin-inline-end: calc((var(--openbitfun-control-flow-chat-row-icon-size) - #{$action-size}) / 2);
+  margin-inline-end: calc((var(--alex-control-flow-chat-row-icon-size) - #{$action-size}) / 2);
 }
 
 @mixin metadata-actions {
   display: flex;
   align-items: center;
-  gap: calc(var(--openbitfun-space-1) / 2);
+  gap: calc(var(--alex-space-1) / 2);
   flex: 0 0 auto;
   margin: 0;
 
@@ -80,18 +80,18 @@ $action-size: 28px;
   min-block-size: $action-size;
   padding: 0;
   border: none;
-  border-radius: var(--openbitfun-radius-sm);
+  border-radius: var(--alex-radius-sm);
 
   &::before { content: none; }
 
-  > [data-openbitfun-part='icon'] {
-    --openbitfun-opacity-icon-artwork: inherit;
+  > [data-alex-part='icon'] {
+    --alex-opacity-icon-artwork: inherit;
     display: contents;
   }
 
-  > :where([data-openbitfun-part='icon']) > :where(svg, [data-openbitfun-component='icon']) {
-    inline-size: var(--openbitfun-control-flow-chat-row-icon-size);
-    block-size: var(--openbitfun-control-flow-chat-row-icon-size);
+  > :where([data-alex-part='icon']) > :where(svg, [data-alex-component='icon']) {
+    inline-size: var(--alex-control-flow-chat-row-icon-size);
+    block-size: var(--alex-control-flow-chat-row-icon-size);
     display: block;
     flex-shrink: 0;
   }

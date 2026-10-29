@@ -53,7 +53,7 @@ beforeEach(async () => {
 afterEach(async () => {
   await act(async () => root.unmount());
   container.remove();
-  document.getElementById('openbitfun-appearance-overlay-host')?.remove();
+  document.getElementById('alex-appearance-overlay-host')?.remove();
   vi.restoreAllMocks(); vi.unstubAllGlobals(); vi.useRealTimers();
 });
 
@@ -61,7 +61,7 @@ it('hands reminder attention to bottom-up progress and reopens the progress card
   expect(control()).toBeNull();
   act(() => useUpdateInstallStore.setState({ status: 'downloading', downloadVersion: '2.0.0', progress: { downloaded: 25, total: 100 } }));
   expect(progress()?.getAttribute('aria-valuenow')).toBe('25');
-  expect(control()?.querySelector<HTMLElement>('[data-openbitfun-part="downloadFill"]')?.style.transform).toBe('translateY(75%)');
+  expect(control()?.querySelector<HTMLElement>('[data-alex-part="downloadFill"]')?.style.transform).toBe('translateY(75%)');
   expect(container.querySelectorAll('[data-testid="app-update-indicator"]')).toHaveLength(0);
   act(() => container.querySelector<HTMLButtonElement>('[data-testid="nav-update-download-button"]')!.click());
   expect(state()).toMatchObject({ detailsOpen: false, notice: 'downloading' });
@@ -71,18 +71,18 @@ it('hands reminder attention to bottom-up progress and reopens the progress card
 
 it('hands the shallow wave to real progress without a spinner or fabricated percentage', () => {
   act(() => useUpdateInstallStore.setState({ status: 'downloading', downloadVersion: '2.0.0', progress: { downloaded: 1024, total: null } }));
-  const fill = control()?.querySelector<HTMLElement>('[data-openbitfun-part="downloadFill"]');
+  const fill = control()?.querySelector<HTMLElement>('[data-alex-part="downloadFill"]');
   expect(progress()?.hasAttribute('aria-valuenow')).toBe(false);
-  expect(control()?.querySelector('[data-openbitfun-component="spinner"]')).toBeNull();
-  expect(fill?.getAttribute('data-openbitfun-state')).toBe('indeterminate');
+  expect(control()?.querySelector('[data-alex-component="spinner"]')).toBeNull();
+  expect(fill?.getAttribute('data-alex-state')).toBe('indeterminate');
   expect(fill?.style.transform).toBe('');
   expect(state().progress).toEqual({ downloaded: 1024, total: null });
   act(() => useUpdateInstallStore.setState({ progress: { downloaded: 1024, total: 4096 } }));
   expect(progress()?.getAttribute('aria-valuenow')).toBe('25');
-  expect(control()?.querySelector('[data-openbitfun-part="downloadFill"]')).toBe(fill);
-  expect(fill?.hasAttribute('data-openbitfun-state')).toBe(false);
+  expect(control()?.querySelector('[data-alex-part="downloadFill"]')).toBe(fill);
+  expect(fill?.hasAttribute('data-alex-state')).toBe(false);
   expect(fill?.style.transform).toBe('translateY(75%)');
-  expect(control()?.querySelector('[data-openbitfun-component="spinner"]')).toBeNull();
+  expect(control()?.querySelector('[data-alex-component="spinner"]')).toBeNull();
 });
 
 it('hands a download to navigation and opens installation confirmation from the completed checkmark', async () => {
@@ -103,8 +103,8 @@ it('hands a download to navigation and opens installation confirmation from the 
   await act(async () => finish({ version: '2.0.0' }));
   expect(control()?.getAttribute('data-download-status')).toBe('ready');
   expect(container.querySelector('[data-testid="app-update-notice"]')).toBeNull();
-  expect(control()?.querySelector('[data-openbitfun-part="downloadFill"]')).toBeNull();
-  expect(control()?.querySelector('.openbitfun-update-download__complete')).not.toBeNull();
+  expect(control()?.querySelector('[data-alex-part="downloadFill"]')).toBeNull();
+  expect(control()?.querySelector('.alex-update-download__complete')).not.toBeNull();
   expect(state().promptOpen).toBe(false);
   const completed = container.querySelector<HTMLButtonElement>('[data-testid="nav-update-download-button"]')!;
   expect(completed.getAttribute('aria-label')).toBe(common.update.installAndRestart);

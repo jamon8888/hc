@@ -1,15 +1,15 @@
-use openbitfun_external_sources::ExternalHookCatalogCoordinator;
-use openbitfun_product_domains::external_hook_catalog::{
+use alex_external_sources::ExternalHookCatalogCoordinator;
+use alex_product_domains::external_hook_catalog::{
     ExternalHookCatalogEntry, ExternalHookHandlerKind, ExternalHookMapping,
     ExternalHookMatcherSummary, ExternalHookNativeActivation, ExternalHookProjectionStatus,
     ExternalHookProviderIdentity, ExternalHookProviderSnapshot, ExternalHookSource,
     ExternalHookSourceKind, ExternalHookSourceProvider,
 };
-use openbitfun_product_domains::external_hook_contributions::ExternalHookPoint;
-use openbitfun_product_domains::external_hook_import::{
+use alex_product_domains::external_hook_contributions::ExternalHookPoint;
+use alex_product_domains::external_hook_import::{
     PreparedExternalHookHandler, PreparedExternalHookImport,
 };
-use openbitfun_product_domains::external_sources::{
+use alex_product_domains::external_sources::{
     EcosystemId, ExecutionDomainId, ExternalSourceContext, ExternalSourceHealth,
     ExternalSourceProviderError, ExternalSourceScope, SourceKey,
 };
@@ -138,7 +138,7 @@ fn context() -> ExternalSourceContext {
 
 async fn refresh(
     coordinator: &ExternalHookCatalogCoordinator,
-) -> openbitfun_product_domains::external_hook_catalog::ExternalHookCatalogSnapshotV1 {
+) -> alex_product_domains::external_hook_catalog::ExternalHookCatalogSnapshotV1 {
     let batch = coordinator
         .discover(std::time::Duration::from_secs(1))
         .await;

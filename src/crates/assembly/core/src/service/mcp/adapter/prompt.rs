@@ -1,1 +1,1 @@
-pub use openbitfun_services_integrations::mcp::adapter::PromptAdapter;
+pub use alex_services_integrations::mcp::adapter::PromptAdapter;

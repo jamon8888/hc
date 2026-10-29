@@ -150,7 +150,7 @@ await api.invoke('your_command', { request: { ... } });
 
 - Do not call Tauri APIs directly from UI components; go through the adapter/infrastructure layer.
 - Desktop-only host adapters belong in `src/apps/desktop`, then flow through typed capability interfaces and, when event delivery is needed, the production transport adapter.
-- In shared core, avoid host-specific APIs such as `tauri::AppHandle`; use shared abstractions such as `openbitfun_events::EventEmitter`.
+- In shared core, avoid host-specific APIs such as `tauri::AppHandle`; use shared abstractions such as `alex_events::EventEmitter`.
 
 #### Non-interactive child processes
 
@@ -158,7 +158,7 @@ await api.invoke('your_command', { request: { ... } });
   background, or redirected host must not use bare `std::process::Command` or
   `tokio::process::Command`, including CLI modes that another host can invoke.
   Prefer
-  `openbitfun_services_core::process_manager::{create_command, create_tokio_command}`
+  `alex_services_core::process_manager::{create_command, create_tokio_command}`
   or the existing facade for that layer. If a direct command is unavoidable,
   Windows code must explicitly apply `CREATE_NO_WINDOW`; Node child processes
   must set `windowsHide: true`. Apply the same policy to test fixtures so tests
@@ -267,14 +267,14 @@ existing installs working without manual repair.
 ### Agent hooks
 
 - Alex native user hooks implement the Codex hook contract, so <https://learn.chatgpt.com/docs/hooks> is the reference for their events, payload fields, and decision schema. Do not fork that contract. [`docs/features/agent-hooks.md`](docs/features/agent-hooks.md) ([中文](docs/features/agent-hooks.zh-CN.md)) covers only the Alex-specific parts — file locations, the `app.hooks` gates, and the deviations table — and must be updated whenever a deviation is added or closed.
-- The portable engine (settings parsing, payload construction, process execution, decision merging) lives in `openbitfun-agent-runtime::native_hooks`. `openbitfun-core::native_hooks` owns config discovery, gating, and per-event dispatch helpers; dispatch sites call those helpers instead of executing hooks inline.
+- The portable engine (settings parsing, payload construction, process execution, decision merging) lives in `alex-agent-runtime::native_hooks`. `alex-core::native_hooks` owns config discovery, gating, and per-event dispatch helpers; dispatch sites call those helpers instead of executing hooks inline.
 - Executable hooks may come from native user configuration, ecosystem plugins, or Alex built-ins (including the current compiled-in `post_call_hooks`). These sources keep distinct trust, configuration, contract, and execution-policy semantics, but may register through the shared `HookRegistry` and be dispatched by `AgentHookEngine`. The external hook catalog of other AI applications (`external_hooks`) remains read-only discovery data and must not enter the executable registry.
 
 ## Architecture
 
 ### Product architecture guardrails
 
-For any `openbitfun-core` decomposition, feature-boundary, dependency-boundary, or
+For any `alex-core` decomposition, feature-boundary, dependency-boundary, or
 Rust build-speed refactor, read both
 [`docs/architecture/product-architecture.md`](docs/architecture/product-architecture.md)
 and

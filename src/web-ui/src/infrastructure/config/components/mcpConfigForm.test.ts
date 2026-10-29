@@ -30,7 +30,7 @@ describe('MCP visual configuration compatibility', () => {
   });
 
   it('renames the display name without changing identity, provenance, credentials, or other servers', () => {
-    const entry = { command: 'server', env: { TOKEN: 'secret' }, _openbitfunImport: { sourceCandidateId: 'origin' }, future: ['keep'] };
+    const entry = { command: 'server', env: { TOKEN: 'secret' }, _alexImport: { sourceCandidateId: 'origin' }, future: ['keep'] };
     const document = documentWith(entry);
     const draft = createMcpServerDraft('existing', entry);
     draft.name = 'Renamed';
@@ -154,7 +154,7 @@ describe('MCP import preview', () => {
     const document = documentWith({ command: 'original' });
     const candidates = parseMcpImport(JSON.stringify({ mcpServers: {
       existing: { command: 'replacement', enabled: true },
-      docs: { url: 'https://example.test/mcp', enabled: true, future: [1], _openbitfunImport: { forged: true } },
+      docs: { url: 'https://example.test/mcp', enabled: true, future: [1], _alexImport: { forged: true } },
     } }), Object.keys(document.mcpServers));
     expect(candidates.map(item => item.selected)).toEqual([false, true]);
     const imported = importMcpServers(document, candidates);

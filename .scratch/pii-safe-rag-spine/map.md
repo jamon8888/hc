@@ -25,7 +25,7 @@ Skills every session should consult: `research`, `prototype`, `grilling`, `domai
 - **D8** — The vault key lives in the OS keychain, passed over IPC, never argv.
 - **D9** — The identity registry is per-workspace; no cross-workspace correlation.
 - **D10** — The identity registry is a new, dedicated, vault-encrypted store owned by `basemind-integration`, not the fork's `pii_lineage`.
-- **D11** — *(locked 2026-10-16)* `rag_search` is exposed as a **port**: `RagSearchPort` in `contracts/runtime-ports` (feature `rag-search`); `basemind-integration` implements it; `openbitfun-core` (assembly) implements the `Tool` trait against the port and must **not** depend on `basemind-integration`; the concrete port is injected at the host composition root through `ToolRuntimeHandles`, the same seam as `RemoteExecPort`/`TerminalPort`. Tool payload carries `{category, token}` only — never the workspace alias.
+- **D11** — *(locked 2026-10-16)* `rag_search` is exposed as a **port**: `RagSearchPort` in `contracts/runtime-ports` (feature `rag-search`); `basemind-integration` implements it; `alex-core` (assembly) implements the `Tool` trait against the port and must **not** depend on `basemind-integration`; the concrete port is injected at the host composition root through `ToolRuntimeHandles`, the same seam as `RemoteExecPort`/`TerminalPort`. Tool payload carries `{category, token}` only — never the workspace alias.
 
 **Why a map exists at all:** basemind v0.33.0 (pin: v0.33.1, same code) provides *no* cross-document PII identity. Its `entity_id` is a per-file span id (`file:category:start:end`) and its `value_hash` is a hash of the positional redaction token, not of the value. `pii_lineage` is a GDPR audit trail of *where* PII was found, not a *who/what-is-this* graph. Search hits carry no entity references. The identity layer is therefore net-new product logic (D10).
 
@@ -54,7 +54,7 @@ Skills every session should consult: `research`, `prototype`, `grilling`, `domai
 
 - **SPEC corrected:** §4 (RAG search: three layers with `RagSearchPort`, vault-based query resolution against the raw index, mint-on-hit re-tokenization with `redact_text` safety pass, HMAC session tokens, no alias in payloads, D7 hard-fail) and §11 (model-agnostic pseudonymization: redact_text surface, unconditional interception with the master toggle as sole skip, `[CAT_<H16>]` HMAC token format, storage table, D4 rehydration, updated decision/remote tables). §14: IPC/token-format/vault questions closed, and the "Index alias ingestion (D6 end-to-end)" question **closed as resolved** (raw index, D6 amended). §1: invariant **I9** added to the table. §13/§16: local-model detection rows removed (D2), runtime-ports rows added, verification commands corrected to real package names. §17: pin **v0.33.1** recorded.
 - **Tickets:** `.scratch/basemind-integration/issues/06` and `16` rewritten → `ready-for-agent`.
-- **Code:** `identity_registry.rs`, `keychain.rs`, `session_vault.rs`, `query_resolution.rs`, `rag_search.rs`, `prompt_pseudonym.rs` compile (`cargo check -p openbitfun-basemind-integration`, only 2 stub warnings from sibling tickets remain).
+- **Code:** `identity_registry.rs`, `keychain.rs`, `session_vault.rs`, `query_resolution.rs`, `rag_search.rs`, `prompt_pseudonym.rs` compile (`cargo check -p alex-basemind-integration`, only 2 stub warnings from sibling tickets remain).
 - **Bugs found & fixed this pass:** keychain features were activated by nobody (D8 dead on arrival — now target-gated deps forwarded by `basemind`); prompt flow clobbered the session map on every turn (earlier turns lost rehydration); query rewrite replaced positional tokens that never exist in raw queries; rewritten `Tool` impl used a nonexistent `runtime_ports::agentic` path and a placeholder session id (moved to an inherent `search()`; assembly wrapper is ticket 06); query rewrite now de-salts echoed model tokens (D6); hit re-tokenization upserts the session map (D4) and mints instead of leaking or skipping.
 - **Remaining (outside this map's destination):** assembly-side `rag_search_tool.rs` wrapper + ProductToolPlan registration (ticket 06), the `RagSearchPort` + `ToolRuntimeHandles` seam and host injection (ticket 06), the code-alignment items below, `rehydrate()` (ticket 16), tickets 17/18 implementation, and document-side registration via ticket 04 of the sibling effort.
 
@@ -98,7 +98,7 @@ design and must change (this map's session does not touch code):
    raw chunk before re-tokenizing (I1 must not depend on scan-time NER config).
 5. **Index config:** ship scan config with `[documents].redaction.enabled = false`.
 6. **Port:** implement `RagSearchPort` (`contracts/runtime-ports`, feature
-   `rag-search`) over `RagSearchTool::search`; `openbitfun-core` gets only the trait.
+   `rag-search`) over `RagSearchTool::search`; `alex-core` gets only the trait.
 7. **Ticket 15 fallout:** `local_model_detection.rs` (and any TS twin) is superseded —
    delete or leave unreferenced; no caller may branch on model provenance.
 8. **Metadata:** never write the rehydration map into request metadata (old ticket 17
@@ -120,9 +120,9 @@ design and must change (this map's session does not touch code):
   with `RagSearchPort` + `RagSearchRequest`/`Response`/`Error` DTOs, a
   `ToolRuntimeHandles::with_rag_search_port` cfg'd slot (Debug contract test
   updated), and the `tool-runtime-handles` aggregate now includes `rag-search`.
-  `openbitfun-basemind-integration` implements the port as
-  `RagSearchPortAdapter` (Mutex over `RagSearchTool::search`); `openbitfun-core`
-  gets only `tools-rag = ["openbitfun-runtime-ports/rag-search"]`. Boundary
+  `alex-basemind-integration` implements the port as
+  `RagSearchPortAdapter` (Mutex over `RagSearchTool::search`); `alex-core`
+  gets only `tools-rag = ["alex-runtime-ports/rag-search"]`. Boundary
   rules: runtime-ports `featureProfiles`, basemind consumer edge
   `['workspace-ports', 'rag-search']`, core forwarder
   `capabilityForwarder('tools-rag', 'rag-search')`, plus the
@@ -134,14 +134,14 @@ design and must change (this map's session does not touch code):
   SPEC/tickets until an emission path lands.
 - **8 — no-op.** Nothing writes the rehydration map into request metadata
   today; the vault is already its only home.
-- **Verification:** `cargo check -p openbitfun-basemind-integration` and
-  `cargo check -p openbitfun-runtime-ports --no-default-features` green;
-  `cargo test -p openbitfun-runtime-ports --features rag-search --lib` (9 pass)
+- **Verification:** `cargo check -p alex-basemind-integration` and
+  `cargo check -p alex-runtime-ports --no-default-features` green;
+  `cargo test -p alex-runtime-ports --features rag-search --lib` (9 pass)
   and the `tool-runtime-handles,web-search-port` Debug contract test pass;
   `pnpm run check:core-boundaries` passes; `check:core-boundaries:test`
   148/148; `check:repo-hygiene` passes; `cargo fmt --check` clean on both
   crates. **Known pre-existing failure unrelated to this work:**
-  `cargo check -p openbitfun-core --no-default-features` fails with 38
+  `cargo check -p alex-core --no-default-features` fails with 38
   `LocaleId::FrFR` errors from commit `25a66fded` (i18n fr-FR generated-code
   drift) — reproducible without these changes.
 

@@ -4,7 +4,7 @@ import { fromB64, generateKeyPair, toB64 } from './E2EEncryption';
 import { migrateMobileNavigationController } from './MobileNavigationStore';
 import { pairingRelayUrl } from './pairingLink';
 
-const DATABASE = 'openbitfun-mobile-account';
+const DATABASE = 'alex-mobile-account';
 const ACCOUNTS = 'accounts';
 const CHANGE_CHANNEL = 'openbitfun.mobile.account.changed';
 const LEGACY_SESSION_KEY = 'openbitfun.mobile.account_session.v2';

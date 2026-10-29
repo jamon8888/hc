@@ -30,27 +30,27 @@ test('accepts the canonical product identity in supported casing and contracts',
   const source = [
     'OpenBitFun',
     'openBitFunTheme',
-    'openbitfun',
-    'OPENBITFUN_USER_ROOT',
-    '@openbitfun/ui',
+    'alex',
+    'ALEX_USER_ROOT',
+    '@alex/ui',
     '.openbitfun/config',
     'openbitfun://runtime/',
-    '--openbitfun-color-surface',
-    'data-openbitfun-component',
-    'node.dataset.openbitfunPart',
-    '@layer openbitfun.components',
-    'minOpenBitFunVersion: "1.0.0"',
-    'min_openbitfun_version: "1.2.0"',
-    'openbitfun-cli-1.0.0-aarch64-unknown-linux-gnu.tar.gz',
-    'OpenBitFun_1.0.0_windows-x86_64-setup.exe',
+    '--alex-color-surface',
+    'data-alex-component',
+    'node.dataset.alexPart',
+    '@layer alex.components',
+    'minAlexVersion: "1.0.0"',
+    'min_alex_version: "1.2.0"',
+    'alex-cli-1.0.0-aarch64-unknown-linux-gnu.tar.gz',
+    'Alex_1.0.0_windows-x86_64-setup.exe',
   ].join('\n');
 
   assert.deepEqual(violationsFor(source), []);
 });
 
-test('rejects non-canonical casing and abbreviated OpenBitFun names', () => {
-  const nonCanonicalPascal = ['Open', 'Bit', 'fun'].join('');
-  const nonCanonicalCamel = ['open', 'Bit', 'fun'].join('');
+test('rejects non-canonical casing and abbreviated Alex names', () => {
+  const nonCanonicalPascal = ['A', 'L', 'ex'].join('');
+  const nonCanonicalCamel = ['a', 'L', 'EX'].join('');
   const abbreviatedPascal = ['Open', 'B', 'F'].join('');
   const abbreviatedCli = `${['open', 'b', 'f'].join('')}-cli`;
   const source = [
@@ -63,10 +63,10 @@ test('rejects non-canonical casing and abbreviated OpenBitFun names', () => {
   assert.deepEqual(
     violationsFor(source).map((violation) => violation.rule),
     [
-      'noncanonical-openbitfun-casing',
-      'noncanonical-openbitfun-casing',
-      'abbreviated-openbitfun-name',
-      'abbreviated-openbitfun-name',
+      'noncanonical-alex-casing',
+      'noncanonical-alex-casing',
+      'abbreviated-alex-name',
+      'abbreviated-alex-name',
     ],
   );
 });
@@ -111,12 +111,12 @@ test('allows the published attribution identifiers only when they carry every re
   for (const line of [
     attributedEmail,
     attributedProfileUrl,
-    `  Co-authored-by: OpenBitFun <${attributedEmail}>`,
-    `Co-authored-by: OpenBitFun <${attributedEmail}>`,
-    `  Generated with [OpenBitFun](${attributedProfileUrl})`,
-    `Generated with [OpenBitFun](${attributedProfileUrl})`,
-    `        assert!(skill.contains("Generated with [OpenBitFun](${attributedProfileUrl})"));`,
-    `            .contains("Co-authored-by: OpenBitFun <${attributedEmail}>"));`,
+    `  Co-authored-by: Alex <${attributedEmail}>`,
+    `Co-authored-by: Alex <${attributedEmail}>`,
+    `  Generated with [Alex](${attributedProfileUrl})`,
+    `Generated with [Alex](${attributedProfileUrl})`,
+    `        assert!(skill.contains("Generated with [Alex](${attributedProfileUrl})"));`,
+    `            .contains("Co-authored-by: Alex <${attributedEmail}>"));`,
   ]) {
     assert.deepEqual(violationsFor(line), [], line);
   }
@@ -149,7 +149,7 @@ test('limits retired identity data to the one-time production migration boundary
   assert.deepEqual(
     violationsFor(
       `RETIRED_VERSION_FIELDS = ("${retiredField}",)`,
-      'deploy/openbitfun-host/migrate-market-data-v1.py',
+      'deploy/alex-host/migrate-market-data-v1.py',
     ),
     [],
   );
@@ -254,10 +254,10 @@ test('checks a retired identity when it appears in a repository path', () => {
 });
 
 test('scans untracked files while ignoring tracked files deleted by a rename', (t) => {
-  const root = mkdtempSync(path.join(tmpdir(), 'openbitfun-identity-audit-'));
+  const root = mkdtempSync(path.join(tmpdir(), 'alex-identity-audit-'));
   const retiredDirectory = path.join(root, retiredLowerName);
   const retiredFile = path.join(retiredDirectory, 'config.json');
-  const canonicalFile = path.join(root, 'openbitfun', 'config.json');
+  const canonicalFile = path.join(root, 'alex', 'config.json');
   mkdirSync(retiredDirectory, { recursive: true });
   mkdirSync(path.dirname(canonicalFile), { recursive: true });
   writeFileSync(retiredFile, '{}\n');
@@ -268,7 +268,7 @@ test('scans untracked files while ignoring tracked files deleted by a rename', (
   rmSync(retiredFile);
   t.after(() => rmSync(root, { recursive: true, force: true }));
 
-  assert.deepEqual(listRepositoryFiles(root), ['openbitfun/config.json']);
+  assert.deepEqual(listRepositoryFiles(root), ['alex/config.json']);
   assert.deepEqual(auditRepository(root).violations, []);
 
   mkdirSync(retiredDirectory, { recursive: true });
@@ -304,7 +304,7 @@ test('keeps compile-time product identity reads in the canonical contract owner'
   const source = [
     'const PRODUCT_ID: &str = option_',
     'en',
-    'v!("OPENBITFUN_PRODUCT_ID").unwrap_or("openbitfun");',
+    'v!("ALEX_PRODUCT_ID").unwrap_or("alex");',
   ].join('');
   const violations = violationsFor(source, 'src/example.rs');
 
@@ -316,22 +316,22 @@ test('keeps compile-time product identity reads in the canonical contract owner'
   );
 });
 
-test('rejects pre-1.0 minimum versions and OpenBitFun release assets', () => {
+test('rejects pre-1.0 minimum versions and Alex release assets', () => {
   const preOneVersion = [0, 9, 0].join('.');
   const source = [
-    `minOpenBitFunVersion: '${preOneVersion}'`,
-    `min_openbitfun_version: "${preOneVersion}"`,
-    `openbitfun-cli-${preOneVersion}-aarch64-unknown-linux-gnu.tar.gz`,
-    `OpenBitFun_${preOneVersion}_windows-x86_64-setup.exe`,
+    `minAlexVersion: '${preOneVersion}'`,
+    `min_alex_version: "${preOneVersion}"`,
+    `alex-cli-${preOneVersion}-aarch64-unknown-linux-gnu.tar.gz`,
+    `Alex_${preOneVersion}_windows-x86_64-setup.exe`,
   ].join('\n');
 
   assert.deepEqual(
     violationsFor(source).map((violation) => violation.rule),
     [
-      'pre-1.0-openbitfun-minimum-version',
-      'pre-1.0-openbitfun-minimum-version',
-      'pre-1.0-openbitfun-release-asset',
-      'pre-1.0-openbitfun-release-asset',
+      'pre-1.0-alex-minimum-version',
+      'pre-1.0-alex-minimum-version',
+      'pre-1.0-alex-release-asset',
+      'pre-1.0-alex-release-asset',
     ],
   );
 });

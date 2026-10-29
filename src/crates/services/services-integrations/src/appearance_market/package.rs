@@ -1,5 +1,5 @@
 use image::ImageReader;
-use openbitfun_product_domains::appearance_market::{
+use alex_product_domains::appearance_market::{
     AppearanceMarketPackageMeta, AppearancePackageMode, APPEARANCE_MARKET_MAX_ENTRIES,
     APPEARANCE_MARKET_MAX_MANIFEST_BYTES, APPEARANCE_MARKET_MAX_PACKAGE_BYTES,
     APPEARANCE_MARKET_MAX_PREVIEW_BYTES, APPEARANCE_MARKET_MAX_PREVIEW_PIXELS,

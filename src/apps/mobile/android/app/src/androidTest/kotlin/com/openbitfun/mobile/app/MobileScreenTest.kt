@@ -272,8 +272,8 @@ class MobileScreenTest {
 
     @Test
     fun fakeRelaySupportsPairingReadingAndSending() {
-        val pairingUrl = InstrumentationRegistry.getArguments().getString("openbitfunPairingUrl").orEmpty()
-        assumeTrue("openbitfunPairingUrl instrumentation argument is required", pairingUrl.isNotBlank())
+        val pairingUrl = InstrumentationRegistry.getArguments().getString("alexPairingUrl").orEmpty()
+        assumeTrue("alexPairingUrl instrumentation argument is required", pairingUrl.isNotBlank())
 
         openRemote()
         openManualPairing()
@@ -311,8 +311,8 @@ class MobileScreenTest {
      */
     @Test
     fun anAgentTurnArrivesAsRenderedMarkdown() {
-        val pairingUrl = InstrumentationRegistry.getArguments().getString("openbitfunPairingUrl").orEmpty()
-        assumeTrue("openbitfunPairingUrl instrumentation argument is required", pairingUrl.isNotBlank())
+        val pairingUrl = InstrumentationRegistry.getArguments().getString("alexPairingUrl").orEmpty()
+        assumeTrue("alexPairingUrl instrumentation argument is required", pairingUrl.isNotBlank())
 
         openRemote()
         openManualPairing()
@@ -351,8 +351,8 @@ class MobileScreenTest {
      */
     @Test
     fun viewSettingsRegroupTheSessionListAndAddRowDetail() {
-        val pairingUrl = InstrumentationRegistry.getArguments().getString("openbitfunPairingUrl").orEmpty()
-        assumeTrue("openbitfunPairingUrl instrumentation argument is required", pairingUrl.isNotBlank())
+        val pairingUrl = InstrumentationRegistry.getArguments().getString("alexPairingUrl").orEmpty()
+        assumeTrue("alexPairingUrl instrumentation argument is required", pairingUrl.isNotBlank())
 
         openRemote()
         openManualPairing()
@@ -385,8 +385,8 @@ class MobileScreenTest {
      */
     @Test
     fun aSourceFilePreviewArrivesNumberedAndTokenised() {
-        val pairingUrl = InstrumentationRegistry.getArguments().getString("openbitfunPairingUrl").orEmpty()
-        assumeTrue("openbitfunPairingUrl instrumentation argument is required", pairingUrl.isNotBlank())
+        val pairingUrl = InstrumentationRegistry.getArguments().getString("alexPairingUrl").orEmpty()
+        assumeTrue("alexPairingUrl instrumentation argument is required", pairingUrl.isNotBlank())
 
         openRemote()
         openManualPairing()
@@ -419,7 +419,7 @@ class MobileScreenTest {
         composeRule.onNodeWithText("text/", substring = true).assertIsDisplayed()
         // Two lines rather than one: a number in front of the second line is
         // what proves the gutter counts the file rather than labelling its top.
-        composeRule.onNodeWithText("1  // openbitfun preview fixture\n2  fn main() {", substring = true)
+        composeRule.onNodeWithText("1  // alex preview fixture\n2  fn main() {", substring = true)
             .assertIsDisplayed()
 
         // On a narrow window `FilePreviewPlacementPolicy` has nothing to split,
@@ -445,8 +445,8 @@ class MobileScreenTest {
      */
     @Test
     fun aDesktopThatStopsAnsweringIsReportedAndRecovers() {
-        val pairingUrl = InstrumentationRegistry.getArguments().getString("openbitfunPairingUrl").orEmpty()
-        assumeTrue("openbitfunPairingUrl instrumentation argument is required", pairingUrl.isNotBlank())
+        val pairingUrl = InstrumentationRegistry.getArguments().getString("alexPairingUrl").orEmpty()
+        assumeTrue("alexPairingUrl instrumentation argument is required", pairingUrl.isNotBlank())
 
         openRemote()
         openManualPairing()

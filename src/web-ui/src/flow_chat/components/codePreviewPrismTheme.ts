@@ -9,16 +9,16 @@ export function buildCodePreviewPrismStyle(isLight: boolean): Record<string, CSS
     pre: {
       margin: 0,
       padding: 0,
-      fontSize: 'var(--openbitfun-type-flow-code-font-size)',
-      lineHeight: 'var(--openbitfun-type-flow-code-line-height)',
-      fontFamily: 'var(--openbitfun-type-flow-code-font-family)',
-      fontWeight: 'var(--openbitfun-type-flow-code-font-weight)',
+      fontSize: 'var(--alex-type-flow-code-font-size)',
+      lineHeight: 'var(--alex-type-flow-code-line-height)',
+      fontFamily: 'var(--alex-type-flow-code-font-family)',
+      fontWeight: 'var(--alex-type-flow-code-font-weight)',
     },
     code: {
-      fontSize: 'var(--openbitfun-type-flow-code-font-size)',
-      lineHeight: 'var(--openbitfun-type-flow-code-line-height)',
-      fontFamily: 'var(--openbitfun-type-flow-code-font-family)',
-      fontWeight: 'var(--openbitfun-type-flow-code-font-weight)',
+      fontSize: 'var(--alex-type-flow-code-font-size)',
+      lineHeight: 'var(--alex-type-flow-code-line-height)',
+      fontFamily: 'var(--alex-type-flow-code-font-family)',
+      fontWeight: 'var(--alex-type-flow-code-font-weight)',
     },
   });
 }

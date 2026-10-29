@@ -100,8 +100,8 @@ int main(int argc, const char **argv) { @autoreleasepool {
     if (strcmp(argv[1], "--observer") == 0) {
         NSApplication *observer = [NSApplication sharedApplication];
         [observer setActivationPolicy:NSApplicationActivationPolicyRegular];
-        NSWindow *window = [[NSWindow alloc] initWithContentRect:(getenv("OPENBITFUN_INPUT_COVER_TARGET") && strcmp(getenv("OPENBITFUN_INPUT_COVER_TARGET"),"1")==0 ? NSMakeRect(80,80,760,340) : NSMakeRect(850,100,240,180)) styleMask:NSWindowStyleMaskTitled backing:NSBackingStoreBuffered defer:NO];
-        window.title = @"OpenBitFun Foreground Observer";
+        NSWindow *window = [[NSWindow alloc] initWithContentRect:(getenv("ALEX_INPUT_COVER_TARGET") && strcmp(getenv("ALEX_INPUT_COVER_TARGET"),"1")==0 ? NSMakeRect(80,80,760,340) : NSMakeRect(850,100,240,180)) styleMask:NSWindowStyleMaskTitled backing:NSBackingStoreBuffered defer:NO];
+        window.title = @"Alex Foreground Observer";
         NSString *observerPath = argc > 2 ? [NSString stringWithUTF8String:argv[2]] : nil;
         uint32_t observedTarget = argc > 3 ? (uint32_t)strtoul(argv[3], NULL, 10) : 0;
         __block BOOL observerReady = NO;
@@ -153,7 +153,7 @@ int main(int argc, const char **argv) { @autoreleasepool {
     NSApplication *app = [OBFControlsApp sharedApplication];
     [app setActivationPolicy:NSApplicationActivationPolicyAccessory];
     targetWindow = [[NSWindow alloc] initWithContentRect:NSMakeRect(100,100,700,300) styleMask:NSWindowStyleMaskTitled backing:NSBackingStoreBuffered defer:NO];
-    targetWindow.title = @"OpenBitFun Inactive Controls Fixture";
+    targetWindow.title = @"Alex Inactive Controls Fixture";
     targetWindow.releasedWhenClosed = NO;
     OBFControlsActions *actions = [[OBFControlsActions alloc] init];
     // Ordinary AppKit menu dispatch: no event interception or automation hooks.

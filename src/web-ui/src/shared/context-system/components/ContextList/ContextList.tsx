@@ -1,7 +1,7 @@
  
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Icon, ScrollArea } from '@openbitfun/ui';
+import { Button, Icon, ScrollArea } from '@alex/ui';
 import { AlertCircle } from 'lucide-react';
 import { useContextStore, selectContexts } from '../../../stores/contextStore';
 import { ContextCard } from '../ContextCard/ContextCard';
@@ -97,13 +97,13 @@ export const ContextList: React.FC<ContextListProps> = ({
   
   if (renderedContexts.length === 0) {
     return (
-      <div className={`openbitfun-context-list openbitfun-context-list--empty ${className}`} data-openbitfun-component="context-list" data-openbitfun-part="root" data-openbitfun-state="empty">
-        <div className="openbitfun-context-list__empty-state" data-openbitfun-component="context-list" data-openbitfun-part="empty">
-          <AlertCircle size={24} className="openbitfun-context-list__empty-icon" />
-          <p className="openbitfun-context-list__empty-text">
+      <div className={`alex-context-list alex-context-list--empty ${className}`} data-alex-component="context-list" data-alex-part="root" data-alex-state="empty">
+        <div className="alex-context-list__empty-state" data-alex-component="context-list" data-alex-part="empty">
+          <AlertCircle size={24} className="alex-context-list__empty-icon" />
+          <p className="alex-context-list__empty-text">
             {t('contextSystem.contextList.emptyTitle')}
           </p>
-          <p className="openbitfun-context-list__empty-hint">
+          <p className="alex-context-list__empty-hint">
             {t('contextSystem.contextList.emptyHint')}
           </p>
         </div>
@@ -112,12 +112,12 @@ export const ContextList: React.FC<ContextListProps> = ({
   }
   
   return (
-    <div className={`openbitfun-context-list ${className}`} data-openbitfun-component="context-list" data-openbitfun-part="root">
+    <div className={`alex-context-list ${className}`} data-alex-component="context-list" data-alex-part="root">
       
-      <div className="openbitfun-context-list__header" data-openbitfun-component="context-list" data-openbitfun-part="header">
-        <div className="openbitfun-context-list__title" data-openbitfun-component="context-list" data-openbitfun-part="title">
+      <div className="alex-context-list__header" data-alex-component="context-list" data-alex-part="header">
+        <div className="alex-context-list__title" data-alex-component="context-list" data-alex-part="title">
           {t('contextSystem.contextList.title')}
-          <span className="openbitfun-context-list__count" data-openbitfun-component="context-list" data-openbitfun-part="count">
+          <span className="alex-context-list__count" data-alex-component="context-list" data-alex-part="count">
             {contexts.length}
           </span>
         </div>
@@ -137,23 +137,23 @@ export const ContextList: React.FC<ContextListProps> = ({
       
       
       <ScrollArea 
-        className="openbitfun-context-list__items"
+        className="alex-context-list__items"
         style={{ maxHeight }}
-        data-openbitfun-component="context-list"
-        data-openbitfun-part="items"
+        data-alex-component="context-list"
+        data-alex-part="items"
       >
         {renderedContexts.map(({ context, exiting }) => (
           <div
             key={context.id}
-            className="openbitfun-context-list__item"
+            className="alex-context-list__item"
             data-exiting={exiting ? 'true' : 'false'}
             aria-hidden={exiting || undefined}
             {...(exiting ? { inert: '' } : {})}
             onClick={exiting ? undefined : () => handleCardClick(context.id)}
-            data-openbitfun-component="context-list"
-            data-openbitfun-part="item"
+            data-alex-component="context-list"
+            data-alex-part="item"
           >
-            <div className="openbitfun-context-list__item-inner">
+            <div className="alex-context-list__item-inner">
               <ContextCard
                 context={context}
                 onRemove={exiting ? undefined : handleRemove}

@@ -1,6 +1,6 @@
 //! In-app subscription authentication.
 //!
-//! Lets OpenBitFun sign in to another product's subscription (Codex/ChatGPT,
+//! Lets Alex sign in to another product's subscription (Codex/ChatGPT,
 //! Antigravity/Google, OpenCode, xAI/SuperGrok, Hermes/Nous Portal) with an in-app OAuth flow,
 //! and use the resulting tokens to authenticate AI requests. Secret material
 //! is stored separately from the non-secret account metadata. macOS uses a
@@ -39,7 +39,7 @@ pub(crate) const OPENCODE_COMPAT_VERSION: &str = "1.18.29";
 
 pub const OPENCODE_GO_REQUIRES_API_KEY: &str = "OpenCode Console OAuth supports Zen only. Edit this model to use the OpenCode Go API-key preset. Existing configuration and credentials have been preserved.";
 
-/// One of the subscription providers OpenBitFun can sign in to.
+/// One of the subscription providers Alex can sign in to.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum SubscriptionProvider {
@@ -159,7 +159,7 @@ pub fn runtime_model_override(
         return Some(provider.suggested().2);
     }
     match (provider, model) {
-        // OpenBitFun used this as its original Codex subscription default. It is
+        // Alex used this as its original Codex subscription default. It is
         // no longer in OpenCode's current ChatGPT subscription model set.
         (SubscriptionProvider::Codex, "gpt-5-codex") => Some("gpt-5.5"),
         // The retired Grok proxy exposed an unversioned coding-model alias;
@@ -410,7 +410,7 @@ pub(crate) fn build_http_client(
     options: &SubscriptionHttpOptions,
     provider: &str,
 ) -> Result<reqwest::Client> {
-    openbitfun_services_core::tls_provider::ensure_ring_crypto_provider();
+    alex_services_core::tls_provider::ensure_ring_crypto_provider();
     let mut builder = reqwest::Client::builder()
         .tls_backend_rustls()
         .timeout(Duration::from_secs(30))
@@ -508,7 +508,7 @@ pub(crate) fn store_revision_conflict(
     current_revision: u64,
 ) -> anyhow::Error {
     anyhow!(
-        "{} credentials changed in another OpenBitFun process (current revision {current_revision}); retry the operation",
+        "{} credentials changed in another Alex process (current revision {current_revision}); retry the operation",
         provider.display_label()
     )
 }
@@ -1133,10 +1133,10 @@ mod tests {
             .all(|offering| offering.plan == OpenCodePlan::Zen));
     }
 
-    const STALE_LOGIN_CHILD_METADATA_ENV: &str = "OPENBITFUN_SUBAUTH_CAS_CHILD_METADATA";
-    const STALE_LOGIN_CHILD_LOADED_ENV: &str = "OPENBITFUN_SUBAUTH_CAS_CHILD_LOADED";
-    const STALE_LOGIN_CHILD_RESUME_ENV: &str = "OPENBITFUN_SUBAUTH_CAS_CHILD_RESUME";
-    const STALE_LOGIN_CHILD_OUTCOME_ENV: &str = "OPENBITFUN_SUBAUTH_CAS_CHILD_OUTCOME";
+    const STALE_LOGIN_CHILD_METADATA_ENV: &str = "ALEX_SUBAUTH_CAS_CHILD_METADATA";
+    const STALE_LOGIN_CHILD_LOADED_ENV: &str = "ALEX_SUBAUTH_CAS_CHILD_LOADED";
+    const STALE_LOGIN_CHILD_RESUME_ENV: &str = "ALEX_SUBAUTH_CAS_CHILD_RESUME";
+    const STALE_LOGIN_CHILD_OUTCOME_ENV: &str = "ALEX_SUBAUTH_CAS_CHILD_OUTCOME";
 
     /// Serializes tests that rely on the process-global store path override.
     /// Serializes these tests against the shared on-disk store. Async-aware so
@@ -1148,7 +1148,7 @@ mod tests {
     }
 
     fn temp_store_path() -> std::path::PathBuf {
-        let dir = std::env::temp_dir().join(format!("openbitfun-subauth-{}", uuid::Uuid::new_v4()));
+        let dir = std::env::temp_dir().join(format!("alex-subauth-{}", uuid::Uuid::new_v4()));
         std::fs::create_dir_all(&dir).unwrap();
         dir.join("subscription_auth.json")
     }
@@ -1190,8 +1190,8 @@ mod tests {
             assert_eq!(resolved.expires_at, Some(actual_expiry));
             assert_eq!(resolved.api_key, token);
             if provider == SubscriptionProvider::Codex {
-                assert_eq!(resolved.extra_headers["originator"], "openbitfun");
-                assert!(resolved.extra_headers["User-Agent"].starts_with("OpenBitFun/"));
+                assert_eq!(resolved.extra_headers["originator"], "alex");
+                assert!(resolved.extra_headers["User-Agent"].starts_with("Alex/"));
                 assert_eq!(resolved.extra_headers["ChatGPT-Account-ID"], "test-account");
                 assert!(!resolved.extra_headers.contains_key("session-id"));
             }
@@ -1216,10 +1216,10 @@ mod tests {
         // Deserialized legacy user settings, including differently cased stale
         // auth headers. Assert the final request, not just the merged HashMap.
         for (format, url, headers, auth_header) in [
-            ("responses", "https://chatgpt.com/backend-api/codex/responses", vec![("originator", "openbitfun"), ("User-Agent", "OpenBitFun/test"), ("ChatGPT-Account-ID", "current-account")], "authorization"),
+            ("responses", "https://chatgpt.com/backend-api/codex/responses", vec![("originator", "alex"), ("User-Agent", "Alex/test"), ("ChatGPT-Account-ID", "current-account")], "authorization"),
             ("responses", "https://api.x.ai/v1/responses", vec![("User-Agent", "opencode/test")], "authorization"),
-            ("openai", "https://opencode.ai/zen/v1/chat/completions", vec![("x-org-id", "current-org"), ("User-Agent", "OpenBitFun/test")], "authorization"),
-            ("anthropic", "https://opencode.ai/zen/v1/messages", vec![("x-org-id", "current-org"), ("User-Agent", "OpenBitFun/test")], "x-api-key"),
+            ("openai", "https://opencode.ai/zen/v1/chat/completions", vec![("x-org-id", "current-org"), ("User-Agent", "Alex/test")], "authorization"),
+            ("anthropic", "https://opencode.ai/zen/v1/messages", vec![("x-org-id", "current-org"), ("User-Agent", "Alex/test")], "x-api-key"),
             ("openai", "https://inference-api.nousresearch.com/v1/chat/completions", vec![], "authorization"),
             ("anthropic", "https://inference-api.nousresearch.com/v1/messages", vec![], "authorization"),
             ("gemini-code-assist", "https://daily-cloudcode-pa.sandbox.googleapis.com/v1internal:streamGenerateContent?alt=sse", vec![("User-Agent", "antigravity/test"), ("X-Goog-Api-Client", "google-cloud-sdk vscode_cloudshelleditor/0.1"), ("Client-Metadata", "ANTIGRAVITY")], "authorization"),
@@ -1722,7 +1722,7 @@ mod tests {
         let loaded_path = parent.join("child-loaded");
         let resume_path = parent.join("child-resume");
         let outcome_path = parent.join("child-outcome");
-        let mut child = openbitfun_services_core::process_manager::create_command(
+        let mut child = alex_services_core::process_manager::create_command(
             std::env::current_exe().unwrap(),
         )
         .arg("--exact")

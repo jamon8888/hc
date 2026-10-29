@@ -14,7 +14,7 @@ export const conversationModeSurfaceAppearanceDescriptor: AppearanceSurfaceDescr
     { id: 'imagePreview' },
   ],
   states: [
-    { id: 'chat', selector: { kind: 'self', suffix: '[data-openbitfun-state~="chat"]' } },
-    { id: 'voice', selector: { kind: 'self', suffix: '[data-openbitfun-state~="voice"]' } },
+    { id: 'chat', selector: { kind: 'self', suffix: '[data-alex-state~="chat"]' } },
+    { id: 'voice', selector: { kind: 'self', suffix: '[data-alex-state~="voice"]' } },
   ],
 };

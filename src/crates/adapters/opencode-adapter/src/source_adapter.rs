@@ -12,19 +12,19 @@ use crate::local_source_paths::{
     OpenCodeLocalConfigOptions,
 };
 use async_trait::async_trait;
-use openbitfun_plugin_runtime_client::PluginRuntimeAdapter;
-use openbitfun_product_domains::external_hook_contributions::{
+use alex_plugin_runtime_client::PluginRuntimeAdapter;
+use alex_product_domains::external_hook_contributions::{
     ExternalHookContributionDeclaration, ExternalHookPoint, ExternalHookRiskCapability,
 };
-use openbitfun_product_domains::external_sources::SourceKey;
-use openbitfun_product_domains::plugin_source::{PluginActivationAuthority, PluginPackageInput};
-use openbitfun_runtime_ports::{
+use alex_product_domains::external_sources::SourceKey;
+use alex_product_domains::plugin_source::{PluginActivationAuthority, PluginPackageInput};
+use alex_runtime_ports::{
     PermissionPromptDenyState, PermissionPromptDescriptor, PermissionPromptEffectKind,
     PluginArtifactRef, PluginCapabilityRef, PluginDataClassification, PluginEffectCandidatePayload,
     PluginOwnerKind, PluginOwnerRef, PluginPermissionGate, PluginRiskLevel, PluginRollbackMode,
     PluginRollbackPolicy, PluginTargetRef,
 };
-use openbitfun_runtime_ports::{
+use alex_runtime_ports::{
     PluginAuditRef, PluginConfigValidationIssue, PluginConfigValidationState,
     PluginConfigValidationStatus, PluginDiagnostic, PluginDiagnosticDetail,
     PluginDiagnosticSeverity, PluginDispatchEnvelope, PluginEffectCandidate, PluginManifestRef,
@@ -812,7 +812,7 @@ impl OpenCodePackageProjection {
             source: self.source.clone(),
             code: "opencode.npm_plugin_projection_only".to_string(),
             message: format!(
-                "OpenCode npm plugin is discovered from opencode.json but is not installed or executed by OpenBitFun: {}",
+                "OpenCode npm plugin is discovered from opencode.json but is not installed or executed by Alex: {}",
                 self.package
             ),
             detail: PluginDiagnosticDetail::Manifest {
@@ -886,7 +886,7 @@ impl OpenCodeInvalidProjection {
             package_uri,
         );
         let manifest = PluginManifestRef {
-            manifest_id: format!("{plugin_id}:openbitfun.plugin"),
+            manifest_id: format!("{plugin_id}:alex.plugin"),
             schema_version: "openbitfun.plugin.package.v1".to_string(),
             path: Some(package_uri.to_string()),
         };
@@ -1514,7 +1514,7 @@ impl OpenCodeSourceProjection {
             source,
             code: "opencode.npm_plugin_projection_only".to_string(),
             message: format!(
-                "OpenCode npm plugin is present in opencode.json but is not installed or executed by OpenBitFun: {package}"
+                "OpenCode npm plugin is present in opencode.json but is not installed or executed by Alex: {package}"
             ),
             detail: PluginDiagnosticDetail::Manifest {
                 manifest: PluginManifestRef {
@@ -1583,7 +1583,7 @@ impl OpenCodeSourceProjection {
             source,
             code: "opencode.hook_mapped_runtime_unavailable".to_string(),
             message: format!(
-                "OpenCode Hook {event_name} was recognized from the plugin return object. It may {declared_risks}, but {safety_statement} and Hook execution is unavailable in this OpenBitFun version"
+                "OpenCode Hook {event_name} was recognized from the plugin return object. It may {declared_risks}, but {safety_statement} and Hook execution is unavailable in this Alex version"
             ),
             detail: PluginDiagnosticDetail::Adapter {
                 adapter_id: OPENCODE_ADAPTER_ID.to_string(),
@@ -1748,8 +1748,8 @@ fn load_opencode_config_snapshot_with_options(
         };
         let path = PathBuf::from(document.location());
         let content = match document.read_bounded(MAX_CONFIG_SNAPSHOT_FILE_BYTES) {
-            Ok(openbitfun_services_core::bounded_fs::BoundedTextRead::Content(content)) => content,
-            Ok(openbitfun_services_core::bounded_fs::BoundedTextRead::TooLarge) => {
+            Ok(alex_services_core::bounded_fs::BoundedTextRead::Content(content)) => content,
+            Ok(alex_services_core::bounded_fs::BoundedTextRead::TooLarge) => {
                 return Err(OpenCodeConfigSnapshotError::Invalid {
                     path,
                     message: format!(
@@ -1757,7 +1757,7 @@ fn load_opencode_config_snapshot_with_options(
                     ),
                 });
             }
-            Ok(openbitfun_services_core::bounded_fs::BoundedTextRead::InvalidUtf8) => {
+            Ok(alex_services_core::bounded_fs::BoundedTextRead::InvalidUtf8) => {
                 return Err(OpenCodeConfigSnapshotError::Invalid {
                     path,
                     message: "configuration must be valid UTF-8".to_string(),
@@ -1773,7 +1773,7 @@ fn load_opencode_config_snapshot_with_options(
                 }
             })?;
         let value =
-            serde_json::from_str::<Value>(&openbitfun_services_core::jsonc::strip_jsonc(&content))
+            serde_json::from_str::<Value>(&alex_services_core::jsonc::strip_jsonc(&content))
                 .map_err(|error| OpenCodeConfigSnapshotError::Invalid {
                     path: path.clone(),
                     message: error.to_string(),
@@ -2800,8 +2800,8 @@ fn audit_ref(envelope: &PluginDispatchEnvelope) -> PluginAuditRef {
 #[cfg(test)]
 mod opencode_projection_contracts {
     use super::*;
-    use openbitfun_plugin_runtime_client::DefaultPluginRuntimeClient;
-    use openbitfun_runtime_ports::{
+    use alex_plugin_runtime_client::DefaultPluginRuntimeClient;
+    use alex_runtime_ports::{
         PermissionPromptDenyState, PermissionPromptEffectKind, PluginPayloadRedaction,
         PluginPayloadRef, PluginRuntimeClient, PluginRuntimeEpochs,
     };

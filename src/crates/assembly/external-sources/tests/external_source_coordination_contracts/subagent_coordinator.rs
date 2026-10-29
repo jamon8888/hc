@@ -1,10 +1,10 @@
-use openbitfun_external_sources::{ExternalSubagentCoordinator, ExternalSubagentDiscoveryResult};
-use openbitfun_product_domains::external_sources::{
+use alex_external_sources::{ExternalSubagentCoordinator, ExternalSubagentDiscoveryResult};
+use alex_product_domains::external_sources::{
     EcosystemId, ExecutionDomainId, ExternalSourceContext, ExternalSourceHealth,
     ExternalSourceProviderError, ExternalSourceRecord, ExternalSourceScope, ExternalWatchRoot,
     SourceKey,
 };
-use openbitfun_product_domains::external_subagents::{
+use alex_product_domains::external_subagents::{
     external_subagent_candidate_id, ExternalSubagentBehaviorVersion,
     ExternalSubagentCompatibilityState, ExternalSubagentContributionId,
     ExternalSubagentContributionRole, ExternalSubagentDefinition, ExternalSubagentDiscoveryInput,

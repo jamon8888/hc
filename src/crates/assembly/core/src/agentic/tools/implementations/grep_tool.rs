@@ -10,7 +10,7 @@ use crate::service::search::{
     workspace_search_feature_enabled, workspace_search_runtime_available, ContentSearchOutputMode,
     ContentSearchRequest, WorkspaceSearchHit, WorkspaceSearchLine,
 };
-use crate::util::errors::{OpenBitFunError, OpenBitFunResult};
+use crate::util::errors::{AlexError, AlexResult};
 use async_trait::async_trait;
 use serde_json::{json, Value};
 use std::collections::HashSet;
@@ -129,7 +129,7 @@ impl GrepTool {
         &self,
         input: &Value,
         context: &ToolUseContext,
-    ) -> OpenBitFunResult<Vec<ToolResult>> {
+    ) -> AlexResult<Vec<ToolResult>> {
         let resolved =
             context.resolve_tool_path(input.get("path").and_then(Value::as_str).unwrap_or("."))?;
         let fs = context.file_system_for_path(&resolved)?;
@@ -142,11 +142,11 @@ impl GrepTool {
         )
         .await
         .map_err(|_| {
-            OpenBitFunError::tool(
+            AlexError::tool(
                 "Workspace search timed out after 30000ms; narrow the search path".to_string(),
             )
         })?
-        .map_err(OpenBitFunError::tool)?;
+        .map_err(AlexError::tool)?;
         let result = search.result;
         let mut assistant_text = result.result_text.clone();
         if !search.used_rg_candidates && !search.used_grep_candidates {
@@ -180,11 +180,11 @@ impl GrepTool {
         &self,
         input: &Value,
         context: &ToolUseContext,
-    ) -> OpenBitFunResult<GrepOptions> {
+    ) -> AlexResult<GrepOptions> {
         let pattern = input
             .get("pattern")
             .and_then(|v| v.as_str())
-            .ok_or_else(|| OpenBitFunError::tool("pattern is required".to_string()))?;
+            .ok_or_else(|| AlexError::tool("pattern is required".to_string()))?;
 
         let search_path = input.get("path").and_then(|v| v.as_str()).unwrap_or(".");
         let resolved = context.resolve_tool_path(search_path)?;
@@ -200,7 +200,7 @@ impl GrepTool {
             .and_then(|v| v.as_str())
             .unwrap_or("files_with_matches");
         let output_mode = OutputMode::from_str(output_mode_str)
-            .map_err(|e| OpenBitFunError::tool(e.to_string()))?;
+            .map_err(|e| AlexError::tool(e.to_string()))?;
         let show_line_numbers = input
             .get("-n")
             .and_then(|v| v.as_bool())
@@ -281,17 +281,17 @@ impl GrepTool {
         &self,
         input: &Value,
         context: &ToolUseContext,
-    ) -> OpenBitFunResult<(ContentSearchRequest, String, bool, usize, Option<usize>)> {
+    ) -> AlexResult<(ContentSearchRequest, String, bool, usize, Option<usize>)> {
         let workspace_root = context
             .workspace
             .as_ref()
             .map(|workspace| PathBuf::from(workspace.root_path_string()))
-            .ok_or_else(|| OpenBitFunError::tool("Workspace is required for Grep".to_string()))?;
+            .ok_or_else(|| AlexError::tool("Workspace is required for Grep".to_string()))?;
 
         let pattern = input
             .get("pattern")
             .and_then(|v| v.as_str())
-            .ok_or_else(|| OpenBitFunError::tool("pattern is required".to_string()))?;
+            .ok_or_else(|| AlexError::tool("pattern is required".to_string()))?;
         let search_path = input.get("path").and_then(|v| v.as_str()).unwrap_or(".");
         let resolved_path = context.resolve_workspace_tool_path(search_path)?;
         let resolved_path_buf = PathBuf::from(&resolved_path);
@@ -487,8 +487,8 @@ impl Tool for GrepTool {
         "Grep"
     }
 
-    async fn description(&self) -> OpenBitFunResult<String> {
-        Ok(r#"Search file contents in the active workspace with OpenBitFun's built-in structured search.
+    async fn description(&self) -> AlexResult<String> {
+        Ok(r#"Search file contents in the active workspace with Alex's built-in structured search.
 
 Usage:
 - Use Grep by default for codebase content search because it preserves workspace-aware permissions and consistent output.
@@ -597,7 +597,7 @@ Usage:
         &self,
         input: &Value,
         context: &ToolUseContext,
-    ) -> OpenBitFunResult<Vec<ToolResult>> {
+    ) -> AlexResult<Vec<ToolResult>> {
         // Resolve and authorize the workspace path before selecting IO.
         let search_path = input.get("path").and_then(|v| v.as_str()).unwrap_or(".");
         let resolved = context.resolve_tool_path(search_path)?;
@@ -605,7 +605,7 @@ Usage:
         #[cfg(feature = "tools-miniapp")]
         if is_virtual_context_path(context, &resolved) {
             let files = virtual_context_files_for_search(context, &resolved).ok_or_else(|| {
-                OpenBitFunError::tool(format!(
+                AlexError::tool(format!(
                     "MiniApp context path is unavailable: {}",
                     resolved.logical_path
                 ))
@@ -618,9 +618,9 @@ Usage:
                 tokio::task::spawn_blocking(move || grep_search_virtual_files(options, &files))
                     .await
                     .map_err(|error| {
-                        OpenBitFunError::tool(format!("virtual grep task failed: {error}"))
+                        AlexError::tool(format!("virtual grep task failed: {error}"))
                     })?
-                    .map_err(OpenBitFunError::tool)?;
+                    .map_err(AlexError::tool)?;
             return Ok(vec![ToolResult::Result {
                 data: json!({
                     "pattern": pattern,
@@ -639,7 +639,7 @@ Usage:
         }
         #[cfg(feature = "tools-miniapp")]
         if requires_virtual_context_path(context) {
-            return Err(OpenBitFunError::tool(format!(
+            return Err(AlexError::tool(format!(
                 "MiniApp context path is unavailable: {}",
                 resolved.logical_path
             )));
@@ -668,14 +668,14 @@ Usage:
                         .unwrap_or_else(|| request.repo_root.to_string_lossy().to_string());
                     let workspace_id = context.workspace.as_ref()
                         .and_then(|workspace| workspace.workspace_id.as_deref())
-                        .ok_or_else(|| OpenBitFunError::tool("Remote search requires a workspace ID"))?;
+                        .ok_or_else(|| AlexError::tool("Remote search requires a workspace ID"))?;
                     let search_service = remote_workspace_search_service_for_workspace(workspace_id)
-                        .await.map_err(OpenBitFunError::tool)?;
+                        .await.map_err(AlexError::tool)?;
                     let search_started_at = Instant::now();
                     let search_result = search_service
                         .search_content(request)
                         .await
-                        .map_err(OpenBitFunError::tool)?;
+                        .map_err(AlexError::tool)?;
                     let display_base = Self::display_base(context);
                     let (result_text, file_count, total_matches) =
                         self.format_workspace_search_output(
@@ -707,7 +707,7 @@ Usage:
                         workspace_search_elapsed_ms,
                     );
 
-                    Ok::<Vec<ToolResult>, OpenBitFunError>(vec![ToolResult::Result {
+                    Ok::<Vec<ToolResult>, AlexError>(vec![ToolResult::Result {
                         data: json!({
                             "pattern": pattern,
                             "path": path,
@@ -891,8 +891,8 @@ Usage:
             cancelled: _,
         } = match search_result {
             Ok(Ok(result)) => result,
-            Ok(Err(e)) => return Err(OpenBitFunError::tool(e)),
-            Err(e) => return Err(OpenBitFunError::tool(format!("grep search failed: {}", e))),
+            Ok(Err(e)) => return Err(AlexError::tool(e)),
+            Err(e) => return Err(AlexError::tool(format!("grep search failed: {}", e))),
         };
 
         Ok(vec![ToolResult::Result {
@@ -934,7 +934,7 @@ mod tests {
         WorkspaceSearchMatch, WorkspaceSearchMatchLocation, WorkspaceSearchRepoPhase,
         WorkspaceSearchRepoStatus,
     };
-    use openbitfun_runtime_ports::ToolRuntimeHandles;
+    use alex_runtime_ports::ToolRuntimeHandles;
     use serde_json::json;
     use std::collections::HashMap;
     use tool_runtime::search::grep_search::relativize_result_text;
@@ -1496,7 +1496,7 @@ mod tests {
 
     mod workspace_io {
         use crate::agentic::workspace::{LocalWorkspaceFs, LocalWorkspaceShell};
-        use openbitfun_runtime_ports::{
+        use alex_runtime_ports::{
             WorkspaceCommandOptions, WorkspaceCommandResult, WorkspaceDirEntry,
             WorkspaceFileSystem, WorkspaceMetadata, WorkspaceReader, WorkspaceShell,
         };
@@ -1557,7 +1557,7 @@ mod tests {
 
         const UNFILTERED_FILES: &[&str] = &[
             "known.py",
-            "custom.openbitfun_custom_ext",
+            "custom.alex_custom_ext",
             "opaque_workspace_notes",
             "src/lib.rs",
             "other.rs",
@@ -1618,12 +1618,12 @@ mod tests {
         async fn default_type_and_relative_globs_match_expected_files_across_workspace_paths() {
             let dir = unfiltered_fixture();
             let root = dir.path().to_string_lossy().into_owned();
-            let mut candidates = "OPENBITFUN_RG_CANDIDATES_BEGIN\0".to_string();
+            let mut candidates = "ALEX_RG_CANDIDATES_BEGIN\0".to_string();
             for name in UNFILTERED_FILES {
                 candidates.push_str(&LocalWorkspaceFs.join_path(&root, &[*name]));
                 candidates.push('\0');
             }
-            candidates.push_str("OPENBITFUN_RG_CANDIDATES_END\0");
+            candidates.push_str("ALEX_RG_CANDIDATES_END\0");
             let shell = ResponseShell {
                 status: 0,
                 stdout: candidates,
@@ -1871,7 +1871,7 @@ mod tests {
                 command: &str,
                 options: WorkspaceCommandOptions,
             ) -> anyhow::Result<WorkspaceCommandResult> {
-                if command.contains("OPENBITFUN_RG_CANDIDATES_BEGIN") {
+                if command.contains("ALEX_RG_CANDIDATES_BEGIN") {
                     return Ok(WorkspaceCommandResult {
                         stdout: String::new(),
                         stderr: String::new(),
@@ -1880,7 +1880,7 @@ mod tests {
                         timed_out: false,
                     });
                 }
-                if command.contains("OPENBITFUN_GREP_BATCH_END") {
+                if command.contains("ALEX_GREP_BATCH_END") {
                     self.batches
                         .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
                     if self.malformed_batch {
@@ -2144,7 +2144,7 @@ mod tests {
             fs.opened.lock().unwrap().clear();
             let empty = ResponseShell {
                 status: 1,
-                stdout: "OPENBITFUN_RG_CANDIDATES_BEGIN\0OPENBITFUN_RG_CANDIDATES_END\0"
+                stdout: "ALEX_RG_CANDIDATES_BEGIN\0ALEX_RG_CANDIDATES_END\0"
                     .to_string(),
                 timed_out: false,
             };
@@ -2281,7 +2281,7 @@ mod tests {
         #[tokio::test]
         async fn remote_tool_uses_shared_options_results_and_no_rg_io_provider() {
             use super::*;
-            use openbitfun_runtime_ports::WorkspaceServices;
+            use alex_runtime_ports::WorkspaceServices;
             let dir = fixture();
             let root = dir.path().to_string_lossy().into_owned();
             let identity = crate::service::remote_ssh::workspace_state::workspace_session_identity(

@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily Alex MiniApp market backup
+
+[Timer]
+OnCalendar=*-*-* 03:20:00 UTC
+Persistent=true
+RandomizedDelaySec=20m
+Unit=alex-miniapp-market-backup.service
+
+[Install]
+WantedBy=timers.target

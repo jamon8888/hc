@@ -260,7 +260,7 @@
         "primary_action",
         "content_on_action"
       ],
-      "platformNotes": "Reference: desktop ChatInputApprovalBand and @openbitfun/ui raised Card, neutral resource Card, fill reject Button and primary allow Button. Preserve desktop 12-unit card radius/padding and 8-unit gaps, with 36-unit mobile actions. Resource content scrolls within the band; actions do not stretch across the card. JSON editing remains a quiet, collapsed mobile-web capability. status_warning ports desktop amber.550 for the short shield glyph: neither success/danger nor the blue file-link accent communicates pending approval."
+      "platformNotes": "Reference: desktop ChatInputApprovalBand and @alex/ui raised Card, neutral resource Card, fill reject Button and primary allow Button. Preserve desktop 12-unit card radius/padding and 8-unit gaps, with 36-unit mobile actions. Resource content scrolls within the band; actions do not stretch across the card. JSON editing remains a quiet, collapsed mobile-web capability. status_warning ports desktop amber.550 for the short shield glyph: neither success/danger nor the blue file-link accent communicates pending approval."
     }
   }
 }

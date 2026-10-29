@@ -47,11 +47,11 @@ describe('FlowChat transcript edge fade', () => {
     for (const gradient of maskGradients) {
       expect(gradient).toContain('var(--_flow-chat-top-mask-start),');
       expect(gradient).toContain(
-        'var(--openbitfun-color-content-on-light) var(--openbitfun-space-12),',
+        'var(--alex-color-content-on-light) var(--alex-space-12),',
       );
     }
     expect(stylesheet).toContain(
-      '100% - var(--_flow-chat-input-overlay-inset) - var(--openbitfun-space-12)',
+      '100% - var(--_flow-chat-input-overlay-inset) - var(--alex-space-12)',
     );
     expect(stylesheet).toContain(
       'transparent calc(100% - var(--_flow-chat-input-overlay-inset))',
@@ -60,7 +60,7 @@ describe('FlowChat transcript edge fade', () => {
       "&__scroller[data-scroll-at-start='true']",
     );
     expect(stylesheet).toContain(
-      "--_flow-chat-top-mask-start: var(--openbitfun-color-content-on-light) 0;",
+      "--_flow-chat-top-mask-start: var(--alex-color-content-on-light) 0;",
     );
     expect(stylesheet).toContain(
       '--_flow-chat-top-mask-start: transparent 0;',

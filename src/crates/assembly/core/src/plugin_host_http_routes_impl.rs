@@ -1,6 +1,6 @@
 use crate::service::session::ToolItemIdentityExt;
-use openbitfun_runtime_ports::{GitPort, WorkspaceDiffFileStatus};
-use openbitfun_services_core::filesystem::{FileSearchOptions, FileSearchResult, FileTreeNode};
+use alex_runtime_ports::{GitPort, WorkspaceDiffFileStatus};
+use alex_services_core::filesystem::{FileSearchOptions, FileSearchResult, FileTreeNode};
 use serde::Deserialize;
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
@@ -66,7 +66,7 @@ fn coordinator() -> Result<Arc<crate::agentic::coordination::ConversationCoordin
 /// Session storage is owned by the plugin instance's workspace ID; the instance
 /// directory is only the execution root handed to file and git routes.
 async fn session_storage_root(context: &PluginHostInstance) -> Result<PathBuf, Failure> {
-    use openbitfun_runtime_ports::SessionStorePort;
+    use alex_runtime_ports::SessionStorePort;
     crate::agentic::session::session_store_port::CoreSessionStorePort::default()
         .resolve_workspace_storage(&context.workspace_id)
         .await
@@ -78,7 +78,7 @@ async fn session_metadata(
     context: &PluginHostInstance,
     session_id: &str,
 ) -> Result<crate::service::session::SessionMetadata, Failure> {
-    openbitfun_core_types::validate_session_id(session_id)
+    alex_core_types::validate_session_id(session_id)
         .map_err(|error| Failure::bad_request(error.to_string()))?;
     let coordinator = coordinator()?;
     coordinator
@@ -124,7 +124,7 @@ async fn session_create(context: &PluginHostInstance, body: &[u8]) -> RouteResul
     let coordinator = coordinator()?;
     if input.parent_id.is_some() {
         return Err(Failure::bad_request(
-            "parentID session creation is not supported by the OpenBitFun session owner",
+            "parentID session creation is not supported by the Alex session owner",
         ));
     }
     let session = coordinator
@@ -332,7 +332,7 @@ struct MessageProjectionContext<'a> {
     instance: &'a PluginHostInstance,
     session: &'a crate::service::session::SessionMetadata,
     models: &'a [crate::service::config::AIModelConfig],
-    catalog: &'a openbitfun_core_types::ProviderCatalog,
+    catalog: &'a alex_core_types::ProviderCatalog,
 }
 
 fn message_model_identity<'a>(
@@ -689,7 +689,7 @@ async fn pty_create(context: &PluginHostInstance, body: &[u8]) -> RouteResult {
     let input: PtyCreateBody = body_as(body)?;
     if input.args.as_ref().is_some_and(|args| !args.is_empty()) {
         return Err(Failure::bad_request(
-            "OpenBitFun terminal sessions do not support arbitrary PTY arguments",
+            "Alex terminal sessions do not support arbitrary PTY arguments",
         ));
     }
     let cwd = input
@@ -724,7 +724,7 @@ fn parse_pty_shell(command: &str) -> Result<ShellType, Failure> {
     let shell = ShellType::from_executable(command.trim());
     if matches!(shell, ShellType::Custom(_)) {
         return Err(Failure::bad_request(
-            "PTY command must select a supported OpenBitFun shell",
+            "PTY command must select a supported Alex shell",
         ));
     }
     Ok(shell)
@@ -786,7 +786,7 @@ async fn pty_update(context: &PluginHostInstance, pty_id: &str, body: &[u8]) -> 
     pty_get(context, pty_id).await?;
     if input.title.is_some() {
         return Err(Failure::bad_request(
-            "PTY title updates are not supported by the OpenBitFun terminal owner",
+            "PTY title updates are not supported by the Alex terminal owner",
         ));
     }
     if let Some(size) = input.size {
@@ -972,7 +972,7 @@ async fn file_read(
 
 async fn file_status(context: &PluginHostInstance) -> RouteResult {
     let snapshot =
-        openbitfun_services_integrations::git::GitWorkspaceDiffPort::new(&context.directory)
+        alex_services_integrations::git::GitWorkspaceDiffPort::new(&context.directory)
             .workspace_diff()
             .await
             .map_err(|error| Failure::backend(error.to_string()))?;

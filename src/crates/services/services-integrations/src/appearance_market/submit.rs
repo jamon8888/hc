@@ -5,7 +5,7 @@
 use super::client::AppearanceMarketClient;
 use super::package::validate_appearance_market_package;
 use crate::miniapp_market::MarketClientError;
-use openbitfun_product_domains::appearance_market::{
+use alex_product_domains::appearance_market::{
     AppearanceMarketSubmission, AppearanceMarketSubmissionDraftRequest,
     AppearanceMarketSubmissionStatus, APPEARANCE_MARKET_MAX_PACKAGE_BYTES,
 };
@@ -175,7 +175,7 @@ fn submission_error(code: impl Into<String>, message: impl Into<String>) -> Mark
 #[cfg(test)]
 mod tests {
     use super::*;
-    use openbitfun_product_domains::appearance_market::{
+    use alex_product_domains::appearance_market::{
         AppearanceMarketLicense, AppearancePackageMode,
     };
 
@@ -196,7 +196,7 @@ mod tests {
             author: None,
             mode: Some(AppearancePackageMode::Dark),
             package_version: Some("1.0.0".to_string()),
-            min_openbitfun_version: "1.0.0".to_string(),
+            min_alex_version: "1.0.0".to_string(),
             required_capabilities: Vec::new(),
             changelog: "Initial".to_string(),
             license: AppearanceMarketLicense {

@@ -64,7 +64,7 @@ function createContext(dialogTurn: DialogTurn, sessionPatch: Record<string, unkn
     sessionId: SESSION_ID,
     dialogTurns: [dialogTurn],
     workspaceId: 'workspace-local',
-    workspacePath: 'D:/workspace/OpenBitFun',
+    workspacePath: 'D:/workspace/Alex',
     createdAt: 1,
     lastActiveAt: 2,
     status: 'active',

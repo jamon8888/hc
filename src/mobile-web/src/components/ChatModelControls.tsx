@@ -1,6 +1,6 @@
 import { ChevronDown as LucideChevronDown, Sparkles as LucideSparkles } from 'lucide-react';
 import React, { useId, useMemo, useRef, useState } from 'react';
-import { MobileButton, MobileCard, MobileTextField } from '@openbitfun/ui/mobile';
+import { MobileButton, MobileCard, MobileTextField } from '@alex/ui/mobile';
 import { useI18n } from '../i18n';
 import type { RemoteModelCatalog, RemoteModelConfig } from '../services/RemoteSessionManager';
 import ComposerSelectionSurface from './ComposerSelectionSurface';

@@ -10,10 +10,10 @@ use crate::agentic::tools::framework::{
     Tool, ToolExposure, ToolRenderOptions, ToolResult, ToolUseContext, ValidationResult,
 };
 use crate::service_agent_runtime::CoreServiceAgentRuntime;
-use crate::util::errors::{OpenBitFunError, OpenBitFunResult};
+use crate::util::errors::{AlexError, AlexResult};
 use async_trait::async_trait;
-use openbitfun_agent_runtime::sdk::AgentRuntime;
-use openbitfun_agent_runtime::session_control::{
+use alex_agent_runtime::sdk::AgentRuntime;
+use alex_agent_runtime::session_control::{
     render_session_control_tool_use_message, resolve_session_control_cancel_route,
     session_control_agent_type_or_default, session_control_cancel_result_message,
     session_control_cancel_status, session_control_created_result_message,
@@ -23,8 +23,8 @@ use openbitfun_agent_runtime::session_control::{
     SessionControlCancelRoute, SessionControlInput, SessionControlValidationContext,
     SessionControlValidationResult,
 };
-use openbitfun_core_types::SessionExecutionTarget;
-use openbitfun_runtime_ports::{
+use alex_core_types::SessionExecutionTarget;
+use alex_runtime_ports::{
     AgentSessionCreateRequest, AgentSessionDeleteRequest, AgentSessionListRequest,
     AgentSessionRenameRequest, AgentSessionSummary, AgentSessionWorkspaceBinding,
     AgentSessionWorkspaceRequest, AgentSubmissionSource, AgentTurnCancellationRequest,
@@ -87,9 +87,9 @@ impl SessionControlTool {
         datetime.format("%Y-%m-%dT%H:%M:%S").to_string()
     }
 
-    fn creator_session_marker(&self, context: &ToolUseContext) -> OpenBitFunResult<String> {
+    fn creator_session_marker(&self, context: &ToolUseContext) -> AlexResult<String> {
         let creator_session_id = context.session_id.as_ref().ok_or_else(|| {
-            OpenBitFunError::tool("create requires a creator session in tool context".to_string())
+            AlexError::tool("create requires a creator session in tool context".to_string())
         })?;
         Ok(session_control_creator_marker(creator_session_id))
     }
@@ -100,13 +100,13 @@ impl SessionControlTool {
         session_id: Option<&str>,
         context: &ToolUseContext,
         runtime: &AgentRuntime,
-    ) -> OpenBitFunResult<SessionControlWorkspaceTarget> {
+    ) -> AlexResult<SessionControlWorkspaceTarget> {
         match action {
             SessionControlAction::Cancel
             | SessionControlAction::Delete
             | SessionControlAction::Rename => {
                 let session_id = session_id.ok_or_else(|| {
-                    OpenBitFunError::tool(format!("session_id is required for {}", action.as_str()))
+                    AlexError::tool(format!("session_id is required for {}", action.as_str()))
                 })?;
                 if let Some(binding) = runtime
                     .resolve_session_workspace_binding(AgentSessionWorkspaceRequest {
@@ -114,19 +114,19 @@ impl SessionControlTool {
                     })
                     .await
                     .map_err(|error| {
-                        OpenBitFunError::tool(CoreServiceAgentRuntime::runtime_error_message(error))
+                        AlexError::tool(CoreServiceAgentRuntime::runtime_error_message(error))
                     })?
                 {
                     return Ok(Self::workspace_target_from_binding(binding));
                 }
-                Err(OpenBitFunError::NotFound(format!(
+                Err(AlexError::NotFound(format!(
                     "Workspace for session '{}' could not be resolved",
                     session_id
                 )))
             }
             SessionControlAction::Create | SessionControlAction::List => {
                 let workspace = context.workspace.as_ref().ok_or_else(|| {
-                    OpenBitFunError::tool(format!(
+                    AlexError::tool(format!(
                         "workspace is required for {} when the current workspace is unavailable",
                         action.as_str()
                     ))
@@ -207,7 +207,7 @@ impl SessionControlTool {
         runtime: &AgentRuntime,
         workspace: &SessionControlWorkspaceTarget,
         session_id: &str,
-    ) -> OpenBitFunResult<()> {
+    ) -> AlexResult<()> {
         let existing_sessions = runtime
             .list_sessions(AgentSessionListRequest {
                 workspace_id: workspace.workspace_id.clone(),
@@ -217,7 +217,7 @@ impl SessionControlTool {
             })
             .await
             .map_err(|error| {
-                OpenBitFunError::tool(CoreServiceAgentRuntime::runtime_error_message(error))
+                AlexError::tool(CoreServiceAgentRuntime::runtime_error_message(error))
             })?;
         if existing_sessions
             .iter()
@@ -225,7 +225,7 @@ impl SessionControlTool {
         {
             Ok(())
         } else {
-            Err(OpenBitFunError::NotFound(format!(
+            Err(AlexError::NotFound(format!(
                 "Session '{}' not found in workspace '{}'",
                 session_id, workspace.display_workspace
             )))
@@ -282,7 +282,7 @@ impl Tool for SessionControlTool {
         "SessionControl"
     }
 
-    async fn description(&self) -> OpenBitFunResult<String> {
+    async fn description(&self) -> AlexResult<String> {
         Ok(
             r#"Manage persisted workspace-scoped agent sessions.
 
@@ -380,13 +380,13 @@ Arguments:
         &self,
         input: &Value,
         context: &ToolUseContext,
-    ) -> OpenBitFunResult<Vec<ToolResult>> {
+    ) -> AlexResult<Vec<ToolResult>> {
         let params: SessionControlInput = serde_json::from_value(input.clone())
-            .map_err(|e| OpenBitFunError::tool(format!("Invalid input: {}", e)))?;
+            .map_err(|e| AlexError::tool(format!("Invalid input: {}", e)))?;
         let coordinator = get_global_coordinator()
-            .ok_or_else(|| OpenBitFunError::tool("coordinator not initialized".to_string()))?;
+            .ok_or_else(|| AlexError::tool("coordinator not initialized".to_string()))?;
         let runtime = CoreServiceAgentRuntime::agent_runtime(coordinator.clone())
-            .map_err(OpenBitFunError::tool)?;
+            .map_err(AlexError::tool)?;
 
         match params.action {
             SessionControlAction::Create => {
@@ -420,7 +420,7 @@ Arguments:
                     })
                     .await
                     .map_err(|error| {
-                        OpenBitFunError::tool(CoreServiceAgentRuntime::runtime_error_message(error))
+                        AlexError::tool(CoreServiceAgentRuntime::runtime_error_message(error))
                     })?;
                 let created_session_id = session.session_id.clone();
                 let created_session_name = session.session_name.clone();
@@ -448,9 +448,9 @@ Arguments:
             }
             SessionControlAction::Cancel => {
                 let session_id = params.session_id.as_deref().ok_or_else(|| {
-                    OpenBitFunError::tool("session_id is required for cancel".to_string())
+                    AlexError::tool("session_id is required for cancel".to_string())
                 })?;
-                validate_session_id(session_id).map_err(OpenBitFunError::tool)?;
+                validate_session_id(session_id).map_err(AlexError::tool)?;
                 let workspace = self
                     .resolve_effective_workspace(
                         SessionControlAction::Cancel,
@@ -462,7 +462,7 @@ Arguments:
                 if self.current_workspace_session(context, &workspace.display_workspace)
                     == Some(session_id)
                 {
-                    return Err(OpenBitFunError::tool(
+                    return Err(AlexError::tool(
                         "cannot cancel the current session from SessionControl".to_string(),
                     ));
                 }
@@ -486,7 +486,7 @@ Arguments:
                             coordinator.clone(),
                             scheduler,
                         )
-                        .map_err(OpenBitFunError::tool)?;
+                        .map_err(AlexError::tool)?;
                         (runtime, Some(requester_session_id))
                     }
                     _ => {
@@ -507,7 +507,7 @@ Arguments:
                     })
                     .await
                     .map_err(|error| {
-                        OpenBitFunError::tool(CoreServiceAgentRuntime::runtime_error_message(error))
+                        AlexError::tool(CoreServiceAgentRuntime::runtime_error_message(error))
                     })?
                     .turn_id;
                 let had_active_turn = cancelled_turn_id.is_some();
@@ -534,9 +534,9 @@ Arguments:
             }
             SessionControlAction::Delete => {
                 let session_id = params.session_id.as_deref().ok_or_else(|| {
-                    OpenBitFunError::tool("session_id is required for delete".to_string())
+                    AlexError::tool("session_id is required for delete".to_string())
                 })?;
-                validate_session_id(session_id).map_err(OpenBitFunError::tool)?;
+                validate_session_id(session_id).map_err(AlexError::tool)?;
                 let workspace = self
                     .resolve_effective_workspace(
                         SessionControlAction::Delete,
@@ -548,7 +548,7 @@ Arguments:
                 if self.current_workspace_session(context, &workspace.display_workspace)
                     == Some(session_id)
                 {
-                    return Err(OpenBitFunError::tool(
+                    return Err(AlexError::tool(
                         "cannot delete the current session from SessionControl".to_string(),
                     ));
                 }
@@ -557,7 +557,7 @@ Arguments:
                     .await?;
 
                 let scheduler = get_global_scheduler().ok_or_else(|| {
-                    OpenBitFunError::tool(
+                    AlexError::tool(
                         "scheduler not initialized for session deletion".to_string(),
                     )
                 })?;
@@ -565,7 +565,7 @@ Arguments:
                     coordinator.clone(),
                     scheduler,
                 )
-                .map_err(OpenBitFunError::tool)?;
+                .map_err(AlexError::tool)?;
 
                 deletion_runtime
                     .delete_session(AgentSessionDeleteRequest {
@@ -577,7 +577,7 @@ Arguments:
                     })
                     .await
                     .map_err(|error| {
-                        OpenBitFunError::tool(CoreServiceAgentRuntime::runtime_error_message(error))
+                        AlexError::tool(CoreServiceAgentRuntime::runtime_error_message(error))
                     })?;
 
                 Ok(vec![ToolResult::Result {
@@ -596,16 +596,16 @@ Arguments:
             }
             SessionControlAction::Rename => {
                 let session_id = params.session_id.as_deref().ok_or_else(|| {
-                    OpenBitFunError::tool("session_id is required for rename".to_string())
+                    AlexError::tool("session_id is required for rename".to_string())
                 })?;
-                validate_session_id(session_id).map_err(OpenBitFunError::tool)?;
+                validate_session_id(session_id).map_err(AlexError::tool)?;
                 let session_name = params
                     .session_name
                     .as_deref()
                     .map(str::trim)
                     .filter(|value| !value.is_empty())
                     .ok_or_else(|| {
-                        OpenBitFunError::tool(
+                        AlexError::tool(
                             "session_name is required and must not be empty for rename".to_string(),
                         )
                     })?;
@@ -620,7 +620,7 @@ Arguments:
                 if self.current_workspace_session(context, &workspace.display_workspace)
                     == Some(session_id)
                 {
-                    return Err(OpenBitFunError::tool(
+                    return Err(AlexError::tool(
                         "cannot rename the current session from SessionControl".to_string(),
                     ));
                 }
@@ -632,7 +632,7 @@ Arguments:
                     .rename_session(Self::rename_request(&workspace, session_id, session_name))
                     .await
                     .map_err(|error| {
-                        OpenBitFunError::tool(format!(
+                        AlexError::tool(format!(
                             "cannot rename session '{session_id}': {}",
                             CoreServiceAgentRuntime::runtime_error_message(error)
                         ))
@@ -673,7 +673,7 @@ Arguments:
                     })
                     .await
                     .map_err(|error| {
-                        OpenBitFunError::tool(CoreServiceAgentRuntime::runtime_error_message(error))
+                        AlexError::tool(CoreServiceAgentRuntime::runtime_error_message(error))
                     })?;
                 let current_session_id =
                     self.current_workspace_session(context, &workspace.display_workspace);
@@ -705,7 +705,7 @@ mod tests {
     use super::*;
     use crate::agentic::tools::framework::ToolUseContext;
     use crate::agentic::WorkspaceBinding;
-    use openbitfun_core_types::{
+    use alex_core_types::{
         SessionExecutionTarget, SessionExecutionTargetKind, WorktreeLifecycle,
     };
     use serde_json::json;
@@ -726,7 +726,7 @@ mod tests {
             custom_data: HashMap::new(),
             computer_use_host: None,
             runtime_tool_restrictions: Default::default(),
-            runtime_handles: openbitfun_runtime_ports::ToolRuntimeHandles::default(),
+            runtime_handles: alex_runtime_ports::ToolRuntimeHandles::default(),
         }
     }
 
@@ -874,7 +874,7 @@ mod tests {
     #[tokio::test]
     async fn validate_list_rejects_session_id() {
         let tool = SessionControlTool::new();
-        let workspace = TestTempDir::new("openbitfun-session-control-tool-test");
+        let workspace = TestTempDir::new("alex-session-control-tool-test");
 
         let validation = tool
             .validate_input(

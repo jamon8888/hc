@@ -1,6 +1,6 @@
 use crate::error::{SkinMarketError, SkinMarketResult};
 use chrono::Utc;
-use openbitfun_product_domains::appearance_market::AppearanceMarketUserSummary;
+use alex_product_domains::appearance_market::AppearanceMarketUserSummary;
 use sqlx::sqlite::{SqliteConnectOptions, SqliteJournalMode, SqlitePoolOptions, SqliteSynchronous};
 use sqlx::{Pool, Row, Sqlite};
 use std::path::Path;

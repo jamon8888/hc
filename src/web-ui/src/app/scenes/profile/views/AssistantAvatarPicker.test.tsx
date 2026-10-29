@@ -14,8 +14,8 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-vi.mock('@openbitfun/ui', async importOriginal => ({
-  ...await importOriginal<typeof import('@openbitfun/ui')>(),
+vi.mock('@alex/ui', async importOriginal => ({
+  ...await importOriginal<typeof import('@alex/ui')>(),
   Button: ({
     children,
     variant: _variant,
@@ -55,7 +55,7 @@ describe('AssistantAvatarPicker', () => {
   afterEach(() => {
     act(() => root.unmount());
     container.remove();
-    document.querySelector('[data-openbitfun-overlay-host="true"]')?.remove();
+    document.querySelector('[data-alex-overlay-host="true"]')?.remove();
   });
 
   it('keeps a combined emoji sequence as one avatar', () => {
@@ -83,7 +83,7 @@ describe('AssistantAvatarPicker', () => {
       document.querySelectorAll<HTMLButtonElement>('.acp-avatar-picker__option'),
     ).find((option) => option.textContent === '🧭');
     expect(compassOption).toBeTruthy();
-    expect(document.querySelector('.acp-avatar-picker__popover')?.closest('[data-openbitfun-overlay-host]')?.getAttribute('data-openbitfun-overlay-host')).toBe('true');
+    expect(document.querySelector('.acp-avatar-picker__popover')?.closest('[data-alex-overlay-host]')?.getAttribute('data-alex-overlay-host')).toBe('true');
 
     act(() => compassOption?.click());
     expect(onChange).toHaveBeenCalledWith('🧭');

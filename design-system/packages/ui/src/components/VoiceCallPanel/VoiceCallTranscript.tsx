@@ -78,8 +78,8 @@ export function VoiceCallTranscript({ entries, status, header, className, compac
   }, []);
 
   return <div ref={viewportRef} className={classNames(styles.conversation, compact && styles.compactTranscript, className)}
-    data-openbitfun-component="voice-call-panel" data-openbitfun-part="conversation"
-    data-openbitfun-presentation={presentation}
+    data-alex-component="voice-call-panel" data-alex-part="conversation"
+    data-alex-presentation={presentation}
     data-scrolled={scrolled || undefined}
     tabIndex={0}
     onWheel={event => { if (event.deltaY < 0) requestEarlier(); }}
@@ -96,17 +96,17 @@ export function VoiceCallTranscript({ entries, status, header, className, compac
       captureAnchor();
       if (scrollingUp) requestEarlier();
     }}>
-    <div ref={contentRef} className={styles.entries} data-openbitfun-part="entries">
+    <div ref={contentRef} className={styles.entries} data-alex-part="entries">
       {header}
       {entries.map(entry => <div key={entry.id} data-transcript-id={entry.id} className={styles.entry}>
-        <div className={styles[entry.role]} data-openbitfun-part={entry.role === "status" ? "status" : `${entry.role}Transcript`}>
+        <div className={styles[entry.role]} data-alex-part={entry.role === "status" ? "status" : `${entry.role}Transcript`}>
           {entry.content}
         </div>
-        {entry.activity && <div className={styles.activity} data-openbitfun-part="entryActivity" data-role={entry.role}>
+        {entry.activity && <div className={styles.activity} data-alex-part="entryActivity" data-role={entry.role}>
           {entry.activity}
         </div>}
       </div>)}
-      {status && <div className={styles.status} role="status" data-openbitfun-part="status">{status}</div>}
+      {status && <div className={styles.status} role="status" data-alex-part="status">{status}</div>}
     </div>
   </div>;
 }

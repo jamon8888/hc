@@ -10,7 +10,7 @@ export function subscribeOverlayInteraction<K extends OverlayInteractionType>(
   const ownerDocument = surfaceRef.current?.ownerDocument
     ?? (typeof document === "undefined" ? null : document);
   return getOverlayLayerStack(ownerDocument).registerInteraction({
-    id: Symbol("openbitfun-overlay-interaction"), type,
+    id: Symbol("alex-overlay-interaction"), type,
     element: () => surfaceRef.current,
     listener: event => listener(event as DocumentEventMap[K]),
   });

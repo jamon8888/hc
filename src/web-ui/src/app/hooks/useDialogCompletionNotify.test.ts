@@ -118,15 +118,15 @@ describe('shouldSendDialogCompletionNotification', () => {
 
 describe('buildDialogCompletionNotificationCopy', () => {
   const t = (key: string, options?: Record<string, unknown>) => {
-    if (key === 'notify.dialogCompletedTitle') return 'OpenBitFun finished a task';
+    if (key === 'notify.dialogCompletedTitle') return 'Alex finished a task';
     if (key === 'notify.dialogCompletedWithSession') {
       return `${options?.sessionTitle} is ready.`;
     }
-    if (key === 'notify.dialogFailedTitle') return 'OpenBitFun task stopped';
+    if (key === 'notify.dialogFailedTitle') return 'Alex task stopped';
     if (key === 'notify.dialogFailedWithSession') {
       return `${options?.sessionTitle} stopped unexpectedly.`;
     }
-    return 'A OpenBitFun session is ready.';
+    return 'A Alex session is ready.';
   };
 
   it('uses a product title and a session-aware body', () => {
@@ -136,7 +136,7 @@ describe('buildDialogCompletionNotificationCopy', () => {
         t,
       }),
     ).toEqual({
-      title: 'OpenBitFun finished a task',
+      title: 'Alex finished a task',
       body: 'Deep Review is ready.',
     });
   });
@@ -148,8 +148,8 @@ describe('buildDialogCompletionNotificationCopy', () => {
         t,
       }),
     ).toEqual({
-      title: 'OpenBitFun finished a task',
-      body: 'A OpenBitFun session is ready.',
+      title: 'Alex finished a task',
+      body: 'A Alex session is ready.',
     });
   });
 
@@ -162,7 +162,7 @@ describe('buildDialogCompletionNotificationCopy', () => {
         t,
       }),
     ).toEqual({
-      title: 'OpenBitFun task stopped',
+      title: 'Alex task stopped',
       body: 'Browser control fix stopped unexpectedly.',
     });
   });

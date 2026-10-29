@@ -1,5 +1,5 @@
 /**
- * Chart primitives for `openbitfun/canvas` — multi-series, stacked, and pie charts
+ * Chart primitives for `alex/canvas` — multi-series, stacked, and pie charts
  * rendered as pure inline SVG with zero external dependencies.
  *
  * Distilled from the portal-website Highcharts analytics charting layer.

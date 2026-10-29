@@ -3,12 +3,12 @@
 use std::collections::{HashMap, HashSet};
 use std::sync::{Arc, Mutex, OnceLock};
 
-use openbitfun_agent_runtime::sdk::{AgentRuntime, SessionEventJournal};
-use openbitfun_core::product_runtime::CoreAgentRuntimeCompatibility;
-use openbitfun_core::service::filesystem::FileSystemService;
-use openbitfun_core::service::token_usage::TokenUsageService;
-use openbitfun_core::service::workspace::WorkspaceService;
-use openbitfun_runtime_ports::{AgentSubmissionSource, AgentTurnCancellationRequest};
+use alex_agent_runtime::sdk::{AgentRuntime, SessionEventJournal};
+use alex_core::product_runtime::CoreAgentRuntimeCompatibility;
+use alex_core::service::filesystem::FileSystemService;
+use alex_core::service::token_usage::TokenUsageService;
+use alex_core::service::workspace::WorkspaceService;
+use alex_runtime_ports::{AgentSubmissionSource, AgentTurnCancellationRequest};
 
 const MAX_TRACKED_PEER_TURNS: usize = i32::MAX as usize;
 const MAX_BACKGROUND_PEER_AUTHORIZATIONS: usize = i32::MAX as usize;
@@ -881,10 +881,10 @@ pub(crate) struct PeerHostState {
     pub(crate) agent_runtime: AgentRuntime,
     pub(crate) session_event_journal: Arc<SessionEventJournal>,
     pub(crate) local_workspace_snapshot:
-        Arc<dyn openbitfun_runtime_ports::LocalWorkspaceSnapshotPort>,
+        Arc<dyn alex_runtime_ports::LocalWorkspaceSnapshotPort>,
     pub(crate) compatibility: CoreAgentRuntimeCompatibility,
     pub(crate) account_runtime:
-        Arc<openbitfun_core::service::remote_connect::account_runtime::AccountRuntime>,
+        Arc<alex_core::service::remote_connect::account_runtime::AccountRuntime>,
     pub(crate) account_routing: Arc<crate::account::CliAccountRoutingHost>,
     pub(crate) turns: PeerTurnTracker,
     pub(crate) workspace_service: Arc<WorkspaceService>,

@@ -51,7 +51,7 @@ vi.mock('@/shared/utils/logger', () => ({
 vi.mock('@/shared/utils/debugProbe', () => ({ sendDebugProbe: vi.fn() }));
 vi.mock('@/infrastructure/confirm-dialog', () => ({ confirmDialog: async () => true }));
 vi.mock('./EditorBreadcrumb', () => ({ EditorBreadcrumb: () => null }));
-vi.mock('@openbitfun/ui', () => ({ Button: 'button', LoadingState: 'div' }));
+vi.mock('@alex/ui', () => ({ Button: 'button', LoadingState: 'div' }));
 vi.mock('./EditorStatusBar', () => ({
   EditorStatusBar: ({ encoding, onEncodingClick }: { encoding: string; onEncodingClick: React.MouseEventHandler }) => (
     <button data-testid="encoding" onClick={onEncodingClick}>{encoding}</button>

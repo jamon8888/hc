@@ -32,9 +32,9 @@ use crate::agentic::keyed_lock::{KeyedAsyncLock, KeyedAsyncLockGuard};
 use crate::agentic::round_preempt::{DialogRoundInjectionSource, SessionRoundInjectionBuffer};
 use crate::agentic::session::session_store_port::CoreSessionStorePort;
 use crate::agentic::session::SessionManager;
-use crate::util::errors::{OpenBitFunError, OpenBitFunResult};
+use crate::util::errors::{AlexError, AlexResult};
 use log::{debug, info, warn};
-use openbitfun_runtime_ports::{ThreadGoal, MAX_THREAD_GOAL_AUTO_CONTINUATIONS};
+use alex_runtime_ports::{ThreadGoal, MAX_THREAD_GOAL_AUTO_CONTINUATIONS};
 use std::collections::HashSet;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering as AtomicOrdering};
@@ -47,7 +47,7 @@ use tokio::sync::Notify;
 use tokio_util::sync::CancellationToken;
 use uuid::Uuid;
 
-use openbitfun_agent_runtime::scheduler::{
+use alex_agent_runtime::scheduler::{
     build_thread_goal_objective_updated_delivery_plan, build_thread_goal_resumed_delivery_plan,
     resolve_agent_session_reply_action, resolve_background_delivery_action,
     resolve_background_delivery_injection, resolve_dialog_start_route,
@@ -60,7 +60,7 @@ use openbitfun_agent_runtime::scheduler::{
     ThreadGoalDeliveryReminder, ThreadGoalDeliveryReminderKind, TurnOutcomeQueueAction,
     TurnOutcomeStatus,
 };
-use openbitfun_runtime_ports::{
+use alex_runtime_ports::{
     resolve_dialog_submit_queue_action, AgentBackgroundResultRequest, AgentDialogPrependedReminder,
     AgentDialogSteerRequest, AgentDialogTurnExecution, AgentDialogTurnPort, AgentDialogTurnRequest,
     AgentInputAttachment, AgentLifecycleDeliveryPort, AgentSessionLineageInspection,
@@ -70,7 +70,7 @@ use openbitfun_runtime_ports::{
     RoundInjection, RoundInjectionKind, SessionStoragePathRequest, SessionStorePort,
     SessionTranscriptRequest,
 };
-pub use openbitfun_runtime_ports::{
+pub use alex_runtime_ports::{
     AgentSessionReplyRoute, DialogQueuePriority, DialogSteerOutcome, DialogSubmissionPolicy,
     DialogSubmitOutcome,
 };
@@ -147,7 +147,7 @@ fn remove_queued_turn_by_id(
 
 #[derive(Debug)]
 enum SchedulerSubmitError {
-    Core(OpenBitFunError),
+    Core(AlexError),
     Port(PortError),
     Message(String),
 }
@@ -155,26 +155,26 @@ enum SchedulerSubmitError {
 impl SchedulerSubmitError {
     fn into_port_error(self) -> PortError {
         match self {
-            Self::Core(OpenBitFunError::Validation(message)) => {
+            Self::Core(AlexError::Validation(message)) => {
                 PortError::new(PortErrorKind::InvalidRequest, message)
             }
-            Self::Core(OpenBitFunError::NotFound(message)) => {
+            Self::Core(AlexError::NotFound(message)) => {
                 PortError::new(PortErrorKind::NotFound, message)
             }
-            Self::Core(OpenBitFunError::Cancelled(message)) => {
+            Self::Core(AlexError::Cancelled(message)) => {
                 PortError::new(PortErrorKind::Cancelled, message)
             }
-            Self::Core(OpenBitFunError::Timeout(message)) => {
+            Self::Core(AlexError::Timeout(message)) => {
                 PortError::new(PortErrorKind::Timeout, message)
             }
-            Self::Core(OpenBitFunError::SessionInUse { session_id }) => PortError::new(
+            Self::Core(AlexError::SessionInUse { session_id }) => PortError::new(
                 PortErrorKind::SessionInUse,
                 format!("Session is already open for writing: {session_id}"),
             ),
-            Self::Core(OpenBitFunError::OutcomeUnknown(message)) => {
+            Self::Core(AlexError::OutcomeUnknown(message)) => {
                 PortError::new(PortErrorKind::OutcomeUnknown, message)
             }
-            Self::Core(OpenBitFunError::NotImplemented(message)) => {
+            Self::Core(AlexError::NotImplemented(message)) => {
                 PortError::new(PortErrorKind::NotAvailable, message)
             }
             Self::Core(error) => PortError::new(PortErrorKind::Backend, error.to_string()),
@@ -194,8 +194,8 @@ impl std::fmt::Display for SchedulerSubmitError {
     }
 }
 
-impl From<OpenBitFunError> for SchedulerSubmitError {
-    fn from(error: OpenBitFunError) -> Self {
+impl From<AlexError> for SchedulerSubmitError {
+    fn from(error: AlexError) -> Self {
         Self::Core(error)
     }
 }
@@ -222,17 +222,17 @@ pub(crate) struct HiddenSubagentQueuedExecution {
 
 #[derive(Debug, Clone, Default)]
 pub(crate) struct SharedSubagentResultSender {
-    inner: Arc<std::sync::Mutex<Option<oneshot::Sender<OpenBitFunResult<SubagentResult>>>>>,
+    inner: Arc<std::sync::Mutex<Option<oneshot::Sender<AlexResult<SubagentResult>>>>>,
 }
 
 impl SharedSubagentResultSender {
-    fn new(sender: oneshot::Sender<OpenBitFunResult<SubagentResult>>) -> Self {
+    fn new(sender: oneshot::Sender<AlexResult<SubagentResult>>) -> Self {
         Self {
             inner: Arc::new(std::sync::Mutex::new(Some(sender))),
         }
     }
 
-    fn send(&self, result: OpenBitFunResult<SubagentResult>) {
+    fn send(&self, result: AlexResult<SubagentResult>) {
         let Some(sender) = self.inner.lock().ok().and_then(|mut guard| guard.take()) else {
             return;
         };
@@ -272,7 +272,7 @@ impl HiddenSubagentQueueCancellation {
 
 #[derive(Debug)]
 pub(crate) struct HiddenSubagentSubmitResult {
-    pub receiver: oneshot::Receiver<OpenBitFunResult<SubagentResult>>,
+    pub receiver: oneshot::Receiver<AlexResult<SubagentResult>>,
     pub cancel_handle: HiddenSubagentQueueCancelHandle,
 }
 
@@ -315,7 +315,7 @@ impl DialogRoundInjectionSource for SchedulerRoundInjectionSource {
         &self,
         session_id: &str,
         turn_id: &str,
-    ) -> openbitfun_runtime_ports::RoundInjectionToolPreemption {
+    ) -> alex_runtime_ports::RoundInjectionToolPreemption {
         self.buffer
             .pending_tool_preemption_for_turn(session_id, turn_id)
     }
@@ -1153,7 +1153,7 @@ impl DialogScheduler {
                 "Hidden subagent turn cancellation request did not hit an active turn: session_id={}, turn_id={}, error={}",
                 handle.session_id, handle.turn_id, error
             );
-            handle.result_tx.send(Err(OpenBitFunError::Cancelled(
+            handle.result_tx.send(Err(AlexError::Cancelled(
                 "Subagent task has been cancelled".to_string(),
             )));
         }
@@ -1228,7 +1228,7 @@ impl DialogScheduler {
             .await
         {
             Ok(session) => Ok(Some(session)),
-            Err(OpenBitFunError::NotFound(_)) => {
+            Err(AlexError::NotFound(_)) => {
                 // A genuinely new Session has no persisted state to restore.
                 Ok(None)
             }
@@ -1401,7 +1401,7 @@ impl DialogScheduler {
             QueuedTurnExecution::FreshExternalSubagent(_)
         ) && (!matches!(&state_fact, DialogSessionStateFact::Idle) || queue_has_items)
         {
-            return Err(SchedulerSubmitError::Core(OpenBitFunError::Validation(
+            return Err(SchedulerSubmitError::Core(AlexError::Validation(
                 "External subagent delegation requires an idle session with an empty queue"
                     .to_string(),
             )));
@@ -1527,7 +1527,7 @@ impl DialogScheduler {
         &self,
         session_id: &str,
         interrupted_turn_id: Option<&str>,
-    ) -> OpenBitFunResult<()> {
+    ) -> AlexResult<()> {
         let Some(interrupted_turn_id) = interrupted_turn_id else {
             return Ok(());
         };
@@ -1623,7 +1623,7 @@ impl DialogScheduler {
                 self.coordinator
                     .cleanup_prepared_hidden_subagent_session_if_unsubmitted(&execution.request)
                     .await;
-                execution.result_tx.send(Err(OpenBitFunError::Cancelled(
+                execution.result_tx.send(Err(AlexError::Cancelled(
                     "Subagent task has been cancelled".to_string(),
                 )));
             }
@@ -1742,7 +1742,7 @@ impl DialogScheduler {
         target_session_id: &str,
         requester_session_id: &str,
         wait_timeout: Duration,
-    ) -> crate::util::errors::OpenBitFunResult<Option<String>> {
+    ) -> crate::util::errors::AlexResult<Option<String>> {
         let _operation_guard = self.lock_session_operation(target_session_id).await;
         let suppression_key = self
             .active_turns
@@ -1788,7 +1788,7 @@ impl DialogScheduler {
         &self,
         session_id: &str,
         wait_timeout: Duration,
-    ) -> OpenBitFunResult<Option<String>> {
+    ) -> AlexResult<Option<String>> {
         self.cancel_active_turn_for_session_with_descendant_policy(session_id, wait_timeout, true)
             .await
     }
@@ -1815,7 +1815,7 @@ impl DialogScheduler {
         session_id: &str,
         expected_active_turn_id: Option<&str>,
         wait_timeout: Duration,
-    ) -> OpenBitFunResult<Option<String>> {
+    ) -> AlexResult<Option<String>> {
         let deadline = Instant::now() + wait_timeout;
         let _operation_guard = tokio::time::timeout(
             wait_timeout,
@@ -1823,7 +1823,7 @@ impl DialogScheduler {
         )
         .await
         .map_err(|_| {
-            OpenBitFunError::Timeout(format!(
+            AlexError::Timeout(format!(
                 "Timed out acquiring the Session operation lock before lineage cancellation: session_id={session_id}"
             ))
         })?;
@@ -1842,7 +1842,7 @@ impl DialogScheduler {
         session_id: &str,
         wait_timeout: Duration,
         cancel_descendants: bool,
-    ) -> OpenBitFunResult<Option<String>> {
+    ) -> AlexResult<Option<String>> {
         let _operation_guard = self.lock_session_operation(session_id).await;
         abort_thread_goal_continuation_for_session(session_id);
         self.coordinator
@@ -1862,7 +1862,7 @@ impl DialogScheduler {
         session_id: &str,
         requested_storage_path: &std::path::Path,
         wait_timeout: Duration,
-    ) -> OpenBitFunResult<SessionMaintenancePermit> {
+    ) -> AlexResult<SessionMaintenancePermit> {
         self.begin_session_maintenance_with_policy(
             session_id,
             requested_storage_path,
@@ -1878,9 +1878,9 @@ impl DialogScheduler {
         requested_storage_path: &std::path::Path,
         wait_timeout: Duration,
         require_idle: bool,
-    ) -> OpenBitFunResult<SessionMaintenancePermit> {
-        openbitfun_core_types::validate_session_id(session_id)
-            .map_err(OpenBitFunError::Validation)?;
+    ) -> AlexResult<SessionMaintenancePermit> {
+        alex_core_types::validate_session_id(session_id)
+            .map_err(AlexError::Validation)?;
         let _queue_admission_guard = self.host_queue_locks.lock(session_id).await;
         let operation_guard = self.lock_session_operation(session_id).await;
         self.session_manager
@@ -1892,7 +1892,7 @@ impl DialogScheduler {
                 || self.queue_depth(session_id) > 0
                 || self.round_injection_buffer.pending_count(session_id) > 0)
         {
-            return Err(OpenBitFunError::Validation(
+            return Err(AlexError::Validation(
                 "Session rollback requires an idle session with an empty queue".to_string(),
             ));
         }
@@ -1971,7 +1971,7 @@ impl DialogScheduler {
         session_id: &str,
         requested_storage_path: &std::path::Path,
         wait_timeout: Duration,
-    ) -> OpenBitFunResult<SessionMaintenancePermit> {
+    ) -> AlexResult<SessionMaintenancePermit> {
         let permit = self
             .begin_session_maintenance(session_id, requested_storage_path, wait_timeout)
             .await?;
@@ -2075,7 +2075,7 @@ impl DialogScheduler {
                                 &execution.request,
                             )
                             .await;
-                        execution.result_tx.send(Err(OpenBitFunError::Cancelled(
+                        execution.result_tx.send(Err(AlexError::Cancelled(
                             "Subagent task was cancelled because a previous queued turn failed"
                                 .to_string(),
                         )));
@@ -2426,7 +2426,7 @@ impl DialogScheduler {
                     turn_id: turn_id_for_task,
                 },
             ));
-            result_tx.send(Err(OpenBitFunError::Cancelled(
+            result_tx.send(Err(AlexError::Cancelled(
                 "Subagent task has been cancelled".to_string(),
             )));
             return Ok(turn_id);
@@ -2492,14 +2492,14 @@ impl DialogScheduler {
                     ));
                     result_tx.send(Ok(result));
                 }
-                Err(OpenBitFunError::Cancelled(error_text)) => {
+                Err(AlexError::Cancelled(error_text)) => {
                     let _ = outcome_tx.send((
                         session_id_owned.clone(),
                         TurnOutcome::Cancelled {
                             turn_id: turn_id_for_task.clone(),
                         },
                     ));
-                    result_tx.send(Err(OpenBitFunError::Cancelled(error_text)));
+                    result_tx.send(Err(AlexError::Cancelled(error_text)));
                 }
                 Err(error) => {
                     let error_text = error.to_string();
@@ -2576,7 +2576,7 @@ impl DialogScheduler {
         self: Arc<Self>,
         session_id: String,
         active_turn: ActiveDialogTurn,
-        plan: openbitfun_runtime_ports::ThreadGoalContinuationPlan,
+        plan: alex_runtime_ports::ThreadGoalContinuationPlan,
     ) {
         let prepended: Vec<Message> = plan
             .prepended_reminders
@@ -3068,7 +3068,7 @@ fn agent_dialog_turn_metadata(
     mut metadata: serde_json::Map<String, serde_json::Value>,
     output_schema: Option<serde_json::Value>,
 ) -> PortResult<Option<serde_json::Value>> {
-    metadata.remove(openbitfun_runtime_ports::OUTPUT_SCHEMA_CONTEXT_KEY);
+    metadata.remove(alex_runtime_ports::OUTPUT_SCHEMA_CONTEXT_KEY);
     if let Some(output_schema) = output_schema {
         if !output_schema.is_object() {
             return Err(PortError::new(
@@ -3077,7 +3077,7 @@ fn agent_dialog_turn_metadata(
             ));
         }
         metadata.insert(
-            openbitfun_runtime_ports::OUTPUT_SCHEMA_CONTEXT_KEY.to_string(),
+            alex_runtime_ports::OUTPUT_SCHEMA_CONTEXT_KEY.to_string(),
             output_schema,
         );
     }
@@ -3193,8 +3193,8 @@ impl DialogScheduler {
 impl AgentDialogTurnPort for DialogScheduler {
     async fn manage_dialog_queue(
         &self,
-        request: openbitfun_runtime_ports::DialogQueueRequest,
-    ) -> PortResult<openbitfun_runtime_ports::DialogQueueSnapshot> {
+        request: alex_runtime_ports::DialogQueueRequest,
+    ) -> PortResult<alex_runtime_ports::DialogQueueSnapshot> {
         self.manage_host_queue(request).await
     }
 
@@ -3238,8 +3238,8 @@ impl AgentDialogTurnPort for DialogScheduler {
 
     async fn recover_interrupted_turn(
         &self,
-        request: openbitfun_runtime_ports::AgentDialogTurnRecoveryRequest,
-    ) -> PortResult<openbitfun_runtime_ports::AgentDialogTurnRecoveryOutcome> {
+        request: alex_runtime_ports::AgentDialogTurnRecoveryRequest,
+    ) -> PortResult<alex_runtime_ports::AgentDialogTurnRecoveryOutcome> {
         let deadline = Instant::now() + Duration::from_secs(30);
         loop {
             let mut retired = Box::pin(self.active_turn_retired.notified());
@@ -3300,9 +3300,9 @@ impl AgentDialogTurnPort for DialogScheduler {
                     .map_err(|error| {
                         PortError::new(
                             match error {
-                                OpenBitFunError::Validation(_) => PortErrorKind::InvalidRequest,
-                                OpenBitFunError::NotFound(_) => PortErrorKind::NotFound,
-                                OpenBitFunError::Timeout(_) => PortErrorKind::Timeout,
+                                AlexError::Validation(_) => PortErrorKind::InvalidRequest,
+                                AlexError::NotFound(_) => PortErrorKind::NotFound,
+                                AlexError::Timeout(_) => PortErrorKind::Timeout,
                                 _ => PortErrorKind::Backend,
                             },
                             error.to_string(),
@@ -3447,8 +3447,8 @@ impl AgentTurnCancellationPort for DialogScheduler {
 
     async fn interrupt_turn(
         &self,
-        request: openbitfun_runtime_ports::AgentTurnInterruptionRequest,
-    ) -> PortResult<openbitfun_runtime_ports::AgentTurnInterruptionResult> {
+        request: alex_runtime_ports::AgentTurnInterruptionRequest,
+    ) -> PortResult<alex_runtime_ports::AgentTurnInterruptionResult> {
         // Serialize the route check with submit/start registration. Without
         // this guard an AgentSession turn could be spawned just before its
         // reply route becomes visible in `active_turns` and then be recovered
@@ -3470,15 +3470,15 @@ impl AgentTurnCancellationPort for DialogScheduler {
             .map_err(|error| {
                 PortError::new(
                     match error {
-                        OpenBitFunError::Validation(_) => PortErrorKind::InvalidRequest,
-                        OpenBitFunError::NotFound(_) => PortErrorKind::NotFound,
-                        OpenBitFunError::Timeout(_) => PortErrorKind::Timeout,
+                        AlexError::Validation(_) => PortErrorKind::InvalidRequest,
+                        AlexError::NotFound(_) => PortErrorKind::NotFound,
+                        AlexError::Timeout(_) => PortErrorKind::Timeout,
                         _ => PortErrorKind::Backend,
                     },
                     error.to_string(),
                 )
             })?;
-        Ok(openbitfun_runtime_ports::AgentTurnInterruptionResult {
+        Ok(alex_runtime_ports::AgentTurnInterruptionResult {
             session_id: request.session_id,
             turn_id: request.turn_id,
             requested: true,
@@ -3589,14 +3589,14 @@ mod tests {
     use crate::service::config::types::{
         model_runtime_binding_fingerprint, AIConfig, AIModelConfig,
     };
-    use openbitfun_runtime_ports::{
+    use alex_runtime_ports::{
         AgentDialogPrependedReminder, AgentInputAttachment, PortErrorKind, ThreadGoalStatus,
     };
     use tokio::sync::RwLock as TokioRwLock;
 
     #[test]
     fn scheduler_preserves_session_writer_conflicts() {
-        let error = SchedulerSubmitError::Core(OpenBitFunError::SessionInUse {
+        let error = SchedulerSubmitError::Core(AlexError::SessionInUse {
             session_id: "session-1".to_string(),
         })
         .into_port_error();
@@ -3608,7 +3608,7 @@ mod tests {
     fn output_schema_field_owns_reserved_metadata_key() {
         let mut metadata = serde_json::Map::new();
         metadata.insert(
-            openbitfun_runtime_ports::OUTPUT_SCHEMA_CONTEXT_KEY.to_string(),
+            alex_runtime_ports::OUTPUT_SCHEMA_CONTEXT_KEY.to_string(),
             serde_json::json!({ "type": "string" }),
         );
 
@@ -3623,7 +3623,7 @@ mod tests {
             merged
                 .and_then(|value| value.as_object().cloned())
                 .and_then(|metadata| metadata
-                    .get(openbitfun_runtime_ports::OUTPUT_SCHEMA_CONTEXT_KEY)
+                    .get(alex_runtime_ports::OUTPUT_SCHEMA_CONTEXT_KEY)
                     .cloned()),
             Some(schema)
         );
@@ -3709,10 +3709,10 @@ mod tests {
             Arc::new(
                 crate::runtime_ownership::CoreRuntimeOwnership::embedded_with_facts(
                     std::env::temp_dir().join(format!(
-                        "openbitfun-scheduler-ownership-test-{}",
+                        "alex-scheduler-ownership-test-{}",
                         uuid::Uuid::new_v4()
                     )),
-                    "openbitfun".to_string(),
+                    "alex".to_string(),
                     "test",
                 ),
             ),
@@ -4205,7 +4205,7 @@ mod tests {
             Err(error) => error,
         };
 
-        assert!(matches!(error, OpenBitFunError::Timeout(_)));
+        assert!(matches!(error, AlexError::Timeout(_)));
         assert!(error.to_string().contains(child_session_id));
         assert!(session_manager.get_session(parent_session_id).is_some());
 
@@ -4216,7 +4216,7 @@ mod tests {
             Ok(_) => panic!("retry must retain ownership of the still-running child"),
             Err(error) => error,
         };
-        assert!(matches!(retry_error, OpenBitFunError::Timeout(_)));
+        assert!(matches!(retry_error, AlexError::Timeout(_)));
         assert!(retry_error.to_string().contains(child_session_id));
 
         scheduler
@@ -4281,7 +4281,7 @@ mod tests {
                     Duration::from_millis(10),
                 )
                 .await,
-            Err(OpenBitFunError::NotFound(_))
+            Err(AlexError::NotFound(_))
         ));
     }
 
@@ -4348,7 +4348,7 @@ mod tests {
                 .coordinator
                 .wait_for_turn_settlement(session_id, turn_id, Duration::from_millis(10))
                 .await,
-            Err(OpenBitFunError::Timeout(_))
+            Err(AlexError::Timeout(_))
         ));
 
         assert!(scheduler
@@ -4398,7 +4398,7 @@ mod tests {
                 original_message: Some("/review".to_string()),
                 turn_id: Some("delegated-turn".to_string()),
                 execution:
-                    openbitfun_runtime_ports::AgentDialogTurnExecution::FreshExternalSubagent {
+                    alex_runtime_ports::AgentDialogTurnExecution::FreshExternalSubagent {
                         ecosystem_id: "opencode".to_string(),
                         logical_id: "reviewer".to_string(),
                     },
@@ -4489,7 +4489,7 @@ mod tests {
                 original_message: Some("/review".to_string()),
                 turn_id: Some("delegated-turn".to_string()),
                 execution:
-                    openbitfun_runtime_ports::AgentDialogTurnExecution::FreshExternalSubagent {
+                    alex_runtime_ports::AgentDialogTurnExecution::FreshExternalSubagent {
                         ecosystem_id: "opencode".to_string(),
                         logical_id: "reviewer".to_string(),
                     },
@@ -4581,7 +4581,7 @@ mod tests {
                 .coordinator
                 .wait_for_turn_settlement(session_id, "rejected-turn", Duration::from_millis(10),)
                 .await,
-            Err(OpenBitFunError::NotFound(_))
+            Err(AlexError::NotFound(_))
         ));
     }
 
@@ -4689,7 +4689,7 @@ mod tests {
                 .coordinator
                 .wait_for_turn_settlement(session_id, turn_id, Duration::from_millis(10))
                 .await,
-            Err(OpenBitFunError::NotFound(_))
+            Err(AlexError::NotFound(_))
         ));
     }
 
@@ -4780,7 +4780,7 @@ mod tests {
         assert!(
             matches!(
                 &error,
-                OpenBitFunError::OutcomeUnknown(message)
+                AlexError::OutcomeUnknown(message)
                     if message.contains(session_id) && message.contains(turn_id)
             ),
             "{error}"
@@ -5326,7 +5326,7 @@ mod tests {
             .err()
             .expect("wrong workspace must be rejected before quiescence");
 
-        assert!(matches!(error, OpenBitFunError::Validation(_)));
+        assert!(matches!(error, AlexError::Validation(_)));
         assert_eq!(scheduler.queue_depth(session_id), 1);
         assert!(scheduler
             .active_turns

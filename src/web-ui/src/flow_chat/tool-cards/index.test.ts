@@ -13,13 +13,13 @@ import {
 } from './index';
 import { TaskToolDisplay } from './TaskToolDisplay';
 import { AgentControlToolCard } from './AgentControlToolCard';
-import { OpenBitFunControlToolCard } from './OpenBitFunControlToolCard';
+import { AlexControlToolCard } from './AlexControlToolCard';
 
 describe('tool card registry', () => {
-  it('keeps OpenBitFun controls visible through their dedicated product card', () => {
-    expect(getToolCardComponent('OpenBitFunControl')).toBe(OpenBitFunControlToolCard);
-    expect(usesDefaultToolCard('OpenBitFunControl')).toBe(false);
-    expect(isCollapsibleTool('OpenBitFunControl')).toBe(false);
+  it('keeps Alex controls visible through their dedicated product card', () => {
+    expect(getToolCardComponent('AlexControl')).toBe(AlexControlToolCard);
+    expect(usesDefaultToolCard('AlexControl')).toBe(false);
+    expect(isCollapsibleTool('AlexControl')).toBe(false);
   });
   it('projects managed Review workers through the unified coverage card', () => {
     expect(getToolCardComponent('LaunchReviewAgent')).toBe(TaskToolDisplay);
@@ -79,7 +79,7 @@ describe('tool card registry', () => {
       'InitMiniApp',
       'GenerativeUI',
       'ComputerUse',
-      'OpenBitFunControl',
+      'AlexControl',
       'CreateCanvas',
       'ReadCanvas',
       'UpdateCanvas',

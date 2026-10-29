@@ -7,52 +7,52 @@
 .pii-entity-badge {
   display: inline-flex;
   align-items: center;
-  gap: var(--openbitfun-space-1);
+  gap: var(--alex-space-1);
   padding: 1px 6px;
-  border: 1px solid var(--openbitfun-color-border-default);
-  border-radius: var(--openbitfun-radius-sm);
-  font-size: var(--openbitfun-type-body-xs-font-size);
-  font-weight: var(--openbitfun-type-label-sm-font-weight);
-  color: var(--openbitfun-color-content-secondary);
-  background: var(--openbitfun-color-action-neutral-surface);
+  border: 1px solid var(--alex-color-border-default);
+  border-radius: var(--alex-radius-sm);
+  font-size: var(--alex-type-body-xs-font-size);
+  font-weight: var(--alex-type-label-sm-font-weight);
+  color: var(--alex-color-content-secondary);
+  background: var(--alex-color-action-neutral-surface);
   cursor: pointer;
   user-select: none;
   transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 
   &:hover {
-    border-color: var(--openbitfun-color-border-strong);
+    border-color: var(--alex-color-border-strong);
   }
 
   &:focus-visible {
-    outline: 2px solid var(--openbitfun-color-focus-ring);
+    outline: 2px solid var(--alex-color-focus-ring);
     outline-offset: 2px;
   }
 
   &--identity {
-    color: var(--openbitfun-color-accent-default);
-    background: var(--openbitfun-color-accent-surface);
-    border-color: var(--openbitfun-color-accent-border);
+    color: var(--alex-color-accent-default);
+    background: var(--alex-color-accent-surface);
+    border-color: var(--alex-color-accent-border);
   }
 
   &--contact {
-    color: var(--openbitfun-color-accent-secondary);
-    background: var(--openbitfun-color-accent-secondary-surface);
-    border-color: var(--openbitfun-color-accent-secondary-border);
+    color: var(--alex-color-accent-secondary);
+    background: var(--alex-color-accent-secondary-surface);
+    border-color: var(--alex-color-accent-secondary-border);
   }
 
   &--secret {
-    color: var(--openbitfun-color-status-danger-content);
-    background: var(--openbitfun-color-status-danger-surface);
-    border-color: var(--openbitfun-color-status-danger-border);
+    color: var(--alex-color-status-danger-content);
+    background: var(--alex-color-status-danger-surface);
+    border-color: var(--alex-color-status-danger-border);
   }
 
-  &[data-openbitfun-state='error'] {
-    color: var(--openbitfun-color-status-danger-content);
-    background: var(--openbitfun-color-status-danger-surface);
-    border-color: var(--openbitfun-color-status-danger-border);
+  &[data-alex-state='error'] {
+    color: var(--alex-color-status-danger-content);
+    background: var(--alex-color-status-danger-surface);
+    border-color: var(--alex-color-status-danger-border);
   }
 
-  &[data-openbitfun-state='revealed'] {
+  &[data-alex-state='revealed'] {
     text-decoration: underline;
   }
 
@@ -70,7 +70,7 @@
     height: 10px;
     border: 2px solid currentColor;
     border-top-color: transparent;
-    border-radius: var(--openbitfun-radius-pill);
+    border-radius: var(--alex-radius-pill);
     animation: pii-entity-badge-spin 1s linear infinite;
   }
 

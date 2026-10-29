@@ -2,7 +2,7 @@
  * WorkingCopyView — Git working copy: commit bar + file list + diff area (ContentCanvas mode=git).
  */
 
-import { OverflowText, Button, Icon, IconButton, SearchField, Textarea, Tooltip } from '@openbitfun/ui';
+import { OverflowText, Button, Icon, IconButton, SearchField, Textarea, Tooltip } from '@alex/ui';
 import React, { useCallback, useState, useMemo, useEffect, useRef } from 'react';
 import { useShortcut } from '@/infrastructure/hooks/useShortcut';
 import { useTranslation } from 'react-i18next';
@@ -378,33 +378,33 @@ const WorkingCopyView: React.FC<WorkingCopyViewProps> = ({
 
   if (!workspacePath) {
     return (
-      <div data-openbitfun-component="working-copy-view" data-openbitfun-part="root" className="openbitfun-git-scene-working-copy">
-        <div className="openbitfun-git-scene-working-copy__placeholder" data-openbitfun-component="working-copy-view" data-openbitfun-part="placeholder">
+      <div data-alex-component="working-copy-view" data-alex-part="root" className="alex-git-scene-working-copy">
+        <div className="alex-git-scene-working-copy__placeholder" data-alex-component="working-copy-view" data-alex-part="placeholder">
           <FileCode2 size={48} aria-hidden />
           <p>{t('tabs.changes')}</p>
-          <p className="openbitfun-git-scene-working-copy__hint">Open a workspace to see changes.</p>
+          <p className="alex-git-scene-working-copy__hint">Open a workspace to see changes.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div data-openbitfun-component="working-copy-view" data-openbitfun-part="root" className="openbitfun-git-scene-working-copy">
-      <div className="openbitfun-git-scene-working-copy__commit-bar" data-openbitfun-component="working-copy-view" data-openbitfun-part="commitBar">
-        <div className="openbitfun-git-scene-working-copy__status-row" data-openbitfun-component="working-copy-view" data-openbitfun-part="statusRow">
+    <div data-alex-component="working-copy-view" data-alex-part="root" className="alex-git-scene-working-copy">
+      <div className="alex-git-scene-working-copy__commit-bar" data-alex-component="working-copy-view" data-alex-part="commitBar">
+        <div className="alex-git-scene-working-copy__status-row" data-alex-component="working-copy-view" data-alex-part="statusRow">
           <Icon name="git" size="xs" />
-          <span className="openbitfun-git-scene-working-copy__branch" data-openbitfun-component="working-copy-view" data-openbitfun-part="branch">{status?.current_branch ?? t('common.unknown')}</span>
+          <span className="alex-git-scene-working-copy__branch" data-alex-component="working-copy-view" data-alex-part="branch">{status?.current_branch ?? t('common.unknown')}</span>
           {(status?.ahead ?? 0) > 0 && (
             <Tooltip content={t('status.ahead')}>
-              <span className="openbitfun-git-scene-working-copy__badge wcv-badge--ahead">↑{status?.ahead}</span>
+              <span className="alex-git-scene-working-copy__badge wcv-badge--ahead">↑{status?.ahead}</span>
             </Tooltip>
           )}
           {(status?.behind ?? 0) > 0 && (
             <Tooltip content={t('status.behind')}>
-              <span className="openbitfun-git-scene-working-copy__badge wcv-badge--behind">↓{status?.behind}</span>
+              <span className="alex-git-scene-working-copy__badge wcv-badge--behind">↓{status?.behind}</span>
             </Tooltip>
           )}
-          <div className="openbitfun-git-scene-working-copy__sync-actions" data-openbitfun-component="working-copy-view" data-openbitfun-part="syncActions">
+          <div className="alex-git-scene-working-copy__sync-actions" data-alex-component="working-copy-view" data-alex-part="syncActions">
             <Tooltip content={t('actions.pull')}>
               <IconButton
                 aria-label={t('actions.pull')}
@@ -425,9 +425,9 @@ const WorkingCopyView: React.FC<WorkingCopyViewProps> = ({
             </Tooltip>
           </div>
         </div>
-        <div className="openbitfun-git-scene-working-copy__commit-input-row" data-openbitfun-component="working-copy-view" data-openbitfun-part="commitInput">
+        <div className="alex-git-scene-working-copy__commit-input-row" data-alex-component="working-copy-view" data-alex-part="commitInput">
           <Textarea
-            className="openbitfun-git-scene-working-copy__message"
+            className="alex-git-scene-working-copy__message"
             placeholder={status?.staged?.length ? t('commit.inputPlaceholder') : t('commit.inputPlaceholderNoStaged')}
             value={quickCommitMessage}
             onChange={e => setQuickCommitMessage(e.target.value)}
@@ -460,7 +460,7 @@ const WorkingCopyView: React.FC<WorkingCopyViewProps> = ({
             </Tooltip>
           )}
         </div>
-        <div className="openbitfun-git-scene-working-copy__commit-actions" data-openbitfun-component="working-copy-view" data-openbitfun-part="commitActions">
+        <div className="alex-git-scene-working-copy__commit-actions" data-alex-component="working-copy-view" data-alex-part="commitActions">
           <Button
             size="sm"
             variant="primary"
@@ -472,9 +472,9 @@ const WorkingCopyView: React.FC<WorkingCopyViewProps> = ({
         </div>
       </div>
 
-      <div className="openbitfun-git-scene-working-copy__main" ref={mainRef} data-openbitfun-component="working-copy-view" data-openbitfun-part="main">
-        <div className="openbitfun-git-scene-working-copy__file-list" style={{ width: fileListWidth }} data-openbitfun-component="working-copy-view" data-openbitfun-part="fileList">
-          <div className="openbitfun-git-scene-working-copy__search" data-openbitfun-component="working-copy-view" data-openbitfun-part="search">
+      <div className="alex-git-scene-working-copy__main" ref={mainRef} data-alex-component="working-copy-view" data-alex-part="main">
+        <div className="alex-git-scene-working-copy__file-list" style={{ width: fileListWidth }} data-alex-component="working-copy-view" data-alex-part="fileList">
+          <div className="alex-git-scene-working-copy__search" data-alex-component="working-copy-view" data-alex-part="search">
             <SearchField
               size="sm"
               leadingIcon={<Icon name="search" size="sm" aria-hidden />}
@@ -491,9 +491,9 @@ const WorkingCopyView: React.FC<WorkingCopyViewProps> = ({
               {filteredFiles.unstaged.length > 0 && (
                 <>
                   <div
-                    className="openbitfun-git-scene-working-copy__group-header"
-                    data-openbitfun-component="working-copy-view"
-                    data-openbitfun-part="groupHeader"
+                    className="alex-git-scene-working-copy__group-header"
+                    data-alex-component="working-copy-view"
+                    data-alex-part="groupHeader"
                     onClick={() => toggleFileGroup('unstaged')}
                   >
                     {expandedFileGroups.has('unstaged') ? <Icon name="chevron-down" size="xs" /> : <Icon name="chevron-right" size="xs" />}
@@ -533,18 +533,18 @@ const WorkingCopyView: React.FC<WorkingCopyViewProps> = ({
                       const isLoading = loadingDiffFiles.has(file.path);
                       const isSelected = selectedFiles.has(file.path);
                       return (
-                        <div data-overflow-trigger data-openbitfun-component="working-copy-view" data-openbitfun-part="file"
+                        <div data-overflow-trigger data-alex-component="working-copy-view" data-alex-part="file"
                           key={`u-${idx}`}
-                          className={`openbitfun-git-scene-working-copy__file-row ${isSelected ? 'wcv-file--selected' : ''} ${isLoading ? 'wcv-file--loading' : ''}`}
-                          data-openbitfun-state={[isSelected && 'selected', isLoading && 'loading'].filter(Boolean).join(' ') || undefined}
+                          className={`alex-git-scene-working-copy__file-row ${isSelected ? 'wcv-file--selected' : ''} ${isLoading ? 'wcv-file--loading' : ''}`}
+                          data-alex-state={[isSelected && 'selected', isLoading && 'loading'].filter(Boolean).join(' ') || undefined}
                           onClick={() => !isLoading && handleOpenFileDiff(file.path, file.status)}
                           title={t('tooltips.viewDiff')}
                         >
                           <button
                             type="button"
-                            className="openbitfun-git-scene-working-copy__file-check"
-                            data-openbitfun-component="working-copy-view"
-                            data-openbitfun-part="fileCheck"
+                            className="alex-git-scene-working-copy__file-check"
+                            data-alex-component="working-copy-view"
+                            data-alex-part="fileCheck"
                             onClick={e => {
                               e.stopPropagation();
                               toggleFileSelection(file.path);
@@ -552,9 +552,9 @@ const WorkingCopyView: React.FC<WorkingCopyViewProps> = ({
                           >
                             {isSelected ? <Icon name="check-line" size="sm" /> : <Icon name="unselected" size="sm" />}
                           </button>
-                          <OverflowText className="openbitfun-git-scene-working-copy__file-name" data-openbitfun-component="working-copy-view" data-openbitfun-part="fileName">{fileName}</OverflowText>
-                          {dirPath && <span className="openbitfun-git-scene-working-copy__file-dir">{dirPath}</span>}
-                          <span className={`openbitfun-git-scene-working-copy__file-status ${statusInfo.className}`} data-openbitfun-component="working-copy-view" data-openbitfun-part="fileStatus">{statusInfo.text}</span>
+                          <OverflowText className="alex-git-scene-working-copy__file-name" data-alex-component="working-copy-view" data-alex-part="fileName">{fileName}</OverflowText>
+                          {dirPath && <span className="alex-git-scene-working-copy__file-dir">{dirPath}</span>}
+                          <span className={`alex-git-scene-working-copy__file-status ${statusInfo.className}`} data-alex-component="working-copy-view" data-alex-part="fileStatus">{statusInfo.text}</span>
                           <Tooltip content={t('actions.discardFile')}>
                             <IconButton
                               aria-label={t('actions.discardFile')}
@@ -574,7 +574,7 @@ const WorkingCopyView: React.FC<WorkingCopyViewProps> = ({
               )}
               {filteredFiles.untracked.length > 0 && (
                 <>
-                  <div className="openbitfun-git-scene-working-copy__group-header" onClick={() => toggleFileGroup('untracked')} data-openbitfun-component="working-copy-view" data-openbitfun-part="groupHeader">
+                  <div className="alex-git-scene-working-copy__group-header" onClick={() => toggleFileGroup('untracked')} data-alex-component="working-copy-view" data-alex-part="groupHeader">
                     {expandedFileGroups.has('untracked') ? <Icon name="chevron-down" size="xs" /> : <Icon name="chevron-right" size="xs" />}
                     <span>
                       {searchQuery
@@ -588,18 +588,18 @@ const WorkingCopyView: React.FC<WorkingCopyViewProps> = ({
                       const isLoading = loadingDiffFiles.has(filePath);
                       const isSelected = selectedFiles.has(filePath);
                       return (
-                        <div data-overflow-trigger data-openbitfun-component="working-copy-view" data-openbitfun-part="file"
+                        <div data-overflow-trigger data-alex-component="working-copy-view" data-alex-part="file"
                           key={`ut-${idx}`}
-                          className={`openbitfun-git-scene-working-copy__file-row ${isSelected ? 'wcv-file--selected' : ''} ${isLoading ? 'wcv-file--loading' : ''}`}
-                          data-openbitfun-state={[isSelected && 'selected', isLoading && 'loading'].filter(Boolean).join(' ') || undefined}
+                          className={`alex-git-scene-working-copy__file-row ${isSelected ? 'wcv-file--selected' : ''} ${isLoading ? 'wcv-file--loading' : ''}`}
+                          data-alex-state={[isSelected && 'selected', isLoading && 'loading'].filter(Boolean).join(' ') || undefined}
                           onClick={() => !isLoading && handleOpenFileDiff(filePath, 'Untracked')}
                           title={t('tooltips.viewDiff')}
                         >
                           <button
                             type="button"
-                            className="openbitfun-git-scene-working-copy__file-check"
-                            data-openbitfun-component="working-copy-view"
-                            data-openbitfun-part="fileCheck"
+                            className="alex-git-scene-working-copy__file-check"
+                            data-alex-component="working-copy-view"
+                            data-alex-part="fileCheck"
                             onClick={e => {
                               e.stopPropagation();
                               toggleFileSelection(filePath);
@@ -607,9 +607,9 @@ const WorkingCopyView: React.FC<WorkingCopyViewProps> = ({
                           >
                             {isSelected ? <Icon name="check-line" size="sm" /> : <Icon name="unselected" size="sm" />}
                           </button>
-                          <OverflowText className="openbitfun-git-scene-working-copy__file-name" data-openbitfun-component="working-copy-view" data-openbitfun-part="fileName">{fileName}</OverflowText>
-                          {dirPath && <span className="openbitfun-git-scene-working-copy__file-dir">{dirPath}</span>}
-                          <span className="openbitfun-git-scene-working-copy__file-status wcv-status--added" data-openbitfun-component="working-copy-view" data-openbitfun-part="fileStatus">U</span>
+                          <OverflowText className="alex-git-scene-working-copy__file-name" data-alex-component="working-copy-view" data-alex-part="fileName">{fileName}</OverflowText>
+                          {dirPath && <span className="alex-git-scene-working-copy__file-dir">{dirPath}</span>}
+                          <span className="alex-git-scene-working-copy__file-status wcv-status--added" data-alex-component="working-copy-view" data-alex-part="fileStatus">U</span>
                           <Tooltip content={t('actions.deleteFile')}>
                             <IconButton
                               aria-label={t('actions.deleteFile')}
@@ -629,7 +629,7 @@ const WorkingCopyView: React.FC<WorkingCopyViewProps> = ({
               )}
               {filteredFiles.staged.length > 0 && (
                 <>
-                  <div className="openbitfun-git-scene-working-copy__group-header" onClick={() => toggleFileGroup('staged')} data-openbitfun-component="working-copy-view" data-openbitfun-part="groupHeader">
+                  <div className="alex-git-scene-working-copy__group-header" onClick={() => toggleFileGroup('staged')} data-alex-component="working-copy-view" data-alex-part="groupHeader">
                     {expandedFileGroups.has('staged') ? <Icon name="chevron-down" size="xs" /> : <Icon name="chevron-right" size="xs" />}
                     <span>
                       {searchQuery
@@ -642,15 +642,15 @@ const WorkingCopyView: React.FC<WorkingCopyViewProps> = ({
                       const statusInfo = getFileStatusInfo(file.status);
                       const isLoading = loadingDiffFiles.has(file.path);
                       return (
-                        <div data-overflow-trigger data-openbitfun-component="working-copy-view" data-openbitfun-part="file"
+                        <div data-overflow-trigger data-alex-component="working-copy-view" data-alex-part="file"
                           key={`s-${idx}`}
-                          className={`openbitfun-git-scene-working-copy__file-row ${isLoading ? 'wcv-file--loading' : ''}`}
-                          data-openbitfun-state={isLoading ? 'loading' : undefined}
+                          className={`alex-git-scene-working-copy__file-row ${isLoading ? 'wcv-file--loading' : ''}`}
+                          data-alex-state={isLoading ? 'loading' : undefined}
                           onClick={() => !isLoading && handleOpenFileDiff(file.path, file.status)}
                           title={t('tooltips.viewDiff')}
                         >
-                          <OverflowText className="openbitfun-git-scene-working-copy__file-name" data-openbitfun-component="working-copy-view" data-openbitfun-part="fileName">{file.path}</OverflowText>
-                          <span className={`openbitfun-git-scene-working-copy__file-status ${statusInfo.className}`} data-openbitfun-component="working-copy-view" data-openbitfun-part="fileStatus">{statusInfo.text}</span>
+                          <OverflowText className="alex-git-scene-working-copy__file-name" data-alex-component="working-copy-view" data-alex-part="fileName">{file.path}</OverflowText>
+                          <span className={`alex-git-scene-working-copy__file-status ${statusInfo.className}`} data-alex-component="working-copy-view" data-alex-part="fileStatus">{statusInfo.text}</span>
                           <Tooltip content={t('actions.discardFile')}>
                             <IconButton
                               aria-label={t('actions.discardFile')}
@@ -670,20 +670,20 @@ const WorkingCopyView: React.FC<WorkingCopyViewProps> = ({
               )}
             </>
           ) : (
-            <div className="openbitfun-git-scene-working-copy__empty" data-openbitfun-component="working-copy-view" data-openbitfun-part="empty">{t('empty.noChanges')}</div>
+            <div className="alex-git-scene-working-copy__empty" data-alex-component="working-copy-view" data-alex-part="empty">{t('empty.noChanges')}</div>
           )}
         </div>
         <div
-          className="openbitfun-git-scene-working-copy__resizer"
-          data-openbitfun-component="working-copy-view"
-          data-openbitfun-part="resizer"
+          className="alex-git-scene-working-copy__resizer"
+          data-alex-component="working-copy-view"
+          data-alex-part="resizer"
           onMouseDown={handleResizerMouseDown}
           role="separator"
           aria-orientation="vertical"
           aria-valuenow={fileListWidth}
           title={t('tooltips.resizeFileList')}
         />
-        <div className="openbitfun-git-scene-working-copy__diff-area" data-openbitfun-component="working-copy-view" data-openbitfun-part="diffArea">
+        <div className="alex-git-scene-working-copy__diff-area" data-alex-component="working-copy-view" data-alex-part="diffArea">
           <CanvasStoreModeContext.Provider value="git">
             <ContentCanvas workspacePath={workspacePath} mode="git" onInteraction={handleInteraction} onBeforeClose={handleBeforeClose} />
           </CanvasStoreModeContext.Provider>

@@ -1,4 +1,4 @@
-//! Device-pair message keys for GitHub-authenticated OpenBitFun Relay sessions.
+//! Device-pair message keys for GitHub-authenticated Alex Relay sessions.
 //! Public keys come from the relay's same-account directory. Private keys are
 //! generated and retained by each device. The relay wire envelope is unchanged.
 
@@ -24,7 +24,7 @@ pub fn provisioning_secret(
     let mut secret = [0; 32];
     let info = format!("{device_id}:{request_id}");
     Hkdf::<Sha256>::new(
-        Some(b"OpenBitFun device provisioning v1.0.0"),
+        Some(b"Alex device provisioning v1.0.0"),
         parent_secret,
     )
     .expand(info.as_bytes(), &mut secret)

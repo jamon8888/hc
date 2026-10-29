@@ -6,16 +6,16 @@
 
 #![cfg(feature = "basemind")]
 
-use openbitfun_basemind_integration::daemon;
-use openbitfun_basemind_integration::ipc::{extract_tool_payload, urlencoding};
-use openbitfun_basemind_integration::redaction::{category_of, rewrite_tokens_as_spans};
+use alex_basemind_integration::daemon;
+use alex_basemind_integration::ipc::{extract_tool_payload, urlencoding};
+use alex_basemind_integration::redaction::{category_of, rewrite_tokens_as_spans};
 use std::collections::BTreeMap;
 
 /// A temp directory that is unique to this test process, so concurrent test
 /// runs on one machine never delete or overwrite each other's registry and
 /// vault files.
 fn test_temp_dir(name: &str) -> std::path::PathBuf {
-    std::env::temp_dir().join(format!("openbitfun-basemind-{name}-{}", std::process::id()))
+    std::env::temp_dir().join(format!("alex-basemind-{name}-{}", std::process::id()))
 }
 
 #[test]
@@ -164,7 +164,7 @@ fn a_category_is_read_off_the_token_in_the_ui_vocabulary() {
 /// redaction.
 #[test]
 fn a_redaction_survives_a_new_store() {
-    use openbitfun_basemind_integration::redaction::RedactionStore;
+    use alex_basemind_integration::redaction::RedactionStore;
 
     let temp = test_temp_dir("persistence-test");
     let _ = std::fs::remove_dir_all(&temp);
@@ -210,7 +210,7 @@ fn a_redaction_survives_a_new_store() {
 /// invent occurrences the text does not carry.
 #[test]
 fn a_pseudonymised_value_stays_revealable_without_a_token_in_the_text() {
-    use openbitfun_basemind_integration::redaction::RedactionStore;
+    use alex_basemind_integration::redaction::RedactionStore;
 
     let temp = test_temp_dir("pseudonym-test");
     let _ = std::fs::remove_dir_all(&temp);
@@ -248,7 +248,7 @@ fn a_pseudonymised_value_stays_revealable_without_a_token_in_the_text() {
 /// included — is a broken contract and refuses.
 #[test]
 fn a_truncated_ner_pass_refuses_the_payload_but_a_v0_34_0_payload_passes() {
-    use openbitfun_basemind_integration::redaction::ner_coverage_refusal;
+    use alex_basemind_integration::redaction::ner_coverage_refusal;
 
     let truncated = serde_json::json!({ "ner_truncated": true, "ner_ran": true });
     assert!(ner_coverage_refusal(&truncated).is_some());

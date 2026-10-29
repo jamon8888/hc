@@ -18,7 +18,7 @@ vi.mock('./common', () => ({
 }));
 
 // Form behavior is tested separately from the design system's picker rendering.
-vi.mock('@openbitfun/ui', () => ({
+vi.mock('@alex/ui', () => ({
   Field: ({ children, label, description }: { children: React.ReactNode; label: string; description?: string }) => <label>{label}{children}{description}</label>,
   Input: (props: React.InputHTMLAttributes<HTMLInputElement>) => <input {...props} />,
   Icon: () => null,

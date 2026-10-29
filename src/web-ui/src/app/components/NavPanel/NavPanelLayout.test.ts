@@ -35,7 +35,7 @@ function extractBlock(stylesheet: string, selector: string): string {
 describe('NavPanel layout styles', () => {
   it('allows navigation list wrappers to shrink instead of inheriting long item widths', () => {
     const stylesheet = readNavPanelStylesheet();
-    const rootBlock = extractBlock(stylesheet, '.openbitfun-nav-panel');
+    const rootBlock = extractBlock(stylesheet, '.alex-nav-panel');
     const contentBlock = extractBlock(stylesheet, '&__content');
     const mainLayerBlock = extractBlock(stylesheet, '&--main');
     const itemsBlock = extractBlock(stylesheet, '&__items');
@@ -56,13 +56,13 @@ describe('NavPanel layout styles', () => {
     const sectionHeaderBlock = extractBlock(stylesheet, '&__section-header');
     const itemsBlock = extractBlock(stylesheet, '&__items');
     const topActionExpandBlock = extractBlock(stylesheet, '&__top-action-expand');
-    const topActionSublistBlock = extractBlock(stylesheet, '.openbitfun-nav-panel__top-action-sublist-inner');
+    const topActionSublistBlock = extractBlock(stylesheet, '.alex-nav-panel__top-action-sublist-inner');
 
-    expect(itemsBlock).toContain('padding: 2px var(--openbitfun-space-1);');
-    expect(itemsBlock).toContain('gap: calc(var(--openbitfun-space-1) / 2);');
-    expect(topActionExpandBlock).toContain('gap: calc(var(--openbitfun-space-1) / 2);');
-    expect(topActionSublistBlock).toContain('gap: calc(var(--openbitfun-space-1) / 2);');
-    expect(sectionHeaderBlock).toContain('margin: 0 var(--openbitfun-space-1);');
+    expect(itemsBlock).toContain('padding: 2px var(--alex-space-1);');
+    expect(itemsBlock).toContain('gap: calc(var(--alex-space-1) / 2);');
+    expect(topActionExpandBlock).toContain('gap: calc(var(--alex-space-1) / 2);');
+    expect(topActionSublistBlock).toContain('gap: calc(var(--alex-space-1) / 2);');
+    expect(sectionHeaderBlock).toContain('margin: 0 var(--alex-space-1);');
   });
 
   it('ends the section header actions on the workspace row action column', () => {
@@ -98,9 +98,9 @@ describe('NavPanel layout styles', () => {
     expect(workspaceActionsBlock).toContain('right: 4px;');
     expect(headerTrailing).toContain('margin: 0 6px;');
     expect(headerTrailing).toContain(
-      'padding-right: calc(var(--openbitfun-space-1) + var(--openbitfun-border-width-default));',
+      'padding-right: calc(var(--alex-space-1) + var(--alex-border-width-default));',
     );
-    expect(headerTrailing).not.toContain('padding-right: var(--openbitfun-space-2);');
+    expect(headerTrailing).not.toContain('padding-right: var(--alex-space-2);');
 
     // Matching trailing edges are not enough: the pitch has to match too, or the
     // first and second icons drift 2px and 4px off the row columns. Both clusters
@@ -117,7 +117,7 @@ describe('NavPanel layout styles', () => {
 
     expect(sectionHeaderBlock).not.toContain('&--interactive');
     expect(sectionHeaderBlock).not.toContain('cursor: pointer;');
-    expect(stylesheet).not.toContain('.openbitfun-nav-panel__section-header--interactive:hover');
+    expect(stylesheet).not.toContain('.alex-nav-panel__section-header--interactive:hover');
     expect(stylesheet).not.toContain('&__collapsible');
   });
 
@@ -143,45 +143,45 @@ describe('NavPanel layout styles', () => {
     const activeRowMixin = extractBlock(stylesheet, '@mixin nav-panel-text-row-active');
 
     expect(activeRowMixin).toContain(
-      'font-weight: var(--openbitfun-type-label-selected-font-weight);',
+      'font-weight: var(--alex-type-label-selected-font-weight);',
     );
     expect(activeRowMixin).not.toContain(
-      'font-weight: var(--openbitfun-type-label-sm-font-weight);',
+      'font-weight: var(--alex-type-label-sm-font-weight);',
     );
   });
 
   it('centers footer actions with symmetric vertical padding', () => {
     const stylesheet = readNavPanelStylesheet();
     const footerBlocks = [...stylesheet.matchAll(
-      /\.openbitfun-nav-panel__footer\s*\{(?<body>[\s\S]*?)\n\s*\}/g,
+      /\.alex-nav-panel__footer\s*\{(?<body>[\s\S]*?)\n\s*\}/g,
     )].map(match => match.groups?.body ?? '');
 
     expect(footerBlocks).toHaveLength(2);
-    expect(footerBlocks[0]).toContain('padding: 2px var(--openbitfun-space-2);');
+    expect(footerBlocks[0]).toContain('padding: 2px var(--alex-space-2);');
     expect(footerBlocks[1]).toContain('padding: 2px 6px;');
   });
 
   it('keeps the compact settings button while using a more legible gear icon', () => {
     const stylesheet = readNavPanelStylesheet();
-    const settingsButtonBlock = extractBlock(stylesheet, '.openbitfun-nav-panel__footer-btn--icon');
+    const settingsButtonBlock = extractBlock(stylesheet, '.alex-nav-panel__footer-btn--icon');
 
     expect(settingsButtonBlock).toContain('width: 28px;');
     expect(settingsButtonBlock).toContain('height: 28px;');
-    expect(settingsButtonBlock).toContain("inline-size: var(--openbitfun-control-icon-size-md);");
-    expect(settingsButtonBlock).toContain("block-size: var(--openbitfun-control-icon-size-md);");
+    expect(settingsButtonBlock).toContain("inline-size: var(--alex-control-icon-size-md);");
+    expect(settingsButtonBlock).toContain("block-size: var(--alex-control-icon-size-md);");
   });
 
   it('keeps category actions flat on hover', () => {
     const stylesheet = readNavPanelStylesheet();
 
     expect(stylesheet).toContain(
-      '.openbitfun-nav-panel__top-action-btn:hover {\n' +
+      '.alex-nav-panel__top-action-btn:hover {\n' +
       '    transform: none;\n' +
       '    box-shadow: none;\n' +
       '  }',
     );
     expect(stylesheet).not.toContain(
-      '&:not(.openbitfun-nav-panel__top-action-btn--sub):hover .openbitfun-nav-panel__top-action-icon-slot {\n' +
+      '&:not(.alex-nav-panel__top-action-btn--sub):hover .alex-nav-panel__top-action-icon-slot {\n' +
       '    transform: scale(1.07);',
     );
   });
@@ -190,15 +190,15 @@ describe('NavPanel layout styles', () => {
     const stylesheet = readNavPanelStylesheet();
 
     expect(stylesheet).toContain(
-      '> .openbitfun-nav-panel__top-action-expand-icon-default,\n' +
-      '  > .openbitfun-nav-panel__top-action-expand-icon-chevron {',
+      '> .alex-nav-panel__top-action-expand-icon-default,\n' +
+      '  > .alex-nav-panel__top-action-expand-icon-chevron {',
     );
     expect(stylesheet).toContain('inset-block-start: 50%;');
     expect(stylesheet).toContain('inset-inline-start: 50%;');
     expect(stylesheet).toContain('transform: translate(-50%, -50%);');
     expect(stylesheet).not.toContain('translate(calc(-50% + 1px), -50%)');
     expect(stylesheet).not.toContain(
-      '.openbitfun-nav-panel__top-action-expand-icons {\n' +
+      '.alex-nav-panel__top-action-expand-icons {\n' +
       '  position: relative;\n' +
       '  width: 22px;',
     );
@@ -208,19 +208,19 @@ describe('NavPanel layout styles', () => {
     const stylesheet = readNavPanelStylesheet();
 
     expect(stylesheet).toContain(
-      ".openbitfun-nav-panel__top-action-btn,\n" +
-      ".openbitfun-nav-panel__miniapp-entry {\n" +
-      "  > [data-openbitfun-part='leading'] {\n" +
+      ".alex-nav-panel__top-action-btn,\n" +
+      ".alex-nav-panel__miniapp-entry {\n" +
+      "  > [data-alex-part='leading'] {\n" +
       '    flex: 0 0 var(--_nav-icon-slot-size);\n' +
       '    inline-size: var(--_nav-icon-slot-size);\n' +
       '    block-size: var(--_nav-icon-slot-size);',
     );
     expect(stylesheet).toContain(
-      "> [data-openbitfun-part='label'] {\n" +
+      "> [data-alex-part='label'] {\n" +
       '    flex: 1;',
     );
     expect(stylesheet).not.toContain(
-      '> span:not([data-overflow-content]):not(.openbitfun-nav-panel__top-action-icon-circle)',
+      '> span:not([data-overflow-content]):not(.alex-nav-panel__top-action-icon-circle)',
     );
   });
 
@@ -229,7 +229,7 @@ describe('NavPanel layout styles', () => {
     const itemBlock = extractBlock(stylesheet, '&__miniapp-item');
     const trailingBlock = extractBlock(
       stylesheet,
-      "&__miniapp-item > [data-openbitfun-part='actions']",
+      "&__miniapp-item > [data-alex-part='actions']",
     );
 
     // The row paints its hover/selected pill on the ActionItem trigger, so the
@@ -238,7 +238,7 @@ describe('NavPanel layout styles', () => {
     // left the pill short of the row's right edge.
     expect(itemBlock).toContain('position: relative;');
     expect(trailingBlock).toContain('position: absolute;');
-    expect(trailingBlock).toContain('inset-inline-end: var(--openbitfun-space-2);');
+    expect(trailingBlock).toContain('inset-inline-end: var(--alex-space-2);');
     expect(trailingBlock).not.toContain('margin-inline-end');
   });
 });

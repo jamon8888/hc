@@ -9,12 +9,12 @@ use super::snapshot_system::FileSnapshotSystem;
 use super::types::{FileOperation, OperationType};
 use crate::agentic::session::revert::{SessionRevertPhase, SessionRevertState};
 use crate::service::workspace_runtime::{WorkspaceRuntimeContext, WorkspaceRuntimeTarget};
-use openbitfun_runtime_ports::{
+use alex_runtime_ports::{
     WorkspaceCommandOptions, WorkspaceCommandResult, WorkspaceDirEntry, WorkspaceFileSystem,
     WorkspaceMetadata, WorkspacePathKind, WorkspaceShell,
 };
-use openbitfun_services_core::workspace::LocalWorkspaceFs;
-use openbitfun_services_core::workspace_identity::WorkspaceSessionIdentity;
+use alex_services_core::workspace::LocalWorkspaceFs;
+use alex_services_core::workspace_identity::WorkspaceSessionIdentity;
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -651,7 +651,7 @@ async fn wrapped_remote_write_and_delete_produce_recorded_history_without_a_remo
     use crate::service::workspace_runtime::{
         set_workspace_runtime_service_for_current_test, WorkspaceRuntimeService,
     };
-    use openbitfun_runtime_ports::{ToolRuntimeHandles, WorkspaceServices};
+    use alex_runtime_ports::{ToolRuntimeHandles, WorkspaceServices};
 
     let temp = tempfile::tempdir().unwrap();
     let runtime = Arc::new(WorkspaceRuntimeService::new(Arc::new(
@@ -661,7 +661,7 @@ async fn wrapped_remote_write_and_delete_produce_recorded_history_without_a_remo
     let root = "/remote/real-tool";
     let fs = Arc::new(RemoteMemoryFs::new(root));
     let identity = WorkspaceSessionIdentity {
-        workspace_kind: openbitfun_core_types::WorkspaceKind::Remote,
+        workspace_kind: alex_core_types::WorkspaceKind::Remote,
         hostname: "shared-server".into(),
         logical_workspace_path: root.into(),
         remote_connection_id: Some("real-tool-connection".into()),

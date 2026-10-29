@@ -16,7 +16,7 @@
         : 'light';
 
   var root = document.documentElement;
-  root.setAttribute('data-openbitfun-design-system-root', '');
+  root.setAttribute('data-alex-design-system-root', '');
   root.dataset.colorScheme = theme;
   root.dataset.contrast = 'standard';
   root.dataset.density = 'comfortable';

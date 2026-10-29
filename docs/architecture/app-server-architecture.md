@@ -383,8 +383,8 @@ Embedded direct invocation 可以依赖同进程构造身份，但仍必须传�
 
 边界规则：
 
-- protocol/client 的依赖闭包不得引入 `openbitfun-core`、Runtime 实现、Service 实现或 `product-full`。
-- server wiring 可以依赖生产 handler 所需的明确 owner feature，但禁止选择 `openbitfun-core/product-full`。
+- protocol/client 的依赖闭包不得引入 `alex-core`、Runtime 实现、Service 实现或 `product-full`。
+- server wiring 可以依赖生产 handler 所需的明确 owner feature，但禁止选择 `alex-core/product-full`。
 - 新 domain 只能增加真实 handler 所需的最窄 owner feature，并通过边界检查证明依赖方向。
 - protocol DTO 不复制 Runtime 内部对象；只暴露 Rich Client 需要的稳定字段和 read model。
 - `app-server-protocol` 是 TypeScript wire schema 的唯一导出 owner；`app-server/ts`

@@ -146,7 +146,7 @@ VITE_BUILD_TARGET=web pnpm --dir src/web-ui run build
 撤销；只有真实界面和自定义代码激活成功才开始确认倒计时，失败或超时恢复原版本。
 
 自定义模块还能注册 Agent 可调用的命令，并通过持久状态与事件组合能力。随客户端
-附带的 [Creation API](public/openbitfun-creation-api.md) 说明发现、激活与清理接口。
+附带的 [Creation API](public/alex-creation-api.md) 说明发现、激活与清理接口。
 这些扩展需要可见的本地 Desktop，远程/Peer/无界面场景明确不可用。MiniApp 的结构化
 源码操作走已安装产品的生命周期管理器，更新保留未提供的源码字段和已有应用数据。
 

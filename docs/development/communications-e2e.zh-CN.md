@@ -57,7 +57,7 @@ Git 夹具包含：已推送提交、仅本地提交、未暂存/已暂存/未�
 导出逐项工作表（输出目录必须尚不存在，避免覆盖已填写证据）：
 
 ```bash
-node scripts/diagnostics/export-communications-matrix.mjs --output /tmp/openbitfun-communications-run-001
+node scripts/diagnostics/export-communications-matrix.mjs --output /tmp/alex-communications-run-001
 ```
 
 输出包括全部产品操作、全部 `RemoteCommand`、本手册场景和注册表 digest。每个 bot provider、OS、设备方向和网络条件复制独立执行行；工作表只是范围清单，不是自动测试结果。
@@ -301,16 +301,16 @@ pnpm run check:core-boundaries
 ```
 
 ```bash
-cargo test --locked -p openbitfun-relay-service
-cargo test --locked -p openbitfun-services-integrations --no-default-features --features remote-connect --lib remote_connect::
-cargo test --locked -p openbitfun-services-integrations --no-default-features --features remote-connect --test remote_connect_contracts
-cargo test --locked -p openbitfun-services-integrations --no-default-features --features remote-ssh-concrete --lib remote_ssh::
-cargo test --locked -p openbitfun-services-integrations --no-default-features --features remote-ssh --test remote_ssh_contracts
-cargo test --locked -p openbitfun-cli --bin openbitfun dispatch::
-cargo test --locked -p openbitfun-cli --bin openbitfun peer_host::
-cargo test --locked -p openbitfun-agent-runtime-ipc
-cargo test --locked -p openbitfun-app-server --lib server::wire::tests
-cargo test --locked -p openbitfun-app-server-protocol --test legacy_wire_contracts
+cargo test --locked -p alex-relay-service
+cargo test --locked -p alex-services-integrations --no-default-features --features remote-connect --lib remote_connect::
+cargo test --locked -p alex-services-integrations --no-default-features --features remote-connect --test remote_connect_contracts
+cargo test --locked -p alex-services-integrations --no-default-features --features remote-ssh-concrete --lib remote_ssh::
+cargo test --locked -p alex-services-integrations --no-default-features --features remote-ssh --test remote_ssh_contracts
+cargo test --locked -p alex-cli --bin openbitfun dispatch::
+cargo test --locked -p alex-cli --bin openbitfun peer_host::
+cargo test --locked -p alex-agent-runtime-ipc
+cargo test --locked -p alex-app-server --lib server::wire::tests
+cargo test --locked -p alex-app-server-protocol --test legacy_wire_contracts
 ```
 
 ```bash
@@ -320,7 +320,7 @@ pnpm --dir src/web-ui run test:run src/infrastructure/peer-device src/infrastruc
 真实 Docker 集成测试需显式提供测试容器名（该容器允许创建及删除测试文件）：
 
 ```bash
-OPENBITFUN_TEST_DOCKER_CONTAINER=openbitfun-comm-fixture cargo test --locked -p openbitfun-services-integrations --no-default-features --features remote-ssh-concrete --lib remote_ssh::manager::tests::local_docker_workspace_round_trip -- --ignored
+OPENBITFUN_TEST_DOCKER_CONTAINER=alex-comm-fixture cargo test --locked -p alex-services-integrations --no-default-features --features remote-ssh-concrete --lib remote_ssh::manager::tests::local_docker_workspace_round_trip -- --ignored
 ```
 
 Desktop 命令闭包和 Core 行为变更还需执行其最近 [Desktop guide](../../src/apps/desktop/AGENTS.md)、[Core guide](../../src/crates/assembly/core/AGENTS.md) 指定的检查；MCP、ACP 和 SDK 分别遵循各 owner guide。清单没有运行日志时，不得把这里的命令标成已通过。

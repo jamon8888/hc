@@ -2,7 +2,7 @@ import { useLayoutEffect, useRef, useState } from 'react';
 import {
   Button, Dialog, DialogBody, DialogClose, DialogFooter, DialogHeader, DialogHeading,
   DialogTitle, ScrollArea,
-} from '@openbitfun/ui';
+} from '@alex/ui';
 import { useI18n } from '@/infrastructure/i18n';
 import { notificationService } from '@/shared/notification-system';
 import type { ExcerptDialogTarget } from './conversationExcerptEditing';
@@ -51,7 +51,7 @@ export function ConversationExcerptDialog({ target, label, open, onOpenChange }:
   const locateLabel = dirty ? t('selection.saveAndLocate') : t('selection.locate');
   return <Dialog open={open} onOpenChange={onOpenChange} size="sm" className="conversation-excerpt__dialog"
     initialFocusRef={target.mode === 'edit' ? inputRef : undefined}
-    data-flowchat-selection-ignore="true" data-openbitfun-product-component="conversation-excerpt" data-openbitfun-product-part="dialog"
+    data-flowchat-selection-ignore="true" data-alex-product-component="conversation-excerpt" data-alex-product-part="dialog"
     onKeyDown={event => event.stopPropagation()}>
     <DialogHeader>
       <DialogHeading><DialogTitle>{label}</DialogTitle></DialogHeading>
@@ -59,12 +59,12 @@ export function ConversationExcerptDialog({ target, label, open, onOpenChange }:
     </DialogHeader>
     <DialogBody>
       <div className="conversation-excerpt__editor"
-        data-openbitfun-product-component="conversation-excerpt" data-openbitfun-product-part="editor">
+        data-alex-product-component="conversation-excerpt" data-alex-product-part="editor">
         {target.mode === 'edit' ? <ConversationExcerptEditor excerpt={target.excerpt} comment={comment} onCommentChange={setComment}
           inputRef={inputRef} onSubmit={save} /> : <>
           <ConversationExcerptQuote excerpt={target.excerpt} />
           {target.excerpt.comment?.trim() && <ScrollArea className="conversation-excerpt__comment" tabIndex={0} aria-label={label}
-            data-openbitfun-product-component="conversation-excerpt" data-openbitfun-product-part="comment">
+            data-alex-product-component="conversation-excerpt" data-alex-product-part="comment">
             {target.excerpt.comment}
           </ScrollArea>}
         </>}
@@ -74,7 +74,7 @@ export function ConversationExcerptDialog({ target, label, open, onOpenChange }:
       {target.mode === 'edit' && <Button variant="text" tone="danger" disabled={!available}
         onClick={remove}>{t('selection.remove')}</Button>}
       <Button variant="outline"
-        data-openbitfun-product-component="conversation-excerpt" data-openbitfun-product-part="locate"
+        data-alex-product-component="conversation-excerpt" data-alex-product-part="locate"
         disabled={!available} onClick={locate}>{locateLabel}</Button>
       {target.mode === 'edit' && <>
         <Button variant="fill" onClick={() => onOpenChange(false)}>{t('selection.cancel')}</Button>

@@ -8,7 +8,7 @@ use axum::http::{header, HeaderMap, HeaderValue, Method, StatusCode, Uri};
 use axum::response::Response;
 use axum::routing::any;
 use axum::Router;
-use openbitfun_core::service::remote_ssh::RemoteFileService;
+use alex_core::service::remote_ssh::RemoteFileService;
 use serde::{Deserialize, Serialize};
 use std::path::{Path as FsPath, PathBuf};
 use std::sync::Arc;
@@ -188,7 +188,7 @@ pub async fn html_preview_create(
         );
 
     Ok(HtmlPreviewCreateResponse {
-        url: format!("http://127.0.0.1:{port}/__openbitfun_preview_bootstrap?previewToken={token}"),
+        url: format!("http://127.0.0.1:{port}/__alex_preview_bootstrap?previewToken={token}"),
         session_id,
     })
 }
@@ -224,7 +224,7 @@ async fn preview_handler(
         .and_then(|value| value.to_str().ok())
         .is_some_and(|cookies| {
             cookies.split(';').any(|cookie| {
-                cookie.trim().strip_prefix("openbitfun_html_preview=") == Some(state.token.as_str())
+                cookie.trim().strip_prefix("alex_html_preview=") == Some(state.token.as_str())
             })
         });
     let bootstrap_authorized = query_token == Some(state.token.as_str());
@@ -237,10 +237,10 @@ async fn preview_handler(
             "text/plain; charset=utf-8",
         );
     }
-    if uri.path() == "/__openbitfun_preview_bootstrap" {
+    if uri.path() == "/__alex_preview_bootstrap" {
         let location = format!("/{}", encode_url_path(&state.entry_path));
         let cookie = format!(
-            "openbitfun_html_preview={}; HttpOnly; SameSite=Strict; Path=/",
+            "alex_html_preview={}; HttpOnly; SameSite=Strict; Path=/",
             state.token
         );
         return Response::builder()
@@ -279,7 +279,7 @@ async fn preview_handler(
                 .header(header::X_CONTENT_TYPE_OPTIONS, "nosniff");
             if bootstrap_authorized {
                 let cookie = format!(
-                    "openbitfun_html_preview={}; HttpOnly; SameSite=Strict; Path=/",
+                    "alex_html_preview={}; HttpOnly; SameSite=Strict; Path=/",
                     state.token
                 );
                 if let Ok(value) = HeaderValue::from_str(&cookie) {
@@ -380,7 +380,7 @@ async fn ensure_remote_file(
         .await
         .map_err(|e| e.to_string())?
         .ok_or_else(|| "Not found".to_string())?;
-    if metadata.kind != openbitfun_runtime_ports::WorkspacePathKind::File {
+    if metadata.kind != alex_runtime_ports::WorkspacePathKind::File {
         return Err("Not found".to_string());
     }
     Ok(metadata.size.unwrap_or(0))
@@ -408,17 +408,17 @@ async fn ensure_confined_remote_file(
             .await
             .map_err(|e| e.to_string())?
             .ok_or_else(|| "Not found".to_string())?;
-        if metadata.kind == openbitfun_runtime_ports::WorkspacePathKind::Symlink {
+        if metadata.kind == alex_runtime_ports::WorkspacePathKind::Symlink {
             return Err("Symbolic links are not available in HTML preview".to_string());
         }
         let is_last = index + 1 == components.len();
         if is_last {
-            if metadata.kind != openbitfun_runtime_ports::WorkspacePathKind::File {
+            if metadata.kind != alex_runtime_ports::WorkspacePathKind::File {
                 return Err("Not found".to_string());
             }
             return Ok(metadata.size.unwrap_or(0));
         }
-        if metadata.kind != openbitfun_runtime_ports::WorkspacePathKind::Directory {
+        if metadata.kind != alex_runtime_ports::WorkspacePathKind::Directory {
             return Err("Not found".to_string());
         }
     }

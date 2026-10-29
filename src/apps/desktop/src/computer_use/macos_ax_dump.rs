@@ -23,8 +23,8 @@ use core_foundation::base::{CFGetTypeID, CFTypeRef, TCFType};
 use core_foundation::boolean::{CFBoolean, CFBooleanGetTypeID, CFBooleanRef};
 use core_foundation::string::{CFString, CFStringRef};
 use core_graphics::geometry::{CGPoint, CGSize};
-use openbitfun_core::agentic::tools::computer_use_host::{AppStateSnapshot, AxNode};
-use openbitfun_core::util::errors::{OpenBitFunError, OpenBitFunResult};
+use alex_core::agentic::tools::computer_use_host::{AppStateSnapshot, AxNode};
+use alex_core::util::errors::{AlexError, AlexResult};
 use std::collections::{HashMap, VecDeque};
 use std::ffi::c_void;
 use std::sync::{Mutex, OnceLock};
@@ -203,12 +203,12 @@ pub(crate) fn retained_cached_target(pid: i32, idx: u32) -> Option<RetainedCache
     Some(RetainedCachedTarget(reference))
 }
 
-pub(crate) fn validate_bound_target(pid: i32, target: AxRef) -> OpenBitFunResult<()> {
-    super::control_session::input_allowed().map_err(OpenBitFunError::tool)?;
-    let bound = super::macos_capture::bound_window_id(pid).map_err(OpenBitFunError::tool)?;
+pub(crate) fn validate_bound_target(pid: i32, target: AxRef) -> AlexResult<()> {
+    super::control_session::input_allowed().map_err(AlexError::tool)?;
+    let bound = super::macos_capture::bound_window_id(pid).map_err(AlexError::tool)?;
     let mut actual_pid = 0;
     if unsafe { AXUIElementGetPid(target.0, &mut actual_pid) } != 0 || actual_pid != pid {
-        return Err(OpenBitFunError::tool(
+        return Err(AlexError::tool(
             "AX_TARGET_MISMATCH: Accessibility target belongs to a different application",
         ));
     }
@@ -217,12 +217,12 @@ pub(crate) fn validate_bound_target(pid: i32, target: AxRef) -> OpenBitFunResult
         None => is_application_menu_item(target),
     };
     if !allowed {
-        return Err(OpenBitFunError::tool(
+        return Err(AlexError::tool(
             "AX_TARGET_MISMATCH: Accessibility target does not belong to the captured window",
         ));
     }
     super::control_session::target_allowed(&format!("pid:{pid}/window:{bound}"))
-        .map_err(OpenBitFunError::tool)
+        .map_err(AlexError::tool)
 }
 
 pub(crate) fn element_window_id(target: AxRef) -> Option<u32> {
@@ -255,13 +255,13 @@ pub(crate) fn retained_target_at_point(
     pid: i32,
     x: f64,
     y: f64,
-) -> OpenBitFunResult<Option<RetainedCachedTarget>> {
+) -> AlexResult<Option<RetainedCachedTarget>> {
     if !x.is_finite() || !y.is_finite() {
         return Ok(None);
     }
-    let window_id = super::macos_capture::bound_window_id(pid).map_err(OpenBitFunError::tool)?;
+    let window_id = super::macos_capture::bound_window_id(pid).map_err(AlexError::tool)?;
     super::control_session::target_allowed(&format!("pid:{pid}/window:{window_id}"))
-        .map_err(OpenBitFunError::tool)?;
+        .map_err(AlexError::tool)?;
     unsafe {
         let app = AXUIElementCreateApplication(pid);
         if app.is_null() {
@@ -278,7 +278,7 @@ pub(crate) fn retained_target_at_point(
             return if matches!(status, -25208 | -25212) {
                 Ok(None)
             } else {
-                Err(OpenBitFunError::tool(format!(
+                Err(AlexError::tool(format!(
                     "AX_HIT_TEST_FAILED: Application hit testing failed (status={status})"
                 )))
             };
@@ -313,9 +313,9 @@ pub(crate) fn retained_target_at_point(
 
 /// Evidence check after a visual focus attempt. `false` means no proven
 /// mismatch, not verified delivery: custom canvases may expose no AX focus.
-pub(crate) fn focused_text_target_mismatch(pid: i32, x: f64, y: f64) -> OpenBitFunResult<bool> {
-    super::control_session::input_allowed().map_err(OpenBitFunError::tool)?;
-    let bound = super::macos_capture::bound_window_id(pid).map_err(OpenBitFunError::tool)?;
+pub(crate) fn focused_text_target_mismatch(pid: i32, x: f64, y: f64) -> AlexResult<bool> {
+    super::control_session::input_allowed().map_err(AlexError::tool)?;
+    let bound = super::macos_capture::bound_window_id(pid).map_err(AlexError::tool)?;
     unsafe {
         let app = AXUIElementCreateApplication(pid);
         if app.is_null() {
@@ -330,7 +330,7 @@ pub(crate) fn focused_text_target_mismatch(pid: i32, x: f64, y: f64) -> OpenBitF
             return if matches!(status, -25205 | -25208 | -25212) {
                 Ok(false)
             } else {
-                Err(OpenBitFunError::tool(format!("AX_FOCUS_CHECK_FAILED: Cannot inspect the current text destination (status={status})")))
+                Err(AlexError::tool(format!("AX_FOCUS_CHECK_FAILED: Cannot inspect the current text destination (status={status})")))
             };
         }
         if value.is_null() {
@@ -687,10 +687,10 @@ fn is_closed_menu_container(role: &str, frame: Option<(f64, f64, f64, f64)>) -> 
     }
 }
 
-pub(super) fn dump_app_ax(pid: i32, opts: DumpOpts) -> OpenBitFunResult<AppStateSnapshot> {
+pub(super) fn dump_app_ax(pid: i32, opts: DumpOpts) -> AlexResult<AppStateSnapshot> {
     let app = unsafe { AXUIElementCreateApplication(pid) };
     if app.is_null() {
-        return Err(OpenBitFunError::tool(format!(
+        return Err(AlexError::tool(format!(
             "AXUIElementCreateApplication returned null for pid={}",
             pid
         )));
@@ -728,7 +728,7 @@ pub(super) fn dump_app_ax(pid: i32, opts: DumpOpts) -> OpenBitFunResult<AppState
                 Some(window) => window,
                 None => {
                     unsafe { ax_release(app as CFTypeRef) };
-                    return Err(OpenBitFunError::tool("AX_BOUND_WINDOW_UNAVAILABLE: Accessibility cannot identify the captured window; another application window was not substituted"));
+                    return Err(AlexError::tool("AX_BOUND_WINDOW_UNAVAILABLE: Accessibility cannot identify the captured window; another application window was not substituted"));
                 }
             }
         } else {
@@ -902,7 +902,7 @@ equivalents, or AXPress the menu first.\n",
     {
         let mut cache = snapshot_cache()
             .lock()
-            .map_err(|_| OpenBitFunError::tool("AX snapshot cache poisoned".to_string()))?;
+            .map_err(|_| AlexError::tool("AX snapshot cache poisoned".to_string()))?;
         cache.insert(
             pid,
             CachedSnapshot {
@@ -913,7 +913,7 @@ equivalents, or AXPress the menu first.\n",
     }
 
     Ok(AppStateSnapshot {
-        app: openbitfun_core::agentic::tools::computer_use_host::AppInfo {
+        app: alex_core::agentic::tools::computer_use_host::AppInfo {
             name: window_title.clone().unwrap_or_default(),
             bundle_id: None,
             pid: Some(pid),
@@ -1098,7 +1098,7 @@ mod tests {
     #[test]
     #[ignore = "run scripts/test-native-ax-context.mjs with macOS Accessibility permission"]
     fn native_ax_fixture_round_trips_tree_and_cached_targets() {
-        let pid: i32 = std::env::var("OPENBITFUN_AX_FIXTURE_PID")
+        let pid: i32 = std::env::var("ALEX_AX_FIXTURE_PID")
             .expect("isolated fixture PID")
             .parse()
             .unwrap();
@@ -1116,7 +1116,7 @@ mod tests {
                 "the same native element must not be emitted twice"
             );
         }
-        let query = openbitfun_core::agentic::tools::computer_use_host::UiElementLocateQuery {
+        let query = alex_core::agentic::tools::computer_use_host::UiElementLocateQuery {
             text_contains: Some("Save report".into()),
             ..Default::default()
         };
@@ -1181,7 +1181,7 @@ mod tests {
             serde_json::from_value(serde_json::to_value(&snapshot).unwrap()).unwrap();
         assert_eq!(restored, snapshot);
     }
-    use openbitfun_core::agentic::tools::computer_use_host::AxNode;
+    use alex_core::agentic::tools::computer_use_host::AxNode;
 
     fn n(idx: u32, parent: Option<u32>, role: &str, title: Option<&str>) -> AxNode {
         AxNode {

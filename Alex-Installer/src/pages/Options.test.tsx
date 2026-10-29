@@ -14,7 +14,7 @@ vi.mock('@tauri-apps/plugin-dialog', () => ({ open: vi.fn() }));
 vi.mock('@tauri-apps/api/window', () => ({ getCurrentWindow: () => mocks }));
 
 const initial: InstallOptions = {
-  installPath: 'D:\\OpenBitFun', desktopShortcut: false, startMenu: true,
+  installPath: 'D:\\Alex', desktopShortcut: false, startMenu: true,
   launchAfterInstall: false, appLanguage: 'en-US', themePreference: 'system', modelConfig: null,
 };
 let container: HTMLDivElement;
@@ -43,7 +43,7 @@ it('updates an install option once per label or native input click and keeps the
       onInstall={vi.fn()} isInstalling={false} clearInstallError={clearError} />;
   }
   await act(async () => root.render(<Page />));
-  const label = container.querySelector<HTMLLabelElement>('[data-openbitfun-component="checkbox"]')!;
+  const label = container.querySelector<HTMLLabelElement>('[data-alex-component="checkbox"]')!;
   const checkbox = label.querySelector('input')!;
   expect(checkbox.checked).toBe(false);
   act(() => label.click());
@@ -56,14 +56,14 @@ it('updates an install option once per label or native input click and keeps the
   expect(document.activeElement).toBe(checkbox);
   expect(checkbox.tabIndex).toBe(0);
 
-  const path = container.querySelector<HTMLInputElement>('[data-openbitfun-component="input"] input')!;
+  const path = container.querySelector<HTMLInputElement>('[data-alex-component="input"] input')!;
   await act(async () => {
-    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(path, 'D:\\Apps\\OpenBitFun');
+    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(path, 'D:\\Apps\\Alex');
     path.dispatchEvent(new Event('input', { bubbles: true }));
   });
-  expect(path.value).toBe('D:\\Apps\\OpenBitFun');
+  expect(path.value).toBe('D:\\Apps\\Alex');
   expect(clearError).toHaveBeenCalledTimes(1);
-  expect(refreshDiskSpace).toHaveBeenLastCalledWith('D:\\Apps\\OpenBitFun');
+  expect(refreshDiskSpace).toHaveBeenLastCalledWith('D:\\Apps\\Alex');
 });
 
 it('keeps path and install/navigation actions disabled during installation', async () => {
@@ -77,7 +77,7 @@ it('keeps path and install/navigation actions disabled during installation', asy
   expect(buttons).toHaveLength(3);
   for (const button of buttons) {
     expect(button.disabled).toBe(true);
-    expect(button.dataset.openbitfunComponent).toBe('button');
+    expect(button.dataset.alexComponent).toBe('button');
     act(() => button.click());
   }
   expect(install).not.toHaveBeenCalled();
@@ -87,11 +87,11 @@ it('connects launch-after-install on the theme page and preserves window control
   const changed = vi.fn();
   await act(async () => root.render(<><ThemeSetup options={initial} setOptions={changed}
     onLaunch={vi.fn()} onClose={vi.fn()} /><WindowControls /></>));
-  const label = container.querySelector<HTMLLabelElement>('[data-openbitfun-component="checkbox"]')!;
+  const label = container.querySelector<HTMLLabelElement>('[data-alex-component="checkbox"]')!;
   act(() => label.click());
   expect(changed).toHaveBeenCalledTimes(1);
   expect(changed.mock.calls[0][0](initial).launchAfterInstall).toBe(true);
-  const buttons = [...container.querySelectorAll<HTMLButtonElement>('[data-openbitfun-component="icon-button"]')];
+  const buttons = [...container.querySelectorAll<HTMLButtonElement>('[data-alex-component="icon-button"]')];
   act(() => buttons[0].click());
   act(() => buttons[1].click());
   expect(mocks.minimize).toHaveBeenCalledTimes(1);

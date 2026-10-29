@@ -3,7 +3,7 @@
 //! Remote paths must use POSIX separators even when the controller runs on
 //! Windows, so they cannot be assembled with `std::path::Path`.
 
-use openbitfun_services_core::product_identity::hidden_data_directory;
+use alex_services_core::product_identity::hidden_data_directory;
 
 fn data_relative_path(hidden_directory: &str, segments: &[&str]) -> String {
     let mut path = hidden_directory.trim_matches('/').to_string();

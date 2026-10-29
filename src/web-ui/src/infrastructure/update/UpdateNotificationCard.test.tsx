@@ -57,7 +57,7 @@ it('stays visible without a countdown until explicitly closed, preserving attent
   tick(60000);
   act(() => document.body.click());
   expect(card()).not.toBeNull();
-  expect(card()?.querySelector('[data-openbitfun-part="noticeCountdown"]')).toBeNull();
+  expect(card()?.querySelector('[data-alex-part="noticeCountdown"]')).toBeNull();
   const close = card()!.querySelector<HTMLButtonElement>(`button[aria-label="${common.actions.close}"]`)!;
   act(() => close.click());
   expect(card()).toBeNull();
@@ -98,8 +98,8 @@ it('keeps the notice through keyboard focus and background/foreground changes', 
 
 it('clears both indicators only when the version is explicitly skipped', () => {
   const skip = Array.from(card()!.querySelectorAll('button')).find(button => button.textContent === common.update.skipVersion)!;
-  expect(skip.getAttribute('data-openbitfun-component')).toBe('button');
-  expect(skip.getAttribute('data-openbitfun-variant')).toBe('outline');
+  expect(skip.getAttribute('data-alex-component')).toBe('button');
+  expect(skip.getAttribute('data-alex-variant')).toBe('outline');
   act(() => skip.click());
   expect(card()).toBeNull();
   expect(dots()).toHaveLength(0);
@@ -170,7 +170,7 @@ it('keeps download progress and failures visible until the user closes them', ()
 
 it('keeps download controls enabled without redundant copy', () => {
   expect(card()?.textContent).not.toContain(common.update.backgroundDownloadHint);
-  expect(card()?.querySelector('[data-openbitfun-part="subtitle"]')).toBeNull();
+  expect(card()?.querySelector('[data-alex-part="subtitle"]')).toBeNull();
   const buttons = Array.from(card()!.querySelectorAll('button'));
   expect(buttons.find(button => button.textContent === common.update.downloadUpdate)?.disabled).toBe(false);
 });

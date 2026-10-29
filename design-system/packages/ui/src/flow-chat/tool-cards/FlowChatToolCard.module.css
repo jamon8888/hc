@@ -1,26 +1,26 @@
-@layer openbitfun.components {
+@layer alex.components {
   .prominentRoot,
   .ambientRoot {
-    --_tool-card-font-family: var(--openbitfun-type-body-sm-font-family);
-    --_tool-card-font-size: var(--openbitfun-type-body-sm-font-size);
-    --_tool-card-title-font-weight: var(--openbitfun-type-label-lg-font-weight);
-    --_tool-card-content-font-weight: var(--openbitfun-type-body-sm-font-weight);
-    --_tool-card-action-size: var(--openbitfun-space-6);
-    --_flow-chat-tool-card-icon-size: var(--openbitfun-font-size-xl);
-    --_tool-card-transition: var(--openbitfun-motion-duration-fast) var(--openbitfun-motion-easing-standard);
+    --_tool-card-font-family: var(--alex-type-body-sm-font-family);
+    --_tool-card-font-size: var(--alex-type-body-sm-font-size);
+    --_tool-card-title-font-weight: var(--alex-type-label-lg-font-weight);
+    --_tool-card-content-font-weight: var(--alex-type-body-sm-font-weight);
+    --_tool-card-action-size: var(--alex-space-6);
+    --_flow-chat-tool-card-icon-size: var(--alex-font-size-xl);
+    --_tool-card-transition: var(--alex-motion-duration-fast) var(--alex-motion-easing-standard);
     /* One inset owns both ends of a summary row, so trailing metadata (+N -N
        counts, status summaries) keeps the same distance to the card edge as the
        leading icon or action label. Only the revealed action region serves
        itself; a separate row end inset for that gutter pulls metadata to the
        edge as soon as the region is hidden. */
-    --_tool-card-summary-inset: var(--openbitfun-space-3);
+    --_tool-card-summary-inset: var(--alex-space-3);
 
     box-sizing: border-box;
     display: flex;
     inline-size: 100%;
     min-inline-size: 0;
     flex-direction: column;
-    color: var(--openbitfun-color-content-primary);
+    color: var(--alex-color-content-primary);
     font-family: var(--_tool-card-font-family);
     font-size: var(--_tool-card-font-size);
     font-variant-numeric: proportional-nums;
@@ -29,34 +29,34 @@
 
   .prominentRoot {
     overflow: hidden;
-    margin-block: var(--openbitfun-space-1);
-    border: var(--openbitfun-border-width-default) solid var(--openbitfun-color-border-default);
-    border-radius: var(--openbitfun-radius-md);
-    background: var(--openbitfun-color-surface-panel);
+    margin-block: var(--alex-space-1);
+    border: var(--alex-border-width-default) solid var(--alex-color-border-default);
+    border-radius: var(--alex-radius-md);
+    background: var(--alex-color-surface-panel);
     box-shadow: none;
     transition:
       border-color var(--_tool-card-transition),
       background-color var(--_tool-card-transition);
   }
 
-  .prominentRoot[data-openbitfun-tool-card="agent-control"] {
-    --_flow-chat-tool-card-icon-size: var(--openbitfun-space-5);
+  .prominentRoot[data-alex-tool-card="agent-control"] {
+    --_flow-chat-tool-card-icon-size: var(--alex-space-5);
   }
 
   .prominentRoot:is(:hover, :focus-within),
-  .prominentRoot[data-openbitfun-preview-state="hover"],
-  :global([data-openbitfun-preview-state="hover"]) .prominentRoot {
-    border-color: var(--openbitfun-color-border-strong);
+  .prominentRoot[data-alex-preview-state="hover"],
+  :global([data-alex-preview-state="hover"]) .prominentRoot {
+    border-color: var(--alex-color-border-strong);
   }
 
-  .prominentRoot[data-openbitfun-state~="confirmation"] {
-    border-color: var(--openbitfun-color-status-warning-border);
-    background: var(--openbitfun-color-status-warning-surface);
+  .prominentRoot[data-alex-state~="confirmation"] {
+    border-color: var(--alex-color-status-warning-border);
+    background: var(--alex-color-status-warning-surface);
   }
 
-  .prominentRoot[data-openbitfun-status="cancelled"],
-  .prominentRoot[data-openbitfun-status="rejected"] {
-    opacity: var(--openbitfun-opacity-muted);
+  .prominentRoot[data-alex-status="cancelled"],
+  .prominentRoot[data-alex-status="rejected"] {
+    opacity: var(--alex-opacity-muted);
   }
 
   .surface {
@@ -75,7 +75,7 @@
     cursor: default;
   }
 
-  .prominentSurface[data-openbitfun-interactive="true"] {
+  .prominentSurface[data-alex-interactive="true"] {
     cursor: pointer;
   }
 
@@ -88,11 +88,11 @@
   }
 
   .prominentSummary {
-    min-block-size: var(--openbitfun-control-height-sm);
-    gap: var(--openbitfun-space-2);
-    padding-block: var(--openbitfun-space-1);
+    min-block-size: var(--alex-control-height-sm);
+    gap: var(--alex-space-2);
+    padding-block: var(--alex-space-1);
     padding-inline: var(--_tool-card-summary-inset);
-    line-height: var(--openbitfun-type-heading-page-line-height);
+    line-height: var(--alex-type-heading-page-line-height);
   }
 
   .actionLabel,
@@ -123,12 +123,12 @@
     min-inline-size: 0;
     overflow: hidden;
     flex: 0 1 auto;
-    color: var(--openbitfun-color-content-primary);
+    color: var(--alex-color-content-primary);
     font-weight: var(--_tool-card-title-font-weight);
     white-space: nowrap;
   }
 
-  .prominentRoot[data-openbitfun-tool-card="agent-control"] .prominentSummary:has(> .content) .actionLabel {
+  .prominentRoot[data-alex-tool-card="agent-control"] .prominentSummary:has(> .content) .actionLabel {
     /* Share the row with a task summary; a standalone name can use the full row. */
     max-inline-size: min(18rem, 38%);
   }
@@ -141,8 +141,8 @@
        fixed slots alone no longer fit. */
     flex: 1 1 0;
     align-items: center;
-    gap: var(--openbitfun-space-2);
-    color: var(--openbitfun-color-content-secondary);
+    gap: var(--alex-space-2);
+    color: var(--alex-color-content-secondary);
     font-weight: var(--_tool-card-content-font-weight);
     white-space: nowrap;
   }
@@ -167,9 +167,9 @@
     align-items: center;
     min-inline-size: 0;
     overflow: hidden;
-    gap: var(--openbitfun-space-1);
+    gap: var(--alex-space-1);
     margin-inline-start: auto;
-    color: var(--openbitfun-color-content-muted);
+    color: var(--alex-color-content-muted);
     font-weight: var(--_tool-card-content-font-weight);
   }
 
@@ -189,37 +189,37 @@
     display: inline-flex;
     flex: 0 0 auto;
     align-items: center;
-    gap: var(--openbitfun-space-1);
-    color: var(--openbitfun-color-content-muted);
+    gap: var(--alex-space-1);
+    color: var(--alex-color-content-muted);
     font-family: var(--_tool-card-font-family);
     font-size: var(--_tool-card-font-size);
     font-weight: var(--_tool-card-content-font-weight);
     white-space: nowrap;
   }
 
-  .changeSummary [data-openbitfun-change="added"] {
-    color: var(--openbitfun-color-code-change-added);
+  .changeSummary [data-alex-change="added"] {
+    color: var(--alex-color-code-change-added);
   }
 
-  .changeSummary [data-openbitfun-change="removed"] {
-    color: var(--openbitfun-color-code-change-removed);
+  .changeSummary [data-alex-change="removed"] {
+    color: var(--alex-color-code-change-removed);
   }
 
   .actionRegion {
     overflow: hidden;
     min-inline-size: 0;
     max-inline-size: 0;
-    gap: var(--openbitfun-space-1);
+    gap: var(--alex-space-1);
     /* The hidden slot owns no row space: cancel the summary gap it would add, so
        the released space goes to the text. Mirrors the summary gap, and never
        claims the row's end inset, which belongs to trailing metadata. */
-    margin-inline-start: calc(-1 * var(--openbitfun-space-2));
+    margin-inline-start: calc(-1 * var(--alex-space-2));
     margin-inline-end: 0;
     padding-inline-start: 0;
     border-inline-start: 0 solid transparent;
     opacity: 0;
     pointer-events: none;
-    transform: translateX(var(--openbitfun-space-1));
+    transform: translateX(var(--alex-space-1));
     transition:
       max-inline-size var(--_tool-card-transition),
       margin-inline-start var(--_tool-card-transition),
@@ -231,17 +231,17 @@
   }
 
   .prominentRoot:is(:hover, :focus-within) .actionRegion,
-  .prominentRoot[data-openbitfun-preview-state="hover"] .actionRegion,
-  :global([data-openbitfun-preview-state="hover"]) .prominentRoot .actionRegion,
+  .prominentRoot[data-alex-preview-state="hover"] .actionRegion,
+  :global([data-alex-preview-state="hover"]) .prominentRoot .actionRegion,
   .prominentRoot[data-actions-visible="true"] .actionRegion {
     max-inline-size: 24rem;
-    margin-inline-start: var(--openbitfun-space-1);
+    margin-inline-start: var(--alex-space-1);
     /* Revealed actions keep their tight corner gutter, owned by the region
        itself instead of by a smaller row inset. */
-    margin-inline-end: calc(-1 * var(--openbitfun-space-2));
-    padding-inline-start: var(--openbitfun-space-2);
-    border-inline-start-width: var(--openbitfun-border-width-default);
-    border-inline-start-color: var(--openbitfun-color-border-subtle);
+    margin-inline-end: calc(-1 * var(--alex-space-2));
+    padding-inline-start: var(--alex-space-2);
+    border-inline-start-width: var(--alex-border-width-default);
+    border-inline-start-color: var(--alex-color-border-subtle);
     opacity: 1;
     pointer-events: auto;
     transform: translateX(0);
@@ -249,16 +249,16 @@
 
   .affordanceButton {
     display: inline-flex;
-    inline-size: var(--openbitfun-space-6);
-    block-size: var(--openbitfun-space-6);
+    inline-size: var(--alex-space-6);
+    block-size: var(--alex-space-6);
     flex: 0 0 auto;
     align-items: center;
     justify-content: center;
     margin: 0;
     padding: 0;
     border: 0;
-    border-radius: var(--openbitfun-radius-sm);
-    color: var(--openbitfun-color-content-muted);
+    border-radius: var(--alex-radius-sm);
+    color: var(--alex-color-content-muted);
     background: transparent;
     cursor: pointer;
     transition:
@@ -266,20 +266,20 @@
       color var(--_tool-card-transition);
   }
 
-  .affordanceButton:is(:hover, [data-openbitfun-preview-state="hover"]) {
-    color: var(--openbitfun-color-content-primary);
-    background: var(--openbitfun-color-action-neutral-surface);
+  .affordanceButton:is(:hover, [data-alex-preview-state="hover"]) {
+    color: var(--alex-color-content-primary);
+    background: var(--alex-color-action-neutral-surface);
   }
 
   .affordanceButton:focus-visible {
-    outline: var(--openbitfun-focus-width) solid var(--openbitfun-color-focus-ring);
-    outline-offset: var(--openbitfun-focus-offset);
+    outline: var(--alex-focus-width) solid var(--alex-color-focus-ring);
+    outline-offset: var(--alex-focus-offset);
   }
 
   .affordanceButton > :where(svg, img) {
     display: block;
-    inline-size: var(--openbitfun-font-size-base);
-    block-size: var(--openbitfun-font-size-base);
+    inline-size: var(--alex-font-size-base);
+    block-size: var(--alex-font-size-base);
   }
 
   .affordanceButton[aria-expanded="true"] :global(svg) {
@@ -291,7 +291,7 @@
   }
 
   .toolCardActions {
-    gap: var(--openbitfun-space-1);
+    gap: var(--alex-space-1);
   }
 
   .toolCardActions:empty {
@@ -305,9 +305,9 @@
   }
 
   .trailingActions[data-divider="true"] {
-    margin-inline-start: var(--openbitfun-space-1);
-    padding-inline-start: var(--openbitfun-space-2);
-    border-inline-start: var(--openbitfun-border-width-default) solid var(--openbitfun-color-border-subtle);
+    margin-inline-start: var(--alex-space-1);
+    padding-inline-start: var(--alex-space-2);
+    border-inline-start: var(--alex-border-width-default) solid var(--alex-color-border-subtle);
   }
 
   .iconSlot {
@@ -320,12 +320,12 @@
     min-block-size: var(--_flow-chat-tool-card-icon-size);
     align-items: center;
     justify-content: center;
-    color: var(--openbitfun-color-content-secondary);
+    color: var(--alex-color-content-secondary);
   }
 
   .iconSlot[data-divider="true"] {
-    margin-inline-end: var(--openbitfun-space-1);
-    border-inline-end: var(--openbitfun-border-width-default) solid var(--openbitfun-color-border-subtle);
+    margin-inline-end: var(--alex-space-1);
+    border-inline-end: var(--alex-border-width-default) solid var(--alex-color-border-subtle);
   }
 
   .iconMarks {
@@ -359,7 +359,7 @@
   }
 
   .inlineAffordance {
-    color: var(--openbitfun-color-content-secondary);
+    color: var(--alex-color-content-secondary);
     opacity: 0;
   }
 
@@ -367,15 +367,15 @@
     transform: rotate(180deg);
   }
 
-  .ambientRoot:is(:hover, :focus-within) .iconSlot[data-openbitfun-expandable="true"] .mainIcon,
-  .ambientRoot[data-openbitfun-preview-state="hover"] .iconSlot[data-openbitfun-expandable="true"] .mainIcon,
-  :global([data-openbitfun-preview-state="hover"]) .ambientRoot .iconSlot[data-openbitfun-expandable="true"] .mainIcon {
+  .ambientRoot:is(:hover, :focus-within) .iconSlot[data-alex-expandable="true"] .mainIcon,
+  .ambientRoot[data-alex-preview-state="hover"] .iconSlot[data-alex-expandable="true"] .mainIcon,
+  :global([data-alex-preview-state="hover"]) .ambientRoot .iconSlot[data-alex-expandable="true"] .mainIcon {
     opacity: 0;
   }
 
-  .ambientRoot:is(:hover, :focus-within) .iconSlot[data-openbitfun-expandable="true"] .inlineAffordance,
-  .ambientRoot[data-openbitfun-preview-state="hover"] .iconSlot[data-openbitfun-expandable="true"] .inlineAffordance,
-  :global([data-openbitfun-preview-state="hover"]) .ambientRoot .iconSlot[data-openbitfun-expandable="true"] .inlineAffordance {
+  .ambientRoot:is(:hover, :focus-within) .iconSlot[data-alex-expandable="true"] .inlineAffordance,
+  .ambientRoot[data-alex-preview-state="hover"] .iconSlot[data-alex-expandable="true"] .inlineAffordance,
+  :global([data-alex-preview-state="hover"]) .ambientRoot .iconSlot[data-alex-expandable="true"] .inlineAffordance {
     opacity: 1;
   }
 
@@ -386,37 +386,37 @@
     margin: 0;
     padding: 0;
     border: 0;
-    border-radius: var(--openbitfun-radius-sm);
+    border-radius: var(--alex-radius-sm);
     outline: 0;
     background: transparent;
     cursor: pointer;
   }
 
   .iconAffordanceHit:focus-visible {
-    outline: var(--openbitfun-focus-width) solid var(--openbitfun-color-focus-ring);
-    outline-offset: var(--openbitfun-focus-offset);
+    outline: var(--alex-focus-width) solid var(--alex-color-focus-ring);
+    outline-offset: var(--alex-focus-offset);
   }
 
   .statusIcon {
-    inline-size: var(--openbitfun-font-size-lg);
-    block-size: var(--openbitfun-font-size-lg);
+    inline-size: var(--alex-font-size-lg);
+    block-size: var(--alex-font-size-lg);
     justify-content: center;
-    color: var(--openbitfun-color-content-muted);
+    color: var(--alex-color-content-muted);
   }
 
   .statusIcon[data-divider="true"] {
     box-sizing: content-box;
-    margin-inline-start: var(--openbitfun-space-1);
-    padding-inline-start: var(--openbitfun-space-2);
-    border-inline-start: var(--openbitfun-border-width-default) solid var(--openbitfun-color-border-subtle);
+    margin-inline-start: var(--alex-space-1);
+    padding-inline-start: var(--alex-space-2);
+    border-inline-start: var(--alex-border-width-default) solid var(--alex-color-border-subtle);
   }
 
-  .prominentRoot[data-openbitfun-status="completed"] .statusIcon {
-    color: var(--openbitfun-color-status-success-emphasis);
+  .prominentRoot[data-alex-status="completed"] .statusIcon {
+    color: var(--alex-color-status-success-emphasis);
   }
 
-  .prominentRoot[data-openbitfun-status="error"] .statusIcon {
-    color: var(--openbitfun-color-status-danger-emphasis);
+  .prominentRoot[data-alex-status="error"] .statusIcon {
+    color: var(--alex-color-status-danger-emphasis);
   }
 
   .collapse {
@@ -425,8 +425,8 @@
     opacity: 0;
     visibility: hidden;
     transition:
-      grid-template-rows var(--_tool-card-collapse-duration) var(--openbitfun-motion-easing-standard),
-      opacity var(--_tool-card-collapse-duration) var(--openbitfun-motion-easing-standard),
+      grid-template-rows var(--_tool-card-collapse-duration) var(--alex-motion-easing-standard),
+      opacity var(--_tool-card-collapse-duration) var(--alex-motion-easing-standard),
       visibility 0s linear var(--_tool-card-collapse-duration);
   }
 
@@ -449,31 +449,31 @@
   .expanded,
   .error {
     box-sizing: border-box;
-    padding: var(--openbitfun-space-3);
-    border-block-start: var(--openbitfun-border-width-default) solid var(--openbitfun-color-border-subtle);
-    color: var(--openbitfun-color-content-secondary);
-    font-size: var(--openbitfun-type-body-sm-font-size);
-    line-height: var(--openbitfun-type-body-md-line-height);
+    padding: var(--alex-space-3);
+    border-block-start: var(--alex-border-width-default) solid var(--alex-color-border-subtle);
+    color: var(--alex-color-content-secondary);
+    font-size: var(--alex-type-body-sm-font-size);
+    line-height: var(--alex-type-body-md-line-height);
   }
 
   .error {
-    color: var(--openbitfun-color-status-danger-content);
+    color: var(--alex-color-status-danger-content);
   }
 
   .ambientRoot {
     position: relative;
     gap: 0;
-    border-radius: var(--openbitfun-radius-md);
-    color: var(--openbitfun-color-content-muted);
+    border-radius: var(--alex-radius-md);
+    color: var(--alex-color-content-muted);
     background-color: transparent;
-    line-height: var(--openbitfun-type-body-md-line-height);
+    line-height: var(--alex-type-body-md-line-height);
     transition: background-color var(--_tool-card-transition);
   }
 
   .ambientRoot::after {
     position: absolute;
     inset: 0;
-    border: var(--openbitfun-border-width-default) solid var(--openbitfun-color-border-default);
+    border: var(--alex-border-width-default) solid var(--alex-color-border-default);
     border-radius: inherit;
     content: "";
     opacity: 0;
@@ -481,22 +481,22 @@
     transition: opacity var(--_tool-card-transition);
   }
 
-  .ambientRoot[data-openbitfun-direct-action="true"] {
-    border-radius: var(--openbitfun-radius-sm);
+  .ambientRoot[data-alex-direct-action="true"] {
+    border-radius: var(--alex-radius-sm);
     cursor: pointer;
   }
 
-  .ambientRoot[data-openbitfun-direct-action="true"]:focus-visible {
-    outline: var(--openbitfun-focus-width) solid var(--openbitfun-color-focus-ring);
-    outline-offset: var(--openbitfun-focus-offset);
+  .ambientRoot[data-alex-direct-action="true"]:focus-visible {
+    outline: var(--alex-focus-width) solid var(--alex-color-focus-ring);
+    outline-offset: var(--alex-focus-offset);
   }
 
   .ambientSurface {
     display: flex;
-    min-block-size: max(1lh, var(--openbitfun-control-tool-card-ambient-row-min-block-size));
+    min-block-size: max(1lh, var(--alex-control-tool-card-ambient-row-min-block-size));
     align-items: center;
-    gap: var(--openbitfun-control-flow-chat-row-icon-gap);
-    padding-inline: 0 var(--openbitfun-space-2);
+    gap: var(--alex-control-flow-chat-row-icon-gap);
+    padding-inline: 0 var(--alex-space-2);
     border: 0;
     background: transparent;
     box-shadow: none;
@@ -506,19 +506,19 @@
       opacity var(--_tool-card-transition);
   }
 
-  .ambientSurface[data-openbitfun-interactive="true"] {
+  .ambientSurface[data-alex-interactive="true"] {
     cursor: pointer;
   }
 
   .ambientSurface:is(:hover, :focus-within),
-  .ambientRoot[data-openbitfun-preview-state="hover"] .ambientSurface,
-  :global([data-openbitfun-preview-state="hover"]) .ambientRoot .ambientSurface {
-    color: var(--openbitfun-color-content-primary);
+  .ambientRoot[data-alex-preview-state="hover"] .ambientSurface,
+  :global([data-alex-preview-state="hover"]) .ambientRoot .ambientSurface {
+    color: var(--alex-color-content-primary);
   }
 
   .ambientSurface .iconSlot {
-    --_tool-card-action-size: var(--openbitfun-control-flow-chat-row-icon-size);
-    --_flow-chat-tool-card-icon-size: var(--openbitfun-control-flow-chat-row-icon-size);
+    --_tool-card-action-size: var(--alex-control-flow-chat-row-icon-size);
+    --_flow-chat-tool-card-icon-size: var(--alex-control-flow-chat-row-icon-size);
   }
 
   .ambientAction {
@@ -546,7 +546,7 @@
 
   .ambientExpandedShell {
     overflow: hidden;
-    background-color: var(--openbitfun-color-surface-panel);
+    background-color: var(--alex-color-surface-panel);
     box-shadow: none;
   }
 
@@ -557,40 +557,40 @@
   .ambientExpandedShell .ambientSurface {
     /* Once enclosed, use the same header geometry as prominent cards.
        Collapsed traces retain their compact, flush transcript alignment. */
-    min-block-size: var(--openbitfun-control-height-sm);
-    gap: var(--openbitfun-space-2);
-    padding-block: var(--openbitfun-space-1);
+    min-block-size: var(--alex-control-height-sm);
+    gap: var(--alex-space-2);
+    padding-block: var(--alex-space-1);
     padding-inline: var(--_tool-card-summary-inset);
-    line-height: var(--openbitfun-type-heading-page-line-height);
-    color: var(--openbitfun-color-content-primary);
+    line-height: var(--alex-type-heading-page-line-height);
+    color: var(--alex-color-content-primary);
   }
 
   .ambientExpandedShell .ambientSurface .iconSlot {
-    --_tool-card-action-size: var(--openbitfun-space-6);
-    --_flow-chat-tool-card-icon-size: var(--openbitfun-font-size-xl);
+    --_tool-card-action-size: var(--alex-space-6);
+    --_flow-chat-tool-card-icon-size: var(--alex-font-size-xl);
   }
 
-  .ambientRoot[data-openbitfun-state~="loading"] .ambientAction,
-  .ambientRoot[data-openbitfun-state~="loading"] .ambientContent,
-  .prominentRoot[data-openbitfun-state~="loading"] .actionLabel,
-  .prominentRoot[data-openbitfun-state~="loading"] .content {
-    animation: openbitfun-flow-chat-tool-loading var(--openbitfun-motion-duration-loop) var(--openbitfun-motion-easing-standard) infinite alternate;
+  .ambientRoot[data-alex-state~="loading"] .ambientAction,
+  .ambientRoot[data-alex-state~="loading"] .ambientContent,
+  .prominentRoot[data-alex-state~="loading"] .actionLabel,
+  .prominentRoot[data-alex-state~="loading"] .content {
+    animation: alex-flow-chat-tool-loading var(--alex-motion-duration-loop) var(--alex-motion-easing-standard) infinite alternate;
   }
 
-  @keyframes openbitfun-flow-chat-tool-loading {
+  @keyframes alex-flow-chat-tool-loading {
     from {
       opacity: 1;
     }
 
     to {
-      opacity: var(--openbitfun-opacity-hover);
+      opacity: var(--alex-opacity-hover);
     }
   }
 
-  .ambientRoot[data-openbitfun-status="error"] .ambientAction,
-  .ambientRoot[data-openbitfun-status="error"] .ambientContent,
-  .ambientRoot[data-openbitfun-status="error"] .ambientExtra {
-    color: var(--openbitfun-color-status-danger-content);
+  .ambientRoot[data-alex-status="error"] .ambientAction,
+  .ambientRoot[data-alex-status="error"] .ambientContent,
+  .ambientRoot[data-alex-status="error"] .ambientExtra {
+    color: var(--alex-color-status-danger-content);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -606,10 +606,10 @@
       transition: none;
     }
 
-    .ambientRoot[data-openbitfun-state~="loading"] .ambientAction,
-    .ambientRoot[data-openbitfun-state~="loading"] .ambientContent,
-    .prominentRoot[data-openbitfun-state~="loading"] .actionLabel,
-    .prominentRoot[data-openbitfun-state~="loading"] .content {
+    .ambientRoot[data-alex-state~="loading"] .ambientAction,
+    .ambientRoot[data-alex-state~="loading"] .ambientContent,
+    .prominentRoot[data-alex-state~="loading"] .actionLabel,
+    .prominentRoot[data-alex-state~="loading"] .content {
       animation: none;
     }
   }
@@ -627,7 +627,7 @@
       outline-color: Highlight;
     }
 
-    .ambientRoot[data-openbitfun-direct-action="true"]:focus-visible {
+    .ambientRoot[data-alex-direct-action="true"]:focus-visible {
       outline-color: Highlight;
     }
 

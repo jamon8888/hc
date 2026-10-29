@@ -10,14 +10,14 @@
 //!
 //! Run with:
 //! ```text
-//! BASEMIND_TEST_ROOT=/path/to/git/workspace cargo test -p openbitfun-basemind-integration --features basemind -- --ignored
+//! BASEMIND_TEST_ROOT=/path/to/git/workspace cargo test -p alex-basemind-integration --features basemind -- --ignored
 //! ```
 
 #![cfg(feature = "basemind")]
 
-use openbitfun_basemind_integration::daemon;
-use openbitfun_basemind_integration::ipc::BasemindClient;
-use openbitfun_basemind_integration::redaction::RedactionStore;
+use alex_basemind_integration::daemon;
+use alex_basemind_integration::ipc::BasemindClient;
+use alex_basemind_integration::redaction::RedactionStore;
 
 /// The workspace the daemon should host. The daemon refuses any root that is
 /// neither a git repository nor a directory carrying a basemind config.
@@ -128,7 +128,7 @@ async fn document_redaction_round_trips_through_the_product_store() {
         .await
         .expect("redact_text with a file_path must succeed");
 
-    let temp = std::env::temp_dir().join("openbitfun-basemind-redaction-test");
+    let temp = std::env::temp_dir().join("alex-basemind-redaction-test");
     let _ = std::fs::remove_dir_all(&temp);
     std::fs::create_dir_all(&temp).expect("create temp dir");
     let store = RedactionStore::with_passphrase(

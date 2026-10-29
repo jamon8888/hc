@@ -28,7 +28,7 @@ internal fun resolveAppLocale(language: String?): AppLocale =
     }
 
 internal object AppLocaleController {
-    private const val PREFERENCES = "openbitfun_app_settings"
+    private const val PREFERENCES = "alex_app_settings"
     private const val LANGUAGE_KEY = "language"
 
     fun current(configuration: Configuration): AppLocale {

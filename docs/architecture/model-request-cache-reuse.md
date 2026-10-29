@@ -41,7 +41,7 @@ The cache model lives in
 
 Core still exposes `src/crates/assembly/core/src/agentic/session/prompt_cache.rs`, but
 that file is now a compatibility facade that re-exports the owner types from
-`openbitfun-agent-runtime`.
+`alex-agent-runtime`.
 
 Key details:
 

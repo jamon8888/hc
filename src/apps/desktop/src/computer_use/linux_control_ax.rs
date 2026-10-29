@@ -3,10 +3,10 @@ use atspi::{
     connection::P2P, proxy::proxy_ext::ProxyExt, AccessibilityConnection, CoordType,
     ObjectRefOwned, State,
 };
-use openbitfun_core::agentic::tools::computer_use_host::{
+use alex_core::agentic::tools::computer_use_host::{
     AppInfo, AppSelector, AppStateSnapshot, AxNode,
 };
-use openbitfun_core::util::errors::{OpenBitFunError, OpenBitFunResult};
+use alex_core::util::errors::{AlexError, AlexResult};
 use std::{
     collections::{HashMap, HashSet, VecDeque},
     sync::{Mutex, OnceLock},
@@ -25,13 +25,13 @@ static CACHE: OnceLock<Mutex<HashMap<i32, Vec<CachedNode>>>> = OnceLock::new();
 fn cache() -> &'static Mutex<HashMap<i32, Vec<CachedNode>>> {
     CACHE.get_or_init(|| Mutex::new(HashMap::new()))
 }
-fn error(message: impl std::fmt::Display) -> OpenBitFunError {
-    OpenBitFunError::tool(format!("[AT_SPI] {message}"))
+fn error(message: impl std::fmt::Display) -> AlexError {
+    AlexError::tool(format!("[AT_SPI] {message}"))
 }
 
 async fn applications(
     connection: &AccessibilityConnection,
-) -> OpenBitFunResult<Vec<(AppInfo, ObjectRefOwned)>> {
+) -> AlexResult<Vec<(AppInfo, ObjectRefOwned)>> {
     let root = connection
         .root_accessible_on_registry()
         .await
@@ -68,7 +68,7 @@ async fn applications(
     Ok(result)
 }
 
-pub(super) async fn list_apps() -> OpenBitFunResult<Vec<AppInfo>> {
+pub(super) async fn list_apps() -> AlexResult<Vec<AppInfo>> {
     let connection = AccessibilityConnection::new().await.map_err(error)?;
     Ok(applications(&connection)
         .await?
@@ -77,19 +77,19 @@ pub(super) async fn list_apps() -> OpenBitFunResult<Vec<AppInfo>> {
         .collect())
 }
 
-fn bound_selector(target: Option<&str>) -> OpenBitFunResult<AppSelector> {
+fn bound_selector(target: Option<&str>) -> AlexResult<AppSelector> {
     let pid = target.and_then(|target| target.strip_prefix("atspi:"))
         .and_then(|pid| pid.parse::<i32>().ok()).filter(|pid| *pid > 0)
         .ok_or_else(|| error("[TARGET_REQUIRED] Select an application with get_app_state and an explicit app PID or name before AT-SPI observation. Portal pixel selection does not identify an application."))?;
     Ok(AppSelector::by_pid(pid))
 }
 
-pub(super) fn bound_app_selector() -> OpenBitFunResult<AppSelector> {
+pub(super) fn bound_app_selector() -> AlexResult<AppSelector> {
     bound_selector(super::control_session::snapshot().target.as_deref())
 }
 
 /// Resolve and bind identity without replacing the caller's cached node indices.
-pub(super) async fn bind_app_selector(selector: &AppSelector) -> OpenBitFunResult<()> {
+pub(super) async fn bind_app_selector(selector: &AppSelector) -> AlexResult<()> {
     let connection = AccessibilityConnection::new().await.map_err(error)?;
     let (app, _) = resolve(&connection, selector).await?;
     let pid = app
@@ -101,7 +101,7 @@ pub(super) async fn bind_app_selector(selector: &AppSelector) -> OpenBitFunResul
 /// Locate starts at exactly the bound application's root, never the desktop registry.
 pub(super) async fn bound_application_root(
     connection: &AccessibilityConnection,
-) -> OpenBitFunResult<ObjectRefOwned> {
+) -> AlexResult<ObjectRefOwned> {
     let selector = bound_app_selector()?;
     let (_, root) = resolve(connection, &selector).await?;
     Ok(root)
@@ -110,7 +110,7 @@ pub(super) async fn bound_application_root(
 async fn resolve(
     connection: &AccessibilityConnection,
     selector: &AppSelector,
-) -> OpenBitFunResult<(AppInfo, ObjectRefOwned)> {
+) -> AlexResult<(AppInfo, ObjectRefOwned)> {
     let bound;
     let selector = if selector.is_empty() {
         bound = bound_app_selector()?;
@@ -147,7 +147,7 @@ pub(super) async fn snapshot(
     selector: AppSelector,
     max_depth: u32,
     focus_only: bool,
-) -> OpenBitFunResult<AppStateSnapshot> {
+) -> AlexResult<AppStateSnapshot> {
     let selector = if selector.is_empty() {
         bound_app_selector()?
     } else {
@@ -329,7 +329,7 @@ pub(super) async fn snapshot(
 async fn cached_target(
     selector: &AppSelector,
     index: u32,
-) -> OpenBitFunResult<(AccessibilityConnection, CachedNode)> {
+) -> AlexResult<(AccessibilityConnection, CachedNode)> {
     let connection = AccessibilityConnection::new().await.map_err(error)?;
     let (app, root) = resolve(&connection, selector).await?;
     let pid = app
@@ -370,7 +370,7 @@ async fn cached_target(
     Ok((connection, target))
 }
 
-pub(super) async fn press(selector: &AppSelector, index: u32) -> OpenBitFunResult<()> {
+pub(super) async fn press(selector: &AppSelector, index: u32) -> AlexResult<()> {
     let (connection, target) = cached_target(selector, index).await?;
     let accessible = connection
         .object_as_accessible(&target.object)
@@ -406,7 +406,7 @@ pub(super) async fn insert_text(
     selector: &AppSelector,
     index: u32,
     text: &str,
-) -> OpenBitFunResult<()> {
+) -> AlexResult<()> {
     let (connection, target) = cached_target(selector, index).await?;
     let accessible = connection
         .object_as_accessible(&target.object)
@@ -497,8 +497,8 @@ mod native_tests {
     #[tokio::test]
     #[ignore = "requires the dedicated GTK fixture and a live AT-SPI bus"]
     async fn atspi_semantic_fixture() {
-        use openbitfun_agent_tools::computer_use_control::ControlMode;
-        let pid: i32 = std::env::var("OPENBITFUN_ATSPI_FIXTURE_PID")
+        use alex_agent_tools::computer_use_control::ControlMode;
+        let pid: i32 = std::env::var("ALEX_ATSPI_FIXTURE_PID")
             .expect("run scripts/test-linux-computer-use-atspi.sh")
             .parse()
             .unwrap();
@@ -507,7 +507,7 @@ mod native_tests {
             .unwrap();
         let mut lease =
             super::super::control_session::acquire("native-atspi-fixture", "app_click").unwrap();
-        let query = openbitfun_core::agentic::tools::computer_use_host::UiElementLocateQuery {
+        let query = alex_core::agentic::tools::computer_use_host::UiElementLocateQuery {
             text_contains: Some("Activate fixture".into()),
             ..Default::default()
         };

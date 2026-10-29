@@ -1,8 +1,8 @@
-use super::{OpenBitFunError, OpenBitFunResult, SpeechService};
+use super::{AlexError, AlexResult, SpeechService};
 use base64::engine::general_purpose::STANDARD as BASE64_STANDARD;
 use base64::Engine;
 use futures_util::{SinkExt, StreamExt};
-use openbitfun_core_types::speech::{
+use alex_core_types::speech::{
     SpeechAppendRealtimeAudioRequest, SpeechRealtimeEvent, SpeechRealtimeEventKind,
     SpeechRealtimeFunctionCall, SpeechRealtimeSession, SpeechRealtimeSessionRequest,
     SpeechRealtimeSpeakRequest, SpeechRealtimeToolResultRequest,
@@ -33,11 +33,11 @@ const MAX_TOOL_RESULT_BYTES: usize = 16 * 1024;
 const MAX_SPOKEN_PROGRESS_CHARS: usize = 600;
 const MAX_CLIENT_CONTEXT_CHARS: usize = 16 * 1024;
 
-const OPENBITFUN_VOICE_INSTRUCTIONS: &str = r#"You are the voice interface of the OpenBitFun conversation identified by voice_call_target. Reply naturally and concisely in the user's language. Text and voice share that conversation's persistent public history. The call stays bound to this conversation even when the user switches tabs. kind=control is the product-control Agent; kind=session uses the existing session's Agent; kind=miniapp uses that MiniApp's domain workflow.
+const ALEX_VOICE_INSTRUCTIONS: &str = r#"You are the voice interface of the Alex conversation identified by voice_call_target. Reply naturally and concisely in the user's language. Text and voice share that conversation's persistent public history. The call stays bound to this conversation even when the user switches tabs. kind=control is the product-control Agent; kind=session uses the existing session's Agent; kind=miniapp uses that MiniApp's domain workflow.
 
-Use get_openbitfun_client_context before answering references to earlier conversation, new text messages, client state, open workspaces, visible sessions or running tasks. Its history is a bounded snapshot of public user and assistant text, not the complete history; when history_truncated is true, ask the bound Agent to inspect earlier context instead of guessing. Never guess a resource id. Use switch_openbitfun_workspace for navigation-only requests. For work or product actions, call run_openbitfun_task. With kind=control or kind=session this continues the bound Agent using the user's final transcript and its full canonical context; workspace_id does not retarget that conversation. With kind=miniapp, omit workspace_id for MiniApp work. An explicit workspace_id overrides only MiniApp routing and starts a normal workspace task. Without a bound target, select the intended opened workspace. Set activate_workspace=true for a requested foreground workspace task and false for explicit background work. Keep acknowledgements brief; do not invent results.
+Use get_alex_client_context before answering references to earlier conversation, new text messages, client state, open workspaces, visible sessions or running tasks. Its history is a bounded snapshot of public user and assistant text, not the complete history; when history_truncated is true, ask the bound Agent to inspect earlier context instead of guessing. Never guess a resource id. Use switch_alex_workspace for navigation-only requests. For work or product actions, call run_alex_task. With kind=control or kind=session this continues the bound Agent using the user's final transcript and its full canonical context; workspace_id does not retarget that conversation. With kind=miniapp, omit workspace_id for MiniApp work. An explicit workspace_id overrides only MiniApp routing and starts a normal workspace task. Without a bound target, select the intended opened workspace. Set activate_workspace=true for a requested foreground workspace task and false for explicit background work. Keep acknowledgements brief; do not invent results.
 
-If the user asks to stop, cancel, abort, or interrupt the OpenBitFun task currently running through this client voice assistant, call stop_openbitfun_task immediately. A stop request is a control operation, not a new task: never pass it to run_openbitfun_task and never claim the task stopped before the stop_openbitfun_task result confirms it. Do not claim that work is complete before the tool result arrives. OpenBitFun will speak brief public progress summaries while the Agent task is running; do not expose private reasoning, raw logs, or tool payloads. OpenBitFun also speaks a concise final outcome itself. When a task tool result contains outcome_spoken=true, do not repeat that outcome; wait for the user's next request. If outcome_spoken is false or absent, summarize the outcome clearly and mention any user action still required. Never invent client state or task results."#;
+If the user asks to stop, cancel, abort, or interrupt the Alex task currently running through this client voice assistant, call stop_alex_task immediately. A stop request is a control operation, not a new task: never pass it to run_alex_task and never claim the task stopped before the stop_alex_task result confirms it. Do not claim that work is complete before the tool result arrives. Alex will speak brief public progress summaries while the Agent task is running; do not expose private reasoning, raw logs, or tool payloads. Alex also speaks a concise final outcome itself. When a task tool result contains outcome_spoken=true, do not repeat that outcome; wait for the user's next request. If outcome_spoken is false or absent, summarize the outcome clearly and mention any user action still required. Never invent client state or task results."#;
 
 #[derive(Debug, Clone)]
 pub struct VolcengineRealtimeSpeechConfig {
@@ -71,7 +71,7 @@ impl SpeechService {
         &self,
         config: VolcengineRealtimeSpeechConfig,
         on_event: F,
-    ) -> OpenBitFunResult<SpeechRealtimeSession>
+    ) -> AlexResult<SpeechRealtimeSession>
     where
         F: Fn(SpeechRealtimeEvent) + Send + Sync + 'static,
     {
@@ -117,11 +117,11 @@ impl SpeechService {
             }),
             Ok(Ok(Err(message))) => {
                 self.realtime.sessions.lock().await.remove(&session_id);
-                Err(OpenBitFunError::service(message))
+                Err(AlexError::service(message))
             }
             Ok(Err(_)) => {
                 self.realtime.sessions.lock().await.remove(&session_id);
-                Err(OpenBitFunError::service(
+                Err(AlexError::service(
                     "Realtime speech connection ended before it became ready",
                 ))
             }
@@ -129,7 +129,7 @@ impl SpeechService {
                 if let Some(handle) = self.realtime.sessions.lock().await.remove(&session_id) {
                     handle.cancel.cancel();
                 }
-                Err(OpenBitFunError::service(
+                Err(AlexError::service(
                     "Timed out connecting to the realtime speech service",
                 ))
             }
@@ -139,19 +139,19 @@ impl SpeechService {
     pub async fn append_realtime_audio(
         &self,
         request: SpeechAppendRealtimeAudioRequest,
-    ) -> OpenBitFunResult<()> {
+    ) -> AlexResult<()> {
         let audio = BASE64_STANDARD
             .decode(request.pcm16_base64.as_bytes())
             .map_err(|error| {
-                OpenBitFunError::validation(format!("Invalid base64 realtime audio chunk: {error}"))
+                AlexError::validation(format!("Invalid base64 realtime audio chunk: {error}"))
             })?;
         if audio.is_empty() || audio.len() % 2 != 0 {
-            return Err(OpenBitFunError::validation(
+            return Err(AlexError::validation(
                 "Realtime PCM16 audio must contain complete samples",
             ));
         }
         if audio.len() > MAX_AUDIO_CHUNK_BYTES {
-            return Err(OpenBitFunError::validation(format!(
+            return Err(AlexError::validation(format!(
                 "Realtime audio chunk exceeds {MAX_AUDIO_CHUNK_BYTES} bytes"
             )));
         }
@@ -169,7 +169,7 @@ impl SpeechService {
     pub async fn commit_realtime_audio(
         &self,
         request: SpeechRealtimeSessionRequest,
-    ) -> OpenBitFunResult<()> {
+    ) -> AlexResult<()> {
         self.send_realtime_command(
             &request.session_id,
             json!({
@@ -183,15 +183,15 @@ impl SpeechService {
     pub async fn send_realtime_tool_result(
         &self,
         request: SpeechRealtimeToolResultRequest,
-    ) -> OpenBitFunResult<()> {
+    ) -> AlexResult<()> {
         let call_id = request.call_id.trim();
         if call_id.is_empty() {
-            return Err(OpenBitFunError::validation(
+            return Err(AlexError::validation(
                 "Function call id cannot be empty",
             ));
         }
         if request.result.len() > MAX_TOOL_RESULT_BYTES {
-            return Err(OpenBitFunError::validation(format!(
+            return Err(AlexError::validation(format!(
                 "Realtime function result exceeds {MAX_TOOL_RESULT_BYTES} bytes"
             )));
         }
@@ -205,15 +205,15 @@ impl SpeechService {
     pub async fn speak_realtime_text(
         &self,
         request: SpeechRealtimeSpeakRequest,
-    ) -> OpenBitFunResult<()> {
+    ) -> AlexResult<()> {
         let text = request.text.trim();
         if text.is_empty() {
-            return Err(OpenBitFunError::validation(
+            return Err(AlexError::validation(
                 "Spoken progress text cannot be empty",
             ));
         }
         if text.chars().count() > MAX_SPOKEN_PROGRESS_CHARS {
-            return Err(OpenBitFunError::validation(format!(
+            return Err(AlexError::validation(format!(
                 "Spoken progress text exceeds {MAX_SPOKEN_PROGRESS_CHARS} characters"
             )));
         }
@@ -224,7 +224,7 @@ impl SpeechService {
     pub async fn cancel_realtime_response(
         &self,
         request: SpeechRealtimeSessionRequest,
-    ) -> OpenBitFunResult<()> {
+    ) -> AlexResult<()> {
         self.send_realtime_command(
             &request.session_id,
             json!({
@@ -238,7 +238,7 @@ impl SpeechService {
     pub async fn close_realtime_session(
         &self,
         request: SpeechRealtimeSessionRequest,
-    ) -> OpenBitFunResult<()> {
+    ) -> AlexResult<()> {
         let handle = self
             .realtime
             .sessions
@@ -246,20 +246,20 @@ impl SpeechService {
             .await
             .remove(&request.session_id)
             .ok_or_else(|| {
-                OpenBitFunError::NotFound("Realtime speech session not found".to_string())
+                AlexError::NotFound("Realtime speech session not found".to_string())
             })?;
         handle
             .sender
             .send(RealtimeSpeechCommand::Close)
             .await
-            .map_err(|_| OpenBitFunError::service("Realtime speech session is already closed"))
+            .map_err(|_| AlexError::service("Realtime speech session is already closed"))
     }
 
     async fn send_realtime_command(
         &self,
         session_id: &str,
         payload: Value,
-    ) -> OpenBitFunResult<()> {
+    ) -> AlexResult<()> {
         let handle = self
             .realtime
             .sessions
@@ -268,13 +268,13 @@ impl SpeechService {
             .get(session_id)
             .cloned()
             .ok_or_else(|| {
-                OpenBitFunError::NotFound("Realtime speech session not found".to_string())
+                AlexError::NotFound("Realtime speech session not found".to_string())
             })?;
         handle
             .sender
             .send(RealtimeSpeechCommand::Send(payload))
             .await
-            .map_err(|_| OpenBitFunError::service("Realtime speech session is already closed"))
+            .map_err(|_| AlexError::service("Realtime speech session is already closed"))
     }
 }
 
@@ -302,21 +302,21 @@ fn spoken_text_payload(text: &str) -> Value {
 
 fn validate_config(
     mut config: VolcengineRealtimeSpeechConfig,
-) -> OpenBitFunResult<VolcengineRealtimeSpeechConfig> {
+) -> AlexResult<VolcengineRealtimeSpeechConfig> {
     config.api_key = config.api_key.trim().to_string();
     config.voice = config.voice.trim().to_string();
     if config.api_key.is_empty() {
-        return Err(OpenBitFunError::validation(
+        return Err(AlexError::validation(
             "Volcengine realtime speech API key is not configured",
         ));
     }
     if config.voice.is_empty() {
-        return Err(OpenBitFunError::validation(
+        return Err(AlexError::validation(
             "Volcengine realtime speech voice is not configured",
         ));
     }
     if !(-50..=100).contains(&config.speed) || !(-50..=100).contains(&config.loudness) {
-        return Err(OpenBitFunError::validation(
+        return Err(AlexError::validation(
             "Realtime speech speed and loudness must be between -50 and 100",
         ));
     }
@@ -347,7 +347,7 @@ async fn run_realtime_actor(
     ready_sender: oneshot::Sender<Result<(), String>>,
     on_event: RealtimeEventHandler,
 ) {
-    openbitfun_services_core::tls_provider::ensure_ring_crypto_provider();
+    alex_services_core::tls_provider::ensure_ring_crypto_provider();
     let mut request = match VOLCENGINE_REALTIME_URL.into_client_request() {
         Ok(request) => request,
         Err(error) => {
@@ -583,9 +583,9 @@ fn session_create_payload(
 ) -> Value {
     let instructions = match config.client_context.as_deref() {
         Some(context) => format!(
-            "{OPENBITFUN_VOICE_INSTRUCTIONS}\n\nCLIENT CONTEXT SNAPSHOT AT CALL START (JSON; refresh with get_openbitfun_client_context before relying on changing state):\n{context}"
+            "{ALEX_VOICE_INSTRUCTIONS}\n\nCLIENT CONTEXT SNAPSHOT AT CALL START (JSON; refresh with get_alex_client_context before relying on changing state):\n{context}"
         ),
-        None => OPENBITFUN_VOICE_INSTRUCTIONS.to_string(),
+        None => ALEX_VOICE_INSTRUCTIONS.to_string(),
     };
     json!({
         "type": "session.create",
@@ -607,8 +607,8 @@ fn session_create_payload(
             //
             // This is the provider-hosted Voice model's client control-plane
             // tool list. It is intentionally independent from the tool registry
-            // assembled for a normal OpenBitFun Agent session. In particular,
-            // `run_openbitfun_task` delegates one complete user intent either to a
+            // assembled for a normal Alex Agent session. In particular,
+            // `run_alex_task` delegates one complete user intent either to a
             // newly created workspace Agent session or, when the call target
             // says so, through an Agentic MiniApp's existing chat contract.
             // Voice never receives, mirrors, or proxies that Agent session's
@@ -629,7 +629,7 @@ fn session_create_payload(
             "tools": [
                 {
                     "type": "function",
-                    "name": "get_openbitfun_client_context",
+                    "name": "get_alex_client_context",
                     "description": "Return fresh client state and recent public text/voice history of the bound conversation. Call before answering references to earlier conversation, new text messages, changing client state, or workspace names.",
                     "parameters": {
                         "type": "object",
@@ -639,15 +639,15 @@ fn session_create_payload(
                 },
                 {
                     "type": "function",
-                    "name": "switch_openbitfun_workspace",
-                    "description": "Activate one currently opened OpenBitFun workspace in the client. Obtain the exact workspace_id from get_openbitfun_client_context and never guess it.",
+                    "name": "switch_alex_workspace",
+                    "description": "Activate one currently opened Alex workspace in the client. Obtain the exact workspace_id from get_alex_client_context and never guess it.",
                     "parameters": {
                         "type": "object",
                         "additionalProperties": false,
                         "properties": {
                             "workspace_id": {
                                 "type": "string",
-                                "description": "Exact id of an opened workspace from get_openbitfun_client_context."
+                                "description": "Exact id of an opened workspace from get_alex_client_context."
                             }
                         },
                         "required": ["workspace_id"]
@@ -655,7 +655,7 @@ fn session_create_payload(
                 },
                 {
                     "type": "function",
-                    "name": "run_openbitfun_task",
+                    "name": "run_alex_task",
                     "description": "Continue the Agent in the bound control/session conversation and return its result. For a MiniApp, omit workspace_id to use its domain workflow; only an explicit MiniApp workspace override creates a workspace task. Without a target, run in the intended opened workspace.",
                     "parameters": {
                         "type": "object",
@@ -663,7 +663,7 @@ fn session_create_payload(
                         "properties": {
                             "task": {
                                 "type": "string",
-                                "description": "A complete standalone description of the work OpenBitFun should perform."
+                                "description": "A complete standalone description of the work Alex should perform."
                             },
                             "workspace_id": {
                                 "type": "string",
@@ -679,8 +679,8 @@ fn session_create_payload(
                 },
                 {
                     "type": "function",
-                    "name": "stop_openbitfun_task",
-                    "description": "Stop the OpenBitFun Agent task currently owned by this client-level voice assistant. Use this for any user request to stop, cancel, abort, or interrupt the current task.",
+                    "name": "stop_alex_task",
+                    "description": "Stop the Alex Agent task currently owned by this client-level voice assistant. Use this for any user request to stop, cancel, abort, or interrupt the current task.",
                     "parameters": {
                         "type": "object",
                         "additionalProperties": false,
@@ -912,7 +912,7 @@ mod tests {
     }
 
     #[test]
-    fn session_create_uses_documented_pcm_contract_and_openbitfun_tool() {
+    fn session_create_uses_documented_pcm_contract_and_alex_tool() {
         let payload = session_create_payload(&config(), "local-session");
         assert_eq!(
             payload.pointer("/session/id"),
@@ -929,19 +929,19 @@ mod tests {
         );
         assert_eq!(
             payload.pointer("/session/tools/0/name"),
-            Some(&json!("get_openbitfun_client_context"))
+            Some(&json!("get_alex_client_context"))
         );
         assert_eq!(
             payload.pointer("/session/tools/1/name"),
-            Some(&json!("switch_openbitfun_workspace"))
+            Some(&json!("switch_alex_workspace"))
         );
         assert_eq!(
             payload.pointer("/session/tools/2/name"),
-            Some(&json!("run_openbitfun_task"))
+            Some(&json!("run_alex_task"))
         );
         assert_eq!(
             payload.pointer("/session/tools/3/name"),
-            Some(&json!("stop_openbitfun_task"))
+            Some(&json!("stop_alex_task"))
         );
         let instructions = payload
             .pointer("/session/instructions")
@@ -977,7 +977,7 @@ mod tests {
                 "type": "response.function_call_arguments.done",
                 "items": [{
                     "call_id": "call-1",
-                    "name": "run_openbitfun_task",
+                    "name": "run_alex_task",
                     "arguments": "{\"task\":\"run tests\"}"
                 }]
             }),
@@ -999,7 +999,7 @@ mod tests {
                 "items": {
                     "call_id": "call-2",
                     "function": {
-                        "name": "run_openbitfun_task",
+                        "name": "run_alex_task",
                         "arguments": {"task": "inspect the workspace"}
                     }
                 }

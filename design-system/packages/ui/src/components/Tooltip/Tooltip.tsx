@@ -508,12 +508,12 @@ export function Tooltip({
           ref={tooltipRef}
           id={tooltipId}
           role="tooltip"
-          data-openbitfun-native-webview-occlusion
+          data-alex-native-webview-occlusion
           className={classNames(styles.root, className)}
-          data-openbitfun-component="tooltip"
-          data-openbitfun-placement={layout.placement}
-          data-openbitfun-interactive={interactive ? "true" : "false"}
-          data-openbitfun-state={isShown ? "visible" : undefined}
+          data-alex-component="tooltip"
+          data-alex-placement={layout.placement}
+          data-alex-interactive={interactive ? "true" : "false"}
+          data-alex-state={isShown ? "visible" : undefined}
           data-instant={instantRef.current || undefined}
           // Portal clicks still bubble through the React tree to the owning control.
           onClick={(event) => event.stopPropagation()}
@@ -530,10 +530,10 @@ export function Tooltip({
           }}
         >
           {!followCursor && (
-            <div className={styles.arrow} data-openbitfun-part="arrow" aria-hidden="true" />
+            <div className={styles.arrow} data-alex-part="arrow" aria-hidden="true" />
           )}
-          <div className={styles.content} data-openbitfun-part="content">
-            <div className={styles.body} data-openbitfun-part="body">{content}</div>
+          <div className={styles.content} data-alex-part="content">
+            <div className={styles.body} data-alex-part="body">{content}</div>
           </div>
         </div>
         </Portal>

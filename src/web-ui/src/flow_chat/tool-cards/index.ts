@@ -59,10 +59,10 @@ import { SessionMessageToolCard } from './SessionMessageToolCard';
 import { ComputerUseToolCard } from './ComputerUseToolCard';
 import { CronToolCard } from './CronToolCard';
 import { ViewImageToolCard } from './ViewImageToolCard';
-import { OpenBitFunControlToolCard } from './OpenBitFunControlToolCard';
+import { AlexControlToolCard } from './AlexControlToolCard';
 
 /**
- * Standard tool adapters backed by concrete `@openbitfun/ui/flow-chat` views.
+ * Standard tool adapters backed by concrete `@alex/ui/flow-chat` views.
  *
  * These components may translate product data, localization, host callbacks,
  * and heavyweight renderer slots, but they must not own a second card anatomy.
@@ -116,7 +116,7 @@ export const STANDARD_TOOL_CARD_ADAPTERS = {
   'WriteStdin': WriteStdinToolCard,
   'ExecControl': ExecControlToolCard,
 
-  // OpenBitFun Page (session-only publish)
+  // Alex Page (session-only publish)
   'PageDeploy': PageDeployDisplay,
   'PagePublish': PagePublishDisplay,
 
@@ -141,9 +141,9 @@ export const PRODUCT_OWNED_TOOL_CARD_COMPONENTS = {
   'InitMiniApp': InitMiniAppDisplay,
   'GenerativeUI': GenerativeWidgetToolCard,
   'ComputerUse': ComputerUseToolCard,
-  'OpenBitFunControl': OpenBitFunControlToolCard,
+  'AlexControl': AlexControlToolCard,
 
-  // OpenBitFun Canvas tools
+  // Alex Canvas tools
   'CreateCanvas': CanvasToolCard,
   'ReadCanvas': CanvasToolCard,
   'UpdateCanvas': CanvasToolCard,

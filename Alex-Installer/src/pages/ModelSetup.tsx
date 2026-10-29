@@ -1,4 +1,4 @@
-import { Button, Disclosure, Field, Input, PageHeader, Select, type SelectOption } from '@openbitfun/ui';
+import { Button, Disclosure, Field, Input, PageHeader, Select, type SelectOption } from '@alex/ui';
 import { ArrowRight } from 'lucide-react';
 import { invoke } from '@tauri-apps/api/core';
 import { useCallback, useEffect, useMemo, useState } from 'react';

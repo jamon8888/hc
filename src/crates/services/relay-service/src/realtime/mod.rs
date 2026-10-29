@@ -2,7 +2,7 @@
 //! ephemeral and acknowledged RPC contracts.
 //!
 //! Reference: slopus/happy @ 108a337e87a5653b604250a9ac3e3bd873dba551.
-//! OpenBitFun keeps GitHub device credentials and host-owned execution. The
+//! Alex keeps GitHub device credentials and host-owned execution. The
 //! relay forwards opaque ciphertext between online devices and stores no
 //! session content: controllers read session records from the online host on
 //! demand, and the host-history HTTP routes of earlier releases answer

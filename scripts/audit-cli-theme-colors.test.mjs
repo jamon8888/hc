@@ -130,7 +130,7 @@ test('findNearPairs reports nearby but not identical colors', () => {
 });
 
 test('checkBaseline requires budgets to be lowered when CLI color debt drops', () => {
-  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'openbitfun-cli-theme-audit-'));
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'alex-cli-theme-audit-'));
   try {
     const baselinePath = path.join(tempDir, 'baseline.json');
     fs.writeFileSync(baselinePath, JSON.stringify({
@@ -154,7 +154,7 @@ test('checkBaseline requires budgets to be lowered when CLI color debt drops', (
 });
 
 test('checkBaseline validates CLI baseline budget shape', () => {
-  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'openbitfun-cli-theme-audit-'));
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'alex-cli-theme-audit-'));
   try {
     const baselinePath = path.join(tempDir, 'baseline.json');
     fs.writeFileSync(baselinePath, JSON.stringify({
@@ -175,7 +175,7 @@ test('checkBaseline validates CLI baseline budget shape', () => {
 });
 
 test('writeReportJson creates parent directories for report output', () => {
-  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'openbitfun-cli-theme-audit-'));
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'alex-cli-theme-audit-'));
   try {
     const reportPath = path.join(tempDir, 'nested', 'report.json');
     writeReportJson({ totalUniqueColors: 1 }, reportPath);

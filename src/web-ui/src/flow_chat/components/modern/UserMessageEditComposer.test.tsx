@@ -204,7 +204,7 @@ describe('UserMessageEditComposer', () => {
   it('focuses the editor when the compact composer surface is clicked away from text', async () => {
     await renderComposer();
     const textarea = container.querySelector('textarea')!;
-    const surface = container.querySelector<HTMLElement>('[data-openbitfun-part="surface"]')!;
+    const surface = container.querySelector<HTMLElement>('[data-alex-part="surface"]')!;
     textarea.blur();
     expect(document.activeElement).not.toBe(textarea);
 
@@ -218,7 +218,7 @@ describe('UserMessageEditComposer', () => {
   it('focuses the rich editor from empty composer space without hijacking actions', async () => {
     await renderComposer({ rich: true });
     const editor = container.querySelector<HTMLElement>('.rich-text-input')!;
-    const surface = container.querySelector<HTMLElement>('[data-openbitfun-part="surface"]')!;
+    const surface = container.querySelector<HTMLElement>('[data-alex-part="surface"]')!;
     const cancelButton = container.querySelector<HTMLButtonElement>('button[aria-label="Cancel"]')!;
     editor.blur();
 

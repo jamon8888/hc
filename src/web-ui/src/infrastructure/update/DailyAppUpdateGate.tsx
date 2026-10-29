@@ -50,7 +50,7 @@ export function DailyAppUpdateGate(): ReactElement | null {
         interval = setInterval(() => check(), APP_UPDATE_CHECK_INTERVAL);
       }, 900);
     }, {
-      signalName: 'openbitfun:interactive-shell-ready',
+      signalName: 'alex:interactive-shell-ready',
       fallbackTimeoutMs: 10000,
       frameCount: 1,
       onError: error => log.warn('Failed to schedule update checks after startup', error),

@@ -42,8 +42,8 @@ requires its own consumer evidence before that path is shared.
 
 ## Boundary Rules
 
-- Depend on stable contracts (`openbitfun-runtime-ports`, `openbitfun-product-domains`)
-  and the `PluginRuntimeAdapter` boundary trait. Do not depend on `openbitfun-core`,
+- Depend on stable contracts (`alex-runtime-ports`, `alex-product-domains`)
+  and the `PluginRuntimeAdapter` boundary trait. Do not depend on `alex-core`,
   app crates, Tauri APIs, product UI, or concrete service managers.
 - Keep the dsh `package.json` `dsh` field shape and `cordis.patch.yml` entry
   extraction inside this crate. Cross-crate outputs use typed
@@ -55,11 +55,11 @@ requires its own consumer evidence before that path is shared.
   Unsupported or unparsable content must produce typed invalid projections and
   diagnostics, never silent success.
 - New ecosystems are sibling adapters registered by Product Assembly
-  (`openbitfun-core/plugin_runtime`), not modes of this adapter.
+  (`alex-core/plugin_runtime`), not modes of this adapter.
 
 ## Verification
 
-- `cargo test --locked -p openbitfun-dsh-adapter --lib mcp_source::tests`
-- `cargo test --locked -p openbitfun-dsh-adapter --lib hook_source::tests`
-- `cargo test --locked -p openbitfun-dsh-adapter --test dsh_source_adapter`
-- `cargo test --locked -p openbitfun-core --no-default-features --features plugin-runtime --lib plugin_runtime::tests`
+- `cargo test --locked -p alex-dsh-adapter --lib mcp_source::tests`
+- `cargo test --locked -p alex-dsh-adapter --lib hook_source::tests`
+- `cargo test --locked -p alex-dsh-adapter --test dsh_source_adapter`
+- `cargo test --locked -p alex-core --no-default-features --features plugin-runtime --lib plugin_runtime::tests`

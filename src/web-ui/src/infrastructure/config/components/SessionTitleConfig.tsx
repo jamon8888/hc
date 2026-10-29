@@ -1,4 +1,4 @@
-import { Combobox, Switch } from '@openbitfun/ui';
+import { Combobox, Switch } from '@alex/ui';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNotification, notificationService } from '@/shared/notification-system';
@@ -157,9 +157,9 @@ export const SessionTitleConfig: React.FC = () => {
   if (loadError) {
     return (
       <ConfigPageSection
-        className="openbitfun-runtime-settings"
-        data-openbitfun-component="session-title-config"
-        data-openbitfun-part="root"
+        className="alex-runtime-settings"
+        data-alex-component="session-title-config"
+        data-alex-part="root"
         title={t('sessionTitle.title')}
         description={t('sessionTitle.subtitle')}
       >
@@ -175,9 +175,9 @@ export const SessionTitleConfig: React.FC = () => {
   return (
     <>
       <ConfigPageSection
-        className="openbitfun-runtime-settings"
-        data-openbitfun-component="session-title-config"
-        data-openbitfun-part="root"
+        className="alex-runtime-settings"
+        data-alex-component="session-title-config"
+        data-alex-part="root"
         title={t('sessionTitle.title')}
         description={t('sessionTitle.subtitle')}
       >
@@ -186,9 +186,9 @@ export const SessionTitleConfig: React.FC = () => {
           align="center"
         >
           <div
-            className="openbitfun-runtime-settings__appearance-host"
-            data-openbitfun-component="session-title-config"
-            data-openbitfun-part="enableControl"
+            className="alex-runtime-settings__appearance-host"
+            data-alex-component="session-title-config"
+            data-alex-part="enableControl"
           >
             <Switch
               checked={settings?.enable_session_title_generation ?? false}
@@ -205,9 +205,9 @@ export const SessionTitleConfig: React.FC = () => {
             align="center"
           >
             <div
-              className="openbitfun-runtime-settings__appearance-host"
-              data-openbitfun-component="session-title-config"
-              data-openbitfun-part="modelControl"
+              className="alex-runtime-settings__appearance-host"
+              data-alex-component="session-title-config"
+              data-alex-part="modelControl"
             >
               <Combobox
                 size="sm"

@@ -1,7 +1,7 @@
 import {
   themes,
   type ThemeTokenName,
-} from '@openbitfun/theme-openbitfun';
+} from '@alex/theme-alex';
 
 type BuiltinThemeMode = 'dark' | 'light';
 

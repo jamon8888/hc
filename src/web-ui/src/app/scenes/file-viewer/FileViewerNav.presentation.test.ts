@@ -49,20 +49,20 @@ function declarations(rules: CSSStyleRule[], selector: string): CSSStyleDeclarat
 describe('FileViewerNav surface ownership', () => {
   it('hosts the files panel inside the shared NavigationPanel shell', () => {
     expect(navSource).toContain('<NavigationPanel');
-    expect(navSource).toContain('className="openbitfun-file-viewer-nav"');
+    expect(navSource).toContain('className="alex-file-viewer-nav"');
     expect(navSource).toMatch(
       /<NavigationPanelContent[^>]*>[\s\S]*?<FilesPanel[\s\S]*?<\/NavigationPanelContent>/,
     );
-    expect(declarations(navRules, '.openbitfun-file-viewer-nav').background).toBe('transparent');
+    expect(declarations(navRules, '.alex-file-viewer-nav').background).toBe('transparent');
   });
 
   it('lets tree and search containers inherit the navigation background', () => {
     for (const selector of [
-      '.openbitfun-files-panel',
-      '.openbitfun-files-panel__content',
-      '.openbitfun-files-panel__explorer',
-      '.openbitfun-files-panel__search-results.openbitfun-search-results',
-      '.openbitfun-files-panel__search-results.openbitfun-search-results .openbitfun-search-results__header',
+      '.alex-files-panel',
+      '.alex-files-panel__content',
+      '.alex-files-panel__explorer',
+      '.alex-files-panel__search-results.alex-search-results',
+      '.alex-files-panel__search-results.alex-search-results .alex-search-results__header',
     ]) {
       expect(declarations(filesPanelRules, selector).background).toBe('transparent');
     }
@@ -71,48 +71,48 @@ describe('FileViewerNav surface ownership', () => {
   it('insets the divider above both resource sections evenly', () => {
     const sectionDivider = declarations(
       navRules,
-      '.openbitfun-file-viewer-nav__section::before',
+      '.alex-file-viewer-nav__section::before',
     );
 
-    expect(sectionDivider.getPropertyValue('inset-inline')).toBe('var(--openbitfun-space-2)');
+    expect(sectionDivider.getPropertyValue('inset-inline')).toBe('var(--alex-space-2)');
     expect(sectionDivider.height).toBe('1px');
-    expect(sectionDivider.background).toBe('var(--openbitfun-color-border-default)');
-    expect(declarations(navRules, '.openbitfun-file-viewer-nav__workspace').borderBottomWidth)
+    expect(sectionDivider.background).toBe('var(--alex-color-border-default)');
+    expect(declarations(navRules, '.alex-file-viewer-nav__workspace').borderBottomWidth)
       .toBe('');
     expect(navSource).toContain(
-      'className="openbitfun-file-viewer-nav__section openbitfun-file-viewer-nav__section--terminals"',
+      'className="alex-file-viewer-nav__section alex-file-viewer-nav__section--terminals"',
     );
   });
 
   it('insets the divider above search main content at each panel width', () => {
     expect(filesPanelSource).toContain(
-      "viewMode === 'search' ? ' openbitfun-files-panel__main-content--search' : ''",
+      "viewMode === 'search' ? ' alex-files-panel__main-content--search' : ''",
     );
 
     const searchDivider = declarations(
       filesPanelRules,
-      '.openbitfun-files-panel__main-content--search::before',
+      '.alex-files-panel__main-content--search::before',
     );
-    expect(searchDivider.getPropertyValue('inset-inline')).toBe('var(--openbitfun-space-2)');
+    expect(searchDivider.getPropertyValue('inset-inline')).toBe('var(--alex-space-2)');
     expect(searchDivider.height).toBe('1px');
-    expect(searchDivider.background).toBe('var(--openbitfun-color-border-default)');
+    expect(searchDivider.background).toBe('var(--alex-color-border-default)');
 
-    const searchContainer = declarations(filesPanelRules, '.openbitfun-files-panel__search');
+    const searchContainer = declarations(filesPanelRules, '.alex-files-panel__search');
     expect(searchContainer.borderBottomWidth).toBe('');
   });
 
   it('uses the same divider treatment for search controls, results, and terminals', () => {
     const dividers = [
-      declarations(filesPanelRules, '.openbitfun-files-panel__main-content--search::before'),
-      declarations(searchResultsRules, '.openbitfun-search-results__header::after'),
-      declarations(navRules, '.openbitfun-file-viewer-nav__section::before'),
+      declarations(filesPanelRules, '.alex-files-panel__main-content--search::before'),
+      declarations(searchResultsRules, '.alex-search-results__header::after'),
+      declarations(navRules, '.alex-file-viewer-nav__section::before'),
     ];
 
     for (const divider of dividers) {
-      expect(divider.getPropertyValue('inset-inline')).toBe('var(--openbitfun-space-2)');
+      expect(divider.getPropertyValue('inset-inline')).toBe('var(--alex-space-2)');
       expect(divider.height).toBe('1px');
-      expect(divider.background).toBe('var(--openbitfun-color-border-default)');
-      expect(divider.zIndex).toBe('var(--openbitfun-layer-decoration)');
+      expect(divider.background).toBe('var(--alex-color-border-default)');
+      expect(divider.zIndex).toBe('var(--alex-layer-decoration)');
       expect(divider.pointerEvents).toBe('none');
     }
   });
@@ -120,7 +120,7 @@ describe('FileViewerNav surface ownership', () => {
   it('compensates the bottom-pinned terminal divider for fractional pixel scaling', () => {
     const terminalDivider = declarations(
       navRules,
-      '.openbitfun-file-viewer-nav__section--terminals::before',
+      '.alex-file-viewer-nav__section--terminals::before',
     );
 
     expect(terminalDivider.height).toBe('0.5px');

@@ -1,6 +1,6 @@
 /**
  * Segmented usage bar primitive — proportional pills + remainder, with an
- * optional one-line label row above. Visually matches `OpenBitFun UI`
+ * optional one-line label row above. Visually matches `Alex UI`
  * `ContextUsageTray`'s usage bar, themed for canvas via the shared `Color`
  * palette and `useHostAppearance()` semantic tokens.
  */
@@ -13,7 +13,7 @@ export interface UsageBarSegment {
     readonly value: number;
     /**
      * Optional explicit color. Defaults to a rotation through
-     * `usageColorSequence` by index, matching the original `OpenBitFun UI`
+     * `usageColorSequence` by index, matching the original `Alex UI`
      * `ContextUsageTray` order so the same index lands on the same hue.
      */
     readonly color?: Color;

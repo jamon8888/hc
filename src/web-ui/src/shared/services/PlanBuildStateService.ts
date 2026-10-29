@@ -215,8 +215,8 @@ class PlanBuildStateService {
   }
 
   private setupGlobalListeners(): void {
-    window.addEventListener('openbitfun:todowrite-update', this.handleTodoWriteUpdate);
-    window.addEventListener('openbitfun:dialog-cancelled', this.handleDialogCancelled);
+    window.addEventListener('alex:todowrite-update', this.handleTodoWriteUpdate);
+    window.addEventListener('alex:dialog-cancelled', this.handleDialogCancelled);
     agentAPI.onDialogTurnCompleted(this.handleDialogTurnSettled);
     agentAPI.onDialogTurnFailed(this.handleDialogTurnSettled);
     agentAPI.onDialogTurnCancelled(this.handleDialogTurnSettled);

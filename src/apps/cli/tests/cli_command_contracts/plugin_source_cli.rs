@@ -42,19 +42,19 @@ fn write_package(workspace: &Path, source: &[u8], declared_hash: &str) {
 
 fn run_cli(workspace: &Path, user_root: &Path, home_root: &Path, args: &[&str]) -> Output {
     let config_root = user_root.join("host-config");
-    openbitfun_services_core::process_manager::create_command(env!("CARGO_BIN_EXE_openbitfun"))
+    alex_services_core::process_manager::create_command(env!("CARGO_BIN_EXE_alex"))
         .args(args)
         .current_dir(workspace)
-        .env_remove("OPENBITFUN_USER_ROOT")
-        .env_remove("OPENBITFUN_HOME")
-        .env("OPENBITFUN_E2E_STORAGE_GUARD", "1")
-        .env("OPENBITFUN_E2E_USER_ROOT", user_root)
-        .env("OPENBITFUN_E2E_HOME", home_root)
+        .env_remove("ALEX_USER_ROOT")
+        .env_remove("ALEX_HOME")
+        .env("ALEX_E2E_STORAGE_GUARD", "1")
+        .env("ALEX_E2E_USER_ROOT", user_root)
+        .env("ALEX_E2E_HOME", home_root)
         .env("APPDATA", &config_root)
         .env("XDG_CONFIG_HOME", &config_root)
         .env("HOME", home_root)
         .output()
-        .expect("run openbitfun")
+        .expect("run alex")
 }
 
 fn stdout(output: &Output) -> String {
@@ -121,22 +121,22 @@ fn plugin_source_cli_rejects_unavailable_product_paths() {
     std::fs::create_dir_all(&workspace).expect("create workspace");
 
     let output =
-        openbitfun_services_core::process_manager::create_command(env!("CARGO_BIN_EXE_openbitfun"))
+        alex_services_core::process_manager::create_command(env!("CARGO_BIN_EXE_alex"))
             .args(["plugins", "list"])
             .current_dir(&workspace)
-            .env_remove("OPENBITFUN_USER_ROOT")
-            .env_remove("OPENBITFUN_HOME")
-            .env_remove("OPENBITFUN_E2E_USER_ROOT")
-            .env_remove("OPENBITFUN_E2E_HOME")
-            .env("OPENBITFUN_E2E_STORAGE_GUARD", "1")
+            .env_remove("ALEX_USER_ROOT")
+            .env_remove("ALEX_HOME")
+            .env_remove("ALEX_E2E_USER_ROOT")
+            .env_remove("ALEX_E2E_HOME")
+            .env("ALEX_E2E_STORAGE_GUARD", "1")
             .env("APPDATA", &config_root)
             .env("XDG_CONFIG_HOME", &config_root)
             .output()
-            .expect("run openbitfun");
+            .expect("run alex");
 
     assert!(!output.status.success());
     assert!(stderr(&output).contains("Configuration error"));
-    assert!(stderr(&output).contains("OPENBITFUN_E2E_STORAGE_GUARD"));
+    assert!(stderr(&output).contains("ALEX_E2E_STORAGE_GUARD"));
 }
 
 #[test]
@@ -197,7 +197,7 @@ fn plugin_source_cli_lifecycle_and_doctor_exit_codes() {
     assert!(!rejected.status.success());
     assert!(stderr(&rejected).contains("does not match"));
     assert!(stderr(&rejected)
-        .contains("Re-run `openbitfun plugins activate acme.demo` to preview the current content"));
+        .contains("Re-run `alex plugins activate acme.demo` to preview the current content"));
 
     let content_hash = activation_content_hash(&preview);
 

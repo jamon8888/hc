@@ -10,7 +10,7 @@ export const agentCompanionPetAppearanceDescriptor: AppearanceSurfaceDescriptor 
     { id: 'work' }, { id: 'hover' }, { id: 'drag' }, { id: 'petdex' },
   ],
   facets: [
-    { id: 'mood', attribute: 'data-openbitfun-mood', values: ['rest', 'analyzing', 'waiting', 'working', 'hover', 'dragging'] },
-    { id: 'layout', attribute: 'data-openbitfun-layout', values: ['default', 'center', 'stopRight', 'petdex'] },
+    { id: 'mood', attribute: 'data-alex-mood', values: ['rest', 'analyzing', 'waiting', 'working', 'hover', 'dragging'] },
+    { id: 'layout', attribute: 'data-alex-layout', values: ['default', 'center', 'stopRight', 'petdex'] },
   ],
 };

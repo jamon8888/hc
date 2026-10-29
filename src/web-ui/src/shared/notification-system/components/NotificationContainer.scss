@@ -1,6 +1,6 @@
 .notification-container {
   --notification-stack-max-height: calc(100vh - 120px);
-  --notification-visual-gutter: var(--openbitfun-space-8);
+  --notification-visual-gutter: var(--alex-space-8);
 
   // The document overlay host owns fixed positioning. This layout/scroll
   // region must not create a stacking context: cards have independent ranks.
@@ -36,7 +36,7 @@
 .notification-container__viewport {
   box-sizing: border-box;
   display: grid;
-  gap: var(--openbitfun-space-2);
+  gap: var(--alex-space-2);
   max-height: calc(
     var(--notification-stack-max-height)
     + var(--notification-visual-gutter)

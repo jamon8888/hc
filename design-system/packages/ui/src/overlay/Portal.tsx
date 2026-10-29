@@ -17,12 +17,12 @@ const ParentLayerContext = createContext<{ id: symbol; stack: OverlayLayerStack 
 
 /** A neutral, document-owned host. It never transforms viewport coordinates. */
 export function getOverlayHost(ownerDocument: Document): HTMLDivElement {
-  const existing = ownerDocument.querySelector<HTMLDivElement>('[data-openbitfun-overlay-host="true"]');
+  const existing = ownerDocument.querySelector<HTMLDivElement>('[data-alex-overlay-host="true"]');
   if (existing) return existing;
   const host = ownerDocument.createElement("div");
-  host.setAttribute("data-openbitfun-overlay-host", "true");
+  host.setAttribute("data-alex-overlay-host", "true");
   Object.assign(host.style, {
-    position: "fixed", inset: "0", zIndex: "var(--openbitfun-layer-overlay-host)", pointerEvents: "none",
+    position: "fixed", inset: "0", zIndex: "var(--alex-layer-overlay-host)", pointerEvents: "none",
   });
   ownerDocument.body.appendChild(host);
   return host;
@@ -87,7 +87,7 @@ function LayerMount({
   onDismiss, dismissOnEscape, dismissOnPointerOutside, inline, preventScroll, ownerRef,
 }: PortalProps & LayerPlacementProps & { container: OverlayPortalContainer; parentId?: symbol; stack: OverlayLayerStack }) {
   const [ticket] = useState(() => ({
-    id: Symbol("openbitfun-overlay"), sequence: stack.reserveSequence(),
+    id: Symbol("alex-overlay"), sequence: stack.reserveSequence(),
     // Capture before modal registration makes the background inert. Keep the
     // original return target through StrictMode's effect replay.
     activationFocus: container.ownerDocument.activeElement as HTMLElement | null,
@@ -117,8 +117,8 @@ function LayerMount({
     <LayerStackContext.Provider value={stack}>
       <ParentLayerContext.Provider value={{ id: ticket.id, stack }}>
         <FieldSurfaceContext.Provider value="default">
-          <div ref={slotRef} className={inline ? styles.inlineLayer : styles.layer} data-openbitfun-overlay-layer=""
-            data-openbitfun-overlay-modal={modal || undefined} {...(!open ? { inert: "" } : {})}>
+          <div ref={slotRef} className={inline ? styles.inlineLayer : styles.layer} data-alex-overlay-layer=""
+            data-alex-overlay-modal={modal || undefined} {...(!open ? { inert: "" } : {})}>
             {children}
           </div>
         </FieldSurfaceContext.Provider>

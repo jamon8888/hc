@@ -29,7 +29,7 @@ test('real IndexedDB: an old-shape session cache record loads and is attributed 
       const scope = createRemoteCacheScope('acct', 'desktop-a');
       // Seed the store exactly as an old build would have, before the module opens it.
       await new Promise((resolve, reject) => {
-        const request = indexedDB.open('openbitfun-mobile-remote-cache', 1);
+        const request = indexedDB.open('alex-mobile-remote-cache', 1);
         request.onupgradeneeded = () => {
           const db = request.result;
           db.createObjectStore('session_state', { keyPath: 'key' });

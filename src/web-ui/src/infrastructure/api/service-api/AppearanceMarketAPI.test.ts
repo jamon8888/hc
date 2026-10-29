@@ -63,7 +63,7 @@ describe('AppearanceMarketAPI', () => {
     await market.submitPackage({
       packagePath: '/tmp/tokyo-night.openbitfun-appearance',
       slug: 'tokyo-night',
-      minOpenBitFunVersion: '1.0.0',
+      minAlexVersion: '1.0.0',
       changelog: 'Initial release',
       license: { spdxExpression: 'MIT' },
     });
@@ -77,7 +77,7 @@ describe('AppearanceMarketAPI', () => {
       request: {
         packagePath: '/tmp/tokyo-night.openbitfun-appearance',
         slug: 'tokyo-night',
-        minOpenBitFunVersion: '1.0.0',
+        minAlexVersion: '1.0.0',
         changelog: 'Initial release',
         license: { spdxExpression: 'MIT' },
       },

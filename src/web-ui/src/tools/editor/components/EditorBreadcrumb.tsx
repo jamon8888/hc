@@ -10,7 +10,7 @@ import { createLogger } from '@/shared/utils/logger';
 import { useAnchoredPopoverPosition } from '@/shared/utils/useAnchoredPopoverPosition';
 
 import './EditorBreadcrumb.scss';
-import { subscribeOverlayInteraction, createOverlayPortal, OverflowText, Icon, Menu, MenuItem, MenuSection, Tooltip, type IconSize } from '@openbitfun/ui';
+import { subscribeOverlayInteraction, createOverlayPortal, OverflowText, Icon, Menu, MenuItem, MenuSection, Tooltip, type IconSize } from '@alex/ui';
 
 const log = createLogger('EditorBreadcrumb');
 
@@ -167,8 +167,8 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
       aria-label={currentDirName}
       autoFocusFirstItem
       className="editor-breadcrumb-dropdown"
-      data-openbitfun-product-component="editor-breadcrumb"
-      data-openbitfun-product-part="menu"
+      data-alex-product-component="editor-breadcrumb"
+      data-alex-product-part="menu"
       style={{
         position: 'fixed',
         top: popoverLayout?.top ?? 0,
@@ -194,8 +194,8 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
       >
         {loading ? (
           <div
-            data-openbitfun-product-component="editor-breadcrumb"
-            data-openbitfun-product-part="loading"
+            data-alex-product-component="editor-breadcrumb"
+            data-alex-product-part="loading"
             className="editor-breadcrumb-dropdown__loading"
             role="status"
           >
@@ -204,8 +204,8 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
           </div>
         ) : sortedItems.length === 0 ? (
           <div
-            data-openbitfun-product-component="editor-breadcrumb"
-            data-openbitfun-product-part="empty"
+            data-alex-product-component="editor-breadcrumb"
+            data-alex-product-part="empty"
             className="editor-breadcrumb-dropdown__empty"
             role="status"
           >
@@ -422,7 +422,7 @@ export const EditorBreadcrumb: React.FC<EditorBreadcrumbProps> = ({
   }
 
   return (
-    <nav className={`editor-breadcrumb ${className}`} data-openbitfun-product-component="editor-breadcrumb" data-openbitfun-product-part="root">
+    <nav className={`editor-breadcrumb ${className}`} data-alex-product-component="editor-breadcrumb" data-alex-product-part="root">
       {displaySegments.map((segment, index) => {
         const isEllipsis = 'isEllipsis' in segment && segment.isEllipsis;
         const pathSegment = segment as PathSegment;
@@ -431,19 +431,19 @@ export const EditorBreadcrumb: React.FC<EditorBreadcrumbProps> = ({
         return (
           <React.Fragment key={isEllipsis ? 'ellipsis' : pathSegment.fullPath}>
             {index > 0 && (
-              <Icon name="chevron-right" size="2xs" data-openbitfun-product-component="editor-breadcrumb" data-openbitfun-product-part="separator" className="editor-breadcrumb__separator" />
+              <Icon name="chevron-right" size="2xs" data-alex-product-component="editor-breadcrumb" data-alex-product-part="separator" className="editor-breadcrumb__separator" />
             )}
             
             {isEllipsis ? (
-              <span data-openbitfun-product-component="editor-breadcrumb" data-openbitfun-product-part="item" className="editor-breadcrumb__item editor-breadcrumb__item--ellipsis">
+              <span data-alex-product-component="editor-breadcrumb" data-alex-product-part="item" className="editor-breadcrumb__item editor-breadcrumb__item--ellipsis">
                 {segment.name}
               </span>
             ) : (
               <Tooltip content={pathSegment.fullPath} placement="bottom">
                 <span data-overflow-trigger
-                  data-openbitfun-product-component="editor-breadcrumb"
-                  data-openbitfun-product-part="item"
-                  data-openbitfun-state={isDropdownOpen ? 'active' : undefined}
+                  data-alex-product-component="editor-breadcrumb"
+                  data-alex-product-part="item"
+                  data-alex-state={isDropdownOpen ? 'active' : undefined}
                   ref={(el) => setItemRef(pathSegment.fullPath, el)}
                   className={`editor-breadcrumb__item ${
                     pathSegment.isFile 
@@ -452,14 +452,14 @@ export const EditorBreadcrumb: React.FC<EditorBreadcrumbProps> = ({
                   } editor-breadcrumb__item--clickable ${isDropdownOpen ? 'editor-breadcrumb__item--active' : ''}`}
                   onClick={(e) => handleSegmentClick(pathSegment, e)}
                 >
-                  <span data-openbitfun-product-component="editor-breadcrumb" data-openbitfun-product-part="itemIcon" className="editor-breadcrumb__item-icon">
+                  <span data-alex-product-component="editor-breadcrumb" data-alex-product-part="itemIcon" className="editor-breadcrumb__item-icon">
                     {pathSegment.isFile ? (
                       getFileIconComponent(pathSegment.name)
                     ) : (
                       <Icon name="folder" size="xs" />
                     )}
                   </span>
-                  <OverflowText data-openbitfun-product-component="editor-breadcrumb" data-openbitfun-product-part="itemText" className="editor-breadcrumb__item-text">
+                  <OverflowText data-alex-product-component="editor-breadcrumb" data-alex-product-part="itemText" className="editor-breadcrumb__item-text">
                     {pathSegment.name}
                   </OverflowText>
                 </span>

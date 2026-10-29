@@ -2,7 +2,7 @@
 import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { Icon, SearchField, type SearchFieldProps } from '@openbitfun/ui';
+import { Icon, SearchField, type SearchFieldProps } from '@alex/ui';
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -42,8 +42,8 @@ describe('public SearchField product integration', () => {
     render({ trailing: <span role="status">1 / 5</span> });
     expect(host.textContent).toContain('1 / 5Ctrl K');
     expect(clearButton().closest('[aria-hidden="true"]')).toBeNull();
-    const iconWrapper = host.querySelector('[data-openbitfun-component="input"] > [data-openbitfun-part="leading"] > [data-openbitfun-part="icon"]');
-    expect(iconWrapper?.querySelector('[data-openbitfun-component="icon"][data-size="lg"]')).not.toBeNull();
+    const iconWrapper = host.querySelector('[data-alex-component="input"] > [data-alex-part="leading"] > [data-alex-part="icon"]');
+    expect(iconWrapper?.querySelector('[data-alex-component="icon"][data-size="lg"]')).not.toBeNull();
     act(() => clearButton().click());
     expect(clear).toHaveBeenCalledTimes(1);
   });

@@ -183,8 +183,8 @@ vi.mock('@/infrastructure/event-bus', () => ({
   },
 }));
 
-vi.mock('@openbitfun/ui', async importOriginal => ({
-  ...await importOriginal<typeof import('@openbitfun/ui')>(),
+vi.mock('@alex/ui', async importOriginal => ({
+  ...await importOriginal<typeof import('@alex/ui')>(),
   Tooltip: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
@@ -275,9 +275,9 @@ describe('UserMessageItem steering tag', () => {
     const thumbnail = container.querySelector<HTMLElement>('.user-message-item__image-thumb')!;
     act(() => thumbnail.click());
     const dialog = document.querySelector<HTMLElement>('.user-message-item__lightbox-surface')!;
-    expect(dialog.getAttribute('data-openbitfun-component')).toBe('dialog');
-    expect(dialog.parentElement?.getAttribute('data-openbitfun-product-part')).toBe('lightbox');
-    expect(dialog.parentElement?.getAttribute('data-openbitfun-native-webview-occlusion')).toBe('true');
+    expect(dialog.getAttribute('data-alex-component')).toBe('dialog');
+    expect(dialog.parentElement?.getAttribute('data-alex-product-part')).toBe('lightbox');
+    expect(dialog.parentElement?.getAttribute('data-alex-native-webview-occlusion')).toBe('true');
     act(() => dialog.querySelector('img')!.click());
     expect(dialog.isConnected).toBe(true);
     act(() => document.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true })));
@@ -611,7 +611,7 @@ describe('UserMessageItem steering tag', () => {
     const item = write.mock.calls[0][0][0] as { items: Record<string, Blob> };
     expect(await item.items['text/plain'].text()).toBe('[Skill: pdf] summarize it');
     const html = await item.items['text/html'].text();
-    expect(html).toContain('data-openbitfun-composer-clipboard-tokens="[$pdf] summarize it"');
+    expect(html).toContain('data-alex-composer-clipboard-tokens="[$pdf] summarize it"');
   });
 
   it('restores persisted references and images from a failed message to the input', () => {

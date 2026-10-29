@@ -2,10 +2,10 @@ pub(super) fn script() -> &'static str {
     r####"
     const ELEMENT_KEY = "element-6066-11e4-a52e-4f735466cecf";
     const SHADOW_KEY = "shadow-6066-11e4-a52e-4f735466cecf";
-    const EVENT_NAME = "openbitfun_webdriver_result";
-    const STORE_KEY = "__openbitfunWdElements";
-    const LOG_KEY = "__openbitfunWdLogs";
-    const consolePatchedKey = "__openbitfunWdConsolePatched";
+    const EVENT_NAME = "alex_webdriver_result";
+    const STORE_KEY = "__alexWdElements";
+    const LOG_KEY = "__alexWdLogs";
+    const consolePatchedKey = "__alexWdConsolePatched";
     let currentFrameContext = [];
 
     const ensureLogs = () => {
@@ -37,8 +37,8 @@ pub(super) fn script() -> &'static str {
     const getFrameContext = () => currentFrameContext;
 
     const ensureRuntimeState = () => {
-      if (!window.__openbitfunWdRuntimeState) {
-        window.__openbitfunWdRuntimeState = {
+      if (!window.__alexWdRuntimeState) {
+        window.__alexWdRuntimeState = {
           pointer: {
             x: 0,
             y: 0,
@@ -56,7 +56,7 @@ pub(super) fn script() -> &'static str {
           }
         };
       }
-      return window.__openbitfunWdRuntimeState;
+      return window.__alexWdRuntimeState;
     };
 
     const patchConsole = () => {
@@ -86,8 +86,8 @@ pub(super) fn script() -> &'static str {
     };
 
     const ensureAlertState = (targetWindow = window) => {
-      if (!targetWindow.__openbitfunWdAlertState) {
-        targetWindow.__openbitfunWdAlertState = {
+      if (!targetWindow.__alexWdAlertState) {
+        targetWindow.__alexWdAlertState = {
           open: false,
           type: null,
           text: "",
@@ -95,11 +95,11 @@ pub(super) fn script() -> &'static str {
           promptText: null
         };
       }
-      return targetWindow.__openbitfunWdAlertState;
+      return targetWindow.__alexWdAlertState;
     };
 
     const patchDialogs = (targetWindow = window) => {
-      const patchedKey = "__openbitfunWdDialogsPatched";
+      const patchedKey = "__alexWdDialogsPatched";
       if (targetWindow[patchedKey]) {
         return;
       }

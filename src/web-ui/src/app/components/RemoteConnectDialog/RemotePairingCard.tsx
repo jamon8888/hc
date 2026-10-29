@@ -1,4 +1,4 @@
-import { Icon, IconButton, StatusPill } from '@openbitfun/ui';
+import { Icon, IconButton, StatusPill } from '@alex/ui';
 import { QRCodeSVG } from 'qrcode.react';
 import { useI18n } from '@/infrastructure/i18n';
 
@@ -19,16 +19,16 @@ export function RemotePairingCard({ qrUrl, pairingCode, owner, connected = false
 
   return (
     <div
-      className={`openbitfun-remote-connect__pairing-card${qrUrl ? '' : ' openbitfun-remote-connect__pairing-card--compact'}`}
-      data-openbitfun-component="remote-connect-dialog"
-      data-openbitfun-part="pairingCard"
+      className={`alex-remote-connect__pairing-card${qrUrl ? '' : ' alex-remote-connect__pairing-card--compact'}`}
+      data-alex-component="remote-connect-dialog"
+      data-alex-part="pairingCard"
     >
       {(qrUrl || pairingCode) && (
-        <div className="openbitfun-remote-connect__pairing-visual">
+        <div className="alex-remote-connect__pairing-visual">
           {qrUrl && (
             <button
               type="button"
-              className="openbitfun-remote-connect__qr-box"
+              className="alex-remote-connect__qr-box"
               title={t('remoteConnect.copyUrl')}
               aria-label={t('remoteConnect.copyUrl')}
               onClick={() => void onCopyUrl()}
@@ -37,14 +37,14 @@ export function RemotePairingCard({ qrUrl, pairingCode, owner, connected = false
             </button>
           )}
           {pairingCode && (
-            <div className="openbitfun-remote-connect__pairing-code" dir="ltr">
+            <div className="alex-remote-connect__pairing-code" dir="ltr">
               {pairingCode}
             </div>
           )}
         </div>
       )}
-      <div className="openbitfun-remote-connect__pairing-details">
-        <div className="openbitfun-remote-connect__pairing-status" role="status">
+      <div className="alex-remote-connect__pairing-details">
+        <div className="alex-remote-connect__pairing-status" role="status">
           <StatusPill tone={statusState !== 'ready' ? 'neutral' : hasCopiedUrl || connected ? 'success' : 'warning'}>
             {statusState === 'unavailable'
               ? t('remoteConnect.statusUnavailable')
@@ -61,11 +61,11 @@ export function RemotePairingCard({ qrUrl, pairingCode, owner, connected = false
         </div>
         {qrUrl ? (
           <>
-            <span className="openbitfun-remote-connect__pairing-label">
+            <span className="alex-remote-connect__pairing-label">
               {t('remoteConnect.workspaceAddress')}
             </span>
-            <div className="openbitfun-remote-connect__pairing-url-row">
-              <span className="openbitfun-remote-connect__pairing-url">{qrUrl}</span>
+            <div className="alex-remote-connect__pairing-url-row">
+              <span className="alex-remote-connect__pairing-url">{qrUrl}</span>
               <IconButton
                 aria-label={t('remoteConnect.copyUrl')}
                 title={t('remoteConnect.copyUrl')}
@@ -75,10 +75,10 @@ export function RemotePairingCard({ qrUrl, pairingCode, owner, connected = false
                 variant="quiet"
               />
             </div>
-            <p className="openbitfun-remote-connect__pairing-instruction">{t('remoteConnect.scanHint')}</p>
+            <p className="alex-remote-connect__pairing-instruction">{t('remoteConnect.scanHint')}</p>
           </>
         ) : owner === 'bot' && pairingCode ? (
-          <p className="openbitfun-remote-connect__hint">{t('remoteConnect.botHint')}</p>
+          <p className="alex-remote-connect__hint">{t('remoteConnect.botHint')}</p>
         ) : null}
       </div>
     </div>

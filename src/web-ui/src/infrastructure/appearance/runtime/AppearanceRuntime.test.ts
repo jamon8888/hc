@@ -19,7 +19,7 @@ function pkg(id: string, background: string): AppearancePackage {
     renderers: {
       'theme-tokens': {
         version: 1,
-        settings: { tokens: { '--openbitfun-color-surface-canvas': background } },
+        settings: { tokens: { '--alex-color-surface-canvas': background } },
       },
     },
   };
@@ -46,7 +46,7 @@ describe('AppearanceRuntime', () => {
       validate: () => [],
       apply: async next => {
         calls.push(next ? { ...next } : undefined);
-        if (next?.tokens['--openbitfun-color-surface-canvas'] === 'fail') throw new Error('renderer failed');
+        if (next?.tokens['--alex-color-surface-canvas'] === 'fail') throw new Error('renderer failed');
       },
     };
     const registry = new AppearanceRegistry().registerRenderer(adapter).freeze();
@@ -55,14 +55,14 @@ describe('AppearanceRuntime', () => {
     runtime.subscribe(listener);
 
     await runtime.initialize(pkg('test.first', 'first'));
-    expect(document.documentElement.getAttribute('data-openbitfun-appearance')).toBe('test.first');
-    expect(document.querySelectorAll('style[data-openbitfun-appearance-runtime]')).toHaveLength(1);
+    expect(document.documentElement.getAttribute('data-alex-appearance')).toBe('test.first');
+    expect(document.querySelectorAll('style[data-alex-appearance-runtime]')).toHaveLength(1);
 
     await expect(runtime.applyPackage(pkg('test.second', 'fail'))).rejects.toThrow('renderer failed');
     expect(runtime.getSnapshot()?.id).toBe('test.first');
-    expect(document.documentElement.getAttribute('data-openbitfun-appearance')).toBe('test.first');
-    expect(document.querySelectorAll('style[data-openbitfun-appearance-runtime]')).toHaveLength(1);
-    expect(calls.at(-1)).toEqual({ tokens: { '--openbitfun-color-surface-canvas': 'first' } });
+    expect(document.documentElement.getAttribute('data-alex-appearance')).toBe('test.first');
+    expect(document.querySelectorAll('style[data-alex-appearance-runtime]')).toHaveLength(1);
+    expect(calls.at(-1)).toEqual({ tokens: { '--alex-color-surface-canvas': 'first' } });
     expect(listener).toHaveBeenCalledTimes(1);
   });
 
@@ -104,7 +104,7 @@ describe('AppearanceRuntime', () => {
       },
     });
     expect(createObjectURL).toHaveBeenCalledTimes(1);
-    expect(document.head.textContent).toContain('--openbitfun-appearance-asset-background: url("blob:test-background")');
+    expect(document.head.textContent).toContain('--alex-appearance-asset-background: url("blob:test-background")');
 
     await runtime.applyPackage({ ...assetPackage, id: 'test.assets-next', assets: undefined, components: undefined });
     expect(revokeObjectURL).toHaveBeenCalledWith('blob:test-background');
@@ -189,8 +189,8 @@ describe('AppearanceRuntime', () => {
       fit: 'cover',
       position: 'center',
     });
-    expect(snapshot.cssText).not.toContain('--openbitfun-appearance-asset-motion');
-    expect(snapshot.cssText).toContain('--openbitfun-appearance-asset-poster');
+    expect(snapshot.cssText).not.toContain('--alex-appearance-asset-motion');
+    expect(snapshot.cssText).toContain('--alex-appearance-asset-poster');
   });
 
   it('keeps a staged revision inactive until renderer transactions commit', async () => {
@@ -199,12 +199,12 @@ describe('AppearanceRuntime', () => {
       id: 'theme-tokens',
       validate: () => [],
       apply: next => {
-        if (next?.tokens['--openbitfun-color-surface-canvas'] !== 'second') return;
+        if (next?.tokens['--alex-color-surface-canvas'] !== 'second') return;
         const stagedStyle = document.querySelector<HTMLStyleElement>(
-          'style[data-openbitfun-appearance-runtime="2"]',
+          'style[data-alex-appearance-runtime="2"]',
         );
         observations.push({
-          rootRevision: document.documentElement.getAttribute('data-openbitfun-appearance-revision'),
+          rootRevision: document.documentElement.getAttribute('data-alex-appearance-revision'),
           stagedCss: stagedStyle?.textContent ?? '',
         });
       },
@@ -218,15 +218,15 @@ describe('AppearanceRuntime', () => {
 
     expect(observations).toEqual([expect.objectContaining({ rootRevision: '1' })]);
     expect(observations[0].stagedCss).toContain(
-      '[data-openbitfun-appearance="test.same-id"][data-openbitfun-appearance-revision="2"]',
+      '[data-alex-appearance="test.same-id"][data-alex-appearance-revision="2"]',
     );
-    expect(document.documentElement.getAttribute('data-openbitfun-appearance-revision')).toBe('2');
-    expect(document.querySelectorAll('style[data-openbitfun-appearance-runtime]')).toHaveLength(1);
+    expect(document.documentElement.getAttribute('data-alex-appearance-revision')).toBe('2');
+    expect(document.querySelectorAll('style[data-alex-appearance-runtime]')).toHaveLength(1);
   });
 
   it('applies normal cascade after legacy styles and reserves important for explicit overrides', async () => {
     document.head.innerHTML = '<style>.legacy-gallery { color: rgb(255, 0, 0); }</style>';
-    document.body.innerHTML = '<div class="legacy-gallery" data-openbitfun-component="gallery-layout" data-openbitfun-part="root">Run</div>';
+    document.body.innerHTML = '<div class="legacy-gallery" data-alex-component="gallery-layout" data-alex-part="root">Run</div>';
     const registry = new AppearanceRegistry()
       .registerComponent({ id: 'gallery-layout', parts: [{ id: 'root' }] })
       .freeze();
@@ -248,7 +248,7 @@ describe('AppearanceRuntime', () => {
     };
 
     await runtime.initialize(basePackage);
-    const gallery = document.querySelector('[data-openbitfun-component="gallery-layout"]') as HTMLDivElement;
+    const gallery = document.querySelector('[data-alex-component="gallery-layout"]') as HTMLDivElement;
     expect(window.getComputedStyle(gallery).color).toBe('rgb(0, 255, 0)');
 
     gallery.style.color = 'rgb(255, 0, 0)';

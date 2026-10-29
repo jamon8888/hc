@@ -18,7 +18,7 @@ vi.mock('react-i18next', async () => {
   };
 });
 
-vi.mock('@openbitfun/ui', () => ({
+vi.mock('@alex/ui', () => ({
   Button: ({
     children,
     onClick,

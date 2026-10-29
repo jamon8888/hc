@@ -13,7 +13,7 @@ vi.mock('@/infrastructure/appearance', () => ({
     appearances: [
       {
         id: 'openbitfun-light',
-        name: 'OpenBitFun Light',
+        name: 'Alex Light',
         version: '1.0.0',
         mode: 'light',
         source: 'builtin',
@@ -26,7 +26,7 @@ vi.mock('@/infrastructure/appearance', () => ({
         source: 'imported',
       },
     ],
-    current: { id: 'openbitfun-light', name: 'OpenBitFun Light' },
+    current: { id: 'openbitfun-light', name: 'Alex Light' },
     initialized: true,
     select: selectAppearance,
     selectedAppearanceId: 'openbitfun-light',

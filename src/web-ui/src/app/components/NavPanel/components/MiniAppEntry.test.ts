@@ -33,8 +33,8 @@ describe('MiniAppEntry navigation presentation', () => {
     expect(source).not.toContain('role="button"');
     expect(source).toContain('leading={(');
     expect(stylesheet).toContain('&__miniapp-entry-icon');
-    expect(stylesheet).toContain('padding: 8px 10px 8px var(--openbitfun-space-2);');
-    expect(stylesheet).toContain('gap: var(--openbitfun-space-2);');
+    expect(stylesheet).toContain('padding: 8px 10px 8px var(--alex-space-2);');
+    expect(stylesheet).toContain('gap: var(--alex-space-2);');
     expect(stylesheet).toContain('flex: 0 0 var(--_nav-icon-slot-size);');
   });
 });

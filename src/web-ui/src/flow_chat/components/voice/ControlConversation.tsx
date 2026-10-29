@@ -1,6 +1,6 @@
 import { useContext, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Button, Dialog, IconButton, Tooltip, VoiceCallTranscript, type VoiceTranscriptEntry } from '@openbitfun/ui';
-import { ToolProcessingDots } from '@openbitfun/ui/flow-chat';
+import { Button, Dialog, IconButton, Tooltip, VoiceCallTranscript, type VoiceTranscriptEntry } from '@alex/ui';
+import { ToolProcessingDots } from '@alex/ui/flow-chat';
 import { SquarePen } from 'lucide-react';
 import { useI18n } from '@/infrastructure/i18n';
 import { notificationService } from '@/shared/notification-system';
@@ -82,8 +82,8 @@ export function ControlConversation({ session, sessionRef, voiceTarget, active, 
     const presentation = parseComposerPresentation(turn.userMessage.metadata?.composerPresentation);
     if (turn.userMessage.content || turn.userMessage.images?.length) entries.push({ id: `${row.id}:user`, role: 'user', content: <>
       {presentation ? <UserMessagePresentationContent presentation={presentation} /> : turn.userMessage.content}
-      {!!turn.userMessage.images?.length && <div className="openbitfun-conversation-mode-surface__images"
-        data-openbitfun-component="conversation-mode-surface" data-openbitfun-part="images">
+      {!!turn.userMessage.images?.length && <div className="alex-conversation-mode-surface__images"
+        data-alex-component="conversation-mode-surface" data-alex-part="images">
         {turn.userMessage.images.map(image => <UserMessageImage key={image.id} image={image} onPreview={setPreview} />)}
       </div>}
     </>, activity: turn.id === processingTurnId
@@ -155,8 +155,8 @@ export function ControlConversation({ session, sessionRef, voiceTarget, active, 
     <IconButton size="sm" variant="quiet" icon={<SquarePen size={16} />} aria-label={t('dock.newConversation')}
       disabled={conversationBusy || historyBusy} loading={creatingConversation} onClick={() => void createConversation()} />
   </Tooltip> : undefined;
-  const historyFeedback = failedHistory || historyBusy ? <div className="openbitfun-conversation-mode-surface__history" role="status"
-    data-openbitfun-component="conversation-mode-surface" data-openbitfun-part="history">
+  const historyFeedback = failedHistory || historyBusy ? <div className="alex-conversation-mode-surface__history" role="status"
+    data-alex-component="conversation-mode-surface" data-alex-part="history">
     {historyBusy ? t('dock.loadingHistory') : <><span>{failedHistory}</span>
       <Button size="sm" variant="fill" onClick={() => void loadEarlier()}>{t('dock.retry')}</Button></>}
   </div> : undefined;
@@ -167,12 +167,12 @@ export function ControlConversation({ session, sessionRef, voiceTarget, active, 
       requiresTextInput={Boolean(ownedRequests.length || needsAnswer)} onCloseVoice={onClose} onVoiceViewChange={onVoiceViewChange}
       transcript={mode => <VoiceCallTranscript compact presentation={mode} entries={entries} status={status || sessionError} header={historyFeedback}
         onLoadEarlier={active && canLoadEarlier && !historyBusy && !failedHistory ? () => void loadEarlier() : undefined}
-        className="openbitfun-conversation-mode-surface__transcript" />}>
+        className="alex-conversation-mode-surface__transcript" />}>
       <ControlComposer active={active} />
     </ConversationModeSurface>
     {preview && <Dialog open aria-label={t('context.image')} onOpenChange={() => setPreview(null)}>
-      <img className="openbitfun-conversation-mode-surface__image-preview" src={preview} alt={t('context.image')}
-        data-openbitfun-component="conversation-mode-surface" data-openbitfun-part="imagePreview" />
+      <img className="alex-conversation-mode-surface__image-preview" src={preview} alt={t('context.image')}
+        data-alex-component="conversation-mode-surface" data-alex-part="imagePreview" />
     </Dialog>}
   </>;
 }

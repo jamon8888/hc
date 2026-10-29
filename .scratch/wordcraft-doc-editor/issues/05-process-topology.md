@@ -21,7 +21,7 @@ Four topological decisions, all aligned with root AGENTS.md:
    ("fix report.docx"); anything outside the workspace is refused by upstream's own gate with a
    readable error. Workspace switch = stop the session's server, next prompt re-resolves.
 4. **Spawn policy (hard requirement)**: all WordCraft processes spawn exclusively through
-   `openbitfun_services_core::process_manager::{create_command, create_tokio_command}` — margins
+   `alex_services_core::process_manager::{create_command, create_tokio_command}` — margins
    must exclude bare `std::process::Command`/`tokio::process::Command` — so Windows gets
    `CREATE_NO_WINDOW`; no console-window flashes. Discovery/order per ticket 01
    (explicit path → PATH → managed component).

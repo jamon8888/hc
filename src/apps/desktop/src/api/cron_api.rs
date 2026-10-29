@@ -1,7 +1,7 @@
 //! Scheduled jobs API.
 
 use log::{debug, error};
-use openbitfun_core::service::cron::{
+use alex_core::service::cron::{
     get_global_cron_service, CreateCronJobRequest, CronJob, CronJobTargetKind, UpdateCronJobRequest,
 };
 use serde::Deserialize;
@@ -30,7 +30,7 @@ pub struct DeleteCronJobRequest {
     pub job_id: String,
 }
 
-fn cron_service() -> Result<std::sync::Arc<openbitfun_core::service::cron::CronService>, String> {
+fn cron_service() -> Result<std::sync::Arc<alex_core::service::cron::CronService>, String> {
     get_global_cron_service().ok_or_else(|| "Cron service is not initialized".to_string())
 }
 
@@ -51,7 +51,7 @@ pub async fn list_cron_jobs(request: ListCronJobsRequest) -> Result<Vec<CronJob>
         || request.workspace_path.is_some()
         || request.remote_connection_id.is_some()
     {
-        let workspaces = openbitfun_core::service::workspace::get_global_workspace_service()
+        let workspaces = alex_core::service::workspace::get_global_workspace_service()
             .ok_or_else(|| "Workspace service is unavailable".to_string())?;
         Some(
             workspaces

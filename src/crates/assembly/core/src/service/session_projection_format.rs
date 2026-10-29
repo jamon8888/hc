@@ -1,1 +1,1 @@
-pub(crate) use openbitfun_services_core::session_projection_format::*;
+pub(crate) use alex_services_core::session_projection_format::*;

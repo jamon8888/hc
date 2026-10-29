@@ -8,7 +8,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex, OnceLock};
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
-use openbitfun_core::agentic::tools::frontend_workbench_host::{
+use alex_core::agentic::tools::frontend_workbench_host::{
     set_frontend_workbench_handler, FrontendWorkbenchHostRequest,
 };
 use serde::{Deserialize, Serialize};
@@ -18,8 +18,8 @@ use tauri::{Manager, Url, WebviewUrl, WebviewWindowBuilder};
 use tokio::sync::Notify;
 use uuid::Uuid;
 
-pub const FRONTEND_PROTOCOL_SCHEME: &str = "openbitfun-ui";
-pub const FRONTEND_URL: &str = "openbitfun-ui://localhost/index.html";
+pub const FRONTEND_PROTOCOL_SCHEME: &str = "alex-ui";
+pub const FRONTEND_URL: &str = "alex-ui://localhost/index.html";
 const CONFIRM_WINDOW_LABEL: &str = "frontend-update-confirm";
 const CONFIRM_TIMEOUT: Duration = Duration::from_secs(15);
 const CANDIDATE_READY_TIMEOUT: Duration = Duration::from_secs(15);
@@ -223,7 +223,7 @@ impl FrontendWorkbenchManager {
                 );
             } else {
                 // Never keep serving an unconfirmed candidate just because its
-                // prior revision was damaged outside OpenBitFun. The bundled copy
+                // prior revision was damaged outside Alex. The bundled copy
                 // below becomes the recovery target.
                 state.active_revision = None;
                 state.previous_revision = None;
@@ -355,7 +355,7 @@ impl FrontendWorkbenchManager {
             "prepare" => self.prepare(),
             "status" => self.status(),
             "inspect" | "invoke" => {
-                let runtime = crate::openbitfun_control_host::dispatch_creation_runtime(
+                let runtime = crate::alex_control_host::dispatch_creation_runtime(
                     &request.action,
                     request.command_id,
                     request.arguments,
@@ -426,7 +426,7 @@ impl FrontendWorkbenchManager {
         fs::write(
             draft_path.join("CREATION.md"),
             format!(
-                "# OpenBitFun UI customization\n\nDraft id: `{draft_id}`\nBase revision: `{active_revision}`\n\nRead `openbitfun-creation-api.md`. Edit `openbitfun-creation.css` and `openbitfun-creation.js`; put optional modules/assets under `creation-assets/`. JavaScript exports a default activation function receiving the versioned UI API, and may return cleanup. The host loads it after the real shell is ready and loads CSS last. No repository, Node.js, package installation, build, or index.html edit is needed. Preserve existing customizations unless asked to replace them. Apply with `FrontendWorkbench` and this draft id. The host waits for activation, then provides 15 seconds to keep or roll back.\n"
+                "# Alex UI customization\n\nDraft id: `{draft_id}`\nBase revision: `{active_revision}`\n\nRead `alex-creation-api.md`. Edit `alex-creation.css` and `alex-creation.js`; put optional modules/assets under `creation-assets/`. JavaScript exports a default activation function receiving the versioned UI API, and may return cleanup. The host loads it after the real shell is ready and loads CSS last. No repository, Node.js, package installation, build, or index.html edit is needed. Preserve existing customizations unless asked to replace them. Apply with `FrontendWorkbench` and this draft id. The host waits for activation, then provides 15 seconds to keep or roll back.\n"
             ),
         )
         .map_err(io_error("write draft instructions"))?;
@@ -1234,7 +1234,7 @@ impl FrontendWorkbenchManager {
 fn ensure_local_confirmation_surface(attached_peer_controllers: usize) -> Result<(), String> {
     if attached_peer_controllers > 0 {
         return Err(
-            "FrontendWorkbench is unavailable while this OpenBitFun host is controlled through Peer Device Mode; run Creative mode on the visible local desktop instead"
+            "FrontendWorkbench is unavailable while this Alex host is controlled through Peer Device Mode; run Creative mode on the visible local desktop instead"
                 .to_string(),
         );
     }
@@ -1349,7 +1349,7 @@ fn show_confirmation_window(
     }
     let url = confirmation_window_url(transaction_id);
     let window = WebviewWindowBuilder::new(app, CONFIRM_WINDOW_LABEL, url)
-        .title("Review OpenBitFun frontend update")
+        .title("Review Alex frontend update")
         .inner_size(440.0, 286.0)
         .resizable(false)
         .always_on_top(true)
@@ -1403,9 +1403,9 @@ fn revision_frontend_url_value(
         .map_err(|error| format!("Invalid frontend URL: {error}"))?;
     {
         let mut query = url.query_pairs_mut();
-        query.append_pair("openbitfunFrontendRevision", revision_id);
+        query.append_pair("alexFrontendRevision", revision_id);
         if let Some(transaction_id) = transaction_id {
-            query.append_pair("openbitfunFrontendTransaction", transaction_id);
+            query.append_pair("alexFrontendTransaction", transaction_id);
         }
     }
     Ok(url)
@@ -1443,7 +1443,7 @@ fn same_main_navigation_target(left: &Url, right: &Url) -> bool {
 fn main_navigation_key(url: &Url) -> String {
     let is_native_custom_protocol = url.scheme() == FRONTEND_PROTOCOL_SCHEME;
     let is_windows_custom_protocol = matches!(url.scheme(), "http" | "https")
-        && url.host_str() == Some("openbitfun-ui.localhost");
+        && url.host_str() == Some("alex-ui.localhost");
     if is_native_custom_protocol || is_windows_custom_protocol {
         let mut key = format!("{FRONTEND_PROTOCOL_SCHEME}://localhost{}", url.path());
         if let Some(query) = url.query() {
@@ -1796,7 +1796,7 @@ mod tests {
         );
         assert_eq!(
             upgraded
-                .read_protocol_asset("/openbitfun-creation.css")
+                .read_protocol_asset("/alex-creation.css")
                 .unwrap()
                 .0,
             b"/* user design */"
@@ -2386,10 +2386,10 @@ mod tests {
 
     #[test]
     fn custom_frontend_navigation_matches_the_windows_protocol_projection() {
-        let native = "openbitfun-ui://localhost/index.html?openbitfunFrontendRevision=creative-1&openbitfunFrontendTransaction=tx"
+        let native = "alex-ui://localhost/index.html?alexFrontendRevision=creative-1&alexFrontendTransaction=tx"
             .parse::<Url>()
             .expect("native URL");
-        let windows = "http://openbitfun-ui.localhost/index.html?openbitfunFrontendRevision=creative-1&openbitfunFrontendTransaction=tx"
+        let windows = "http://alex-ui.localhost/index.html?alexFrontendRevision=creative-1&alexFrontendTransaction=tx"
             .parse::<Url>()
             .expect("Windows URL");
 
@@ -2401,7 +2401,7 @@ mod tests {
         let temp = tempfile::tempdir().expect("tempdir");
         let manager = FrontendWorkbenchManager::new(temp.path());
         let request = tauri::http::Request::builder()
-            .uri("openbitfun-ui://localhost/index.html")
+            .uri("alex-ui://localhost/index.html")
             .body(Vec::new())
             .expect("request");
 
@@ -2411,7 +2411,7 @@ mod tests {
             response.status(),
             tauri::http::StatusCode::SERVICE_UNAVAILABLE
         );
-        assert!(String::from_utf8_lossy(response.body()).contains("OpenBitFun frontend recovery"));
+        assert!(String::from_utf8_lossy(response.body()).contains("Alex frontend recovery"));
     }
 
     #[test]
@@ -2434,7 +2434,7 @@ mod tests {
         let temp = tempfile::tempdir().expect("tempdir");
         let manager = FrontendWorkbenchManager::new(temp.path());
         let request = tauri::http::Request::builder()
-            .uri("openbitfun-ui://localhost/frontend-update-confirm.html?transactionId=probe")
+            .uri("alex-ui://localhost/frontend-update-confirm.html?transactionId=probe")
             .body(Vec::new())
             .expect("request");
 
@@ -2453,7 +2453,7 @@ mod tests {
         let temp = tempfile::tempdir().expect("tempdir");
         let manager = FrontendWorkbenchManager::new(temp.path());
         let request = tauri::http::Request::builder()
-            .uri("openbitfun-ui://localhost/bootstrap-theme.css")
+            .uri("alex-ui://localhost/bootstrap-theme.css")
             .body(Vec::new())
             .expect("request");
 
@@ -2467,8 +2467,8 @@ mod tests {
                 "text/css; charset=utf-8"
             ))
         );
-        assert!(body.contains("--openbitfun-color-surface-canvas"));
-        assert!(body.contains("--openbitfun-color-status-danger-content"));
-        assert!(!body.contains("--openbitfun-appearance-token-"));
+        assert!(body.contains("--alex-color-surface-canvas"));
+        assert!(body.contains("--alex-color-status-danger-content"));
+        assert!(!body.contains("--alex-appearance-token-"));
     }
 }

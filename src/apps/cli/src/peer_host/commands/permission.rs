@@ -2,9 +2,9 @@
 
 use serde_json::{json, Value};
 
-use openbitfun_agent_runtime::sdk::{PermissionGrantKey, PermissionReply};
-use openbitfun_core::agentic::workspace::WorkspaceBinding;
-use openbitfun_core::service::workspace::WorkspaceKind;
+use alex_agent_runtime::sdk::{PermissionGrantKey, PermissionReply};
+use alex_core::agentic::workspace::WorkspaceBinding;
+use alex_core::service::workspace::WorkspaceKind;
 
 use crate::peer_host::args::{get_string, request_value};
 use crate::peer_host::state::PeerHostState;
@@ -55,7 +55,7 @@ async fn permission_project_id_for_workspace(
     let binding = WorkspaceBinding::resolve(&workspace.id)
         .await
         .map_err(|error| format!("Workspace identity is unavailable: {workspace_id}: {error}"))?;
-    openbitfun_core::agentic::tools::pipeline::permission_project_id_for_workspace_identity(
+    alex_core::agentic::tools::pipeline::permission_project_id_for_workspace_identity(
         &binding.session_identity,
         is_remote,
     )
@@ -240,7 +240,7 @@ pub(crate) async fn session_permission_mode(
     active_turn_only: bool,
 ) -> Result<Value, String> {
     use crate::peer_host::args::{get_string, optional_string};
-    use openbitfun_core::agentic::core::SessionState;
+    use alex_core::agentic::core::SessionState;
 
     let request = request_value(args);
     let session_id = get_string(request, "sessionId")?;
@@ -300,8 +300,8 @@ pub(crate) async fn session_permission_mode(
 
 fn parse_selector_mode(
     request: &Value,
-) -> Result<Option<openbitfun_runtime_ports::PermissionMode>, String> {
-    use openbitfun_runtime_ports::PermissionMode;
+) -> Result<Option<alex_runtime_ports::PermissionMode>, String> {
+    use alex_runtime_ports::PermissionMode;
     match request.get("mode") {
         None | Some(Value::Null) => Ok(None),
         Some(Value::String(value)) if value.trim().is_empty() => Ok(None),
@@ -316,7 +316,7 @@ fn parse_selector_mode(
 #[cfg(test)]
 mod selector_tests {
     use super::*;
-    use openbitfun_runtime_ports::PermissionMode;
+    use alex_runtime_ports::PermissionMode;
 
     #[test]
     fn legacy_and_current_selectors_preserve_clear_and_explicit_modes() {

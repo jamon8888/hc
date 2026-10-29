@@ -31,7 +31,7 @@ use crate::config::CliConfig;
 /// - Random tips
 use anyhow::{anyhow, Result};
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
-use openbitfun_product_domains::agent_catalog::{SkillSummary, SubagentSummary};
+use alex_product_domains::agent_catalog::{SkillSummary, SubagentSummary};
 use ratatui::{
     backend::Backend,
     layout::{Alignment, Constraint, Direction, Layout, Rect},
@@ -50,7 +50,7 @@ use crate::agent::runtime_client::{CliAgentMode as TuiAgentMode, CliAgentRuntime
 use crate::model_selection::{
     model_catalog_projection, model_edit_projection, model_from_mutation, model_list_projection,
 };
-use openbitfun_core::service::remote_connect::account_runtime::AccountRuntime;
+use alex_core::service::remote_connect::account_runtime::AccountRuntime;
 
 /// Types of popups that can be shown on the startup page
 #[derive(Debug, Clone, PartialEq)]
@@ -1041,7 +1041,7 @@ impl StartupPage {
             ActionHandler::AddModel => {
                 let catalog = tokio::task::block_in_place(|| {
                     tokio::runtime::Handle::current().block_on(async {
-                        let catalog = openbitfun_core::get_ai_model_catalog()
+                        let catalog = alex_core::get_ai_model_catalog()
                             .await
                             .map_err(anyhow::Error::msg)?;
                         Ok::<_, anyhow::Error>(model_catalog_projection(catalog))
@@ -1289,7 +1289,7 @@ impl StartupPage {
             return Some(StartupResult::Exit);
         }
         if trimmed.starts_with('/')
-            && openbitfun_core::agentic::goal_mode::goal_objective_from_prompt(&trimmed).is_none()
+            && alex_core::agentic::goal_mode::goal_objective_from_prompt(&trimmed).is_none()
         {
             if !self.image_attachments.is_empty() {
                 self.status = Some(IMAGE_ATTACHMENTS_REQUIRE_MESSAGE.to_string());
@@ -1415,7 +1415,7 @@ impl StartupPage {
 
     fn open_account_panel(
         &mut self,
-        snapshot: openbitfun_product_domains::account::AccountSnapshotProjection,
+        snapshot: alex_product_domains::account::AccountSnapshotProjection,
     ) {
         let Some(info) = snapshot.info else {
             self.login_form.show();
@@ -1435,7 +1435,7 @@ impl StartupPage {
                         account.advance_github_login(transaction_id).await
                     })
                 });
-                use openbitfun_core::service::remote_connect::account_runtime::AccountLoginProgress;
+                use alex_core::service::remote_connect::account_runtime::AccountLoginProgress;
                 match result {
                     Ok(AccountLoginProgress::Authorization(authorization)) => {
                         self.login_form.set_authorization(authorization)
@@ -1570,7 +1570,7 @@ impl StartupPage {
 
         let result = tokio::task::block_in_place(|| {
             tokio::runtime::Handle::current().block_on(async {
-                let config_service = openbitfun_core::service::config::get_global_config_service()
+                let config_service = alex_core::service::config::get_global_config_service()
                     .await
                     .ok()?;
                 let models = config_service.get_ai_models().await.ok()?;
@@ -1620,7 +1620,7 @@ impl StartupPage {
                     return true;
                 }
                 let config_service =
-                    match openbitfun_core::service::config::get_global_config_service().await {
+                    match alex_core::service::config::get_global_config_service().await {
                         Ok(service) => service,
                         Err(error) => {
                             tracing::error!("Failed to load model configuration: {error}");
@@ -1694,7 +1694,7 @@ impl StartupPage {
             tokio::runtime::Handle::current()
                 .block_on(async {
                     let config_service =
-                        openbitfun_core::service::config::get_global_config_service().await?;
+                        alex_core::service::config::get_global_config_service().await?;
                     let model = model_from_mutation(mutation, None)?;
                     config_service
                         .add_ai_model(model)
@@ -1728,7 +1728,7 @@ impl StartupPage {
         let result = tokio::task::block_in_place(|| {
             tokio::runtime::Handle::current().block_on(async {
                 let config_service =
-                    openbitfun_core::service::config::get_global_config_service().await?;
+                    alex_core::service::config::get_global_config_service().await?;
                 let model = config_service
                     .get_ai_models()
                     .await
@@ -1769,7 +1769,7 @@ impl StartupPage {
                         anyhow::bail!("Model update identity does not match the request target")
                     }
                     let config_service =
-                        openbitfun_core::service::config::get_global_config_service().await?;
+                        alex_core::service::config::get_global_config_service().await?;
                     let existing = config_service
                         .get_ai_models()
                         .await
@@ -1980,10 +1980,10 @@ impl StartupPage {
                     .workspace_id()
                     .ok_or_else(|| anyhow::anyhow!("Workspace ID is unavailable"))?;
                 let workspace =
-                    openbitfun_core::agentic::workspace::WorkspaceBinding::resolve(&workspace_id)
+                    alex_core::agentic::workspace::WorkspaceBinding::resolve(&workspace_id)
                         .await?;
                 let values =
-                    openbitfun_core::agentic::tools::implementations::skills::get_skill_registry()
+                    alex_core::agentic::tools::implementations::skills::get_skill_registry()
                         .get_user_invocable_skills_for_workspace(
                             Some(&workspace),
                             Some(&self.agent_type),
@@ -2037,12 +2037,12 @@ impl StartupPage {
                     .workspace_id()
                     .ok_or_else(|| anyhow::anyhow!("Workspace ID is unavailable"))?;
                 let workspace =
-                    openbitfun_core::agentic::workspace::WorkspaceBinding::resolve(&workspace_id)
+                    alex_core::agentic::workspace::WorkspaceBinding::resolve(&workspace_id)
                         .await?;
                 let values =
-                    openbitfun_core::agentic::tools::implementations::skills::get_skill_registry()
+                    alex_core::agentic::tools::implementations::skills::get_skill_registry()
                         .get_mode_skill_infos_for_workspace(
-                            openbitfun_core::agentic::tools::implementations::skills::mode_overrides::SkillPolicyWorkspace::from_binding(&workspace),
+                            alex_core::agentic::tools::implementations::skills::mode_overrides::SkillPolicyWorkspace::from_binding(&workspace),
                             &self.agent_type,
                         )
                         .await;
@@ -2102,12 +2102,12 @@ impl StartupPage {
                 let workspace = std::path::PathBuf::from(self.agent.workspace_path_string());
                 match skill.level.as_str() {
                     "user" => {
-                        openbitfun_core::agentic::tools::implementations::skills::mode_overrides::set_user_mode_skill_state(&mode_id, &skill.key, enabled, skill.default_enabled).await.map_err(anyhow::Error::msg)?;
+                        alex_core::agentic::tools::implementations::skills::mode_overrides::set_user_mode_skill_state(&mode_id, &skill.key, enabled, skill.default_enabled).await.map_err(anyhow::Error::msg)?;
                     }
                     "project" => {
-                        let mut document = openbitfun_core::agentic::tools::implementations::skills::mode_overrides::load_project_mode_skills_document_local(&workspace).await.map_err(anyhow::Error::msg)?;
-                        openbitfun_core::agentic::tools::implementations::skills::mode_overrides::set_mode_skill_disabled_in_document(&mut document, &mode_id, &skill.key, !enabled).map_err(anyhow::Error::msg)?;
-                        openbitfun_core::agentic::tools::implementations::skills::mode_overrides::save_project_mode_skills_document_local(&workspace, &document).await.map_err(anyhow::Error::msg)?;
+                        let mut document = alex_core::agentic::tools::implementations::skills::mode_overrides::load_project_mode_skills_document_local(&workspace).await.map_err(anyhow::Error::msg)?;
+                        alex_core::agentic::tools::implementations::skills::mode_overrides::set_mode_skill_disabled_in_document(&mut document, &mode_id, &skill.key, !enabled).map_err(anyhow::Error::msg)?;
+                        alex_core::agentic::tools::implementations::skills::mode_overrides::save_project_mode_skills_document_local(&workspace, &document).await.map_err(anyhow::Error::msg)?;
                     }
                     level => anyhow::bail!("Unsupported skill level '{level}'"),
                 }
@@ -2158,13 +2158,13 @@ impl StartupPage {
                     .agent
                     .workspace_id()
                     .ok_or_else(|| anyhow::anyhow!("Workspace ID is unavailable"))?;
-                let values = openbitfun_core::agentic::agents::get_agent_registry()
+                let values = alex_core::agentic::agents::get_agent_registry()
                     .get_subagents_for_query(
-                        &openbitfun_core::agentic::agents::SubagentQueryContext {
+                        &alex_core::agentic::agents::SubagentQueryContext {
                             parent_agent_type: Some(&self.agent_type),
                             workspace_id: Some(&workspace_id),
                             list_scope:
-                                openbitfun_core::agentic::agents::SubagentListScope::TaskVisible,
+                                alex_core::agentic::agents::SubagentListScope::TaskVisible,
                             include_disabled: false,
                             external_sources_supported: true,
                         },
@@ -2214,26 +2214,26 @@ impl StartupPage {
                     anyhow::bail!("Subagent management is unavailable for a Remote workspace")
                 }
                 let workspace_id = self.agent.workspace_id().ok_or_else(|| anyhow::anyhow!("Workspace ID is unavailable"))?;
-                let values = openbitfun_core::agentic::agents::get_agent_registry()
-                    .get_subagents_for_query(&openbitfun_core::agentic::agents::SubagentQueryContext {
+                let values = alex_core::agentic::agents::get_agent_registry()
+                    .get_subagents_for_query(&alex_core::agentic::agents::SubagentQueryContext {
                         parent_agent_type: Some(&self.agent_type),
                         workspace_id: Some(&workspace_id),
                         list_scope:
-                            openbitfun_core::agentic::agents::SubagentListScope::RegistryManagement,
+                            alex_core::agentic::agents::SubagentListScope::RegistryManagement,
                         include_disabled: true,
                         external_sources_supported: true,
                     })
                     .await;
                 let has_external = values.iter().any(|info| {
                     info.subagent_source
-                        == Some(openbitfun_core::agentic::agents::SubAgentSource::External)
+                        == Some(alex_core::agentic::agents::SubAgentSource::External)
                 });
                 Ok::<_, anyhow::Error>((
                     values
                         .into_iter()
                         .filter(|info| {
                             info.subagent_source
-                                != Some(openbitfun_core::agentic::agents::SubAgentSource::External)
+                                != Some(alex_core::agentic::agents::SubAgentSource::External)
                         })
                         .map(startup_subagent_summary)
                         .collect::<Vec<_>>(),
@@ -2292,7 +2292,7 @@ impl StartupPage {
                     .agent
                     .workspace_id()
                     .ok_or_else(|| anyhow::anyhow!("Workspace ID is unavailable"))?;
-                openbitfun_core::agentic::agents::get_agent_registry()
+                alex_core::agentic::agents::get_agent_registry()
                     .update_subagent_override(&mode_id, &subagent.id, enabled, Some(&workspace_id))
                     .await
                     .map_err(anyhow::Error::msg)
@@ -2424,7 +2424,7 @@ impl StartupPage {
         let profile_model_id = self.selected_agent_mode().and_then(|mode| mode.model_id);
         let result: Option<String> = tokio::task::block_in_place(|| {
             tokio::runtime::Handle::current().block_on(async {
-                let config_service = openbitfun_core::service::config::get_global_config_service()
+                let config_service = alex_core::service::config::get_global_config_service()
                     .await
                     .ok()?;
                 let models = config_service.get_ai_models().await.ok()?;
@@ -2458,7 +2458,7 @@ impl StartupPage {
 }
 
 fn startup_skill_summary(
-    info: openbitfun_core::agentic::tools::implementations::skills::SkillInfo,
+    info: alex_core::agentic::tools::implementations::skills::SkillInfo,
 ) -> SkillSummary {
     SkillSummary {
         key: info.key,
@@ -2477,7 +2477,7 @@ fn startup_skill_summary(
 }
 
 fn startup_mode_skill_summary(
-    info: openbitfun_core::agentic::tools::implementations::skills::ModeSkillInfo,
+    info: alex_core::agentic::tools::implementations::skills::ModeSkillInfo,
 ) -> SkillSummary {
     let skill = info.skill;
     SkillSummary {
@@ -2496,7 +2496,7 @@ fn startup_mode_skill_summary(
     }
 }
 
-fn startup_subagent_summary(info: openbitfun_core::agentic::agents::AgentInfo) -> SubagentSummary {
+fn startup_subagent_summary(info: alex_core::agentic::agents::AgentInfo) -> SubagentSummary {
     SubagentSummary {
         key: info.key,
         id: info.id,
@@ -2505,12 +2505,12 @@ fn startup_subagent_summary(info: openbitfun_core::agentic::agents::AgentInfo) -
         source: format!(
             "{:?}",
             info.subagent_source
-                .unwrap_or(openbitfun_core::agentic::agents::SubAgentSource::Builtin)
+                .unwrap_or(alex_core::agentic::agents::SubAgentSource::Builtin)
         )
         .to_ascii_lowercase(),
         enabled: info.effective_enabled,
         is_external: info.subagent_source
-            == Some(openbitfun_core::agentic::agents::SubAgentSource::External),
+            == Some(alex_core::agentic::agents::SubAgentSource::External),
         supports_follow_up: info.supports_follow_up,
     }
 }

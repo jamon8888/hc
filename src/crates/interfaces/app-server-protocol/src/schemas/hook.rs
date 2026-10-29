@@ -6,14 +6,14 @@
 
 #[cfg(feature = "rpc")]
 use agent_client_protocol::{JsonRpcRequest, JsonRpcResponse};
-use openbitfun_product_domains::external_hook_import::{
+use alex_product_domains::external_hook_import::{
     ExternalHookImportApplyRequestV1, ExternalHookImportApplyResultV1,
     ExternalHookImportMutationRequestV1, ExternalHookImportPlanV1, ExternalHookImportSnapshotV1,
 };
-use openbitfun_product_domains::external_sources::SourceKey;
+use alex_product_domains::external_sources::SourceKey;
 use serde::{Deserialize, Serialize};
 
-pub use openbitfun_product_domains::native_hooks::{
+pub use alex_product_domains::native_hooks::{
     NativeHookFileSummary, NativeHookHandlerSummary, NativeHookOverview, NativeHookRuleSummary,
 };
 
@@ -173,7 +173,7 @@ pub struct ExternalHookMutationResponse(pub ExternalHookImportSnapshotV1);
 #[cfg(test)]
 mod tests {
     use super::*;
-    use openbitfun_product_domains::external_hook_import::{
+    use alex_product_domains::external_hook_import::{
         ExternalHookImportMutationV1, EXTERNAL_HOOK_IMPORT_SCHEMA_V1,
     };
 

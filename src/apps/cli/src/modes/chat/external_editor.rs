@@ -32,13 +32,13 @@ pub(super) fn resolve_editor_command() -> Result<EditorCommand, EditorConfigErro
         .is_some_and(|value| !value.trim().is_empty())
     {
         return resolve_editor_command_from(visual.as_deref(), None, |program| {
-            let result = openbitfun_services_core::system::check_command(program);
+            let result = alex_services_core::system::check_command(program);
             result.path.map(PathBuf::from)
         });
     }
     let editor = read_editor_variable("EDITOR")?;
     resolve_editor_command_from(visual.as_deref(), editor.as_deref(), |program| {
-        let result = openbitfun_services_core::system::check_command(program);
+        let result = alex_services_core::system::check_command(program);
         result.path.map(PathBuf::from)
     })
 }
@@ -152,7 +152,7 @@ pub(super) fn run_external_editor(
 ) -> Result<ExternalEditResult, EditorRunError> {
     let temp_prefix = format!(
         "{}-editor-",
-        openbitfun_core_types::product_identity::data_namespace()
+        alex_core_types::product_identity::data_namespace()
     );
     let mut temp_file = tempfile::Builder::new()
         .prefix(&temp_prefix)

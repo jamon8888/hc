@@ -1,14 +1,14 @@
 .mcp-config-editor {
   display: flex;
   flex-direction: column;
-  gap: var(--openbitfun-space-4);
+  gap: var(--alex-space-4);
   min-width: 0;
 
   &__field,
   &__section {
     display: flex;
     flex-direction: column;
-    gap: var(--openbitfun-space-2);
+    gap: var(--alex-space-2);
     min-width: 0;
   }
 
@@ -19,7 +19,7 @@
   &__key-value {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
-    gap: var(--openbitfun-space-2);
+    gap: var(--alex-space-2);
     align-items: center;
   }
 
@@ -28,7 +28,7 @@
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: var(--openbitfun-space-2);
+    gap: var(--alex-space-2);
     min-width: 0;
   }
 
@@ -41,35 +41,35 @@
   &__actions {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--openbitfun-space-2);
+    gap: var(--alex-space-2);
   }
 
   &__hint,
   &__error {
     margin: 0;
-    font-size: var(--openbitfun-type-label-sm-font-size);
-    line-height: var(--openbitfun-type-body-lg-line-height);
+    font-size: var(--alex-type-label-sm-font-size);
+    line-height: var(--alex-type-body-lg-line-height);
     overflow-wrap: anywhere;
   }
 
   &__hint {
-    color: var(--openbitfun-color-content-muted);
+    color: var(--alex-color-content-muted);
   }
 
   &__error {
-    color: var(--openbitfun-color-status-danger-content);
+    color: var(--alex-color-status-danger-content);
   }
 
   &__advanced {
-    border-top: 1px solid var(--openbitfun-color-border-subtle);
-    padding-top: var(--openbitfun-space-2);
+    border-top: 1px solid var(--alex-color-border-subtle);
+    padding-top: var(--alex-space-2);
     min-width: 0;
   }
 
   &__advanced-fields {
     display: flex;
     flex-direction: column;
-    gap: var(--openbitfun-space-4);
+    gap: var(--alex-space-4);
     min-width: 0;
   }
 

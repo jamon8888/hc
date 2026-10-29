@@ -3,7 +3,7 @@
 //! Keeps core-owned tool execution state and re-exports runtime-owned session state facts.
 
 use crate::agentic::tools::framework::ToolResult;
-pub use openbitfun_agent_runtime::session_state::{ProcessingPhase, SessionState};
+pub use alex_agent_runtime::session_state::{ProcessingPhase, SessionState};
 use serde::{Deserialize, Serialize};
 use std::time::SystemTime;
 
@@ -48,7 +48,7 @@ pub enum ToolExecutionState {
     Failed {
         error: String,
         #[serde(default, skip_serializing_if = "Option::is_none")]
-        error_detail: Option<openbitfun_core_types::errors::ToolErrorDetail>,
+        error_detail: Option<alex_core_types::errors::ToolErrorDetail>,
         is_retryable: bool,
         #[serde(default, skip_serializing_if = "Option::is_none")]
         duration_ms: Option<u64>,

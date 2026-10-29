@@ -20,7 +20,7 @@ Build a canvas that presents documentation — architecture notes, API reference
 
 ## Prerequisites
 
-Read `openbitfun-canvas` first. It contains the generation policy, design guidance, slop rules, self-check, Canvas runtime rules, and SDK usage notes.
+Read `alex-canvas` first. It contains the generation policy, design guidance, slop rules, self-check, Canvas runtime rules, and SDK usage notes.
 
 ## Gather the source material
 

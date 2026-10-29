@@ -67,7 +67,7 @@ test('release public key export accepts raw and legacy base64 values', () => {
 });
 
 test('build version projection and verification work without npm workspace lockfiles', () => {
-  const root = mkdtempSync(path.join(tmpdir(), 'openbitfun-build-version-'));
+  const root = mkdtempSync(path.join(tmpdir(), 'alex-build-version-'));
   const jsonFiles = [
     'package.json',
     'Alex-Installer/package.json',
@@ -114,7 +114,7 @@ exclude = ["src/apps/relay-server", "Alex-Installer/src-tauri"]
   );
   writeFixture(
     root,
-    'src/apps/mobile/ios/OpenBitFun/Info.plist',
+    'src/apps/mobile/ios/Alex/Info.plist',
     '<key>CFBundleShortVersionString</key>\n<string>1.0.0</string>\n',
   );
   writeFixture(
@@ -166,7 +166,7 @@ exclude = ["src/apps/relay-server", "Alex-Installer/src-tauri"]
     /versionName = "1\.1\.0-beta\.2"/,
   );
   assert.match(
-    readFileSync(path.join(root, 'src/apps/mobile/ios/OpenBitFun/Info.plist'), 'utf8'),
+    readFileSync(path.join(root, 'src/apps/mobile/ios/Alex/Info.plist'), 'utf8'),
     /<string>1\.1\.0-beta\.2<\/string>/,
   );
   assert.match(

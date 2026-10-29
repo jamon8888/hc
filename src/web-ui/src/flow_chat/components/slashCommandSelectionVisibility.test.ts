@@ -5,9 +5,9 @@ import { scrollSelectedSlashCommandIntoView } from './slashCommandSelectionVisib
 
 function createCommandItem(state?: string): HTMLDivElement {
   const item = document.createElement('div');
-  item.setAttribute('data-openbitfun-part', 'commandItem');
+  item.setAttribute('data-alex-part', 'commandItem');
   if (state) {
-    item.setAttribute('data-openbitfun-state', state);
+    item.setAttribute('data-alex-state', state);
   }
   return item;
 }

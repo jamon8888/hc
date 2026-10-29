@@ -10,7 +10,7 @@ import { useDialogTurnTodos } from '../hooks/useDialogTurnTodos';
 import {
   TodoToolCard as TodoToolCardView,
   type TodoToolCardItemStatus,
-} from '@openbitfun/ui/flow-chat';
+} from '@alex/ui/flow-chat';
 import { createTodoRenderItems, type TodoLike } from './todoRenderItems';
 
 function normalizeTodoStatus(status: TodoLike['status']): TodoToolCardItemStatus {
@@ -137,7 +137,7 @@ export const TodoWriteDisplay: React.FC<ToolCardProps> = ({
   })();
 
   return (
-    <div data-openbitfun-adapter="todo-write"
+    <div data-alex-adapter="todo-write"
       ref={cardRootRef}
       data-tool-card-id={toolId ?? ''}
     >

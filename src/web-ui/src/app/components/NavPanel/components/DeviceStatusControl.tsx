@@ -1,6 +1,6 @@
 import { useDeviceDirectory, resolveDeviceName, isDeviceControllable, deviceClientVersion } from '@/infrastructure/account/deviceDirectory';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { subscribeOverlayInteraction, createOverlayPortal, OverflowText, Button, Card, CardBody, CardFooter, CardHeader, Icon, IconButton, ScrollArea, type IconSize } from '@openbitfun/ui';
+import { subscribeOverlayInteraction, createOverlayPortal, OverflowText, Button, Card, CardBody, CardFooter, CardHeader, Icon, IconButton, ScrollArea, type IconSize } from '@alex/ui';
 import { ChevronLeft, ChevronRight, MessageCircle, Monitor, Smartphone, Undo2 } from 'lucide-react';
 import { useI18n } from '@/infrastructure/i18n/hooks/useI18n';
 import { getAppearanceOverlayHost } from '@/infrastructure/appearance/runtime/AppearanceOverlayHost';
@@ -365,32 +365,32 @@ const DeviceStatusControl: React.FC<DeviceStatusControlProps> = ({
       <button data-overflow-trigger
         ref={triggerRef}
         type="button"
-        className={`openbitfun-nav-panel__footer-device-status${open ? ' is-open' : ''}`}
+        className={`alex-nav-panel__footer-device-status${open ? ' is-open' : ''}`}
         aria-label={accessibleSummary}
         aria-expanded={open}
         aria-haspopup="dialog"
         onClick={() => onOpenChange(!open)}
         data-testid="nav-footer-device-status"
-        data-openbitfun-component="nav-panel"
-        data-openbitfun-part="deviceStatus"
-        data-openbitfun-state={overview.mode}
+        data-alex-component="nav-panel"
+        data-alex-part="deviceStatus"
+        data-alex-state={overview.mode}
       >
         {/* The label names a device, and this mark says which system that device
             is: the machine the window works on, whichever end of the connection
             it sits on. */}
         <DeviceMark device={overview.primaryDevice} size="sm" />
-        <OverflowText className="openbitfun-nav-panel__footer-device-status-label">
+        <OverflowText className="alex-nav-panel__footer-device-status-label">
           {overview.currentWorkDeviceName}
         </OverflowText>
         {attachedGroups.length > 0 && (
           <span
-            className="openbitfun-nav-panel__footer-device-status-attached"
+            className="alex-nav-panel__footer-device-status-attached"
             aria-hidden="true"
           >
             {attachedGroups.map(group => (
               <span
-                className="openbitfun-nav-panel__footer-device-status-attached-group"
-                data-openbitfun-device-kind={group.kind}
+                className="alex-nav-panel__footer-device-status-attached-group"
+                data-alex-device-kind={group.kind}
                 key={group.kind}
               >
                 {group.kind === 'desktop' ? (
@@ -415,7 +415,7 @@ const DeviceStatusControl: React.FC<DeviceStatusControlProps> = ({
                   />
                 )}
                 {group.count > 1 && (
-                  <span className="openbitfun-nav-panel__footer-device-status-attached-count">
+                  <span className="alex-nav-panel__footer-device-status-attached-count">
                     {group.count}
                   </span>
                 )}
@@ -428,24 +428,24 @@ const DeviceStatusControl: React.FC<DeviceStatusControlProps> = ({
       {open && createOverlayPortal(
         <>
           <div
-            className="openbitfun-nav-panel__footer-backdrop"
+            className="alex-nav-panel__footer-backdrop"
             onMouseDown={() => onOpenChange(false)}
             data-testid="nav-device-status-backdrop"
           />
           <Card
             ref={popoverRef}
             appearance="raised"
-            className="openbitfun-device-overview"
+            className="alex-device-overview"
             gap="none"
             padding="none"
             radius="lg"
             role="dialog"
             aria-label={t('deviceOverview.title')}
             data-testid="nav-device-status-popover"
-            data-openbitfun-product-component="device-overview"
-            data-openbitfun-product-part="root"
-            data-openbitfun-state={overview.mode}
-            data-openbitfun-placement={popoverLayout?.placement ?? 'top'}
+            data-alex-product-component="device-overview"
+            data-alex-product-part="root"
+            data-alex-state={overview.mode}
+            data-alex-placement={popoverLayout?.placement ?? 'top'}
             style={{
               top: `${popoverLayout?.top ?? 0}px`,
               left: `${popoverLayout?.left ?? 0}px`,
@@ -453,27 +453,27 @@ const DeviceStatusControl: React.FC<DeviceStatusControlProps> = ({
             }}
           >
             <CardHeader
-              className="openbitfun-device-overview__header"
+              className="alex-device-overview__header"
               contentAlign="center"
-              title={<h2 className="openbitfun-device-overview__title">{t('deviceOverview.title')}</h2>}
+              title={<h2 className="alex-device-overview__title">{t('deviceOverview.title')}</h2>}
             />
-            <ScrollArea className="openbitfun-device-overview__scroll">
-            <CardBody className="openbitfun-device-overview__body">
+            <ScrollArea className="alex-device-overview__scroll">
+            <CardBody className="alex-device-overview__body">
               {overview.mode === 'connected' && (
                 <>
                   <section
-                    className="openbitfun-device-overview__device-group"
+                    className="alex-device-overview__device-group"
                     data-testid="nav-device-status-connected-devices"
                   >
-                    <div className="openbitfun-device-overview__device-rows">
+                    <div className="alex-device-overview__device-rows">
                       {overview.connectedDevices.map(device => (
                         <div
-                          className="openbitfun-device-overview__device-row"
+                          className="alex-device-overview__device-row"
                           key={device.id}
-                          data-openbitfun-device-kind={device.kind}
-                          data-openbitfun-activities={device.activities.join(' ')}
+                          data-alex-device-kind={device.kind}
+                          data-alex-activities={device.activities.join(' ')}
                         >
-                          <span className="openbitfun-device-overview__device-icon" aria-hidden="true">
+                          <span className="alex-device-overview__device-icon" aria-hidden="true">
                             <DeviceMark
                               device={device}
                               identity={`${device.id} ${device.name}`}
@@ -488,21 +488,21 @@ const DeviceStatusControl: React.FC<DeviceStatusControlProps> = ({
                   </section>
                 </>
               )}
-              <div className="openbitfun-device-overview__summary" data-testid="nav-device-status-summary">
-                <div className="openbitfun-device-overview__carousel-viewport">
-                  <div className="openbitfun-device-overview__carousel-track"
+              <div className="alex-device-overview__summary" data-testid="nav-device-status-summary">
+                <div className="alex-device-overview__carousel-viewport">
+                  <div className="alex-device-overview__carousel-track"
                     style={{ transform: `translateX(-${previewIndex * 100}%)` }}>
                     {previewDevices.map((device, index) => {
                       return (
-                      <div className="openbitfun-device-overview__carousel-slide" key={availableTargets?.devices[index]?.device_id ?? device.id}
+                      <div className="alex-device-overview__carousel-slide" key={availableTargets?.devices[index]?.device_id ?? device.id}
                         aria-hidden={index !== previewIndex}>
-                        <div className="openbitfun-device-overview__device-switcher">
+                        <div className="alex-device-overview__device-switcher">
                           <DeviceArtwork device={device} />
                         </div>
-                        <span className="openbitfun-device-overview__device-name" title={device.name}>
+                        <span className="alex-device-overview__device-name" title={device.name}>
                           {device.name}
                         </span>
-                        <span className="openbitfun-device-overview__activity">
+                        <span className="alex-device-overview__activity">
                           {index === previewIndex && !isPreviewing
                             ? (previewIncompatible ? previewIncompatibleNotice : deviceActivity(overview.primaryDevice))
                             : '\u00a0'}
@@ -522,13 +522,13 @@ const DeviceStatusControl: React.FC<DeviceStatusControlProps> = ({
                     centred on the screen, so an action centred there hides exactly
                     the part that says which system this device runs. Outside the
                     track it also stops sliding with the carousel. */}
-                <div className="openbitfun-device-overview__connect-action">
+                <div className="alex-device-overview__connect-action">
                   <Button
                     variant="outline"
                     size="sm"
                     // A device cannot connect to itself, so this machine's button
                     // is inert and invisible while still laying the row out.
-                    className={isPreviewing ? undefined : 'openbitfun-device-overview__connect-reserved'}
+                    className={isPreviewing ? undefined : 'alex-device-overview__connect-reserved'}
                     disabled={!isPreviewing || previewIncompatible || switchingDevice || returningLocal}
                     aria-hidden={isPreviewing ? undefined : true}
                     tabIndex={isPreviewing ? undefined : -1}
@@ -539,7 +539,7 @@ const DeviceStatusControl: React.FC<DeviceStatusControlProps> = ({
                     {previewIncompatible ? previewIncompatibleNotice : t('deviceOverview.connectDevice')}
                   </Button>
                 </div>
-                <div className="openbitfun-device-overview__carousel-controls">
+                <div className="alex-device-overview__carousel-controls">
                   <IconButton
                     variant="quiet" size="xs" shape="circle"
                     aria-label={t('deviceOverview.previousDevice')}
@@ -564,7 +564,7 @@ const DeviceStatusControl: React.FC<DeviceStatusControlProps> = ({
                   variant="outline"
                   size="sm"
                   leadingIcon={<Icon name="refresh" size="sm" />}
-                  className="openbitfun-device-overview__notice"
+                  className="alex-device-overview__notice"
                   onClick={() => { void refresh(); }}
                 >
                   {t('deviceOverview.statusUnavailable')}
@@ -573,9 +573,9 @@ const DeviceStatusControl: React.FC<DeviceStatusControlProps> = ({
             </CardBody>
             </ScrollArea>
 
-            <CardFooter align="center" className="openbitfun-device-overview__actions">
+            <CardFooter align="center" className="alex-device-overview__actions">
               <Button
-                className="openbitfun-device-overview__action"
+                className="alex-device-overview__action"
                 variant="primary"
                 size="sm"
                 leadingIcon={<Icon name="link" size="sm" />}
@@ -586,7 +586,7 @@ const DeviceStatusControl: React.FC<DeviceStatusControlProps> = ({
               </Button>
               {overview.peerActive && (
                 <Button
-                  className="openbitfun-device-overview__action"
+                  className="alex-device-overview__action"
                   variant="outline"
                   size="sm"
                   leadingIcon={<Icon glyph={Undo2} size="sm" />}

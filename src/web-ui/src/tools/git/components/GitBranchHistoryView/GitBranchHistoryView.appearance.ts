@@ -9,9 +9,9 @@ export const gitBranchHistoryAppearanceDescriptor: AppearanceSurfaceDescriptor =
     { id: 'timeline' }, { id: 'commitInfo' }, { id: 'commitDetails' },
   ],
   states: [
-    { id: 'loading', selector: { kind: 'self', suffix: '[data-openbitfun-state~="loading"]' } },
-    { id: 'error', selector: { kind: 'self', suffix: '[data-openbitfun-state~="error"]' } },
-    { id: 'selected', selector: { kind: 'self', suffix: '[data-openbitfun-state~="selected"]' } },
-    { id: 'expanded', selector: { kind: 'self', suffix: '[data-openbitfun-state~="expanded"]' } },
+    { id: 'loading', selector: { kind: 'self', suffix: '[data-alex-state~="loading"]' } },
+    { id: 'error', selector: { kind: 'self', suffix: '[data-alex-state~="error"]' } },
+    { id: 'selected', selector: { kind: 'self', suffix: '[data-alex-state~="selected"]' } },
+    { id: 'expanded', selector: { kind: 'self', suffix: '[data-alex-state~="expanded"]' } },
   ],
 };

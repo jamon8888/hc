@@ -5,22 +5,22 @@ use std::sync::{Arc, Mutex, OnceLock};
 
 use crate::api::app_state::AppState;
 use crate::startup_trace::DesktopStartupTrace;
-use openbitfun_core::service::system;
+use alex_core::service::system;
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Emitter, Manager, Position, Size, State};
 use tauri_plugin_opener::OpenerExt;
 use tauri_plugin_updater::UpdaterExt;
 
 /// Emitted during `install_update` download; matches `installUpdateWithProgress` / frontend listener.
-const UPDATE_PROGRESS_EVENT: &str = "openbitfun-update-progress";
+const UPDATE_PROGRESS_EVENT: &str = "alex-update-progress";
 
 /// Updater origins, in configured (fallback) order. Kept in step with
 /// `scripts/desktop-tauri-build.mjs`, which bakes the same pair into the bundle.
-const GITHUB_UPDATER_ENDPOINT: &str = match option_env!("OPENBITFUN_UPDATER_PRIMARY_ENDPOINT") {
+const GITHUB_UPDATER_ENDPOINT: &str = match option_env!("ALEX_UPDATER_PRIMARY_ENDPOINT") {
     Some(endpoint) => endpoint,
     None => "https://github.com/GCWing/OpenBitFun/releases/latest/download/latest-v1.json",
 };
-const OPENBITFUN_UPDATER_ENDPOINT: &str = match option_env!("OPENBITFUN_UPDATER_FALLBACK_ENDPOINT")
+const ALEX_UPDATER_ENDPOINT: &str = match option_env!("ALEX_UPDATER_FALLBACK_ENDPOINT")
 {
     Some(endpoint) => endpoint,
     None => "https://openbitfun.com/release/latest-v1.json",
@@ -71,10 +71,10 @@ async fn updater_endpoints_by_policy() -> Vec<tauri::Url> {
     let platform = updater_platform_key();
     let (github_manifest, mirror_manifest) = tokio::join!(
         fetch_updater_manifest(&client, GITHUB_UPDATER_ENDPOINT, &platform),
-        fetch_updater_manifest(&client, OPENBITFUN_UPDATER_ENDPOINT, &platform),
+        fetch_updater_manifest(&client, ALEX_UPDATER_ENDPOINT, &platform),
     );
     let Some(github_manifest) = github_manifest else {
-        log::info!("GitHub updater metadata is unavailable; trying the OpenBitFun mirror first");
+        log::info!("GitHub updater metadata is unavailable; trying the Alex mirror first");
         return mirror_first_endpoints();
     };
     let github_speed = probe_endpoint_throughput(&client, &github_manifest.package_url).await;
@@ -85,7 +85,7 @@ async fn updater_endpoints_by_policy() -> Vec<tauri::Url> {
     );
     if prefer_mirror(&github_manifest, mirror_manifest.as_ref(), github_speed) {
         log::info!(
-            "GitHub updater speed is {} KiB/s, under the {} KiB/s bar; trying the synchronized OpenBitFun mirror first.",
+            "GitHub updater speed is {} KiB/s, under the {} KiB/s bar; trying the synchronized Alex mirror first.",
             github_speed / 1024,
             HEALTHY_THROUGHPUT / 1024
         );
@@ -174,14 +174,14 @@ fn prefer_mirror(
 }
 
 fn default_endpoints() -> Vec<tauri::Url> {
-    [GITHUB_UPDATER_ENDPOINT, OPENBITFUN_UPDATER_ENDPOINT]
+    [GITHUB_UPDATER_ENDPOINT, ALEX_UPDATER_ENDPOINT]
         .iter()
         .filter_map(|endpoint| endpoint.parse().ok())
         .collect()
 }
 
 fn mirror_first_endpoints() -> Vec<tauri::Url> {
-    [OPENBITFUN_UPDATER_ENDPOINT, GITHUB_UPDATER_ENDPOINT]
+    [ALEX_UPDATER_ENDPOINT, GITHUB_UPDATER_ENDPOINT]
         .iter()
         .filter_map(|endpoint| endpoint.parse().ok())
         .collect()
@@ -522,7 +522,7 @@ pub async fn run_system_command(
 ) -> Result<CommandOutputResponse, String> {
     if request.workspace_id.is_some() || request.cwd.is_some() {
         let cwd = request.cwd.as_deref().unwrap_or_default();
-        if openbitfun_core::service::workspace::remote_io_for_legacy_or_id(
+        if alex_core::service::workspace::remote_io_for_legacy_or_id(
             request.workspace_id.as_deref(),
             request.controller_local,
             cwd.trim(),
@@ -582,7 +582,7 @@ pub async fn set_macos_edit_menu_mode(
             .config_service
             .get_config::<String>(Some("app.language"))
             .await
-            .unwrap_or_else(|_| openbitfun_core::service::i18n::default_locale_code().to_string());
+            .unwrap_or_else(|_| alex_core::service::i18n::default_locale_code().to_string());
         let menubar_mode = if state.workspace_id.read().await.is_some() {
             crate::macos_menubar::MenubarMode::Workspace
         } else {
@@ -1032,7 +1032,7 @@ fn should_use_configured_notification_app_id() -> bool {
     use std::path::MAIN_SEPARATOR;
 
     // Match the Tauri plugin's development behavior. A Cargo-built executable
-    // has no installed Windows shortcut that registers OpenBitFun's AppUserModelID.
+    // has no installed Windows shortcut that registers Alex's AppUserModelID.
     let Ok(executable) = tauri::utils::platform::current_exe() else {
         return false;
     };
@@ -1201,11 +1201,11 @@ mod tests {
     fn updater_uses_mirror_only_for_a_slow_github_and_the_same_release() {
         let github = UpdaterManifestInfo {
             version: "1.2.3".into(),
-            package_url: "https://github.example/openbitfun.tar.gz".into(),
+            package_url: "https://github.example/alex.tar.gz".into(),
         };
         let synchronized_mirror = UpdaterManifestInfo {
             version: "1.2.3".into(),
-            package_url: "https://mirror.example/openbitfun.tar.gz".into(),
+            package_url: "https://mirror.example/alex.tar.gz".into(),
         };
         let stale_mirror = UpdaterManifestInfo {
             version: "1.2.2".into(),
@@ -1265,7 +1265,7 @@ mod tests {
 #[cfg(test)]
 mod remote_guard_tests {
     use super::{run_system_command, RunCommandRequest};
-    use openbitfun_core::service::remote_ssh::workspace_state::init_remote_workspace_manager;
+    use alex_core::service::remote_ssh::workspace_state::init_remote_workspace_manager;
 
     const REMOTE_ROOT: &str = "/remote-audit-run-command";
     const CONNECTION_ID: &str = "remote-audit-run-command-connection";

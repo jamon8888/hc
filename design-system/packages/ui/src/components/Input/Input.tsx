@@ -53,14 +53,14 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input({
   return (
     <span
       className={classNames(styles.field, className)}
-      data-openbitfun-component="input"
+      data-alex-component="input"
       data-disabled={disabled ? "true" : "false"}
       data-field-surface={fieldSurface}
       data-invalid={isInvalid ? "true" : "false"}
       data-size={size}
     >
       {leading !== undefined && leading !== null && (
-        <span className={styles.leading} data-openbitfun-icon-slot="true" data-openbitfun-part="leading">{leading}</span>
+        <span className={styles.leading} data-alex-icon-slot="true" data-alex-part="leading">{leading}</span>
       )}
       <input
         {...props}
@@ -91,7 +91,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input({
         type={type}
       />
       {trailing !== undefined && trailing !== null && (
-        <span className={styles.trailing} data-openbitfun-icon-slot="true" data-openbitfun-part="trailing">{trailing}</span>
+        <span className={styles.trailing} data-alex-icon-slot="true" data-alex-part="trailing">{trailing}</span>
       )}
     </span>
   );

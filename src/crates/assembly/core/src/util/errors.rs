@@ -2,16 +2,16 @@
 //!
 //! Provide unified error types and handling for the whole application
 
-use openbitfun_core_types::errors::{
+use alex_core_types::errors::{
     ai_error_detail_from_message, classify_ai_error_message, AiErrorDetail, AiProviderError,
     ErrorCategory,
 };
 use serde::Serialize;
 use thiserror::Error;
 
-impl From<openbitfun_services_core::storage_error::StorageError> for OpenBitFunError {
-    fn from(error: openbitfun_services_core::storage_error::StorageError) -> Self {
-        use openbitfun_services_core::storage_error::StorageError;
+impl From<alex_services_core::storage_error::StorageError> for AlexError {
+    fn from(error: alex_services_core::storage_error::StorageError) -> Self {
+        use alex_services_core::storage_error::StorageError;
         match error {
             StorageError::Config(message) => Self::config(message),
             StorageError::Validation(message) => Self::validation(message),
@@ -22,9 +22,9 @@ impl From<openbitfun_services_core::storage_error::StorageError> for OpenBitFunE
     }
 }
 
-/// Unified error type for the OpenBitFun application
+/// Unified error type for the Alex application
 #[derive(Debug, Error, Serialize)]
-pub enum OpenBitFunError {
+pub enum AlexError {
     #[error("Service error: {0}")]
     Service(String),
 
@@ -37,7 +37,7 @@ pub enum OpenBitFunError {
     #[error("{message}")]
     ClassifiedTool {
         message: String,
-        detail: openbitfun_core_types::errors::ToolErrorDetail,
+        detail: alex_core_types::errors::ToolErrorDetail,
     },
 
     #[error("AI client error: {0}")]
@@ -119,7 +119,7 @@ pub enum OpenBitFunError {
     Cancelled(String),
 }
 
-pub type OpenBitFunResult<T> = Result<T, OpenBitFunError>;
+pub type AlexResult<T> = Result<T, AlexError>;
 
 // Custom serialization functions for non-serializable error types
 fn serialize_io_error<S>(err: &std::io::Error, serializer: S) -> Result<S::Ok, S::Error>
@@ -143,8 +143,8 @@ where
     serializer.serialize_str(&err.to_string())
 }
 
-impl OpenBitFunError {
-    pub fn tool_error_detail(&self) -> Option<&openbitfun_core_types::errors::ToolErrorDetail> {
+impl AlexError {
+    pub fn tool_error_detail(&self) -> Option<&alex_core_types::errors::ToolErrorDetail> {
         match self {
             Self::ClassifiedTool { detail, .. } => Some(detail),
             _ => None,
@@ -205,19 +205,19 @@ impl OpenBitFunError {
     /// Infer an error category from this error for frontend-friendly classification.
     pub fn error_category(&self) -> ErrorCategory {
         match self {
-            OpenBitFunError::AIClient(msg) => classify_ai_error_message(msg),
-            OpenBitFunError::AIProvider(error) => error.category.clone(),
-            OpenBitFunError::RecoverableContextOverflow(_) => ErrorCategory::ContextOverflow,
-            OpenBitFunError::Timeout(_) => ErrorCategory::Timeout,
-            OpenBitFunError::Cancelled(_) => ErrorCategory::Unknown,
+            AlexError::AIClient(msg) => classify_ai_error_message(msg),
+            AlexError::AIProvider(error) => error.category.clone(),
+            AlexError::RecoverableContextOverflow(_) => ErrorCategory::ContextOverflow,
+            AlexError::Timeout(_) => ErrorCategory::Timeout,
+            AlexError::Cancelled(_) => ErrorCategory::Unknown,
             _ => ErrorCategory::Unknown,
         }
     }
 
     /// Build a structured, provider-agnostic AI error detail for UI recovery.
     pub fn error_detail(&self) -> AiErrorDetail {
-        if let OpenBitFunError::AIProvider(error)
-        | OpenBitFunError::RecoverableContextOverflow(error) = self
+        if let AlexError::AIProvider(error)
+        | AlexError::RecoverableContextOverflow(error) = self
         {
             return error.detail();
         }
@@ -232,36 +232,36 @@ impl OpenBitFunError {
 }
 
 #[cfg(feature = "agent-runtime")]
-impl From<openbitfun_agent_stream::StreamProcessorError> for OpenBitFunError {
-    fn from(error: openbitfun_agent_stream::StreamProcessorError) -> Self {
+impl From<alex_agent_stream::StreamProcessorError> for AlexError {
+    fn from(error: alex_agent_stream::StreamProcessorError) -> Self {
         match error {
-            openbitfun_agent_stream::StreamProcessorError::AiClient(msg) => Self::AIClient(msg),
-            openbitfun_agent_stream::StreamProcessorError::AiProvider(error) => {
+            alex_agent_stream::StreamProcessorError::AiClient(msg) => Self::AIClient(msg),
+            alex_agent_stream::StreamProcessorError::AiProvider(error) => {
                 Self::AIProvider(error)
             }
-            openbitfun_agent_stream::StreamProcessorError::Cancelled(msg) => Self::Cancelled(msg),
+            alex_agent_stream::StreamProcessorError::Cancelled(msg) => Self::Cancelled(msg),
         }
     }
 }
 
 #[cfg(feature = "agent-runtime")]
-impl From<openbitfun_agent_runtime::event_bus::EventBusError> for OpenBitFunError {
-    fn from(error: openbitfun_agent_runtime::event_bus::EventBusError) -> Self {
+impl From<alex_agent_runtime::event_bus::EventBusError> for AlexError {
+    fn from(error: alex_agent_runtime::event_bus::EventBusError) -> Self {
         Self::Agent(error.to_string())
     }
 }
 
 #[cfg(feature = "agent-runtime")]
-impl From<openbitfun_agent_tools::computer_use::ComputerUseContractError> for OpenBitFunError {
-    fn from(error: openbitfun_agent_tools::computer_use::ComputerUseContractError) -> Self {
+impl From<alex_agent_tools::computer_use::ComputerUseContractError> for AlexError {
+    fn from(error: alex_agent_tools::computer_use::ComputerUseContractError) -> Self {
         Self::Tool(error.to_string())
     }
 }
 
 #[cfg(feature = "mcp-runtime")]
-impl From<openbitfun_services_integrations::mcp::MCPRuntimeError> for OpenBitFunError {
-    fn from(error: openbitfun_services_integrations::mcp::MCPRuntimeError) -> Self {
-        use openbitfun_services_integrations::mcp::MCPRuntimeErrorKind;
+impl From<alex_services_integrations::mcp::MCPRuntimeError> for AlexError {
+    fn from(error: alex_services_integrations::mcp::MCPRuntimeError) -> Self {
+        use alex_services_integrations::mcp::MCPRuntimeErrorKind;
 
         let message = error.message().to_string();
         match error.kind() {
@@ -280,20 +280,20 @@ impl From<openbitfun_services_integrations::mcp::MCPRuntimeError> for OpenBitFun
     }
 }
 
-impl From<OpenBitFunError> for String {
-    fn from(err: OpenBitFunError) -> String {
+impl From<AlexError> for String {
+    fn from(err: AlexError) -> String {
         err.to_string()
     }
 }
 
-impl From<String> for OpenBitFunError {
+impl From<String> for AlexError {
     fn from(error: String) -> Self {
-        OpenBitFunError::Service(error)
+        AlexError::Service(error)
     }
 }
 
-impl From<&str> for OpenBitFunError {
+impl From<&str> for AlexError {
     fn from(error: &str) -> Self {
-        OpenBitFunError::Service(error.to_string())
+        AlexError::Service(error.to_string())
     }
 }

@@ -80,7 +80,7 @@ and linux/arm64. Release publication requires every producer to succeed. Archive
 include checksums and signatures; `linux-binaries-v1.json` and the signed
 `relay-image.json` descriptor live on the immutable version release.
 
-Relay images use `ghcr.io/<repository-owner>/openbitfun-relay-server` with the
+Relay images use `ghcr.io/<repository-owner>/alex-relay-server` with the
 version tags `v1.0.0-beta.N` and `1.0.0-beta.N`. Beta never updates the `latest`
 image tag. Fork builds publish to the fork owner's image namespace and their
 own GitHub Release URLs. GHCR credentials must permit package publication, and
@@ -125,7 +125,7 @@ Installing beta replaces stable; side-by-side installation is not supported.
 The mirror script defaults to stable. Run a separate beta sync with:
 
 ```bash
-OPENBITFUN_RELEASE_CHANNEL=beta scripts/openbitfun-release-sync.sh
+OPENBITFUN_RELEASE_CHANNEL=beta scripts/alex-release-sync.sh
 ```
 
 The beta invocation writes below `/release/beta` and intentionally skips the
@@ -133,7 +133,7 @@ stable-only CLI and Relay floating manifests.
 
 Production cron must run this in-repo script from the Alex checkout. Do not
 create a detached copy. Host paths, Nginx, and the rest of the origin restore
-steps live in [`deploy/openbitfun-host/README.md`](../../deploy/openbitfun-host/README.md).
+steps live in [`deploy/alex-host/README.md`](../../deploy/alex-host/README.md).
 The sync resolves the exact release directory from the updater manifest once;
 Relay and Linux metadata use that same directory to avoid mixed-version reads
 when GitHub's latest-release pointer changes. Publication also compares the

@@ -63,7 +63,7 @@ const snapshotFor = (mutate?: (result: ReviewPlatformWorkspaceSnapshot) => void)
 };
 async function click(id: string) {
   const selector = id.startsWith('review-platform-filter-')
-    ? `[data-openbitfun-product-part="filters"] [data-openbitfun-value="${id.slice('review-platform-filter-'.length)}"]`
+    ? `[data-alex-product-part="filters"] [data-alex-value="${id.slice('review-platform-filter-'.length)}"]`
     : `[data-testid="${id}"]`;
   await act(async () => { host.querySelector<HTMLButtonElement>(selector)!.click(); });
 }
@@ -77,7 +77,7 @@ function statisticText(owner: Element, id: string): string | null | undefined {
   const lineStat = /^(pr|detail)-(additions|deletions)$/.exec(id);
   if (lineStat) {
     const lineStats = owner.querySelector(`[data-testid="review-platform-${lineStat[1]}-line-stats"]`);
-    return lineStats?.querySelector(`[data-openbitfun-part="${lineStat[2]}"]`)?.textContent ?? lineStats?.textContent;
+    return lineStats?.querySelector(`[data-alex-part="${lineStat[2]}"]`)?.textContent ?? lineStats?.textContent;
   }
   return owner.querySelector(`[data-testid="review-platform-${id}"]`)?.textContent;
 }
@@ -173,7 +173,7 @@ describe('Gitee panel state and asynchronous request ordering', () => {
     await act(async () => pendingCi.resolve(detail(10, 'ci')));
     expect(mocks.detail).not.toHaveBeenCalledWith(expect.objectContaining({ pullRequestId: '10', section: 'reviews' }));
     expect(host.querySelector('[data-testid="review-platform-detail-state"]')?.textContent).toBe('Merged');
-    expect(host.querySelector('[data-openbitfun-product-part="detailMeta"]')?.textContent).toContain('#100');
+    expect(host.querySelector('[data-alex-product-part="detailMeta"]')?.textContent).toContain('#100');
   });
 
   it.each([4, 0])('revalidates cached statistics (%i lines) and discards them for a new revision', async lines => {
@@ -219,15 +219,15 @@ describe('Gitee panel state and asynchronous request ordering', () => {
       search.dispatchEvent(new Event('input', { bubbles: true }));
     });
     const selectedRow = host.querySelector<HTMLButtonElement>('[data-testid="review-platform-pr-row"][data-pr-number="21"]')!;
-    const panel = host.querySelector('[data-openbitfun-product-part="root"]')!;
-    expect(panel.getAttribute('data-openbitfun-view')).toBe('list');
+    const panel = host.querySelector('[data-alex-product-part="root"]')!;
+    expect(panel.getAttribute('data-alex-view')).toBe('list');
     await act(async () => { selectedRow.click(); });
-    expect(panel.getAttribute('data-openbitfun-view')).toBe('detail');
+    expect(panel.getAttribute('data-alex-view')).toBe('detail');
     expect(document.activeElement).toBe(host.querySelector('[data-testid="review-platform-back"]'));
     const detailRequests = mocks.detail.mock.calls.length;
     const listRequests = mocks.snapshot.mock.calls.length;
     await click('review-platform-back');
-    expect(panel.getAttribute('data-openbitfun-view')).toBe('list');
+    expect(panel.getAttribute('data-alex-view')).toBe('list');
     expect(document.activeElement).toBe(selectedRow);
     expect(selectedRow.getAttribute('aria-current')).toBe('page');
     expect(search.value).toBe('PR 2');
@@ -253,7 +253,7 @@ describe('Gitee panel state and asynchronous request ordering', () => {
     await mount();
     expect(host.textContent).toContain('No open pull requests authored by the current GitHub CLI account.');
     expect(host.textContent).not.toContain('Authenticated via GitHub CLI');
-    expect(host.querySelector('[data-openbitfun-product-part="detailPane"]')).toBeNull();
+    expect(host.querySelector('[data-alex-product-part="detailPane"]')).toBeNull();
     expect(mocks.detail).not.toHaveBeenCalled();
   });
 

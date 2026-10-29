@@ -4,9 +4,9 @@ import { i18nService } from '@/infrastructure/i18n';
 import { api } from '@/infrastructure/api/service-api/ApiClient';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
-  applyOpenBitFunControlEffect,
-  executeOpenBitFunPresentationRequest,
-  initializeOpenBitFunControlBridge,
+  applyAlexControlEffect,
+  executeAlexPresentationRequest,
+  initializeAlexControlBridge,
 } from './openBitFunControlBridge';
 
 const mocks = vi.hoisted(() => ({
@@ -21,7 +21,7 @@ vi.mock('./productActionActivator', () => ({
   activateProductAction: mocks.activateProductAction,
 }));
 
-describe('OpenBitFunControl presentation bridge', () => {
+describe('AlexControl presentation bridge', () => {
   afterEach(() => {
     vi.clearAllMocks();
     vi.restoreAllMocks();
@@ -36,18 +36,18 @@ describe('OpenBitFunControl presentation bridge', () => {
     });
     const invoke = vi.spyOn(api, 'invoke').mockRejectedValue(new Error('Host unavailable'));
 
-    await expect(initializeOpenBitFunControlBridge()).rejects.toThrow('Host unavailable');
+    await expect(initializeAlexControlBridge()).rejects.toThrow('Host unavailable');
     expect(listeners.has('agentic://creation-runtime-request')).toBe(true);
-    expect(listeners.has('agentic://openbitfun-control-request')).toBe(true);
+    expect(listeners.has('agentic://alex-control-request')).toBe(true);
     expect(Math.max(...listen.mock.invocationCallOrder)).toBeLessThan(invoke.mock.invocationCallOrder[0]);
-    expect(invoke).toHaveBeenCalledWith('mark_openbitfun_control_surface_ready', {
+    expect(invoke).toHaveBeenCalledWith('mark_alex_control_surface_ready', {
       request: { creationApiVersion: 1 },
     });
     for (const unlisten of listeners.values()) expect(unlisten).toHaveBeenCalledOnce();
   });
 
   it('opens the exact documented item selected by the native executor', async () => {
-    await executeOpenBitFunPresentationRequest({
+    await executeAlexPresentationRequest({
       requestId: 'open-shortcuts',
       action: 'open',
       capabilityId: 'setting.application.shortcuts',
@@ -60,7 +60,7 @@ describe('OpenBitFunControl presentation bridge', () => {
   });
 
   it('executes only a generated product-action binding', async () => {
-    await executeOpenBitFunPresentationRequest({
+    await executeAlexPresentationRequest({
       requestId: 'new-session',
       action: 'execute',
       capabilityId: 'feature.ai-assistant',
@@ -70,12 +70,12 @@ describe('OpenBitFunControl presentation bridge', () => {
   });
 
   it('rejects discovery and mutation attempts at the presentation boundary', async () => {
-    await expect(executeOpenBitFunPresentationRequest({
+    await expect(executeAlexPresentationRequest({
       requestId: 'get',
       action: 'get',
       capabilityId: 'feature.browser',
     })).rejects.toThrow('native ProductControl executor');
-    await expect(executeOpenBitFunPresentationRequest({
+    await expect(executeAlexPresentationRequest({
       requestId: 'configure',
       action: 'configure',
       capabilityId: 'setting.application.appearance',
@@ -90,7 +90,7 @@ describe('OpenBitFunControl presentation bridge', () => {
     const reload = vi.spyOn(configManager, 'applyExternalReload').mockResolvedValue(undefined);
     const reconcile = vi.spyOn(appearanceService, 'reconcilePersistedState').mockResolvedValue(undefined);
 
-    await expect(applyOpenBitFunControlEffect({
+    await expect(applyAlexControlEffect({
       capabilityId: 'setting.application.appearance',
       optionId: 'theme',
       changedPaths: ['appearance.selection'],
@@ -112,7 +112,7 @@ describe('OpenBitFunControl presentation bridge', () => {
     const reload = vi.spyOn(configManager, 'applyExternalReload').mockResolvedValue(undefined);
     const reconcile = vi.spyOn(appearanceService, 'reconcilePersistedState').mockResolvedValue(undefined);
 
-    await expect(applyOpenBitFunControlEffect({
+    await expect(applyAlexControlEffect({
       capabilityId: 'setting.application.appearance',
       optionId: 'theme',
       changedPaths: ['appearance.selection'],
@@ -131,7 +131,7 @@ describe('OpenBitFunControl presentation bridge', () => {
     const reload = vi.spyOn(configManager, 'applyExternalReload').mockResolvedValue(undefined);
     const reconcile = vi.spyOn(appearanceService, 'reconcilePersistedState').mockResolvedValue(undefined);
 
-    await expect(applyOpenBitFunControlEffect({
+    await expect(applyAlexControlEffect({
       capabilityId: 'setting.application.appearance',
       optionId: 'theme',
       changedPaths: ['appearance.selection'],
@@ -146,7 +146,7 @@ describe('OpenBitFunControl presentation bridge', () => {
     vi.spyOn(configManager, 'applyExternalReload').mockResolvedValue(undefined);
     const applyLanguage = vi.spyOn(i18nService, 'applyPersistedLanguage').mockResolvedValue(undefined);
 
-    await applyOpenBitFunControlEffect({
+    await applyAlexControlEffect({
       capabilityId: 'setting.application.appearance',
       optionId: 'language',
       changedPaths: ['app.language'],
@@ -163,7 +163,7 @@ describe('OpenBitFunControl presentation bridge', () => {
     const reload = vi.spyOn(configManager, 'applyExternalReload').mockResolvedValue(undefined);
     const reconcile = vi.spyOn(appearanceService, 'reconcilePersistedState').mockResolvedValue(undefined);
 
-    await applyOpenBitFunControlEffect({
+    await applyAlexControlEffect({
       capabilityId: 'setting.application.appearance',
       optionId: 'theme',
       changedPaths: ['appearance.selection'],
@@ -181,7 +181,7 @@ describe('OpenBitFunControl presentation bridge', () => {
       new Error('renderer locale failed'),
     );
 
-    await expect(applyOpenBitFunControlEffect({
+    await expect(applyAlexControlEffect({
       capabilityId: 'setting.application.appearance',
       optionId: 'language',
       changedPaths: ['app.language'],

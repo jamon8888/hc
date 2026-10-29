@@ -3,7 +3,7 @@
  * WordCraft docx round-trip e2e (tickets 07/16).
  *
  * Proves the headless agent-editing loop against a REAL `wordcraft-cli` binary:
- * open/new → tracked edits authored as "OpenBitFun Agent (<session>)" → save →
+ * open/new → tracked edits authored as "Alex Agent (<session>)" → save →
  * OOXML assertion (w:ins authorship, formatting) → independent `text` read-back →
  * outside-write-root refusal.
  *
@@ -57,7 +57,7 @@ function resolveCli(cliArg) {
     home,
     'Library',
     'Application Support',
-    'openbitfun',
+    'alex',
     'data',
     'runtimes',
     'wordcraft',
@@ -99,7 +99,7 @@ function createMcpRunners(cli, args, author, workspaceRoot, log) {
     cwd: workspaceRoot,
     env: {
       ...process.env,
-      WORDCRAFT_PROFILE_DIR: path.join(os.tmpdir(), `openbitfun-wordcraft-e2e-${randomUUID()}`),
+      WORDCRAFT_PROFILE_DIR: path.join(os.tmpdir(), `alex-wordcraft-e2e-${randomUUID()}`),
     },
     stdio: ['pipe', 'pipe', 'pipe'],
   });
@@ -148,7 +148,7 @@ function createMcpRunners(cli, args, author, workspaceRoot, log) {
     const result = await request('initialize', {
       protocolVersion: '2024-11-05',
       capabilities: {},
-      clientInfo: { name: 'openbitfun-wordcraft-e2e', version: 'dev' },
+      clientInfo: { name: 'alex-wordcraft-e2e', version: 'dev' },
     });
     // Upstream answers notifications with method-not-found; notifications are
     // fire-and-forget, so send initialized without a pending response slot.
@@ -236,9 +236,9 @@ async function main() {
   const version = versionProbe(cli);
   log('using', cli, `(${version})`);
 
-  const workspaceRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'openbitfun-wordcraft-ws-'));
+  const workspaceRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'alex-wordcraft-ws-'));
   const sessionLabel = args.session;
-  const author = `OpenBitFun Agent (${sessionLabel})`;
+  const author = `Alex Agent (${sessionLabel})`;
 
   const handle = createMcpRunners(cli, [
     'mcp',

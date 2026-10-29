@@ -433,7 +433,7 @@ export function resolveExplorerDropTargetDirectory(
     return workspacePath;
   }
 
-  const explorer = boundary ?? el.closest(".openbitfun-file-explorer");
+  const explorer = boundary ?? el.closest(".alex-file-explorer");
   if (!explorer) {
     return workspacePath;
   }
@@ -491,7 +491,7 @@ export function resolveDropTargetDirectoryFromDragPosition(
     }
 
     const hit = document.elementFromPoint(x, y);
-    const explorer = boundary ?? hit?.closest(".openbitfun-file-explorer");
+    const explorer = boundary ?? hit?.closest(".alex-file-explorer");
     if (!explorer) {
       continue;
     }

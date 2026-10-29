@@ -1,5 +1,5 @@
-use openbitfun_external_sources::ExternalSourceControlPlane;
-use openbitfun_product_domains::external_sources::{
+use alex_external_sources::ExternalSourceControlPlane;
+use alex_product_domains::external_sources::{
     ExecutionDomainId, ExternalMcpRevisionKey, ExternalSourceContext,
 };
 use std::collections::BTreeSet;

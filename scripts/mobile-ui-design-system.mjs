@@ -47,11 +47,11 @@ const outputs = new Map([
     renderSharedLayoutTokens(tokens),
   ],
   [
-    join(ROOT, 'src', 'apps', 'mobile', 'ios', 'OpenBitFun', 'Features', 'DesignSystem', 'GeneratedMobileDesignTokens.swift'),
+    join(ROOT, 'src', 'apps', 'mobile', 'ios', 'Alex', 'Features', 'DesignSystem', 'GeneratedMobileDesignTokens.swift'),
     renderIosTokens(tokens),
   ],
   [
-    join(ROOT, 'src', 'apps', 'mobile', 'ios', 'OpenBitFun', 'Features', 'DesignSystem', 'GeneratedMobilePreviewScenarios.swift'),
+    join(ROOT, 'src', 'apps', 'mobile', 'ios', 'Alex', 'Features', 'DesignSystem', 'GeneratedMobilePreviewScenarios.swift'),
     renderIosScenarios(scenarios),
   ],
   [

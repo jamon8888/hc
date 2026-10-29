@@ -1,23 +1,23 @@
 use anyhow::{anyhow, Context, Result};
 use async_trait::async_trait;
-use openbitfun_agent_runtime::sdk::{
+use alex_agent_runtime::sdk::{
     AgentModeCatalogQuery, AgentRuntime, AgentSessionDeleteRequest,
     AgentSessionForkBeforeTurnRequest, AgentSessionForkRequest, AgentSessionRenameRequest,
     AgentSessionRestoreRequest, AgentUserAnswersRequest, DialogSubmitOutcome, PermissionRequest,
     PermissionRequestEvent, PortErrorKind, RuntimeError, SessionTranscriptRequest,
 };
-use openbitfun_agent_runtime_ipc::{
+use alex_agent_runtime_ipc::{
     DiscoveryStore, RuntimeAgentModeSummary, RuntimeInstanceIdentity, RuntimeIpcClient,
     RuntimeIpcError, RuntimeIpcErrorCode, RuntimeIpcEvent, RuntimeIpcOperation,
     RuntimeIpcOperationResult, RuntimeIpcRequestHandler, RuntimeIpcServer, RuntimeIpcServerConfig,
     RuntimeIpcStreamInvalidationReason, RuntimeSessionProcessingPhase, RuntimeSessionRenameRequest,
     RuntimeSessionState, PROTOCOL_VERSION,
 };
-use openbitfun_core::product_runtime::CoreAgentRuntimeCompatibility;
-use openbitfun_core::runtime_ownership::CoreRuntimeOwnership;
-use openbitfun_events::{AgenticEvent, ToolEventData};
-use openbitfun_runtime_ports::{AgentSessionWorkspaceBinding, AgentSessionWorkspaceRequest};
-use openbitfun_services_core::runtime_ownership::RuntimeDeployment;
+use alex_core::product_runtime::CoreAgentRuntimeCompatibility;
+use alex_core::runtime_ownership::CoreRuntimeOwnership;
+use alex_events::{AgenticEvent, ToolEventData};
+use alex_runtime_ports::{AgentSessionWorkspaceBinding, AgentSessionWorkspaceRequest};
+use alex_services_core::runtime_ownership::RuntimeDeployment;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::process::{Child, Command, Stdio};
@@ -60,7 +60,7 @@ impl SharedRuntimeHandler {
     pub(crate) fn build(
         runtime: AgentRuntime,
         compatibility: CoreAgentRuntimeCompatibility,
-        workspace: &openbitfun_core::service::workspace::WorkspaceInfo,
+        workspace: &alex_core::service::workspace::WorkspaceInfo,
     ) -> Result<Self> {
         Self::build_optional(
             runtime,
@@ -255,14 +255,14 @@ impl RuntimeIpcRequestHandler for SharedRuntimeHandler {
                     Some(session_id) => self.session_workspace_binding(&session_id).await?,
                     None => AgentSessionWorkspaceBinding {
                         workspace_kind: Some(
-                            openbitfun_core::service::workspace::WorkspaceKind::Normal,
+                            alex_core::service::workspace::WorkspaceKind::Normal,
                         ),
                         project_workspace_id: self.workspace_id.clone(),
                         workspace_id: self.workspace_id.clone(),
                         workspace_path: self.workspace.to_string_lossy().to_string(),
                         project_workspace_path: Some(self.workspace.to_string_lossy().to_string()),
                         execution_target: Some(
-                            openbitfun_runtime_ports::SessionExecutionTarget::local(
+                            alex_runtime_ports::SessionExecutionTarget::local(
                                 self.workspace.to_string_lossy().to_string(),
                             ),
                         ),
@@ -277,7 +277,7 @@ impl RuntimeIpcRequestHandler for SharedRuntimeHandler {
                     );
                 }
                 if let Err(error) =
-                    openbitfun_core::external_sources::ensure_external_source_workspace_snapshot(
+                    alex_core::external_sources::ensure_external_source_workspace_snapshot(
                         binding.workspace_id.as_deref(),
                     )
                     .await
@@ -578,7 +578,7 @@ impl RuntimeIpcRequestHandler for SharedRuntimeHandler {
                 .steer_dialog_turn(request)
                 .await
                 .map(|outcome| match outcome {
-                    openbitfun_agent_runtime::sdk::DialogSteerOutcome::Buffered {
+                    alex_agent_runtime::sdk::DialogSteerOutcome::Buffered {
                         session_id,
                         turn_id,
                         steering_id,
@@ -714,9 +714,9 @@ impl RuntimeIpcRequestHandler for SharedRuntimeHandler {
 }
 
 fn runtime_session_state(
-    state: openbitfun_agent_runtime::sdk::SessionState,
+    state: alex_agent_runtime::sdk::SessionState,
 ) -> RuntimeSessionState {
-    use openbitfun_agent_runtime::sdk::{ProcessingPhase, SessionState};
+    use alex_agent_runtime::sdk::{ProcessingPhase, SessionState};
 
     match state {
         SessionState::Idle => RuntimeSessionState::Idle,
@@ -1129,7 +1129,7 @@ fn index_user_question(
 }
 
 pub(crate) async fn run_service(workspace: PathBuf, expected_identity: String) -> Result<()> {
-    openbitfun_services_core::process_manager::contain_current_process_tree()
+    alex_services_core::process_manager::contain_current_process_tree()
         .context("contain Shared Runtime process tree")?;
     prepare_client_environment().await?;
     let identity = instance_identity(&workspace)?;
@@ -1257,9 +1257,9 @@ fn require_interactive_tui(client: RuntimeIpcClient) -> Result<RuntimeIpcClient>
 
 async fn prepare_client_environment() -> Result<()> {
     crate::agent::agentic_system::select_agentic_system_profile(
-        openbitfun_core::product_assembly::DeliveryProfile::Cli,
+        alex_core::product_assembly::DeliveryProfile::Cli,
     )?;
-    openbitfun_core::service::config::initialize_global_config()
+    alex_core::service::config::initialize_global_config()
         .await
         .map_err(|error| anyhow!("Failed to initialize Shared TUI configuration: {error}"))
 }
@@ -1291,8 +1291,8 @@ struct StartupChild {
 
 impl StartupChild {
     fn spawn(workspace: &Path, identity: &str) -> Result<Self> {
-        let executable = std::env::current_exe().context("resolve OpenBitFun executable")?;
-        let mut command = openbitfun_services_core::process_manager::create_command(executable);
+        let executable = std::env::current_exe().context("resolve Alex executable")?;
+        let mut command = alex_services_core::process_manager::create_command(executable);
         command
             .arg("__shared-runtime")
             .arg("--workspace")
@@ -1372,8 +1372,8 @@ fn ipc_root() -> Result<PathBuf> {
         .join(format!("ipc-v{PROTOCOL_VERSION}")))
 }
 
-fn path_manager() -> Result<Arc<openbitfun_core::infrastructure::PathManager>> {
-    openbitfun_core::infrastructure::try_get_path_manager_arc()
+fn path_manager() -> Result<Arc<alex_core::infrastructure::PathManager>> {
+    alex_core::infrastructure::try_get_path_manager_arc()
         .map_err(|error| anyhow!(error.to_string()))
 }
 
@@ -1452,13 +1452,13 @@ fn runtime_ipc_error(error: RuntimeError) -> RuntimeIpcError {
     }
 }
 
-fn core_ipc_error(error: openbitfun_core::util::errors::OpenBitFunError) -> RuntimeIpcError {
+fn core_ipc_error(error: alex_core::util::errors::AlexError) -> RuntimeIpcError {
     let code = match &error {
-        openbitfun_core::util::errors::OpenBitFunError::Validation(_)
-        | openbitfun_core::util::errors::OpenBitFunError::NotFound(_) => {
+        alex_core::util::errors::AlexError::Validation(_)
+        | alex_core::util::errors::AlexError::NotFound(_) => {
             RuntimeIpcErrorCode::InvalidRequest
         }
-        openbitfun_core::util::errors::OpenBitFunError::SessionInUse { .. } => {
+        alex_core::util::errors::AlexError::SessionInUse { .. } => {
             RuntimeIpcErrorCode::SessionInUse
         }
         _ => RuntimeIpcErrorCode::Unavailable,
@@ -1479,7 +1479,7 @@ mod tests {
         runtime_ipc_error, subscribe_session_events, SessionEventSenders, SubagentRoute,
         SubagentRoutes, EVENT_BUFFER,
     };
-    use openbitfun_agent_runtime::sdk::{
+    use alex_agent_runtime::sdk::{
         AgentRuntimeBuilder, AgentSessionCreateRequest, AgentSessionCreateResult,
         AgentSessionDeleteRequest, AgentSessionListRequest, AgentSessionManagementPort,
         AgentSessionRenameRequest, AgentSessionSummary, AgentSessionWorkspaceBinding,
@@ -1488,8 +1488,8 @@ mod tests {
         PermissionRequest, PermissionRequestEvent, PermissionRequestSource,
         PermissionRequestSourceKind, PortError, PortErrorKind, PortResult, RuntimeError,
     };
-    use openbitfun_agent_runtime_ipc::{RuntimeIpcErrorCode, RuntimeSessionRenameRequest};
-    use openbitfun_events::{AgenticEvent, ToolEventData, ToolEventIdentity};
+    use alex_agent_runtime_ipc::{RuntimeIpcErrorCode, RuntimeSessionRenameRequest};
+    use alex_events::{AgenticEvent, ToolEventData, ToolEventIdentity};
     use std::collections::HashMap;
     use std::sync::{Arc, Mutex};
     use std::time::Duration;
@@ -1596,7 +1596,7 @@ mod tests {
 
         assert_eq!(
             error.code,
-            openbitfun_agent_runtime_ipc::RuntimeIpcErrorCode::SessionInUse
+            alex_agent_runtime_ipc::RuntimeIpcErrorCode::SessionInUse
         );
     }
 
@@ -1609,7 +1609,7 @@ mod tests {
 
         assert_eq!(
             error.code,
-            openbitfun_agent_runtime_ipc::RuntimeIpcErrorCode::InvalidRequest
+            alex_agent_runtime_ipc::RuntimeIpcErrorCode::InvalidRequest
         );
     }
 
@@ -1653,10 +1653,10 @@ mod tests {
 
     #[tokio::test]
     async fn shared_question_interaction_and_dismissal_use_the_runtime_mailbox() {
-        use openbitfun_agent_runtime::user_questions::{
+        use alex_agent_runtime::user_questions::{
             get_user_input_manager, PendingUserQuestion,
         };
-        use openbitfun_agent_runtime_ipc::{RuntimeIpcOperation, RuntimeIpcRequestHandler};
+        use alex_agent_runtime_ipc::{RuntimeIpcOperation, RuntimeIpcRequestHandler};
         let runtime = AgentRuntimeBuilder::new()
             .with_submission_port(Arc::new(RecordingSessionPort::default()))
             .build()
@@ -1792,18 +1792,18 @@ mod tests {
     #[tokio::test]
     async fn existing_runtime_connection_errors_are_not_hidden_as_absence() {
         let root = tempfile::tempdir().unwrap();
-        let identity = openbitfun_agent_runtime_ipc::RuntimeInstanceIdentity::for_workspace(
+        let identity = alex_agent_runtime_ipc::RuntimeInstanceIdentity::for_workspace(
             root.path(),
-            "openbitfun",
+            "alex",
             "stable",
             "fixture-user",
-            openbitfun_agent_runtime_ipc::PROTOCOL_VERSION,
+            alex_agent_runtime_ipc::PROTOCOL_VERSION,
         )
         .unwrap();
         let store =
-            openbitfun_agent_runtime_ipc::DiscoveryStore::new(root.path(), identity.clone());
+            alex_agent_runtime_ipc::DiscoveryStore::new(root.path(), identity.clone());
         store
-            .write(&openbitfun_agent_runtime_ipc::DiscoveryRecord::new(
+            .write(&alex_agent_runtime_ipc::DiscoveryRecord::new(
                 identity,
                 "invalid-endpoint".to_string(),
                 1,
@@ -1870,9 +1870,9 @@ mod tests {
             publish_event(
                 &events,
                 "noisy",
-                openbitfun_agent_runtime_ipc::RuntimeIpcEvent::StreamInvalidated {
+                alex_agent_runtime_ipc::RuntimeIpcEvent::StreamInvalidated {
                     reason:
-                        openbitfun_agent_runtime_ipc::RuntimeIpcStreamInvalidationReason::Lagged,
+                        alex_agent_runtime_ipc::RuntimeIpcStreamInvalidationReason::Lagged,
                 },
             );
         }
@@ -1883,7 +1883,7 @@ mod tests {
         invalidate_event_stream(
             &available,
             &events,
-            openbitfun_agent_runtime_ipc::RuntimeIpcStreamInvalidationReason::Lagged,
+            alex_agent_runtime_ipc::RuntimeIpcStreamInvalidationReason::Lagged,
         );
         assert!(quiet.try_recv().is_ok());
         assert!(subscribe_session_events(&events, &available, "late").is_err());
@@ -2061,7 +2061,7 @@ mod tests {
             },
             PermissionRequestEvent::Replied {
                 request_id: request.request_id,
-                reply: openbitfun_agent_runtime::sdk::PermissionReply::Once,
+                reply: alex_agent_runtime::sdk::PermissionReply::Once,
                 source: PermissionReplySource::User,
             },
         ];

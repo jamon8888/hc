@@ -1,12 +1,12 @@
-import '@openbitfun/theme-openbitfun/default.css';
-import { themes } from '@openbitfun/theme-openbitfun';
+import '@alex/theme-alex/default.css';
+import { themes } from '@alex/theme-alex';
 
 const colorScheme = window.matchMedia?.('(prefers-color-scheme: dark)').matches
   ? 'dark'
   : 'light';
 const root = document.documentElement;
 
-root.setAttribute('data-openbitfun-design-system-root', '');
+root.setAttribute('data-alex-design-system-root', '');
 root.setAttribute('data-color-scheme', colorScheme);
 root.setAttribute('data-contrast', 'standard');
 root.setAttribute('data-density', 'comfortable');

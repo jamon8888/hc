@@ -1,4 +1,4 @@
-import { Icon, MenuItem, Spinner, Tooltip } from '@openbitfun/ui';
+import { Icon, MenuItem, Spinner, Tooltip } from '@alex/ui';
 import { useEffect, useRef } from 'react';
 import { useI18n } from '@/infrastructure/i18n';
 import { notificationService } from '@/shared/notification-system/services/NotificationService';

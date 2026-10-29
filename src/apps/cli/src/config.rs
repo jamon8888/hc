@@ -4,7 +4,7 @@
 /// Only CLI-specific configuration is kept here (UI, shortcuts, etc.)
 use anyhow::Result;
 use fs2::FileExt;
-use openbitfun_core::infrastructure::try_get_path_manager_arc;
+use alex_core::infrastructure::try_get_path_manager_arc;
 use serde::{Deserialize, Serialize};
 use std::fs::{self, OpenOptions};
 use std::io::Write;

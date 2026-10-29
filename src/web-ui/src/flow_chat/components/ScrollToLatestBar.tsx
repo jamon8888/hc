@@ -1,4 +1,4 @@
-import { IconButton } from '@openbitfun/ui';
+import { IconButton } from '@alex/ui';
 import { ArrowDown as LucideArrowDown } from 'lucide-react';
 /**
  * Scroll-to-latest bar.
@@ -69,9 +69,9 @@ export const ScrollToLatestBar: React.FC<ScrollToLatestBarProps> = ({
     <RetainedMountBoundary present={visible}>
       <div
         ref={barRef}
-        data-openbitfun-product-component="scroll-to-latest-bar"
-        data-openbitfun-product-part="root"
-        data-openbitfun-input="active"
+        data-alex-product-component="scroll-to-latest-bar"
+        data-alex-product-part="root"
+        data-alex-input="active"
         data-visible={visible ? 'true' : 'false'}
         className={`scroll-to-latest-bar ${className}`}
         style={dynamicStyle}
@@ -88,10 +88,10 @@ export const ScrollToLatestBar: React.FC<ScrollToLatestBarProps> = ({
         {...(!visible ? { inert: '' } : {})}
         aria-label={t('scroll.toLatest')}
       >
-        <div data-openbitfun-product-component="scroll-to-latest-bar" data-openbitfun-product-part="gradient" className="scroll-to-latest-bar__gradient" />
+        <div data-alex-product-component="scroll-to-latest-bar" data-alex-product-part="gradient" className="scroll-to-latest-bar__gradient" />
 
-        <div data-openbitfun-product-component="scroll-to-latest-bar" data-openbitfun-product-part="content" className="scroll-to-latest-bar__content" style={contentStyle}>
-          <IconButton data-openbitfun-product-component="scroll-to-latest-bar" data-openbitfun-product-part="button" className="scroll-to-latest-bar__btn" aria-hidden="true" tabIndex={-1}
+        <div data-alex-product-component="scroll-to-latest-bar" data-alex-product-part="content" className="scroll-to-latest-bar__content" style={contentStyle}>
+          <IconButton data-alex-product-component="scroll-to-latest-bar" data-alex-product-part="button" className="scroll-to-latest-bar__btn" aria-hidden="true" tabIndex={-1}
             aria-label={t('scroll.toLatest')}
             icon={<LucideArrowDown width="16" height="16" aria-hidden="true" />}
           />

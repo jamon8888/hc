@@ -122,15 +122,15 @@ pnpm install
 
 # 构建应用（从项目根目录）
 cd ../..
-cargo build -p openbitfun-desktop
+cargo build -p alex-desktop
 ```
 
 ### 2. 验证安装
 
 检查应用二进制文件是否存在：
 
-**Windows**: `target/debug/openbitfun-desktop.exe`
-**Linux/macOS**: `target/debug/openbitfun-desktop`
+**Windows**: `target/debug/alex-desktop.exe`
+**Linux/macOS**: `target/debug/alex-desktop`
 
 ### 3. 运行测试
 
@@ -155,7 +155,7 @@ pnpm test -- --spec ./specs/l0-smoke.spec.ts
 测试框架统一运行在 debug/dev 模式：
 
 #### Debug 模式（默认）
-- **应用路径**: `target/debug/openbitfun-desktop.exe`
+- **应用路径**: `target/debug/alex-desktop.exe`
 - **特点**: 包含调试符号、需要 dev server（端口 1422）
 - **使用场景**: 本地开发、快速迭代
 
@@ -165,13 +165,13 @@ pnpm test -- --spec ./specs/l0-smoke.spec.ts
 
 ```bash
 # Debug 模式输出
-application: <PROJECT_ROOT>\target\debug\openbitfun-desktop.exe
+application: <PROJECT_ROOT>\target\debug\alex-desktop.exe
 Debug build detected, checking dev server...
 ```
 
-**核心原理**: 功能 E2E 默认使用 `target/debug/openbitfun-desktop.exe`。性能 E2E 需要显式设置 `OPENBITFUN_E2E_APP_MODE=release-fast`，并先执行 `pnpm run desktop:build:release-fast`。
+**核心原理**: 功能 E2E 默认使用 `target/debug/alex-desktop.exe`。性能 E2E 需要显式设置 `OPENBITFUN_E2E_APP_MODE=release-fast`，并先执行 `pnpm run desktop:build:release-fast`。
 
-不要直接手工启动 `target/release-fast/openbitfun-desktop.exe` 做性能验证。直接启动会使用普通用户 profile，除非手动提供隔离存储环境变量。E2E launcher 会自动设置 `OPENBITFUN_USER_ROOT`、`OPENBITFUN_HOME` 和 `OPENBITFUN_E2E_STORAGE_GUARD=1`，确保性能测试不会静默写入真实 Alex profile。
+不要直接手工启动 `target/release-fast/alex-desktop.exe` 做性能验证。直接启动会使用普通用户 profile，除非手动提供隔离存储环境变量。E2E launcher 会自动设置 `OPENBITFUN_USER_ROOT`、`OPENBITFUN_HOME` 和 `OPENBITFUN_E2E_STORAGE_GUARD=1`，确保性能测试不会静默写入真实 Alex profile。
 
 ### 5. 启动和长 Session 性能 E2E
 
@@ -193,7 +193,7 @@ cross-env E2E_TEST_WORKSPACE=<workspace-path> OPENBITFUN_E2E_PERF_SESSION_ID=per
 运行 debug 对照测试：
 
 ```bash
-cargo build -p openbitfun-desktop
+cargo build -p alex-desktop
 cross-env E2E_TEST_WORKSPACE=<workspace-path> OPENBITFUN_E2E_PERF_SESSION_ID=perf-long-session-000 pnpm run e2e:test:perf:debug
 ```
 
@@ -432,7 +432,7 @@ it('当工作区打开时应测试功能', async function () {
 **解决方案**:
 ```bash
 # 构建 debug 桌面应用
-cargo build -p openbitfun-desktop
+cargo build -p alex-desktop
 
 # 用 debug 模式运行测试，Alex 会在进程内启动 WebDriver
 OPENBITFUN_E2E_APP_MODE=debug pnpm --dir tests/e2e run test:l0:protocol
@@ -442,18 +442,18 @@ OPENBITFUN_E2E_APP_MODE=debug pnpm --dir tests/e2e run test:l0:protocol
 
 #### 2. 应用未构建
 
-**症状**: `Application not found at target/debug/openbitfun-desktop.exe`
+**症状**: `Application not found at target/debug/alex-desktop.exe`
 
 **解决方案**:
 ```bash
 # 构建应用（从项目根目录）
-cargo build -p openbitfun-desktop
+cargo build -p alex-desktop
 
 # 验证二进制文件存在
 # Windows
-dir target\debug\openbitfun-desktop.exe
+dir target\debug\alex-desktop.exe
 # Linux/macOS
-ls -la target/debug/openbitfun-desktop
+ls -la target/debug/alex-desktop
 ```
 
 #### 3. 测试超时
@@ -595,7 +595,7 @@ jobs:
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
       - name: 构建应用
-        run: cargo build -p openbitfun-desktop
+        run: cargo build -p alex-desktop
       - name: 安装测试依赖
         run: cd tests/e2e && pnpm install
       - name: 运行 L0 测试
@@ -619,7 +619,7 @@ jobs:
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
       - name: 构建应用
-        run: cargo build -p openbitfun-desktop
+        run: cargo build -p alex-desktop
       - name: 安装测试依赖
         run: cd tests/e2e && pnpm install
       - name: 运行 L1 测试

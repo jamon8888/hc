@@ -24,7 +24,7 @@ function releaseLetter(): AnnouncementCard {
     },
     toast: {
       icon: '',
-      title: 'OpenBitFun 1.0.0',
+      title: 'Alex 1.0.0',
       description: 'Release letter',
       action_label: '',
       dismissible: true,

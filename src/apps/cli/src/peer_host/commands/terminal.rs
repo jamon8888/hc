@@ -3,7 +3,7 @@ use crate::peer_host::{
     args::{get_string, optional_string, request_value},
     state::PeerHostState,
 };
-use openbitfun_core::service::{
+use alex_core::service::{
     remote_ssh::{get_remote_workspace_manager, RemoteTerminalManager},
     terminal::{
         CloseSessionRequest, CreateSessionRequest, ResizeRequest, TerminalApi, WriteRequest,
@@ -18,7 +18,7 @@ fn api() -> Result<TerminalApi, String> {
 fn decode<T: DeserializeOwned>(args: &Value) -> Result<T, String> {
     serde_json::from_value(request_value(args).clone()).map_err(|e| e.to_string())
 }
-fn response(session: openbitfun_core::service::remote_ssh::RemoteTerminalSession) -> Value {
+fn response(session: alex_core::service::remote_ssh::RemoteTerminalSession) -> Value {
     json!({"workspaceId":session.workspace_id,"id":session.id,"name":session.name,"cwd":session.cwd,"initialCwd":session.cwd,"shellType":"Remote","status":format!("{:?}",session.status),"cols":session.cols,"rows":session.rows,"connectionId":session.connection_id,"source":"user"})
 }
 async fn remote_session(id: &str) -> Option<RemoteTerminalManager> {
@@ -36,7 +36,7 @@ pub(crate) async fn create(state: &PeerHostState, args: &Value) -> Result<Value,
     let explicit = optional_string(request, "connectionId");
     let mut cwd = optional_string(request, "workingDirectory");
     let connection = if workspace_id.is_some() || explicit.is_none() {
-        let service = openbitfun_core::service::workspace::get_global_workspace_service()
+        let service = alex_core::service::workspace::get_global_workspace_service()
             .ok_or("Workspace service is unavailable")?;
         // Old-protocol ingress is the only place a path can be converted.
         let workspace = service
@@ -52,7 +52,7 @@ pub(crate) async fn create(state: &PeerHostState, args: &Value) -> Result<Value,
         workspace_id = Some(workspace.id.clone());
         cwd.get_or_insert_with(|| workspace.root_path.to_string_lossy().into_owned());
         match workspace.workspace_kind {
-            openbitfun_core::service::workspace::WorkspaceKind::Remote => Some(
+            alex_core::service::workspace::WorkspaceKind::Remote => Some(
                 workspace
                     .remote_ssh_connection_id()
                     .ok_or("Remote workspace is missing its saved SSH connection ID")?
@@ -71,7 +71,7 @@ pub(crate) async fn create(state: &PeerHostState, args: &Value) -> Result<Value,
         .await
         .ok_or("Account host streams are unavailable")?;
     if let Some(connection) = connection {
-        let services = openbitfun_core::service::remote_ssh::workspace_state::ensure_saved_connection_services().await?;
+        let services = alex_core::service::remote_ssh::workspace_state::ensure_saved_connection_services().await?;
         let ssh = services
             .get_ssh_manager()
             .await
@@ -180,9 +180,9 @@ pub(crate) async fn create(state: &PeerHostState, args: &Value) -> Result<Value,
             .session_manager()
             .set_owner(
                 &session.id,
-                openbitfun_core::service::terminal::session::SessionOwner {
+                alex_core::service::terminal::session::SessionOwner {
                     id: workspace_id.clone(),
-                    owner_type: openbitfun_core::service::terminal::session::OwnerType::Workspace,
+                    owner_type: alex_core::service::terminal::session::OwnerType::Workspace,
                 },
             )
             .await
@@ -326,7 +326,7 @@ pub(crate) async fn shells() -> Result<Value, String> {
 }
 
 pub(crate) async fn signal(args: &Value) -> Result<Value, String> {
-    let request: openbitfun_core::service::terminal::SignalRequest = decode(args)?;
+    let request: alex_core::service::terminal::SignalRequest = decode(args)?;
     if let Some(manager) = remote_session(&request.session_id).await {
         let bytes: &[u8] = match request.signal.trim().to_ascii_uppercase().as_str() {
             "SIGINT" | "INT" => &[3],
@@ -349,7 +349,7 @@ pub(crate) async fn signal(args: &Value) -> Result<Value, String> {
 }
 
 pub(crate) async fn acknowledge(args: &Value) -> Result<Value, String> {
-    let request: openbitfun_core::service::terminal::AcknowledgeRequest = decode(args)?;
+    let request: alex_core::service::terminal::AcknowledgeRequest = decode(args)?;
     if remote_session(&request.session_id).await.is_none() {
         api()?
             .acknowledge_data(request)
@@ -369,7 +369,7 @@ pub(crate) async fn has_shell_integration(args: &Value) -> Result<Value, String>
 }
 
 pub(crate) async fn send_command(args: &Value) -> Result<Value, String> {
-    let request: openbitfun_core::service::terminal::SendCommandRequest = decode(args)?;
+    let request: alex_core::service::terminal::SendCommandRequest = decode(args)?;
     if let Some(manager) = remote_session(&request.session_id).await {
         manager
             .write(
@@ -406,7 +406,7 @@ pub(crate) async fn shutdown_all() -> Result<Value, String> {
 }
 
 pub(crate) async fn execute(args: &Value) -> Result<Value, String> {
-    let request: openbitfun_core::service::terminal::ExecuteCommandRequest = decode(args)?;
+    let request: alex_core::service::terminal::ExecuteCommandRequest = decode(args)?;
     let result = if let Some(manager) = remote_session(&request.session_id).await {
         manager
             .execute(&request.session_id, &request.command, request.timeout_ms)

@@ -12,7 +12,7 @@ E2E test framework using WebDriverIO + the embedded Alex WebDriver.
 
 ```bash
 # Build the debug app
-cargo build -p openbitfun-desktop
+cargo build -p alex-desktop
 
 # Install test dependencies
 pnpm --dir tests/e2e install
@@ -60,7 +60,7 @@ The test runner starts Alex directly and waits for the embedded WebDriver servic
 ### App not built
 
 ```bash
-cargo build -p openbitfun-desktop
+cargo build -p alex-desktop
 ```
 
 ### Test timeout

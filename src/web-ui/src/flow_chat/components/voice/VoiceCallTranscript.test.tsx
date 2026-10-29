@@ -2,7 +2,7 @@
 import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { VoiceCallTranscript } from '@openbitfun/ui';
+import { VoiceCallTranscript } from '@alex/ui';
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -19,7 +19,7 @@ describe('continuous transcript history scrolling', () => {
     load.mockReset();
     container = document.createElement('div'); document.body.append(container); root = createRoot(container);
     await act(async () => render(['a', 'b', 'c', 'd', 'e', 'f']));
-    viewport = container.querySelector<HTMLDivElement>('[data-openbitfun-part="conversation"]')!;
+    viewport = container.querySelector<HTMLDivElement>('[data-alex-part="conversation"]')!;
     Object.defineProperty(viewport, 'clientHeight', { configurable: true, get: () => 200 });
     Object.defineProperty(viewport, 'scrollHeight', { configurable: true,
       get: () => viewport.querySelectorAll('[data-transcript-id]').length * 100 });
@@ -86,12 +86,12 @@ describe('continuous transcript history scrolling', () => {
     }]} />);
     await act(async () => renderActivity(true));
     const entry = viewport.querySelector('[data-transcript-id="current:user"]')!;
-    const bubble = entry.querySelector('[data-openbitfun-part="userTranscript"]')!;
+    const bubble = entry.querySelector('[data-alex-part="userTranscript"]')!;
     expect(entry.querySelector('[role="status"]')).not.toBeNull();
     expect(bubble.querySelector('[role="status"]')).toBeNull();
     await act(async () => renderActivity(false));
     expect(viewport.querySelector('[data-transcript-id="current:user"]')).toBe(entry);
-    expect(entry.querySelector('[data-openbitfun-part="userTranscript"]')).toBe(bubble);
+    expect(entry.querySelector('[data-alex-part="userTranscript"]')).toBe(bubble);
     expect(entry.querySelector('[role="status"]')).toBeNull();
   });
 });

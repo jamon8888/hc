@@ -51,7 +51,7 @@ function manifest(): AppearancePackage {
         version: 1,
         settings: {
           tokens: {
-            '--openbitfun-color-surface-canvas': '#101820',
+            '--alex-color-surface-canvas': '#101820',
           },
         },
       },
@@ -87,7 +87,7 @@ describe('AppearancePackageParser', () => {
           version: 1,
           settings: {
             tokens: {
-              '--openbitfun-color-surface-canvas': '#101820',
+              '--alex-color-surface-canvas': '#101820',
             },
           },
         },

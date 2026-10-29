@@ -6,8 +6,8 @@ export type ScrollAreaOrientation = "vertical" | "horizontal" | "both";
 export type ScrollbarVisibility = "auto" | "always" | "hidden";
 
 export interface ScrollAreaProps extends HTMLAttributes<HTMLDivElement> {
-  "data-openbitfun-component"?: string;
-  "data-openbitfun-part"?: string;
+  "data-alex-component"?: string;
+  "data-alex-part"?: string;
   orientation?: ScrollAreaOrientation;
   /** Auto reveals on viewport hover or keyboard focus; touch remains visible. */
   scrollbarVisibility?: ScrollbarVisibility;
@@ -16,8 +16,8 @@ export interface ScrollAreaProps extends HTMLAttributes<HTMLDivElement> {
 export const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
   function ScrollArea({
     className,
-    "data-openbitfun-component": component = "scroll-area",
-    "data-openbitfun-part": part = "viewport",
+    "data-alex-component": component = "scroll-area",
+    "data-alex-part": part = "viewport",
     orientation = "vertical",
     scrollbarVisibility = "auto",
     ...props
@@ -26,10 +26,10 @@ export const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
       <div
         {...props}
         className={classNames(styles.root, className)}
-        data-openbitfun-component={component}
-        data-openbitfun-orientation={orientation}
-        data-openbitfun-part={part}
-        data-openbitfun-scrollbar-visibility={scrollbarVisibility}
+        data-alex-component={component}
+        data-alex-orientation={orientation}
+        data-alex-part={part}
+        data-alex-scrollbar-visibility={scrollbarVisibility}
         ref={ref}
       />
     );

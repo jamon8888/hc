@@ -14,8 +14,8 @@ export function ChatInputAttachments({ contexts, surfaceEpoch, onRemove, onUpdat
   const { t } = useI18n('flow-chat');
   const images = contexts.filter((context): context is ImageContext => context.type === 'image');
   if (!images.length && !contexts.some(isConversationExcerpt)) return null;
-  return <div className="openbitfun-chat-input__image-strip"
-    data-openbitfun-component="chat-input" data-openbitfun-part="imageStrip" data-testid="chat-input-image-strip">
+  return <div className="alex-chat-input__image-strip"
+    data-alex-component="chat-input" data-alex-part="imageStrip" data-testid="chat-input-image-strip">
     {images.map(image => (
       <ChatInputAttachment key={image.id} label={image.imageName}
         removeLabel={t('input.removeImage')} onRemove={() => onRemove(image.id)}>

@@ -1,6 +1,6 @@
 //! Explicit local settings paths only; packages and pattern expressions are not evaluated.
-use openbitfun_product_domains::external_sources::ExternalSourceScope;
-use openbitfun_static_hook_support::{read_bounded_file, BoundedFileRead};
+use alex_product_domains::external_sources::ExternalSourceScope;
+use alex_static_hook_support::{read_bounded_file, BoundedFileRead};
 use std::{
     collections::BTreeSet,
     path::{Path, PathBuf},

@@ -2,8 +2,8 @@
 
 #[cfg(feature = "rpc")]
 use agent_client_protocol::{JsonRpcRequest, JsonRpcResponse};
-pub use openbitfun_core_types::WorktreeErrorCode;
-use openbitfun_runtime_ports::AgentSessionWorkspaceBinding;
+pub use alex_core_types::WorktreeErrorCode;
+use alex_runtime_ports::AgentSessionWorkspaceBinding;
 use serde::{Deserialize, Serialize};
 
 use crate::error::AppServerErrorData;

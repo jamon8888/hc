@@ -5,7 +5,7 @@ use crate::infrastructure::{
 use crate::util::elapsed_ms_u64;
 use crate::util::errors::*;
 use log::debug;
-use openbitfun_services_core::filesystem::FileSystemService as BaseFileSystemService;
+use alex_services_core::filesystem::FileSystemService as BaseFileSystemService;
 use std::sync::atomic::AtomicBool;
 use std::sync::Arc;
 
@@ -13,15 +13,15 @@ use super::types::{DirectoryScanResult, DirectoryStats, FileSearchOptions, FileS
 
 const SLOW_FILESYSTEM_OPERATION_LOG_MS: u64 = 500;
 
-fn map_filesystem_error(error: impl std::fmt::Display) -> OpenBitFunError {
-    OpenBitFunError::service(error.to_string())
+fn map_filesystem_error(error: impl std::fmt::Display) -> AlexError {
+    AlexError::service(error.to_string())
 }
 
 #[cfg(feature = "remote-workspace")]
 async fn read_remote_directory_contents(
     path: &str,
     preferred_remote_connection_id: Option<&str>,
-) -> Option<OpenBitFunResult<Vec<FileTreeNode>>> {
+) -> Option<AlexResult<Vec<FileTreeNode>>> {
     // Present empty identity is an explicit runtime-local scope, never path inference.
     if preferred_remote_connection_id.is_some_and(|id| id.is_empty()) {
         return None;
@@ -37,19 +37,19 @@ async fn read_remote_directory_contents(
 
     let Some(manager) = crate::service::remote_ssh::workspace_state::get_remote_workspace_manager()
     else {
-        return Some(Err(OpenBitFunError::service(format!(
+        return Some(Err(AlexError::service(format!(
             "Remote workspace manager is unavailable for connection '{connection_id}'; local filesystem fallback was not attempted"
         ))));
     };
     let Some(file_service) = manager.get_file_service().await else {
-        return Some(Err(OpenBitFunError::service(format!(
+        return Some(Err(AlexError::service(format!(
             "Remote file service is unavailable for connection '{connection_id}'; local filesystem fallback was not attempted"
         ))));
     };
 
     Some(match file_service.read_dir(connection_id, path).await {
         Ok(entries) => Ok(remote_directory_nodes(entries)),
-        Err(error) => Err(OpenBitFunError::service(format!(
+        Err(error) => Err(AlexError::service(format!(
             "Failed to read remote directory: {}",
             error
         ))),
@@ -83,18 +83,18 @@ fn remote_directory_nodes(
 async fn read_saved_directory_contents(
     path: &str,
     connection_id: &str,
-) -> OpenBitFunResult<Vec<FileTreeNode>> {
+) -> AlexResult<Vec<FileTreeNode>> {
     let state = crate::service::remote_ssh::workspace_state::ensure_saved_connection_services()
         .await
-        .map_err(OpenBitFunError::service)?;
+        .map_err(AlexError::service)?;
     let ssh = state
         .get_ssh_manager()
         .await
-        .ok_or_else(|| OpenBitFunError::service("SSH manager is unavailable"))?;
+        .ok_or_else(|| AlexError::service("SSH manager is unavailable"))?;
     let files = state
         .get_file_service()
         .await
-        .ok_or_else(|| OpenBitFunError::service("Remote file service is unavailable"))?;
+        .ok_or_else(|| AlexError::service("Remote file service is unavailable"))?;
     read_saved_directory_with_provider(path, connection_id, &ssh, &files).await
 }
 
@@ -104,9 +104,9 @@ async fn read_saved_directory_with_provider(
     connection_id: &str,
     ssh: &crate::service::remote_ssh::SSHConnectionManager,
     files: &crate::service::remote_ssh::RemoteFileService,
-) -> OpenBitFunResult<Vec<FileTreeNode>> {
+) -> AlexResult<Vec<FileTreeNode>> {
     if !path.starts_with('/') || path.contains('\0') {
-        return Err(OpenBitFunError::service(
+        return Err(AlexError::service(
             "Remote directory must be an absolute POSIX path",
         ));
     }
@@ -116,19 +116,19 @@ async fn read_saved_directory_with_provider(
         .iter()
         .any(|profile| profile.id == connection_id)
     {
-        return Err(OpenBitFunError::service(
+        return Err(AlexError::service(
             "Directory connection is not saved on this runtime; local fallback was not attempted",
         ));
     }
     ssh.ensure_connected(connection_id)
         .await
-        .map_err(|error| OpenBitFunError::service(error.to_string()))?;
+        .map_err(|error| AlexError::service(error.to_string()))?;
     // A saved profile owns credentials, not a workspace root. Browsing must not
     // register or select a workspace before the user chooses a directory.
     let entries = files
         .read_dir(connection_id, path)
         .await
-        .map_err(|error| OpenBitFunError::service(error.to_string()))?;
+        .map_err(|error| AlexError::service(error.to_string()))?;
     Ok(remote_directory_nodes(entries))
 }
 
@@ -138,7 +138,7 @@ async fn read_saved_directory_with_provider(
 async fn read_remote_directory_contents(
     path: &str,
     preferred_remote_connection_id: Option<&str>,
-) -> Option<OpenBitFunResult<Vec<FileTreeNode>>> {
+) -> Option<AlexResult<Vec<FileTreeNode>>> {
     // Present empty identity is an explicit runtime-local scope, never path inference.
     if preferred_remote_connection_id.is_some_and(|id| id.is_empty()) {
         return None;
@@ -147,8 +147,8 @@ async fn read_remote_directory_contents(
         .map(str::trim)
         .filter(|value| !value.is_empty());
     if explicit_connection_id.is_some() {
-        return Some(Err(OpenBitFunError::NotImplemented(
-            format!("Remote workspaces are not compiled into this OpenBitFun host; refusing remote directory IO: {path}"),
+        return Some(Err(AlexError::NotImplemented(
+            format!("Remote workspaces are not compiled into this Alex host; refusing remote directory IO: {path}"),
         )));
     }
     None
@@ -174,7 +174,7 @@ impl FileSystemService {
     }
 
     /// Builds a file tree.
-    pub async fn build_file_tree(&self, root_path: &str) -> OpenBitFunResult<Vec<FileTreeNode>> {
+    pub async fn build_file_tree(&self, root_path: &str) -> AlexResult<Vec<FileTreeNode>> {
         self.build_file_tree_on_connection(root_path, None).await
     }
 
@@ -184,7 +184,7 @@ impl FileSystemService {
         &self,
         root_path: &str,
         preferred_remote_connection_id: Option<&str>,
-    ) -> OpenBitFunResult<Vec<FileTreeNode>> {
+    ) -> AlexResult<Vec<FileTreeNode>> {
         let started_at = std::time::Instant::now();
         // An explicit remote connection id is exact target identity, never a
         // hint the local scanner may ignore: route it through the remote
@@ -218,7 +218,7 @@ impl FileSystemService {
     }
 
     /// Scans a directory and returns a detailed result.
-    pub async fn scan_directory(&self, root_path: &str) -> OpenBitFunResult<DirectoryScanResult> {
+    pub async fn scan_directory(&self, root_path: &str) -> AlexResult<DirectoryScanResult> {
         let start_time = std::time::Instant::now();
 
         let scan_result = self
@@ -249,7 +249,7 @@ impl FileSystemService {
     }
 
     /// Gets directory contents (shallow).
-    pub async fn get_directory_contents(&self, path: &str) -> OpenBitFunResult<Vec<FileTreeNode>> {
+    pub async fn get_directory_contents(&self, path: &str) -> AlexResult<Vec<FileTreeNode>> {
         self.get_directory_contents_on_connection(path, None).await
     }
 
@@ -257,7 +257,7 @@ impl FileSystemService {
         &self,
         path: &str,
         preferred_remote_connection_id: Option<&str>,
-    ) -> OpenBitFunResult<Vec<FileTreeNode>> {
+    ) -> AlexResult<Vec<FileTreeNode>> {
         if let Some(result) =
             read_remote_directory_contents(path, preferred_remote_connection_id).await
         {
@@ -276,7 +276,7 @@ impl FileSystemService {
         root_path: &str,
         pattern: &str,
         options: FileSearchOptions,
-    ) -> OpenBitFunResult<Vec<FileSearchResult>> {
+    ) -> AlexResult<Vec<FileSearchResult>> {
         self.inner
             .search_files(root_path, pattern, options)
             .await
@@ -289,7 +289,7 @@ impl FileSystemService {
         pattern: &str,
         options: FileSearchOptions,
         cancel_flag: Option<Arc<AtomicBool>>,
-    ) -> OpenBitFunResult<FileSearchOutcome> {
+    ) -> AlexResult<FileSearchOutcome> {
         self.search_file_names_with_progress(root_path, pattern, options, cancel_flag, None)
             .await
     }
@@ -301,7 +301,7 @@ impl FileSystemService {
         options: FileSearchOptions,
         cancel_flag: Option<Arc<AtomicBool>>,
         progress_sink: Option<Arc<dyn FileSearchProgressSink>>,
-    ) -> OpenBitFunResult<FileSearchOutcome> {
+    ) -> AlexResult<FileSearchOutcome> {
         self.inner
             .search_file_names_with_progress(
                 root_path,
@@ -320,7 +320,7 @@ impl FileSystemService {
         pattern: &str,
         options: FileSearchOptions,
         cancel_flag: Option<Arc<AtomicBool>>,
-    ) -> OpenBitFunResult<FileSearchOutcome> {
+    ) -> AlexResult<FileSearchOutcome> {
         self.search_file_contents_with_progress(root_path, pattern, options, cancel_flag, None)
             .await
     }
@@ -332,7 +332,7 @@ impl FileSystemService {
         options: FileSearchOptions,
         cancel_flag: Option<Arc<AtomicBool>>,
         progress_sink: Option<Arc<dyn FileSearchProgressSink>>,
-    ) -> OpenBitFunResult<FileSearchOutcome> {
+    ) -> AlexResult<FileSearchOutcome> {
         self.inner
             .search_file_contents_with_progress(
                 root_path,
@@ -346,7 +346,7 @@ impl FileSystemService {
     }
 
     /// Reads a file.
-    pub async fn read_file(&self, file_path: &str) -> OpenBitFunResult<FileReadResult> {
+    pub async fn read_file(&self, file_path: &str) -> AlexResult<FileReadResult> {
         self.inner
             .read_file(file_path)
             .await
@@ -354,7 +354,7 @@ impl FileSystemService {
     }
 
     /// Reads the exact file bytes without text or binary-content inference.
-    pub async fn read_file_bytes(&self, file_path: &str) -> OpenBitFunResult<Vec<u8>> {
+    pub async fn read_file_bytes(&self, file_path: &str) -> AlexResult<Vec<u8>> {
         self.inner
             .read_file_bytes(file_path)
             .await
@@ -366,7 +366,7 @@ impl FileSystemService {
         &self,
         file_path: &str,
         content: &str,
-    ) -> OpenBitFunResult<FileWriteResult> {
+    ) -> AlexResult<FileWriteResult> {
         self.inner
             .write_file(file_path, content)
             .await
@@ -379,7 +379,7 @@ impl FileSystemService {
         file_path: &str,
         content: &str,
         options: FileOperationOptions,
-    ) -> OpenBitFunResult<FileWriteResult> {
+    ) -> AlexResult<FileWriteResult> {
         self.inner
             .write_file_with_options(file_path, content, options)
             .await
@@ -387,7 +387,7 @@ impl FileSystemService {
     }
 
     /// Copies a file.
-    pub async fn copy_file(&self, from: &str, to: &str) -> OpenBitFunResult<u64> {
+    pub async fn copy_file(&self, from: &str, to: &str) -> AlexResult<u64> {
         self.inner
             .copy_file(from, to)
             .await
@@ -395,7 +395,7 @@ impl FileSystemService {
     }
 
     /// Moves a file.
-    pub async fn move_file(&self, from: &str, to: &str) -> OpenBitFunResult<()> {
+    pub async fn move_file(&self, from: &str, to: &str) -> AlexResult<()> {
         self.inner
             .move_file(from, to)
             .await
@@ -403,7 +403,7 @@ impl FileSystemService {
     }
 
     /// Deletes a file.
-    pub async fn delete_file(&self, file_path: &str) -> OpenBitFunResult<()> {
+    pub async fn delete_file(&self, file_path: &str) -> AlexResult<()> {
         self.inner
             .delete_file(file_path)
             .await
@@ -411,7 +411,7 @@ impl FileSystemService {
     }
 
     /// Gets file info.
-    pub async fn get_file_info(&self, file_path: &str) -> OpenBitFunResult<FileInfo> {
+    pub async fn get_file_info(&self, file_path: &str) -> AlexResult<FileInfo> {
         self.inner
             .get_file_info(file_path)
             .await
@@ -419,7 +419,7 @@ impl FileSystemService {
     }
 
     /// Creates a directory.
-    pub async fn create_directory(&self, dir_path: &str) -> OpenBitFunResult<()> {
+    pub async fn create_directory(&self, dir_path: &str) -> AlexResult<()> {
         self.inner
             .create_directory(dir_path)
             .await
@@ -427,7 +427,7 @@ impl FileSystemService {
     }
 
     /// Deletes a directory.
-    pub async fn delete_directory(&self, dir_path: &str, recursive: bool) -> OpenBitFunResult<()> {
+    pub async fn delete_directory(&self, dir_path: &str, recursive: bool) -> AlexResult<()> {
         self.inner
             .delete_directory(dir_path, recursive)
             .await
@@ -450,7 +450,7 @@ impl FileSystemService {
     }
 
     /// Gets the file size.
-    pub async fn get_file_size(&self, file_path: &str) -> OpenBitFunResult<u64> {
+    pub async fn get_file_size(&self, file_path: &str) -> AlexResult<u64> {
         self.inner
             .get_file_size(file_path)
             .await
@@ -458,7 +458,7 @@ impl FileSystemService {
     }
 
     /// Reads a text file quickly.
-    pub async fn read_text_file(&self, file_path: &str) -> OpenBitFunResult<String> {
+    pub async fn read_text_file(&self, file_path: &str) -> AlexResult<String> {
         self.inner
             .read_text_file(file_path)
             .await
@@ -466,7 +466,7 @@ impl FileSystemService {
     }
 
     /// Writes a text file quickly.
-    pub async fn write_text_file(&self, file_path: &str, content: &str) -> OpenBitFunResult<()> {
+    pub async fn write_text_file(&self, file_path: &str, content: &str) -> AlexResult<()> {
         self.inner
             .write_text_file(file_path, content)
             .await
@@ -474,7 +474,7 @@ impl FileSystemService {
     }
 
     /// Lists all files in a directory (recursive).
-    pub async fn list_all_files(&self, root_path: &str) -> OpenBitFunResult<Vec<String>> {
+    pub async fn list_all_files(&self, root_path: &str) -> AlexResult<Vec<String>> {
         let tree = self.build_file_tree(root_path).await?;
         let mut files = Vec::new();
 
@@ -494,7 +494,7 @@ impl FileSystemService {
     }
 
     /// Calculates the directory size.
-    pub async fn calculate_directory_size(&self, dir_path: &str) -> OpenBitFunResult<u64> {
+    pub async fn calculate_directory_size(&self, dir_path: &str) -> AlexResult<u64> {
         let scan_result = self.scan_directory(dir_path).await?;
         Ok(scan_result.statistics.total_size_bytes)
     }
@@ -504,7 +504,7 @@ impl FileSystemService {
         &self,
         root_path: &str,
         extension: &str,
-    ) -> OpenBitFunResult<Vec<String>> {
+    ) -> AlexResult<Vec<String>> {
         let options = FileSearchOptions {
             include_content: false,
             file_extensions: Some(vec![extension.to_lowercase()]),
@@ -520,7 +520,7 @@ impl FileSystemService {
     }
 
     /// Gets directory statistics.
-    pub async fn get_directory_stats(&self, dir_path: &str) -> OpenBitFunResult<DirectoryStats> {
+    pub async fn get_directory_stats(&self, dir_path: &str) -> AlexResult<DirectoryStats> {
         let scan_result = self.scan_directory(dir_path).await?;
         let stats = scan_result.statistics;
 
@@ -545,7 +545,7 @@ impl FileSystemService {
     pub async fn editor_sync_content_sha256_hex(
         &self,
         file_path: &str,
-    ) -> OpenBitFunResult<String> {
+    ) -> AlexResult<String> {
         self.inner
             .editor_sync_content_sha256_hex(file_path)
             .await
@@ -592,13 +592,13 @@ mod remote_marker_tests {
             assert!(
                 matches!(
                     error,
-                    crate::util::errors::OpenBitFunError::NotImplemented(_)
+                    crate::util::errors::AlexError::NotImplemented(_)
                 ),
                 "unexpected error: {error}"
             );
             let message = error.to_string();
             assert!(
-                message.contains("not compiled into this OpenBitFun host"),
+                message.contains("not compiled into this Alex host"),
                 "unexpected error: {message}"
             );
             assert!(
@@ -642,7 +642,7 @@ mod tests {
     async fn local_io_does_not_follow_a_same_path_remote_workspace() {
         let temp = tempfile::tempdir().expect("tempdir");
         let root = temp.path().to_string_lossy().to_string();
-        openbitfun_services_core::filesystem::FileSystemService::default()
+        alex_services_core::filesystem::FileSystemService::default()
             .write_text_file(
                 &temp.path().join("local.txt").to_string_lossy(),
                 "local bytes",
@@ -772,7 +772,7 @@ mod saved_directory_tests {
     #[tokio::test]
     async fn unknown_saved_profile_cannot_read_a_same_named_local_directory() {
         let temp = tempfile::tempdir().unwrap();
-        openbitfun_services_core::filesystem::FileSystemService::default()
+        alex_services_core::filesystem::FileSystemService::default()
             .write_text_file(
                 &temp.path().join("private-local.txt").to_string_lossy(),
                 "local",

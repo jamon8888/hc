@@ -15,16 +15,16 @@ if (!/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(version)) {
 }
 
 const candidates = walkFiles(assetsDir).filter(
-  (file) => basename(file).toLowerCase() === 'openbitfun-installer.exe'
+  (file) => basename(file).toLowerCase() === 'alex-installer.exe'
 );
 if (candidates.length !== 1) {
-  fail(`Expected exactly one openbitfun-installer.exe, found ${candidates.length}`);
+  fail(`Expected exactly one alex-installer.exe, found ${candidates.length}`);
 }
 
 rmSync(outDir, { recursive: true, force: true });
 mkdirSync(outDir, { recursive: true });
 
-const outputName = `OpenBitFun_${version}_windows-x86_64-installer.exe`;
+const outputName = `Alex_${version}_windows-x86_64-installer.exe`;
 const outputPath = join(outDir, outputName);
 copyFileSync(candidates[0], outputPath);
 console.log(`[manual-installer] ${candidates[0]} -> ${outputPath}`);

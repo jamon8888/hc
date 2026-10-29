@@ -60,33 +60,33 @@ const NavPanel: React.FC<NavPanelProps> = ({ className = '' }) => {
   const hasMountedSceneNav = showSceneNav && SceneNavComponent !== null;
 
   const contentCls = [
-    'openbitfun-nav-panel__content',
+    'alex-nav-panel__content',
     hasMountedSceneNav && 'is-scene',
     (showSceneNav ? mountedSceneMotion : navigationMotion) === 'pointer' && 'has-pointer-motion',
   ].filter(Boolean).join(' ');
 
   const sceneCls = [
-    'openbitfun-nav-panel__layer openbitfun-nav-panel__layer--scene',
+    'alex-nav-panel__layer alex-nav-panel__layer--scene',
     hasMountedSceneNav && 'is-active',
   ].filter(Boolean).join(' ');
 
   return (
     <div
-      data-openbitfun-component="nav-panel"
-      data-openbitfun-part="root"
-      data-openbitfun-state={hasMountedSceneNav ? 'scene' : ''}
-      data-openbitfun-theme-scope="chrome"
-      className={`openbitfun-nav-panel ${className}`}
+      data-alex-component="nav-panel"
+      data-alex-part="root"
+      data-alex-state={hasMountedSceneNav ? 'scene' : ''}
+      data-alex-theme-scope="chrome"
+      className={`alex-nav-panel ${className}`}
       aria-label={t('nav.aria.mainNav')}
       data-testid="nav-panel"
     >
-      <div className={contentCls} data-openbitfun-component="nav-panel" data-openbitfun-part="content">
+      <div className={contentCls} data-alex-component="nav-panel" data-alex-part="content">
 
         <div
-          className="openbitfun-nav-panel__layer openbitfun-nav-panel__layer--main"
-          data-openbitfun-component="nav-panel"
-          data-openbitfun-part="mainLayer"
-          data-openbitfun-layer="main"
+          className="alex-nav-panel__layer alex-nav-panel__layer--main"
+          data-alex-component="nav-panel"
+          data-alex-part="mainLayer"
+          data-alex-layer="main"
           aria-hidden={hasMountedSceneNav || undefined}
           {...(hasMountedSceneNav ? { inert: '' } : {})}
         >
@@ -96,10 +96,10 @@ const NavPanel: React.FC<NavPanelProps> = ({ className = '' }) => {
         {SceneNavComponent && (
           <div
             className={sceneCls}
-            data-openbitfun-component="nav-panel"
-            data-openbitfun-part="sceneLayer"
-            data-openbitfun-layer="scene"
-            data-openbitfun-state={hasMountedSceneNav ? 'active' : ''}
+            data-alex-component="nav-panel"
+            data-alex-part="sceneLayer"
+            data-alex-layer="scene"
+            data-alex-state={hasMountedSceneNav ? 'active' : ''}
             aria-hidden={!hasMountedSceneNav || undefined}
             {...(!hasMountedSceneNav ? { inert: '' } : {})}
           >
@@ -107,10 +107,10 @@ const NavPanel: React.FC<NavPanelProps> = ({ className = '' }) => {
               <NavigationTransitionBoundary
                 transitionKey={mountedSceneId ?? 'main'}
                 motion={showSceneNav && mountedSceneMotion === 'pointer' ? 'pointer' : 'none'}
-                className="openbitfun-nav-panel__scene-transition"
-                layerClassName="openbitfun-nav-panel__scene-inner"
-                data-openbitfun-component="nav-panel"
-                data-openbitfun-part="sceneContent"
+                className="alex-nav-panel__scene-transition"
+                layerClassName="alex-nav-panel__scene-inner"
+                data-alex-component="nav-panel"
+                data-alex-part="sceneContent"
               >
                 <SceneNavComponent />
               </NavigationTransitionBoundary>

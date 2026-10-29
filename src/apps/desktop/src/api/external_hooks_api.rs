@@ -1,14 +1,14 @@
 //! Desktop transport for the runtime-free external Hook catalog.
 
-use openbitfun_core::external_hooks::{
+use alex_core::external_hooks::{
     local_external_hook_catalog_snapshot, ExternalHookCatalogSnapshotV1,
 };
-use openbitfun_core::external_sources::ExternalSourceOperationResult;
-use openbitfun_product_domains::external_hook_import::{
+use alex_core::external_sources::ExternalSourceOperationResult;
+use alex_product_domains::external_hook_import::{
     ExternalHookImportApplyRequestV1, ExternalHookImportApplyResultV1,
     ExternalHookImportMutationRequestV1, ExternalHookImportPlanV1, ExternalHookImportSnapshotV1,
 };
-use openbitfun_product_domains::external_sources::SourceKey;
+use alex_product_domains::external_sources::SourceKey;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -88,7 +88,7 @@ pub async fn get_external_hook_import_snapshot(
     )
     .await?;
     let workspace = workspace_id.as_deref();
-    openbitfun_core::external_hook_import::external_hook_import_snapshot(
+    alex_core::external_hook_import::external_hook_import_snapshot(
         workspace,
         request.refresh_updates,
     )
@@ -105,7 +105,7 @@ pub async fn plan_external_hook_import_command(
     )
     .await?;
     let workspace = workspace_id.as_deref();
-    openbitfun_core::external_hook_import::plan_external_hook_import(workspace, request.source)
+    alex_core::external_hook_import::plan_external_hook_import(workspace, request.source)
         .await
 }
 
@@ -119,7 +119,7 @@ pub async fn apply_external_hook_import_command(
     )
     .await?;
     let workspace = workspace_id.as_deref();
-    openbitfun_core::external_hook_import::apply_external_hook_import(
+    alex_core::external_hook_import::apply_external_hook_import(
         workspace,
         request.import_request,
     )
@@ -136,7 +136,7 @@ pub async fn mutate_external_hook_import_command(
     )
     .await?;
     let workspace = workspace_id.as_deref();
-    openbitfun_core::external_hook_import::mutate_external_hook_import(workspace, request.mutation)
+    alex_core::external_hook_import::mutate_external_hook_import(workspace, request.mutation)
         .await
 }
 

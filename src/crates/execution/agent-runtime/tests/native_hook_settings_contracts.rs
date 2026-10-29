@@ -6,7 +6,7 @@
 
 #![cfg(feature = "native-hook-settings")]
 
-use openbitfun_agent_runtime::native_hooks::{
+use alex_agent_runtime::native_hooks::{
     AgentHookEvent, AgentHookScope, AgentHookSettings, AgentHookSettingsIssue,
     AgentHookSettingsLayer, MAX_HOOK_HANDLERS,
 };

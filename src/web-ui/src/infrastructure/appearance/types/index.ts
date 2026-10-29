@@ -387,12 +387,12 @@ export type AppearanceRendererId =
   | 'openbitfun-canvas';
 
 export type AppearanceThemeTokenName =
-  | `--openbitfun-color-${string}`
-  | `--openbitfun-shadow-${string}`
-  | `--openbitfun-effect-${string}`
-  | `--openbitfun-opacity-${string}`
-  | `--openbitfun-domain-${string}`
-  | `--openbitfun-component-${string}`;
+  | `--alex-color-${string}`
+  | `--alex-shadow-${string}`
+  | `--alex-effect-${string}`
+  | `--alex-opacity-${string}`
+  | `--alex-domain-${string}`
+  | `--alex-component-${string}`;
 
 export type AppearanceThemeScopeId = 'chrome';
 
@@ -577,7 +577,7 @@ export interface AppearancePartDescriptor {
 
 export interface AppearanceFacetDescriptor {
   id: string;
-  attribute: `data-openbitfun-${string}`;
+  attribute: `data-alex-${string}`;
   values: readonly string[];
 }
 
@@ -592,7 +592,7 @@ export interface AppearanceSurfaceDescriptor {
   id: string;
   /** Current DOM surface id used when this descriptor reads a legacy persisted id. */
   hostSelectorId?: string;
-  componentAttribute?: 'data-openbitfun-component' | 'data-openbitfun-product-component';
+  componentAttribute?: 'data-alex-component' | 'data-alex-product-component';
   parts: readonly AppearancePartDescriptor[];
   facets?: readonly AppearanceFacetDescriptor[];
   states?: readonly AppearanceStateDescriptor[];

@@ -1,4 +1,4 @@
-use openbitfun_legacy_migration::{probe_legacy_source, MigrationRoots, ProbeLimits};
+use alex_legacy_migration::{probe_legacy_source, MigrationRoots, ProbeLimits};
 
 fn main() {
     let result = MigrationRoots::resolve_current_user()

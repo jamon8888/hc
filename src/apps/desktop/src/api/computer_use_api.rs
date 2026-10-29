@@ -2,10 +2,10 @@
 
 use crate::api::app_state::AppState;
 use crate::computer_use::DesktopComputerUseHost;
-use openbitfun_core::agentic::tools::computer_use_host::ComputerUseHost;
-use openbitfun_core::service::config::types::AIConfig;
+use alex_core::agentic::tools::computer_use_host::ComputerUseHost;
+use alex_core::service::config::types::AIConfig;
 #[cfg(target_os = "windows")]
-use openbitfun_core::util::process_manager;
+use alex_core::util::process_manager;
 use serde::{Deserialize, Serialize};
 use tauri::State;
 
@@ -107,7 +107,7 @@ pub async fn computer_use_open_system_settings(
 /// Resource state is owned by the executing Desktop, not a newly constructed host.
 #[tauri::command]
 pub async fn computer_use_control_status(
-) -> Result<openbitfun_agent_tools::computer_use_control::ControlSnapshot, String> {
+) -> Result<alex_agent_tools::computer_use_control::ControlSnapshot, String> {
     Ok(crate::computer_use::control_session::snapshot())
 }
 #[derive(Debug, Deserialize)]
@@ -117,7 +117,7 @@ pub struct ComputerUseControlRequest {
 #[tauri::command]
 pub async fn computer_use_control_stop(
     request: ComputerUseControlRequest,
-) -> Result<openbitfun_agent_tools::computer_use_control::ControlSnapshot, String> {
+) -> Result<alex_agent_tools::computer_use_control::ControlSnapshot, String> {
     tokio::task::spawn_blocking(move || {
         crate::computer_use::control_session::stop_checked(
             None,

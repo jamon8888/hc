@@ -3,12 +3,12 @@ use super::visibility::SubagentVisibilityPolicy;
 use crate::agentic::agents::{
     Agent, ClawMode, CodeReviewAgent, ComputerUseMode, CoworkMode, CreativeHarness,
     DeepResearchMode, DeepReviewAgent, ExploreAgent, GeneralPurposeAgent, GenerateDocAgent,
-    MinimalHarness, OpenBitFunAgent, ResearchSpecialistAgent, ReviewFixerAgent, ReviewJudgeAgent,
+    MinimalHarness, AlexAgent, ResearchSpecialistAgent, ReviewFixerAgent, ReviewJudgeAgent,
     ReviewWorkerAgent, StandardHarness, SwarmPlannerAgent, SwarmReviewerAgent, SwarmWorkerAgent,
     UltimateHarness,
 };
 use crate::agentic::memories::MemoryPhase2Agent;
-use openbitfun_agent_runtime::agents as runtime_agents;
+use alex_agent_runtime::agents as runtime_agents;
 use std::sync::Arc;
 
 #[derive(Clone)]
@@ -45,7 +45,7 @@ pub(crate) fn builtin_agent_specs_for_ids<'a>(
 
 fn builtin_agent_factory(id: &str) -> fn() -> Arc<dyn Agent> {
     match id {
-        "OpenBitFun" => || Arc::new(OpenBitFunAgent),
+        "OpenBitFun" => || Arc::new(AlexAgent),
         "Minimal" => || Arc::new(MinimalHarness::new()),
         "Standard" => || Arc::new(StandardHarness::new()),
         "Cowork" => || Arc::new(CoworkMode::new()),

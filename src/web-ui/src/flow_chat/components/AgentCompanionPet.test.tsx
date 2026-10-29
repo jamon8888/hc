@@ -47,7 +47,7 @@ afterEach(() => {
 });
 
 function sprite() {
-  return container.querySelector<HTMLElement>('[data-openbitfun-part="petdex"]')!;
+  return container.querySelector<HTMLElement>('[data-alex-part="petdex"]')!;
 }
 
 describe('pet sprite renderer', () => {
@@ -55,7 +55,7 @@ describe('pet sprite renderer', () => {
     const bitblob = { ...pet, id: 'bitblob' };
     for (const mood of ['rest', 'hover', 'working', 'waiting', 'analyzing', 'dragging'] as const) {
       await act(async () => root.render(<AgentCompanionPet pet={bitblob} mood={mood} />));
-      expect(sprite().style.animationName).toBe('openbitfun-petdex-walk');
+      expect(sprite().style.animationName).toBe('alex-petdex-walk');
       expect(sprite().style.imageRendering).toBe('auto');
     }
     await act(async () => root.render(<AgentCompanionPet pet={bitblob} mood="rest" action="jumping" />));
@@ -82,13 +82,13 @@ describe('pet sprite renderer', () => {
     await act(async () => root.render(<AgentCompanionPet pet={selection} mood="rest" action="waving" lookDirection={12} />));
     expect(sprite().dataset.petAction).toBe('waving');
     expect(parseFloat(sprite().style.backgroundPositionY)).toBeCloseTo(3 / (version === 1 ? 8 : 10) * 100);
-    expect(sprite().style.getPropertyValue('--openbitfun-petdex-frames')).toBe('4');
+    expect(sprite().style.getPropertyValue('--alex-petdex-frames')).toBe('4');
     await act(async () => root.render(<AgentCompanionPet pet={selection} mood="rest" />));
     expect(sprite().dataset.petAction).toBeUndefined();
     for (const [action, row, frames] of [['jumping', 4, 5], ['failed', 5, 8]] as const) {
       await act(async () => root.render(<AgentCompanionPet pet={selection} mood="rest" action={action} lookDirection={12} />));
       expect(parseFloat(sprite().style.backgroundPositionY)).toBeCloseTo(row / (version === 1 ? 8 : 10) * 100);
-      expect(sprite().style.getPropertyValue('--openbitfun-petdex-frames')).toBe(String(frames));
+      expect(sprite().style.getPropertyValue('--alex-petdex-frames')).toBe(String(frames));
       expect(sprite().style.animation).not.toBe('none');
     }
     await act(async () => root.render(<AgentCompanionPet pet={selection} mood="dragging" action="failed" />));
@@ -105,7 +105,7 @@ describe('pet sprite renderer', () => {
     expect(onSize).toHaveBeenLastCalledWith({ width: 96, height: 104 });
     expect(sprite().style.backgroundSize).toBe('800% 1100%');
     expect(sprite().style.backgroundPositionY).toBe('20%');
-    expect(sprite().style.getPropertyValue('--openbitfun-petdex-frames')).toBe('8');
+    expect(sprite().style.getPropertyValue('--alex-petdex-frames')).toBe('8');
     expect(sprite().style.animation).not.toBe('none');
   });
 

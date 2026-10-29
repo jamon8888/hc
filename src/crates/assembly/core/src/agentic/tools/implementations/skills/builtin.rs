@@ -1,10 +1,10 @@
-//! Built-in skills shipped with OpenBitFun.
+//! Built-in skills shipped with Alex.
 //!
-//! These skills are embedded into the `openbitfun-core` binary and installed into a
+//! These skills are embedded into the `alex-core` binary and installed into a
 //! managed `.system` directory under the user skills root on demand.
 
 use crate::infrastructure::get_path_manager_arc;
-use crate::util::errors::OpenBitFunResult;
+use crate::util::errors::AlexResult;
 use fs2::FileExt;
 use include_dir::{include_dir, Dir};
 use log::{debug, error, warn};
@@ -91,7 +91,7 @@ fn builtin_skills_staging_root(parent: &Path) -> PathBuf {
     ))
 }
 
-async fn read_installed_manifest(root: &Path) -> OpenBitFunResult<Option<BuiltinSkillsManifest>> {
+async fn read_installed_manifest(root: &Path) -> AlexResult<Option<BuiltinSkillsManifest>> {
     let path = builtin_skills_manifest_path(root);
     match fs::read_to_string(&path).await {
         Ok(content) => match serde_json::from_str::<BuiltinSkillsManifest>(&content) {
@@ -110,7 +110,7 @@ async fn read_installed_manifest(root: &Path) -> OpenBitFunResult<Option<Builtin
     }
 }
 
-async fn write_installed_manifest(root: &Path) -> OpenBitFunResult<()> {
+async fn write_installed_manifest(root: &Path) -> AlexResult<()> {
     let path = builtin_skills_manifest_path(root);
     let manifest = BuiltinSkillsManifest {
         bundle_hash: builtin_skills_bundle_hash().to_string(),
@@ -122,13 +122,13 @@ async fn write_installed_manifest(root: &Path) -> OpenBitFunResult<()> {
 
 async fn acquire_install_lock(
     user_skills_root: &Path,
-) -> OpenBitFunResult<BuiltinSkillsInstallLock> {
+) -> AlexResult<BuiltinSkillsInstallLock> {
     let lock_path = builtin_skills_install_lock_path(user_skills_root);
 
     // Use an OS-backed advisory file lock so parallel test processes and app
     // instances serialize built-in skill installation across the shared
     // `.system` directory.
-    let file = task::spawn_blocking(move || -> OpenBitFunResult<std::fs::File> {
+    let file = task::spawn_blocking(move || -> AlexResult<std::fs::File> {
         let file = OpenOptions::new()
             .create(true)
             .truncate(false)
@@ -140,7 +140,7 @@ async fn acquire_install_lock(
     })
     .await
     .map_err(|error| {
-        crate::util::errors::OpenBitFunError::io(format!(
+        crate::util::errors::AlexError::io(format!(
             "Failed to join built-in skills install lock task: {}",
             error
         ))
@@ -151,7 +151,7 @@ async fn acquire_install_lock(
 
 async fn install_builtin_skills_to_staging(
     staging_root: &Path,
-) -> OpenBitFunResult<(usize, usize)> {
+) -> AlexResult<(usize, usize)> {
     let mut installed = 0usize;
     let mut updated = 0usize;
 
@@ -170,7 +170,7 @@ async fn install_builtin_skills_to_staging(
     Ok((installed, updated))
 }
 
-pub async fn ensure_builtin_skills_installed() -> OpenBitFunResult<()> {
+pub async fn ensure_builtin_skills_installed() -> AlexResult<()> {
     let pm = get_path_manager_arc();
     let user_skills_root = pm.user_skills_dir();
     let dest_root = pm.builtin_skills_dir();
@@ -244,7 +244,7 @@ struct SyncStats {
     updated: usize,
 }
 
-async fn sync_dir(dir: &Dir<'_>, dest_root: &Path) -> OpenBitFunResult<SyncStats> {
+async fn sync_dir(dir: &Dir<'_>, dest_root: &Path) -> AlexResult<SyncStats> {
     let mut files: Vec<&include_dir::File<'_>> = Vec::new();
     collect_files(dir, &mut files);
 
@@ -284,9 +284,9 @@ fn collect_files<'a>(dir: &'a Dir<'a>, out: &mut Vec<&'a include_dir::File<'a>>)
     }
 }
 
-fn safe_join(root: &Path, relative: &Path) -> OpenBitFunResult<PathBuf> {
+fn safe_join(root: &Path, relative: &Path) -> AlexResult<PathBuf> {
     if relative.is_absolute() {
-        return Err(crate::util::errors::OpenBitFunError::validation(format!(
+        return Err(crate::util::errors::AlexError::validation(format!(
             "Unexpected absolute path in built-in skills: {}",
             relative.display()
         )));
@@ -295,7 +295,7 @@ fn safe_join(root: &Path, relative: &Path) -> OpenBitFunResult<PathBuf> {
     // Prevent `..` traversal even though include_dir should only contain clean relative paths.
     for c in relative.components() {
         if matches!(c, std::path::Component::ParentDir) {
-            return Err(crate::util::errors::OpenBitFunError::validation(format!(
+            return Err(crate::util::errors::AlexError::validation(format!(
                 "Unexpected parent dir component in built-in skills path: {}",
                 relative.display()
             )));
@@ -308,14 +308,14 @@ fn safe_join(root: &Path, relative: &Path) -> OpenBitFunResult<PathBuf> {
 async fn desired_file_content(
     file: &include_dir::File<'_>,
     _dest_path: &Path,
-) -> OpenBitFunResult<Vec<u8>> {
+) -> AlexResult<Vec<u8>> {
     Ok(file.contents().to_vec())
 }
 
 #[cfg(test)]
 mod tests {
     use super::BUILTIN_SKILLS_DIR;
-    use openbitfun_agent_runtime::skills::{SkillData, SkillLocation};
+    use alex_agent_runtime::skills::{SkillData, SkillLocation};
 
     fn embedded_skill_text(path: &str) -> &'static str {
         BUILTIN_SKILLS_DIR
@@ -327,7 +327,7 @@ mod tests {
 
     #[test]
     fn custom_agent_skill_embeds_parseable_templates() {
-        use openbitfun_agent_runtime::custom_agent::{
+        use alex_agent_runtime::custom_agent::{
             custom_agent_read_markdown_str, default_custom_agent_tools,
             default_custom_agent_user_context_policy, CustomAgentKind, CustomAgentLevel,
             CUSTOM_AGENT_SCHEMA_VERSION,
@@ -488,10 +488,10 @@ mod tests {
     }
 
     #[test]
-    fn gstack_does_not_emit_pseudo_openbitfun_browser_commands() {
+    fn gstack_does_not_emit_pseudo_alex_browser_commands() {
         const STALE_BROWSER_GUIDANCE: [&str; 5] = [
-            "OpenBitFun browser/computer-use",
-            "OpenBitFun built-in browser/computer-use",
+            "Alex browser/computer-use",
+            "Alex built-in browser/computer-use",
             "external browse binary",
             "use `ComputerUse` for browser inspection",
             "use `ComputerUse` for browser/desktop testing",
@@ -604,24 +604,24 @@ mod tests {
     }
 
     #[test]
-    fn create_openbitfun_skin_embeds_authoring_contract_and_example() {
-        let skill = embedded_skill_text("create-openbitfun-skin/SKILL.md");
-        assert!(skill.contains("name: create-openbitfun-skin"));
+    fn create_alex_skin_embeds_authoring_contract_and_example() {
+        let skill = embedded_skill_text("create-alex-skin/SKILL.md");
+        assert!(skill.contains("name: create-alex-skin"));
 
         let registry =
-            embedded_skill_text("create-openbitfun-skin/references/appearance-registry.json");
+            embedded_skill_text("create-alex-skin/references/appearance-registry.json");
         assert!(registry.contains("schemaVersion"));
 
         let example = embedded_skill_text(
-            "create-openbitfun-skin/examples/cinematic-animated-wallpaper/SKILL.md",
+            "create-alex-skin/examples/cinematic-animated-wallpaper/SKILL.md",
         );
         assert!(example.contains("cinematic animated-wallpaper"));
 
-        let metadata = embedded_skill_text("create-openbitfun-skin/agents/openai.yaml");
-        assert!(metadata.contains("display_name: \"OpenBitFun Appearance Manual\""));
+        let metadata = embedded_skill_text("create-alex-skin/agents/openai.yaml");
+        assert!(metadata.contains("display_name: \"Alex Appearance Manual\""));
 
         let workflow =
-            embedded_skill_text("create-openbitfun-skin/references/authoring-workflow.md");
+            embedded_skill_text("create-alex-skin/references/authoring-workflow.md");
         assert!(workflow.contains("Bump it whenever the manifest"));
     }
 
@@ -630,8 +630,8 @@ mod tests {
         let skill = embedded_skill_text("commit-push-pr/SKILL.md");
         assert!(skill.contains("name: commit-push-pr"));
         assert!(skill
-            .contains("Co-authored-by: OpenBitFun <318544290+bitfun-ai@users.noreply.github.com>"));
-        assert!(skill.contains("Generated with [OpenBitFun](https://github.com/bitfun-ai)"));
+            .contains("Co-authored-by: Alex <318544290+bitfun-ai@users.noreply.github.com>"));
+        assert!(skill.contains("Generated with [Alex](https://github.com/bitfun-ai)"));
 
         let ship = embedded_skill_text("gstack-ship/SKILL.md");
         let ship_frontmatter = ship

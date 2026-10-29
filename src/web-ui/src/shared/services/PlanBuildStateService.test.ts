@@ -103,7 +103,7 @@ describe('PlanBuildStateService', () => {
       todoIds: ['shared-todo'],
     });
 
-    window.dispatchEvent(new CustomEvent('openbitfun:dialog-cancelled', {
+    window.dispatchEvent(new CustomEvent('alex:dialog-cancelled', {
       detail: { sessionId: 'session-a' },
     }));
 
@@ -125,7 +125,7 @@ describe('PlanBuildStateService', () => {
       todoIds: ['shared-todo'],
     });
 
-    window.dispatchEvent(new CustomEvent('openbitfun:todowrite-update', {
+    window.dispatchEvent(new CustomEvent('alex:todowrite-update', {
       detail: {
         sessionId: 'session-a',
         turnId: firstTurnId,
@@ -173,7 +173,7 @@ describe('PlanBuildStateService', () => {
     // A pre-ID locator for the same file does not alias the ID-keyed build.
     expect(planBuildStateService.isBuildActive({ planFilePath, workspacePath: '/workspace' })).toBe(false);
 
-    window.dispatchEvent(new CustomEvent('openbitfun:todowrite-update', {
+    window.dispatchEvent(new CustomEvent('alex:todowrite-update', {
       detail: {
         sessionId: 'session-a',
         turnId,

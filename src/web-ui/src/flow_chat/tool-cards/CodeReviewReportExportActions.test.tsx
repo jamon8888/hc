@@ -22,8 +22,8 @@ vi.mock('lucide-react', async importOriginal => ({
   Loader2: () => <Icon name="loader" />,
 }));
 
-vi.mock('@openbitfun/ui', async importOriginal => ({
-  IconButton: (await importOriginal<typeof import('@openbitfun/ui')>()).IconButton,
+vi.mock('@alex/ui', async importOriginal => ({
+  IconButton: (await importOriginal<typeof import('@alex/ui')>()).IconButton,
   Button: ({
     children,
     leadingIcon,

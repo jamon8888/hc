@@ -57,9 +57,9 @@ describe('isPeerLocalOnlyCommand', () => {
   });
 
   it('keeps ProductControl presentation callbacks local while routing commands to the peer', () => {
-    expect(isPeerLocalOnlyCommand('mark_openbitfun_control_surface_ready')).toBe(true);
-    expect(isPeerLocalOnlyCommand('mark_openbitfun_control_surface_unready')).toBe(true);
-    expect(isPeerLocalOnlyCommand('report_openbitfun_control_result')).toBe(true);
+    expect(isPeerLocalOnlyCommand('mark_alex_control_surface_ready')).toBe(true);
+    expect(isPeerLocalOnlyCommand('mark_alex_control_surface_unready')).toBe(true);
+    expect(isPeerLocalOnlyCommand('report_alex_control_result')).toBe(true);
     expect(isPeerLocalOnlyCommand('product_control_invoke')).toBe(false);
   });
 

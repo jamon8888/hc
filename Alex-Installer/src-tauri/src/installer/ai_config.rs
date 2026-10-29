@@ -2,7 +2,7 @@
 
 use crate::installer::types::ModelConfig;
 use log::warn;
-use openbitfun_ai_adapters::types::{resolve_request_url, AIConfig};
+use alex_ai_adapters::types::{resolve_request_url, AIConfig};
 
 /// Build `AIConfig` for the shared AI client.
 pub(super) fn ai_config_from_installer_model(m: &ModelConfig) -> Result<AIConfig, String> {

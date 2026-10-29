@@ -1,7 +1,7 @@
 use super::audio::pcm16_le_to_f32_samples;
 use super::recognizer::{SpeechRecognizer, SpeechRecognizerWarmupRequest};
 use super::types::{SpeechTranscribeRequest, SpeechTranscriptionResult};
-use super::{OpenBitFunError, OpenBitFunResult};
+use super::{AlexError, AlexResult};
 use async_trait::async_trait;
 use sherpa_onnx::{OfflineRecognizer, OfflineRecognizerConfig, OfflineSenseVoiceModelConfig};
 use std::path::{Path, PathBuf};
@@ -28,7 +28,7 @@ impl SenseVoiceInt8Recognizer {
 
 #[async_trait]
 impl SpeechRecognizer for SenseVoiceInt8Recognizer {
-    async fn warmup(&self, request: SpeechRecognizerWarmupRequest) -> OpenBitFunResult<()> {
+    async fn warmup(&self, request: SpeechRecognizerWarmupRequest) -> AlexResult<()> {
         let cache = Arc::clone(&self.cache);
         tokio::task::spawn_blocking(move || {
             let model_dir = request.model_dir;
@@ -37,41 +37,41 @@ impl SpeechRecognizer for SenseVoiceInt8Recognizer {
             let tokens_path = model_dir.join("tokens.txt");
             ensure_model_files(&model_path, &tokens_path)?;
             let mut cache = cache.lock().map_err(|_| {
-                OpenBitFunError::service("Speech recognizer cache lock is poisoned")
+                AlexError::service("Speech recognizer cache lock is poisoned")
             })?;
             ensure_cached_recognizer(&mut cache, model_path, tokens_path, language)?;
             Ok(())
         })
         .await
         .map_err(|e| {
-            OpenBitFunError::service(format!("Speech recognizer warmup task failed: {e}"))
+            AlexError::service(format!("Speech recognizer warmup task failed: {e}"))
         })?
     }
 
-    async fn unload(&self) -> OpenBitFunResult<()> {
+    async fn unload(&self) -> AlexResult<()> {
         let cache = Arc::clone(&self.cache);
         tokio::task::spawn_blocking(move || {
             let mut cache = cache.lock().map_err(|_| {
-                OpenBitFunError::service("Speech recognizer cache lock is poisoned")
+                AlexError::service("Speech recognizer cache lock is poisoned")
             })?;
             *cache = None;
             Ok(())
         })
         .await
         .map_err(|e| {
-            OpenBitFunError::service(format!("Speech recognizer unload task failed: {e}"))
+            AlexError::service(format!("Speech recognizer unload task failed: {e}"))
         })?
     }
 
     async fn transcribe(
         &self,
         request: SpeechTranscribeRequest,
-    ) -> OpenBitFunResult<SpeechTranscriptionResult> {
+    ) -> AlexResult<SpeechTranscriptionResult> {
         let cache = Arc::clone(&self.cache);
         tokio::task::spawn_blocking(move || transcribe_blocking(request, cache))
             .await
             .map_err(|e| {
-                OpenBitFunError::service(format!("Speech transcription task failed: {e}"))
+                AlexError::service(format!("Speech transcription task failed: {e}"))
             })?
     }
 }
@@ -79,7 +79,7 @@ impl SpeechRecognizer for SenseVoiceInt8Recognizer {
 fn transcribe_blocking(
     request: SpeechTranscribeRequest,
     cache: Arc<Mutex<Option<CachedSenseVoiceRecognizer>>>,
-) -> OpenBitFunResult<SpeechTranscriptionResult> {
+) -> AlexResult<SpeechTranscriptionResult> {
     let started = Instant::now();
     let model_path = request.model_dir.join("model.int8.onnx");
     let tokens_path = request.model_dir.join("tokens.txt");
@@ -87,7 +87,7 @@ fn transcribe_blocking(
 
     let samples = pcm16_le_to_f32_samples(&request.pcm16_le)?;
     if samples.is_empty() {
-        return Err(OpenBitFunError::validation(
+        return Err(AlexError::validation(
             "No audio samples were provided",
         ));
     }
@@ -95,7 +95,7 @@ fn transcribe_blocking(
     let text = {
         let mut cache = cache
             .lock()
-            .map_err(|_| OpenBitFunError::service("Speech recognizer cache lock is poisoned"))?;
+            .map_err(|_| AlexError::service("Speech recognizer cache lock is poisoned"))?;
         let cached = ensure_cached_recognizer(
             &mut cache,
             model_path,
@@ -108,7 +108,7 @@ fn transcribe_blocking(
 
         stream
             .get_result()
-            .ok_or_else(|| OpenBitFunError::service("Failed to read speech result"))?
+            .ok_or_else(|| AlexError::service("Failed to read speech result"))?
             .text
             .trim()
             .to_string()
@@ -123,9 +123,9 @@ fn transcribe_blocking(
     })
 }
 
-fn ensure_model_files(model_path: &Path, tokens_path: &Path) -> OpenBitFunResult<()> {
+fn ensure_model_files(model_path: &Path, tokens_path: &Path) -> AlexResult<()> {
     if !model_path.is_file() || !tokens_path.is_file() {
-        return Err(OpenBitFunError::NotFound(
+        return Err(AlexError::NotFound(
             "SenseVoice model files are missing; download or repair the model first".to_string(),
         ));
     }
@@ -137,7 +137,7 @@ fn ensure_cached_recognizer(
     model_path: PathBuf,
     tokens_path: PathBuf,
     language: String,
-) -> OpenBitFunResult<&mut CachedSenseVoiceRecognizer> {
+) -> AlexResult<&mut CachedSenseVoiceRecognizer> {
     let should_reload = cache.as_ref().is_none_or(|cached| {
         cached.model_path != model_path
             || cached.tokens_path != tokens_path
@@ -156,14 +156,14 @@ fn ensure_cached_recognizer(
 
     cache
         .as_mut()
-        .ok_or_else(|| OpenBitFunError::service("Speech recognizer cache is empty"))
+        .ok_or_else(|| AlexError::service("Speech recognizer cache is empty"))
 }
 
 fn create_recognizer(
     model_path: &Path,
     tokens_path: &Path,
     language: &str,
-) -> OpenBitFunResult<OfflineRecognizer> {
+) -> AlexResult<OfflineRecognizer> {
     let mut config = OfflineRecognizerConfig::default();
     config.model_config.sense_voice = OfflineSenseVoiceModelConfig {
         model: Some(model_path.to_string_lossy().to_string()),
@@ -173,5 +173,5 @@ fn create_recognizer(
     config.model_config.tokens = Some(tokens_path.to_string_lossy().to_string());
 
     OfflineRecognizer::create(&config)
-        .ok_or_else(|| OpenBitFunError::service("Failed to create speech recognizer"))
+        .ok_or_else(|| AlexError::service("Failed to create speech recognizer"))
 }

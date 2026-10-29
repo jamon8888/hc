@@ -15,7 +15,7 @@ class ConversationHeaderPresentationTest {
     @Test
     fun withoutADesktopTheBranchIsShownBesideTheBrand() {
         assertEquals(
-            "OpenBitFun · feat/chat",
+            "Alex · feat/chat",
             ConversationHeaderPresenter.contextTitle(desktopName = "", workspaceBranch = "feat/chat"),
         )
     }

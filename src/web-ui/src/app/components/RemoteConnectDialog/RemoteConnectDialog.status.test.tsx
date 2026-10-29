@@ -2,7 +2,7 @@
 
 import React, { act, useState } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { DesignSystemProvider } from '@openbitfun/ui';
+import { DesignSystemProvider } from '@alex/ui';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ConnectionResult, RemoteConnectStatus } from '@/infrastructure/api/service-api/RemoteConnectAPI';
 import { remoteConnectStatusSource } from '@/infrastructure/remote-connect/remoteConnectStatus';
@@ -111,11 +111,11 @@ function element(selector: string): HTMLElement {
   expect(result, selector).not.toBeNull();
   return result!;
 }
-const dialog = () => element('[data-openbitfun-component="remote-connect-dialog"][data-openbitfun-part="root"]');
-const overviewNetwork = () => element('[data-openbitfun-part="overviewAction"][data-openbitfun-group="network"]');
-const cardStatus = () => (document.querySelector('[data-openbitfun-part="pairingCard"] [role="status"]') ?? element('[data-openbitfun-part="connections"] [role="status"]')).textContent;
-const attachedMobile = () => document.querySelector('[data-testid="nav-footer-device-status"] [data-openbitfun-device-kind="mobile"]');
-const attachedBot = () => document.querySelector('[data-testid="nav-footer-device-status"] [data-openbitfun-device-kind="message-app"]');
+const dialog = () => element('[data-alex-component="remote-connect-dialog"][data-alex-part="root"]');
+const overviewNetwork = () => element('[data-alex-part="overviewAction"][data-alex-group="network"]');
+const cardStatus = () => (document.querySelector('[data-alex-part="pairingCard"] [role="status"]') ?? element('[data-alex-part="connections"] [role="status"]')).textContent;
+const attachedMobile = () => document.querySelector('[data-testid="nav-footer-device-status"] [data-alex-device-kind="mobile"]');
+const attachedBot = () => document.querySelector('[data-testid="nav-footer-device-status"] [data-alex-device-kind="message-app"]');
 
 async function click(target: HTMLElement) { await act(async () => { target.click(); }); }
 async function clickText(key: string) {
@@ -132,7 +132,7 @@ async function generateInvitation() {
   await clickText('remoteConnect.showConnectionCode');
 }
 async function closeDialog() {
-  const close = document.querySelector<HTMLElement>('.openbitfun-remote-connect-dialog__header button');
+  const close = document.querySelector<HTMLElement>('.alex-remote-connect-dialog__header button');
   expect(close).not.toBeNull();
   await click(close!);
   await tick(300);
@@ -210,19 +210,19 @@ describe('Remote Connect shared status through the real dialog and sidebar', () 
     expect(boundary.startConnection).toHaveBeenCalledWith(method, method === 'lan' ? '192.168.1.2' : undefined);
     expect(dialog().textContent).toContain(invitation(relay).qr_url);
     expect(cardStatus()).toBe('remoteConnect.stateWaiting');
-    expect(element('[data-openbitfun-part="connections"]').textContent).not.toContain('remoteConnect.noConnectedClients');
+    expect(element('[data-alex-part="connections"]').textContent).not.toContain('remoteConnect.noConnectedClients');
     expect(attachedMobile()).toBeNull();
     expect(dialog().textContent).not.toContain('remoteConnect.accountConnectedHint');
     boundary.backend = { ...boundary.backend!, clients: [{ id: 'phone', name: 'Safari · iOS' }, { id: 'browser', name: 'Chrome' }] };
     await tick();
-    expect(element('[data-openbitfun-part="connections"]').querySelectorAll('li')).toHaveLength(2);
+    expect(element('[data-alex-part="connections"]').querySelectorAll('li')).toHaveLength(2);
     expect(cardStatus()).toBe('remoteConnect.stateConnected');
     expect(dialog().textContent).toContain('remoteConnect.accountConnectedHint');
     expect(attachedMobile()).not.toBeNull();
     await click(element('button[aria-label="remoteConnect.copyUrl"]'));
     expect(boundary.copyText).toHaveBeenCalledWith(invitation(relay).qr_url);
     await clickText('remoteConnect.cancelInvitation');
-    expect(document.querySelector('[data-openbitfun-part="pairingCard"]')).toBeNull();
+    expect(document.querySelector('[data-alex-part="pairingCard"]')).toBeNull();
     expect(boundary.stopConnection).not.toHaveBeenCalled();
     expect(attachedMobile()).not.toBeNull();
     await clickText('remoteConnect.disconnect');
@@ -307,7 +307,7 @@ describe('Remote Connect shared status through the real dialog and sidebar', () 
     });
     expect(boundary.stopConnection).toHaveBeenCalledOnce();
     expect(boundary.backend!.relay_connected).toBe(false);
-    expect(document.querySelector('[data-openbitfun-part="pairingCard"]')).toBeNull();
+    expect(document.querySelector('[data-alex-part="pairingCard"]')).toBeNull();
   });
 
   it('fences stale connected replies when an explicit disconnect wins', async () => {

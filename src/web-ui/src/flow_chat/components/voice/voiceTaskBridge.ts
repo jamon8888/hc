@@ -209,7 +209,7 @@ function rewriteProgressSentence(sentence: string): string {
   value = value
     .replace(/^(?:progress|update|status)\s*[:\uFF1A-]?\s*/i, '')
     .replace(/^(?:\u8FDB\u5C55|\u66F4\u65B0|\u72B6\u6001)\s*[:\uFF1A-]?\s*/, '')
-    .replace(/^(?:\u6211|\u6211\u4EEC|Alex|OpenBitFun)\s*/, '');
+    .replace(/^(?:\u6211|\u6211\u4EEC|Alex|Alex)\s*/, '');
 
   const completedChinese = value.match(
     /^(?:\u5DF2\u7ECF|\u5DF2)\u5B8C\u6210\u4E86?(.+?)(?:\uFF0C(.+))?$/,
@@ -567,7 +567,7 @@ async function observeVoiceTaskSession(
  * Agent execution path; delegated sessions will inherit it automatically. Only
  * direct client-control operations need a new Voice function command.
  */
-export async function runOpenBitFunVoiceTask(
+export async function runAlexVoiceTask(
   task: string,
   options: RunVoiceTaskOptions,
 ): Promise<VoiceTaskResult> {

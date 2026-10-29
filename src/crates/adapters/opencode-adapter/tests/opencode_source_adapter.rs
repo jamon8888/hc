@@ -1,13 +1,13 @@
-use openbitfun_opencode_adapter::load_opencode_package_adapter;
-use openbitfun_plugin_runtime_client::DefaultPluginRuntimeClient;
-use openbitfun_product_domains::plugin_source::{PluginActivationAuthority, PluginPackageInput};
-use openbitfun_runtime_ports::{
+use alex_opencode_adapter::load_opencode_package_adapter;
+use alex_plugin_runtime_client::DefaultPluginRuntimeClient;
+use alex_product_domains::plugin_source::{PluginActivationAuthority, PluginPackageInput};
+use alex_runtime_ports::{
     PluginCapabilityRef, PluginDataClassification, PluginDispatchEnvelope, PluginOwnerKind,
     PluginOwnerRef, PluginPayloadRedaction, PluginPayloadRef, PluginPermissionGate,
     PluginRuntimeAvailability, PluginRuntimeClient, PluginRuntimeEpochs, PluginRuntimeReadRequest,
     PluginRuntimeUnavailableReason, PluginStatusKind, PluginTrustLevel,
 };
-use openbitfun_services_integrations::plugin_source::{
+use alex_services_integrations::plugin_source::{
     ManagedPluginSourceService, ManagedPluginTrustDecision,
 };
 use sha2::{Digest, Sha256};
@@ -42,7 +42,7 @@ impl ManagedPackageFixture {
             .expect("system time")
             .as_nanos();
         let root = std::env::temp_dir().join(format!(
-            "openbitfun-opencode-managed-{name}-{}-{nonce}",
+            "alex-opencode-managed-{name}-{}-{nonce}",
             process::id()
         ));
         let workspace = root.join("workspace");
@@ -119,7 +119,7 @@ impl ManagedPackageFixture {
 
     async fn approved_input(
         &self,
-    ) -> openbitfun_product_domains::plugin_source::PluginPackageInput {
+    ) -> alex_product_domains::plugin_source::PluginPackageInput {
         self.service.refresh(&self.workspace).await;
         self.service
             .set_trust(
@@ -432,7 +432,7 @@ async fn activated_package_projects_permission_required_candidate_through_client
     assert!(response
         .effects
         .iter()
-        .all(|effect| effect.risk_level == openbitfun_runtime_ports::PluginRiskLevel::High));
+        .all(|effect| effect.risk_level == alex_runtime_ports::PluginRiskLevel::High));
 }
 
 #[tokio::test]
@@ -913,12 +913,12 @@ fn read_request_for(
     }
 }
 
-fn dispatch_envelope(source: openbitfun_runtime_ports::PluginSourceRef) -> PluginDispatchEnvelope {
+fn dispatch_envelope(source: alex_runtime_ports::PluginSourceRef) -> PluginDispatchEnvelope {
     dispatch_envelope_for(source, "project-1", "workspace-1", 20)
 }
 
 fn dispatch_envelope_for(
-    source: openbitfun_runtime_ports::PluginSourceRef,
+    source: alex_runtime_ports::PluginSourceRef,
     project_domain_id: &str,
     workspace_id: &str,
     trust_epoch: u64,

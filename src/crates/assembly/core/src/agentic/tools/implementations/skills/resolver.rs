@@ -1,8 +1,8 @@
 //! Compatibility re-export for skill availability resolution.
 //!
-//! The provider-neutral owner lives in `openbitfun-agent-runtime`.
+//! The provider-neutral owner lives in `alex-agent-runtime`.
 
-pub use openbitfun_agent_runtime::skills::{
+pub use alex_agent_runtime::skills::{
     normalize_user_mode_skill_overrides, resolve_skill_default_enabled_for_mode,
     resolve_skill_state_for_mode, ModeSkillState,
 };
@@ -24,8 +24,8 @@ mod tests {
             path: format!("/tmp/{}", dir_name),
             level: SkillLocation::User,
             source_slot: "openbitfun-system".to_string(),
-            source_id: "openbitfun".to_string(),
-            source_label: "OpenBitFun".to_string(),
+            source_id: "alex".to_string(),
+            source_label: "Alex".to_string(),
             installation_source: None,
             import_origin: None,
             entry_file: None,
@@ -42,14 +42,14 @@ mod tests {
 
     fn custom_user_skill(dir_name: &str) -> SkillInfo {
         SkillInfo {
-            key: format!("user::openbitfun::{}", dir_name),
+            key: format!("user::alex::{}", dir_name),
             name: dir_name.to_string(),
             description: String::new(),
             path: format!("/tmp/{}", dir_name),
             level: SkillLocation::User,
-            source_slot: "openbitfun".to_string(),
-            source_id: "openbitfun".to_string(),
-            source_label: "OpenBitFun".to_string(),
+            source_slot: "alex".to_string(),
+            source_id: "alex".to_string(),
+            source_label: "Alex".to_string(),
             installation_source: None,
             import_origin: None,
             entry_file: None,

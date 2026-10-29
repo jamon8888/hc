@@ -122,15 +122,15 @@ pnpm install
 
 # Build the application (from project root)
 cd ../..
-cargo build -p openbitfun-desktop
+cargo build -p alex-desktop
 ```
 
 ### 2. Verify Installation
 
 Check that the app binary exists:
 
-**Windows**: `target/debug/openbitfun-desktop.exe`
-**Linux/macOS**: `target/debug/openbitfun-desktop`
+**Windows**: `target/debug/alex-desktop.exe`
+**Linux/macOS**: `target/debug/alex-desktop`
 
 ### 3. Run Tests
 
@@ -157,12 +157,12 @@ The default test framework runs in debug/dev mode. Performance runs can use
 while still enabling the embedded WebDriver through the `devtools` feature.
 
 #### Debug Mode (Default)
-- **Application Path**: `target/debug/openbitfun-desktop.exe`
+- **Application Path**: `target/debug/alex-desktop.exe`
 - **Characteristics**: Includes debug symbols, requires dev server (port 1422)
 - **Use Case**: Local development, rapid iteration
 
 #### Release-Fast Performance Mode
-- **Application Path**: `target/release-fast/openbitfun-desktop.exe`
+- **Application Path**: `target/release-fast/alex-desktop.exe`
 - **Characteristics**: Production web bundle, release-like Rust profile, embedded WebDriver enabled by `--features devtools`
 - **Use Case**: Startup and historical-session performance measurements
 
@@ -172,15 +172,15 @@ When running tests, check the first few lines of output:
 
 ```bash
 # Debug Mode Output
-application: <PROJECT_ROOT>\target\debug\openbitfun-desktop.exe
+application: <PROJECT_ROOT>\target\debug\alex-desktop.exe
 Debug build detected, checking dev server...
 ```
 
-**Core Principle**: Functional E2E still defaults to `target/debug/openbitfun-desktop.exe`.
+**Core Principle**: Functional E2E still defaults to `target/debug/alex-desktop.exe`.
 Performance E2E should explicitly set `OPENBITFUN_E2E_APP_MODE=release-fast` after
 building `pnpm run desktop:build:release-fast`.
 
-Do not manually start `target/release-fast/openbitfun-desktop.exe` for performance
+Do not manually start `target/release-fast/alex-desktop.exe` for performance
 validation. A direct launch uses the normal user profile unless isolated storage
 environment variables are provided. The E2E launcher sets `OPENBITFUN_USER_ROOT`,
 `OPENBITFUN_HOME`, and `OPENBITFUN_E2E_STORAGE_GUARD=1` automatically so performance
@@ -236,7 +236,7 @@ fixtures are not mistaken for valid data; use
 For debug-only comparison, build the debug binary and run:
 
 ```bash
-cargo build -p openbitfun-desktop
+cargo build -p alex-desktop
 cross-env E2E_TEST_WORKSPACE=<workspace-path> OPENBITFUN_E2E_PERF_SESSION_ID=perf-long-session-000 pnpm run e2e:test:perf:debug
 ```
 
@@ -479,7 +479,7 @@ it('should test feature when workspace is open', async function () {
 **Solution**:
 ```bash
 # Build the debug desktop app
-cargo build -p openbitfun-desktop
+cargo build -p alex-desktop
 
 # Run tests in debug mode so the embedded driver starts inside Alex
 OPENBITFUN_E2E_APP_MODE=debug pnpm --dir tests/e2e run test:l0:protocol
@@ -489,18 +489,18 @@ OPENBITFUN_E2E_APP_MODE=debug pnpm --dir tests/e2e run test:l0:protocol
 
 #### 2. App not built
 
-**Symptom**: `Application not found at target/debug/openbitfun-desktop.exe`
+**Symptom**: `Application not found at target/debug/alex-desktop.exe`
 
 **Solution**:
 ```bash
 # Build the app (from project root)
-cargo build -p openbitfun-desktop
+cargo build -p alex-desktop
 
 # Verify binary exists
 # Windows
-dir target\debug\openbitfun-desktop.exe
+dir target\debug\alex-desktop.exe
 # Linux/macOS
-ls -la target/debug/openbitfun-desktop
+ls -la target/debug/alex-desktop
 ```
 
 #### 3. Test timeouts
@@ -642,7 +642,7 @@ jobs:
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
       - name: Build app
-        run: cargo build -p openbitfun-desktop
+        run: cargo build -p alex-desktop
       - name: Install test dependencies
         run: cd tests/e2e && pnpm install
       - name: Run L0 tests
@@ -666,7 +666,7 @@ jobs:
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
       - name: Build app
-        run: cargo build -p openbitfun-desktop
+        run: cargo build -p alex-desktop
       - name: Install test dependencies
         run: cd tests/e2e && pnpm install
       - name: Run L1 tests

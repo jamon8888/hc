@@ -3,7 +3,7 @@
  */
 
 import React, { useEffect, useState, useCallback } from 'react';
-import { Button, IconButton, Tooltip, Icon, type IconName } from '@openbitfun/ui';
+import { Button, IconButton, Tooltip, Icon, type IconName } from '@alex/ui';
 import { useTranslation } from 'react-i18next';
 import { AlertCircle, ClipboardList, Code, FileText, Lightbulb, TestTube, Wrench, type LucideIcon } from 'lucide-react';
 import { recommendationRegistry } from './RecommendationRegistry';
@@ -112,18 +112,18 @@ export const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
 
   return (
     <div
-      data-openbitfun-component="smart-recommendations"
-      data-openbitfun-part="root"
-      data-openbitfun-state={hasLoadingAction ? 'loading' : undefined}
-      className={`openbitfun-smart-recommendations ${className}`}
+      data-alex-component="smart-recommendations"
+      data-alex-part="root"
+      data-alex-state={hasLoadingAction ? 'loading' : undefined}
+      className={`alex-smart-recommendations ${className}`}
     >
-      <div data-openbitfun-component="smart-recommendations" data-openbitfun-part="header" className="openbitfun-smart-recommendations__header">
-        <span data-openbitfun-component="smart-recommendations" data-openbitfun-part="title" className="openbitfun-smart-recommendations__title">{t('smartRecommendations.title')}</span>
+      <div data-alex-component="smart-recommendations" data-alex-part="header" className="alex-smart-recommendations__header">
+        <span data-alex-component="smart-recommendations" data-alex-part="title" className="alex-smart-recommendations__title">{t('smartRecommendations.title')}</span>
         <Tooltip content={t('smartRecommendations.close')}>
           <IconButton
-            data-openbitfun-component="smart-recommendations"
-            data-openbitfun-part="close"
-            className="openbitfun-smart-recommendations__close"
+            data-alex-component="smart-recommendations"
+            data-alex-part="close"
+            className="alex-smart-recommendations__close"
             onClick={handleClose}
             icon={<Icon name="xmark" size="md" />}
             size="sm"
@@ -133,7 +133,7 @@ export const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
         </Tooltip>
       </div>
 
-      <div data-openbitfun-component="smart-recommendations" data-openbitfun-part="actions" className="openbitfun-smart-recommendations__actions">
+      <div data-alex-component="smart-recommendations" data-alex-part="actions" className="alex-smart-recommendations__actions">
         {actions.map(action => {
           const CatalogIconName = action.icon ? RECOMMENDATION_CATALOG[action.icon] : undefined;
           const IconComponent = action.icon

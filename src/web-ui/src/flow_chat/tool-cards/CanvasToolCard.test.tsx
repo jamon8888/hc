@@ -115,7 +115,7 @@ describe('CanvasToolCard', () => {
     });
 
     const card = container.querySelector<HTMLElement>(
-      '[data-openbitfun-component="flow-chat-tool-card"][data-openbitfun-part="surface"]',
+      '[data-alex-component="flow-chat-tool-card"][data-alex-part="surface"]',
     );
     act(() => card?.click());
 

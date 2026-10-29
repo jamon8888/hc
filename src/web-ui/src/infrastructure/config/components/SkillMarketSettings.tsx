@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Button, Field, Icon, IconButton, Input, Select, Switch } from '@openbitfun/ui';
+import { Button, Field, Icon, IconButton, Input, Select, Switch } from '@alex/ui';
 import { useI18n } from '@/infrastructure/i18n/hooks/useI18n';
 import { configAPI } from '@/infrastructure/api/service-api/ConfigAPI';
 import type { SkillMarketConfig, SkillMarketSource } from '../types';
@@ -67,7 +67,7 @@ export function SkillMarketSettings({ onSaved }: { onSaved: () => void }) {
   };
 
   return (
-    <div className="openbitfun-skills-scene__modal-form">
+    <div className="alex-skills-scene__modal-form">
       {config && <>
         <div>
           {config.sources.map((source, index) => {
@@ -76,7 +76,7 @@ export function SkillMarketSettings({ onSaved }: { onSaved: () => void }) {
               <ConfigCollectionItem
                 key={source.id}
                 label={label}
-                badge={<span className="openbitfun-collection-item__badge">{source.provider === 'skillhub' ? 'SkillHub' : source.provider === 'skills-sh' ? 'skills.sh' : source.provider}</span>}
+                badge={<span className="alex-collection-item__badge">{source.provider === 'skillhub' ? 'SkillHub' : source.provider === 'skills-sh' ? 'skills.sh' : source.provider}</span>}
                 expanded={expandedId === source.id}
                 onToggle={() => setExpandedId(current => current === source.id ? null : source.id)}
                 toggleOnRowClick
@@ -97,7 +97,7 @@ export function SkillMarketSettings({ onSaved }: { onSaved: () => void }) {
                   </>
                 )}
                 details={(
-                  <div className="openbitfun-skills-scene__modal-form">
+                  <div className="alex-skills-scene__modal-form">
                     <Field label={t('market.settings.name')} controlWidth="fill">
                       <Input size="sm" value={source.name} disabled={saving} onChange={event => updateSource(index, { name: event.target.value })} />
                     </Field>

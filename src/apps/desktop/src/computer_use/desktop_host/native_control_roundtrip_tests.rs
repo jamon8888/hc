@@ -1,8 +1,8 @@
 //! Real Tool -> desktop host -> native capture/input regression, opt-in only.
 use super::desktop_host::DesktopComputerUseHost;
-use openbitfun_core::agentic::tools::computer_use_host::ComputerUseHost;
-use openbitfun_core::agentic::tools::framework::{Tool, ToolUseContext};
-use openbitfun_core::agentic::tools::implementations::ComputerUseTool;
+use alex_core::agentic::tools::computer_use_host::ComputerUseHost;
+use alex_core::agentic::tools::framework::{Tool, ToolUseContext};
+use alex_core::agentic::tools::implementations::ComputerUseTool;
 use serde_json::{json, Value};
 use std::sync::Arc;
 
@@ -61,23 +61,23 @@ fn assert_session(
 }
 
 pub(crate) async fn run() {
-    if std::env::var_os("OPENBITFUN_INPUT_FIXTURE_PID").is_some() {
+    if std::env::var_os("ALEX_INPUT_FIXTURE_PID").is_some() {
         run_covered_semantic().await;
         return;
     }
-    let pid: i32 = std::env::var("OPENBITFUN_ROUNDTRIP_FIXTURE_PID")
+    let pid: i32 = std::env::var("ALEX_ROUNDTRIP_FIXTURE_PID")
         .unwrap()
         .parse()
         .unwrap();
-    let x: f64 = std::env::var("OPENBITFUN_ROUNDTRIP_FIXTURE_X")
+    let x: f64 = std::env::var("ALEX_ROUNDTRIP_FIXTURE_X")
         .unwrap()
         .parse()
         .unwrap();
-    let y: f64 = std::env::var("OPENBITFUN_ROUNDTRIP_FIXTURE_Y")
+    let y: f64 = std::env::var("ALEX_ROUNDTRIP_FIXTURE_Y")
         .unwrap()
         .parse()
         .unwrap();
-    let result_path = std::env::var("OPENBITFUN_ROUNDTRIP_FIXTURE_RESULT").unwrap();
+    let result_path = std::env::var("ALEX_ROUNDTRIP_FIXTURE_RESULT").unwrap();
     let foreground = crate::computer_use::macos_bg_input::frontmost_pid_macos();
     assert_ne!(
         foreground,
@@ -213,12 +213,12 @@ pub(crate) async fn run() {
 }
 
 async fn run_covered_semantic() {
-    let pid: i32 = std::env::var("OPENBITFUN_INPUT_FIXTURE_PID")
+    let pid: i32 = std::env::var("ALEX_INPUT_FIXTURE_PID")
         .unwrap()
         .parse()
         .unwrap();
-    let path = std::env::var("OPENBITFUN_INPUT_FIXTURE_RESULT").unwrap();
-    let observer_path = std::env::var("OPENBITFUN_INPUT_OBSERVER_RESULT").unwrap();
+    let path = std::env::var("ALEX_INPUT_FIXTURE_RESULT").unwrap();
+    let observer_path = std::env::var("ALEX_INPUT_OBSERVER_RESULT").unwrap();
     let read = |path: &str| -> Value {
         serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap()
     };

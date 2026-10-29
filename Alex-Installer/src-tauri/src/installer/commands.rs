@@ -7,13 +7,13 @@ use super::types::{
     RemoteModelInfo,
 };
 use super::MAIN_APP_EXE;
-use openbitfun_core_types::{
+use alex_core_types::{
     installer_config_handoff::{
         InstallerConfigHandoff, InstallerModelHandoff, INSTALLER_CONFIG_HANDOFF_FILE_NAME,
     },
     product_identity::{data_namespace, hidden_data_directory},
 };
-use openbitfun_services_core::json_store::JsonFileStore;
+use alex_services_core::json_store::JsonFileStore;
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use sha2::{Digest, Sha256};
@@ -42,7 +42,7 @@ const REQUIRED_PAYLOAD_FILES: [&str; 7] = [
     "resources/ext-host/extension-host.js",
     "resources/worker_host.js",
     "flashgrep/flashgrep-x86_64-pc-windows-msvc.exe",
-    "interpreter/openbitfun-bundled-tool.json",
+    "interpreter/alex-bundled-tool.json",
 ];
 const INSTALLER_STATE_FILE: &str = "installer-state.json";
 const EMBEDDED_PAYLOAD_ZIP: &[u8] =
@@ -168,7 +168,7 @@ pub(crate) fn get_initial_install_path() -> String {
     get_default_install_path()
 }
 
-/// Detect an existing OpenBitFun install (Tauri NSIS or this installer) via Add/Remove Programs registry.
+/// Detect an existing Alex install (Tauri NSIS or this installer) via Add/Remove Programs registry.
 #[tauri::command]
 pub(crate) fn get_existing_installation() -> ExistingInstallationResponse {
     #[cfg(not(target_os = "windows"))]
@@ -664,7 +664,7 @@ pub(crate) async fn start_installation(
     Ok(())
 }
 
-/// Uninstall OpenBitFun (for the uninstaller companion).
+/// Uninstall Alex (for the uninstaller companion).
 #[tauri::command]
 pub(crate) async fn uninstall(install_path: String) -> Result<(), String> {
     let install_path = PathBuf::from(&install_path);
@@ -833,20 +833,20 @@ pub(crate) fn launch_application(install_path: String) -> Result<(), String> {
     } else if cfg!(target_os = "macos") {
         PathBuf::from(&install_path).join("OpenBitFun")
     } else {
-        PathBuf::from(&install_path).join("openbitfun")
+        PathBuf::from(&install_path).join("alex")
     };
 
     #[cfg(target_os = "windows")]
     create_windows_silent_command(&exe)
         .current_dir(&install_path)
         .spawn()
-        .map_err(|e| format!("Failed to launch OpenBitFun: {}", e))?;
+        .map_err(|e| format!("Failed to launch Alex: {}", e))?;
 
     #[cfg(not(target_os = "windows"))]
     std::process::Command::new(&exe)
         .current_dir(&install_path)
         .spawn()
-        .map_err(|e| format!("Failed to launch OpenBitFun: {}", e))?;
+        .map_err(|e| format!("Failed to launch Alex: {}", e))?;
 
     Ok(())
 }
@@ -861,7 +861,7 @@ pub(crate) fn launch_legacy_data_migrator(
     request: LaunchLegacyDataMigratorRequest,
 ) -> Result<bool, String> {
     let _ = request;
-    Err("Data Migrator is distributed separately. Download and run OpenBitFun Data Migrator to import legacy data.".to_string())
+    Err("Data Migrator is distributed separately. Download and run Alex Data Migrator to import legacy data.".to_string())
 }
 
 /// Close the installer window.
@@ -925,7 +925,7 @@ pub(crate) async fn test_model_config_connection(
     let model_name = ai_config.name.clone();
     let supports_image_input = super::ai_config::supports_image_input(&model_config);
 
-    let ai_client = openbitfun_ai_adapters::AIClient::new(ai_config);
+    let ai_client = alex_ai_adapters::AIClient::new(ai_config);
 
     match ai_client.test_connection().await {
         Ok(result) => {
@@ -1017,7 +1017,7 @@ pub(crate) async fn list_model_config_models(
     }
     let ai_config = super::ai_config::ai_config_from_installer_model(&model_config)
         .map_err(|e| e.to_string())?;
-    let ai_client = openbitfun_ai_adapters::AIClient::new(ai_config);
+    let ai_client = alex_ai_adapters::AIClient::new(ai_config);
     ai_client
         .list_models()
         .await
@@ -1031,7 +1031,7 @@ fn storage_format(model: &ModelConfig) -> String {
     model.format.trim().to_ascii_lowercase()
 }
 
-/// Stored `request_url` aligned with settings `resolveRequestUrl` (no openbitfun_core).
+/// Stored `request_url` aligned with settings `resolveRequestUrl` (no alex_core).
 fn resolve_stored_request_url(base_url: &str, format: &str) -> String {
     let trimmed = base_url.trim().trim_end_matches('/');
     if trimmed.ends_with('#') {
@@ -1196,15 +1196,15 @@ fn find_existing_ancestor(path: &Path) -> PathBuf {
     current
 }
 
-/// Actual install root is always under an `OpenBitFun` directory: `{user choice}/OpenBitFun`.
-/// If the user already chose a path whose last segment is `OpenBitFun`, do not append again.
-fn with_openbitfun_install_subdir(path: PathBuf) -> PathBuf {
-    let already_openbitfun = path
+/// Actual install root is always under an `Alex` directory: `{user choice}/Alex`.
+/// If the user already chose a path whose last segment is `Alex`, do not append again.
+fn with_alex_install_subdir(path: PathBuf) -> PathBuf {
+    let already_alex = path
         .file_name()
         .and_then(|n| n.to_str())
         .map(|s| s.eq_ignore_ascii_case("OpenBitFun"))
         .unwrap_or(false);
-    if already_openbitfun {
+    if already_alex {
         path
     } else {
         path.join("OpenBitFun")
@@ -1227,7 +1227,7 @@ fn prepare_install_target(requested_path: &Path) -> Result<PathBuf, String> {
         return Err(format!("{}path_not_directory", INSTALL_PATH_ERR_PREFIX));
     }
 
-    let install_path = with_openbitfun_install_subdir(requested_path.to_path_buf());
+    let install_path = with_alex_install_subdir(requested_path.to_path_buf());
 
     if install_path.exists() {
         if !install_path.is_dir() {
@@ -1275,7 +1275,7 @@ fn ensure_config_directory() -> Result<PathBuf, String> {
         .join(data_namespace())
         .join("config");
     std::fs::create_dir_all(&config_root)
-        .map_err(|e| format!("Failed to create OpenBitFun config directory: {}", e))?;
+        .map_err(|e| format!("Failed to create Alex config directory: {}", e))?;
     Ok(config_root)
 }
 
@@ -1900,7 +1900,7 @@ mod tests {
         preflight_validate_payload_zip_archive, INSTALLER_APP_LANGUAGE_ALIASES_BY_PRIORITY,
         MAIN_APP_EXE, MIN_WINDOWS_APP_EXE_BYTES, REQUIRED_PAYLOAD_FILES,
     };
-    use openbitfun_core_types::installer_config_handoff::{
+    use alex_core_types::installer_config_handoff::{
         InstallerConfigHandoff, INSTALLER_CONFIG_HANDOFF_FILE_NAME,
     };
     use std::io::{Cursor, Write};

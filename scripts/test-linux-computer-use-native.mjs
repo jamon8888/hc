@@ -10,7 +10,7 @@ if (process.platform !== 'linux') {
   throw new Error('This harness requires Linux and the GStreamer development packages.');
 }
 const root = fileURLToPath(new URL('../', import.meta.url));
-const dir = await mkdtemp(join(tmpdir(), 'openbitfun-linux-native-'));
+const dir = await mkdtemp(join(tmpdir(), 'alex-linux-native-'));
 const source = (path) => JSON.stringify(resolve(root, path));
 try {
   // Extract the actual lease trait rather than maintaining a replacement contract.
@@ -39,8 +39,8 @@ image = { version = "0.25", default-features = false, features = ["jpeg", "png"]
 `);
   await copyFile(join(root, 'Cargo.lock'), join(dir, 'Cargo.lock'));
   await writeFile(join(dir, 'lib.rs'), `#![allow(dead_code, unused_imports)]
-extern crate self as openbitfun_core;
-extern crate self as openbitfun_agent_tools;
+extern crate self as alex_core;
+extern crate self as alex_agent_tools;
 #[path = ${source('src/crates/execution/tool-contracts/src/computer_use.rs')}]
 pub mod computer_use_contract;
 #[path = ${source('src/crates/execution/tool-contracts/src/computer_use_control.rs')}]
@@ -50,7 +50,7 @@ pub mod agentic { pub mod tools { pub mod computer_use_host {
     ${lease}
 }}}
 pub mod util { pub mod errors {
-    pub use crate::computer_use_contract::{ComputerUseContractError as OpenBitFunError, ComputerUseContractResult as OpenBitFunResult};
+    pub use crate::computer_use_contract::{ComputerUseContractError as AlexError, ComputerUseContractResult as AlexResult};
 }}
 #[path = ${source('src/apps/desktop/src/computer_use/control_session.rs')}]
 mod control_session;

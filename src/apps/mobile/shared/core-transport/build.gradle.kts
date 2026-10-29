@@ -106,7 +106,7 @@ kotlin.sourceSets.commonMain { kotlin.srcDir(generateClientBuild) }
 // needs no node process.
 tasks.withType<Test>().configureEach {
     systemProperty(
-        "openbitfun.pairingUrl",
-        providers.gradleProperty("openbitfun.pairingUrl").getOrElse(""),
+        "alex.pairingUrl",
+        providers.gradleProperty("alex.pairingUrl").getOrElse(""),
     )
 }

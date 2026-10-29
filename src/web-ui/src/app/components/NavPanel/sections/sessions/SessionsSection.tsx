@@ -8,7 +8,7 @@ import { requireSessionOwningWorkspaceId } from '@/flow_chat/utils/sessionOrderi
  */
 
 import React, { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
-import { subscribeOverlayInteraction, createOverlayPortal, Button, Icon, IconButton, Input, Menu, MenuItem, OverflowText, Tooltip } from '@openbitfun/ui';
+import { subscribeOverlayInteraction, createOverlayPortal, Button, Icon, IconButton, Input, Menu, MenuItem, OverflowText, Tooltip } from '@alex/ui';
 import { Loader2, Archive, FolderGit2, ListChecks } from 'lucide-react';
 import { RetainedMountBoundary } from '@/shared/presence';
 import { useI18n } from '@/infrastructure/i18n';
@@ -131,7 +131,7 @@ function DefaultSessionTitlePreview({ sessionId, createdAt }: Pick<Session, 'ses
   );
   const firstLine = draft?.trim().split(/\r?\n/, 1)[0];
   return (
-    <div className="openbitfun-nav-panel__inline-item-tooltip-meta">
+    <div className="alex-nav-panel__inline-item-tooltip-meta">
       {firstLine || i18nService.formatDate(createdAt, { dateStyle: 'medium', timeStyle: 'short' })}
     </div>
   );
@@ -240,7 +240,7 @@ const SessionsSection: React.FC<SessionsSectionProps> = ({
     : DEFAULT_WORKSPACE_SESSION_FILTERS;
   const hasActiveSessionFilter = sessionShow !== 'all' || hasWorkspaceSessionFilters(sessionFilters);
   const showAllWithoutLimit = layout === 'flat' && Boolean(workspaceScopes?.length);
-  const sessionListClassName = `openbitfun-nav-panel__inline-list${layout === 'flat' ? ' is-flat-workspace-view' : ''}`;
+  const sessionListClassName = `alex-nav-panel__inline-list${layout === 'flat' ? ' is-flat-workspace-view' : ''}`;
   const { setActiveWorkspace, openWorkspace, openedWorkspacesList, currentWorkspace } = useWorkspaceContext();
   const activeTabId = useSceneStore(s => s.activeTabId);
   const activeBtwSessionTab = useAgentCanvasStore(state => selectActiveBtwSessionTab(state as any));
@@ -691,8 +691,8 @@ const SessionsSection: React.FC<SessionsSectionProps> = ({
         void loadMetadataPage(SESSIONS_LEVEL_0, undefined, 'sessions_nav_post_archive');
       }
     };
-    window.addEventListener('openbitfun:session-archived', handler);
-    return () => window.removeEventListener('openbitfun:session-archived', handler);
+    window.addEventListener('alex:session-archived', handler);
+    return () => window.removeEventListener('alex:session-archived', handler);
   }, [isVisible, workspaceId, loadMetadataPage]);
 
   const closeSessionMenu = useCallback(() => {
@@ -1161,7 +1161,7 @@ const SessionsSection: React.FC<SessionsSectionProps> = ({
       }
 
       const target = event.target as HTMLElement | null;
-      if (target?.closest('.openbitfun-nav-panel__inline-item-actions, .openbitfun-nav-panel__inline-item-edit')) {
+      if (target?.closest('.alex-nav-panel__inline-item-actions, .alex-nav-panel__inline-item-edit')) {
         return;
       }
 
@@ -1266,7 +1266,7 @@ const SessionsSection: React.FC<SessionsSectionProps> = ({
       e.stopPropagation();
       try {
         await flowChatManager.archiveChatSession(sessionId);
-        window.dispatchEvent(new CustomEvent('openbitfun:session-archived'));
+        window.dispatchEvent(new CustomEvent('alex:session-archived'));
         notificationService.success(t('nav.sessions.archivedAll', { count: 1 }), { duration: 3000 });
       } catch (err) {
         log.error('Failed to archive session', err);
@@ -1426,15 +1426,15 @@ const SessionsSection: React.FC<SessionsSectionProps> = ({
     ? aggregateLoadState.isLoading
       ? (
           <div
-            className="openbitfun-nav-panel__inline-loading"
-            data-openbitfun-component="sessions-section"
-            data-openbitfun-part="aggregateLoading"
-            data-openbitfun-state="loading"
+            className="alex-nav-panel__inline-loading"
+            data-alex-component="sessions-section"
+            data-alex-part="aggregateLoading"
+            data-alex-state="loading"
             data-testid="nav-session-aggregate-loading"
             role="status"
             aria-live="polite"
           >
-            <Loader2 className="openbitfun-nav-panel__inline-loading-icon" aria-hidden="true" />
+            <Loader2 className="alex-nav-panel__inline-loading-icon" aria-hidden="true" />
             <OverflowText>{t('nav.sessions.loading')}</OverflowText>
           </div>
         )
@@ -1443,8 +1443,8 @@ const SessionsSection: React.FC<SessionsSectionProps> = ({
             <Button
               variant="outline"
               size="sm"
-              className="openbitfun-nav-panel__inline-action"
-              data-openbitfun-state="partial"
+              className="alex-nav-panel__inline-action"
+              data-alex-state="partial"
               data-testid="nav-session-aggregate-retry"
               onClick={() => setAggregateReloadRequestId(current => current + 1)}
             >
@@ -1457,16 +1457,16 @@ const SessionsSection: React.FC<SessionsSectionProps> = ({
   if (allTopLevelSessions.length === 0) {
     if (aggregateLoadStatus) {
       return (
-        <div data-openbitfun-component="sessions-section" data-openbitfun-part="root" className={sessionListClassName}>
+        <div data-alex-component="sessions-section" data-alex-part="root" className={sessionListClassName}>
           {aggregateLoadStatus}
         </div>
       );
     }
     if (metadataPageState.isLoading) {
       return (
-        <div data-openbitfun-component="sessions-section" data-openbitfun-part="root" className={sessionListClassName}>
-          <div className="openbitfun-nav-panel__inline-loading" data-openbitfun-component="sessions-section" data-openbitfun-part="loading" data-openbitfun-state="loading">
-            <Loader2 className="openbitfun-nav-panel__inline-loading-icon" aria-hidden="true" />
+        <div data-alex-component="sessions-section" data-alex-part="root" className={sessionListClassName}>
+          <div className="alex-nav-panel__inline-loading" data-alex-component="sessions-section" data-alex-part="loading" data-alex-state="loading">
+            <Loader2 className="alex-nav-panel__inline-loading-icon" aria-hidden="true" />
             <OverflowText>{t('nav.sessions.loading')}</OverflowText>
           </div>
         </div>
@@ -1474,11 +1474,11 @@ const SessionsSection: React.FC<SessionsSectionProps> = ({
     }
     if (metadataPageState.loadError) {
       return (
-        <div data-openbitfun-component="sessions-section" data-openbitfun-part="root" className={sessionListClassName}>
+        <div data-alex-component="sessions-section" data-alex-part="root" className={sessionListClassName}>
           <Button
             variant="outline"
             size="sm"
-            className="openbitfun-nav-panel__inline-action"
+            className="alex-nav-panel__inline-action"
             onClick={() => {
               void loadInitialMetadataPage('sessions_nav_manual_retry');
             }}
@@ -1491,7 +1491,7 @@ const SessionsSection: React.FC<SessionsSectionProps> = ({
     return (
       <div className={sessionListClassName}>
         {presentation?.kind === 'assistant' ? (
-          <div className="openbitfun-nav-panel__inline-empty is-assistant" aria-disabled="true">
+          <div className="alex-nav-panel__inline-empty is-assistant" aria-disabled="true">
             <AssistantAvatar
               presetId={presentation.assistant.avatar}
               emoji={presentation.assistant.emoji}
@@ -1499,13 +1499,13 @@ const SessionsSection: React.FC<SessionsSectionProps> = ({
               name={presentation.assistant.name}
               size={26}
             />
-            <span className="openbitfun-nav-panel__inline-empty-copy">
-              <OverflowText className="openbitfun-nav-panel__inline-empty-name">{presentation.assistant.name}</OverflowText>
+            <span className="alex-nav-panel__inline-empty-copy">
+              <OverflowText className="alex-nav-panel__inline-empty-name">{presentation.assistant.name}</OverflowText>
               <span>{t('nav.sessions.noSessions')}</span>
             </span>
           </div>
         ) : (
-          <div className="openbitfun-nav-panel__inline-empty" aria-disabled="true">
+          <div className="alex-nav-panel__inline-empty" aria-disabled="true">
             {t('nav.sessions.noSessions')}
           </div>
         )}
@@ -1523,7 +1523,7 @@ const SessionsSection: React.FC<SessionsSectionProps> = ({
     }
     return (
       <div className={sessionListClassName}>
-        <div className="openbitfun-nav-panel__inline-empty" aria-disabled="true">
+        <div className="alex-nav-panel__inline-empty" aria-disabled="true">
           {t('nav.sessions.viewMenu.noMatches')}
         </div>
         {aggregateLoadStatus}
@@ -1628,23 +1628,23 @@ const SessionsSection: React.FC<SessionsSectionProps> = ({
             worktreeIsolated ||
             isDispatched;
           const tooltipContent = showRichTooltip ? (
-            <div className="openbitfun-nav-panel__inline-item-tooltip">
-              <div className="openbitfun-nav-panel__inline-item-tooltip-title">{displayTitle}</div>
+            <div className="alex-nav-panel__inline-item-tooltip">
+              <div className="alex-nav-panel__inline-item-tooltip-title">{displayTitle}</div>
               {isDefaultTitle ? (
                 <DefaultSessionTitlePreview sessionId={session.sessionId} createdAt={session.createdAt} />
               ) : null}
               {sessionWorkspaceScope ? (
-                <div className="openbitfun-nav-panel__inline-item-tooltip-meta">
+                <div className="alex-nav-panel__inline-item-tooltip-meta">
                   {sessionWorkspaceScope.workspaceName}
                 </div>
               ) : null}
               {showAssistantInTooltip ? (
-                <div className="openbitfun-nav-panel__inline-item-tooltip-meta">
+                <div className="alex-nav-panel__inline-item-tooltip-meta">
                   {t('nav.sessions.assistantOwner', { name: trimmedAssistant })}
                 </div>
               ) : null}
               {isChildSession ? (
-                <div className="openbitfun-nav-panel__inline-item-tooltip-meta">
+                <div className="alex-nav-panel__inline-item-tooltip-meta">
                   {parentTurnIndex
                     ? t('nav.sessions.childSourceWithTurn', {
                         parentTitle: parentTitle || t('nav.sessions.parentSession'),
@@ -1656,24 +1656,24 @@ const SessionsSection: React.FC<SessionsSectionProps> = ({
                 </div>
               ) : null}
               {worktreeIsolated ? (
-                <div className="openbitfun-nav-panel__inline-item-tooltip-meta">
+                <div className="alex-nav-panel__inline-item-tooltip-meta">
                   {t('nav.sessions.worktreeTooltip', { path: worktreeRootPath })}
                 </div>
               ) : null}
               {isDispatched ? (
-                <div className="openbitfun-nav-panel__inline-item-tooltip-meta">
+                <div className="alex-nav-panel__inline-item-tooltip-meta">
                   {dispatchPresentation?.summary}
                 </div>
               ) : null}
               {showBackgroundSubagentActivity && backgroundSubagentActivity ? (
                 <>
-                  <div className="openbitfun-nav-panel__inline-item-tooltip-meta">
+                  <div className="alex-nav-panel__inline-item-tooltip-meta">
                     {t('nav.sessions.backgroundSubagentsRunning', {
                       count: backgroundSubagentActivityCount,
                     })}
                   </div>
                   {backgroundSubagentActivity.items.length > 0 ? (
-                    <div className="openbitfun-nav-panel__inline-item-tooltip-meta">
+                    <div className="alex-nav-panel__inline-item-tooltip-meta">
                       {backgroundSubagentActivity.items
                         .slice(0, 2)
                         .map(item => item.title)
@@ -1700,7 +1700,7 @@ const SessionsSection: React.FC<SessionsSectionProps> = ({
           const row = (
             <div
               className={[
-                'openbitfun-nav-panel__inline-item',
+                'alex-nav-panel__inline-item',
                 showAssistantIdentity && 'is-assistant-session',
                 level === 1 && 'is-child',
                 isChildSession && 'is-btw-child',
@@ -1710,10 +1710,10 @@ const SessionsSection: React.FC<SessionsSectionProps> = ({
               ]
                 .filter(Boolean)
                 .join(' ')}
-              data-openbitfun-component="sessions-section"
-              data-openbitfun-part="row"
+              data-alex-component="sessions-section"
+              data-alex-part="row"
               data-overflow-trigger
-              data-openbitfun-state={[
+              data-alex-state={[
                 isRowActive && 'active',
                 isEditing && 'editing',
                 openMenuSessionId === session.sessionId && 'menuOpen',
@@ -1729,7 +1729,7 @@ const SessionsSection: React.FC<SessionsSectionProps> = ({
               onContextMenu={event => handleContextMenu(event, session.sessionId)}
             >
               {showAssistantIdentity && assistantIdentity ? (
-                <span className="openbitfun-nav-panel__inline-item-avatar" data-openbitfun-component="sessions-section" data-openbitfun-part="assistantAvatar">
+                <span className="alex-nav-panel__inline-item-avatar" data-alex-component="sessions-section" data-alex-part="assistantAvatar">
                   <AssistantAvatar
                     presetId={assistantIdentity.avatar}
                     emoji={assistantIdentity.emoji}
@@ -1742,10 +1742,10 @@ const SessionsSection: React.FC<SessionsSectionProps> = ({
               ) : null}
 
               {isEditing ? (
-                <div className="openbitfun-nav-panel__inline-item-edit" data-openbitfun-component="sessions-section" data-openbitfun-part="edit" onClick={e => e.stopPropagation()}>
+                <div className="alex-nav-panel__inline-item-edit" data-alex-component="sessions-section" data-alex-part="edit" onClick={e => e.stopPropagation()}>
                   <Input
                     ref={editInputRef}
-                    className="openbitfun-nav-panel__inline-item-edit-field"
+                    className="alex-nav-panel__inline-item-edit-field"
                     value={editingTitle}
                     onChange={e => setEditingTitle(e.target.value)}
                     onKeyDown={handleEditKeyDown}
@@ -1757,7 +1757,7 @@ const SessionsSection: React.FC<SessionsSectionProps> = ({
                       aria-label={t('nav.sessions.confirmEdit')}
                       variant="quiet"
                       size="sm"
-                      className="openbitfun-nav-panel__inline-item-edit-btn confirm"
+                      className="alex-nav-panel__inline-item-edit-btn confirm"
                       onClick={e => { e.stopPropagation(); handleConfirmEdit(); }}
                       icon={<Icon name="check-line" size="2xs" />}
                     />
@@ -1766,7 +1766,7 @@ const SessionsSection: React.FC<SessionsSectionProps> = ({
                     <IconButton
                       aria-label={t('nav.sessions.cancelEdit')}
                       size="sm"
-                      className="openbitfun-nav-panel__inline-item-edit-btn cancel"
+                      className="alex-nav-panel__inline-item-edit-btn cancel"
                       onMouseDown={e => { e.preventDefault(); e.stopPropagation(); handleCancelEdit(); }}
                       icon={<Icon name="xmark" size="2xs" />}
                     />
@@ -1774,19 +1774,19 @@ const SessionsSection: React.FC<SessionsSectionProps> = ({
                 </div>
               ) : (
                 <>
-                  <span className="openbitfun-nav-panel__inline-item-main" data-openbitfun-component="sessions-section" data-openbitfun-part="rowMain">
-                    <span className="openbitfun-nav-panel__inline-item-copy">
-                      <span className="openbitfun-nav-panel__inline-item-primary">
-                        <span className="openbitfun-nav-panel__inline-item-title">
-                          <OverflowText behavior="marquee" title="" className="openbitfun-nav-panel__inline-item-label">{sessionTitle}</OverflowText>
+                  <span className="alex-nav-panel__inline-item-main" data-alex-component="sessions-section" data-alex-part="rowMain">
+                    <span className="alex-nav-panel__inline-item-copy">
+                      <span className="alex-nav-panel__inline-item-primary">
+                        <span className="alex-nav-panel__inline-item-title">
+                          <OverflowText behavior="marquee" title="" className="alex-nav-panel__inline-item-label">{sessionTitle}</OverflowText>
                           <SessionTitleNumber number={titleNumber} />
                         </span>
                     {isChildSession ? (
-                      <span className="openbitfun-nav-panel__inline-item-btw-badge">{childSessionBadge}</span>
+                      <span className="alex-nav-panel__inline-item-btw-badge">{childSessionBadge}</span>
                     ) : null}
                     {isDispatched ? (
                       <span
-                        className="openbitfun-nav-panel__inline-item-dispatch-badge"
+                        className="alex-nav-panel__inline-item-dispatch-badge"
                         data-state={dispatchPresentation?.visualState}
                         title={dispatchPresentation?.summary}
                       ><OverflowText>
@@ -1797,64 +1797,64 @@ const SessionsSection: React.FC<SessionsSectionProps> = ({
                       // Icon-only marker: the badge sits next to the title, where a
                       // label competes with it. The tooltip carries the worktree path.
                       <span
-                        className="openbitfun-nav-panel__inline-item-worktree-badge"
+                        className="alex-nav-panel__inline-item-worktree-badge"
                         title={t('nav.sessions.worktreeTooltip', { path: worktreeRootPath })}
                         aria-label={t('nav.sessions.worktreeTooltip', { path: worktreeRootPath })}
                       >
-                        <FolderGit2 className="openbitfun-nav-panel__inline-item-worktree-icon" aria-hidden />
+                        <FolderGit2 className="alex-nav-panel__inline-item-worktree-icon" aria-hidden />
                       </span>
                     ) : null}
                     {reviewActivityKind ? (
-                      <span className="openbitfun-nav-panel__inline-item-review-badge">
-                        <Loader2 className="openbitfun-nav-panel__inline-item-review-icon" aria-hidden />
+                      <span className="alex-nav-panel__inline-item-review-badge">
+                        <Loader2 className="alex-nav-panel__inline-item-review-icon" aria-hidden />
                         {getReviewActivityBadge(reviewActivityKind)}
                       </span>
                     ) : null}
                         {showBackgroundSubagentActivity ? (
                       <span
-                        className="openbitfun-nav-panel__inline-item-background-subagent-badge"
+                        className="alex-nav-panel__inline-item-background-subagent-badge"
                         aria-label={t('nav.sessions.backgroundSubagentsRunning', {
                           count: backgroundSubagentActivityCount,
                         })}
                       >
                         <Icon
                           name="user"
-                          className="openbitfun-nav-panel__inline-item-background-subagent-icon is-agent"
+                          className="alex-nav-panel__inline-item-background-subagent-icon is-agent"
                           size="2xs"
                           aria-hidden
                         />
                         <Loader2
-                          className="openbitfun-nav-panel__inline-item-background-subagent-icon is-loader"
+                          className="alex-nav-panel__inline-item-background-subagent-icon is-loader"
                           aria-hidden
                         />
                       </span>
                         ) : null}
                         {sessionWorkspaceScope && !isChildSession ? (
-                          <OverflowText className="openbitfun-nav-panel__inline-item-workspace-name">
+                          <OverflowText className="alex-nav-panel__inline-item-workspace-name">
                             {sessionWorkspaceScope.workspaceName}
                           </OverflowText>
                         ) : null}
                       </span>
                       {showAssistantIdentity ? (
-                        <OverflowText className="openbitfun-nav-panel__inline-item-assistant-name">{trimmedAssistant}</OverflowText>
+                        <OverflowText className="alex-nav-panel__inline-item-assistant-name">{trimmedAssistant}</OverflowText>
                       ) : null}
                     </span>
                   </span>
-                  <div className="openbitfun-nav-panel__inline-item-trailing">
+                  <div className="alex-nav-panel__inline-item-trailing">
                     <SessionStatusIndicator
                       sessionId={session.sessionId}
                       idleFallback={scheduledJobMark}
                     />
                     <div
-                      className={`openbitfun-nav-panel__inline-item-actions${openMenuSessionId === session.sessionId ? ' is-open' : ''}`}
-                      data-openbitfun-component="sessions-section"
-                      data-openbitfun-part="actions"
-                      data-openbitfun-state={openMenuSessionId === session.sessionId ? 'menuOpen' : undefined}
+                      className={`alex-nav-panel__inline-item-actions${openMenuSessionId === session.sessionId ? ' is-open' : ''}`}
+                      data-alex-component="sessions-section"
+                      data-alex-part="actions"
+                      data-alex-state={openMenuSessionId === session.sessionId ? 'menuOpen' : undefined}
                     >
                       <button
                         type="button"
                         ref={openMenuSessionId === session.sessionId ? sessionMenuAnchorRef : undefined}
-                        className={`openbitfun-nav-panel__inline-item-action-btn${openMenuSessionId === session.sessionId ? ' is-open' : ''}`}
+                        className={`alex-nav-panel__inline-item-action-btn${openMenuSessionId === session.sessionId ? ' is-open' : ''}`}
                         onClick={e => handleMenuOpen(e, session.sessionId)}
                         aria-label={`${sessionTitle} · ${t('actions.more')}`}
                         aria-haspopup="menu"
@@ -1869,11 +1869,11 @@ const SessionsSection: React.FC<SessionsSectionProps> = ({
                   {openMenuSessionId === session.sessionId && createOverlayPortal(
                     <Menu
                       ref={sessionMenuPopoverRef}
-                      className="openbitfun-nav-panel__inline-item-menu-popover"
+                      className="alex-nav-panel__inline-item-menu-popover"
                       inlineSize="content"
-                      data-openbitfun-component="sessions-section"
-                      data-openbitfun-part="menu"
-                      data-openbitfun-state="menuOpen"
+                      data-alex-component="sessions-section"
+                      data-alex-part="menu"
+                      data-alex-state="menuOpen"
                       style={{
                         top: sessionMenuPosition?.top ?? 0,
                         left: sessionMenuPosition?.left ?? 0,
@@ -1945,7 +1945,7 @@ const SessionsSection: React.FC<SessionsSectionProps> = ({
                             data-testid="nav-session-menu-export-markdown"
                             data-session-id={session.sessionId}
                             leading={exportingSessionId === session.sessionId
-                              ? <Loader2 className="openbitfun-nav-panel__inline-toggle-spinner" aria-hidden />
+                              ? <Loader2 className="alex-nav-panel__inline-toggle-spinner" aria-hidden />
                               : <Icon name="arrow-down" size="sm" />}
                           >
                             <span>{t('nav.sessions.exportMarkdown')}</span>
@@ -2045,21 +2045,21 @@ const SessionsSection: React.FC<SessionsSectionProps> = ({
       {!showAllWithoutLimit && expandLevel === 2 && topLevelSessions.length > sessionDisplayLimit && (
         <button data-overflow-trigger
           type="button"
-          className="openbitfun-nav-panel__inline-toggle"
+          className="alex-nav-panel__inline-toggle"
           data-testid="nav-session-list-load-more"
           aria-label={t('nav.sessions.showMore', {
             count: topLevelSessions.length - sessionDisplayLimit,
           })}
           onClick={() => setLevel2DisplayCount(prev => prev + SESSIONS_LEVEL_2_PAGE)}
         >
-          <OverflowText className="openbitfun-nav-panel__inline-toggle-label">
+          <OverflowText className="alex-nav-panel__inline-toggle-label">
             {t('nav.sessions.showMoreLabel')}
           </OverflowText>
-          <span className="openbitfun-nav-panel__inline-toggle-count" aria-hidden>
+          <span className="alex-nav-panel__inline-toggle-count" aria-hidden>
             +{topLevelSessions.length - sessionDisplayLimit}
           </span>
-          <span className="openbitfun-nav-panel__inline-toggle-trailing">
-            <Icon name="chevron-down" size="xs" className="openbitfun-nav-panel__inline-toggle-chevron" aria-hidden />
+          <span className="alex-nav-panel__inline-toggle-trailing">
+            <Icon name="chevron-down" size="xs" className="alex-nav-panel__inline-toggle-chevron" aria-hidden />
           </span>
         </button>
       )}
@@ -2067,31 +2067,31 @@ const SessionsSection: React.FC<SessionsSectionProps> = ({
       {!showAllWithoutLimit && expandToggleState.shouldRender && (
         <button data-overflow-trigger
           type="button"
-          className={`openbitfun-nav-panel__inline-toggle${metadataPageState.isLoading ? ' is-loading' : ''}`}
-          data-openbitfun-component="sessions-section"
-          data-openbitfun-part="toggle"
-          data-openbitfun-state={metadataPageState.isLoading ? 'loading' : undefined}
+          className={`alex-nav-panel__inline-toggle${metadataPageState.isLoading ? ' is-loading' : ''}`}
+          data-alex-component="sessions-section"
+          data-alex-part="toggle"
+          data-alex-state={metadataPageState.isLoading ? 'loading' : undefined}
           data-testid="nav-session-list-toggle"
           data-session-nav-toggle-action={expandToggleState.action}
           aria-label={expandToggleLabels.ariaLabel}
           disabled={metadataPageState.isLoading}
           onClick={() => { void handleExpandToggle(); }}
         >
-          <OverflowText className="openbitfun-nav-panel__inline-toggle-label">
+          <OverflowText className="alex-nav-panel__inline-toggle-label">
             {expandToggleLabels.label}
           </OverflowText>
           {expandToggleLabels.remainingCount !== null && (
-            <span className="openbitfun-nav-panel__inline-toggle-count" aria-hidden>
+            <span className="alex-nav-panel__inline-toggle-count" aria-hidden>
               +{expandToggleLabels.remainingCount}
             </span>
           )}
-          <span className="openbitfun-nav-panel__inline-toggle-trailing">
+          <span className="alex-nav-panel__inline-toggle-trailing">
             {metadataPageState.isLoading ? (
-              <Loader2 className="openbitfun-nav-panel__inline-toggle-spinner" aria-hidden />
+              <Loader2 className="alex-nav-panel__inline-toggle-spinner" aria-hidden />
             ) : expandToggleLabels.remainingCount === null ? (
-              <Icon name="chevron-up" size="xs" className="openbitfun-nav-panel__inline-toggle-chevron" aria-hidden />
+              <Icon name="chevron-up" size="xs" className="alex-nav-panel__inline-toggle-chevron" aria-hidden />
             ) : (
-              <Icon name="chevron-down" size="xs" className="openbitfun-nav-panel__inline-toggle-chevron" aria-hidden />
+              <Icon name="chevron-down" size="xs" className="alex-nav-panel__inline-toggle-chevron" aria-hidden />
             )}
           </span>
         </button>

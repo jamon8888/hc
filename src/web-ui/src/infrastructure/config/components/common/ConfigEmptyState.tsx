@@ -1,5 +1,5 @@
 import React from 'react';
-import { Empty, type EmptyProps } from '@openbitfun/ui';
+import { Empty, type EmptyProps } from '@alex/ui';
 import { formatStandaloneUiCopy } from './standaloneUiCopy';
 import './ConfigPageState.scss';
 
@@ -20,10 +20,10 @@ export const ConfigEmptyState: React.FC<ConfigEmptyStateProps> = ({
   ...props
 }) => (
   <div
-    data-openbitfun-component="config"
-    data-openbitfun-part="emptyState"
+    data-alex-component="config"
+    data-alex-part="emptyState"
     {...props}
-    className={`openbitfun-config-empty-state ${className}`.trim()}
+    className={`alex-config-empty-state ${className}`.trim()}
   >
     <Empty icon={icon} title={formatStandaloneUiCopy(title)} description={formatStandaloneUiCopy(description)} actions={actions} />
   </div>

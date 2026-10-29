@@ -383,9 +383,9 @@ describe('DispatchJobObserver', () => {
     // A recreated renderer resumes from its paired transcript cursor, which
     // may already be past the title event, while the index still has the default.
     const storage = dispatchJobStore.persist.getOptions().storage!;
-    const persisted = (await storage.getItem('openbitfun-dispatch-jobs-v1'))!;
+    const persisted = (await storage.getItem('alex-dispatch-jobs-v1'))!;
     dispatchJobStore.setState({ jobs: {} });
-    await storage.setItem('openbitfun-dispatch-jobs-v1', persisted);
+    await storage.setItem('alex-dispatch-jobs-v1', persisted);
     await dispatchJobStore.persist.rehydrate();
     flowChatStore.setState(() => ({ sessions: new Map(), activeSessionId: null }));
     mocks.loadTranscript.mockResolvedValue(cachedTranscript({ cursor: 50 }));
@@ -573,7 +573,7 @@ describe('DispatchJobObserver', () => {
       action: 'cli-install',
       details: {
         stage: 'cli-install-succeeded',
-        release: { version: '1.2.3', cliPath: '/usr/local/bin/openbitfun' },
+        release: { version: '1.2.3', cliPath: '/usr/local/bin/alex' },
       },
     };
     mocks.status.mockResolvedValue(status({
@@ -602,7 +602,7 @@ describe('DispatchJobObserver', () => {
       id: 'dispatch_pending_job-1',
       userMessage: {
         content: '',
-        metadata: { __openbitfunOptimisticDispatchJobId: 'job-1' },
+        metadata: { __alexOptimisticDispatchJobId: 'job-1' },
       },
     });
     expect(turn?.modelRounds).toHaveLength(1);
@@ -929,7 +929,7 @@ describe('DispatchJobObserver', () => {
     await vi.advanceTimersByTimeAsync(0);
     expect(context.flowChatStore.addExternalSession).not.toHaveBeenCalled();
 
-    context.currentWorkspacePath = '/projects/OpenBitFun';
+    context.currentWorkspacePath = '/projects/Alex';
     await vi.advanceTimersByTimeAsync(DISPATCH_JOB_POLL_INTERVAL_MS);
     expect(context.flowChatStore.addExternalSession).not.toHaveBeenCalled();
     expect(dispatchJobStore.getState().jobs['job-restored']).toBeUndefined();
@@ -947,7 +947,7 @@ describe('DispatchJobObserver', () => {
         workspacePath: '/target/repo',
         displayName: 'build-host',
       },
-      sourceWorkspacePath: '/projects/OpenBitFun',
+      sourceWorkspacePath: '/projects/Alex',
       sourceWorkspaceId: 'workspace-1',
       workspacePath: '/target/repo',
       promptPreview: 'Dispatch test',
@@ -991,9 +991,9 @@ describe('DispatchJobObserver', () => {
       'session-restored',
       'Dispatch test',
       'Standard',
-      '/projects/OpenBitFun',
+      '/projects/Alex',
       expect.objectContaining({
-        projectWorkspacePath: '/projects/OpenBitFun',
+        projectWorkspacePath: '/projects/Alex',
         workspaceId: 'workspace-1',
       }),
     );

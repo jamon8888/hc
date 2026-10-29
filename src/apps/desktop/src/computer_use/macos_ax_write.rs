@@ -118,10 +118,10 @@ pub(super) fn try_ax_set_value(target: AxRef, value: &str) -> AxWriteOutcome {
 pub(super) fn insert_selected_text(
     target: AxRef,
     text: &str,
-) -> openbitfun_core::util::errors::OpenBitFunResult<bool> {
-    use openbitfun_core::util::errors::OpenBitFunError;
+) -> alex_core::util::errors::AlexResult<bool> {
+    use alex_core::util::errors::AlexError;
     if !can_write(target) {
-        return Err(OpenBitFunError::tool(
+        return Err(AlexError::tool(
             "[CONTROL_TARGET_CHANGED] Text target is outside the active capture",
         ));
     }
@@ -134,10 +134,10 @@ pub(super) fn insert_selected_text(
         return Ok(false);
     }
     if status != 0 {
-        return Err(OpenBitFunError::tool(format!("[AX_TEXT_PREFLIGHT_FAILED] Cannot inspect selected-text support (status={status}); no text was submitted")));
+        return Err(AlexError::tool(format!("[AX_TEXT_PREFLIGHT_FAILED] Cannot inspect selected-text support (status={status}); no text was submitted")));
     }
     if !can_write(target) {
-        return Err(OpenBitFunError::tool(
+        return Err(AlexError::tool(
             "[CONTROL_TARGET_CHANGED] Text target changed before insertion",
         ));
     }
@@ -151,7 +151,7 @@ pub(super) fn insert_selected_text(
     };
     note_dispatched_input(target);
     if status != 0 {
-        return Err(OpenBitFunError::tool(format!("[INPUT_OUTCOME_UNKNOWN] AXSelectedText returned {status}; do not repeat the insertion or send fallback keys")));
+        return Err(AlexError::tool(format!("[INPUT_OUTCOME_UNKNOWN] AXSelectedText returned {status}; do not repeat the insertion or send fallback keys")));
     }
     Ok(true)
 }

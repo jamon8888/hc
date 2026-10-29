@@ -19,13 +19,13 @@ use crate::agentic::workspace::WorkspaceBinding;
 use crate::infrastructure::events::{emit_global_event, BackendEvent};
 use crate::infrastructure::PathManager;
 use crate::service_agent_runtime::CoreServiceAgentRuntime;
-use crate::util::errors::{OpenBitFunError, OpenBitFunResult};
+use crate::util::errors::{AlexError, AlexResult};
 use chrono::{Local, SecondsFormat, TimeZone, Utc};
 use log::{debug, error, info, warn};
-use openbitfun_agent_runtime::scheduled_job::ScheduledJobEnqueueFailureAction;
-use openbitfun_agent_runtime::sdk::AgentRuntime;
-use openbitfun_runtime_ports::{AgentDialogPrependedReminder, AgentDialogTurnRequest};
-use openbitfun_services_core::exclusive_file_lease::{ExclusiveFileLease, ExclusiveFileLeaseError};
+use alex_agent_runtime::scheduled_job::ScheduledJobEnqueueFailureAction;
+use alex_agent_runtime::sdk::AgentRuntime;
+use alex_runtime_ports::{AgentDialogPrependedReminder, AgentDialogTurnRequest};
+use alex_services_core::exclusive_file_lease::{ExclusiveFileLease, ExclusiveFileLeaseError};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -62,7 +62,7 @@ impl CronService {
         path_manager: Arc<PathManager>,
         coordinator: Arc<ConversationCoordinator>,
         scheduler: Arc<DialogScheduler>,
-    ) -> OpenBitFunResult<Arc<Self>> {
+    ) -> AlexResult<Arc<Self>> {
         // Take the scheduling lease before touching the store: it is what makes
         // this instance the only writer of jobs.json.
         let scheduling_lease = SchedulingLease::new(path_manager.cron_scheduler_lease_file());
@@ -77,7 +77,7 @@ impl CronService {
             coordinator.clone(),
             scheduler,
         )
-        .map_err(OpenBitFunError::service)?;
+        .map_err(AlexError::service)?;
 
         let service = Arc::new(Self {
             coordinator,
@@ -92,7 +92,7 @@ impl CronService {
 
         if !service.is_scheduling_owner() {
             warn!(
-                "Another OpenBitFun instance owns scheduled jobs; this instance runs as standby and only reads them: lease={}",
+                "Another Alex instance owns scheduled jobs; this instance runs as standby and only reads them: lease={}",
                 service.scheduling_lease.path().display()
             );
         }
@@ -141,7 +141,7 @@ impl CronService {
         });
     }
 
-    fn require_scheduling_owner(&self, operation: &str) -> OpenBitFunResult<()> {
+    fn require_scheduling_owner(&self, operation: &str) -> AlexResult<()> {
         self.scheduling_lease.require_owned(operation)
     }
 
@@ -162,7 +162,7 @@ impl CronService {
         }
     }
 
-    async fn try_take_over_scheduling(&self) -> OpenBitFunResult<bool> {
+    async fn try_take_over_scheduling(&self) -> AlexResult<bool> {
         if !self.scheduling_lease.claim() {
             return Ok(false);
         }
@@ -189,7 +189,7 @@ impl CronService {
         Ok(true)
     }
 
-    async fn load_jobs_from_store(&self) -> OpenBitFunResult<(HashMap<String, CronJob>, bool)> {
+    async fn load_jobs_from_store(&self) -> AlexResult<(HashMap<String, CronJob>, bool)> {
         materialize_loaded_jobs(self.store.load().await?).await
     }
 
@@ -270,7 +270,7 @@ impl CronService {
         self.jobs.read().await.get(job_id).cloned()
     }
 
-    pub async fn create_job(&self, request: CreateCronJobRequest) -> OpenBitFunResult<CronJob> {
+    pub async fn create_job(&self, request: CreateCronJobRequest) -> AlexResult<CronJob> {
         self.require_scheduling_owner("creating a scheduled job")?;
         let target = self.canonicalize_target(request.target).await?;
         let _guard = self.mutation_lock.lock().await;
@@ -313,7 +313,7 @@ impl CronService {
         &self,
         job_id: &str,
         request: UpdateCronJobRequest,
-    ) -> OpenBitFunResult<CronJob> {
+    ) -> AlexResult<CronJob> {
         self.require_scheduling_owner("updating a scheduled job")?;
         let canonicalized_target = match request.target {
             Some(target) => Some(self.canonicalize_target(target).await?),
@@ -324,7 +324,7 @@ impl CronService {
         let mut jobs = self.jobs.write().await;
         let current_ms = now_ms();
         let job = jobs.get_mut(job_id).ok_or_else(|| {
-            OpenBitFunError::NotFound(format!("Scheduled job not found: {}", job_id))
+            AlexError::NotFound(format!("Scheduled job not found: {}", job_id))
         })?;
         let previous_schedule = job.schedule.clone();
         let was_enabled = job.enabled;
@@ -371,7 +371,7 @@ impl CronService {
         Ok(updated)
     }
 
-    pub async fn set_job_enabled(&self, job_id: &str, enabled: bool) -> OpenBitFunResult<CronJob> {
+    pub async fn set_job_enabled(&self, job_id: &str, enabled: bool) -> AlexResult<CronJob> {
         self.update_job(
             job_id,
             UpdateCronJobRequest {
@@ -382,7 +382,7 @@ impl CronService {
         .await
     }
 
-    pub async fn delete_job(&self, job_id: &str) -> OpenBitFunResult<bool> {
+    pub async fn delete_job(&self, job_id: &str) -> AlexResult<bool> {
         self.require_scheduling_owner("deleting a scheduled job")?;
         let _guard = self.mutation_lock.lock().await;
         let mut jobs = self.jobs.write().await;
@@ -398,7 +398,7 @@ impl CronService {
     }
 
     /// Remove all scheduled jobs bound to the given session (e.g. after session delete).
-    pub async fn delete_jobs_for_session(&self, session_id: &str) -> OpenBitFunResult<usize> {
+    pub async fn delete_jobs_for_session(&self, session_id: &str) -> AlexResult<usize> {
         self.require_scheduling_owner("deleting scheduled jobs of a session")?;
         let session_id = session_id.trim();
         if session_id.is_empty() {
@@ -419,14 +419,14 @@ impl CronService {
         Ok(removed)
     }
 
-    pub async fn run_job_now(&self, job_id: &str) -> OpenBitFunResult<CronJob> {
+    pub async fn run_job_now(&self, job_id: &str) -> AlexResult<CronJob> {
         self.require_scheduling_owner("running a scheduled job now")?;
         {
             let _guard = self.mutation_lock.lock().await;
             let mut jobs = self.jobs.write().await;
             let current_ms = now_ms();
             let job = jobs.get_mut(job_id).ok_or_else(|| {
-                OpenBitFunError::NotFound(format!("Scheduled job not found: {}", job_id))
+                AlexError::NotFound(format!("Scheduled job not found: {}", job_id))
             })?;
 
             job.state.mark_manual_trigger(current_ms);
@@ -444,11 +444,11 @@ impl CronService {
 
         self.process_job(job_id).await?;
         self.get_job(job_id).await.ok_or_else(|| {
-            OpenBitFunError::NotFound(format!("Scheduled job not found after run: {}", job_id))
+            AlexError::NotFound(format!("Scheduled job not found after run: {}", job_id))
         })
     }
 
-    pub async fn handle_turn_started(&self, turn_id: &str) -> OpenBitFunResult<()> {
+    pub async fn handle_turn_started(&self, turn_id: &str) -> AlexResult<()> {
         self.handle_turn_state_change(turn_id, |job, now_ms| {
             job.state.mark_turn_started(now_ms);
             job.updated_at_ms = now_ms;
@@ -460,7 +460,7 @@ impl CronService {
         &self,
         turn_id: &str,
         duration_ms: u64,
-    ) -> OpenBitFunResult<()> {
+    ) -> AlexResult<()> {
         self.handle_turn_state_change(turn_id, |job, now_ms| {
             job.state.mark_turn_completed(now_ms, duration_ms);
             job.updated_at_ms = now_ms;
@@ -468,7 +468,7 @@ impl CronService {
         .await
     }
 
-    pub async fn handle_turn_failed(&self, turn_id: &str, error: &str) -> OpenBitFunResult<()> {
+    pub async fn handle_turn_failed(&self, turn_id: &str, error: &str) -> AlexResult<()> {
         self.handle_turn_state_change(turn_id, |job, now_ms| {
             job.state.mark_turn_failed(now_ms, error.to_string());
             job.updated_at_ms = now_ms;
@@ -476,7 +476,7 @@ impl CronService {
         .await
     }
 
-    pub async fn handle_turn_cancelled(&self, turn_id: &str) -> OpenBitFunResult<()> {
+    pub async fn handle_turn_cancelled(&self, turn_id: &str) -> AlexResult<()> {
         self.handle_turn_state_change(turn_id, |job, now_ms| {
             job.state.mark_turn_cancelled(now_ms);
             job.updated_at_ms = now_ms;
@@ -484,7 +484,7 @@ impl CronService {
         .await
     }
 
-    async fn handle_turn_state_change<F>(&self, turn_id: &str, update: F) -> OpenBitFunResult<()>
+    async fn handle_turn_state_change<F>(&self, turn_id: &str, update: F) -> AlexResult<()>
     where
         F: FnOnce(&mut CronJob, i64),
     {
@@ -553,7 +553,7 @@ impl CronService {
         jobs.values().filter_map(next_wakeup_for_job).min()
     }
 
-    async fn process_due_jobs(&self) -> OpenBitFunResult<()> {
+    async fn process_due_jobs(&self) -> AlexResult<()> {
         let current_ms = now_ms();
         let due_job_ids = {
             let jobs = self.jobs.read().await;
@@ -577,7 +577,7 @@ impl CronService {
         Ok(())
     }
 
-    async fn process_job(&self, job_id: &str) -> OpenBitFunResult<()> {
+    async fn process_job(&self, job_id: &str) -> AlexResult<()> {
         let _guard = self.mutation_lock.lock().await;
         let mut jobs = self.jobs.write().await;
         let current_ms = now_ms();
@@ -609,7 +609,7 @@ impl CronService {
 
             if job.state.active_turn_id.is_none() && job.state.pending_is_due(current_ms) {
                 let pending_trigger_at_ms = job.state.pending_trigger_at_ms.ok_or_else(|| {
-                    OpenBitFunError::service(format!(
+                    AlexError::service(format!(
                         "Scheduled job {} is missing pending trigger timestamp",
                         job.id
                     ))
@@ -640,13 +640,13 @@ impl CronService {
         }
 
         let enqueue_input = enqueue_input.ok_or_else(|| {
-            OpenBitFunError::service(format!(
+            AlexError::service(format!(
                 "Scheduled job {} is missing enqueue input after due calculation",
                 job_id
             ))
         })?;
         let scheduled_at_ms = scheduled_at_ms.ok_or_else(|| {
-            OpenBitFunError::service(format!(
+            AlexError::service(format!(
                 "Scheduled job {} is missing scheduled timestamp after due calculation",
                 job_id
             ))
@@ -738,7 +738,7 @@ impl CronService {
         Ok(())
     }
 
-    async fn persist_snapshot(&self) -> OpenBitFunResult<()> {
+    async fn persist_snapshot(&self) -> AlexResult<()> {
         let jobs = self.jobs.read().await;
         self.persist_jobs_locked(&jobs).await
     }
@@ -836,7 +836,7 @@ impl CronService {
         }
     }
 
-    async fn canonicalize_target(&self, target: CronJobTarget) -> OpenBitFunResult<CronJobTarget> {
+    async fn canonicalize_target(&self, target: CronJobTarget) -> AlexResult<CronJobTarget> {
         let mut target = materialize_target(target);
 
         if let CronJobTarget::Session {
@@ -852,7 +852,7 @@ impl CronService {
                 .await?;
             if let CronJobTarget::Workspace { workspace, .. } = &mut target {
                 let id = workspace.workspace_id.as_deref().ok_or_else(|| {
-                    OpenBitFunError::validation("Scheduled job workspace ID is required")
+                    AlexError::validation("Scheduled job workspace ID is required")
                 })?;
                 *workspace = workspace_ref_from_binding(&WorkspaceBinding::resolve(id).await?);
             }
@@ -864,13 +864,13 @@ impl CronService {
     async fn resolve_session_target_workspace_ref(
         coordinator: &ConversationCoordinator,
         session_id: &str,
-    ) -> OpenBitFunResult<CronWorkspaceRef> {
+    ) -> AlexResult<CronWorkspaceRef> {
         let binding = coordinator
             .get_session_manager()
             .resolve_session_workspace_binding(session_id)
             .await
             .ok_or_else(|| {
-                OpenBitFunError::validation(format!(
+                AlexError::validation(format!(
                     "Unable to resolve workspace for session '{}'",
                     session_id
                 ))
@@ -879,7 +879,7 @@ impl CronService {
         Ok(workspace_ref_from_binding(&binding))
     }
 
-    async fn persist_jobs_locked(&self, jobs: &HashMap<String, CronJob>) -> OpenBitFunResult<()> {
+    async fn persist_jobs_locked(&self, jobs: &HashMap<String, CronJob>) -> AlexResult<()> {
         self.store
             .save_jobs(jobs.values().cloned().collect::<Vec<_>>())
             .await
@@ -959,12 +959,12 @@ impl SchedulingLease {
         self.owned.store(true, Ordering::SeqCst);
     }
 
-    fn require_owned(&self, operation: &str) -> OpenBitFunResult<()> {
+    fn require_owned(&self, operation: &str) -> AlexResult<()> {
         if self.is_owned() {
             return Ok(());
         }
-        Err(OpenBitFunError::service(format!(
-            "Scheduled jobs are managed by the other running OpenBitFun instance (lease: {}); {} was refused here instead of overwriting its state",
+        Err(AlexError::service(format!(
+            "Scheduled jobs are managed by the other running Alex instance (lease: {}); {} was refused here instead of overwriting its state",
             self.path.display(),
             operation
         )))
@@ -976,14 +976,14 @@ impl SchedulingLease {
 /// whether the result differs from what is on disk.
 async fn materialize_loaded_jobs(
     loaded: CronJobsFile,
-) -> OpenBitFunResult<(HashMap<String, CronJob>, bool)> {
+) -> AlexResult<(HashMap<String, CronJob>, bool)> {
     let current_ms = now_ms();
     let mut jobs = HashMap::new();
     let mut needs_save = false;
 
     for mut job in loaded.jobs {
         if jobs.contains_key(&job.id) {
-            return Err(OpenBitFunError::service(format!(
+            return Err(AlexError::service(format!(
                 "Duplicate scheduled job id found in jobs.json: {}",
                 job.id
             )));
@@ -1011,7 +1011,7 @@ async fn materialize_loaded_jobs(
     Ok((jobs, needs_save))
 }
 
-fn reconcile_loaded_job(job: &mut CronJob, now_ms: i64) -> OpenBitFunResult<bool> {
+fn reconcile_loaded_job(job: &mut CronJob, now_ms: i64) -> AlexResult<bool> {
     let original = job.clone();
 
     job.target = materialize_target(job.target.clone());
@@ -1050,14 +1050,14 @@ fn validate_request_fields(
     name: &str,
     payload: &CronJobPayload,
     target: &CronJobTarget,
-) -> OpenBitFunResult<()> {
+) -> AlexResult<()> {
     if name.trim().is_empty() {
-        return Err(OpenBitFunError::validation(
+        return Err(AlexError::validation(
             "Scheduled job name must not be empty",
         ));
     }
     if payload.text.trim().is_empty() {
-        return Err(OpenBitFunError::validation(
+        return Err(AlexError::validation(
             "Scheduled job payload.text must not be empty",
         ));
     }
@@ -1085,7 +1085,7 @@ fn compute_next_run_after_update(
     current_ms: i64,
     schedule_changed: bool,
     reenabled: bool,
-) -> OpenBitFunResult<Option<i64>> {
+) -> AlexResult<Option<i64>> {
     if schedule_changed || reenabled {
         return compute_next_run_after_ms(&job.schedule, job.created_at_ms, current_ms);
     }
@@ -1175,20 +1175,20 @@ fn normalize_agent_type(agent_type: &str) -> String {
     }
 }
 
-fn validate_target(target: &CronJobTarget) -> OpenBitFunResult<()> {
+fn validate_target(target: &CronJobTarget) -> AlexResult<()> {
     validate_workspace_ref(target.workspace())?;
 
     match target {
         CronJobTarget::Session { session_id, .. } => {
             if session_id.trim().is_empty() {
-                return Err(OpenBitFunError::validation(
+                return Err(AlexError::validation(
                     "Scheduled job sessionId must not be empty",
                 ));
             }
         }
         CronJobTarget::Workspace { launch, .. } => {
             if launch.agent_type.trim().is_empty() {
-                return Err(OpenBitFunError::validation(
+                return Err(AlexError::validation(
                     "Scheduled job launch.agentType must not be empty",
                 ));
             }
@@ -1198,9 +1198,9 @@ fn validate_target(target: &CronJobTarget) -> OpenBitFunResult<()> {
     Ok(())
 }
 
-fn validate_workspace_ref(workspace: &CronWorkspaceRef) -> OpenBitFunResult<()> {
+fn validate_workspace_ref(workspace: &CronWorkspaceRef) -> AlexResult<()> {
     if workspace.workspace_path.trim().is_empty() {
-        return Err(OpenBitFunError::validation(
+        return Err(AlexError::validation(
             "Scheduled job workspacePath must not be empty",
         ));
     }

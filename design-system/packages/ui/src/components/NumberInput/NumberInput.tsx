@@ -92,11 +92,11 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(functi
     if (next !== value) onValueChange(next);
   };
   return (
-    <span className={classNames(styles.root, className)} data-openbitfun-component="number-input" data-disabled={disabled ? "true" : "false"} data-field-surface={fieldSurface} data-size={size} data-variant={variant}>
-      {label && <span className={styles.label} data-openbitfun-part="label">{label}</span>}
+    <span className={classNames(styles.root, className)} data-alex-component="number-input" data-disabled={disabled ? "true" : "false"} data-field-surface={fieldSurface} data-size={size} data-variant={variant}>
+      {label && <span className={styles.label} data-alex-part="label">{label}</span>}
       <span
         className={styles.control}
-        data-openbitfun-part="control"
+        data-alex-part="control"
         onWheel={(event) => {
           if (disabled || disableWheel || document.activeElement !== event.currentTarget.querySelector("input")) return;
           event.preventDefault();
@@ -111,7 +111,7 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(functi
           aria-invalid={ariaInvalid}
           aria-label={ariaLabel ?? label}
           className={styles.input}
-          data-openbitfun-part="input"
+          data-alex-part="input"
           disabled={disabled}
           inputMode="decimal"
           onBlur={(event) => {
@@ -144,9 +144,9 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(functi
           type="text"
           value={!editing && formatValue ? formatValue(value) : draft}
         />
-        {unit && <span className={styles.unit} data-openbitfun-part="unit">{unit}</span>}
+        {unit && <span className={styles.unit} data-alex-part="unit">{unit}</span>}
         {showButtons && variant !== "compact" && (
-          <span className={styles.buttons} data-openbitfun-part="buttons">
+          <span className={styles.buttons} data-alex-part="buttons">
             <button className={styles.stepButton} aria-label={decrementLabel} disabled={disabled || value <= min} onClick={() => changeBy(-step)} tabIndex={-1} type="button">−</button>
             <button className={styles.stepButton} aria-label={incrementLabel} disabled={disabled || value >= max} onClick={() => changeBy(step)} tabIndex={-1} type="button">+</button>
           </span>

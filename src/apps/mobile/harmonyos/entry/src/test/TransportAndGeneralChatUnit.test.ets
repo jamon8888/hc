@@ -954,7 +954,7 @@ export default function transportAndGeneralChatUnitTest() {
         failedAssistant
       ]);
 
-      expect(markdown).assertEqual('# 发布计划\n\n## 用户\n\n帮我整理发布计划\n\n## OpenBitFun\n\n先检查发布清单。\n');
+      expect(markdown).assertEqual('# 发布计划\n\n## 用户\n\n帮我整理发布计划\n\n## Alex\n\n先检查发布清单。\n');
       expect(markdown.indexOf('secret retry context')).assertEqual(-1);
     });
 
@@ -974,7 +974,7 @@ export default function transportAndGeneralChatUnitTest() {
         chatMessage('assistant-1', 'assistant', '你好！有什么我可以帮你的吗？')
       ]);
 
-      expect(markdown).assertEqual('## 用户\n\n你好你好。\n\n## OpenBitFun\n\n你好！有什么我可以帮你的吗？\n');
+      expect(markdown).assertEqual('## 用户\n\n你好你好。\n\n## Alex\n\n你好！有什么我可以帮你的吗？\n');
     });
   });
 
@@ -1626,8 +1626,8 @@ export default function transportAndGeneralChatUnitTest() {
       expect(openAiText).assertEqual('Hello');
     });
 
-    it('places the OpenBitFun system prompt in both request formats', 0, () => {
-      const messages: ModelProviderMessage[] = [{ role: 'user', content: 'OpenBitFun 是什么？' }];
+    it('places the Alex system prompt in both request formats', 0, () => {
+      const messages: ModelProviderMessage[] = [{ role: 'user', content: 'Alex 是什么？' }];
       const anthropicBody = ModelProviderGeneralChatAdapter.buildRequestBody(
         'model-a',
         messages,

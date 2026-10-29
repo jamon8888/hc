@@ -44,10 +44,10 @@ describe('session activity read projection', () => {
   it('rejects stale terminal events by turn identity and ordered event position', () => {
     const store = new SessionActivityStore();
     store.observe('host', 'agentic://dialog-turn-started', {
-      sessionId: 'session', turnId: 'new', __openbitfunRuntimeStreamId: 'runtime', __openbitfunRuntimeEventCursor: 20,
+      sessionId: 'session', turnId: 'new', __alexRuntimeStreamId: 'runtime', __alexRuntimeEventCursor: 20,
     });
     store.observe('host', 'agentic://dialog-turn-completed', {
-      sessionId: 'session', turnId: 'old', __openbitfunRuntimeStreamId: 'runtime', __openbitfunRuntimeEventCursor: 19,
+      sessionId: 'session', turnId: 'old', __alexRuntimeStreamId: 'runtime', __alexRuntimeEventCursor: 19,
     });
     store.observe('host', 'agentic://dialog-turn-completed', { sessionId: 'session', turnId: 'old' });
     expect(store.get('session', 'host')?.summary?.execution).toBe('running');
@@ -68,10 +68,10 @@ describe('session activity read projection', () => {
     const store = new SessionActivityStore();
     store.applyRead(store.beginRead('host'), [summary('running')]);
     store.observe('host', 'agentic://session-state-changed', {
-      sessionId: 'session', newState: 'processing', __openbitfunRuntimeStreamId: 'runtime', __openbitfunRuntimeEventCursor: 30,
+      sessionId: 'session', newState: 'processing', __alexRuntimeStreamId: 'runtime', __alexRuntimeEventCursor: 30,
     });
     store.observe('host', 'agentic://dialog-turn-completed', {
-      sessionId: 'session', turnId: 'old', __openbitfunRuntimeStreamId: 'runtime', __openbitfunRuntimeEventCursor: 25,
+      sessionId: 'session', turnId: 'old', __alexRuntimeStreamId: 'runtime', __alexRuntimeEventCursor: 25,
     });
     expect(store.get('session', 'host')?.summary?.execution).toBe('running');
     expect(store.get('session', 'host')?.stale).toBe(false);

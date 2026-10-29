@@ -1,6 +1,6 @@
 //! External compatibility HostInvoke handlers for CLI Peer Host.
 
-use openbitfun_core::external_sources::{
+use alex_core::external_sources::{
     apply_external_source_control_action, choose_external_mcp_conflict,
     choose_external_subagent_conflict, external_source_discovery_snapshot,
     external_source_snapshot, get_external_source_control_snapshot,
@@ -120,7 +120,7 @@ pub(super) async fn workspace_id(
         .ok_or_else(|| {
             ExternalSourceOperationError::invalid_request("Unknown workspace reference")
         })?;
-    if workspace.workspace_kind == openbitfun_core::service::workspace::WorkspaceKind::Remote {
+    if workspace.workspace_kind == alex_core::service::workspace::WorkspaceKind::Remote {
         return Err(ExternalSourceOperationError::host_capability_unavailable(
             "External sources do not support remote workspaces",
         ));
@@ -129,7 +129,7 @@ pub(super) async fn workspace_id(
 }
 
 fn public_snapshot(
-    snapshot: openbitfun_core::external_sources::ExternalSourceCatalogSnapshot,
+    snapshot: alex_core::external_sources::ExternalSourceCatalogSnapshot,
 ) -> ExternalSourceOperationResult<Value> {
     serde_json::to_value(ExternalSourcePublicSnapshot::from(snapshot).into_legacy_v0_compatible())
         .map_err(|_| {
@@ -171,7 +171,7 @@ async fn dispatch_inner(
             ExternalSourceHostCapabilities::read_write(),
         )
         .await
-        .map_err(openbitfun_core::external_sources::sanitize_external_source_operation_error)?;
+        .map_err(alex_core::external_sources::sanitize_external_source_operation_error)?;
         return serde_json::to_value(snapshot).map_err(|_| {
             ExternalSourceOperationError::new(
                 ExternalSourceOperationErrorCode::Internal,
@@ -355,7 +355,7 @@ async fn dispatch_inner(
             ))
         }
     }
-    .map_err(openbitfun_core::external_sources::sanitize_external_source_operation_error)?;
+    .map_err(alex_core::external_sources::sanitize_external_source_operation_error)?;
 
     public_snapshot(snapshot)
 }
@@ -371,7 +371,7 @@ fn control_request(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use openbitfun_core::external_sources::ExternalSourceControlActionV1;
+    use alex_core::external_sources::ExternalSourceControlActionV1;
 
     #[test]
     fn optional_host_fields_reject_wrong_types() {

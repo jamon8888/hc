@@ -1,6 +1,6 @@
  
 
-import { NumberInput, Select, Switch } from '@openbitfun/ui';
+import { NumberInput, Select, Switch } from '@alex/ui';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useI18n } from '@/infrastructure/i18n';
 import {
@@ -410,7 +410,7 @@ const EditorConfig: React.FC<EditorConfigProps> = () => {
 
   if (isLoading || loadFailed) {
     return (
-      <ConfigPageLayout className="openbitfun-editor-config" data-openbitfun-component="editor-config" data-openbitfun-part="root" data-openbitfun-state="loading">
+      <ConfigPageLayout className="alex-editor-config" data-alex-component="editor-config" data-alex-part="root" data-alex-state="loading">
         <ConfigPageHeader
           title={t('title')}
           subtitle={t('subtitle')}
@@ -431,7 +431,7 @@ const EditorConfig: React.FC<EditorConfigProps> = () => {
   }
 
   return (
-    <ConfigPageLayout className="openbitfun-editor-config" data-openbitfun-component="editor-config" data-openbitfun-part="root">
+    <ConfigPageLayout className="alex-editor-config" data-alex-component="editor-config" data-alex-part="root">
       <ConfigPageHeader
         title={t('title')}
         subtitle={t('subtitle')}
@@ -447,7 +447,7 @@ const EditorConfig: React.FC<EditorConfigProps> = () => {
         ) : undefined}
       />
 
-      <ConfigPageContent className="openbitfun-editor-config__content" data-openbitfun-component="editor-config" data-openbitfun-part="content">
+      <ConfigPageContent className="alex-editor-config__content" data-alex-component="editor-config" data-alex-part="content">
         <ConfigPageSection
           title={t('sections.appearance.title')}
           description={t('sections.appearance.description')}

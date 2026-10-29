@@ -16,7 +16,7 @@ Shared Agent Runtime 与 Plugin Host 的进程关系见
 本文中的接口片段只说明依赖方向和职责，不自动构成当前 API 或实施承诺。当前接口名称、字段和消费方以代码为准；
 新增公共类型前必须有真实生产调用方、版本边界和验证路径。现有 `agent-runtime::sdk` 是
 Rust Runtime SDK（当前 preview），不是公开 Python/TypeScript Alex Agent SDK。CLI、ACP、
-Desktop 仍复用 `openbitfun-core` 的兼容 owner；只有 Desktop 与本机兼容 Server Host 选择 `product-full`。CLI 与 CLI 托管的 ACP server 已消费各自的产品组装结果；
+Desktop 仍复用 `alex-core` 的兼容 owner；只有 Desktop 与本机兼容 Server Host 选择 `product-full`。CLI 与 CLI 托管的 ACP server 已消费各自的产品组装结果；
 Desktop 主交互只消费由现有 Core 归属模块构造的少量应用接口，尚未组装完整 Desktop profile。这些接入都不等于
 协调器、调度器、持久化或工具执行 owner 已迁移；ACP 的完整持久化历史、模型/模式目录与提供方配置、MCP、客户端路径与
 Desktop 的其余入口仍保留明确的兼容边界，活动会话的模型/模式写入已通过 Agent Runtime API 回到 Core owner。
@@ -30,7 +30,7 @@ Desktop 的其余入口仍保留明确的兼容边界，活动会话的模型/�
 
 - 智能体内核可被 Desktop、CLI、Server、Remote、ACP、Web 和公开 SDK adapter 调用；这些入口共享应用用例，
   不共享 UI、协议或公开语言包。
-- 智能体内核对外提供稳定、窄口径的 Rust 运行时接口，而不是暴露 `openbitfun-core`、产品命令路径或具体管理器。
+- 智能体内核对外提供稳定、窄口径的 Rust 运行时接口，而不是暴露 `alex-core`、产品命令路径或具体管理器。
 - 产品特性把内核能力组装为用户侧能力，可能同时触达 Rust 和 UI，但不拥有内核状态机或平台实现。
 - 运行时内部接口、能力服务接口、扩展接口和主机内部 ABI 分层表达；OpenCode / ACP / 插件适配器仅承担映射和注册。
 - 智能体内核不感知平台差异、工具实现差异、界面宿主差异和构建形态差异。
@@ -84,7 +84,7 @@ v4 将活动 Turn 的文本 steer 纳入 `AgentDialogTurnPort`，复用同一个
 身份校验；默认端口实现仍返回 `NotAvailable`，未选择该能力的 provider 不需要建立第二套 queue 或 transport。
 
 v6 将完整 Rust Runtime SDK 从空默认编译面移入 `agent-runtime` owner feature。现有 Rust embedder
-迁移时在 `openbitfun-agent-runtime` 依赖上显式选择 `features = ["agent-runtime"]`；启用后 `sdk` 模块、
+迁移时在 `alex-agent-runtime` 依赖上显式选择 `features = ["agent-runtime"]`；启用后 `sdk` 模块、
 公开路径和运行时行为保持不变。只消费 Hook 设置的调用方选择
 `native-hook-settings`，不需要继承完整 Runtime。DeepResearch 编号策略归
 `agent-workflows`，不再通过 Agent Runtime feature 暴露。仓库内最小 SDK example 通过
@@ -101,7 +101,7 @@ Product Assembly 选择并在 `agent-workflows` / 现有产品 owner 中执行�
 v10 让 Turn settlement 返回 Runtime 确认的终态、最终回答和结束原因。现有 Rust embedder 需要接收
 `AgentTurnSettlementResult`；CLI 和 App Server adapter 可在不扩展各自 wire contract 的情况下丢弃返回值。
 
-只要外部调用方仍必须导入 `openbitfun-core`、启用 `product-full`、持有具体服务管理器、读取产品命令
+只要外部调用方仍必须导入 `alex-core`、启用 `product-full`、持有具体服务管理器、读取产品命令
 注册表、理解 ACP/内部端口或依赖全局可变状态，公开 SDK 发布边界就不成立。公开 SDK 的完整
 术语、能力等价和版本要求以 [`agent-sdk-product-architecture.md`](agent-sdk-product-architecture.md) 为准。
 
@@ -156,7 +156,7 @@ Server/WebSocket 或 OpenCode v1/v2 的版本化事件清单必须随真实消�
 |---|---|---|---|---|
 | 产品组装接口 | `src/crates/assembly/*` | 特性包、内核接口、执行层接口、运行时服务、平台提供方 | 智能体内部状态机、具体 UI 组件实现作为下层依赖 | 按产品形态组装能力，输出类型化运行时部件 |
 | 产品特性接口 | `product-capabilities`、`product-domains`、对应入口归属模块 | 内核接口、能力状态只读接口、能力/副作用接口、领域接口 | OS 具体实现、Tauri 句柄、执行层具体实现、最终权限策略 | 把内核能力映射为用户功能、入口视图和默认策略 |
-| Rust 内核接口 | `agent-runtime`、`agent-stream`、`runtime-services`、`runtime-ports`、`events`、`core-types` | 稳定接口、通用 Agent/Tool/Hook 注册接口、类型化服务 | `openbitfun-core`、命名产品工作流、Tauri、Web UI、ACP 协议、提供方具体实现 | 会话 / 轮次 / 事件 / 权限 / 调度 / 上下文等 SDK 候选接口 |
+| Rust 内核接口 | `agent-runtime`、`agent-stream`、`runtime-services`、`runtime-ports`、`events`、`core-types` | 稳定接口、通用 Agent/Tool/Hook 注册接口、类型化服务 | `alex-core`、命名产品工作流、Tauri、Web UI、ACP 协议、提供方具体实现 | 会话 / 轮次 / 事件 / 权限 / 调度 / 上下文等 SDK 候选接口 |
 | 执行层接口 | `agent-workflows`、`tool-contracts`、`tool-provider-groups`、`tool-execution` | 稳定接口、运行时端口、注入的服务端口 | 产品注册表、UI、具体文件系统/Git/终端/MCP 客户端 | 命名工作流策略、工具、skills、MCP 工具桥接、沙箱和执行语义 |
 | 扩展接口 | `PluginRuntimeClient` / OpenCode 兼容 / ACP 适配器归属模块 | Rust 内核接口、工具/事件/权限子接口、能力/副作用接口 | Web UI React 实现、Tauri 状态、内核权威状态写入 | 把外部生态能力转换为工具、Hook 变换、界面贡献和诊断 |
 | 平台/提供方适配器接口 | `services/*`、`adapters/*`、app-local provider | 运行时端口、稳定 DTO、允许的第三方库 | 产品特性、智能体内核状态机、UI 命令 | 实现文件系统、终端、网络、远端、Git、MCP 传输、AI 提供方等边界外 I/O |
@@ -164,8 +164,8 @@ Server/WebSocket 或 OpenCode v1/v2 的版本化事件清单必须随真实消�
 
 禁止依赖：
 
-- `contracts/*` 或 `runtime-ports` 依赖 `openbitfun-core`、assembly、apps、UI 或具体服务。
-- `agent-runtime` 依赖 `openbitfun-core`、Tauri、Web UI、ACP 协议、AI 提供方具体实现、MCP 客户端具体实现或 OS 服务管理器。
+- `contracts/*` 或 `runtime-ports` 依赖 `alex-core`、assembly、apps、UI 或具体服务。
+- `agent-runtime` 依赖 `alex-core`、Tauri、Web UI、ACP 协议、AI 提供方具体实现、MCP 客户端具体实现或 OS 服务管理器。
 - `tool-contracts` 依赖具体 service crate；`tool-execution` 依赖产品注册表、产品权限策略或具体 UI。
 - 禁止 `agent-runtime` 反向依赖 `agent-workflows`；命名工作流可以消费 Runtime / contracts，Runtime 不感知工作流名称。
 - 禁止 `agent-workflows` 依赖具体文件系统/Git/终端管理器；具体 I/O 由 Services 持有，工作流只保留无 I/O 决策或通过窄端口调用。
@@ -200,27 +200,27 @@ Server/WebSocket 或 OpenCode v1/v2 的版本化事件清单必须随真实消�
 
 所属 crate：
 
-- `openbitfun-core-types`
-- `openbitfun-events`
-- `openbitfun-runtime-ports`
+- `alex-core-types`
+- `alex-events`
+- `alex-runtime-ports`
 
 建议模块：
 
 ```text
-openbitfun-core-types
+alex-core-types
   error/
   identity/
   artifact/
   usage/
   surface/
 
-openbitfun-events
+alex-events
   runtime/
   tool/
   permission/
   product/
 
-openbitfun-runtime-ports
+alex-runtime-ports
   agent/
   service/
   permission/
@@ -256,7 +256,7 @@ pub trait WorkspacePort: Send + Sync {
 
 ### 2.2 运行时服务
 
-目标归属 crate：`openbitfun-runtime-services`。
+目标归属 crate：`alex-runtime-services`。
 
 职责：
 
@@ -269,7 +269,7 @@ pub trait WorkspacePort: Send + Sync {
 建议内部模块：
 
 ```text
-openbitfun-runtime-services
+alex-runtime-services
   bundle.rs             # RuntimeServices / narrow service views
   builder.rs            # 类型化 builder
   capability.rs         # capability ids 与 availability
@@ -378,7 +378,7 @@ pub trait SecurityDecisionPort: Send + Sync {
 
 ### 3.1 Agent Runtime / Agent Runtime API
 
-目标归属 crate：`openbitfun-agent-runtime`。
+目标归属 crate：`alex-agent-runtime`。
 
 目标职责：
 
@@ -458,7 +458,7 @@ model-round cancellation token、结构化 AgentInput 或更复杂的事件游�
 
 兼容边界：
 
-- `openbitfun-agent-runtime` 只能依赖稳定接口、工具运行时、运行时服务接口和注入的提供方。
+- `alex-agent-runtime` 只能依赖稳定接口、工具运行时、运行时服务接口和注入的提供方。
 - 权限规划按纯决策与产品编排分层：
   - Agent Runtime 持有 `PermissionIntent` 的策略、约束层与记忆授权判定；
   - Core 产品管线持有 workspace/remote scope 投影、平台大小写事实、grant store IO、native Hook 顺序、
@@ -474,7 +474,7 @@ model-round cancellation token、结构化 AgentInput 或更复杂的事件游�
 建议内部模块：
 
 ```text
-openbitfun-agent-runtime
+alex-agent-runtime
   lib.rs
   runtime.rs            # AgentRuntime 公共接口
   config.rs             # RuntimeConfig
@@ -584,8 +584,8 @@ impl AgentRuntime {
 
 所属 crate：
 
-- `tool-contracts`（Cargo package: `openbitfun-agent-tools`）
-- `tool-provider-groups`（Cargo package: `openbitfun-tool-packs`）
+- `tool-contracts`（Cargo package: `alex-agent-tools`）
+- `tool-provider-groups`（Cargo package: `alex-tool-packs`）
 - `tool-execution`（Cargo package: `tool-runtime`）
 
 目标职责：
@@ -677,7 +677,7 @@ pub struct ToolExecutionContext {
 
 ### 3.3 工作流层
 
-目标归属 crate：`openbitfun-agent-workflows`。
+目标归属 crate：`alex-agent-workflows`。
 
 职责：
 
@@ -707,7 +707,7 @@ agent-workflows
 
 产品组装是组装根，不是另一个业务内核。当前 `src/crates/assembly/product-capabilities` 已提供
 `DeliveryProfile`、静态能力计划、Agent ID / 原子工具组选择、运行时服务校验和插件运行时绑定；
-`src/crates/assembly/core` 仍承担 `openbitfun-core` 兼容组装。现有 `ProductAssembler` 是具体结构体，
+`src/crates/assembly/core` 仍承担 `alex-core` 兼容组装。现有 `ProductAssembler` 是具体结构体，
 通过 `assemble(ProductAssemblyInput)` 产生 `ProductRuntimeParts`，本文件不再为它定义第二套目标接口。
 
 当前 CLI、CLI 托管的 ACP server 与独立 SDK Host 已使用类型化 `RuntimeServices`，分别以
@@ -769,7 +769,7 @@ Desktop 与 CLI Peer Host 还各自注入同一个 Core-backed `LocalWorkspaceSn
 - 具体运行时服务通过 `RuntimeServicesBuilder` / provider registry 构造。
 - CLI 只选择 `DeliveryProfile::Cli` 一次；必需服务缺失时组装失败，不回退到静态计划或另一 profile。
 - CLI 的 ACP stdio 入口只选择 `DeliveryProfile::Acp` 一次；组装或 Rust Runtime SDK 构造失败时在接受 stdio 请求前退出。
-- 独立 `openbitfun-sdk-host` 只选择 `DeliveryProfile::Sdk` 一次；stdio framing 与进程 bootstrap 留在 app，
+- 独立 `alex-sdk-host` 只选择 `DeliveryProfile::Sdk` 一次；stdio framing 与进程 bootstrap 留在 app，
   `interfaces/sdk-host` 只保留版本化协议和连接用例。Host 不通过 CLI 启动，也不使用 CLI submission source。
 - CLI 的 `json` 输出为单结果文档，`stream-json` 直接复用现有 Agent 事件对象；协议层不新增
   `schema_version`、`sequence` 或平行事件 taxonomy。
@@ -885,7 +885,7 @@ Provider 装配同样按需增加，不提前为 Memory、Context、Workflow、S
 
 - Agent Runtime 只接收 `PluginRuntimeBinding`，不创建 Plugin Host、不发现插件来源、不加载 OpenCode 适配器。
 - `PluginRuntimeClient` 是 Agent Runtime 内部可调用边界，不进入 Agent Runtime API、公开 SDK、能力服务接口或产品入口 DTO。
-- OpenCode 适配层位于 `PluginRuntimeClient` 与 Plugin Host 的边界；Agent Runtime 不依赖 `openbitfun-opencode-adapter`，也不按具体生态类型分支。
+- OpenCode 适配层位于 `PluginRuntimeClient` 与 Plugin Host 的边界；Agent Runtime 不依赖 `alex-opencode-adapter`，也不按具体生态类型分支。
 - 插件贡献进入 Agent Runtime 前必须已经转换成 Alex 类型化工具、Hook 输入/输出、诊断或明确不支持；
   OpenCode 原始对象不能进入业务状态。
 - 工具贡献必须复用工具 ABI；事件订阅必须复用事件清单；权限候选必须复用安全模块。
@@ -906,7 +906,7 @@ Provider 装配同样按需增加，不提前为 Memory、Context、Workflow、S
 
 ### 4.5 ACP 扩展方式
 
-`openbitfun-acp` 保持集成归属。
+`alex-acp` 保持集成归属。
 
 CLI 托管的 ACP 服务端使用 `DeliveryProfile::Acp` 组装一个 Agent Runtime，通过 Rust Runtime SDK 处理会话创建/列举、轮次提交/取消、
 交互响应和只读 Agent 事件订阅。ACP 只把共享运行时事实映射成协议更新；标准输入输出、连接、权限 RPC 与通知生命周期
@@ -1111,10 +1111,10 @@ Product 测试：
 
 已经成立：
 
-- `openbitfun-agent-runtime` 不依赖 `openbitfun-core`，Rust Runtime SDK 已有最小测试保护。
-- `openbitfun-runtime-services` 提供类型化服务注入；工具 contracts、provider groups 与 execution 已分层。
-- `openbitfun-agent-workflows` 已接管 DeepResearch 的无 I/O 报告后处理；没有建立通用工作流 registry 或第二套执行引擎。
-- `openbitfun-core` 可继续作为 `product-full` 兼容接口，避免迁移期间一次性重写入口。
+- `alex-agent-runtime` 不依赖 `alex-core`，Rust Runtime SDK 已有最小测试保护。
+- `alex-runtime-services` 提供类型化服务注入；工具 contracts、provider groups 与 execution 已分层。
+- `alex-agent-workflows` 已接管 DeepResearch 的无 I/O 报告后处理；没有建立通用工作流 registry 或第二套执行引擎。
+- `alex-core` 可继续作为 `product-full` 兼容接口，避免迁移期间一次性重写入口。
 - CLI 已以 `DeliveryProfile::Cli` 构造真实 Runtime Parts 和 Rust Runtime SDK；本地 Agent 入口、会话、用量和
   Peer Host 共用一个调用级上下文与广播事件源，审批策略不再写回全局配置。Peer Host 通过该 Rust 接口提交/精确取消
   turn、处理基础会话控制、更新会话模型并处理工具确认/拒绝；本地工作区快照准备、文件清单、统计和文件回滚通过独立 owner port 复用 Core 实现，

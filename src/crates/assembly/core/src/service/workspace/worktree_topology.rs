@@ -274,11 +274,11 @@ mod tests {
         git(directory.path(), &["init"]);
         git(
             directory.path(),
-            &["config", "user.name", "OpenBitFun Tests"],
+            &["config", "user.name", "Alex Tests"],
         );
         git(
             directory.path(),
-            &["config", "user.email", "openbitfun@example.com"],
+            &["config", "user.email", "alex@example.com"],
         );
         std::fs::write(directory.path().join("tracked.txt"), "initial\n")
             .expect("fixture should be written");

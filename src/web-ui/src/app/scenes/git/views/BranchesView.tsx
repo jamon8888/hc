@@ -2,7 +2,7 @@
  * BranchesView — Left: branch list (switch/create/delete). Right: commit history for selected branch.
  */
 
-import { OverflowText, Button, Icon, IconButton, SearchField, Tooltip, ScrollArea } from '@openbitfun/ui';
+import { OverflowText, Button, Icon, IconButton, SearchField, Tooltip, ScrollArea } from '@alex/ui';
 import React, { useCallback, useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { RotateCcw, FileText } from 'lucide-react';
@@ -225,21 +225,21 @@ const BranchesView: React.FC<BranchesViewProps> = ({ workspacePath, workspaceId 
 
   if (!workspacePath) {
     return (
-      <div data-openbitfun-component="branches-view" data-openbitfun-part="root" className="openbitfun-git-scene-branches">
-        <div data-openbitfun-component="branches-view" data-openbitfun-part="placeholder" className="openbitfun-git-scene-branches__placeholder">
+      <div data-alex-component="branches-view" data-alex-part="root" className="alex-git-scene-branches">
+        <div data-alex-component="branches-view" data-alex-part="placeholder" className="alex-git-scene-branches__placeholder">
           <Icon name="git" size="lg" />
           <p>{t('tabs.branches')}</p>
-          <p className="openbitfun-git-scene-branches__hint">Open a workspace to see branches.</p>
+          <p className="alex-git-scene-branches__hint">Open a workspace to see branches.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div data-openbitfun-component="branches-view" data-openbitfun-part="root" className="openbitfun-git-scene-branches">
-      <div data-openbitfun-component="branches-view" data-openbitfun-part="left" className="openbitfun-git-scene-branches__left">
-        <div data-openbitfun-component="branches-view" data-openbitfun-part="toolbar" className="openbitfun-git-scene-branches__toolbar">
-          <div data-openbitfun-component="branches-view" data-openbitfun-part="search" className="openbitfun-git-scene-branches__toolbar-search">
+    <div data-alex-component="branches-view" data-alex-part="root" className="alex-git-scene-branches">
+      <div data-alex-component="branches-view" data-alex-part="left" className="alex-git-scene-branches__left">
+        <div data-alex-component="branches-view" data-alex-part="toolbar" className="alex-git-scene-branches__toolbar">
+          <div data-alex-component="branches-view" data-alex-part="search" className="alex-git-scene-branches__toolbar-search">
             <SearchField
               size="sm"
               leadingIcon={<Icon name="search" size="sm" aria-hidden />}
@@ -251,7 +251,7 @@ const BranchesView: React.FC<BranchesViewProps> = ({ workspacePath, workspaceId 
               onClear={branchSearchQuery ? () => setBranchSearchQuery('') : undefined}
             />
           </div>
-          <div data-openbitfun-component="branches-view" data-openbitfun-part="actions" className="openbitfun-git-scene-branches__toolbar-actions">
+          <div data-alex-component="branches-view" data-alex-part="actions" className="alex-git-scene-branches__toolbar-actions">
             <Button
               size="sm"
               variant="primary"
@@ -263,32 +263,32 @@ const BranchesView: React.FC<BranchesViewProps> = ({ workspacePath, workspaceId 
             </Button>
           </div>
         </div>
-        <ScrollArea data-openbitfun-component="branches-view" data-openbitfun-part="list" className="openbitfun-git-scene-branches__list">
+        <ScrollArea data-alex-component="branches-view" data-alex-part="list" className="alex-git-scene-branches__list">
           {branchLoading ? (
-            <div data-openbitfun-component="branches-view" data-openbitfun-part="empty" className="openbitfun-git-scene-branches__empty">{t('common.loading')}</div>
+            <div data-alex-component="branches-view" data-alex-part="empty" className="alex-git-scene-branches__empty">{t('common.loading')}</div>
           ) : filteredBranches.length === 0 ? (
-            <div data-openbitfun-component="branches-view" data-openbitfun-part="empty" className="openbitfun-git-scene-branches__empty">
+            <div data-alex-component="branches-view" data-alex-part="empty" className="alex-git-scene-branches__empty">
               {branchSearchQuery ? t('empty.noMatchingBranches') : t('empty.noBranches')}
             </div>
           ) : (
             filteredBranches.map((branch, idx) => (
               <div data-overflow-trigger
-                data-openbitfun-component="branches-view"
-                data-openbitfun-part="branch"
-                data-openbitfun-state={[
+                data-alex-component="branches-view"
+                data-alex-part="branch"
+                data-alex-state={[
                   branch.current && 'current',
                   selectedBranchName === branch.name && 'selected',
                 ].filter(Boolean).join(' ') || undefined}
                 key={branch.name ?? idx}
-                className={`openbitfun-git-scene-branches__row ${branch.current ? 'openbitfun-git-scene-branches__row--current' : ''} ${selectedBranchName === branch.name ? 'openbitfun-git-scene-branches__row--selected' : ''}`}
+                className={`alex-git-scene-branches__row ${branch.current ? 'alex-git-scene-branches__row--current' : ''} ${selectedBranchName === branch.name ? 'alex-git-scene-branches__row--selected' : ''}`}
                 onClick={() => handleSelectBranch(branch.name)}
               >
-                <div data-openbitfun-component="branches-view" data-openbitfun-part="branchInfo" className="openbitfun-git-scene-branches__info">
+                <div data-alex-component="branches-view" data-alex-part="branchInfo" className="alex-git-scene-branches__info">
                   <Icon name="git" size="sm" />
-                  <OverflowText className="openbitfun-git-scene-branches__name">{branch.name}</OverflowText>
-                  {branch.current && <span className="openbitfun-git-scene-branches__current-badge">{t('branch.current')}</span>}
+                  <OverflowText className="alex-git-scene-branches__name">{branch.name}</OverflowText>
+                  {branch.current && <span className="alex-git-scene-branches__current-badge">{t('branch.current')}</span>}
                 </div>
-                <div data-openbitfun-component="branches-view" data-openbitfun-part="branchActions" className="openbitfun-git-scene-branches__actions" onClick={e => e.stopPropagation()}>
+                <div data-alex-component="branches-view" data-alex-part="branchActions" className="alex-git-scene-branches__actions" onClick={e => e.stopPropagation()}>
                   {!branch.current && (
                     <Tooltip content={t('actions.switchBranch')}>
                       <IconButton
@@ -327,9 +327,9 @@ const BranchesView: React.FC<BranchesViewProps> = ({ workspacePath, workspaceId 
         </ScrollArea>
       </div>
 
-      <div data-openbitfun-component="branches-view" data-openbitfun-part="right" className="openbitfun-git-scene-branches__right">
-        <div data-openbitfun-component="branches-view" data-openbitfun-part="historyToolbar" className="openbitfun-git-scene-branches__history-toolbar">
-          <span data-openbitfun-component="branches-view" data-openbitfun-part="historyTitle" className="openbitfun-git-scene-branches__history-title">
+      <div data-alex-component="branches-view" data-alex-part="right" className="alex-git-scene-branches__right">
+        <div data-alex-component="branches-view" data-alex-part="historyToolbar" className="alex-git-scene-branches__history-toolbar">
+          <span data-alex-component="branches-view" data-alex-part="historyTitle" className="alex-git-scene-branches__history-title">
             {selectedBranchName ? t('tabs.branchCommitHistory', { branch: selectedBranchName }) : t('tabs.commits')}
           </span>
           <SearchField
@@ -343,13 +343,13 @@ const BranchesView: React.FC<BranchesViewProps> = ({ workspacePath, workspaceId 
             onClear={commitSearchQuery ? () => setCommitSearchQuery('') : undefined}
           />
         </div>
-        <ScrollArea data-openbitfun-component="branches-view" data-openbitfun-part="historyList" className="openbitfun-git-scene-branches__history-list">
+        <ScrollArea data-alex-component="branches-view" data-alex-part="historyList" className="alex-git-scene-branches__history-list">
           {!selectedBranchName ? (
-            <div data-openbitfun-component="branches-view" data-openbitfun-part="empty" className="openbitfun-git-scene-branches__empty">{t('empty.noCommits')}</div>
+            <div data-alex-component="branches-view" data-alex-part="empty" className="alex-git-scene-branches__empty">{t('empty.noCommits')}</div>
           ) : commitLoading ? (
-            <div data-openbitfun-component="branches-view" data-openbitfun-part="empty" className="openbitfun-git-scene-branches__empty">{t('common.loading')}</div>
+            <div data-alex-component="branches-view" data-alex-part="empty" className="alex-git-scene-branches__empty">{t('common.loading')}</div>
           ) : filteredCommits.length === 0 ? (
-            <div data-openbitfun-component="branches-view" data-openbitfun-part="empty" className="openbitfun-git-scene-branches__empty">
+            <div data-alex-component="branches-view" data-alex-part="empty" className="alex-git-scene-branches__empty">
               {commitSearchQuery ? t('empty.noMatchingCommits') : t('empty.noCommits')}
             </div>
           ) : (
@@ -361,21 +361,21 @@ const BranchesView: React.FC<BranchesViewProps> = ({ workspacePath, workspaceId 
               const author = (commit as any).author?.name ?? (commit as any).author ?? t('common.unknown');
               const files = commit.files;
               return (
-                <div data-openbitfun-component="branches-view" data-openbitfun-part="commit" data-openbitfun-state={isExpanded ? 'expanded' : undefined}
+                <div data-alex-component="branches-view" data-alex-part="commit" data-alex-state={isExpanded ? 'expanded' : undefined}
                   key={commit.hash ?? idx}
-                  className={`openbitfun-git-scene-branches__commit ${isExpanded ? 'openbitfun-git-scene-branches__commit--expanded' : ''}`}
+                  className={`alex-git-scene-branches__commit ${isExpanded ? 'alex-git-scene-branches__commit--expanded' : ''}`}
                 >
-                  <div data-overflow-trigger data-openbitfun-component="branches-view" data-openbitfun-part="commitHeader" className="openbitfun-git-scene-branches__commit-header" onClick={() => toggleCommitExpand(commit.hash)}>
-                    <button type="button" className="openbitfun-git-scene-branches__expand">
+                  <div data-overflow-trigger data-alex-component="branches-view" data-alex-part="commitHeader" className="alex-git-scene-branches__commit-header" onClick={() => toggleCommitExpand(commit.hash)}>
+                    <button type="button" className="alex-git-scene-branches__expand">
                       {isExpanded ? <Icon name="chevron-down" size="xs" /> : <Icon name="chevron-right" size="xs" />}
                     </button>
-                    <div data-openbitfun-component="branches-view" data-openbitfun-part="commitInfo" className="openbitfun-git-scene-branches__commit-info">
-                      <div className="openbitfun-git-scene-branches__commit-message"><OverflowText>{summary}</OverflowText></div>
-                      <div className="openbitfun-git-scene-branches__commit-meta">
+                    <div data-alex-component="branches-view" data-alex-part="commitInfo" className="alex-git-scene-branches__commit-info">
+                      <div className="alex-git-scene-branches__commit-message"><OverflowText>{summary}</OverflowText></div>
+                      <div className="alex-git-scene-branches__commit-meta">
                         {author} · {commit.hash?.substring(0, 7)}
                       </div>
                     </div>
-                    <div data-openbitfun-component="branches-view" data-openbitfun-part="commitActions" className="openbitfun-git-scene-branches__commit-actions" onClick={e => e.stopPropagation()}>
+                    <div data-alex-component="branches-view" data-alex-part="commitActions" className="alex-git-scene-branches__commit-actions" onClick={e => e.stopPropagation()}>
                       <Tooltip content={t('actions.copyCommitHash')}>
                         <IconButton
                           aria-label={t('actions.copyCommitHash')}
@@ -396,10 +396,10 @@ const BranchesView: React.FC<BranchesViewProps> = ({ workspacePath, workspaceId 
                     </div>
                   </div>
                   {isExpanded && (
-                    <div data-openbitfun-component="branches-view" data-openbitfun-part="commitDetails" className="openbitfun-git-scene-branches__commit-detail">
-                      {body && <pre className="openbitfun-git-scene-branches__commit-body">{body}</pre>}
+                    <div data-alex-component="branches-view" data-alex-part="commitDetails" className="alex-git-scene-branches__commit-detail">
+                      {body && <pre className="alex-git-scene-branches__commit-body">{body}</pre>}
                       {files && files.length > 0 && (
-                        <div className="openbitfun-git-scene-branches__files">
+                        <div className="alex-git-scene-branches__files">
                           <span>
                             <FileText size={12} /> {t('commit.changedFiles', { count: files.length })}
                           </span>

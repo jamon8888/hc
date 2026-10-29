@@ -21,9 +21,9 @@ vi.mock('@/infrastructure/i18n', () => ({
   useI18n: () => ({ t: (key: string) => key }),
 }));
 
-vi.mock('@openbitfun/ui', async (importOriginal) => ({
-  Disclosure: (await importOriginal<typeof import('@openbitfun/ui')>()).Disclosure,
-  Icon: ({ name }: { name: string }) => <span data-openbitfun-component="icon" data-openbitfun-name={name} />,
+vi.mock('@alex/ui', async (importOriginal) => ({
+  Disclosure: (await importOriginal<typeof import('@alex/ui')>()).Disclosure,
+  Icon: ({ name }: { name: string }) => <span data-alex-component="icon" data-alex-name={name} />,
   Alert: ({ message }: { message: string }) => <div role="alert">{message}</div>,
   ScrollArea: ({ children, ...props }: React.HTMLAttributes<HTMLDivElement>) => <div {...props}>{children}</div>,
   Button: ({
@@ -49,7 +49,7 @@ vi.mock('@openbitfun/ui', async (importOriginal) => ({
 
 const SYNCED = {
   changed: true,
-  branch: 'openbitfun/dispatch/job-1',
+  branch: 'alex/dispatch/job-1',
   baseCommit: '0'.repeat(40),
   headCommit: '1'.repeat(40),
   commitCount: 2,
@@ -78,7 +78,7 @@ describe('DispatchResultDialog Git sync', () => {
         <DispatchResultDialog
           open
           jobId="job-1"
-          branch="openbitfun/dispatch/job-1"
+          branch="alex/dispatch/job-1"
           baselineWorktreePath="/home/me/.openbitfun/worktrees/repo/dispatch-job-1"
           targetLabel="build-host"
           onClose={vi.fn()}
@@ -105,9 +105,9 @@ describe('DispatchResultDialog Git sync', () => {
   it('keeps branch and save location in collapsed details before syncing', async () => {
     await render();
 
-    expect(container.textContent).toContain('openbitfun/dispatch/job-1');
+    expect(container.textContent).toContain('alex/dispatch/job-1');
     expect(container.textContent).toContain('/home/me/.openbitfun/worktrees/repo/dispatch-job-1');
-    expect(container.querySelector('[data-openbitfun-component="disclosure"] button[aria-expanded]')?.getAttribute('aria-expanded')).toBe('false');
+    expect(container.querySelector('[data-alex-component="disclosure"] button[aria-expanded]')?.getAttribute('aria-expanded')).toBe('false');
     expect(mocks.syncResult).not.toHaveBeenCalled();
 
     await act(async () => {

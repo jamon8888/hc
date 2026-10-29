@@ -10,8 +10,8 @@ test("SessionIcon renders the Lucide conversation glyph with standalone opacity"
   assert.match(markup, /viewBox="0 0 24 24"/);
   assert.match(markup, /lucide-message-circle/);
   assert.match(markup, /stroke="currentColor"/);
-  assert.match(markup, /stroke-width="var\(--openbitfun-control-icon-stroke-width\)"/);
-  assert.match(markup, /opacity:var\(--openbitfun-opacity-icon-artwork\)/);
+  assert.match(markup, /stroke-width="var\(--alex-control-icon-stroke-width\)"/);
+  assert.match(markup, /opacity:var\(--alex-opacity-icon-artwork\)/);
 });
 
 test("SessionIcon accepts size and standard SVG properties", () => {

@@ -85,7 +85,7 @@ export async function prepareMcpUndo(candidateId: string): Promise<ImportUndoRev
   const servers = config?.mcpServers;
   if (!servers || typeof servers !== 'object' || Array.isArray(servers)) throw new Error('Invalid MCP configuration');
   const matches = Object.entries(servers).filter(([, server]) => (
-    (server as { _openbitfunImport?: { sourceCandidateId?: string } })?._openbitfunImport?.sourceCandidateId === candidateId
+    (server as { _alexImport?: { sourceCandidateId?: string } })?._alexImport?.sourceCandidateId === candidateId
   ));
   if (matches.length !== 1) throw new Error('Imported MCP copy could not be identified');
   const [target] = matches[0];

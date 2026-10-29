@@ -1,4 +1,4 @@
-import { Disclosure } from '@openbitfun/ui';
+import { Disclosure } from '@alex/ui';
 import React from 'react';
 import { ConfigPageRow, ConfigPageSection } from '../common';
 import {
@@ -38,20 +38,20 @@ export const ExternalSourceSection: React.FC<ExternalSourceSectionProps> = ({
         return (
           <React.Fragment key={group.key}>
             <ConfigPageRow
-              className="openbitfun-external-sources-config__source-group"
+              className="alex-external-sources-config__source-group"
               label={group.displayName}
               description={(
-                <div className="openbitfun-external-sources-config__source-description" data-openbitfun-product-component="external-sources-config" data-openbitfun-product-part="sourceGroup">
-                  <span className="openbitfun-external-sources-config__source-origin" data-openbitfun-product-component="external-sources-config" data-openbitfun-product-part="sourceDescription">
+                <div className="alex-external-sources-config__source-description" data-alex-product-component="external-sources-config" data-alex-product-part="sourceGroup">
+                  <span className="alex-external-sources-config__source-origin" data-alex-product-component="external-sources-config" data-alex-product-part="sourceDescription">
                     <span
-                      className="openbitfun-external-sources-config__source-location"
+                      className="alex-external-sources-config__source-location"
                       title={group.location}
                       translate="no"
                     >
                       {group.location}
                     </span>
                     <span aria-hidden="true">·</span>
-                    <span className="openbitfun-external-sources-config__source-scopes">
+                    <span className="alex-external-sources-config__source-scopes">
                       {group.scopes.map((scope, index) => (
                         <React.Fragment key={scope}>
                           {index > 0 ? <span aria-hidden="true"> + </span> : null}
@@ -65,13 +65,13 @@ export const ExternalSourceSection: React.FC<ExternalSourceSectionProps> = ({
                   {SOURCE_COUNT_LABELS.some(
                     ([capability]) => group.counts[capability] > 0,
                   ) ? (
-                    <span className="openbitfun-external-sources-config__source-counts">
+                    <span className="alex-external-sources-config__source-counts">
                       {SOURCE_COUNT_LABELS.map(([capability, label]) => {
                         const count = group.counts[capability];
                         return count > 0 ? (
                           <span
                             key={capability}
-                            className="openbitfun-external-sources-config__source-count"
+                            className="alex-external-sources-config__source-count"
                           >
                             {t(label, { count })}
                           </span>
@@ -88,9 +88,9 @@ export const ExternalSourceSection: React.FC<ExternalSourceSectionProps> = ({
             {userDiagnostics.length > 0 ? (
               <Disclosure
                 presentation="native"
-                className="openbitfun-external-sources-config__notice"
-                data-openbitfun-product-component="external-sources-config"
-                data-openbitfun-product-part="notice"
+                className="alex-external-sources-config__notice"
+                data-alex-product-component="external-sources-config"
+                data-alex-product-part="notice"
                 data-external-attention="true"
                 data-external-ecosystem={group.ecosystemId}
                 summary={t('diagnostics.sourceSummary', {
@@ -98,7 +98,7 @@ export const ExternalSourceSection: React.FC<ExternalSourceSectionProps> = ({
                   count: userDiagnostics.length,
                 })}
               >
-                <ul className="openbitfun-external-sources-config__diagnostics" data-openbitfun-product-component="external-sources-config" data-openbitfun-product-part="diagnostics">
+                <ul className="alex-external-sources-config__diagnostics" data-alex-product-component="external-sources-config" data-alex-product-part="diagnostics">
                   {userDiagnostics.map((diagnostic) => (
                     <li key={externalSourceDiagnosticKey(diagnostic)}>
                       <span>{t(`diagnostics.category.${sourceDiagnosticCategory(diagnostic.code)}`)}</span>

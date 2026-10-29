@@ -2,7 +2,7 @@
 //! Parent headers make a latest-page record independently interpretable, while
 //! large text/tool bodies occur only on their own stable item record.
 use anyhow::Result;
-use openbitfun_services_core::session::DialogTurnData;
+use alex_services_core::session::DialogTurnData;
 use serde_json::{json, Value};
 
 use super::chat_projection::inline_host_path_pixels;

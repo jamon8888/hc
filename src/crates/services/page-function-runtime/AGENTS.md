@@ -17,5 +17,5 @@ Functions (rquickjs).
 
 ## Verification
 
-Run `cargo test -p openbitfun-page-function-runtime` and
+Run `cargo test -p alex-page-function-runtime` and
 `node scripts/check-core-boundaries.mjs` after changes.

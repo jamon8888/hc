@@ -2,7 +2,7 @@ import {
   cssVariables as systemCssVariables,
   tokens as systemTokens,
   type TokenName as SystemTokenName,
-} from '@openbitfun/design-tokens';
+} from '@alex/design-tokens';
 import type {
   AppearanceMode,
   AppearanceThemeTokenName,
@@ -17,14 +17,14 @@ export interface MiniAppAppearancePayload {
 }
 
 interface MiniAppAppearanceVariableContract {
-  readonly name: `--openbitfun-${string}`;
+  readonly name: `--alex-${string}`;
   readonly kind: 'theme' | 'system';
-  readonly source: `--openbitfun-${string}`;
+  readonly source: `--alex-${string}`;
 }
 
 const APPEARANCE_VARIABLES = miniAppAppearanceContract.variables as readonly MiniAppAppearanceVariableContract[];
 const SYSTEM_TOKEN_NAMES_BY_CSS_VARIABLE = new Map<string, SystemTokenName>(
-  (Object.entries(systemCssVariables) as [SystemTokenName, `--openbitfun-${string}`][])
+  (Object.entries(systemCssVariables) as [SystemTokenName, `--alex-${string}`][])
     .map(([name, cssVariable]) => [cssVariable, name]),
 );
 

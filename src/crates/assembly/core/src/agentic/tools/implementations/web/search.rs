@@ -1,8 +1,8 @@
 use crate::agentic::tools::framework::{PermissionIntent, Tool, ToolResult, ToolUseContext};
-use crate::util::errors::{OpenBitFunError, OpenBitFunResult};
+use crate::util::errors::{AlexError, AlexResult};
 use async_trait::async_trait;
 use log::{error, info};
-use openbitfun_runtime_ports::{WebSearchRequest, WebSearchResult};
+use alex_runtime_ports::{WebSearchRequest, WebSearchResult};
 use serde_json::{json, Value};
 
 const DEFAULT_RESULTS: u64 = 10;
@@ -88,7 +88,7 @@ impl Tool for WebSearchTool {
         "WebSearch"
     }
 
-    async fn description(&self) -> OpenBitFunResult<String> {
+    async fn description(&self) -> AlexResult<String> {
         Ok("Search the web for up-to-date information and sources.".to_string())
     }
 
@@ -129,13 +129,13 @@ impl Tool for WebSearchTool {
         &self,
         input: &Value,
         _context: &ToolUseContext,
-    ) -> OpenBitFunResult<Vec<PermissionIntent>> {
+    ) -> AlexResult<Vec<PermissionIntent>> {
         let query = input
             .get("query")
             .and_then(Value::as_str)
             .map(str::trim)
             .filter(|query| !query.is_empty())
-            .ok_or_else(|| OpenBitFunError::validation("query is required".to_string()))?;
+            .ok_or_else(|| AlexError::validation("query is required".to_string()))?;
         Ok(vec![PermissionIntent::new(
             "websearch",
             vec![query.to_string()],
@@ -146,13 +146,13 @@ impl Tool for WebSearchTool {
         &self,
         input: &Value,
         context: &ToolUseContext,
-    ) -> OpenBitFunResult<Vec<ToolResult>> {
+    ) -> AlexResult<Vec<ToolResult>> {
         let query = input
             .get("query")
             .and_then(Value::as_str)
             .map(str::trim)
             .filter(|query| !query.is_empty())
-            .ok_or_else(|| OpenBitFunError::tool("query is required".to_string()))?;
+            .ok_or_else(|| AlexError::tool("query is required".to_string()))?;
         let num_results = input
             .get("num_results")
             .and_then(Value::as_u64)
@@ -163,7 +163,7 @@ impl Tool for WebSearchTool {
             .web_search_provider()
             .cloned()
             .ok_or_else(|| {
-                OpenBitFunError::tool(
+                AlexError::tool(
                     "WebSearch provider is unavailable in this runtime".to_string(),
                 )
             })?;
@@ -180,7 +180,7 @@ impl Tool for WebSearchTool {
                     "WebSearch provider failed: provider={}, kind={:?}, error={}",
                     search_error.provider, search_error.kind, search_error.message
                 );
-                OpenBitFunError::tool(search_error.to_string())
+                AlexError::tool(search_error.to_string())
             })?;
         info!(
             "WebSearch call completed: provider={}, result_count={}",

@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react';
-import { createOverlayPortal, Button, Card, Icon, IconButton, useDismissibleLayer } from '@openbitfun/ui';
+import { createOverlayPortal, Button, Card, Icon, IconButton, useDismissibleLayer } from '@alex/ui';
 import { getAppearanceOverlayHost } from '@/infrastructure/appearance/runtime/AppearanceOverlayHost';
 import { useI18n } from '@/infrastructure/i18n';
 import { getActiveSurfaceScope } from '@/infrastructure/peer-device/deviceSurface';
@@ -76,15 +76,15 @@ export function ConversationExcerptAttachments({ contexts, onUpdate, onRemove, i
   };
   if (!excerpts.length) return null;
   const countLabel = t('selection.count', { count: formatNumber(excerpts.length) });
-  return <div data-openbitfun-product-component="conversation-excerpt" data-openbitfun-product-part="attachments"
+  return <div data-alex-product-component="conversation-excerpt" data-alex-product-part="attachments"
     className={`conversation-excerpt__attachments${inline ? ' conversation-excerpt__attachments--inline' : ''}`}
     data-flowchat-selection-ignore="true">
     <div ref={anchorRef} className="conversation-excerpt__chip"
-      data-openbitfun-product-component="conversation-excerpt" data-openbitfun-product-part="chip"
+      data-alex-product-component="conversation-excerpt" data-alex-product-part="chip"
       onMouseEnter={show} onMouseLeave={scheduleHide}
       onBlur={event => { if (!contains(event.relatedTarget)) close(); }}>
       <Button ref={triggerRef} variant="text" size="sm" className="conversation-excerpt__attachment"
-        data-openbitfun-product-component="conversation-excerpt" data-openbitfun-product-part="attachment"
+        data-alex-product-component="conversation-excerpt" data-alex-product-part="attachment"
         leadingIcon={<Icon name="session" />} aria-label={countLabel} aria-haspopup="dialog"
         aria-expanded={open} aria-controls={open ? id : undefined} onFocus={show} onClick={show}
         onKeyDown={event => {
@@ -97,8 +97,8 @@ export function ConversationExcerptAttachments({ contexts, onUpdate, onRemove, i
     </div>
     {open && createOverlayPortal(<Card ref={popoverRef} id={id} role="dialog" aria-label={countLabel}
       className="conversation-excerpt__details" appearance="raised" radius="lg"
-      data-openbitfun-product-component="conversation-excerpt" data-openbitfun-product-part="details"
-      data-flowchat-selection-ignore="true" data-openbitfun-native-webview-occlusion
+      data-alex-product-component="conversation-excerpt" data-alex-product-part="details"
+      data-flowchat-selection-ignore="true" data-alex-native-webview-occlusion
       style={{ left: layout?.left ?? 0, top: layout?.top ?? 0, visibility: layout ? 'visible' : 'hidden' }}
       onMouseEnter={cancelHide} onMouseLeave={scheduleHide}
       onBlur={event => { if (!contains(event.relatedTarget)) close(); }}>
@@ -106,16 +106,16 @@ export function ConversationExcerptAttachments({ contexts, onUpdate, onRemove, i
         const number = excerptNumber(excerpt);
         const label = number ? t('selection.numbered', { number: formatNumber(number) }) : t('selection.annotation');
         return <div key={excerpt.id} className="conversation-excerpt__detail"
-          data-openbitfun-product-component="conversation-excerpt" data-openbitfun-product-part="detail">
+          data-alex-product-component="conversation-excerpt" data-alex-product-part="detail">
           <span className="conversation-excerpt__detail-number"
-            data-openbitfun-product-component="conversation-excerpt" data-openbitfun-product-part="detailNumber">{number ? `${formatNumber(number)}.` : ''}</span>
+            data-alex-product-component="conversation-excerpt" data-alex-product-part="detailNumber">{number ? `${formatNumber(number)}.` : ''}</span>
           <div className="conversation-excerpt__detail-text"
-            data-openbitfun-product-component="conversation-excerpt" data-openbitfun-product-part="detailText">
+            data-alex-product-component="conversation-excerpt" data-alex-product-part="detailText">
             <span className="conversation-excerpt__detail-label"
-              data-openbitfun-product-component="conversation-excerpt" data-openbitfun-product-part="detailLabel">{t('context.selection')}</span>
+              data-alex-product-component="conversation-excerpt" data-alex-product-part="detailLabel">{t('context.selection')}</span>
             <div>{excerptText(excerpt)}</div>
             {excerpt.comment?.trim() && <><span className="conversation-excerpt__detail-label"
-              data-openbitfun-product-component="conversation-excerpt" data-openbitfun-product-part="detailLabel">{t('selection.annotation')}</span>
+              data-alex-product-component="conversation-excerpt" data-alex-product-part="detailLabel">{t('selection.annotation')}</span>
               <div>{excerpt.comment}</div></>}
           </div>
           <IconButton size="sm" aria-label={label} title={t('selection.editAnnotation')} icon={<Icon name="edit" />}
@@ -138,10 +138,10 @@ export function ConversationExcerptPreview({ excerpt, superscript = false, origi
   const { label, numberLabel } = useExcerptLabel(excerpt);
   const [dialog, setDialog] = useState<ExcerptDialogState | null>(null);
   const openDialog = () => setDialog({ open: true, target: conversationExcerptDialogTarget(excerpt, origin) });
-  return <span data-openbitfun-product-component="conversation-excerpt" data-openbitfun-product-part="preview"
+  return <span data-alex-product-component="conversation-excerpt" data-alex-product-part="preview"
     className="conversation-excerpt__preview" data-flowchat-selection-ignore="true" onClick={event => event.stopPropagation()}>
     {superscript ? <Button size="xs" variant="primary" labelBehavior="static" className="conversation-excerpt__superscript"
-      data-openbitfun-product-component="conversation-excerpt" data-openbitfun-product-part="superscript"
+      data-alex-product-component="conversation-excerpt" data-alex-product-part="superscript"
       aria-label={label} title={excerpt.comment || label} onClick={openDialog} aria-haspopup="dialog">{numberLabel ?? label}</Button>
       : <Button size="xs" variant="text" aria-label={label} title={excerpt.comment || label}
         onClick={openDialog} aria-haspopup="dialog">{label}</Button>}

@@ -50,18 +50,18 @@ describe('Remote Connect safety contracts', () => {
 
   it('composes disclaimer actions through the shared dialog footer spacing', () => {
     const rootStyle = disclaimerStyleSource.slice(
-      disclaimerStyleSource.indexOf('.openbitfun-remote-disclaimer {'),
-      disclaimerStyleSource.indexOf('.openbitfun-remote-disclaimer__meta'),
+      disclaimerStyleSource.indexOf('.alex-remote-disclaimer {'),
+      disclaimerStyleSource.indexOf('.alex-remote-disclaimer__meta'),
     );
     const actionStyle = disclaimerStyleSource.slice(
-      disclaimerStyleSource.indexOf('.openbitfun-remote-disclaimer__actions'),
+      disclaimerStyleSource.indexOf('.alex-remote-disclaimer__actions'),
     );
 
     expect(disclaimerSource).toContain('<DialogBody>');
     expect(disclaimerSource).toContain('<DialogFooter');
     expect(disclaimerSource).toContain('separator');
     expect(disclaimerSource).toContain("variant={canAgree ? 'fill' : 'primary'}");
-    expect(rootStyle).toContain('padding-block-start: var(--openbitfun-space-3);');
+    expect(rootStyle).toContain('padding-block-start: var(--alex-space-3);');
     expect(rootStyle).not.toContain('padding-block-end');
     expect(actionStyle).not.toContain('border-top');
     expect(actionStyle).not.toContain('padding-top');
@@ -79,32 +79,32 @@ describe('Remote Connect safety contracts', () => {
     expect(overview).toContain("view: 'account'");
     expect(overview).toContain("view: 'network'");
     expect(overview).toContain("view: 'bot'");
-    expect(dialogSource).not.toContain('data-openbitfun-part="groupTab"');
+    expect(dialogSource).not.toContain('data-alex-part="groupTab"');
     expect(dialogSource).not.toContain('remote-connect-group-');
   });
 
   it('keeps persistent navigation beside a single task surface', () => {
     expect(dialogSource).toContain('size="2xl"');
-    expect(dialogSource).toContain('className="openbitfun-remote-connect-dialog"');
-    expect(dialogSource).toContain('className="openbitfun-remote-connect-dialog__header"');
-    expect(dialogSource).toContain('className="openbitfun-remote-connect-dialog__body"');
-    expect(dialogSource).toContain('data-openbitfun-part="sidebar"');
-    expect(dialogSource).toContain('data-openbitfun-part="sidebarBrand"');
-    expect(dialogSource).toContain('data-openbitfun-part="main"');
-    expect(dialogSource).toContain('className="openbitfun-remote-connect__navigation"');
+    expect(dialogSource).toContain('className="alex-remote-connect-dialog"');
+    expect(dialogSource).toContain('className="alex-remote-connect-dialog__header"');
+    expect(dialogSource).toContain('className="alex-remote-connect-dialog__body"');
+    expect(dialogSource).toContain('data-alex-part="sidebar"');
+    expect(dialogSource).toContain('data-alex-part="sidebarBrand"');
+    expect(dialogSource).toContain('data-alex-part="main"');
+    expect(dialogSource).toContain('className="alex-remote-connect__navigation"');
     expect(dialogSource).toContain("aria-current={activeView === view ? 'page' : undefined}");
   });
 
   it('keeps the dialog height stable while selected content scrolls inside it', () => {
     const desktopGeometry = dialogStyleSource.slice(
-      dialogStyleSource.indexOf('.openbitfun-remote-connect-dialog {'),
-      dialogStyleSource.indexOf('.openbitfun-remote-connect-dialog__header'),
+      dialogStyleSource.indexOf('.alex-remote-connect-dialog {'),
+      dialogStyleSource.indexOf('.alex-remote-connect-dialog__header'),
     );
 
-    expect(desktopGeometry).toContain('block-size: min(620px, calc(100vh - 2 * var(--openbitfun-overlay-dialog-viewport-gutter)))');
-    expect(desktopGeometry).toContain('min-block-size: min(620px, calc(100vh - 2 * var(--openbitfun-overlay-dialog-viewport-gutter)))');
-    expect(desktopGeometry).toContain('max-block-size: min(620px, calc(100vh - 2 * var(--openbitfun-overlay-dialog-viewport-gutter)))');
-    expect(dialogStyleSource).toContain(".openbitfun-remote-connect [data-openbitfun-part='panel']");
+    expect(desktopGeometry).toContain('block-size: min(620px, calc(100vh - 2 * var(--alex-overlay-dialog-viewport-gutter)))');
+    expect(desktopGeometry).toContain('min-block-size: min(620px, calc(100vh - 2 * var(--alex-overlay-dialog-viewport-gutter)))');
+    expect(desktopGeometry).toContain('max-block-size: min(620px, calc(100vh - 2 * var(--alex-overlay-dialog-viewport-gutter)))');
+    expect(dialogStyleSource).toContain(".alex-remote-connect [data-alex-part='panel']");
     expect(dialogSource).toContain('<ScrollArea');
   });
 
@@ -115,7 +115,7 @@ describe('Remote Connect safety contracts', () => {
     expect(dialogSource).toContain("panelId: 'remote-connect-bot-tabpanel'");
     expect(dialogSource.match(/<TabGroup/g)).toHaveLength(2);
     expect(dialogSource).not.toContain('handleTabArrowKey');
-    expect(dialogSource).not.toContain('data-openbitfun-part="subtab"');
+    expect(dialogSource).not.toContain('data-alex-part="subtab"');
   });
 
   it('offers two relay endpoints and the supported chat providers', () => {
@@ -135,23 +135,23 @@ describe('Remote Connect safety contracts', () => {
 
   it('uses the real monochrome app marks for every chat provider', () => {
     const identityBrandStyle = dialogStyleSource.slice(
-      dialogStyleSource.indexOf('.openbitfun-remote-connect__bot-identity-icon'),
-      dialogStyleSource.indexOf('.openbitfun-remote-connect__bot-identity-title'),
+      dialogStyleSource.indexOf('.alex-remote-connect__bot-identity-icon'),
+      dialogStyleSource.indexOf('.alex-remote-connect__bot-identity-title'),
     );
     const connectedBrandStyle = dialogStyleSource.slice(
-      dialogStyleSource.indexOf('.openbitfun-remote-connect__connected-app-icon'),
-      dialogStyleSource.indexOf('.openbitfun-remote-connect__connected-app-copy'),
+      dialogStyleSource.indexOf('.alex-remote-connect__connected-app-icon'),
+      dialogStyleSource.indexOf('.alex-remote-connect__connected-app-copy'),
     );
     const footerMessageBrandStyle = navPanelStyleSource.slice(
-      navPanelStyleSource.indexOf("&[data-openbitfun-device-kind='message-app'] {"),
-      navPanelStyleSource.indexOf('.openbitfun-nav-panel__footer-device-status-attached-count'),
+      navPanelStyleSource.indexOf("&[data-alex-device-kind='message-app'] {"),
+      navPanelStyleSource.indexOf('.alex-nav-panel__footer-device-status-attached-count'),
     );
     const footerBrandColorStyle = navPanelStyleSource.slice(
-      navPanelStyleSource.indexOf('.openbitfun-nav-panel__footer-device-status-attached {'),
-      navPanelStyleSource.indexOf('.openbitfun-nav-panel__footer-device-status-attached-group'),
+      navPanelStyleSource.indexOf('.alex-nav-panel__footer-device-status-attached {'),
+      navPanelStyleSource.indexOf('.alex-nav-panel__footer-device-status-attached-group'),
     );
     const overviewMessageBrandStart = navPanelStyleSource.indexOf(
-      "&[data-openbitfun-device-kind='message-app'] .openbitfun-device-overview__device-icon {",
+      "&[data-alex-device-kind='message-app'] .alex-device-overview__device-icon {",
     );
     const overviewMessageBrandStyle = navPanelStyleSource.slice(
       overviewMessageBrandStart,
@@ -171,15 +171,15 @@ describe('Remote Connect safety contracts', () => {
     expect(connectedBrandStyle).not.toContain('background:');
     expect(footerMessageBrandStyle).toContain('border: 0');
     expect(footerMessageBrandStyle).toContain('background: transparent');
-    expect(footerBrandColorStyle).toContain('--openbitfun-color-content-primary');
+    expect(footerBrandColorStyle).toContain('--alex-color-content-primary');
     expect(overviewMessageBrandStyle).toContain('background: transparent');
-    expect(overviewMessageBrandStyle).toContain('--openbitfun-color-content-primary');
+    expect(overviewMessageBrandStyle).toContain('--alex-color-content-primary');
     expect(dialogSource).not.toContain('<Send size={28} />');
     expect(dialogSource).not.toContain('<MessageSquareText size={28} />');
     expect(dialogSource).not.toContain('<MessagesSquare size={28} />');
   });
 
-  it('keeps OpenBitFun Page out of the account and device lifecycle', () => {
+  it('keeps Alex Page out of the account and device lifecycle', () => {
     expect(accountPanelSource).not.toContain('pagesEntry');
     expect(accountPanelSource).not.toContain("openScene('pages')");
     expect(accountPanelSource).not.toContain('PanelsTopLeft');

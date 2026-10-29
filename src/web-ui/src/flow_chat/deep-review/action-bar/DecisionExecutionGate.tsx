@@ -1,4 +1,4 @@
-import { ActionCard, Button, Textarea } from '@openbitfun/ui';
+import { ActionCard, Button, Textarea } from '@alex/ui';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle } from 'lucide-react';

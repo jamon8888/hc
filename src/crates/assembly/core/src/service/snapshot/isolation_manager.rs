@@ -1,7 +1,7 @@
 use crate::service::snapshot::types::{SnapshotError, SnapshotResult};
 use crate::service::workspace_runtime::{WorkspaceRuntimeContext, WorkspaceRuntimeTarget};
 use log::info;
-use openbitfun_runtime_ports::{WorkspaceFileSystem, WorkspacePathKind};
+use alex_runtime_ports::{WorkspaceFileSystem, WorkspacePathKind};
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -134,7 +134,7 @@ impl IsolationManager {
     }
 
     /// Returns the snapshot runtime directory path.
-    pub fn get_openbitfun_dir(&self) -> &Path {
+    pub fn get_alex_dir(&self) -> &Path {
         &self.runtime_context.runtime_root
     }
 

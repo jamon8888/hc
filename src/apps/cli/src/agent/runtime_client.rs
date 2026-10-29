@@ -11,7 +11,7 @@ use std::path::{Path, PathBuf};
 use std::sync::{Arc, RwLock};
 use tokio::sync::{broadcast, Mutex};
 
-use openbitfun_agent_runtime::sdk::{
+use alex_agent_runtime::sdk::{
     AgentContextReloadPort, AgentDialogSteerRequest, AgentDialogTurnExecution,
     AgentDialogTurnRequest, AgentEventReceiver, AgentInputAttachment,
     AgentMessageWorkspaceReferencesRequest, AgentRuntime, AgentSessionCompactionRequest,
@@ -27,14 +27,14 @@ use openbitfun_agent_runtime::sdk::{
     PermissionRequestEventReceiver, PortError, PortErrorKind, RuntimeError, SessionTranscript,
     SessionTranscriptRequest, SessionUsageReport, WorkspaceDiffSnapshot,
 };
-use openbitfun_agent_runtime_ipc::{
+use alex_agent_runtime_ipc::{
     RuntimeIpcClient, RuntimeIpcClientError, RuntimeIpcClientEvent, RuntimeIpcErrorCode,
     RuntimeIpcEvent, RuntimeIpcOperation, RuntimeIpcOperationResult,
     RuntimeIpcStreamInvalidationReason, RuntimeSessionForkRequest, RuntimeSessionRenameRequest,
     RuntimeSessionRestoreRequest, RuntimeUserAnswersRequest,
 };
-use openbitfun_events::{AgenticEvent, AgenticEventEnvelope};
-use openbitfun_runtime_ports::{
+use alex_events::{AgenticEvent, AgenticEventEnvelope};
+use alex_runtime_ports::{
     put_agent_workspace_references, AgentContextReloadRequest, AgentModeCatalogQuery,
     AgentSessionSummary, AgentSessionWorkspaceBinding, AgentSessionWorkspaceRequest,
     AgentSubmissionSource, DialogSubmissionPolicy, SessionExecutionTarget,
@@ -55,7 +55,7 @@ async fn upgrade_shared_workspace_binding(
         return Ok(binding);
     }
     let service =
-        openbitfun_core::service::workspace::get_global_workspace_service().ok_or_else(|| {
+        alex_core::service::workspace::get_global_workspace_service().ok_or_else(|| {
             anyhow::anyhow!("Workspace service is unavailable for legacy Runtime binding upgrade")
         })?;
     service
@@ -258,7 +258,7 @@ impl SessionOperationError {
 
 #[derive(Clone, Debug)]
 struct CliWorkspacePaths {
-    workspace_kind: Option<openbitfun_core::service::workspace::WorkspaceKind>,
+    workspace_kind: Option<alex_core::service::workspace::WorkspaceKind>,
     project_workspace_id: Option<String>,
     workspace_id: Option<String>,
     project: Option<PathBuf>,
@@ -353,7 +353,7 @@ impl CliWorkspacePaths {
         {
             return Some("Workspace diff is unavailable until workspace identity is resolved");
         }
-        if self.workspace_kind == Some(openbitfun_core::service::workspace::WorkspaceKind::Remote) {
+        if self.workspace_kind == Some(alex_core::service::workspace::WorkspaceKind::Remote) {
             return Some("Workspace diff is unavailable for remote Sessions");
         }
         if self.workspace_id != self.project_workspace_id {
@@ -378,7 +378,7 @@ pub(crate) struct CliAgentRuntimeClient {
     current_turn_id: Arc<Mutex<Option<String>>>,
     shared_agent_events: Option<SharedBroadcast<AgenticEventEnvelope>>,
     shared_permission_events:
-        Option<SharedBroadcast<openbitfun_agent_runtime::sdk::PermissionRequestEvent>>,
+        Option<SharedBroadcast<alex_agent_runtime::sdk::PermissionRequestEvent>>,
     shared_pending_permissions: Arc<RwLock<HashMap<String, PermissionRequest>>>,
 }
 
@@ -421,7 +421,7 @@ impl CliAgentRuntimeClient {
 
     pub(crate) fn new_shared(
         client: RuntimeIpcClient,
-        workspace: &openbitfun_core::service::workspace::WorkspaceInfo,
+        workspace: &alex_core::service::workspace::WorkspaceInfo,
     ) -> Self {
         let mut paths = CliWorkspacePaths::new(Some(workspace.root_path.clone()));
         paths.workspace_id = Some(workspace.id.clone());
@@ -466,7 +466,7 @@ impl CliAgentRuntimeClient {
         paths.workspace_kind = paths
             .workspace_id
             .is_some()
-            .then_some(openbitfun_core::service::workspace::WorkspaceKind::Normal);
+            .then_some(alex_core::service::workspace::WorkspaceKind::Normal);
         Self {
             backend: CliAgentRuntimeBackend::Embedded(runtime),
             context_reload: None,
@@ -498,7 +498,7 @@ impl CliAgentRuntimeClient {
                     );
                 }
                 if let Err(error) =
-                    openbitfun_core::external_sources::ensure_external_source_workspace_snapshot(
+                    alex_core::external_sources::ensure_external_source_workspace_snapshot(
                         binding.workspace_id.as_deref(),
                     )
                     .await
@@ -554,7 +554,7 @@ impl CliAgentRuntimeClient {
         match &self.backend {
             CliAgentRuntimeBackend::Embedded(runtime) => Ok(runtime),
             CliAgentRuntimeBackend::Shared(_) => Err(anyhow::anyhow!(
-                "{operation} is not available in the first Shared TUI slice; use default Embedded `openbitfun chat`"
+                "{operation} is not available in the first Shared TUI slice; use default Embedded `alex chat`"
             )),
         }
     }
@@ -680,7 +680,7 @@ impl CliAgentRuntimeClient {
 
     pub(crate) fn is_remote_workspace(&self) -> bool {
         self.current_workspace_binding().workspace_kind
-            == Some(openbitfun_core::service::workspace::WorkspaceKind::Remote)
+            == Some(alex_core::service::workspace::WorkspaceKind::Remote)
     }
 
     fn execution_target(&self) -> Option<SessionExecutionTarget> {
@@ -721,7 +721,7 @@ impl CliAgentRuntimeClient {
                 .request(if client.capabilities().workspace_id_references {
                     RuntimeIpcOperation::ListSessions { request }
                 } else {
-                    openbitfun_agent_runtime_ipc::legacy_workspace_operation(
+                    alex_agent_runtime_ipc::legacy_workspace_operation(
                         RuntimeIpcOperation::ListSessions { request },
                         &self.project_workspace_path_buf().to_string_lossy(),
                     )
@@ -813,7 +813,7 @@ impl CliAgentRuntimeClient {
         root_session_id: &str,
         session_id: &str,
         expected_active_turn_id: &str,
-    ) -> Result<openbitfun_agent_runtime::sdk::AgentTurnCancellationResult> {
+    ) -> Result<alex_agent_runtime::sdk::AgentTurnCancellationResult> {
         let request = AgentSessionLineageCancellationRequest {
             workspace_id: self.workspace_id(),
             workspace_path: self.current_workspace_path().to_string_lossy().into_owned(),
@@ -873,12 +873,12 @@ impl CliAgentRuntimeClient {
                         .map_err(anyhow::Error::new)
                         .map_err(with_session_conflict_help)?;
                     let restored_turn_id = match &restored.state {
-                        openbitfun_agent_runtime::sdk::SessionState::Processing {
+                        alex_agent_runtime::sdk::SessionState::Processing {
                             current_turn_id,
                             ..
                         } => Some(current_turn_id.clone()),
-                        openbitfun_agent_runtime::sdk::SessionState::Idle
-                        | openbitfun_agent_runtime::sdk::SessionState::Error { .. } => None,
+                        alex_agent_runtime::sdk::SessionState::Idle
+                        | alex_agent_runtime::sdk::SessionState::Error { .. } => None,
                     };
                     let transcript = runtime
                         .read_session_transcript(SessionTranscriptRequest {
@@ -910,7 +910,7 @@ impl CliAgentRuntimeClient {
                         if client.capabilities().workspace_id_references {
                             operation
                         } else {
-                            openbitfun_agent_runtime_ipc::legacy_workspace_operation(
+                            alex_agent_runtime_ipc::legacy_workspace_operation(
                                 operation,
                                 &project_workspace.to_string_lossy(),
                             )
@@ -928,12 +928,12 @@ impl CliAgentRuntimeClient {
                         ..
                     } => {
                         let restored_turn_id = match state {
-                            openbitfun_agent_runtime_ipc::RuntimeSessionState::Processing {
+                            alex_agent_runtime_ipc::RuntimeSessionState::Processing {
                                 current_turn_id,
                                 ..
                             } => Some(current_turn_id),
-                            openbitfun_agent_runtime_ipc::RuntimeSessionState::Idle
-                            | openbitfun_agent_runtime_ipc::RuntimeSessionState::Error { .. } => {
+                            alex_agent_runtime_ipc::RuntimeSessionState::Idle
+                            | alex_agent_runtime_ipc::RuntimeSessionState::Error { .. } => {
                                 None
                             }
                         };
@@ -2195,9 +2195,9 @@ fn shared_receiver<T: Clone>(
 fn spawn_shared_event_bridge(
     mut source: broadcast::Receiver<RuntimeIpcClientEvent>,
     agent_sender: broadcast::Sender<AgenticEventEnvelope>,
-    permission_sender: broadcast::Sender<openbitfun_agent_runtime::sdk::PermissionRequestEvent>,
+    permission_sender: broadcast::Sender<alex_agent_runtime::sdk::PermissionRequestEvent>,
     agent_owner: SharedBroadcast<AgenticEventEnvelope>,
-    permission_owner: SharedBroadcast<openbitfun_agent_runtime::sdk::PermissionRequestEvent>,
+    permission_owner: SharedBroadcast<alex_agent_runtime::sdk::PermissionRequestEvent>,
     pending: Arc<RwLock<HashMap<String, PermissionRequest>>>,
 ) {
     tokio::spawn(async move {
@@ -2212,7 +2212,7 @@ fn spawn_shared_event_bridge(
                 })) => {
                     project_routed_permission_event(&mut event, &session_id);
                     match &event {
-                        openbitfun_agent_runtime::sdk::PermissionRequestEvent::Asked {
+                        alex_agent_runtime::sdk::PermissionRequestEvent::Asked {
                             request,
                         } => {
                             pending
@@ -2220,11 +2220,11 @@ fn spawn_shared_event_bridge(
                                 .unwrap_or_else(|poisoned| poisoned.into_inner())
                                 .insert(request.request_id.clone(), request.clone());
                         }
-                        openbitfun_agent_runtime::sdk::PermissionRequestEvent::Replied {
+                        alex_agent_runtime::sdk::PermissionRequestEvent::Replied {
                             request_id,
                             ..
                         }
-                        | openbitfun_agent_runtime::sdk::PermissionRequestEvent::Cancelled {
+                        | alex_agent_runtime::sdk::PermissionRequestEvent::Cancelled {
                             request_id,
                             ..
                         } => {
@@ -2246,7 +2246,7 @@ fn spawn_shared_event_bridge(
                     };
                     let _ = agent_sender.send(AgenticEventEnvelope::new(
                         event,
-                        openbitfun_events::AgenticEventPriority::Critical,
+                        alex_events::AgenticEventPriority::Critical,
                     ));
                     break;
                 }
@@ -2260,7 +2260,7 @@ fn spawn_shared_event_bridge(
                     };
                     let _ = agent_sender.send(AgenticEventEnvelope::new(
                         event,
-                        openbitfun_events::AgenticEventPriority::Critical,
+                        alex_events::AgenticEventPriority::Critical,
                     ));
                     break;
                 }
@@ -2286,10 +2286,10 @@ fn shared_disconnect_message(reason: Option<RuntimeIpcStreamInvalidationReason>)
 }
 
 fn project_routed_permission_event(
-    event: &mut openbitfun_agent_runtime::sdk::PermissionRequestEvent,
+    event: &mut alex_agent_runtime::sdk::PermissionRequestEvent,
     routed_session_id: &str,
 ) {
-    let openbitfun_agent_runtime::sdk::PermissionRequestEvent::Asked { request } = event else {
+    let alex_agent_runtime::sdk::PermissionRequestEvent::Asked { request } = event else {
         return;
     };
     if request.session_id == routed_session_id {
@@ -2313,7 +2313,7 @@ fn unexpected_shared_result(operation: &str) -> anyhow::Error {
 
 #[cfg(test)]
 mod recovery_tests {
-    use openbitfun_agent_runtime::sdk::{PortError, PortErrorKind, RuntimeError};
+    use alex_agent_runtime::sdk::{PortError, PortErrorKind, RuntimeError};
 
     use super::CliAgentRuntimeClient;
 
@@ -2337,17 +2337,17 @@ mod recovery_tests {
 mod tests {
     use std::path::Path;
 
-    use openbitfun_runtime_ports::{
+    use alex_runtime_ports::{
         AgentSessionSummary, AgentSessionWorkspaceBinding, SessionExecutionTarget,
         SessionExecutionTargetKind, WorktreeLifecycle,
     };
 
-    use openbitfun_agent_runtime::sdk::{
+    use alex_agent_runtime::sdk::{
         PermissionDelegationContext, PermissionRequest, PermissionRequestEvent,
         PermissionRequestSource, PermissionRequestSourceKind, PortError, PortErrorKind,
         RuntimeError,
     };
-    use openbitfun_agent_runtime_ipc::{
+    use alex_agent_runtime_ipc::{
         RuntimeIpcClientError, RuntimeIpcError, RuntimeIpcErrorCode,
     };
 
@@ -2356,7 +2356,7 @@ mod tests {
         shared_restore_error, validated_session_summary, CliWorkspacePaths, SessionMigrationNotice,
         SessionOperationError,
     };
-    use openbitfun_agent_runtime_ipc::RuntimeIpcStreamInvalidationReason;
+    use alex_agent_runtime_ipc::RuntimeIpcStreamInvalidationReason;
 
     #[test]
     fn oversized_shared_restore_explains_the_embedded_handoff() {
@@ -2366,7 +2366,7 @@ mod tests {
         }));
         let message = error.to_string();
         assert!(message.contains("history is too large"));
-        assert!(message.contains("default Embedded `openbitfun chat`"));
+        assert!(message.contains("default Embedded `alex chat`"));
     }
 
     #[test]
@@ -2399,7 +2399,7 @@ mod tests {
         );
         assert!(
             !SessionOperationError::shared(RuntimeIpcClientError::RequestEncoding(
-                openbitfun_agent_runtime_ipc::RuntimeIpcIoError::FrameTooLarge {
+                alex_agent_runtime_ipc::RuntimeIpcIoError::FrameTooLarge {
                     size: 129,
                     max_bytes: 128,
                 },
@@ -2450,14 +2450,14 @@ mod tests {
         let message =
             shared_disconnect_message(Some(RuntimeIpcStreamInvalidationReason::FrameTooLarge));
         assert!(message.contains("cancellation was requested"));
-        assert!(message.contains("default Embedded `openbitfun chat`"));
+        assert!(message.contains("default Embedded `alex chat`"));
     }
 
     #[test]
     fn workspace_paths_keep_project_and_execution_roots_separate() {
         let mut paths = CliWorkspacePaths::new(Some("/project".into()));
         let binding = AgentSessionWorkspaceBinding {
-            workspace_kind: Some(openbitfun_core::service::workspace::WorkspaceKind::Normal),
+            workspace_kind: Some(alex_core::service::workspace::WorkspaceKind::Normal),
             project_workspace_id: Some("project-1".into()),
             workspace_id: Some("workspace-1".to_string()),
             workspace_path: "/managed-worktree".to_string(),
@@ -2506,11 +2506,11 @@ mod tests {
         assert!(paths.workspace_diff_unavailable_reason().is_some());
         paths.workspace_id = Some("project-1".into());
         paths.project_workspace_id = Some("project-1".into());
-        paths.workspace_kind = Some(openbitfun_core::service::workspace::WorkspaceKind::Normal);
+        paths.workspace_kind = Some(alex_core::service::workspace::WorkspaceKind::Normal);
         assert_eq!(paths.workspace_diff_unavailable_reason(), None);
 
         paths.apply_binding(&AgentSessionWorkspaceBinding {
-            workspace_kind: Some(openbitfun_core::service::workspace::WorkspaceKind::Normal),
+            workspace_kind: Some(alex_core::service::workspace::WorkspaceKind::Normal),
             project_workspace_id: Some("project-1".into()),
             workspace_id: Some("workspace-1".to_string()),
             workspace_path: "/managed-worktree".to_string(),
@@ -2532,7 +2532,7 @@ mod tests {
             .is_some_and(|reason| reason.contains("different worktree")));
 
         paths.apply_binding(&AgentSessionWorkspaceBinding {
-            workspace_kind: Some(openbitfun_core::service::workspace::WorkspaceKind::Remote),
+            workspace_kind: Some(alex_core::service::workspace::WorkspaceKind::Remote),
             project_workspace_id: Some("remote-workspace".into()),
             workspace_id: Some("remote-workspace".into()),
             workspace_path: "/project".to_string(),
@@ -2921,8 +2921,8 @@ mod dual_backend_behavior_tests {
     use std::time::Duration;
 
     use async_trait::async_trait;
-    use openbitfun_agent_runtime::event_queue::{EventQueue, EventQueueConfig};
-    use openbitfun_agent_runtime::sdk::{
+    use alex_agent_runtime::event_queue::{EventQueue, EventQueueConfig};
+    use alex_agent_runtime::sdk::{
         AgentDialogTurnPort, AgentDialogTurnRequest, AgentEventSource, AgentModeCatalogEntry,
         AgentModeCatalogPort, AgentModeCatalogQuery, AgentRuntime, AgentRuntimeBuilder,
         AgentSessionCreateRequest, AgentSessionCreateResult, AgentSessionDeleteRequest,
@@ -2936,11 +2936,11 @@ mod dual_backend_behavior_tests {
         PermissionRequestSourceKind, PortError, PortErrorKind, PortResult, RuntimeError,
         SessionState, SessionTranscript, SessionTranscriptReader, SessionTranscriptRequest,
     };
-    use openbitfun_agent_runtime_ipc::{
+    use alex_agent_runtime_ipc::{
         RuntimeInstanceIdentity, RuntimeIpcClient, RuntimeIpcClientError, RuntimeIpcErrorCode,
         RuntimeIpcOperation, RuntimeIpcOperationResult, RuntimeIpcServer, RuntimeIpcServerConfig,
     };
-    use openbitfun_runtime_ports::{
+    use alex_runtime_ports::{
         ClockPort, PermissionAuditRecord, PermissionAuditStorePort, PermissionReplyStorePort,
         RuntimeServiceCapability, RuntimeServicePort, SessionExecutionTarget,
         SessionExecutionTargetKind, WorktreeLifecycle,
@@ -2960,14 +2960,14 @@ mod dual_backend_behavior_tests {
     /// so without this the fixtures' temp folders would be persisted into the
     /// developer's real `workspace_data.json` as opened, current workspaces.
     async fn ensure_isolated_workspace_catalog() -> PathBuf {
-        use openbitfun_core::service::workspace::{
+        use alex_core::service::workspace::{
             get_global_workspace_service, set_global_workspace_service, WorkspaceService,
         };
 
         let user_root = ISOLATED_USER_ROOT
             .get_or_init(|| {
                 std::env::temp_dir()
-                    .join("openbitfun-cli-runtime-client-tests")
+                    .join("alex-cli-runtime-client-tests")
                     .join(uuid::Uuid::new_v4().simple().to_string())
                     .join("user-root")
             })
@@ -3013,7 +3013,7 @@ mod dual_backend_behavior_tests {
         workspace_id: String,
         event_queue: Arc<EventQueue>,
         sessions:
-            Arc<StdMutex<HashMap<String, openbitfun_agent_runtime::sdk::AgentSessionSummary>>>,
+            Arc<StdMutex<HashMap<String, alex_agent_runtime::sdk::AgentSessionSummary>>>,
         transcripts: Arc<StdMutex<HashMap<String, SessionTranscript>>>,
         cancellation_requests: Arc<StdMutex<Vec<AgentTurnCancellationRequest>>>,
         settlement_outcomes: Arc<StdMutex<HashMap<String, Option<PortError>>>>,
@@ -3036,8 +3036,8 @@ mod dual_backend_behavior_tests {
             session_id: impl Into<String>,
             session_name: impl Into<String>,
             agent_type: impl Into<String>,
-        ) -> openbitfun_agent_runtime::sdk::AgentSessionSummary {
-            openbitfun_agent_runtime::sdk::AgentSessionSummary {
+        ) -> alex_agent_runtime::sdk::AgentSessionSummary {
+            alex_agent_runtime::sdk::AgentSessionSummary {
                 session_id: session_id.into(),
                 session_name: session_name.into(),
                 agent_type: agent_type.into(),
@@ -3063,7 +3063,7 @@ mod dual_backend_behavior_tests {
         fn workspace_binding(&self) -> AgentSessionWorkspaceBinding {
             let workspace = self.workspace.to_string_lossy().into_owned();
             AgentSessionWorkspaceBinding {
-                workspace_kind: Some(openbitfun_core::service::workspace::WorkspaceKind::Normal),
+                workspace_kind: Some(alex_core::service::workspace::WorkspaceKind::Normal),
                 project_workspace_id: Some(self.workspace_id.clone()),
                 workspace_id: Some(self.workspace_id.clone()),
                 workspace_path: workspace.clone(),
@@ -3151,7 +3151,7 @@ mod dual_backend_behavior_tests {
         async fn list_sessions(
             &self,
             _request: AgentSessionListRequest,
-        ) -> PortResult<Vec<openbitfun_agent_runtime::sdk::AgentSessionSummary>> {
+        ) -> PortResult<Vec<alex_agent_runtime::sdk::AgentSessionSummary>> {
             Ok(self
                 .state
                 .sessions
@@ -3178,7 +3178,7 @@ mod dual_backend_behavior_tests {
 
         async fn rename_session(
             &self,
-            request: openbitfun_agent_runtime::sdk::AgentSessionRenameRequest,
+            request: alex_agent_runtime::sdk::AgentSessionRenameRequest,
         ) -> PortResult<()> {
             let mut sessions = self.state.sessions.lock().unwrap();
             let session = sessions.get_mut(&request.session_id).ok_or_else(|| {
@@ -3398,7 +3398,7 @@ mod dual_backend_behavior_tests {
     impl PermissionReplyStorePort for MemoryPermissionStore {
         async fn commit_permission_reply(
             &self,
-            _grants: Vec<openbitfun_agent_runtime::sdk::PermissionGrant>,
+            _grants: Vec<alex_agent_runtime::sdk::PermissionGrant>,
             audit: Vec<PermissionAuditRecord>,
         ) -> PortResult<()> {
             self.audit.lock().unwrap().extend(audit);
@@ -3785,7 +3785,7 @@ mod dual_backend_behavior_tests {
 
     #[tokio::test]
     async fn embedded_and_shared_questions_stop_timeout_and_cancel_without_an_answer() {
-        use openbitfun_agent_runtime::user_questions::{
+        use alex_agent_runtime::user_questions::{
             get_user_input_manager, PendingUserQuestion,
         };
         let root = tempfile::tempdir().unwrap();
@@ -3958,7 +3958,7 @@ mod dual_backend_behavior_tests {
 
         let response = client
             .request(RuntimeIpcOperation::GetSessionLineage {
-                request: openbitfun_agent_runtime::sdk::AgentSessionLineageRequest {
+                request: alex_agent_runtime::sdk::AgentSessionLineageRequest {
                     workspace_id: None,
                     workspace_path: fixture.workspace.to_string_lossy().into_owned(),
                     anchor_session_id: session.session_id,

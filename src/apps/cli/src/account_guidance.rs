@@ -2,14 +2,14 @@
 //!
 //! The CLI has no i18n, so its copy stays in English. The raw transport detail
 //! is never rendered: it stays in `tracing::{warn,debug}`. Classification is
-//! owned by `openbitfun_core::service::remote_connect::relay_failure`, so this
+//! owned by `alex_core::service::remote_connect::relay_failure`, so this
 //! module only turns one failure into a single user-facing sentence plus an
 //! optional second line that is shown only when it adds information.
 //!
 //! This must stay free of HTTP statuses and exception text: the user only ever
-//! reads what they can act on (retry, check the network, or update OpenBitFun).
+//! reads what they can act on (retry, check the network, or update Alex).
 
-use openbitfun_core::service::remote_connect::relay_failure::{
+use alex_core::service::remote_connect::relay_failure::{
     classify_relay_endpoint, classify_relay_failure, RelayFailureKind,
 };
 
@@ -21,14 +21,14 @@ const RELAY_UNAVAILABLE_SENTENCE: &str =
     "The relay server is temporarily unavailable. Retry in a moment.";
 /// This build's Relay version is gone; only an update can help.
 const UPDATE_SENTENCE: &str =
-    "This OpenBitFun build is no longer served by the relay. Update OpenBitFun, then sign in again.";
+    "This Alex build is no longer served by the relay. Update Alex, then sign in again.";
 /// Second line for the update kinds; it restates the one concrete action.
-const UPDATE_HINT: &str = "Update OpenBitFun on this device to continue.";
+const UPDATE_HINT: &str = "Update Alex on this device to continue.";
 /// Keeps the existing sign-in wording and flow.
 const AUTH_SENTENCE: &str = "Sign in to continue.";
 /// Deliberately conservative: an unrecognized failure stays retryable.
 const UNKNOWN_SENTENCE: &str =
-    "The relay rejected the request. Check the network or update OpenBitFun, then retry.";
+    "The relay rejected the request. Check the network or update Alex, then retry.";
 
 /// One user-facing sentence plus an optional hint line, classified from a
 /// Relay/account failure message.
@@ -76,7 +76,7 @@ fn guidance_for(kind: RelayFailureKind) -> (&'static str, Option<&'static str>) 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use openbitfun_product_domains::account::DEFAULT_RELAY_URL;
+    use alex_product_domains::account::DEFAULT_RELAY_URL;
 
     #[test]
     fn a_retired_version_points_at_an_update() {

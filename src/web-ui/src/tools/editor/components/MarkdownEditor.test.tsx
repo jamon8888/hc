@@ -89,8 +89,8 @@ describe('MarkdownEditor', () => {
     );
 
     expect(html).toContain('aria-label="Copy Markdown"');
-    expect(html).toContain('data-openbitfun-component="toolbar"');
-    expect(html).toContain('data-openbitfun-component="icon-button"');
+    expect(html).toContain('data-alex-component="toolbar"');
+    expect(html).toContain('data-alex-component="icon-button"');
   });
 
   it('opens Mermaid documents in rich text mode', () => {

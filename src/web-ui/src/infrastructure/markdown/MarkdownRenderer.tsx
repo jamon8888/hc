@@ -7,7 +7,7 @@ import { useResourceFileAccess, type ResourceFileAccess } from '@/infrastructure
 
 import React, { useState, useMemo, useCallback, useEffect, useLayoutEffect, useRef, useSyncExternalStore, Component, type ReactNode } from 'react';
 import ReactMarkdown, { defaultUrlTransform } from 'react-markdown';
-import { Tooltip } from '@openbitfun/ui';
+import { Tooltip } from '@alex/ui';
 import remarkGfm from 'remark-gfm';
 import { remarkAutolinkBoundaries } from './remarkAutolinkBoundaries';
 import { remarkStreamingTableLinks } from './remarkStreamingTableLinks';
@@ -194,7 +194,7 @@ class MarkdownErrorBoundary extends Component<
   render() {
     if (this.state.hasError) {
       return (
-        <div className="markdown-renderer markdown-renderer--fallback" style={{ whiteSpace: 'pre-wrap' }} data-openbitfun-component="markdown" data-openbitfun-part="fallback" data-openbitfun-state="fallback">
+        <div className="markdown-renderer markdown-renderer--fallback" style={{ whiteSpace: 'pre-wrap' }} data-alex-component="markdown" data-alex-part="fallback" data-alex-state="fallback">
           {this.props.fallbackContent}
         </div>
       );
@@ -666,8 +666,8 @@ const ScopedMarkdownImage: React.FC<MarkdownImageProps & { scope: SurfaceScope }
     return (
       <span
         className="markdown-image-fallback"
-        data-openbitfun-component="markdown"
-        data-openbitfun-part="imageFallback"
+        data-alex-component="markdown"
+        data-alex-part="imageFallback"
         title={typeof alt === 'string' && alt ? alt : undefined}
       >
         {typeof alt === 'string' ? alt : null}
@@ -825,13 +825,13 @@ const CodeBlockFallback: React.FC<FlowCodeBlockFallbackProps> = ({
     <pre
       className={`language-${language} code-block-fallback code-block-fallback--linenumbers`}
       style={bodyStyle}
-      data-openbitfun-component="markdown"
-      data-openbitfun-part="codePre"
+      data-alex-component="markdown"
+      data-alex-part="codePre"
     >
       <code
         style={{ ...codeTagStyle, display: 'flex' }}
-        data-openbitfun-component="markdown"
-        data-openbitfun-part="codeContent"
+        data-alex-component="markdown"
+        data-alex-part="codeContent"
       >
         <span
           aria-hidden="true"
@@ -1140,7 +1140,7 @@ const MarkdownSurface = React.memo<MarkdownRendererProps & { thinking?: boolean 
     }
 
     return Boolean(
-      targetElement.closest('.openbitfun-session-scene') &&
+      targetElement.closest('.alex-session-scene') &&
       targetElement.closest('.modern-flowchat-container, .flow-chat-container')
     );
   }, []);
@@ -1357,12 +1357,12 @@ const MarkdownSurface = React.memo<MarkdownRendererProps & { thinking?: boolean 
       const codeBodyStyle: React.CSSProperties = {
         margin: 0,
         borderRadius: '0 0 8px 8px',
-        fontSize: 'var(--openbitfun-type-code-md-font-size)',
-        lineHeight: 'var(--openbitfun-type-code-md-line-height)',
+        fontSize: 'var(--alex-type-code-md-font-size)',
+        lineHeight: 'var(--alex-type-code-md-line-height)',
       };
       const codeTagStyle: React.CSSProperties = {
-        fontFamily: 'var(--openbitfun-type-code-md-font-family)',
-        fontWeight: 'var(--openbitfun-type-code-md-font-weight)',
+        fontFamily: 'var(--alex-type-code-md-font-family)',
+        fontWeight: 'var(--alex-type-code-md-font-weight)',
         color: syntaxThemeRef.current['code[class*="language-"]']?.color,
       };
       // Prism's line-number nodes use the comment token, applied after
@@ -1370,12 +1370,12 @@ const MarkdownSurface = React.memo<MarkdownRendererProps & { thinking?: boolean 
       const gutterColor = syntaxThemeRef.current.comment.color as string;
 
       return (
-        <div className={`code-block-wrapper${hasMultipleLines ? '' : ' code-block-wrapper--single-line'}`} data-openbitfun-component="markdown" data-openbitfun-part="codeBlock" data-openbitfun-state={streaming ? 'streaming' : undefined}>
-          <div className="code-block-toolbar" data-openbitfun-component="markdown" data-openbitfun-part="codeToolbar">
+        <div className={`code-block-wrapper${hasMultipleLines ? '' : ' code-block-wrapper--single-line'}`} data-alex-component="markdown" data-alex-part="codeBlock" data-alex-state={streaming ? 'streaming' : undefined}>
+          <div className="code-block-toolbar" data-alex-component="markdown" data-alex-part="codeToolbar">
             <span className="code-block-lang">{formatCodeLanguageLabel(normalizedLang)}</span>
             <CopyButton code={code} />
           </div>
-          <div className="code-block-body" data-openbitfun-component="markdown" data-openbitfun-part="codeBody">
+          <div className="code-block-body" data-alex-component="markdown" data-alex-part="codeBody">
             {/* Thinking must never mount a syntax highlighter, even after completion
                 or reopening. Bulk highlighting caused measured completion stalls;
                 keep this lightweight path independent of streaming state. */}
@@ -1477,8 +1477,8 @@ const MarkdownSurface = React.memo<MarkdownRendererProps & { thinking?: boolean 
           const fileLinkButton = (
             <button
               className="file-link"
-              data-openbitfun-component="markdown"
-              data-openbitfun-part="fileLink"
+              data-alex-component="markdown"
+              data-alex-part="fileLink"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -1524,8 +1524,8 @@ const MarkdownSurface = React.memo<MarkdownRendererProps & { thinking?: boolean 
         return (
           <button
             className="canvas-link"
-            data-openbitfun-component="markdown"
-            data-openbitfun-part="canvasLink"
+            data-alex-component="markdown"
+            data-alex-part="canvasLink"
             onClick={(event) => {
               event.preventDefault();
               event.stopPropagation();
@@ -1562,8 +1562,8 @@ const MarkdownSurface = React.memo<MarkdownRendererProps & { thinking?: boolean 
         return (
           <button
             className="visualization-link"
-            data-openbitfun-component="markdown"
-            data-openbitfun-part="visualizationLink"
+            data-alex-component="markdown"
+            data-alex-part="visualizationLink"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -1587,8 +1587,8 @@ const MarkdownSurface = React.memo<MarkdownRendererProps & { thinking?: boolean 
         return (
           <button
             className="tab-link"
-            data-openbitfun-component="markdown"
-            data-openbitfun-part="tabLink"
+            data-alex-component="markdown"
+            data-alex-part="tabLink"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -1672,7 +1672,7 @@ const MarkdownSurface = React.memo<MarkdownRendererProps & { thinking?: boolean 
     
     table({ children }: any) {
       return (
-        <div className="table-wrapper" data-openbitfun-component="markdown" data-openbitfun-part="table">
+        <div className="table-wrapper" data-alex-component="markdown" data-alex-part="table">
           <table>{children}</table>
         </div>
       );
@@ -1699,8 +1699,8 @@ const MarkdownSurface = React.memo<MarkdownRendererProps & { thinking?: boolean 
         return (
           <span
             className="markdown-image-fallback"
-            data-openbitfun-component="markdown"
-            data-openbitfun-part="imageFallback"
+            data-alex-component="markdown"
+            data-alex-part="imageFallback"
             title={label}
           >
             {props.alt ? `${props.alt} — ${label}` : label}
@@ -1719,7 +1719,7 @@ const MarkdownSurface = React.memo<MarkdownRendererProps & { thinking?: boolean 
     },
     
     blockquote({ children }: any) {
-      return <blockquote className="custom-blockquote" data-openbitfun-component="markdown" data-openbitfun-part="blockquote">{children}</blockquote>;
+      return <blockquote className="custom-blockquote" data-alex-component="markdown" data-alex-part="blockquote">{children}</blockquote>;
     },
     
     ul({ children, ...props }: any) {
@@ -1853,7 +1853,7 @@ const MarkdownSurface = React.memo<MarkdownRendererProps & { thinking?: boolean 
   );
 
   return (
-    <div ref={textRevealRef} className={wrapperClassName} data-openbitfun-component="markdown" data-openbitfun-part="root" data-openbitfun-state={isStreaming ? 'streaming' : undefined}>
+    <div ref={textRevealRef} className={wrapperClassName} data-alex-component="markdown" data-alex-part="root" data-alex-state={isStreaming ? 'streaming' : undefined}>
       {renderTraceEnabled && renderTraceStartedAtMs !== null && (
         <MarkdownRenderTrace
           startedAtMs={renderTraceStartedAtMs}

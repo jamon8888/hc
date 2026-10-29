@@ -9,8 +9,8 @@ use super::worktree_topology::global_worktree_topology_service;
 use super::WorktreeTopologyFreshness;
 use crate::util::{errors::*, FrontMatterMarkdown};
 use log::warn;
-pub use openbitfun_runtime_ports::RelatedPath;
-use openbitfun_services_core::workspace_identity::{
+pub use alex_runtime_ports::RelatedPath;
+use alex_services_core::workspace_identity::{
     canonicalize_local_workspace_root, local_workspace_stable_storage_id,
     normalize_local_workspace_root_for_stable_id, normalize_remote_workspace_path,
     remote_workspace_stable_id, LOCAL_WORKSPACE_SSH_HOST,
@@ -205,16 +205,16 @@ impl Default for WorkspaceOpenOptions {
 /// Runtime operations stay in Core; persisted records are shared with offline tools.
 #[async_trait::async_trait]
 pub trait WorkspaceInfoRuntimeExt: Sized {
-    async fn new(root_path: PathBuf, options: WorkspaceOpenOptions) -> OpenBitFunResult<Self>;
+    async fn new(root_path: PathBuf, options: WorkspaceOpenOptions) -> AlexResult<Self>;
     async fn new_without_worktree(
         root_path: PathBuf,
         options: WorkspaceOpenOptions,
-    ) -> OpenBitFunResult<Self>;
+    ) -> AlexResult<Self>;
     async fn new_inner(
         root_path: PathBuf,
         options: WorkspaceOpenOptions,
         load_worktree: bool,
-    ) -> OpenBitFunResult<Self>;
+    ) -> AlexResult<Self>;
     async fn load_identity(&mut self);
     async fn load_worktree(&mut self, freshness: WorktreeTopologyFreshness);
     async fn resolve_worktree_info(
@@ -223,14 +223,14 @@ pub trait WorkspaceInfoRuntimeExt: Sized {
     ) -> Option<WorkspaceWorktreeInfo>;
     async fn detect_workspace_type(&mut self);
     async fn detect_languages_from_files(&mut self);
-    async fn scan_workspace(&mut self, options: ScanOptions) -> OpenBitFunResult<()>;
+    async fn scan_workspace(&mut self, options: ScanOptions) -> AlexResult<()>;
     fn scan_directory<'a>(
         &'a self,
         dir: &'a Path,
         stats: &'a mut WorkspaceStatistics,
         options: &'a ScanOptions,
         depth: usize,
-    ) -> std::pin::Pin<Box<dyn std::future::Future<Output = OpenBitFunResult<()>> + 'a + Send>>;
+    ) -> std::pin::Pin<Box<dyn std::future::Future<Output = AlexResult<()>> + 'a + Send>>;
     async fn scan_git_info(&self) -> Option<GitInfo>;
     fn touch(&mut self);
     async fn is_valid(&self) -> bool;
@@ -240,14 +240,14 @@ pub trait WorkspaceInfoRuntimeExt: Sized {
 #[async_trait::async_trait]
 impl WorkspaceInfoRuntimeExt for WorkspaceInfo {
     /// Creates a new workspace record.
-    async fn new(root_path: PathBuf, options: WorkspaceOpenOptions) -> OpenBitFunResult<Self> {
+    async fn new(root_path: PathBuf, options: WorkspaceOpenOptions) -> AlexResult<Self> {
         Self::new_inner(root_path, options, true).await
     }
 
     async fn new_without_worktree(
         root_path: PathBuf,
         options: WorkspaceOpenOptions,
-    ) -> OpenBitFunResult<Self> {
+    ) -> AlexResult<Self> {
         Self::new_inner(root_path, options, false).await
     }
 
@@ -255,7 +255,7 @@ impl WorkspaceInfoRuntimeExt for WorkspaceInfo {
         root_path: PathBuf,
         options: WorkspaceOpenOptions,
         load_worktree: bool,
-    ) -> OpenBitFunResult<Self> {
+    ) -> AlexResult<Self> {
         let default_name = root_path
             .file_name()
             .and_then(|n| n.to_str())
@@ -277,8 +277,8 @@ impl WorkspaceInfoRuntimeExt for WorkspaceInfo {
                 .map(str::trim)
                 .filter(|value| !value.is_empty())
                 .ok_or_else(|| {
-                    OpenBitFunError::config(
-                        "Remote workspace requires a non-empty sshHost in the current OpenBitFun format",
+                    AlexError::config(
+                        "Remote workspace requires a non-empty sshHost in the current Alex format",
                     )
                 })?;
             options
@@ -287,14 +287,14 @@ impl WorkspaceInfoRuntimeExt for WorkspaceInfo {
                 .map(str::trim)
                 .filter(|value| !value.is_empty())
                 .ok_or_else(|| {
-                    OpenBitFunError::config(
-                        "Remote workspace requires a non-empty connectionId in the current OpenBitFun format",
+                    AlexError::config(
+                        "Remote workspace requires a non-empty connectionId in the current Alex format",
                     )
                 })?;
 
             let normalized_root = normalize_remote_workspace_path(&root_path.to_string_lossy());
             if !normalized_root.starts_with('/') {
-                return Err(OpenBitFunError::config(format!(
+                return Err(AlexError::config(format!(
                     "Remote workspace path must be an absolute POSIX path: {}",
                     root_path.display()
                 )));
@@ -309,14 +309,14 @@ impl WorkspaceInfoRuntimeExt for WorkspaceInfo {
                 .as_deref()
                 .is_some_and(|supplied| supplied != expected_id)
             {
-                return Err(OpenBitFunError::config(format!(
+                return Err(AlexError::config(format!(
                     "Remote workspace id does not match its sshHost and root path: expected {expected_id}"
                 )));
             }
             (expected_id, PathBuf::from(normalized_root))
         } else {
             let (canonical_pb, norm_str) =
-                canonicalize_local_workspace_root(&root_path).map_err(OpenBitFunError::service)?;
+                canonicalize_local_workspace_root(&root_path).map_err(AlexError::service)?;
             let id = local_workspace_stable_storage_id(&norm_str);
             (id, canonical_pb)
         };
@@ -537,7 +537,7 @@ impl WorkspaceInfoRuntimeExt for WorkspaceInfo {
     }
 
     /// Scans the workspace.
-    async fn scan_workspace(&mut self, options: ScanOptions) -> OpenBitFunResult<()> {
+    async fn scan_workspace(&mut self, options: ScanOptions) -> AlexResult<()> {
         let mut stats = WorkspaceStatistics {
             total_files: 0,
             total_directories: 0,
@@ -565,7 +565,7 @@ impl WorkspaceInfoRuntimeExt for WorkspaceInfo {
         stats: &'a mut WorkspaceStatistics,
         options: &'a ScanOptions,
         depth: usize,
-    ) -> std::pin::Pin<Box<dyn std::future::Future<Output = OpenBitFunResult<()>> + 'a + Send>>
+    ) -> std::pin::Pin<Box<dyn std::future::Future<Output = AlexResult<()>> + 'a + Send>>
     {
         Box::pin(async move {
             if let Some(max_depth) = options.max_depth {
@@ -575,11 +575,11 @@ impl WorkspaceInfoRuntimeExt for WorkspaceInfo {
             }
 
             let mut read_dir = fs::read_dir(dir).await.map_err(|e| {
-                OpenBitFunError::service(format!("Failed to read directory: {}", e))
+                AlexError::service(format!("Failed to read directory: {}", e))
             })?;
 
             while let Some(entry) = read_dir.next_entry().await.map_err(|e| {
-                OpenBitFunError::service(format!("Failed to read directory entry: {}", e))
+                AlexError::service(format!("Failed to read directory entry: {}", e))
             })? {
                 let path = entry.path();
                 let file_name = path.file_name().and_then(|n| n.to_str()).unwrap_or("");
@@ -597,7 +597,7 @@ impl WorkspaceInfoRuntimeExt for WorkspaceInfo {
                 }
 
                 let metadata = entry.metadata().await.map_err(|e| {
-                    OpenBitFunError::service(format!("Failed to read metadata: {}", e))
+                    AlexError::service(format!("Failed to read metadata: {}", e))
                 })?;
 
                 if metadata.is_file() {
@@ -771,7 +771,7 @@ impl WorkspaceManager {
     }
 
     /// Opens a workspace.
-    pub async fn open_workspace(&mut self, path: PathBuf) -> OpenBitFunResult<WorkspaceInfo> {
+    pub async fn open_workspace(&mut self, path: PathBuf) -> AlexResult<WorkspaceInfo> {
         self.open_workspace_with_options(path, WorkspaceOpenOptions::default())
             .await
     }
@@ -781,7 +781,7 @@ impl WorkspaceManager {
         &mut self,
         path: PathBuf,
         options: WorkspaceOpenOptions,
-    ) -> OpenBitFunResult<WorkspaceInfo> {
+    ) -> AlexResult<WorkspaceInfo> {
         let worktree =
             WorkspaceInfo::resolve_worktree_info(&path, WorktreeTopologyFreshness::Cached).await;
         self.open_workspace_with_resolved_worktree(path, options, worktree)
@@ -793,7 +793,7 @@ impl WorkspaceManager {
         path: PathBuf,
         options: WorkspaceOpenOptions,
         worktree: Option<WorkspaceWorktreeInfo>,
-    ) -> OpenBitFunResult<WorkspaceInfo> {
+    ) -> AlexResult<WorkspaceInfo> {
         self.upsert_workspace_with_options(path, options, true, Some(worktree))
             .await
     }
@@ -807,9 +807,9 @@ impl WorkspaceManager {
         workspace_id: &str,
         add_to_recent: bool,
         refresh_worktree: Option<Option<WorkspaceWorktreeInfo>>,
-    ) -> OpenBitFunResult<WorkspaceInfo> {
+    ) -> AlexResult<WorkspaceInfo> {
         let workspace = self.workspaces.get_mut(workspace_id).ok_or_else(|| {
-            OpenBitFunError::service(format!("Workspace not found: {workspace_id}"))
+            AlexError::service(format!("Workspace not found: {workspace_id}"))
         })?;
         if let Some(worktree) = refresh_worktree {
             workspace.load_identity().await;
@@ -817,7 +817,7 @@ impl WorkspaceManager {
         }
         self.touch_workspace_access(workspace_id, add_to_recent);
         self.workspaces.get(workspace_id).cloned().ok_or_else(|| {
-            OpenBitFunError::service(format!(
+            AlexError::service(format!(
                 "Workspace '{}' disappeared after touching it",
                 workspace_id
             ))
@@ -830,7 +830,7 @@ impl WorkspaceManager {
         path: PathBuf,
         options: WorkspaceOpenOptions,
         refresh_worktree: Option<Option<WorkspaceWorktreeInfo>>,
-    ) -> OpenBitFunResult<WorkspaceInfo> {
+    ) -> AlexResult<WorkspaceInfo> {
         self.upsert_workspace_with_options(path, options, false, refresh_worktree)
             .await
     }
@@ -841,19 +841,19 @@ impl WorkspaceManager {
         options: WorkspaceOpenOptions,
         keep_opened: bool,
         refresh_worktree: Option<Option<WorkspaceWorktreeInfo>>,
-    ) -> OpenBitFunResult<WorkspaceInfo> {
+    ) -> AlexResult<WorkspaceInfo> {
         let is_remote = options.workspace_kind == WorkspaceKind::Remote;
 
         if !is_remote {
             if !path.exists() {
-                return Err(OpenBitFunError::service(format!(
+                return Err(AlexError::service(format!(
                     "Workspace path does not exist: {:?}",
                     path
                 )));
             }
 
             if !path.is_dir() {
-                return Err(OpenBitFunError::service(format!(
+                return Err(AlexError::service(format!(
                     "Workspace path is not a directory: {:?}",
                     path
                 )));
@@ -891,7 +891,7 @@ impl WorkspaceManager {
         } else {
             let canon_norm = match normalize_local_workspace_root_for_stable_id(&path) {
                 Ok(n) => n,
-                Err(e) => return Err(OpenBitFunError::service(e)),
+                Err(e) => return Err(AlexError::service(e)),
             };
             let stable_local_id = local_workspace_stable_storage_id(&canon_norm);
 
@@ -950,7 +950,7 @@ impl WorkspaceManager {
                 self.touch_workspace_access(&workspace_id, options.add_to_recent);
             }
             return self.workspaces.get(&workspace_id).cloned().ok_or_else(|| {
-                OpenBitFunError::service(format!(
+                AlexError::service(format!(
                     "Workspace '{}' disappeared after selecting it",
                     workspace_id
                 ))
@@ -986,7 +986,7 @@ impl WorkspaceManager {
     }
 
     /// Closes the current workspace.
-    pub fn close_current_workspace(&mut self) -> OpenBitFunResult<()> {
+    pub fn close_current_workspace(&mut self) -> AlexResult<()> {
         let current_workspace_id = self.current_workspace_id.clone();
         match current_workspace_id {
             Some(workspace_id) => self.close_workspace(&workspace_id),
@@ -995,9 +995,9 @@ impl WorkspaceManager {
     }
 
     /// Closes the specified workspace.
-    pub fn close_workspace(&mut self, workspace_id: &str) -> OpenBitFunResult<()> {
+    pub fn close_workspace(&mut self, workspace_id: &str) -> AlexResult<()> {
         if !self.workspaces.contains_key(workspace_id) {
-            return Err(OpenBitFunError::service(format!(
+            return Err(AlexError::service(format!(
                 "Workspace not found: {}",
                 workspace_id
             )));
@@ -1028,13 +1028,13 @@ impl WorkspaceManager {
     }
 
     /// Sets the active workspace among already opened workspaces.
-    pub fn set_active_workspace(&mut self, workspace_id: &str) -> OpenBitFunResult<()> {
+    pub fn set_active_workspace(&mut self, workspace_id: &str) -> AlexResult<()> {
         if !self
             .opened_workspace_ids
             .iter()
             .any(|id| id == workspace_id)
         {
-            return Err(OpenBitFunError::service(format!(
+            return Err(AlexError::service(format!(
                 "Workspace is not opened: {}",
                 workspace_id
             )));
@@ -1044,7 +1044,7 @@ impl WorkspaceManager {
     }
 
     /// Sets the current workspace.
-    pub fn set_current_workspace(&mut self, workspace_id: String) -> OpenBitFunResult<()> {
+    pub fn set_current_workspace(&mut self, workspace_id: String) -> AlexResult<()> {
         self.set_current_workspace_with_recent_policy(workspace_id, true)
     }
 
@@ -1052,9 +1052,9 @@ impl WorkspaceManager {
         &mut self,
         workspace_id: String,
         add_to_recent: bool,
-    ) -> OpenBitFunResult<()> {
+    ) -> AlexResult<()> {
         if !self.workspaces.contains_key(&workspace_id) {
-            return Err(OpenBitFunError::service(format!(
+            return Err(AlexError::service(format!(
                 "Workspace not found: {}",
                 workspace_id
             )));
@@ -1150,12 +1150,12 @@ impl WorkspaceManager {
     pub fn set_primary_assistant_workspace(
         &mut self,
         workspace_id: &str,
-    ) -> OpenBitFunResult<Option<PrimaryAssistantKey>> {
+    ) -> AlexResult<Option<PrimaryAssistantKey>> {
         let workspace = self.workspaces.get(workspace_id).ok_or_else(|| {
-            OpenBitFunError::service(format!("Workspace not found: {}", workspace_id))
+            AlexError::service(format!("Workspace not found: {}", workspace_id))
         })?;
         let key = PrimaryAssistantKey::from_workspace(workspace).ok_or_else(|| {
-            OpenBitFunError::service(format!(
+            AlexError::service(format!(
                 "Workspace is not an assistant workspace: {}",
                 workspace_id
             ))
@@ -1224,7 +1224,7 @@ impl WorkspaceManager {
     }
 
     /// Removes a workspace.
-    pub fn remove_workspace(&mut self, workspace_id: &str) -> OpenBitFunResult<()> {
+    pub fn remove_workspace(&mut self, workspace_id: &str) -> AlexResult<()> {
         if self.workspaces.remove(workspace_id).is_some() {
             if self.current_workspace_id.as_ref() == Some(&workspace_id.to_string()) {
                 self.current_workspace_id = None;
@@ -1237,7 +1237,7 @@ impl WorkspaceManager {
 
             Ok(())
         } else {
-            Err(OpenBitFunError::service(format!(
+            Err(AlexError::service(format!(
                 "Workspace not found: {}",
                 workspace_id
             )))
@@ -1247,7 +1247,7 @@ impl WorkspaceManager {
     /// Cleans up invalid workspaces.
     /// Compatibility entry point. Unavailable paths are recoverable (offline
     /// mounts, moved folders, credentials); only explicit removal deletes IDs.
-    pub async fn cleanup_invalid_workspaces(&mut self) -> OpenBitFunResult<usize> {
+    pub async fn cleanup_invalid_workspaces(&mut self) -> AlexResult<usize> {
         for (workspace_id, workspace) in &self.workspaces {
             if !workspace.is_valid().await {
                 log::warn!(

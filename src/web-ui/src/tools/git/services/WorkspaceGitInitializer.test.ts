@@ -4,7 +4,7 @@ const workspaceManagerMock = vi.hoisted(() => ({
   addEventListener: vi.fn(() => vi.fn()),
   getState: vi.fn(() => ({
     currentWorkspace: {
-      id: 'workspace-1', rootPath: 'D:/workspace/OpenBitFun',
+      id: 'workspace-1', rootPath: 'D:/workspace/Alex',
     },
   })),
 }));

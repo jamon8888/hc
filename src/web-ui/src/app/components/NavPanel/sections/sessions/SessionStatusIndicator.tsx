@@ -1,5 +1,5 @@
 import { memo, type ReactNode } from 'react';
-import { Icon } from '@openbitfun/ui';
+import { Icon } from '@alex/ui';
 import { CircleAlert, CircleCheck, CirclePause, CircleStop, CloudOff, Hand, Loader2, MessageCircleQuestion } from 'lucide-react';
 import { useI18n } from '@/infrastructure/i18n';
 import { useSessionNavStatus } from '@/flow_chat/hooks/useSessionNavStatus';
@@ -40,7 +40,7 @@ export const SessionStatusIndicator = memo(function SessionStatusIndicator({
 
   if (!appearance && idleFallback) {
     return (
-      <span className="session-status-indicator openbitfun-nav-panel__inline-item-status">
+      <span className="session-status-indicator alex-nav-panel__inline-item-status">
         {idleFallback}
       </span>
     );
@@ -48,9 +48,9 @@ export const SessionStatusIndicator = memo(function SessionStatusIndicator({
 
   return appearance ? (
     <span
-      className="session-status-indicator openbitfun-nav-panel__inline-item-status"
-      data-openbitfun-component="sessions-section"
-      data-openbitfun-part="status"
+      className="session-status-indicator alex-nav-panel__inline-item-status"
+      data-alex-component="sessions-section"
+      data-alex-part="status"
       data-status={status.kind}
       role="img"
       aria-label={label}

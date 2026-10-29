@@ -1,6 +1,6 @@
 //! User queue receipts and management. Execution stays in DialogScheduler.
 use super::*;
-use openbitfun_runtime_ports::{
+use alex_runtime_ports::{
     DialogQueueAction, DialogQueueItem, DialogQueueMessage, DialogQueueRequest,
     DialogQueueSnapshot, DialogQueueStatus,
 };
@@ -362,7 +362,7 @@ impl DialogScheduler {
         request: DialogQueueRequest,
     ) -> PortResult<DialogQueueSnapshot> {
         let session = &request.session_id;
-        openbitfun_core_types::validate_session_id(session).map_err(error)?;
+        alex_core_types::validate_session_id(session).map_err(error)?;
         let _admission = self.host_queue_locks.lock(session).await;
         if self.session_manager.get_session(session).is_none() {
             return Err(PortError::new(

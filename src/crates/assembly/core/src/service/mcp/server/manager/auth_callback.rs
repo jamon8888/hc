@@ -81,68 +81,68 @@ impl OAuthCallbackLocale {
         match self {
             Self::ZhCN => OAuthCallbackPageCopy {
                 html_lang: "zh-CN",
-                page_title: "OpenBitFun OAuth 回调",
-                brand_label: "OpenBitFun Desktop",
+                page_title: "Alex OAuth 回调",
+                brand_label: "Alex Desktop",
                 badge_success: "已收到授权",
                 badge_warning: "回调参数不完整",
                 badge_error: "授权失败",
-                success_title: "OpenBitFun 已收到 OAuth 回调",
-                success_message: "可以返回 OpenBitFun。应用正在交换授权码并重新连接 MCP 服务器。",
+                success_title: "Alex 已收到 OAuth 回调",
+                success_message: "可以返回 Alex。应用正在交换授权码并重新连接 MCP 服务器。",
                 success_detail_title: "接下来会发生什么",
                 success_detail_body:
-                    "这个页面可以直接关闭。如果 OpenBitFun 没有自动完成重连，请回到 MCP 设置页后重试 OAuth。",
-                warning_title: "OpenBitFun 收到的 OAuth 回调缺少必要参数",
+                    "这个页面可以直接关闭。如果 Alex 没有自动完成重连，请回到 MCP 设置页后重试 OAuth。",
+                warning_title: "Alex 收到的 OAuth 回调缺少必要参数",
                 warning_message:
-                    "OAuth 提供方已跳转回来，但缺少必须的参数。请返回 OpenBitFun 重新发起登录流程。",
+                    "OAuth 提供方已跳转回来，但缺少必须的参数。请返回 Alex 重新发起登录流程。",
                 warning_detail_title: "缺少的参数",
-                error_title: "OpenBitFun 未能完成 OAuth 授权",
+                error_title: "Alex 未能完成 OAuth 授权",
                 error_message:
-                    "请返回 OpenBitFun，并根据下面的提供方返回信息检查问题后重新发起 OAuth。",
+                    "请返回 Alex，并根据下面的提供方返回信息检查问题后重新发起 OAuth。",
                 error_detail_title: "提供方返回",
                 close_hint: "处理完成后，这个页面可以直接关闭。",
             },
             Self::ZhTW => OAuthCallbackPageCopy {
                 html_lang: "zh-TW",
-                page_title: "OpenBitFun OAuth 回調",
-                brand_label: "OpenBitFun Desktop",
+                page_title: "Alex OAuth 回調",
+                brand_label: "Alex Desktop",
                 badge_success: "已收到授權",
                 badge_warning: "回調參數不完整",
                 badge_error: "授權失敗",
-                success_title: "OpenBitFun 已收到 OAuth 回調",
-                success_message: "可以返回 OpenBitFun。應用正在交換授權碼並重新連接 MCP 服務器。",
+                success_title: "Alex 已收到 OAuth 回調",
+                success_message: "可以返回 Alex。應用正在交換授權碼並重新連接 MCP 服務器。",
                 success_detail_title: "接下來會發生什麼",
                 success_detail_body:
-                    "這個頁面可以直接關閉。如果 OpenBitFun 沒有自動完成重連，請回到 MCP 設置頁後重試 OAuth。",
-                warning_title: "OpenBitFun 收到的 OAuth 回調缺少必要參數",
+                    "這個頁面可以直接關閉。如果 Alex 沒有自動完成重連，請回到 MCP 設置頁後重試 OAuth。",
+                warning_title: "Alex 收到的 OAuth 回調缺少必要參數",
                 warning_message:
-                    "OAuth 提供方已跳轉回來，但缺少必須的參數。請返回 OpenBitFun 重新發起登錄流程。",
+                    "OAuth 提供方已跳轉回來，但缺少必須的參數。請返回 Alex 重新發起登錄流程。",
                 warning_detail_title: "缺少的參數",
-                error_title: "OpenBitFun 未能完成 OAuth 授權",
+                error_title: "Alex 未能完成 OAuth 授權",
                 error_message:
-                    "請返回 OpenBitFun，並根據下面的提供方返回信息檢查問題後重新發起 OAuth。",
+                    "請返回 Alex，並根據下面的提供方返回信息檢查問題後重新發起 OAuth。",
                 error_detail_title: "提供方返回",
                 close_hint: "處理完成後，這個頁面可以直接關閉。",
             },
             Self::EnUS => OAuthCallbackPageCopy {
                 html_lang: "en-US",
-                page_title: "OpenBitFun OAuth Callback",
-                brand_label: "OpenBitFun Desktop",
+                page_title: "Alex OAuth Callback",
+                brand_label: "Alex Desktop",
                 badge_success: "Authorization received",
                 badge_warning: "Callback incomplete",
                 badge_error: "Authorization failed",
-                success_title: "OpenBitFun received the OAuth callback",
+                success_title: "Alex received the OAuth callback",
                 success_message:
-                    "You can return to OpenBitFun now. The app is exchanging the authorization code and reconnecting the MCP server.",
+                    "You can return to Alex now. The app is exchanging the authorization code and reconnecting the MCP server.",
                 success_detail_title: "What happens next",
                 success_detail_body:
-                    "This page can be closed now. If OpenBitFun does not finish reconnecting automatically, return to MCP settings and retry OAuth.",
-                warning_title: "OpenBitFun received an OAuth callback with missing parameters",
+                    "This page can be closed now. If Alex does not finish reconnecting automatically, return to MCP settings and retry OAuth.",
+                warning_title: "Alex received an OAuth callback with missing parameters",
                 warning_message:
-                    "The provider redirected back, but required OAuth parameters were missing. Return to OpenBitFun and start the sign-in flow again.",
+                    "The provider redirected back, but required OAuth parameters were missing. Return to Alex and start the sign-in flow again.",
                 warning_detail_title: "Missing parameters",
-                error_title: "OpenBitFun could not finish the OAuth authorization",
+                error_title: "Alex could not finish the OAuth authorization",
                 error_message:
-                    "Return to OpenBitFun and review the provider response below before retrying OAuth.",
+                    "Return to Alex and review the provider response below before retrying OAuth.",
                 error_detail_title: "Provider response",
                 close_hint: "This page can be closed after you review the status.",
             },
@@ -593,7 +593,7 @@ mod tests {
             locale,
         );
 
-        assert!(page.contains("OpenBitFun could not finish the OAuth authorization"));
+        assert!(page.contains("Alex could not finish the OAuth authorization"));
         assert!(page.contains("denied&lt;script&gt;: bad &amp; unsafe"));
         assert!(!page.contains("denied<script>"));
     }

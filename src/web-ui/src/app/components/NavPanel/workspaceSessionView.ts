@@ -8,7 +8,7 @@ export type WorkspaceSessionOrdering = 'updated' | 'status' | 'created' | 'name'
 export type WorkspaceSessionShow = 'all' | 'unread' | 'attention';
 export type WorkspaceSessionStatus = 'running' | 'attention' | 'error' | 'completed' | 'idle';
 export type WorkspaceSessionEnvironment = 'local' | 'remote' | 'detached';
-export type WorkspaceSessionSource = 'openbitfun' | 'external';
+export type WorkspaceSessionSource = 'alex' | 'external';
 export type WorkspaceSessionWorktree = 'main' | 'worktree';
 
 export interface WorkspaceSessionFilters {
@@ -127,7 +127,7 @@ export function deriveWorkspaceSessionEnvironment(session: Session): WorkspaceSe
 }
 
 export function deriveWorkspaceSessionSource(session: Session): WorkspaceSessionSource {
-  return session.config.agentType?.startsWith('acp:') ? 'external' : 'openbitfun';
+  return session.config.agentType?.startsWith('acp:') ? 'external' : 'alex';
 }
 
 export function deriveWorkspaceSessionWorktree(session: Session): WorkspaceSessionWorktree {

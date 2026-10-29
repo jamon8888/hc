@@ -7,7 +7,7 @@ import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 assert.equal(process.platform, 'darwin', 'AppKit pointer fixture requires macOS');
 const root = fileURLToPath(new URL('../', import.meta.url));
-const directory = await mkdtemp(join(tmpdir(), 'openbitfun-pointer-'));
+const directory = await mkdtemp(join(tmpdir(), 'alex-pointer-'));
 function run(command, args) {
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, { cwd: root, stdio: 'inherit', windowsHide: true });

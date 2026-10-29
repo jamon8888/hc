@@ -3,7 +3,7 @@
 /**
  * Prevent the retired product identity from returning to production sources.
  *
- * The normal product is OpenBitFun-only. Legacy exceptions are restricted to
+ * The normal product is Alex-only. Legacy exceptions are restricted to
  * the exact data-directory ignore entry and the one-time migration documents,
  * migrator app/service boundary, and fixtures used for in-place upgrades.
  *
@@ -25,10 +25,10 @@ const retiredProductToken = `${'bit'}${'fun'}`;
 const shortPrefix = `${'b'}${'f'}`;
 const productIdentityOwner = 'src/crates/contracts/core-types/src/product_identity.rs';
 const retiredIdentityDataBoundaryFiles = new Set([
-  'OPENBITFUN_LEGACY_DATA_MIGRATION_IMPLEMENTATION_PLAN.md',
-  'OPENBITFUN_LEGACY_DATA_MIGRATION_INVENTORY.md',
-  'deploy/openbitfun-host/README.md',
-  'deploy/openbitfun-host/migrate-market-data-v1.py',
+  'ALEX_LEGACY_DATA_MIGRATION_IMPLEMENTATION_PLAN.md',
+  'ALEX_LEGACY_DATA_MIGRATION_INVENTORY.md',
+  'deploy/alex-host/README.md',
+  'deploy/alex-host/migrate-market-data-v1.py',
   'src/apps/relay-server/README.md',
   // HarmonyOS must keep its published bundle id and encrypted-storage names
   // for in-place upgrades. Runtime identifiers are centralized in one source;
@@ -48,8 +48,8 @@ const retiredIdentityDataBoundaryPrefixes = Object.freeze([
   'scripts/fixtures/legacy-update-feeds/',
 ]);
 const noncanonicalIdentityDataBoundaryFiles = new Set([
-  'OPENBITFUN_LEGACY_DATA_MIGRATION_INVENTORY.md',
-  'deploy/openbitfun-host/migrate-market-data-v1.py',
+  'ALEX_LEGACY_DATA_MIGRATION_INVENTORY.md',
+  'deploy/alex-host/migrate-market-data-v1.py',
 ]);
 
 // Published external GitHub identifiers that embed the retired token. These are
@@ -86,15 +86,15 @@ function isExternalAttributionOnlyLine(lineText) {
 
 const identityRules = Object.freeze([
   Object.freeze({
-    id: 'noncanonical-openbitfun-casing',
-    description: 'non-canonical OpenBitFun casing',
-    pattern: /openbitfun/giu,
-    isViolation: (value) => !['OpenBitFun', 'openBitFun', 'openbitfun', 'OPENBITFUN'].includes(value),
+    id: 'noncanonical-alex-casing',
+    description: 'non-canonical Alex casing',
+    pattern: /(?<![a-zA-Z])alex(?![a-zA-Z])/giu,
+    isViolation: (value) => !['Alex', 'alex', 'ALEX'].includes(value),
     allowedFiles: noncanonicalIdentityDataBoundaryFiles,
   }),
   Object.freeze({
-    id: 'abbreviated-openbitfun-name',
-    description: 'abbreviated OpenBitFun product name',
+    id: 'abbreviated-alex-name',
+    description: 'abbreviated Alex product name',
     pattern: /\bopen[\s_-]*bf\b/giu,
   }),
   Object.freeze({
@@ -152,18 +152,18 @@ const identityRules = Object.freeze([
   Object.freeze({
     id: 'duplicate-product-identity-owner',
     description: 'product identity compile-time environment read outside the canonical owner',
-    pattern: /\b(?:option_)?env!\s*\(\s*["']OPENBITFUN_(?:PRODUCT_ID|DATA_NAMESPACE|HIDDEN_DATA_DIRECTORY)["']\s*\)/gu,
+    pattern: /\b(?:option_)?env!\s*\(\s*["']ALEX_(?:PRODUCT_ID|DATA_NAMESPACE|HIDDEN_DATA_DIRECTORY)["']\s*\)/gu,
     allowedFiles: new Set([productIdentityOwner]),
   }),
   Object.freeze({
-    id: 'pre-1.0-openbitfun-minimum-version',
-    description: 'minimum OpenBitFun version earlier than 1.0.0',
-    pattern: /\b(?:minOpenBitFunVersion|min_openbitfun_version)\b\s*(?::|=)\s*['"]0\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?['"]/giu,
+    id: 'pre-1.0-alex-minimum-version',
+    description: 'minimum Alex version earlier than 1.0.0',
+    pattern: /\b(?:minAlexVersion|min_alex_version)\b\s*(?::|=)\s*['"]0\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?['"]/giu,
   }),
   Object.freeze({
-    id: 'pre-1.0-openbitfun-release-asset',
-    description: 'OpenBitFun release asset earlier than 1.0.0',
-    pattern: /\b(?:openbitfun-cli-|openbitfun[_-])0\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?/giu,
+    id: 'pre-1.0-alex-release-asset',
+    description: 'Alex release asset earlier than 1.0.0',
+    pattern: /\b(?:alex-cli-|alex[_-])0\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?/giu,
   }),
 ]);
 
@@ -387,7 +387,7 @@ function main() {
   const report = auditRepository(repositoryRoot);
 
   if (report.violations.length > 0) {
-    console.error('OpenBitFun product identity audit failed:');
+    console.error('Alex product identity audit failed:');
     for (const violation of report.violations) {
       console.error(`- ${formatViolation(violation)}`);
     }
@@ -396,7 +396,7 @@ function main() {
   }
 
   console.log(
-    `OpenBitFun product identity audit passed (${report.contentFilesScanned} text files scanned, ${report.filesChecked} repository files checked).`,
+    `Alex product identity audit passed (${report.contentFilesScanned} text files scanned, ${report.filesChecked} repository files checked).`,
   );
 }
 

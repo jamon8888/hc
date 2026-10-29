@@ -48,7 +48,7 @@ public object MessageFileReferenceProjector {
         controlTargetEpoch = 0,
     )
 
-    private val BARE_REFERENCE = Regex("""(?:computer|file|openbitfun)://[^\s)\]}>"']+""")
+    private val BARE_REFERENCE = Regex("""(?:computer|file|alex)://[^\s)\]}>"']+""")
 
     public fun project(source: String): List<MessageFileReference> = project(source, DEFAULT_LIMIT)
 

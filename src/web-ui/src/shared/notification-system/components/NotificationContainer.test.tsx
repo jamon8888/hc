@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Notification } from '../types';
 import { useActiveNotifications } from '../hooks/useNotificationState';
 import { NotificationContainer } from './NotificationContainer';
-import { Dialog } from '@openbitfun/ui';
+import { Dialog } from '@alex/ui';
 import { notificationService } from '../services/NotificationService';
 
 vi.mock('../hooks/useNotificationState', () => ({
@@ -115,7 +115,7 @@ describe('NotificationContainer', () => {
     }]);
 
     act(() => root.render(<NotificationContainer />));
-    const action = document.querySelector('.notification-item__actions [data-openbitfun-component="button"]') as HTMLButtonElement;
+    const action = document.querySelector('.notification-item__actions [data-alex-component="button"]') as HTMLButtonElement;
     action.focus();
     expect(document.activeElement).toBe(action);
 

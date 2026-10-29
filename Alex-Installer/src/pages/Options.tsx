@@ -1,4 +1,4 @@
-import { Button, Checkbox, Disclosure, Field, Input, PageHeader } from '@openbitfun/ui';
+import { Button, Checkbox, Disclosure, Field, Input, PageHeader } from '@alex/ui';
 import { ArrowRight } from 'lucide-react';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';

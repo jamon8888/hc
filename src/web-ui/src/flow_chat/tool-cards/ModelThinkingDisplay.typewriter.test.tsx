@@ -7,7 +7,7 @@ import type { FlowThinkingItem } from '../types/flow-chat';
 import { TypewriterRevealGateContext, useCreateTypewriterRevealGate } from '../hooks/typewriterRevealGateContext';
 
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }));
-vi.mock('@openbitfun/ui', () => ({
+vi.mock('@alex/ui', () => ({
   OverflowText: ({ children }: { children: React.ReactNode }) => <span>{children}</span>,
   Icon: () => null,
 }));
@@ -60,7 +60,7 @@ it('keeps playback while closing, drains when hidden, and resumes only new text 
   expect(h.host.querySelector('[data-testid="body"]')?.textContent).toBe('Start');
   let finish!: () => void;
   const finished = new Promise<void>(resolve => { finish = resolve; });
-  const container = h.host.querySelector('[data-openbitfun-part="expandContainer"]')!;
+  const container = h.host.querySelector('[data-alex-part="expandContainer"]')!;
   Object.defineProperty(container, 'getAnimations', { value: () => [{ transitionProperty: 'grid-template-rows', finished }] });
   h.toggle();
   expect(h.host.querySelector('[data-testid="body"]')).not.toBeNull();

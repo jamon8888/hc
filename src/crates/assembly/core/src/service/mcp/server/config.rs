@@ -1,14 +1,14 @@
 //! MCP server configuration types.
 
-use crate::util::errors::OpenBitFunError;
+use crate::util::errors::AlexError;
 
-use openbitfun_services_integrations::mcp::server::MCPServerConfigValidationError;
-pub use openbitfun_services_integrations::mcp::server::{
+use alex_services_integrations::mcp::server::MCPServerConfigValidationError;
+pub use alex_services_integrations::mcp::server::{
     MCPImportOrigin, MCPServerConfig, MCPServerOAuthConfig, MCPServerTimeouts, MCPServerTransport,
     MCPServerXaaConfig,
 };
 
-impl From<MCPServerConfigValidationError> for OpenBitFunError {
+impl From<MCPServerConfigValidationError> for AlexError {
     fn from(error: MCPServerConfigValidationError) -> Self {
         Self::Configuration(error.to_string())
     }

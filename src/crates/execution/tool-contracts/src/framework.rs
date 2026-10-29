@@ -7,8 +7,8 @@ use crate::{
 };
 use async_trait::async_trait;
 use indexmap::IndexMap;
-use openbitfun_core_types::ToolImageAttachment;
-use openbitfun_runtime_ports::DelegationPolicy;
+use alex_core_types::ToolImageAttachment;
+use alex_runtime_ports::DelegationPolicy;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::{BTreeMap, BTreeSet, HashSet};
@@ -1672,25 +1672,25 @@ impl ToolPathResolution {
         let root = self.runtime_root.as_ref()?;
         let relative = absolute_child_path.strip_prefix(root).ok()?;
         let relative_str = relative.to_string_lossy().replace('\\', "/");
-        if is_openbitfun_current_session_uri(&self.logical_path) {
-            return build_openbitfun_current_session_uri(&relative_str).ok();
+        if is_alex_current_session_uri(&self.logical_path) {
+            return build_alex_current_session_uri(&relative_str).ok();
         }
         let scope = self.runtime_scope.as_deref()?;
-        build_openbitfun_runtime_uri(scope, &relative_str).ok()
+        build_alex_runtime_uri(scope, &relative_str).ok()
     }
 }
 
-pub const OPENBITFUN_RUNTIME_URI_PREFIX: &str = "openbitfun://runtime/";
-pub const OPENBITFUN_CURRENT_SESSION_URI_PREFIX: &str = "openbitfun://current-session/";
+pub const ALEX_RUNTIME_URI_PREFIX: &str = "openbitfun://runtime/";
+pub const ALEX_CURRENT_SESSION_URI_PREFIX: &str = "openbitfun://current-session/";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ParsedOpenBitFunRuntimeUri {
+pub struct ParsedAlexRuntimeUri {
     pub workspace_scope: String,
     pub relative_path: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ParsedOpenBitFunCurrentSessionUri {
+pub struct ParsedAlexCurrentSessionUri {
     pub relative_path: String,
 }
 
@@ -1765,16 +1765,16 @@ impl fmt::Display for ToolPathContractError {
 
 impl std::error::Error for ToolPathContractError {}
 
-pub fn is_openbitfun_runtime_uri(path: &str) -> bool {
-    path.trim().starts_with(OPENBITFUN_RUNTIME_URI_PREFIX)
+pub fn is_alex_runtime_uri(path: &str) -> bool {
+    path.trim().starts_with(ALEX_RUNTIME_URI_PREFIX)
 }
 
-pub fn is_openbitfun_current_session_uri(path: &str) -> bool {
+pub fn is_alex_current_session_uri(path: &str) -> bool {
     path.trim()
-        .starts_with(OPENBITFUN_CURRENT_SESSION_URI_PREFIX)
+        .starts_with(ALEX_CURRENT_SESSION_URI_PREFIX)
 }
 
-pub fn is_openbitfun_tool_uri(path: &str) -> bool {
+pub fn is_alex_tool_uri(path: &str) -> bool {
     path.trim().starts_with("openbitfun://")
 }
 
@@ -1880,8 +1880,8 @@ pub fn resolve_tool_path_with_context_roots(
     runtime_root: Option<PathBuf>,
     current_session_root: Option<PathBuf>,
 ) -> Result<ToolPathResolution, ToolPathContractError> {
-    if is_openbitfun_runtime_uri(path) {
-        let parsed = parse_openbitfun_runtime_uri(path)?;
+    if is_alex_runtime_uri(path) {
+        let parsed = parse_alex_runtime_uri(path)?;
         let scope_matches = parsed.workspace_scope == "current"
             || workspace_scope == Some(parsed.workspace_scope.as_str());
         if !scope_matches {
@@ -1899,7 +1899,7 @@ pub fn resolve_tool_path_with_context_roots(
         let effective_scope = workspace_scope
             .map(str::to_string)
             .unwrap_or_else(|| parsed.workspace_scope.clone());
-        let logical_path = build_openbitfun_runtime_uri(&effective_scope, &parsed.relative_path)?;
+        let logical_path = build_alex_runtime_uri(&effective_scope, &parsed.relative_path)?;
 
         return Ok(ToolPathResolution {
             requested_path: path.to_string(),
@@ -1911,8 +1911,8 @@ pub fn resolve_tool_path_with_context_roots(
         });
     }
 
-    if is_openbitfun_current_session_uri(path) {
-        let parsed = parse_openbitfun_current_session_uri(path)?;
+    if is_alex_current_session_uri(path) {
+        let parsed = parse_alex_current_session_uri(path)?;
         let current_session_root =
             current_session_root.ok_or(ToolPathContractError::MissingCurrentSessionRoot)?;
         let mut resolved_path = current_session_root.clone();
@@ -1921,7 +1921,7 @@ pub fn resolve_tool_path_with_context_roots(
         }
         return Ok(ToolPathResolution {
             requested_path: path.to_string(),
-            logical_path: build_openbitfun_current_session_uri(&parsed.relative_path)?,
+            logical_path: build_alex_current_session_uri(&parsed.relative_path)?,
             resolved_path: resolved_path.to_string_lossy().to_string(),
             backend: ToolPathBackend::Local,
             runtime_scope: None,
@@ -1929,7 +1929,7 @@ pub fn resolve_tool_path_with_context_roots(
         });
     }
 
-    if is_openbitfun_tool_uri(path) {
+    if is_alex_tool_uri(path) {
         return Err(ToolPathContractError::UnsupportedRuntimeUri {
             uri: path.to_string(),
         });
@@ -1951,7 +1951,7 @@ pub fn resolve_tool_path_with_context_roots(
 }
 
 pub fn tool_path_is_effectively_absolute(path: &str, workspace_is_remote: bool) -> bool {
-    if is_openbitfun_tool_uri(path) {
+    if is_alex_tool_uri(path) {
         return true;
     }
 
@@ -1985,12 +1985,12 @@ pub fn normalize_runtime_relative_path(path: &str) -> Result<String, ToolPathCon
     Ok(segments.join("/"))
 }
 
-pub fn parse_openbitfun_runtime_uri(
+pub fn parse_alex_runtime_uri(
     path: &str,
-) -> Result<ParsedOpenBitFunRuntimeUri, ToolPathContractError> {
+) -> Result<ParsedAlexRuntimeUri, ToolPathContractError> {
     let trimmed = path.trim();
     let suffix = trimmed
-        .strip_prefix(OPENBITFUN_RUNTIME_URI_PREFIX)
+        .strip_prefix(ALEX_RUNTIME_URI_PREFIX)
         .ok_or_else(|| ToolPathContractError::UnsupportedRuntimeUri {
             uri: path.to_string(),
         })?;
@@ -2006,40 +2006,40 @@ pub fn parse_openbitfun_runtime_uri(
         .next()
         .ok_or(ToolPathContractError::MissingRuntimeUriArtifactPath)?;
 
-    Ok(ParsedOpenBitFunRuntimeUri {
+    Ok(ParsedAlexRuntimeUri {
         workspace_scope,
         relative_path: normalize_runtime_relative_path(relative_path)?,
     })
 }
 
-pub fn parse_openbitfun_current_session_uri(
+pub fn parse_alex_current_session_uri(
     path: &str,
-) -> Result<ParsedOpenBitFunCurrentSessionUri, ToolPathContractError> {
+) -> Result<ParsedAlexCurrentSessionUri, ToolPathContractError> {
     let trimmed = path.trim();
     let relative_path = trimmed
-        .strip_prefix(OPENBITFUN_CURRENT_SESSION_URI_PREFIX)
+        .strip_prefix(ALEX_CURRENT_SESSION_URI_PREFIX)
         .ok_or_else(|| ToolPathContractError::UnsupportedRuntimeUri {
             uri: path.to_string(),
         })?;
     if relative_path.trim().is_empty() {
         return Err(ToolPathContractError::MissingCurrentSessionArtifactPath);
     }
-    Ok(ParsedOpenBitFunCurrentSessionUri {
+    Ok(ParsedAlexCurrentSessionUri {
         relative_path: normalize_runtime_relative_path(relative_path)?,
     })
 }
 
-pub fn build_openbitfun_current_session_uri(
+pub fn build_alex_current_session_uri(
     relative_path: &str,
 ) -> Result<String, ToolPathContractError> {
     Ok(format!(
         "{}{}",
-        OPENBITFUN_CURRENT_SESSION_URI_PREFIX,
+        ALEX_CURRENT_SESSION_URI_PREFIX,
         normalize_runtime_relative_path(relative_path)?
     ))
 }
 
-pub fn build_openbitfun_runtime_uri(
+pub fn build_alex_runtime_uri(
     workspace_scope: &str,
     relative_path: &str,
 ) -> Result<String, ToolPathContractError> {
@@ -2050,7 +2050,7 @@ pub fn build_openbitfun_runtime_uri(
 
     Ok(format!(
         "{}{}/{}",
-        OPENBITFUN_RUNTIME_URI_PREFIX,
+        ALEX_RUNTIME_URI_PREFIX,
         scope,
         normalize_runtime_relative_path(relative_path)?
     ))
@@ -2064,7 +2064,7 @@ pub fn build_tool_runtime_artifact_reference(
 ) -> Result<String, ToolPathContractError> {
     let normalized_relative_path = normalize_runtime_relative_path(relative_path)?;
     if emit_runtime_uri {
-        return build_openbitfun_runtime_uri(
+        return build_alex_runtime_uri(
             workspace_scope.unwrap_or("current"),
             &normalized_relative_path,
         );

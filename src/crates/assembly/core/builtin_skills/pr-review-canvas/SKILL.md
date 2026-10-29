@@ -7,7 +7,7 @@ description: 'Create a Alex Canvas for reviewing a pull request, branch diff, or
 
 Use this skill to produce a session-scoped Alex Canvas that helps a reviewer understand a PR quickly. The artifact should reorganize the diff for reviewer comprehension, not mirror file-tree order. It should look and feel like a Cursor Canvas review: compact metadata, focused diff stats, pill filters, file diff cards, tables, callouts, traces, and reviewer-facing notes.
 
-Read and follow `openbitfun-canvas` first. It defines the Canvas tool workflow, source rules, SDK surface, and design constraints.
+Read and follow `alex-canvas` first. It defines the Canvas tool workflow, source rules, SDK surface, and design constraints.
 
 ## Inputs
 
@@ -99,7 +99,7 @@ Before calling `CreateCanvas`, verify:
 - Dense logic has pseudocode, a trace, or a flow/call graph if that would help.
 - Raw diff snippets are focused and not full-file dumps.
 - The first screen includes the main behavior/risk, not only metadata.
-- The design passes the `openbitfun-canvas` slop-pattern check.
+- The design passes the `alex-canvas` slop-pattern check.
 
 ## Output
 

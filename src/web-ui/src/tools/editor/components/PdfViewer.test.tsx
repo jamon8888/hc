@@ -77,14 +77,14 @@ vi.mock('@/shared/utils/logger', () => ({
   }),
 }));
 
-vi.mock('@openbitfun/ui', () => ({
+vi.mock('@alex/ui', () => ({
   Button: ({ children, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
     <button {...props}>{children}</button>
   ),
   IconButton: ({ icon: _icon, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement> & { icon?: React.ReactNode }) => (
     <button {...props} />
   ),
-  Icon: ({ name }: { name: string }) => <span data-openbitfun-name={name} />,
+  Icon: ({ name }: { name: string }) => <span data-alex-name={name} />,
   Input: ({
     onValueChange,
     size: _size,
@@ -325,10 +325,10 @@ describe('PdfViewer', () => {
     expect(pdf.pages[5].render).not.toHaveBeenCalled();
     expect(mocks.textLayerInstances).toHaveLength(3);
     expect(mocks.textLayerInstances.every(instance => instance.render.mock.calls.length === 1)).toBe(true);
-    expect(container.querySelectorAll('.openbitfun-pdf-viewer__text-layer span')).toHaveLength(3);
+    expect(container.querySelectorAll('.alex-pdf-viewer__text-layer span')).toHaveLength(3);
     expect(
-      container.querySelector<HTMLElement>('.openbitfun-pdf-viewer__text-layer span')
-        ?.style.getPropertyValue('--openbitfun-pdf-glyph-height'),
+      container.querySelector<HTMLElement>('.alex-pdf-viewer__text-layer span')
+        ?.style.getPropertyValue('--alex-pdf-glyph-height'),
     ).toBe('12px');
   });
 
@@ -379,7 +379,7 @@ describe('PdfViewer', () => {
     act(() => root.render(<PdfViewer workspaceId="workspace-remote" filePath="/remote/restricted.pdf" />));
     await flushAsyncWork();
 
-    const textLayer = container.querySelector('.openbitfun-pdf-viewer__text-layer');
+    const textLayer = container.querySelector('.alex-pdf-viewer__text-layer');
     const copyEvent = new Event('copy', { bubbles: true, cancelable: true });
     act(() => textLayer?.dispatchEvent(copyEvent));
 
@@ -472,7 +472,7 @@ describe('PdfViewer', () => {
     act(() => root.render(<PdfViewer workspaceId="workspace-remote" filePath="/remote/report.pdf" />));
     await flushAsyncWork();
 
-    const scrollContainer = container.querySelector<HTMLElement>('.openbitfun-pdf-viewer__container');
+    const scrollContainer = container.querySelector<HTMLElement>('.alex-pdf-viewer__container');
     const firstPage = container.querySelector<HTMLElement>('[data-page-number="1"]');
     expect(scrollContainer).not.toBeNull();
     expect(firstPage).not.toBeNull();
@@ -565,7 +565,7 @@ describe('PdfViewer', () => {
 
     const firstPage = container.querySelector<HTMLElement>('[data-page-number="1"]');
     const canvas = firstPage?.querySelector<HTMLCanvasElement>('canvas');
-    const textLayer = firstPage?.querySelector<HTMLElement>('.openbitfun-pdf-viewer__text-layer');
+    const textLayer = firstPage?.querySelector<HTMLElement>('.alex-pdf-viewer__text-layer');
     const previousText = textLayer?.querySelector('span');
     expect(canvas?.width).toBe(600);
     expect(canvas?.style.width).toBe('600px');
@@ -625,7 +625,7 @@ describe('PdfViewer', () => {
 
     act(() => root.render(<PdfViewer workspaceId="workspace-remote" filePath="C:\\docs\\report.pdf" />));
     await flushAsyncWork();
-    const scrollContainer = container.querySelector<HTMLElement>('.openbitfun-pdf-viewer__container');
+    const scrollContainer = container.querySelector<HTMLElement>('.alex-pdf-viewer__container');
     const removeEventListenerSpy = vi.spyOn(scrollContainer!, 'removeEventListener');
     act(() => root.unmount());
     root = createRoot(container);

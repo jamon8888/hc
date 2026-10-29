@@ -4,8 +4,8 @@
 fn main() {
     use std::sync::mpsc;
     use std::time::{Duration, Instant};
-    if std::env::var_os("OPENBITFUN_ROUNDTRIP_FIXTURE_PID").is_none()
-        && std::env::var_os("OPENBITFUN_INPUT_FIXTURE_PID").is_none()
+    if std::env::var_os("ALEX_ROUNDTRIP_FIXTURE_PID").is_none()
+        && std::env::var_os("ALEX_INPUT_FIXTURE_PID").is_none()
     {
         eprintln!(
             "Run node scripts/test-macos-control-roundtrip.mjs to launch the isolated fixture"
@@ -24,7 +24,7 @@ fn main() {
     let app: *mut objc2::runtime::AnyObject =
         unsafe { objc2::msg_send![objc2::class!(NSApplication), sharedApplication] };
     let _: bool = unsafe { objc2::msg_send![app, setActivationPolicy: 2isize] };
-    if let Some(path) = std::env::var_os("OPENBITFUN_INPUT_HOST_READY") {
+    if let Some(path) = std::env::var_os("ALEX_INPUT_HOST_READY") {
         std::fs::write(path, b"ready").unwrap();
     }
     std::thread::spawn(move || {
@@ -34,7 +34,7 @@ fn main() {
                 .enable_all()
                 .build()
                 .unwrap()
-                .block_on(openbitfun_desktop_lib::run_native_computer_use_roundtrip_fixture());
+                .block_on(alex_desktop_lib::run_native_computer_use_roundtrip_fixture());
         });
         let _ = sender.send(result.is_ok());
     });

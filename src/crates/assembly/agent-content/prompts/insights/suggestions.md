@@ -77,7 +77,7 @@ Analyze this Alex usage data and suggest improvements.
 
 RESPOND WITH ONLY A VALID JSON OBJECT:
 {
-  "openbitfun_md_additions": [
+  "alex_md_additions": [
     {"section": "Section name in OPENBITFUN.md", "content": "A specific line or block to add based on workflow patterns", "rationale": "1 sentence explaining why this would help based on actual sessions"}
   ],
   "features_to_try": [
@@ -88,7 +88,7 @@ RESPOND WITH ONLY A VALID JSON OBJECT:
   ]
 }
 
-IMPORTANT for openbitfun_md_additions: PRIORITIZE instructions that appear MULTIPLE TIMES in the user data. If user told AI the same thing in 2+ sessions (e.g., 'always run tests', 'use TypeScript'), that's a PRIME candidate - they shouldn't have to repeat themselves.
+IMPORTANT for alex_md_additions: PRIORITIZE instructions that appear MULTIPLE TIMES in the user data. If user told AI the same thing in 2+ sessions (e.g., 'always run tests', 'use TypeScript'), that's a PRIME candidate - they shouldn't have to repeat themselves.
 
 IMPORTANT for features_to_try: Pick 2-3 from the OPENBITFUN FEATURES REFERENCE above. Include concrete, copy-pasteable example_usage for each. Tailor the benefit to the user's actual workflow patterns.
 

@@ -8,7 +8,7 @@
  * - Supports 'primary' | 'fast' | specific model IDs
  */
 
-import { subscribeOverlayInteraction, createOverlayPortal, Menu, MenuItem, MenuSection, MenuSeparator, OverflowText } from '@openbitfun/ui';
+import { subscribeOverlayInteraction, createOverlayPortal, Menu, MenuItem, MenuSection, MenuSeparator, OverflowText } from '@alex/ui';
 import React, { useState, useEffect, useId, useRef, useCallback, useLayoutEffect, useMemo, useSyncExternalStore } from 'react';
 import { getAppearanceOverlayHost } from '@/infrastructure/appearance/runtime/AppearanceOverlayHost';
 import { Zap } from 'lucide-react';
@@ -24,7 +24,7 @@ import { ACPClientAPI, type AcpSessionOptions } from '@/infrastructure/api/servi
 import { getProviderDisplayName, getProviderGroupKey } from '@/infrastructure/config/services/modelConfigs';
 import { globalEventBus } from '@/infrastructure/event-bus';
 import type { AIModelConfig, AgentModelDefaultsConfig, DefaultModelsConfig } from '@/infrastructure/config/types';
-import { Tooltip, Icon } from '@openbitfun/ui';
+import { Tooltip, Icon } from '@alex/ui';
 import { RetainedMountBoundary } from '@/shared/presence';
 import { notificationService } from '@/shared/notification-system';
 import { FlowChatStore } from '../store/FlowChatStore';
@@ -123,7 +123,7 @@ interface ModelSelectorProps {
   externalSelection?: ExternalModelSelection;
   /** Agent-profile model used only when the session has no explicit selection. */
   modeDefaultModelId?: string;
-  /** Whether a selection also changes OpenBitFun's shared built-in mode default. */
+  /** Whether a selection also changes Alex's shared built-in mode default. */
   persistSharedModeDefault?: boolean;
   /** Whether lifecycle ownership currently prevents Session setting changes. */
   disabled?: boolean;
@@ -169,15 +169,15 @@ const clampToRange = (value: number, min: number, max: number): number => (
 );
 
 const ModelSelectorTooltipContent: React.FC<{ details: ModelSelectorTooltipDetails }> = ({ details }) => (
-  <div className="openbitfun-model-selector__tooltip">
+  <div className="alex-model-selector__tooltip">
     {details.rows.map(row => (
-      <div key={row.key} className="openbitfun-model-selector__tooltip-row">
-        <span className="openbitfun-model-selector__tooltip-label">{row.label}</span>
-        <span className="openbitfun-model-selector__tooltip-value">{row.value}</span>
+      <div key={row.key} className="alex-model-selector__tooltip-row">
+        <span className="alex-model-selector__tooltip-label">{row.label}</span>
+        <span className="alex-model-selector__tooltip-value">{row.value}</span>
       </div>
     ))}
     {details.warning ? (
-      <div className="openbitfun-model-selector__tooltip-warning">{details.warning}</div>
+      <div className="alex-model-selector__tooltip-warning">{details.warning}</div>
     ) : null}
   </div>
 );
@@ -187,15 +187,15 @@ const ModelSelectorMenuLevel: React.FC<{
   direction: ModelSelectorLevelDirection;
 }> = ({ children, direction }) => (
   <div
-    className="openbitfun-model-selector__level"
-    data-openbitfun-component="model-selector"
-    data-openbitfun-part="level"
+    className="alex-model-selector__level"
+    data-alex-component="model-selector"
+    data-alex-part="level"
     data-direction={direction}
   >
     <div
-      className="openbitfun-model-selector__list"
-      data-openbitfun-component="model-selector"
-      data-openbitfun-part="list"
+      className="alex-model-selector__list"
+      data-alex-component="model-selector"
+      data-alex-part="list"
     >
       <MenuSection>{children}</MenuSection>
     </div>
@@ -515,7 +515,7 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
     const restoreRequestId = `acp-options:${sessionId}:${acpClientId}`;
     if (shouldShowRestoreToast) {
       acpRestoreToastShownRef.current = sessionId;
-      window.dispatchEvent(new CustomEvent('openbitfun:acp-session-creation', {
+      window.dispatchEvent(new CustomEvent('alex:acp-session-creation', {
         detail: { phase: 'start', clientId: acpClientId, action: 'restore', requestId: restoreRequestId },
       }));
     }
@@ -542,7 +542,7 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
       setAcpOptions(null);
     } finally {
       if (shouldShowRestoreToast) {
-        window.dispatchEvent(new CustomEvent('openbitfun:acp-session-creation', {
+        window.dispatchEvent(new CustomEvent('alex:acp-session-creation', {
           detail: {
             phase: 'finish',
             clientId: acpClientId,
@@ -954,8 +954,8 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
         leading={<Icon name="info" size="sm" aria-hidden />}
         data-testid="chat-model-selector-status"
         data-model-status={currentAvailability.status}
-        data-openbitfun-component="model-selector"
-        data-openbitfun-part="option"
+        data-alex-component="model-selector"
+        data-alex-part="option"
       >
         {getAvailabilityLabel(currentAvailability.status, t)}
       </MenuItem>
@@ -963,8 +963,8 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
         <MenuItem
           data-testid="chat-model-selector-open-settings"
           leading={<Icon name="settings" size="sm" aria-hidden />}
-          data-openbitfun-component="model-selector"
-          data-openbitfun-part="option"
+          data-alex-component="model-selector"
+          data-alex-part="option"
           onClick={handleOpenModelSettings}
         >
           {t('modelSelector.openModelSettings')}
@@ -1867,17 +1867,17 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
     ? targetTooltip : <ModelSelectorTooltipContent details={tooltipDetails} />;
 
   return (
-    <div data-openbitfun-component="model-selector" data-openbitfun-part="root"
+    <div data-alex-component="model-selector" data-alex-part="root"
       ref={dropdownRef}
-      className={`openbitfun-model-selector ${className}`}
-      data-openbitfun-state={[displayedAvailability.status, dropdownOpen && 'open'].filter(Boolean).join(' ')}
+      className={`alex-model-selector ${className}`}
+      data-alex-state={[displayedAvailability.status, dropdownOpen && 'open'].filter(Boolean).join(' ')}
     >
       {showModelTrigger && (
       <Tooltip content={disabledReason || tooltipContent} disabled={dropdownOpen}>
         <button data-overflow-trigger
           ref={triggerRef}
           data-testid="chat-model-selector-btn"
-          className={`openbitfun-model-selector__trigger ${dropdownOpen ? 'openbitfun-model-selector__trigger--open' : ''}`}
+          className={`alex-model-selector__trigger ${dropdownOpen ? 'alex-model-selector__trigger--open' : ''}`}
           type="button"
           aria-haspopup="menu"
           aria-expanded={dropdownOpen}
@@ -1905,19 +1905,19 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
             || externalSelection?.disabled
             || displayedAvailability.status === 'loading'
           }
-         data-openbitfun-component="model-selector" data-openbitfun-part="trigger" data-openbitfun-state={dropdownOpen ? 'open' : undefined}>
-          <OverflowText className="openbitfun-model-selector__name" data-openbitfun-component="model-selector" data-openbitfun-part="name">
+         data-alex-component="model-selector" data-alex-part="trigger" data-alex-state={dropdownOpen ? 'open' : undefined}>
+          <OverflowText className="alex-model-selector__name" data-alex-component="model-selector" data-alex-part="name">
              {modelLabel}
           </OverflowText>
           {isAcpSelection && acpFastMode?.enabled && (
-            <Zap size={9} className="openbitfun-model-selector__fast-icon" />
+            <Zap size={9} className="alex-model-selector__fast-icon" />
           )}
           {hasReasoningSettings && (
             <span
-              className="openbitfun-model-selector__trigger-reasoning"
+              className="alex-model-selector__trigger-reasoning"
               data-testid="chat-model-selector-trigger-reasoning"
-              data-openbitfun-component="model-selector"
-              data-openbitfun-part="reasoningSummary"
+              data-alex-component="model-selector"
+              data-alex-part="reasoningSummary"
             >
               {reasoningTriggerPresentation === 'label' ? (
                 <OverflowText>{currentReasoningLabel}</OverflowText>
@@ -1932,7 +1932,7 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
               )}
             </span>
           )}
-          <Icon name="chevron-down" size="lg" style={{ width: 10, height: 10 }} className="openbitfun-model-selector__chevron" data-testid="chat-model-selector-dropdown-indicator" />
+          <Icon name="chevron-down" size="lg" style={{ width: 10, height: 10 }} className="alex-model-selector__chevron" data-testid="chat-model-selector-dropdown-indicator" />
         </button>
       </Tooltip>
       )}
@@ -1954,9 +1954,9 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
         {createOverlayPortal(
           <Menu
             id={menuId}
-            className="openbitfun-model-selector__dropdown"
-            data-openbitfun-component="model-selector"
-            data-openbitfun-part="dropdown"
+            className="alex-model-selector__dropdown"
+            data-alex-component="model-selector"
+            data-alex-part="dropdown"
             ref={portalDropdownRef}
             style={dropdownStyle}
             data-testid="chat-model-selector-menu"
@@ -1976,14 +1976,14 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
               {showModelChoices && (
               <MenuItem data-overflow-trigger
                 ref={nativeModelMenuItemRef}
-                className={`openbitfun-model-selector__settings-item${nativeSubmenu === 'models' ? ' is-open' : ''}`}
+                className={`alex-model-selector__settings-item${nativeSubmenu === 'models' ? ' is-open' : ''}`}
                 data-testid="chat-model-selector-settings-model"
                 data-model-menu-target="models"
                 aria-haspopup="menu"
                 aria-expanded={nativeSubmenu === 'models'}
                 aria-controls={nativeSubmenu === 'models' ? nativeSubmenuId : undefined}
                 metadata={(
-                  <OverflowText className="openbitfun-model-selector__settings-value">
+                  <OverflowText className="alex-model-selector__settings-value">
                      {modelLabel}
                   </OverflowText>
                 )}
@@ -1998,14 +1998,14 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
               {hasReasoningSettings && (
                 <MenuItem data-overflow-trigger
                   ref={nativeReasoningMenuItemRef}
-                  className={`openbitfun-model-selector__settings-item${nativeSubmenu === 'reasoning' ? ' is-open' : ''}`}
+                  className={`alex-model-selector__settings-item${nativeSubmenu === 'reasoning' ? ' is-open' : ''}`}
                   data-testid="chat-model-selector-settings-reasoning"
                   data-model-menu-target="reasoning"
                   aria-haspopup="menu"
                   aria-expanded={nativeSubmenu === 'reasoning'}
                   aria-controls={nativeSubmenu === 'reasoning' ? nativeSubmenuId : undefined}
                   metadata={(
-                    <OverflowText className="openbitfun-model-selector__settings-value">
+                    <OverflowText className="alex-model-selector__settings-value">
                       {currentReasoningLabel}
                     </OverflowText>
                   )}
@@ -2031,15 +2031,15 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
         <Menu
           id={nativeSubmenuId}
           ref={nativeSubmenuRef}
-          className={`openbitfun-model-selector__submenu${!hasReasoningSettings ? ' openbitfun-model-selector__submenu--direct' : ''}`}
+          className={`alex-model-selector__submenu${!hasReasoningSettings ? ' alex-model-selector__submenu--direct' : ''}`}
           style={nativeSubmenuStyle}
           data-testid={!hasReasoningSettings && (externalSelection || isAcpSession)
             ? 'chat-model-selector-menu' : 'chat-model-selector-submenu'}
           data-submenu-kind={nativeSubmenu}
           data-menu-level={activeProviderGroup ? 'provider' : nativeSubmenu}
           data-placement={nativeSubmenuPlacement}
-          data-openbitfun-component="model-selector"
-          data-openbitfun-part="dropdown"
+          data-alex-component="model-selector"
+          data-alex-part="dropdown"
           aria-label={activeProviderGroup
             ? activeProviderGroup.providerName
             : nativeSubmenu === 'reasoning'
@@ -2059,9 +2059,9 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
                   checked={!selectedReasoningDescriptor}
                   data-testid="chat-model-selector-reasoning-option"
                   data-preset-id="auto"
-                  data-openbitfun-component="model-selector"
-                  data-openbitfun-part="option"
-                  data-openbitfun-state={!selectedReasoningDescriptor ? 'selected' : undefined}
+                  data-alex-component="model-selector"
+                  data-alex-part="option"
+                  data-alex-state={!selectedReasoningDescriptor ? 'selected' : undefined}
                   onClick={() => handleSelectReasoningPresetFromMenu(null)}
                 >
                   {t('reasoningSelector.auto')}
@@ -2080,9 +2080,9 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
                       checked={isSelected}
                       data-testid="chat-model-selector-reasoning-option"
                       data-preset-id={preset.id}
-                      data-openbitfun-component="model-selector"
-                      data-openbitfun-part="option"
-                      data-openbitfun-state={isSelected ? 'selected' : undefined}
+                      data-alex-component="model-selector"
+                      data-alex-part="option"
+                      data-alex-state={isSelected ? 'selected' : undefined}
                       onClick={() => handleSelectReasoningPresetFromMenu(preset.id)}
                     >
                       {label}
@@ -2108,9 +2108,9 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
                             data-model-id={model.id}
                             data-model-name={model.modelName}
                             data-selected={currentModelId === model.id ? 'true' : 'false'}
-                            data-openbitfun-component="model-selector"
-                            data-openbitfun-part="option"
-                            data-openbitfun-state={currentModelId === model.id ? 'selected' : undefined}
+                            data-alex-component="model-selector"
+                            data-alex-part="option"
+                            data-alex-state={currentModelId === model.id ? 'selected' : undefined}
                             metadata={currentModelId === model.id ? <Icon name="check-line" size="sm" aria-hidden /> : null}
                             onClick={() => handleSelectModel(model.id)}
                           >
@@ -2126,8 +2126,8 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
               <>
                 <MenuItem
                   data-testid="chat-model-selector-back"
-                  data-openbitfun-component="model-selector"
-                  data-openbitfun-part="back"
+                  data-alex-component="model-selector"
+                  data-alex-part="back"
                   aria-label={t('modelSelector.backToProviders')}
                   leading={<Icon name="chevron-left" size="xs" aria-hidden />}
                   onClick={closeProviderLevel}
@@ -2147,9 +2147,9 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
                         data-model-id={model.id}
                         data-model-name={model.modelName}
                         data-selected={isSelected ? 'true' : 'false'}
-                        data-openbitfun-component="model-selector"
-                        data-openbitfun-part="option"
-                        data-openbitfun-state={isSelected ? 'selected' : undefined}
+                        data-alex-component="model-selector"
+                        data-alex-part="option"
+                        data-alex-state={isSelected ? 'selected' : undefined}
                         metadata={isSelected ? <Icon name="check-line" size="sm" aria-hidden /> : null}
                         onClick={() => handleSelectModel(model.id)}
                       >
@@ -2182,9 +2182,9 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
                         data-model-id="primary"
                         data-model-name={primaryModel?.model_name || 'primary'}
                         data-selected={currentModelId === 'primary' ? 'true' : 'false'}
-                        data-openbitfun-component="model-selector"
-                        data-openbitfun-part="option"
-                        data-openbitfun-state={currentModelId === 'primary' ? 'selected' : undefined}
+                        data-alex-component="model-selector"
+                        data-alex-part="option"
+                        data-alex-state={currentModelId === 'primary' ? 'selected' : undefined}
                         metadata={currentModelId === 'primary' ? <Icon name="check-line" size="sm" aria-hidden /> : null}
                          disabled={!primaryModel}
                          onClick={() => handleSelectModel('primary')}
@@ -2216,9 +2216,9 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
                         data-model-id="fast"
                         data-model-name={fastModel?.model_name || 'fast'}
                         data-selected={currentModelId === 'fast' ? 'true' : 'false'}
-                        data-openbitfun-component="model-selector"
-                        data-openbitfun-part="option"
-                        data-openbitfun-state={currentModelId === 'fast' ? 'selected' : undefined}
+                        data-alex-component="model-selector"
+                        data-alex-part="option"
+                        data-alex-state={currentModelId === 'fast' ? 'selected' : undefined}
                         metadata={currentModelId === 'fast' ? <Icon name="check-line" size="sm" aria-hidden /> : null}
                         onClick={() => handleSelectModel('fast')}
                       >
@@ -2248,27 +2248,27 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
                         data-testid="chat-model-selector-provider"
                         data-provider-key={group.key}
                         data-selected={isSelected ? 'true' : 'false'}
-                        data-openbitfun-component="model-selector"
-                        data-openbitfun-part="providerOption"
-                        data-openbitfun-state={isSelected ? 'selected' : undefined}
+                        data-alex-component="model-selector"
+                        data-alex-part="providerOption"
+                        data-alex-state={isSelected ? 'selected' : undefined}
                         metadata={group.models.length}
                         shortcut={<Icon name="chevron-right" size="sm" aria-hidden />}
                         onClick={() => openProviderLevel(group.key)}
                       >
-                        <div className="openbitfun-model-selector__option-main" data-openbitfun-component="model-selector" data-openbitfun-part="optionMain">
-                          <OverflowText className="openbitfun-model-selector__option-name">
+                        <div className="alex-model-selector__option-main" data-alex-component="model-selector" data-alex-part="optionMain">
+                          <OverflowText className="alex-model-selector__option-name">
                             {group.providerName}
                           </OverflowText>
                           {selectedModel && (
                             <span
-                              className="openbitfun-model-selector__option-desc openbitfun-model-selector__option-desc--selected-model"
+                              className="alex-model-selector__option-desc alex-model-selector__option-desc--selected-model"
                               data-testid="chat-model-selector-provider-selected-model"
                               data-model-id={selectedModel.id}
                             >
-                              <OverflowText className="openbitfun-model-selector__option-desc-label">
+                              <OverflowText className="alex-model-selector__option-desc-label">
                                 {selectedModel.modelName}
                               </OverflowText>
-                              <Icon name="check-line" size="lg" style={{ width: 11, height: 11 }} aria-hidden="true" className="openbitfun-model-selector__option-selected-check" data-testid="chat-model-selector-provider-selected-check" />
+                              <Icon name="check-line" size="lg" style={{ width: 11, height: 11 }} aria-hidden="true" className="alex-model-selector__option-selected-check" data-testid="chat-model-selector-provider-selected-check" />
                             </span>
                           )}
                         </div>

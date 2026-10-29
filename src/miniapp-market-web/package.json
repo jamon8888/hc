@@ -1,5 +1,5 @@
 {
-  "name": "openbitfun-miniapp-market-web",
+  "name": "alex-miniapp-market-web",
   "version": "1.0.2",
   "private": true,
   "type": "module",
@@ -11,12 +11,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@openbitfun/theme-openbitfun": "workspace:^",
+    "@alex/theme-alex": "workspace:^",
     "@phosphor-icons/react": "^2.1.10",
     "lucide-react": "^0.541.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "@openbitfun/ui": "workspace:^"
+    "@alex/ui": "workspace:^"
   },
   "devDependencies": {
     "@types/react": "^18.3.0",

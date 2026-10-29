@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Icon } from '@openbitfun/ui';
+import { Icon } from '@alex/ui';
 import { workspaceAPI } from '@/infrastructure/api/service-api/WorkspaceAPI';
 import { getActiveSurfaceScope } from '@/infrastructure/peer-device/deviceSurface';
 import { i18nService, useI18n } from '@/infrastructure/i18n';
@@ -48,19 +48,19 @@ export function ChatInputImagePreview({ image, surfaceEpoch }: {
     <>
       <button
         type="button"
-        className="openbitfun-chat-input__image-chip-preview"
+        className="alex-chat-input__image-chip-preview"
         aria-label={i18nService.t('components:imageLightbox.label')}
         onClick={() => setPreview({ source, alt: image.imageName })}
       >
-        <img className="openbitfun-chat-input__image-chip-thumb"
-          data-openbitfun-component="chat-input" data-openbitfun-part="imagePreview"
+        <img className="alex-chat-input__image-chip-thumb"
+          data-alex-component="chat-input" data-alex-part="imagePreview"
           src={source} alt={image.imageName} onError={() => setError(image.imageName)} />
       </button>
       <ImageLightbox image={preview} onClose={() => setPreview(null)} />
     </>
   ) : (
-    <div className="openbitfun-chat-input__image-chip-thumb openbitfun-chat-input__image-chip-thumb--placeholder"
-      data-openbitfun-component="chat-input" data-openbitfun-part="imagePreview"
+    <div className="alex-chat-input__image-chip-thumb alex-chat-input__image-chip-thumb--placeholder"
+      data-alex-component="chat-input" data-alex-part="imagePreview"
       role={error ? 'img' : undefined}
       aria-label={error ? t('editor.imageViewer.loadImageFailedWithMessage', { message: error }) : undefined}
       title={error ? t('editor.imageViewer.loadImageFailedWithMessage', { message: error }) : image.imageName}>

@@ -11,7 +11,7 @@ import com.openbitfun.mobile.core.feature.CoreLog
  * If that ever stops being true, the tests next to `PairingStore` fail first.
  */
 internal object LogcatCoreLog : CoreLog {
-    private const val TAG = "OpenBitFunCore"
+    private const val TAG = "AlexCore"
 
     override fun info(message: String) {
         Log.i(TAG, message)

@@ -1,1 +1,1 @@
-pub use openbitfun_core_types::ToolImageAttachment;
+pub use alex_core_types::ToolImageAttachment;

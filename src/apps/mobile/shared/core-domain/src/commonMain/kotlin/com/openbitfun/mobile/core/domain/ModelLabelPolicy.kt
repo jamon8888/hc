@@ -5,7 +5,7 @@ package com.openbitfun.mobile.core.domain
  *
  * Ported from `pages/policy/ConversationModelPresentationPolicy.ets`. The
  * desktop names a model three different ways and any of them can be a bare
- * vendor name (`anthropic`, `openbitfun/claude-opus-4`, …), so both lines are
+ * vendor name (`anthropic`, `alex/claude-opus-4`, …), so both lines are
  * chosen rather than read: the first field that survives cleaning *and* says
  * something specific wins.
  *
@@ -61,7 +61,7 @@ public object ModelLabelPolicy {
         val trimmed = value.trim()
         if (trimmed.isEmpty()) return ""
         val withoutScheme = trimmed
-            .replaceFirst(OPENBITFUN_PREFIX, "")
+            .replaceFirst(ALEX_PREFIX, "")
             .replaceFirst(ANTHROPIC_PREFIX, "")
         val parts = withoutScheme.split('/', ':').filter(String::isNotEmpty)
         return parts.lastOrNull() ?: withoutScheme
@@ -71,7 +71,7 @@ public object ModelLabelPolicy {
     public fun isSpecificLabel(label: String): Boolean =
         label.isNotEmpty() && label.lowercase() !in VENDOR_NAMES
 
-    private val OPENBITFUN_PREFIX = Regex("^openbitfun[:/_-]+", RegexOption.IGNORE_CASE)
+    private val ALEX_PREFIX = Regex("^alex[:/_-]+", RegexOption.IGNORE_CASE)
     private val ANTHROPIC_PREFIX = Regex("^anthropic[:/_-]+", RegexOption.IGNORE_CASE)
-    private val VENDOR_NAMES = setOf("openbitfun", "anthropic", "openai", "google", "azure")
+    private val VENDOR_NAMES = setOf("alex", "anthropic", "openai", "google", "azure")
 }

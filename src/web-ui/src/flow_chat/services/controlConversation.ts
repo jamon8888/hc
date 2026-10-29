@@ -96,7 +96,7 @@ function upgradePersistedVoiceExchange(record: PersistedVoiceExchange): VoiceExc
   const { workspacePath: _legacyPath, workspaceId: _missing, ...current } = record;
   return { ...current, workspaceId };
 }
-const OUTBOX = 'openbitfun-voice-exchange:';
+const OUTBOX = 'alex-voice-exchange:';
 const volatileOutbox = new Map<string, VoiceExchange>();
 const outboxKey = (request: Pick<VoiceExchange, 'surfaceId' | 'sessionId' | 'exchangeId'>) =>
   OUTBOX + JSON.stringify([request.surfaceId, request.sessionId, request.exchangeId]);

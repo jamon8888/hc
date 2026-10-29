@@ -1,4 +1,4 @@
-use openbitfun_runtime_ports::DialogTriggerSource;
+use alex_runtime_ports::DialogTriggerSource;
 use std::path::Path;
 
 pub const TOOL_CONTEXT_REMOTE_FILE_DELIVERY_KEY: &str = "remote_file_delivery_channel";

@@ -51,7 +51,7 @@ test("call presentation exposes one title, full transcripts and five labeled con
   assert.match(markup, /aria-pressed="true"/);
   assert.equal((markup.match(/<h2/g) ?? []).length, 1);
   assert.match(markup, /A &lt;portfolio&gt;/);
-  assert.match(markup, /data-openbitfun-component="voice-particle-logo"/);
+  assert.match(markup, /data-alex-component="voice-particle-logo"/);
   assert.doesNotMatch(markup, /role="status"/);
 });
 
@@ -59,7 +59,7 @@ test("ending disables mute, back and end while close and settings remain answera
   const markup = renderToStaticMarkup(createElement(VoiceCallPanel, { ...props, phase: "ending", status: "Ending call" }));
   assert.equal((markup.match(/disabled=""/g) ?? []).length, 3);
   assert.match(markup, /role="status"/);
-  assert.match(markup, /data-openbitfun-phase="ending"/);
+  assert.match(markup, /data-alex-phase="ending"/);
   const logo = renderToStaticMarkup(createElement(VoiceParticleLogo, { active: false }));
   assert.match(logo, /aria-hidden="true"/);
 });

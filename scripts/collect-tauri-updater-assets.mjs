@@ -131,27 +131,27 @@ function isUpdaterBundle(file) {
 function updaterOutputName(file, version, platform) {
   const lower = file.toLowerCase();
   if (lower.endsWith('.app.tar.gz')) {
-    return `OpenBitFun_${version}_${platform}.app.tar.gz`;
+    return `Alex_${version}_${platform}.app.tar.gz`;
   }
   if (lower.endsWith('.appimage')) {
-    return `OpenBitFun_${version}_${platform}.AppImage`;
+    return `Alex_${version}_${platform}.AppImage`;
   }
   if (lower.endsWith('.zip')) {
-    return `OpenBitFun_${version}_${platform}.zip`;
+    return `Alex_${version}_${platform}.zip`;
   }
   if (lower.endsWith('.exe')) {
-    return `OpenBitFun_${version}_${platform}-setup.exe`;
+    return `Alex_${version}_${platform}-setup.exe`;
   }
   if (lower.endsWith('.deb')) {
     // The bundle-type platform key is part of the name, so the renamed copy
     // never collides with the raw bundler deb staged from release-assets.
-    return `OpenBitFun_${version}_${platform}.deb`;
+    return `Alex_${version}_${platform}.deb`;
   }
   if (lower.endsWith('.rpm')) {
-    return `OpenBitFun_${version}_${platform}.rpm`;
+    return `Alex_${version}_${platform}.rpm`;
   }
   if (lower.endsWith('.tar.gz')) {
-    return `OpenBitFun_${version}_${platform}.tar.gz`;
+    return `Alex_${version}_${platform}.tar.gz`;
   }
   fail(`Unsupported updater artifact extension: ${file}`);
 }

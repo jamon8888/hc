@@ -1,10 +1,10 @@
 //! Types for session persistence
 
-use openbitfun_core_types::ToolImageAttachment;
-use openbitfun_core_types::{
+use alex_core_types::ToolImageAttachment;
+use alex_core_types::{
     AiErrorDetail, SessionContinuationPolicy, SessionExecutionTarget, SessionKind,
 };
-use openbitfun_events::ModelRoundAttemptDiagnostic;
+use alex_events::ModelRoundAttemptDiagnostic;
 use serde::{Deserialize, Serialize};
 
 pub const SESSION_STORAGE_SCHEMA_VERSION: u32 = 2;
@@ -95,7 +95,7 @@ pub struct SessionMetadata {
     /// Agent type
     #[serde(
         alias = "agent_type",
-        deserialize_with = "openbitfun_core_types::agent_identity::deserialize_agent_id"
+        deserialize_with = "alex_core_types::agent_identity::deserialize_agent_id"
     )]
     pub agent_type: String,
     /// Mode of the last surviving user dialog turn in the persisted history.
@@ -108,7 +108,7 @@ pub struct SessionMetadata {
         alias = "last_user_dialog_agent_type"
     )]
     #[serde(
-        deserialize_with = "openbitfun_core_types::agent_identity::deserialize_optional_agent_id"
+        deserialize_with = "alex_core_types::agent_identity::deserialize_optional_agent_id"
     )]
     pub last_user_dialog_agent_type: Option<String>,
     /// Mode of the most recent user submission accepted by the scheduler.
@@ -121,7 +121,7 @@ pub struct SessionMetadata {
         alias = "last_submitted_agent_type"
     )]
     #[serde(
-        deserialize_with = "openbitfun_core_types::agent_identity::deserialize_optional_agent_id"
+        deserialize_with = "alex_core_types::agent_identity::deserialize_optional_agent_id"
     )]
     pub last_submitted_agent_type: Option<String>,
 
@@ -545,7 +545,7 @@ pub struct DialogTurnData {
     /// mode-transition reminder semantics.
     #[serde(default, skip_serializing_if = "Option::is_none", alias = "agent_type")]
     #[serde(
-        deserialize_with = "openbitfun_core_types::agent_identity::deserialize_optional_agent_id"
+        deserialize_with = "alex_core_types::agent_identity::deserialize_optional_agent_id"
     )]
     pub agent_type: Option<String>,
 
@@ -868,7 +868,7 @@ pub struct ThinkingItemData {
         skip_serializing_if = "Option::is_none",
         alias = "reasoning_kind"
     )]
-    pub reasoning_kind: Option<openbitfun_core_types::ReasoningContentKind>,
+    pub reasoning_kind: Option<alex_core_types::ReasoningContentKind>,
     #[serde(alias = "is_streaming")]
     pub is_streaming: bool,
     #[serde(alias = "is_collapsed")]
@@ -1164,7 +1164,7 @@ impl SessionMetadata {
         Self {
             session_id,
             session_name,
-            agent_type: openbitfun_core_types::agent_identity::canonical_agent_id(&agent_type)
+            agent_type: alex_core_types::agent_identity::canonical_agent_id(&agent_type)
                 .to_owned(),
             last_user_dialog_agent_type: None,
             last_submitted_agent_type: None,
@@ -1340,7 +1340,7 @@ mod tests {
         SessionRelationshipKind, SessionTurnWindowResponse, TextItemData, ThinkingItemData,
         ToolItemData, UserMessageData,
     };
-    use openbitfun_core_types::{SessionContinuationPolicy, SessionKind};
+    use alex_core_types::{SessionContinuationPolicy, SessionKind};
 
     #[test]
     fn dialog_turn_kind_defaults_to_user_dialog_for_legacy_payloads() {

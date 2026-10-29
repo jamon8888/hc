@@ -1,9 +1,9 @@
 //! App Server Worktree management operations.
 
-use openbitfun_app_server_protocol::worktree::*;
-use openbitfun_core::service::git::GitService;
-use openbitfun_core::service::worktree::{WorktreeService, WorktreeSessionBindingRequest};
-use openbitfun_runtime_ports::{AgentSessionWorkspaceBinding, WorktreeError, WorktreeErrorCode};
+use alex_app_server_protocol::worktree::*;
+use alex_core::service::git::GitService;
+use alex_core::service::worktree::{WorktreeService, WorktreeSessionBindingRequest};
+use alex_runtime_ports::{AgentSessionWorkspaceBinding, WorktreeError, WorktreeErrorCode};
 
 use super::{AppManagementError, AppManagementResult};
 
@@ -93,7 +93,7 @@ async fn transition(
     let execution_target = result.execution_target.clone();
     Ok(WorktreeBindingResponse {
         workspace_binding: AgentSessionWorkspaceBinding {
-            workspace_kind: Some(openbitfun_core::service::workspace::WorkspaceKind::Normal),
+            workspace_kind: Some(alex_core::service::workspace::WorkspaceKind::Normal),
             project_workspace_id: result.project_workspace_id,
             workspace_id: result.workspace_id,
             workspace_path: result.workspace_path,

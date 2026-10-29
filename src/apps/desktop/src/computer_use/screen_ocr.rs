@@ -1,7 +1,7 @@
 use log::{info, warn};
-use openbitfun_core::agentic::tools::computer_use_host::ComputerScreenshot;
-use openbitfun_core::infrastructure::try_get_path_manager_arc;
-use openbitfun_core::util::errors::{OpenBitFunError, OpenBitFunResult};
+use alex_core::agentic::tools::computer_use_host::ComputerScreenshot;
+use alex_core::infrastructure::try_get_path_manager_arc;
+use alex_core::util::errors::{AlexError, AlexResult};
 use std::fs;
 use std::io::Write;
 use std::path::PathBuf;
@@ -15,9 +15,9 @@ mod native_fixture_tests {
     /// Exercises the actual Vision backend and global-coordinate projection on
     /// a browser-rendered image, without capturing or operating the user's UI.
     #[test]
-    #[ignore = "requires OPENBITFUN_OCR_FIXTURE containing a rendered screenshot DTO"]
+    #[ignore = "requires ALEX_OCR_FIXTURE containing a rendered screenshot DTO"]
     fn native_vision_reads_rendered_fixture() {
-        let path = std::env::var("OPENBITFUN_OCR_FIXTURE").expect("rendered OCR fixture path");
+        let path = std::env::var("ALEX_OCR_FIXTURE").expect("rendered OCR fixture path");
         let shot: ComputerScreenshot =
             serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap();
         let matches = macos::find_text_matches(&shot, "Save report").expect("real Vision OCR");
@@ -44,11 +44,11 @@ mod native_fixture_tests {
     }
 }
 
-pub(super) use openbitfun_core::agentic::tools::computer_use_host::OcrTextMatch;
+pub(super) use alex_core::agentic::tools::computer_use_host::OcrTextMatch;
 
 /// Read the best recognized text for every visible region. No search query,
 /// candidate ranking, or debug pixel persistence is involved.
-pub(super) fn read_text(shot: &ComputerScreenshot) -> OpenBitFunResult<Vec<OcrTextMatch>> {
+pub(super) fn read_text(shot: &ComputerScreenshot) -> AlexResult<Vec<OcrTextMatch>> {
     #[cfg(target_os = "macos")]
     {
         return macos::read_text(shot);
@@ -64,7 +64,7 @@ pub(super) fn read_text(shot: &ComputerScreenshot) -> OpenBitFunResult<Vec<OcrTe
     #[cfg(not(any(target_os = "macos", target_os = "windows", target_os = "linux")))]
     {
         let _ = shot;
-        Err(OpenBitFunError::tool(
+        Err(AlexError::tool(
             "[OCR_READ_UNSUPPORTED] Text reading is not available on this platform.",
         ))
     }
@@ -73,7 +73,7 @@ pub(super) fn read_text(shot: &ComputerScreenshot) -> OpenBitFunResult<Vec<OcrTe
 pub(super) fn find_text_matches(
     shot: &ComputerScreenshot,
     text_query: &str,
-) -> OpenBitFunResult<Vec<OcrTextMatch>> {
+) -> AlexResult<Vec<OcrTextMatch>> {
     let query = normalize_query(text_query)?;
     save_ocr_debug_jpeg(shot, &query);
 
@@ -93,7 +93,7 @@ pub(super) fn find_text_matches(
     }
 
     #[allow(unreachable_code)]
-    Err(OpenBitFunError::tool(
+    Err(AlexError::tool(
         "move_to_text OCR is not supported on this platform.".to_string(),
     ))
 }
@@ -101,7 +101,7 @@ pub(super) fn find_text_matches(
 /// Persist OCR input pixels only when explicitly enabled for local diagnosis.
 fn ocr_debug_save_enabled() -> bool {
     ocr_debug_opt_in(
-        std::env::var("OPENBITFUN_COMPUTER_USE_OCR_DEBUG")
+        std::env::var("ALEX_COMPUTER_USE_OCR_DEBUG")
             .ok()
             .as_deref(),
     )
@@ -136,15 +136,15 @@ fn computer_use_ocr_debug_dir() -> PathBuf {
     if let Ok(pm) = try_get_path_manager_arc() {
         return pm
             .default_assistant_workspace_dir(None)
-            .join(openbitfun_core_types::product_identity::hidden_data_directory())
+            .join(alex_core_types::product_identity::hidden_data_directory())
             .join("computer_use_debug");
     }
     dirs::home_dir()
         .map(|h| {
-            h.join(openbitfun_core_types::product_identity::hidden_data_directory())
+            h.join(alex_core_types::product_identity::hidden_data_directory())
                 .join("personal_assistant")
                 .join("workspace")
-                .join(openbitfun_core_types::product_identity::hidden_data_directory())
+                .join(alex_core_types::product_identity::hidden_data_directory())
                 .join("computer_use_debug")
         })
         .unwrap_or_else(|| std::env::temp_dir().join("computer_use_debug"))
@@ -201,10 +201,10 @@ fn save_ocr_debug_jpeg(shot: &ComputerScreenshot, text_query: &str) {
     }
 }
 
-fn normalize_query(text_query: &str) -> OpenBitFunResult<String> {
+fn normalize_query(text_query: &str) -> AlexResult<String> {
     let q = text_query.trim();
     if q.is_empty() {
-        return Err(OpenBitFunError::tool(
+        return Err(AlexError::tool(
             "move_to_text requires a non-empty text_query.".to_string(),
         ));
     }
@@ -231,16 +231,16 @@ mod macos {
         VNRecognizeTextRequestRevision3, VNRecognizedTextObservation, VNRequest,
         VNRequestTextRecognitionLevel,
     };
-    use openbitfun_core::agentic::tools::computer_use_host::ComputerScreenshot;
-    use openbitfun_core::util::errors::{OpenBitFunError, OpenBitFunResult};
+    use alex_core::agentic::tools::computer_use_host::ComputerScreenshot;
+    use alex_core::util::errors::{AlexError, AlexResult};
 
     /// Top-N candidates per observation; Chinese matches often appear below rank 1.
     const TOP_CANDIDATES_MAX: usize = 10;
 
-    pub(super) fn read_text(shot: &ComputerScreenshot) -> OpenBitFunResult<Vec<OcrTextMatch>> {
+    pub(super) fn read_text(shot: &ComputerScreenshot) -> AlexResult<Vec<OcrTextMatch>> {
         let (_, _, width, height) = image_content_rect_or_full(shot);
         if width == 0 || height == 0 {
-            return Err(OpenBitFunError::tool(
+            return Err(AlexError::tool(
                 "Screenshot content rect is empty; cannot run macOS Vision OCR.",
             ));
         }
@@ -274,11 +274,11 @@ mod macos {
     pub(super) fn find_text_matches(
         shot: &ComputerScreenshot,
         text_query: &str,
-    ) -> OpenBitFunResult<Vec<OcrTextMatch>> {
+    ) -> AlexResult<Vec<OcrTextMatch>> {
         let (_content_left, _content_top, content_width, content_height) =
             image_content_rect_or_full(shot);
         if content_width == 0 || content_height == 0 {
-            return Err(OpenBitFunError::tool(
+            return Err(AlexError::tool(
                 "Screenshot content rect is empty; cannot run macOS Vision OCR.".to_string(),
             ));
         }
@@ -293,7 +293,7 @@ mod macos {
 
         let ranked = filter_and_rank(text_query, raw_matches);
         if ranked.is_empty() {
-            return Err(OpenBitFunError::tool(format!(
+            return Err(AlexError::tool(format!(
                 "No OCR text matched {:?} on screen (macOS Vision found {} text regions total). \
                  Matching strips whitespace between glyphs and allows small edit distance for OCR errors. \
                  If the UI is Chinese, try a shorter substring or ensure the text is visible in the capture.",
@@ -306,7 +306,7 @@ mod macos {
 
     fn recognize_text_observations(
         jpeg_bytes: &[u8],
-    ) -> OpenBitFunResult<Vec<Retained<VNRecognizedTextObservation>>> {
+    ) -> AlexResult<Vec<Retained<VNRecognizedTextObservation>>> {
         // Create NSData from the raw JPEG bytes.
         let ns_data = NSData::with_bytes(jpeg_bytes);
 
@@ -348,7 +348,7 @@ mod macos {
         // Perform the request synchronously.
         handler
             .performRequests_error(&requests)
-            .map_err(ns_error_to_openbitfun)?;
+            .map_err(ns_error_to_alex)?;
 
         // Collect results.
         let results = match request.results() {
@@ -358,9 +358,9 @@ mod macos {
         Ok(results.to_vec())
     }
 
-    fn ns_error_to_openbitfun(err: Retained<NSError>) -> OpenBitFunError {
+    fn ns_error_to_alex(err: Retained<NSError>) -> AlexError {
         let desc = err.localizedDescription().to_string();
-        OpenBitFunError::tool(format!("macOS Vision OCR failed: {}", desc))
+        AlexError::tool(format!("macOS Vision OCR failed: {}", desc))
     }
 
     fn observation_to_match(
@@ -453,8 +453,8 @@ mod windows_backend {
         filter_and_rank, fuzzy_text_matches_query, image_box_to_global_match,
         image_content_rect_or_full, normalize_for_match, OcrTextMatch,
     };
-    use openbitfun_core::agentic::tools::computer_use_host::ComputerScreenshot;
-    use openbitfun_core::util::errors::{OpenBitFunError, OpenBitFunResult};
+    use alex_core::agentic::tools::computer_use_host::ComputerScreenshot;
+    use alex_core::util::errors::{AlexError, AlexResult};
     use windows::core::HSTRING;
     use windows::Graphics::Imaging::BitmapDecoder;
     use windows::Media::Ocr::{OcrEngine, OcrWord};
@@ -464,29 +464,29 @@ mod windows_backend {
         COINIT_APARTMENTTHREADED, COINIT_DISABLE_OLE1DDE,
     };
 
-    fn w<T>(r: windows::core::Result<T>) -> OpenBitFunResult<T> {
-        r.map_err(|e| OpenBitFunError::tool(format!("Windows OCR: {}", e)))
+    fn w<T>(r: windows::core::Result<T>) -> AlexResult<T> {
+        r.map_err(|e| AlexError::tool(format!("Windows OCR: {}", e)))
     }
 
-    pub(super) fn read_text(shot: &ComputerScreenshot) -> OpenBitFunResult<Vec<OcrTextMatch>> {
+    pub(super) fn read_text(shot: &ComputerScreenshot) -> AlexResult<Vec<OcrTextMatch>> {
         recognize(shot, None)
     }
 
     pub(super) fn find_text_matches(
         shot: &ComputerScreenshot,
         text_query: &str,
-    ) -> OpenBitFunResult<Vec<OcrTextMatch>> {
+    ) -> AlexResult<Vec<OcrTextMatch>> {
         recognize(shot, Some(text_query))
     }
 
     fn recognize(
         shot: &ComputerScreenshot,
         query: Option<&str>,
-    ) -> OpenBitFunResult<Vec<OcrTextMatch>> {
+    ) -> AlexResult<Vec<OcrTextMatch>> {
         let (content_left, content_top, content_width, content_height) =
             image_content_rect_or_full(shot);
         if content_width == 0 || content_height == 0 {
-            return Err(OpenBitFunError::tool(
+            return Err(AlexError::tool(
                 "Screenshot content rect is empty; cannot run Windows OCR.".to_string(),
             ));
         }
@@ -500,7 +500,7 @@ mod windows_backend {
             let hr =
                 unsafe { CoInitializeEx(None, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE) };
             if hr.is_err() {
-                return Err(OpenBitFunError::tool(format!(
+                return Err(AlexError::tool(format!(
                     "Windows OCR COM initialization failed: {:?}",
                     hr
                 )));
@@ -508,7 +508,7 @@ mod windows_backend {
             co_init = Some(());
         }
 
-        let result = (|| -> OpenBitFunResult<Vec<OcrTextMatch>> {
+        let result = (|| -> AlexResult<Vec<OcrTextMatch>> {
             // 1. Write JPEG bytes to in-memory stream
             let stream = w(InMemoryRandomAccessStream::new())?;
             let writer = w(DataWriter::CreateDataWriter(&stream))?;
@@ -530,7 +530,7 @@ mod windows_backend {
                         &HSTRING::from("en-US"),
                     ))?;
                     if !w(OcrEngine::IsLanguageSupported(&lang))? {
-                        return Err(OpenBitFunError::tool(
+                        return Err(AlexError::tool(
                             "Windows OCR: No supported language packs installed.".to_string(),
                         ));
                     }
@@ -606,7 +606,7 @@ mod windows_backend {
 
             let ranked = filter_and_rank(text_query, raw_matches);
             if ranked.is_empty() {
-                return Err(OpenBitFunError::tool(format!(
+                return Err(AlexError::tool(format!(
                     "No OCR text matched {:?} on screen (Windows OCR found {} text regions total).",
                     text_query, line_count
                 )));
@@ -665,28 +665,28 @@ mod linux_backend {
     };
     use leptess::capi::TessPageIteratorLevel_RIL_WORD;
     use leptess::{leptonica, tesseract::TessApi};
-    use openbitfun_core::agentic::tools::computer_use_host::ComputerScreenshot;
-    use openbitfun_core::util::errors::{OpenBitFunError, OpenBitFunResult};
+    use alex_core::agentic::tools::computer_use_host::ComputerScreenshot;
+    use alex_core::util::errors::{AlexError, AlexResult};
 
-    pub(super) fn read_text(shot: &ComputerScreenshot) -> OpenBitFunResult<Vec<OcrTextMatch>> {
+    pub(super) fn read_text(shot: &ComputerScreenshot) -> AlexResult<Vec<OcrTextMatch>> {
         recognize(shot, None)
     }
 
     pub(super) fn find_text_matches(
         shot: &ComputerScreenshot,
         text_query: &str,
-    ) -> OpenBitFunResult<Vec<OcrTextMatch>> {
+    ) -> AlexResult<Vec<OcrTextMatch>> {
         recognize(shot, Some(text_query))
     }
 
     fn recognize(
         shot: &ComputerScreenshot,
         query: Option<&str>,
-    ) -> OpenBitFunResult<Vec<OcrTextMatch>> {
+    ) -> AlexResult<Vec<OcrTextMatch>> {
         let (content_left, content_top, content_width, content_height) =
             image_content_rect_or_full(shot);
         if content_width == 0 || content_height == 0 {
-            return Err(OpenBitFunError::tool(
+            return Err(AlexError::tool(
                 "Screenshot content rect is empty; cannot run Linux Tesseract OCR.".to_string(),
             ));
         }
@@ -710,14 +710,14 @@ mod linux_backend {
                         }
                     }
                 }
-                api.ok_or_else(|| OpenBitFunError::tool(
+                api.ok_or_else(|| AlexError::tool(
                     "Linux OCR: Tesseract initialization failed. Please install tesseract-ocr and tesseract-ocr-eng packages, or ensure TESSDATA_PREFIX is set correctly.".to_string()
                 ))?
             }
         };
 
         let pix = leptonica::pix_read_mem(&shot.bytes).map_err(|e| {
-            OpenBitFunError::tool(format!(
+            AlexError::tool(format!(
                 "Linux OCR: Failed to decode screenshot image with Leptonica: {}",
                 e
             ))
@@ -725,14 +725,14 @@ mod linux_backend {
 
         api.set_image(&pix);
         if api.recognize() != 0 {
-            return Err(OpenBitFunError::tool(
+            return Err(AlexError::tool(
                 "Linux OCR: Tesseract recognition failed.".to_string(),
             ));
         }
 
         let Some(text_query) = query else {
             let tsv = api.get_tsv_text(0).map_err(|error| {
-                OpenBitFunError::tool(format!("Linux OCR: Invalid text encoding: {error}"))
+                AlexError::tool(format!("Linux OCR: Invalid text encoding: {error}"))
             })?;
             return Ok(tesseract_lines_from_tsv(shot, &tsv));
         };
@@ -740,7 +740,7 @@ mod linux_backend {
         let boxa = api
             .get_component_images(TessPageIteratorLevel_RIL_WORD, true)
             .ok_or_else(|| {
-                OpenBitFunError::tool(
+                AlexError::tool(
                     "Linux OCR: Tesseract did not return word regions.".to_string(),
                 )
             })?;
@@ -783,7 +783,7 @@ mod linux_backend {
 
         let ranked = filter_and_rank(text_query, raw_matches);
         if ranked.is_empty() {
-            return Err(OpenBitFunError::tool(format!(
+            return Err(AlexError::tool(format!(
                 "No OCR text matched {:?} on screen (Tesseract found {} word regions total).",
                 text_query, word_region_count
             )));

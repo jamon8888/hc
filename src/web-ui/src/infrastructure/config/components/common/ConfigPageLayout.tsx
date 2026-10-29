@@ -1,4 +1,4 @@
-import { FieldGroup, FormSection, ScrollArea, type FieldGroupFieldSurface } from '@openbitfun/ui';
+import { FieldGroup, FormSection, ScrollArea, type FieldGroupFieldSurface } from '@alex/ui';
 import React from 'react';
 import { formatStandaloneUiCopy } from './standaloneUiCopy';
 import './ConfigPageLayout.scss';
@@ -17,10 +17,10 @@ export const ConfigPageLayout: React.FC<ConfigPageLayoutProps> = ({
   ...props
 }) => {
   return (
-    <ScrollArea className={`openbitfun-config-page-layout ${className}`} data-openbitfun-component="config" data-openbitfun-part="root" {...props}>
+    <ScrollArea className={`alex-config-page-layout ${className}`} data-alex-component="config" data-alex-part="root" {...props}>
       {children}
       {/* Real DOM spacer: keeps a guaranteed blank tail at the end of the scroll range. */}
-      <div className="openbitfun-config-page-layout__scroll-end-spacer" aria-hidden="true" />
+      <div className="alex-config-page-layout__scroll-end-spacer" aria-hidden="true" />
     </ScrollArea>
   );
 };
@@ -41,8 +41,8 @@ export const ConfigPageContent: React.FC<ConfigPageContentProps> = ({
   ...props
 }) => {
   return (
-    <div id={id} className={`openbitfun-config-page-content ${className}`} data-openbitfun-component="config" data-openbitfun-part="content" {...props}>
-      <div className="openbitfun-config-page-content__inner" data-openbitfun-component="config" data-openbitfun-part="contentInner">
+    <div id={id} className={`alex-config-page-content ${className}`} data-alex-component="config" data-alex-part="content" {...props}>
+      <div className="alex-config-page-content__inner" data-alex-component="config" data-alex-part="contentInner">
         {children}
       </div>
     </div>
@@ -65,9 +65,9 @@ export const ConfigPageSectionStack: React.FC<ConfigPageSectionStackProps> = ({
   return (
     <div
       {...props}
-      className={`openbitfun-config-page-section-stack ${className}`.trim()}
-      data-openbitfun-component="config"
-      data-openbitfun-part="sectionStack"
+      className={`alex-config-page-section-stack ${className}`.trim()}
+      data-alex-component="config"
+      data-alex-part="sectionStack"
     >
       {children}
     </div>
@@ -101,27 +101,27 @@ export const ConfigPageSection: React.FC<ConfigPageSectionProps> = ({
 }) => {
   const hasBody = children !== null && children !== undefined && children !== false;
   const bodyClassName = [
-    'openbitfun-config-page-section__body',
-    !bodySurface && 'openbitfun-config-page-section__body--flush',
+    'alex-config-page-section__body',
+    !bodySurface && 'alex-config-page-section__body--flush',
   ].filter(Boolean).join(' ');
 
   return (
     <FormSection
-      className={`openbitfun-config-page-section ${className}`}
-      data-openbitfun-component="config"
-      data-openbitfun-part="section"
+      className={`alex-config-page-section ${className}`}
+      data-alex-component="config"
+      data-alex-part="section"
       headingAs="h3"
       title={(
-        <span className="openbitfun-config-page-section__title-row" data-openbitfun-component="config" data-openbitfun-part="sectionHeader">
-          <span className="openbitfun-config-page-section__title" data-openbitfun-component="config" data-openbitfun-part="sectionTitle">{title}</span>
+        <span className="alex-config-page-section__title-row" data-alex-component="config" data-alex-part="sectionHeader">
+          <span className="alex-config-page-section__title" data-alex-component="config" data-alex-part="sectionTitle">{title}</span>
           {titleSuffix}
         </span>
       )}
       description={description ? (
-        <span className="openbitfun-config-page-section__description" data-openbitfun-component="config" data-openbitfun-part="sectionDescription">{formatStandaloneUiCopy(description)}</span>
+        <span className="alex-config-page-section__description" data-alex-component="config" data-alex-part="sectionDescription">{formatStandaloneUiCopy(description)}</span>
       ) : undefined}
       actions={extra ? (
-        <div className="openbitfun-config-page-section__extra">{extra}</div>
+        <div className="alex-config-page-section__extra">{extra}</div>
       ) : undefined}
       {...props}
     >
@@ -129,8 +129,8 @@ export const ConfigPageSection: React.FC<ConfigPageSectionProps> = ({
         <FieldGroup
           appearance={bodySurface ? 'subtle' : 'plain'}
           className={bodyClassName}
-          data-openbitfun-component="config"
-          data-openbitfun-part="sectionBody"
+          data-alex-component="config"
+          data-alex-part="sectionBody"
           dividers={false}
           fieldSurface={fieldSurface ?? (bodySurface ? 'ambient' : 'default')}
         >
@@ -173,45 +173,45 @@ export const ConfigPageRow: React.FC<ConfigPageRowProps> = ({
 }) => {
   const hasControl = children !== null && children !== undefined && children !== false;
   const cls = [
-    'openbitfun-config-page-row',
-    `openbitfun-config-page-row--${align}`,
-    multiline && 'openbitfun-config-page-row--multiline',
-    wide && 'openbitfun-config-page-row--wide',
-    balanced && 'openbitfun-config-page-row--balanced',
-    !hasControl && 'openbitfun-config-page-row--no-control',
+    'alex-config-page-row',
+    `alex-config-page-row--${align}`,
+    multiline && 'alex-config-page-row--multiline',
+    wide && 'alex-config-page-row--wide',
+    balanced && 'alex-config-page-row--balanced',
+    !hasControl && 'alex-config-page-row--no-control',
     className,
   ].filter(Boolean).join(' ');
 
   return (
     <div
       className={cls}
-      data-openbitfun-component="config"
-      data-openbitfun-part="row"
-      data-openbitfun-align={align}
-      data-openbitfun-layout={wide ? 'wide' : balanced ? 'balanced' : multiline ? 'multiline' : 'default'}
+      data-alex-component="config"
+      data-alex-part="row"
+      data-alex-align={align}
+      data-alex-layout={wide ? 'wide' : balanced ? 'balanced' : multiline ? 'multiline' : 'default'}
       data-required={required ? 'true' : 'false'}
     >
-      <div className="openbitfun-config-page-row__meta">
+      <div className="alex-config-page-row__meta">
         {/* div (not p): label may contain buttons; button-in-p freezes React event path */}
-        <div className="openbitfun-config-page-row__label" data-openbitfun-component="config" data-openbitfun-part="rowLabel">
+        <div className="alex-config-page-row__label" data-alex-component="config" data-alex-part="rowLabel">
           {label}
           {required ? (
             <span
               aria-hidden="true"
-              className="openbitfun-config-page-row__required"
-              data-openbitfun-component="config"
-              data-openbitfun-part="required"
+              className="alex-config-page-row__required"
+              data-alex-component="config"
+              data-alex-part="required"
             >
               *
             </span>
           ) : null}
         </div>
         {description ? (
-          <div className="openbitfun-config-page-row__description" data-openbitfun-component="config" data-openbitfun-part="rowDescription">{formatStandaloneUiCopy(description)}</div>
+          <div className="alex-config-page-row__description" data-alex-component="config" data-alex-part="rowDescription">{formatStandaloneUiCopy(description)}</div>
         ) : null}
       </div>
       {hasControl ? (
-        <div className="openbitfun-config-page-row__control" data-openbitfun-component="config" data-openbitfun-part="rowControl">
+        <div className="alex-config-page-row__control" data-alex-component="config" data-alex-part="rowControl">
           {children}
         </div>
       ) : null}

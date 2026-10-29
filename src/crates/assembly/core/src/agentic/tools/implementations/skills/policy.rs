@@ -1,8 +1,8 @@
 //! Compatibility re-export for mode-aware built-in skill policy.
 //!
-//! The provider-neutral owner lives in `openbitfun-agent-runtime`.
+//! The provider-neutral owner lives in `alex-agent-runtime`.
 
-pub use openbitfun_agent_runtime::skills::resolve_builtin_default_enabled;
+pub use alex_agent_runtime::skills::resolve_builtin_default_enabled;
 
 #[cfg(test)]
 mod tests {

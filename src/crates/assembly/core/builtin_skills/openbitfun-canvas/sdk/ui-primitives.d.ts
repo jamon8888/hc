@@ -1,5 +1,5 @@
 /**
- * UI primitives for `openbitfun/canvas`. Styling follows the OpenBitFun dark appearance; no extra packages required.
+ * UI primitives for `alex/canvas`. Styling follows the Alex dark appearance; no extra packages required.
  */
 import { type CSSProperties, type JSX, type ReactNode } from "react";
 /**
@@ -513,7 +513,7 @@ export type CalloutProps = {
 };
 /**
  * Inline notice for warnings, tips, or short status messages. Each `tone`
- * renders a status icon matching `OpenBitFun UI` toasts (override with `icon`).
+ * renders a status icon matching `Alex UI` toasts (override with `icon`).
  *
  * @example
  * ```tsx

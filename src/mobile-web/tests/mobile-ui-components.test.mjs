@@ -72,9 +72,9 @@ test('app reset stays below shared component padding and focus styles', async ()
   const reset = await readFile(path.join(sourceDirectory, 'styles/reset.scss'), 'utf8');
   const global = await readFile(path.join(sourceDirectory, 'styles/global.scss'), 'utf8');
   const adaptive = await readFile(path.join(sourceDirectory, 'styles/components/adaptive-shell.scss'), 'utf8');
-  assert.ok(main.indexOf("'./styles/reset.scss'") < main.indexOf("'@openbitfun/ui/mobile.css'"));
-  assert.match(reset, /@layer openbitfun\.reset, openbitfun\.components;/);
-  assert.match(reset, /@layer openbitfun\.reset\s*\{[\s\S]*?\*\s*\{[\s\S]*?padding:\s*0;/);
+  assert.ok(main.indexOf("'./styles/reset.scss'") < main.indexOf("'@alex/ui/mobile.css'"));
+  assert.match(reset, /@layer alex\.reset, alex\.components;/);
+  assert.match(reset, /@layer alex\.reset\s*\{[\s\S]*?\*\s*\{[\s\S]*?padding:\s*0;/);
   assert.doesNotMatch(global, /^\*\s*\{/m, 'an unlayered universal reset erases component spacing');
   assert.doesNotMatch(html, /\*\s*\{[^}]*\b(?:padding|margin)\s*:/, 'HTML must not duplicate universal spacing resets');
   assert.doesNotMatch(adaptive, /^input:focus-visible,/m, 'generic focus styles must not override text-field focus ownership');
@@ -82,17 +82,17 @@ test('app reset stays below shared component padding and focus styles', async ()
 
 test('settings sheet title stays on the sheet centerline beside the close action', async () => {
   const harmony = await readFile(path.join(sourceDirectory, 'styles/components/harmony-native.scss'), 'utf8');
-  const headerRule = harmony.match(/\.harmony-sidebar__settings-sheet\s*>\s*\[data-openbitfun-part='header'\]\s*\{[^}]+\}/)?.[0];
-  const headingRule = harmony.match(/\.harmony-sidebar__settings-sheet\s*>\s*\[data-openbitfun-part='header'\]\s*\[data-openbitfun-part='heading'\]\s*\{[^}]+\}/)?.[0];
-  const actionRule = harmony.match(/\.harmony-sidebar__settings-sheet\s*>\s*\[data-openbitfun-part='header'\]\s*\[data-openbitfun-part='header-action'\]\s*\{[^}]+\}/)?.[0];
+  const headerRule = harmony.match(/\.harmony-sidebar__settings-sheet\s*>\s*\[data-alex-part='header'\]\s*\{[^}]+\}/)?.[0];
+  const headingRule = harmony.match(/\.harmony-sidebar__settings-sheet\s*>\s*\[data-alex-part='header'\]\s*\[data-alex-part='heading'\]\s*\{[^}]+\}/)?.[0];
+  const actionRule = harmony.match(/\.harmony-sidebar__settings-sheet\s*>\s*\[data-alex-part='header'\]\s*\[data-alex-part='header-action'\]\s*\{[^}]+\}/)?.[0];
   const titleRule = harmony.match(/\.harmony-sidebar__settings-sheet\s+h2\s*\{[^}]+\}/)?.[0];
-  const closeRule = harmony.match(/\.harmony-sidebar__settings-sheet\s*>\s*\[data-openbitfun-part='header'\]\s*\[data-openbitfun-component='mobile-icon-button'\]\s*\{[^}]+\}/)?.[0];
+  const closeRule = harmony.match(/\.harmony-sidebar__settings-sheet\s*>\s*\[data-alex-part='header'\]\s*\[data-alex-component='mobile-icon-button'\]\s*\{[^}]+\}/)?.[0];
 
   assert.ok(headerRule, 'missing settings sheet header rule');
   assert.match(headerRule, /display:\s*grid/);
-  assert.match(headerRule, /grid-template-columns:\s*var\(--openbitfun-space-12\)\s+minmax\(0,\s*1fr\)\s+var\(--openbitfun-space-12\)/);
+  assert.match(headerRule, /grid-template-columns:\s*var\(--alex-space-12\)\s+minmax\(0,\s*1fr\)\s+var\(--alex-space-12\)/);
   assert.doesNotMatch(headerRule, /padding:\s*0\s+12px\s+0\s+20px/);
-  assert.match(headerRule, /padding:\s*0\s+var\(--openbitfun-space-3\)/);
+  assert.match(headerRule, /padding:\s*0\s+var\(--alex-space-3\)/);
   assert.match(headingRule ?? "", /grid-column:\s*2/);
   assert.match(headingRule ?? "", /text-align:\s*center/);
   assert.match(actionRule ?? "", /grid-column:\s*3/);
@@ -104,8 +104,8 @@ test('settings sheet title stays on the sheet centerline beside the close action
 test('left-aligned sheet headers keep flex after MobileSheet centers by default', async () => {
   const composer = await readFile(path.join(sourceDirectory, 'styles/components/chat-input.scss'), 'utf8');
   const files = await readFile(path.join(sourceDirectory, 'components/WorkspaceFiles.scss'), 'utf8');
-  const composerHeader = composer.match(/\.chat-composer-sheet\s*>\s*\[data-openbitfun-part='header'\]\s*\{[^}]+\}/)?.[0];
-  const editorHeader = files.match(/\[data-openbitfun-part="header"\]\s*\{[^}]+\}/)?.[0];
+  const composerHeader = composer.match(/\.chat-composer-sheet\s*>\s*\[data-alex-part='header'\]\s*\{[^}]+\}/)?.[0];
+  const editorHeader = files.match(/\[data-alex-part="header"\]\s*\{[^}]+\}/)?.[0];
 
   assert.match(composerHeader ?? "", /display:\s*flex/);
   assert.match(composerHeader ?? "", /text-align:\s*left/);
@@ -136,7 +136,7 @@ test('visible mobile controls use the shared mobile component entry', async () =
       assert.doesNotMatch(
         source,
         new RegExp(`<${tag}\\b`),
-        `${file} renders a raw <${tag}> instead of an @openbitfun/ui/mobile component`,
+        `${file} renders a raw <${tag}> instead of an @alex/ui/mobile component`,
       );
     }
     assert.doesNotMatch(
@@ -180,7 +180,7 @@ test('mobile-web imports only components published by the shared mobile entry', 
   ].map((match) => match[1]));
   const sources = await readProductSources();
   const importedComponentNames = sources.flatMap(({ source }) => (
-    [...source.matchAll(/import\s*\{([\s\S]*?)\}\s*from\s*['"]@openbitfun\/ui\/mobile['"]/g)]
+    [...source.matchAll(/import\s*\{([\s\S]*?)\}\s*from\s*['"]@alex\/ui\/mobile['"]/g)]
       .flatMap((match) => match[1]
         .split(',')
         .map((name) => name.trim())
@@ -339,7 +339,7 @@ test('mobile file card failures stay readable and repeatable', async () => {
     markdownStyles.indexOf(".file-card[data-status='error'] {"),
     markdownStyles.indexOf('.file-card__icon {'),
   );
-  assert.match(errorCardStyles, /background:\s*var\(--openbitfun-color-status-danger-surface\);/);
+  assert.match(errorCardStyles, /background:\s*var\(--alex-color-status-danger-surface\);/);
   assert.doesNotMatch(errorCardStyles, /opacity:/);
   assert.match(markdownStyles, /\.file-card__reason\s*\{[\s\S]*?-webkit-line-clamp:\s*2;/);
 });
@@ -355,12 +355,12 @@ test('chat notices stay readable above the transcript they float over', async ()
   );
   // The shared status surface is a 10% tint; a floating notice needs an opaque
   // base so the transcript behind it cannot bleed through the message text.
-  assert.match(toastStyles, /background-color:\s*var\(--openbitfun-color-surface-raised\);/);
+  assert.match(toastStyles, /background-color:\s*var\(--alex-color-surface-raised\);/);
   assert.match(toastStyles, /background-image:\s*linear-gradient\(var\(--chat-toast-tint\), var\(--chat-toast-tint\)\);/);
   for (const tone of ['info', 'warning', 'danger']) {
     assert.match(toastStyles, new RegExp(`&\\[data-tone='${tone}'\\]`));
   }
-  assert.doesNotMatch(toastStyles, /background:\s*var\(--openbitfun-color-status-(?:info|warning|danger)-surface\)/);
+  assert.doesNotMatch(toastStyles, /background:\s*var\(--alex-color-status-(?:info|warning|danger)-surface\)/);
 });
 
 

@@ -45,8 +45,8 @@ vi.mock('@/shared/notification-system', () => ({
   },
 }));
 
-vi.mock('@openbitfun/ui', async original => ({
-  ...await original<typeof import('@openbitfun/ui')>(),
+vi.mock('@alex/ui', async original => ({
+  ...await original<typeof import('@alex/ui')>(),
   Select: ({
     value,
     options,

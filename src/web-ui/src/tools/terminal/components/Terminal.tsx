@@ -533,13 +533,13 @@ const Terminal = forwardRef<TerminalRef, TerminalProps>(({
 
     const xtermViewport = container.querySelector<HTMLElement>('.xterm-viewport');
     if (xtermViewport) {
-      xtermViewport.dataset.openbitfunComponent = 'terminal-tool';
-      xtermViewport.dataset.openbitfunPart = 'output';
+      xtermViewport.dataset.alexComponent = 'terminal-tool';
+      xtermViewport.dataset.alexPart = 'output';
     }
     const xtermScreen = container.querySelector<HTMLElement>('.xterm-screen');
     if (xtermScreen) {
-      xtermScreen.dataset.openbitfunComponent = 'terminal-tool';
-      xtermScreen.dataset.openbitfunPart = 'screen';
+      xtermScreen.dataset.alexComponent = 'terminal-tool';
+      xtermScreen.dataset.alexPart = 'screen';
     }
 
     terminalRef.current = terminal;
@@ -884,9 +884,9 @@ const Terminal = forwardRef<TerminalRef, TerminalProps>(({
 
   return (
     <div 
-      className={`openbitfun-terminal ${className}`}
-      data-openbitfun-component="terminal-tool"
-      data-openbitfun-part="root"
+      className={`alex-terminal ${className}`}
+      data-alex-component="terminal-tool"
+      data-alex-part="root"
       data-shortcut-scope="terminal"
       data-terminal-id={terminalId}
       data-session-id={sessionId}
@@ -895,9 +895,9 @@ const Terminal = forwardRef<TerminalRef, TerminalProps>(({
     >
       <div 
         ref={containerRef} 
-        className="openbitfun-terminal__container"
-        data-openbitfun-component="terminal-tool"
-        data-openbitfun-part="terminal"
+        className="alex-terminal__container"
+        data-alex-component="terminal-tool"
+        data-alex-part="terminal"
         data-testid="shell-command-output"
       />
     </div>

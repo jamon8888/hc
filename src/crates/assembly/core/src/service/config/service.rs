@@ -3,7 +3,7 @@
 //! Provides comprehensive configuration management functionality.
 
 use super::manager::{
-    validate_current_config_value, validate_openbitfun_product_identity, ConfigManager,
+    validate_current_config_value, validate_alex_product_identity, ConfigManager,
     ConfigManagerSettings, ConfigStatistics,
 };
 use super::types::*;
@@ -64,10 +64,10 @@ impl<'de> Deserialize<'de> for ConfigExport {
     }
 }
 
-fn validate_config_export(export: &ConfigExport) -> OpenBitFunResult<()> {
-    validate_openbitfun_product_identity(&export.product_id, "Configuration export")?;
+fn validate_config_export(export: &ConfigExport) -> AlexResult<()> {
+    validate_alex_product_identity(&export.product_id, "Configuration export")?;
     if export.format_version != CURRENT_CONFIG_EXPORT_FORMAT_VERSION {
-        return Err(OpenBitFunError::validation(format!(
+        return Err(AlexError::validation(format!(
             "Configuration export format_version must be {CURRENT_CONFIG_EXPORT_FORMAT_VERSION}, found {}",
             export.format_version
         )));
@@ -99,13 +99,13 @@ pub struct ConfigHealthStatus {
 
 impl ConfigService {
     /// Creates a new configuration service.
-    pub async fn new() -> OpenBitFunResult<Self> {
+    pub async fn new() -> AlexResult<Self> {
         let settings = ConfigManagerSettings::default();
         Self::with_settings(settings).await
     }
 
     /// Creates a configuration service with custom settings.
-    pub async fn with_settings(settings: ConfigManagerSettings) -> OpenBitFunResult<Self> {
+    pub async fn with_settings(settings: ConfigManagerSettings) -> AlexResult<Self> {
         let manager = ConfigManager::new(settings).await?;
 
         Ok(Self {
@@ -116,7 +116,7 @@ impl ConfigService {
     }
 
     /// Gets a configuration value (supports dot-paths).
-    pub async fn get_config<T>(&self, path: Option<&str>) -> OpenBitFunResult<T>
+    pub async fn get_config<T>(&self, path: Option<&str>) -> AlexResult<T>
     where
         T: serde::de::DeserializeOwned,
     {
@@ -127,13 +127,13 @@ impl ConfigService {
         } else {
             let config = manager.get_config();
             serde_json::from_value(serde_json::to_value(config)?)
-                .map_err(|e| OpenBitFunError::config(format!("Failed to serialize config: {}", e)))
+                .map_err(|e| AlexError::config(format!("Failed to serialize config: {}", e)))
         }
     }
 
-    pub async fn install_runtime_ai_model(&self, model: AIModelConfig) -> OpenBitFunResult<()> {
+    pub async fn install_runtime_ai_model(&self, model: AIModelConfig) -> AlexResult<()> {
         if model.id.trim().is_empty() {
-            return Err(OpenBitFunError::validation(
+            return Err(AlexError::validation(
                 "Runtime model id is required".to_string(),
             ));
         }
@@ -148,7 +148,7 @@ impl ConfigService {
         self.runtime_ai_models.read().await.get(model_id).cloned()
     }
 
-    pub async fn get_effective_ai_config(&self) -> OpenBitFunResult<AIConfig> {
+    pub async fn get_effective_ai_config(&self) -> AlexResult<AIConfig> {
         let mut ai: AIConfig = self.get_config(Some("ai")).await?;
         for runtime_model in self.runtime_ai_models.read().await.values() {
             if let Some(model) = ai
@@ -180,7 +180,7 @@ impl ConfigService {
     /// When the path touches AI models / default model slots / agent-model
     /// mappings, runs [`Self::reconcile_models`] afterwards so the config can
     /// never end up referencing a disabled or deleted model.
-    pub async fn set_config<T>(&self, path: &str, value: T) -> OpenBitFunResult<()>
+    pub async fn set_config<T>(&self, path: &str, value: T) -> AlexResult<()>
     where
         T: serde::Serialize,
     {
@@ -199,8 +199,8 @@ impl ConfigService {
     pub async fn update_config<T, R>(
         &self,
         path: &str,
-        update: impl FnOnce(&mut T) -> OpenBitFunResult<R>,
-    ) -> OpenBitFunResult<R>
+        update: impl FnOnce(&mut T) -> AlexResult<R>,
+    ) -> AlexResult<R>
     where
         T: serde::Serialize + serde::de::DeserializeOwned,
     {
@@ -264,11 +264,11 @@ impl ConfigService {
         path: &str,
         expected: Option<serde_json::Value>,
         replacement: serde_json::Value,
-    ) -> OpenBitFunResult<bool> {
+    ) -> AlexResult<bool> {
         let mut manager = self.manager.write().await;
         let current = match manager.get::<serde_json::Value>(path) {
             Ok(value) => Some(value),
-            Err(OpenBitFunError::NotFound(_)) => None,
+            Err(AlexError::NotFound(_)) => None,
             Err(error) => return Err(error),
         };
         if current != expected {
@@ -298,7 +298,7 @@ impl ConfigService {
     /// When the reset target touches AI models (or is a global reset),
     /// triggers [`Self::reconcile_models`] so default-slot / agent-model
     /// references can never linger pointing at a now-missing model.
-    pub async fn reset_config(&self, path: Option<&str>) -> OpenBitFunResult<()> {
+    pub async fn reset_config(&self, path: Option<&str>) -> AlexResult<()> {
         {
             let mut manager = self.manager.write().await;
             manager.reset(path).await?;
@@ -332,7 +332,7 @@ impl ConfigService {
     }
 
     /// Validates configuration.
-    pub async fn validate_config(&self) -> OpenBitFunResult<ConfigValidationResult> {
+    pub async fn validate_config(&self) -> AlexResult<ConfigValidationResult> {
         let manager = self.manager.read().await;
         let mut result = manager.validate_config().await?;
         result
@@ -346,13 +346,13 @@ impl ConfigService {
     }
 
     /// Exports configuration.
-    pub async fn export_config(&self) -> OpenBitFunResult<ConfigExport> {
+    pub async fn export_config(&self) -> AlexResult<ConfigExport> {
         let manager = self.manager.read().await;
         let config_value = manager.export_config()?;
         let config: GlobalConfig = serde_json::from_value(config_value)?;
 
         Ok(ConfigExport {
-            product_id: openbitfun_core_types::product_identity::product_id().to_string(),
+            product_id: alex_core_types::product_identity::product_id().to_string(),
             format_version: CURRENT_CONFIG_EXPORT_FORMAT_VERSION,
             config,
             export_timestamp: chrono::Utc::now().to_rfc3339(),
@@ -360,11 +360,11 @@ impl ConfigService {
         })
     }
 
-    /// Imports a complete current-format OpenBitFun configuration export.
+    /// Imports a complete current-format Alex configuration export.
     pub async fn import_config(
         &self,
         export: ConfigExport,
-    ) -> OpenBitFunResult<ConfigImportResult> {
+    ) -> AlexResult<ConfigImportResult> {
         if let Err(error) = validate_config_export(&export) {
             return Ok(ConfigImportResult {
                 success: false,
@@ -408,7 +408,7 @@ impl ConfigService {
     }
 
     /// Runs a health check.
-    pub async fn health_check(&self) -> OpenBitFunResult<ConfigHealthStatus> {
+    pub async fn health_check(&self) -> AlexResult<ConfigHealthStatus> {
         let manager = self.manager.read().await;
         let stats = manager.get_statistics();
         let validation_result = manager.validate_config().await?;
@@ -456,7 +456,7 @@ impl ConfigService {
     }
 
     /// Reloads configuration.
-    pub async fn reload(&self) -> OpenBitFunResult<()> {
+    pub async fn reload(&self) -> AlexResult<()> {
         {
             let mut manager = self.manager.write().await;
             manager.reload().await?;
@@ -474,7 +474,7 @@ impl ConfigService {
     }
 
     /// Creates a configuration backup.
-    pub async fn create_backup(&self) -> OpenBitFunResult<std::path::PathBuf> {
+    pub async fn create_backup(&self) -> AlexResult<std::path::PathBuf> {
         let manager = self.manager.read().await;
         manager.create_backup().await
     }
@@ -486,13 +486,13 @@ impl ConfigService {
     }
 
     /// Returns all AI model configurations.
-    pub async fn get_ai_models(&self) -> OpenBitFunResult<Vec<AIModelConfig>> {
+    pub async fn get_ai_models(&self) -> AlexResult<Vec<AIModelConfig>> {
         let config: GlobalConfig = self.get_config(None).await?;
         Ok(config.ai.models)
     }
 
     /// Adds an AI model configuration.
-    pub async fn add_ai_model(&self, model: AIModelConfig) -> OpenBitFunResult<()> {
+    pub async fn add_ai_model(&self, model: AIModelConfig) -> AlexResult<()> {
         self.update_config("ai.models", |models: &mut Vec<AIModelConfig>| {
             models.push(model);
             Ok(())
@@ -505,13 +505,13 @@ impl ConfigService {
         &self,
         model_id: &str,
         model: AIModelConfig,
-    ) -> OpenBitFunResult<()> {
+    ) -> AlexResult<()> {
         self.update_config("ai.models", |models: &mut Vec<AIModelConfig>| {
             let existing = models
                 .iter_mut()
                 .find(|m| m.id == model_id)
                 .ok_or_else(|| {
-                    OpenBitFunError::config(format!("AI model '{}' not found", model_id))
+                    AlexError::config(format!("AI model '{}' not found", model_id))
                 })?;
             *existing = model;
             Ok(())
@@ -520,12 +520,12 @@ impl ConfigService {
     }
 
     /// Deletes an AI model configuration.
-    pub async fn delete_ai_model(&self, model_id: &str) -> OpenBitFunResult<()> {
+    pub async fn delete_ai_model(&self, model_id: &str) -> AlexResult<()> {
         self.update_config("ai.models", |models: &mut Vec<AIModelConfig>| {
             let original_len = models.len();
             models.retain(|m| m.id != model_id);
             if models.len() == original_len {
-                return Err(OpenBitFunError::config(format!(
+                return Err(AlexError::config(format!(
                     "AI model '{}' not found",
                     model_id
                 )));
@@ -540,18 +540,18 @@ impl ConfigService {
     pub async fn save_cloud_speech_config(
         &self,
         request: SaveCloudSpeechConfigRequest,
-    ) -> OpenBitFunResult<SaveCloudSpeechConfigResult> {
+    ) -> AlexResult<SaveCloudSpeechConfigResult> {
         let name = request.name.trim();
         let base_url = request.base_url.trim().trim_end_matches('/');
         let model_name = request.model_name.trim();
         let api_key = request.api_key.trim();
         if name.is_empty() || base_url.is_empty() || model_name.is_empty() || api_key.is_empty() {
-            return Err(OpenBitFunError::validation(
+            return Err(AlexError::validation(
                 "Cloud speech name, base URL, model name, and API key are required".to_string(),
             ));
         }
         if !base_url.starts_with("http://") && !base_url.starts_with("https://") {
-            return Err(OpenBitFunError::validation(
+            return Err(AlexError::validation(
                 "Cloud speech base URL must use http or https".to_string(),
             ));
         }
@@ -570,7 +570,7 @@ impl ConfigService {
                 }
             });
         if !request_url.starts_with("http://") && !request_url.starts_with("https://") {
-            return Err(OpenBitFunError::validation(
+            return Err(AlexError::validation(
                 "Cloud speech request URL must use http or https".to_string(),
             ));
         }
@@ -660,7 +660,7 @@ impl ConfigService {
     ///   and the AI client cache can react in lockstep.
     ///
     /// `caller` is logged for diagnostics (e.g. `set_config`, `update_ai_model`).
-    pub async fn reconcile_models(&self, caller: &str) -> OpenBitFunResult<ReconcileModelsReport> {
+    pub async fn reconcile_models(&self, caller: &str) -> AlexResult<ReconcileModelsReport> {
         let reconciliation = {
             // Reconciliation writes a full config snapshot. Keep its read and
             // write under one lock so unrelated saves (such as voice keys)
@@ -707,17 +707,17 @@ impl ConfigService {
 }
 
 #[async_trait::async_trait]
-impl openbitfun_runtime_ports::ConfigReadPort for ConfigService {
+impl alex_runtime_ports::ConfigReadPort for ConfigService {
     async fn get_config_value(
         &self,
         key: &str,
-    ) -> openbitfun_runtime_ports::PortResult<Option<serde_json::Value>> {
+    ) -> alex_runtime_ports::PortResult<Option<serde_json::Value>> {
         self.get_config::<serde_json::Value>(Some(key))
             .await
             .map(Some)
             .map_err(|error| {
-                openbitfun_runtime_ports::PortError::new(
-                    openbitfun_runtime_ports::PortErrorKind::Backend,
+                alex_runtime_ports::PortError::new(
+                    alex_runtime_ports::PortErrorKind::Backend,
                     error.to_string(),
                 )
             })
@@ -828,7 +828,7 @@ mod tests {
 
     fn current_export(config: GlobalConfig) -> ConfigExport {
         ConfigExport {
-            product_id: openbitfun_core_types::product_identity::product_id().to_string(),
+            product_id: alex_core_types::product_identity::product_id().to_string(),
             format_version: CURRENT_CONFIG_EXPORT_FORMAT_VERSION,
             config,
             export_timestamp: "2026-09-04T00:00:00Z".to_string(),
@@ -1423,7 +1423,7 @@ mod tests {
             ("last_modified", serde_json::json!(0)),
         ] {
             let error = service.set_config(path, value).await.unwrap_err();
-            assert!(error.to_string().contains("managed by OpenBitFun"));
+            assert!(error.to_string().contains("managed by Alex"));
         }
 
         drop(service);
@@ -1740,7 +1740,7 @@ mod tests {
         })
         .await
         {
-            Ok(_) => panic!("structured telemetry is not a current OpenBitFun config"),
+            Ok(_) => panic!("structured telemetry is not a current Alex config"),
             Err(error) => error,
         };
         assert!(error.to_string().contains("expected a boolean"), "{error}");
@@ -1993,10 +1993,10 @@ mod tests {
             .expect("valid models should save");
 
         let invalid_models = vec![AIModelConfig {
-            reasoning: Some(openbitfun_core_types::ReasoningConfig {
-                presets: vec![openbitfun_core_types::ReasoningPreset {
+            reasoning: Some(alex_core_types::ReasoningConfig {
+                presets: vec![alex_core_types::ReasoningPreset {
                     id: "bad-budget".to_string(),
-                    actions: vec![openbitfun_core_types::ReasoningPresetAction::BudgetTokens {
+                    actions: vec![alex_core_types::ReasoningPresetAction::BudgetTokens {
                         value: 0,
                     }],
                     ..Default::default()
@@ -2027,18 +2027,18 @@ mod tests {
         let (service, _dir) = test_service("invalid-reasoning-import").await;
         let mut config = GlobalConfig::default();
         config.ai.models.push(AIModelConfig {
-            reasoning: Some(openbitfun_core_types::ReasoningConfig {
+            reasoning: Some(alex_core_types::ReasoningConfig {
                 presets: vec![
-                    openbitfun_core_types::ReasoningPreset {
+                    alex_core_types::ReasoningPreset {
                         id: "same".to_string(),
-                        actions: vec![openbitfun_core_types::ReasoningPresetAction::Toggle {
+                        actions: vec![alex_core_types::ReasoningPresetAction::Toggle {
                             enabled: true,
                         }],
                         ..Default::default()
                     },
-                    openbitfun_core_types::ReasoningPreset {
+                    alex_core_types::ReasoningPreset {
                         id: "same".to_string(),
-                        actions: vec![openbitfun_core_types::ReasoningPresetAction::Toggle {
+                        actions: vec![alex_core_types::ReasoningPresetAction::Toggle {
                             enabled: false,
                         }],
                         ..Default::default()

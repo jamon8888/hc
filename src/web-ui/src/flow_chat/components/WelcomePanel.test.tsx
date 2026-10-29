@@ -40,7 +40,7 @@ vi.mock('@/infrastructure/contexts/WorkspaceContext', () => ({
     currentWorkspace: {
       id: 'workspace-1',
       name: 'OpenBitFun',
-      rootPath: 'D:/workspace/OpenBitFun',
+      rootPath: 'D:/workspace/Alex',
     },
     openedWorkspacesList: [],
     openWorkspace: vi.fn(),
@@ -98,10 +98,10 @@ describe('WelcomePanel Git summary loading', () => {
     act(() => {
       root.unmount();
     });
-    document.querySelector('[data-openbitfun-overlay-host="true"]')?.remove();
+    document.querySelector('[data-alex-overlay-host="true"]')?.remove();
     document.head.querySelector('style[data-welcome-appearance-test]')?.remove();
-    document.documentElement.removeAttribute('data-openbitfun-appearance');
-    document.documentElement.removeAttribute('data-openbitfun-appearance-revision');
+    document.documentElement.removeAttribute('data-alex-appearance');
+    document.documentElement.removeAttribute('data-alex-appearance-revision');
     container.remove();
   });
 
@@ -110,9 +110,9 @@ describe('WelcomePanel Git summary loading', () => {
       root.render(<WelcomePanel sessionMode='Standard' />);
     });
 
-    expect(container.querySelector('[data-openbitfun-product-part="workspaceAction"]')).not.toBeNull();
-    expect(container.querySelector('[data-openbitfun-product-part="gitAction"]')).not.toBeNull();
-    expect(container.querySelector('[data-openbitfun-product-part="gitAction"]')?.textContent).toContain('main');
+    expect(container.querySelector('[data-alex-product-part="workspaceAction"]')).not.toBeNull();
+    expect(container.querySelector('[data-alex-product-part="gitAction"]')).not.toBeNull();
+    expect(container.querySelector('[data-alex-product-part="gitAction"]')?.textContent).toContain('main');
   });
 
   it('does not render the retired panda mascot', async () => {
@@ -120,7 +120,7 @@ describe('WelcomePanel Git summary loading', () => {
       root.render(<WelcomePanel sessionMode="claw" workspacePath="D:/workspace/Assistant" />);
     });
 
-    expect(container.querySelector('[data-openbitfun-product-part="mascot"]')).toBeNull();
+    expect(container.querySelector('[data-alex-product-part="mascot"]')).toBeNull();
     expect(container.querySelector('img[src^="/panda_full_"]')).toBeNull();
   });
 
@@ -129,18 +129,18 @@ describe('WelcomePanel Git summary loading', () => {
       root.render(<WelcomePanel sessionMode='Standard' />);
     });
 
-    const trigger = container.querySelector<HTMLButtonElement>('[data-openbitfun-product-part="workspaceAction"]');
-    expect(trigger?.getAttribute('data-openbitfun-component')).toBe('button');
+    const trigger = container.querySelector<HTMLButtonElement>('[data-alex-product-part="workspaceAction"]');
+    expect(trigger?.getAttribute('data-alex-component')).toBe('button');
     expect(trigger?.querySelector('[data-overflow-behavior]')).toBeNull();
-    await act(async () => trigger?.querySelector<HTMLElement>('[data-openbitfun-part="label"]')?.click());
+    await act(async () => trigger?.querySelector<HTMLElement>('[data-alex-part="label"]')?.click());
 
-    const menu = document.querySelector<HTMLElement>('[data-openbitfun-product-part="workspaceMenu"]');
-    expect(menu?.closest('[data-openbitfun-overlay-host]')?.getAttribute('data-openbitfun-overlay-host')).toBe('true');
+    const menu = document.querySelector<HTMLElement>('[data-alex-product-part="workspaceMenu"]');
+    expect(menu?.closest('[data-alex-overlay-host]')?.getAttribute('data-alex-overlay-host')).toBe('true');
     expect(menu?.style.visibility).toBe('visible');
 
-    await act(async () => trigger?.querySelector<HTMLElement>('[data-openbitfun-part="trailing-icon"]')?.click());
+    await act(async () => trigger?.querySelector<HTMLElement>('[data-alex-part="trailing-icon"]')?.click());
     expect(trigger?.getAttribute('aria-expanded')).toBe('false');
-    expect(document.querySelector('[data-openbitfun-product-part="workspaceMenu"]')).toBeNull();
+    expect(document.querySelector('[data-alex-product-part="workspaceMenu"]')).toBeNull();
   });
 
   it('keeps saved welcome action styles targeting the migrated Button', async () => {
@@ -158,8 +158,8 @@ describe('WelcomePanel Git summary loading', () => {
     const registry = new AppearanceRegistry().registerComponent(welcomePanelAppearanceDescriptor);
     const snapshot = new AppearanceCompiler(registry).compile(restored, 1);
     expect(JSON.stringify(restored)).toBe(serialized);
-    document.documentElement.setAttribute('data-openbitfun-appearance', snapshot.id);
-    document.documentElement.setAttribute('data-openbitfun-appearance-revision', String(snapshot.revision));
+    document.documentElement.setAttribute('data-alex-appearance', snapshot.id);
+    document.documentElement.setAttribute('data-alex-appearance-revision', String(snapshot.revision));
     const style = document.createElement('style');
     style.setAttribute('data-welcome-appearance-test', '');
     style.textContent = snapshot.cssText;
@@ -172,7 +172,7 @@ describe('WelcomePanel Git summary loading', () => {
     ) as CSSStyleRule | undefined;
     expect(rule).toBeDefined();
     expect(document.querySelector(rule!.selectorText)).toBe(
-      container.querySelector('[data-openbitfun-product-part="workspaceAction"]'),
+      container.querySelector('[data-alex-product-part="workspaceAction"]'),
     );
   });
 });

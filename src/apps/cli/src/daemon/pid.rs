@@ -9,7 +9,7 @@ use std::path::{Path, PathBuf};
 use anyhow::{anyhow, Context, Result};
 
 fn default_pid_file_path() -> Result<PathBuf> {
-    let paths = openbitfun_core::infrastructure::PathManager::new()
+    let paths = alex_core::infrastructure::PathManager::new()
         .map_err(|error| anyhow!("resolve daemon storage: {error}"))?;
     Ok(paths.product_home_dir().join("cli_daemon.pid"))
 }

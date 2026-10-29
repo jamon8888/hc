@@ -8,7 +8,7 @@ import kotlin.test.assertTrue
 class FilePreviewTest {
     @Test
     fun resolvesRemoteFileReferencesAndLineRanges() {
-        val context = FilePreviewTargetContext("session-1", "/workspace/OpenBitFun", 4)
+        val context = FilePreviewTargetContext("session-1", "/workspace/Alex", 4)
         val computer = FileTargetResolver.resolve("computer://src/main.rs#L42-L58", "", context)
         val relative = FileTargetResolver.resolve("README.md:12-18", "Readme", context)
         val windows = FileTargetResolver.resolve("C:\\workspace\\main.cpp#L9", "", context)
@@ -28,7 +28,7 @@ class FilePreviewTest {
 
     @Test
     fun normalizesSchemesEncodedPathsAndTrailingPunctuation() {
-        val context = FilePreviewTargetContext("session-1", "/workspace/OpenBitFun", 4)
+        val context = FilePreviewTargetContext("session-1", "/workspace/Alex", 4)
         assertEquals(
             "/workspace/Makefile",
             FileTargetResolver.resolve("file:///workspace/Makefile", "", context).target?.remotePath,
@@ -44,7 +44,7 @@ class FilePreviewTest {
 
     @Test
     fun classifiesReferencesWithoutFileTargets() {
-        val context = FilePreviewTargetContext("session-1", "/workspace/OpenBitFun", 1)
+        val context = FilePreviewTargetContext("session-1", "/workspace/Alex", 1)
         assertEquals(FileReferenceKind.HTTP_URL, FileTargetResolver.resolve("https://example.com", "", context).kind)
         assertEquals(FileReferenceKind.ANCHOR, FileTargetResolver.resolve("#section", "", context).kind)
         assertEquals(

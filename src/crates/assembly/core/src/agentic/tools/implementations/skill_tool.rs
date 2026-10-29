@@ -6,10 +6,10 @@
 use crate::agentic::tools::framework::{
     PermissionIntent, Tool, ToolRenderOptions, ToolResult, ToolUseContext, ValidationResult,
 };
-use crate::util::errors::{OpenBitFunError, OpenBitFunResult};
+use crate::util::errors::{AlexError, AlexResult};
 use async_trait::async_trait;
 use log::debug;
-use openbitfun_services_core::markdown::expand_prompt_template_arguments_with_names;
+use alex_services_core::markdown::expand_prompt_template_arguments_with_names;
 use serde_json::{json, Value};
 
 // Use skills module
@@ -115,7 +115,7 @@ impl Tool for SkillTool {
         "Skill"
     }
 
-    async fn description(&self) -> OpenBitFunResult<String> {
+    async fn description(&self) -> AlexResult<String> {
         Ok(self.render_description())
     }
 
@@ -126,7 +126,7 @@ impl Tool for SkillTool {
     async fn description_with_context(
         &self,
         _context: Option<&ToolUseContext>,
-    ) -> OpenBitFunResult<String> {
+    ) -> AlexResult<String> {
         Ok(self.render_description())
     }
 
@@ -160,13 +160,13 @@ impl Tool for SkillTool {
         &self,
         input: &Value,
         _context: &ToolUseContext,
-    ) -> OpenBitFunResult<Vec<PermissionIntent>> {
+    ) -> AlexResult<Vec<PermissionIntent>> {
         let skill_name = input
             .get("command")
             .and_then(Value::as_str)
             .map(str::trim)
             .filter(|skill_name| !skill_name.is_empty())
-            .ok_or_else(|| OpenBitFunError::validation("command is required".to_string()))?;
+            .ok_or_else(|| AlexError::validation("command is required".to_string()))?;
         Ok(vec![PermissionIntent::new(
             "skill",
             vec![skill_name.to_string()],
@@ -222,11 +222,11 @@ impl Tool for SkillTool {
         &self,
         input: &Value,
         context: &ToolUseContext,
-    ) -> OpenBitFunResult<Vec<ToolResult>> {
+    ) -> AlexResult<Vec<ToolResult>> {
         let skill_name = input
             .get("command")
             .and_then(|v| v.as_str())
-            .ok_or_else(|| OpenBitFunError::tool("command is required".to_string()))?;
+            .ok_or_else(|| AlexError::tool("command is required".to_string()))?;
 
         debug!("Skill tool executing skill: {}", skill_name);
 
@@ -465,7 +465,7 @@ Use the remote project skill.
             }
             if self.imported
                 && path
-                    == "/remote/project/.openbitfun/skills/remote-review/.openbitfun-import.json"
+                    == "/remote/project/.openbitfun/skills/remote-review/.alex-import.json"
             {
                 return Ok(json!({ "schemaVersion": 1, "importId": "remote-import", "sourceKey": "project::claude::remote-review", "sourcePath": "/remote/project/.claude/skills/remote-review", "sourceId": "claude-code", "sourceLabel": "Claude Code", "sourceSlot": "claude", "fingerprint": "fixture" }).to_string());
             }
@@ -482,7 +482,7 @@ Use the remote project skill.
 
         async fn is_file(&self, path: &str) -> anyhow::Result<bool> {
             Ok(path == "/remote/project/.claude/skills/remote-review/SKILL.md" || (self.imported && matches!(path,
-                "/remote/project/.openbitfun/skills/remote-review/SKILL.md" | "/remote/project/.openbitfun/skills/remote-review/.openbitfun-import.json")))
+                "/remote/project/.openbitfun/skills/remote-review/SKILL.md" | "/remote/project/.openbitfun/skills/remote-review/.alex-import.json")))
         }
 
         async fn is_dir(&self, path: &str) -> anyhow::Result<bool> {
@@ -525,7 +525,7 @@ Use the remote project skill.
             custom_data: Default::default(),
             computer_use_host: None,
             runtime_tool_restrictions: Default::default(),
-            runtime_handles: openbitfun_runtime_ports::ToolRuntimeHandles::new(None, None),
+            runtime_handles: alex_runtime_ports::ToolRuntimeHandles::new(None, None),
         }
     }
 
@@ -779,8 +779,8 @@ Use the remote project skill.
         };
         assert_eq!(data["skill_name"], "deep-research");
         assert!(data.get("skill_display_name").is_none());
-        assert_eq!(data["source_slot"], "openbitfun");
-        assert_eq!(data["source_id"], "openbitfun");
+        assert_eq!(data["source_slot"], "alex");
+        assert_eq!(data["source_id"], "alex");
         assert_eq!(data["source_label"], "Alex");
     }
 
@@ -848,7 +848,7 @@ Use the remote project skill.
             .await;
         assert!(visible
             .iter()
-            .any(|skill| { skill.name == "deploy-service" && skill.source_slot == "openbitfun" }));
+            .any(|skill| { skill.name == "deploy-service" && skill.source_slot == "alex" }));
 
         let results = SkillTool::new()
             .call_impl(
@@ -944,7 +944,7 @@ Use the remote project skill.
             .await;
         assert!(visible
             .iter()
-            .any(|skill| { skill.name == "remote-review" && skill.source_slot == "openbitfun" }));
+            .any(|skill| { skill.name == "remote-review" && skill.source_slot == "alex" }));
 
         let loaded = registry
             .find_and_load_skill_for_remote_workspace(
@@ -956,7 +956,7 @@ Use the remote project skill.
             .await
             .expect("remote Claude skill should load with the discovery dialect");
         assert_eq!(loaded.name, "remote-review");
-        assert_eq!(loaded.source_id, "openbitfun");
+        assert_eq!(loaded.source_id, "alex");
         assert_eq!(loaded.source_label, "Alex");
         assert_eq!(loaded.argument_names, ["target", "focus"]);
         assert_eq!(loaded.compatibility_warnings.len(), 2);
@@ -1054,7 +1054,7 @@ Use the remote project skill.
             custom_data: Default::default(),
             computer_use_host: None,
             runtime_tool_restrictions: Default::default(),
-            runtime_handles: openbitfun_runtime_ports::ToolRuntimeHandles::new(
+            runtime_handles: alex_runtime_ports::ToolRuntimeHandles::new(
                 Some(WorkspaceServices {
                     fs: Arc::new(FakeRemoteFs),
                     shell: Arc::new(FakeShell),
@@ -1096,7 +1096,7 @@ Use the remote project skill.
             custom_data: Default::default(),
             computer_use_host: None,
             runtime_tool_restrictions: Default::default(),
-            runtime_handles: openbitfun_runtime_ports::ToolRuntimeHandles::new(
+            runtime_handles: alex_runtime_ports::ToolRuntimeHandles::new(
                 Some(WorkspaceServices {
                     fs: Arc::new(FakeRemoteFs),
                     shell: Arc::new(FakeShell),
@@ -1144,7 +1144,7 @@ Use the remote project skill.
             custom_data: Default::default(),
             computer_use_host: None,
             runtime_tool_restrictions: Default::default(),
-            runtime_handles: openbitfun_runtime_ports::ToolRuntimeHandles::new(None, None),
+            runtime_handles: alex_runtime_ports::ToolRuntimeHandles::new(None, None),
         };
 
         let results = SkillTool::new()
@@ -1166,7 +1166,7 @@ Use the remote project skill.
         assert_eq!(data["skill_name"], "ppt-design");
         assert_eq!(data["skill_key"], "user::openbitfun-system::ppt-design");
         assert_eq!(data["source_slot"], "openbitfun-system");
-        assert_eq!(data["source_id"], "openbitfun");
+        assert_eq!(data["source_id"], "alex");
         assert_eq!(data["source_label"], "Alex");
         assert!(data["content"]
             .as_str()

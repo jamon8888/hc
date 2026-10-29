@@ -24,7 +24,7 @@ import { OverflowText,
   DialogHeading,
   DialogTitle,
   ConfirmDialog,
-} from '@openbitfun/ui';
+} from '@alex/ui';
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Wifi, Loader, AlertTriangle, EyeOff, FolderOpen } from 'lucide-react';
@@ -2227,11 +2227,11 @@ const ModelSettingsPage: React.FC = () => {
   
   if (isConfigLoading || configLoadError) {
     return (
-      <ConfigPageLayout className="openbitfun-model-settings" data-openbitfun-component="model-settings" data-openbitfun-part="root" data-openbitfun-view="settings">
+      <ConfigPageLayout className="alex-model-settings" data-alex-component="model-settings" data-alex-part="root" data-alex-view="settings">
         <ConfigPageHeader title={t('title')} subtitle={t('subtitle')} />
-        <ConfigPageContent className="openbitfun-model-settings__content">
+        <ConfigPageContent className="alex-model-settings__content">
           {isConfigLoading ? (
-            <div className="openbitfun-model-settings__loading" role="status">{t('messages.loading')}</div>
+            <div className="alex-model-settings__loading" role="status">{t('messages.loading')}</div>
           ) : (
             <ConfigRetryState
               message={t('messages.loadFailedLocked')}
@@ -2246,33 +2246,33 @@ const ModelSettingsPage: React.FC = () => {
 
   if (creationMode === 'selection') {
     return (
-      <ConfigPageLayout className="openbitfun-model-settings" data-openbitfun-component="model-settings" data-openbitfun-part="root" data-openbitfun-view="selection">
+      <ConfigPageLayout className="alex-model-settings" data-alex-component="model-settings" data-alex-part="root" data-alex-view="selection">
         <ConfigPageHeader
           title={t('providerSelection.title')}
           subtitle={t('providerSelection.subtitle')}
         />
 
-        <ConfigPageContent className="openbitfun-model-settings__content openbitfun-model-settings__content--selection">
-          <div className="openbitfun-model-settings__provider-selection" data-openbitfun-component="model-settings" data-openbitfun-part="providerSelection">
+        <ConfigPageContent className="alex-model-settings__content alex-model-settings__content--selection">
+          <div className="alex-model-settings__provider-selection" data-alex-component="model-settings" data-alex-part="providerSelection">
             
             <button
               type="button"
               data-testid="settings-model-custom-config-btn"
               data-provider-id="custom"
-              className="openbitfun-model-settings__custom-option"
+              className="alex-model-settings__custom-option"
               onClick={handleSelectCustom}
             >
-              <div className="openbitfun-model-settings__custom-option-content" data-openbitfun-component="model-settings" data-openbitfun-part="customOption">
+              <div className="alex-model-settings__custom-option-content" data-alex-component="model-settings" data-alex-part="customOption">
                 <Icon name="settings" size="lg" />
                 <div>
-                  <div className="openbitfun-model-settings__custom-option-title" data-openbitfun-component="model-settings" data-openbitfun-part="customOptionTitle">{t('providerSelection.customTitle')}</div>
-                  <div className="openbitfun-model-settings__custom-option-description" data-openbitfun-component="model-settings" data-openbitfun-part="customOptionDescription">{t('providerSelection.customDescription')}</div>
+                  <div className="alex-model-settings__custom-option-title" data-alex-component="model-settings" data-alex-part="customOptionTitle">{t('providerSelection.customTitle')}</div>
+                  <div className="alex-model-settings__custom-option-description" data-alex-component="model-settings" data-alex-part="customOptionDescription">{t('providerSelection.customDescription')}</div>
                 </div>
               </div>
             </button>
 
             
-            <div className="openbitfun-model-settings__selection-divider" data-openbitfun-component="model-settings" data-openbitfun-part="selectionDivider">
+            <div className="alex-model-settings__selection-divider" data-alex-component="model-settings" data-alex-part="selectionDivider">
               <span>{t('providerSelection.orSelectProvider')}</span>
             </div>
 
@@ -2280,10 +2280,10 @@ const ModelSettingsPage: React.FC = () => {
             <SearchField
               leadingIcon={<Icon name="search" size="lg" aria-hidden />}
               size="sm"
-              className="openbitfun-model-settings__provider-search"
+              className="alex-model-settings__provider-search"
               data-testid="settings-model-provider-search"
-              data-openbitfun-component="model-settings"
-              data-openbitfun-part="providerSearch"
+              data-alex-component="model-settings"
+              data-alex-part="providerSearch"
               value={providerQuery}
               placeholder={t('providerSelection.searchProviders')}
               aria-label={t('providerSelection.searchProviders')}
@@ -2295,34 +2295,34 @@ const ModelSettingsPage: React.FC = () => {
             />
 
 
-            <div className="openbitfun-model-settings__provider-list" data-openbitfun-component="model-settings" data-openbitfun-part="providerList">
+            <div className="alex-model-settings__provider-list" data-alex-component="model-settings" data-alex-part="providerList">
               {visibleProviders.map(provider => (
                 // The help link is a sibling of the select button, not a child:
                 // a button may not contain interactive content.
                 <div
                   key={provider.id}
-                  className="openbitfun-model-settings__provider-row"
-                  data-openbitfun-component="model-settings"
-                  data-openbitfun-part="providerRow"
+                  className="alex-model-settings__provider-row"
+                  data-alex-component="model-settings"
+                  data-alex-part="providerRow"
                 >
                   <button
                     type="button"
                     data-testid="settings-model-provider-option"
                     data-provider-id={provider.id}
-                    className="openbitfun-model-settings__provider-select"
-                    data-openbitfun-component="model-settings"
-                    data-openbitfun-part="providerSelect"
+                    className="alex-model-settings__provider-select"
+                    data-alex-component="model-settings"
+                    data-alex-part="providerSelect"
                     onClick={() => handleSelectProvider(provider.id)}
                   >
-                    <span className="openbitfun-model-settings__provider-name" data-openbitfun-component="model-settings" data-openbitfun-part="providerName">{provider.name}</span>
-                    <span className="openbitfun-model-settings__provider-description" data-openbitfun-component="model-settings" data-openbitfun-part="providerDescription">{provider.description}</span>
+                    <span className="alex-model-settings__provider-name" data-alex-component="model-settings" data-alex-part="providerName">{provider.name}</span>
+                    <span className="alex-model-settings__provider-description" data-alex-component="model-settings" data-alex-part="providerDescription">{provider.description}</span>
                   </button>
                   {provider.helpUrl && (
                     <a
                       href={provider.helpUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="openbitfun-model-settings__provider-help-link"
+                      className="alex-model-settings__provider-help-link"
                       onClick={async (e) => {
                         e.preventDefault();
                         e.stopPropagation();
@@ -2337,12 +2337,12 @@ const ModelSettingsPage: React.FC = () => {
                       {t('providerSelection.getApiKey')}
                     </a>
                   )}
-                  <Icon name="chevron-right" size="sm" className="openbitfun-model-settings__provider-chevron" aria-hidden="true" />
+                  <Icon name="chevron-right" size="sm" className="alex-model-settings__provider-chevron" aria-hidden="true" />
                 </div>
               ))}
 
               {visibleProviders.length === 0 && (
-                <div className="openbitfun-model-settings__provider-empty" data-openbitfun-component="model-settings" data-openbitfun-part="providerEmpty">
+                <div className="alex-model-settings__provider-empty" data-alex-component="model-settings" data-alex-part="providerEmpty">
                   {t('providerSelection.noProviderMatches')}
                 </div>
               )}
@@ -2351,9 +2351,9 @@ const ModelSettingsPage: React.FC = () => {
                 <button
                   type="button"
                   data-testid="settings-model-provider-expand-btn"
-                  className="openbitfun-model-settings__provider-more"
-                  data-openbitfun-component="model-settings"
-                  data-openbitfun-part="providerMore"
+                  className="alex-model-settings__provider-more"
+                  data-alex-component="model-settings"
+                  data-alex-part="providerMore"
                   onClick={() => setShowAllProviders(previous => !previous)}
                 >
                   {isProviderListCollapsed
@@ -2365,7 +2365,7 @@ const ModelSettingsPage: React.FC = () => {
             </div>
 
 
-            <div className="openbitfun-model-settings__selection-actions" data-openbitfun-component="model-settings" data-openbitfun-part="selectionActions">
+            <div className="alex-model-settings__selection-actions" data-alex-component="model-settings" data-alex-part="selectionActions">
               <Button variant="fill" size="sm" onClick={() => setCreationMode(null)}>
                 {t('actions.cancel')}
               </Button>
@@ -2474,7 +2474,7 @@ const ModelSettingsPage: React.FC = () => {
     const apiKeySuffix = (
       <IconButton
         type="button"
-        className="openbitfun-model-settings__input-visibility-toggle"
+        className="alex-model-settings__input-visibility-toggle"
         onClick={() => setShowApiKey(prev => !prev)}
         aria-label={apiKeyVisibilityLabel}
         title={apiKeyVisibilityLabel}
@@ -2517,7 +2517,7 @@ const ModelSettingsPage: React.FC = () => {
       if (selectedModelDrafts.length === 0) {
         return (
           <div
-            className="openbitfun-model-settings__selected-models-empty"
+            className="alex-model-settings__selected-models-empty"
             data-testid="settings-model-selected-list-empty"
             data-selected-count="0"
           >
@@ -2528,7 +2528,7 @@ const ModelSettingsPage: React.FC = () => {
 
       return (
         <div
-          className="openbitfun-model-settings__selected-models-list"
+          className="alex-model-settings__selected-models-list"
           data-testid="settings-model-selected-list"
           data-selected-count={selectedModelDrafts.length}
         >
@@ -2554,7 +2554,7 @@ const ModelSettingsPage: React.FC = () => {
             return (
               <div
                 key={draft.key}
-                className="openbitfun-model-settings__selected-model-row"
+                className="alex-model-settings__selected-model-row"
                 data-testid="settings-model-selected-row"
                 data-model-id={draft.modelName}
                 data-model-name={draft.modelName}
@@ -2564,8 +2564,8 @@ const ModelSettingsPage: React.FC = () => {
               >
                 <div
                   className={[
-                    'openbitfun-model-settings__selected-model-head',
-                    canToggleExpand && 'openbitfun-model-settings__selected-model-head--toggleable',
+                    'alex-model-settings__selected-model-head',
+                    canToggleExpand && 'alex-model-settings__selected-model-head--toggleable',
                   ].filter(Boolean).join(' ')}
                   onClick={canToggleExpand ? () => toggleSelectedModelCardExpanded(draft.key) : undefined}
                   onKeyDown={canToggleExpand ? (e) => onSelectedModelHeadKeyDown(e, draft.key) : undefined}
@@ -2583,18 +2583,18 @@ const ModelSettingsPage: React.FC = () => {
                       : undefined
                   }
                 >
-                  <div className="openbitfun-model-settings__selected-model-head-title">
-                    <div className="openbitfun-model-settings__selected-model-head-top">
+                  <div className="alex-model-settings__selected-model-head-title">
+                    <div className="alex-model-settings__selected-model-head-top">
                       {canToggleExpand && (
-                        <div className="openbitfun-model-settings__selected-model-toggle">
+                        <div className="alex-model-settings__selected-model-toggle">
                           {isExpanded ? <Icon name="chevron-down" size="sm" /> : <Icon name="chevron-right" size="sm" />}
                         </div>
                       )}
-                      <div className="openbitfun-model-settings__selected-model-name">{modelDisplayName}</div>
+                      <div className="alex-model-settings__selected-model-name">{modelDisplayName}</div>
                       {hasUnsavedChanges && (
                         <StatusPill
                           tone="warning"
-                          className="openbitfun-model-settings__selected-model-unsaved"
+                          className="alex-model-settings__selected-model-unsaved"
                           title={t('providerSelection.unsavedModelHint')}
                           aria-label={t('providerSelection.unsavedModelHint')}
                           data-testid="settings-model-unsaved-badge"
@@ -2611,7 +2611,7 @@ const ModelSettingsPage: React.FC = () => {
                           data-model-id={draft.modelName}
                           data-model-name={draft.modelName}
                           size="sm"
-                          className="openbitfun-model-settings__selected-model-remove"
+                          className="alex-model-settings__selected-model-remove"
                           onClick={(e) => {
                             e.stopPropagation();
                             removeSelectedModelDraft(draft.modelName);
@@ -2622,8 +2622,8 @@ const ModelSettingsPage: React.FC = () => {
                     )}
                   </div>
                   {!isExpanded && (
-                    <div className="openbitfun-model-settings__selected-model-head-bottom">
-                      <span className="openbitfun-model-settings__selected-model-summary">
+                    <div className="alex-model-settings__selected-model-head-bottom">
+                      <span className="alex-model-settings__selected-model-summary">
                         {categoryLabel}
                         {' · '}
                         {formatTokenCountShort(draft.contextWindow)} ctx
@@ -2634,10 +2634,10 @@ const ModelSettingsPage: React.FC = () => {
                   )}
                 </div>
                 {isExpanded && (
-                  <div className={`openbitfun-model-settings__selected-model-grid${automaticOpenCodeRouting ? ' openbitfun-model-settings__selected-model-grid--with-format' : ''}`}>
+                  <div className={`alex-model-settings__selected-model-grid${automaticOpenCodeRouting ? ' alex-model-settings__selected-model-grid--with-format' : ''}`}>
                     {automaticOpenCodeRouting && (
                       <>
-                        <Field className="openbitfun-model-settings__selected-model-field" label={t('form.provider')} controlWidth="fill">
+                        <Field className="alex-model-settings__selected-model-field" label={t('form.provider')} controlWidth="fill">
                           {modelRoute ? (
                             <span>{requestFormatLabelMap[modelRoute.format] || modelRoute.format}</span>
                           ) : canEditManualRoute ? (
@@ -2653,17 +2653,17 @@ const ModelSettingsPage: React.FC = () => {
                         </Field>
                       </>
                     )}
-                    <Field className="openbitfun-model-settings__selected-model-field" label={t('category.label')} controlWidth="fill">
+                    <Field className="alex-model-settings__selected-model-field" label={t('category.label')} controlWidth="fill">
                       <Combobox
                         value={draft.category}
                         onValueChange={(value) => updateModelDraft(draft.modelName, { category: value as ModelCategory })}
                         options={categoryOptions}
                         size="sm"
-                        className="openbitfun-model-settings__selected-model-category-select"
+                        className="alex-model-settings__selected-model-category-select"
                       />
                     </Field>
                     <Field
-                      className="openbitfun-model-settings__selected-model-field"
+                      className="alex-model-settings__selected-model-field"
                       label={t('form.contextWindow')}
                       controlWidth="fill"
                       labelAction={(
@@ -2678,7 +2678,7 @@ const ModelSettingsPage: React.FC = () => {
                       )}
                     >
                       <NumberInput
-                        className="openbitfun-model-settings__selected-model-context-input"
+                        className="alex-model-settings__selected-model-context-input"
                         value={draft.contextWindow}
                         formatValue={(value) => i18nService.formatNumber(value, { useGrouping: true, maximumFractionDigits: 0 })}
                         onValueChange={(value) => updateModelDraft(draft.modelName, { contextWindow: value })}
@@ -2690,21 +2690,21 @@ const ModelSettingsPage: React.FC = () => {
                       />
                     </Field>
                     {automaticOpenCodeRouting && (modelRoute || canEditManualRoute) && (
-                      <Field className="openbitfun-model-settings__selected-model-field openbitfun-model-settings__selected-model-route" label={t('form.resolvedUrlLabel')} controlWidth="fill">
-                        <span className="openbitfun-model-settings__resolved-url-value">
+                      <Field className="alex-model-settings__selected-model-field alex-model-settings__selected-model-route" label={t('form.resolvedUrlLabel')} controlWidth="fill">
+                        <span className="alex-model-settings__resolved-url-value">
                           {modelRoute?.request_url || resolveRequestUrl(editingConfig.base_url || '', manualFormat, draft.modelName)}
                         </span>
                       </Field>
                     )}
                     {draft.contextWindow > LONG_CONTEXT_WARNING_THRESHOLD_TOKENS && (
-                      <div className="openbitfun-model-settings__warning-inline openbitfun-model-settings__context-window-warning">
+                      <div className="alex-model-settings__warning-inline alex-model-settings__context-window-warning">
                         <AlertTriangle size={14} />
                         <span>{t('form.contextWindowLongWarning')}</span>
                       </div>
                     )}
                     <button
                       type="button"
-                      className="openbitfun-model-settings__reasoning-summary"
+                      className="alex-model-settings__reasoning-summary"
                       onClick={() => {
                         reasoningPanelInitialRef.current = {
                           key: draft.key,
@@ -2716,14 +2716,14 @@ const ModelSettingsPage: React.FC = () => {
                       }}
                       data-testid="settings-model-reasoning-edit"
                     >
-                      <span className="openbitfun-model-settings__reasoning-summary-icon">
+                      <span className="alex-model-settings__reasoning-summary-icon">
                         <Icon name="thinking" size="md" aria-hidden="true" />
                       </span>
-                      <span className="openbitfun-model-settings__reasoning-summary-content">
+                      <span className="alex-model-settings__reasoning-summary-content">
                         <strong>{t('reasoningPresets.configTitle')}</strong>
                         <span>{formatReasoningSummary(draft, reasoningProjection)}</span>
                       </span>
-                      <span className="openbitfun-model-settings__reasoning-summary-action">
+                      <span className="alex-model-settings__reasoning-summary-action">
                         {t('actions.edit')}
                       </span>
                     </button>
@@ -2757,7 +2757,7 @@ const ModelSettingsPage: React.FC = () => {
 
     const renderAuthRow = () => (
       <ConfigPageRow label={t('subscriptionAuth.label')} align={authIsSubscription ? 'start' : 'center'} wide>
-        <div className="openbitfun-model-settings__control-stack">
+        <div className="alex-model-settings__control-stack">
           <Select
             value={authSelectValue}
             onValueChange={(value) => {
@@ -2787,8 +2787,8 @@ const ModelSettingsPage: React.FC = () => {
           />
           {authIsSubscription && (
             <small className={matchedSubscription?.connected
-              ? 'resolved-url__hint openbitfun-model-settings__cli-auth-hint'
-              : 'resolved-url__hint openbitfun-model-settings__cli-auth-hint openbitfun-model-settings__json-status--error'}
+              ? 'resolved-url__hint alex-model-settings__cli-auth-hint'
+              : 'resolved-url__hint alex-model-settings__cli-auth-hint alex-model-settings__json-status--error'}
             >
               {legacyOpenCode ? t('subscriptionAuth.openCodeRemoved') : matchedSubscription?.connected
                 ? t('subscriptionAuth.detected', {
@@ -2826,11 +2826,11 @@ const ModelSettingsPage: React.FC = () => {
 
     return (
       <>
-        <div className="openbitfun-model-settings__form openbitfun-model-settings__form--modal" data-openbitfun-component="model-settings" data-openbitfun-part="form">
-          <div className="openbitfun-model-settings__form-content" data-openbitfun-component="model-settings" data-openbitfun-part="formBody">
+        <div className="alex-model-settings__form alex-model-settings__form--modal" data-alex-component="model-settings" data-alex-part="form">
+          <div className="alex-model-settings__form-content" data-alex-component="model-settings" data-alex-part="formBody">
             <ConfigPageSection
               title={isProviderScopedEditing ? t('editProviderSubtitle') : t('editSubtitle')}
-              className="openbitfun-model-settings__edit-section"
+              className="alex-model-settings__edit-section"
               fieldSurface="default"
             >
             {isFromTemplate ? (
@@ -2851,7 +2851,7 @@ const ModelSettingsPage: React.FC = () => {
                 {!authIsSubscription && (
                   <>
                     <ConfigPageRow label={t('form.baseUrl')} required align="center" wide>
-                      <div className="openbitfun-model-settings__control-stack">
+                      <div className="alex-model-settings__control-stack">
                         {currentTemplate?.baseUrlOptions && currentTemplate.baseUrlOptions.length > 0 && (
                           <Combobox
                             invalid={showModelValidation && missingModelFields.baseUrl}
@@ -2891,9 +2891,9 @@ const ModelSettingsPage: React.FC = () => {
                           size="sm"
                         />
                         {editingConfig.base_url && !automaticOpenCodeRouting && (
-                          <div className="openbitfun-model-settings__resolved-url">
-                            <span className="openbitfun-model-settings__resolved-url-label">{t('form.resolvedUrlLabel')}</span>
-                            <span className="openbitfun-model-settings__resolved-url-value">
+                          <div className="alex-model-settings__resolved-url">
+                            <span className="alex-model-settings__resolved-url-label">{t('form.resolvedUrlLabel')}</span>
+                            <span className="alex-model-settings__resolved-url-value">
                               {previewRequestUrl(editingConfig.base_url, editingConfig.provider || 'openai', selectedModelDrafts.length === 1 ? selectedModelDrafts[0].modelName : undefined)}
                             </span>
                           </div>
@@ -2922,9 +2922,9 @@ const ModelSettingsPage: React.FC = () => {
                     )}
                   </>
                 )}
-                <ConfigPageRow label={t('form.modelSelection')} required multiline className="openbitfun-model-settings__model-selection-row">
-                  <div className="openbitfun-model-settings__control-stack">
-                    <div className="openbitfun-model-settings__model-picker-row">
+                <ConfigPageRow label={t('form.modelSelection')} required multiline className="alex-model-settings__model-selection-row">
+                  <div className="alex-model-settings__control-stack">
+                    <div className="alex-model-settings__model-picker-row">
                       <MultiSelect
                         aria-required="true"
                         data-testid="settings-model-select"
@@ -2951,7 +2951,7 @@ const ModelSettingsPage: React.FC = () => {
                         {t('providerSelection.refreshModels')}
                       </Button>
                     </div>
-                    <div className="openbitfun-model-settings__manual-model-entry">
+                    <div className="alex-model-settings__manual-model-entry">
                       <Input
                         data-testid="settings-model-manual-name-input"
                         value={manualModelInput}
@@ -2965,12 +2965,12 @@ const ModelSettingsPage: React.FC = () => {
                         placeholder={t('providerSelection.inputModelName')}
                         size="sm"
                       />
-                      <Button className="openbitfun-model-settings__manual-model-add" data-testid="settings-model-add-custom-btn" variant="outline" size="sm" onClick={addManualModelDraft}>
+                      <Button className="alex-model-settings__manual-model-add" data-testid="settings-model-add-custom-btn" variant="outline" size="sm" onClick={addManualModelDraft}>
                         {t('providerSelection.addCustomModel')}
                       </Button>
                     </div>
                     {modelFetchHint && (
-                      <small className={`resolved-url__hint openbitfun-model-settings__model-fetch-hint ${remoteModelsError ? 'openbitfun-model-settings__json-status--error' : ''}`}>
+                      <small className={`resolved-url__hint alex-model-settings__model-fetch-hint ${remoteModelsError ? 'alex-model-settings__json-status--error' : ''}`}>
                         {modelFetchHint}
                       </small>
                     )}
@@ -2998,7 +2998,7 @@ const ModelSettingsPage: React.FC = () => {
                     {!authIsSubscription && (
                       <>
                         <ConfigPageRow label={t('form.baseUrl')} required align="center" wide>
-                          <div className="openbitfun-model-settings__control-stack">
+                          <div className="alex-model-settings__control-stack">
                             <Input
                               data-testid="settings-model-base-url-input"
                               invalid={showModelValidation && missingModelFields.baseUrl}
@@ -3018,9 +3018,9 @@ const ModelSettingsPage: React.FC = () => {
                               size="sm"
                             />
                             {editingConfig.base_url && !automaticOpenCodeRouting && (
-                              <div className="openbitfun-model-settings__resolved-url">
-                                <span className="openbitfun-model-settings__resolved-url-label">{t('form.resolvedUrlLabel')}</span>
-                                <span className="openbitfun-model-settings__resolved-url-value">
+                              <div className="alex-model-settings__resolved-url">
+                                <span className="alex-model-settings__resolved-url-label">{t('form.resolvedUrlLabel')}</span>
+                                <span className="alex-model-settings__resolved-url-value">
                                   {previewRequestUrl(editingConfig.base_url, editingConfig.provider || 'openai', selectedModelDrafts.length === 1 ? selectedModelDrafts[0].modelName : undefined)}
                                 </span>
                               </div>
@@ -3049,9 +3049,9 @@ const ModelSettingsPage: React.FC = () => {
 
             {!isFromTemplate && (
               <>
-                <ConfigPageRow label={t('form.modelSelection')} required multiline className="openbitfun-model-settings__model-selection-row">
-                  <div className="openbitfun-model-settings__control-stack">
-                    <div className="openbitfun-model-settings__model-picker-row">
+                <ConfigPageRow label={t('form.modelSelection')} required multiline className="alex-model-settings__model-selection-row">
+                  <div className="alex-model-settings__control-stack">
+                    <div className="alex-model-settings__model-picker-row">
                       {editingConfig.id ? (
                         <Combobox
                           aria-required="true"
@@ -3095,7 +3095,7 @@ const ModelSettingsPage: React.FC = () => {
                         {t('providerSelection.refreshModels')}
                       </Button>
                     </div>
-                    <div className="openbitfun-model-settings__manual-model-entry">
+                    <div className="alex-model-settings__manual-model-entry">
                       <Input
                         data-testid="settings-model-manual-name-input"
                         value={manualModelInput}
@@ -3109,12 +3109,12 @@ const ModelSettingsPage: React.FC = () => {
                         placeholder={t('providerSelection.inputModelName')}
                         size="sm"
                       />
-                      <Button className="openbitfun-model-settings__manual-model-add" data-testid="settings-model-add-custom-btn" variant="outline" size="sm" onClick={addManualModelDraft}>
+                      <Button className="alex-model-settings__manual-model-add" data-testid="settings-model-add-custom-btn" variant="outline" size="sm" onClick={addManualModelDraft}>
                         {t('providerSelection.addCustomModel')}
                       </Button>
                     </div>
                     {modelFetchHint && (
-                      <small className={`resolved-url__hint openbitfun-model-settings__model-fetch-hint ${remoteModelsError ? 'openbitfun-model-settings__json-status--error' : ''}`}>
+                      <small className={`resolved-url__hint alex-model-settings__model-fetch-hint ${remoteModelsError ? 'alex-model-settings__json-status--error' : ''}`}>
                         {modelFetchHint}
                       </small>
                     )}
@@ -3128,10 +3128,10 @@ const ModelSettingsPage: React.FC = () => {
           {!authIsSubscription && (
             <ConfigPageSection
               title={t('advancedSettings.title')}
-              className="openbitfun-model-settings__edit-section"
+              className="alex-model-settings__edit-section"
               fieldSurface="default"
             >
-              <ConfigPageRow className="openbitfun-model-settings__toggle-row" label={t('advancedSettings.title')} align="center">
+              <ConfigPageRow className="alex-model-settings__toggle-row" label={t('advancedSettings.title')} align="center">
                 <Switch checked={showAdvancedSettings} onChange={(e) => setShowAdvancedSettings(e.target.checked)} />
               </ConfigPageRow>
 
@@ -3142,7 +3142,7 @@ const ModelSettingsPage: React.FC = () => {
                       label={t('advancedSettings.inlineThinkInText.label')}
                       description={t('advancedSettings.inlineThinkInText.hint')}
                       align="center"
-                      className="openbitfun-model-settings__toggle-row"
+                      className="alex-model-settings__toggle-row"
                     >
                       <Switch
                         checked={editingConfig.inline_think_in_text ?? true}
@@ -3153,13 +3153,13 @@ const ModelSettingsPage: React.FC = () => {
                   <ConfigPageRow
                     label={t('advancedSettings.skipSslVerify.label')}
                     description={editingConfig.skip_ssl_verify ? (
-                      <span className="openbitfun-model-settings__warning-inline">
+                      <span className="alex-model-settings__warning-inline">
                         <AlertTriangle size={14} />
                         <span>{t('advancedSettings.skipSslVerify.warning')}</span>
                       </span>
                     ) : undefined}
                     align="center"
-                    className="openbitfun-model-settings__toggle-row"
+                    className="alex-model-settings__toggle-row"
                   >
                     <Switch
                       checked={editingConfig.skip_ssl_verify || false}
@@ -3168,12 +3168,12 @@ const ModelSettingsPage: React.FC = () => {
                   </ConfigPageRow>
                   <ConfigPageRow
                     label={(
-                      <span className="openbitfun-model-settings__inline-header">
-                        <span className="openbitfun-model-settings__inline-header-main">
+                      <span className="alex-model-settings__inline-header">
+                        <span className="alex-model-settings__inline-header-main">
                           <span>{t('advancedSettings.customHeaders.label')}</span>
                           <Tooltip
                             content={(
-                              <span className="openbitfun-model-settings__header-tooltip">
+                              <span className="alex-model-settings__header-tooltip">
                                 <span>{t('advancedSettings.customHeaders.hint')}</span>
                                 <span>
                                   {(editingConfig.custom_headers_mode || 'merge') === 'replace'
@@ -3185,7 +3185,7 @@ const ModelSettingsPage: React.FC = () => {
                             placement="top"
                           >
                             <span
-                              className="openbitfun-model-settings__inline-header-info"
+                              className="alex-model-settings__inline-header-info"
                               role="button"
                               tabIndex={0}
                               aria-label={t('advancedSettings.customHeaders.hint')}
@@ -3194,13 +3194,13 @@ const ModelSettingsPage: React.FC = () => {
                             </span>
                           </Tooltip>
                         </span>
-                        <span className="openbitfun-model-settings__inline-header-actions">
+                        <span className="alex-model-settings__inline-header-actions">
                           <Tooltip content={t('advancedSettings.customHeaders.modeMergeHint')} placement="top">
                             <Button
                               type="button"
                               variant={(editingConfig.custom_headers_mode || 'merge') === 'merge' ? 'fill' : 'outline'}
                               size="sm"
-                              className="openbitfun-model-settings__mode-button"
+                              className="alex-model-settings__mode-button"
                               onClick={() => setEditingConfig(prev => ({ ...prev, custom_headers_mode: 'merge' }))}
                             >
                               {t('advancedSettings.customHeaders.modeMerge')}
@@ -3211,7 +3211,7 @@ const ModelSettingsPage: React.FC = () => {
                               type="button"
                               variant={editingConfig.custom_headers_mode === 'replace' ? 'fill' : 'outline'}
                               size="sm"
-                              className="openbitfun-model-settings__mode-button"
+                              className="alex-model-settings__mode-button"
                               onClick={() => setEditingConfig(prev => ({ ...prev, custom_headers_mode: 'replace' }))}
                             >
                               {t('advancedSettings.customHeaders.modeReplace')}
@@ -3221,24 +3221,24 @@ const ModelSettingsPage: React.FC = () => {
                       </span>
                     )}
                     multiline
-                    className="openbitfun-model-settings__custom-headers-row"
+                    className="alex-model-settings__custom-headers-row"
                   >
-                    <div className="openbitfun-model-settings__row-control--stack">
-                      <div className="openbitfun-model-settings__custom-headers">
+                    <div className="alex-model-settings__row-control--stack">
+                      <div className="alex-model-settings__custom-headers">
                         {Object.entries(editingConfig.custom_headers || {}).map(([key, value], index) => (
-                          <div key={index} className="openbitfun-model-settings__header-row">
+                          <div key={index} className="alex-model-settings__header-row">
                             <Input
                               value={key}
                               onChange={(e) => { const nh = { ...editingConfig.custom_headers }; const ov = nh[key]; delete nh[key]; if (e.target.value) nh[e.target.value] = ov; setEditingConfig(prev => ({ ...prev, custom_headers: nh })); }}
                               placeholder={t('advancedSettings.customHeaders.keyPlaceholder')}
-                              className="openbitfun-model-settings__header-key"
+                              className="alex-model-settings__header-key"
                               size="sm"
                             />
                             <Input
                               value={value}
                               onChange={(e) => { const nh = { ...editingConfig.custom_headers }; nh[key] = e.target.value; setEditingConfig(prev => ({ ...prev, custom_headers: nh })); }}
                               placeholder={t('advancedSettings.customHeaders.valuePlaceholder')}
-                              className="openbitfun-model-settings__header-value"
+                              className="alex-model-settings__header-value"
                               size="sm"
                             />
                             <Tooltip content={t('actions.delete')}>
@@ -3251,18 +3251,18 @@ const ModelSettingsPage: React.FC = () => {
                             </Tooltip>
                           </div>
                         ))}
-                        <Button type="button" variant="outline" size="sm" onClick={() => setEditingConfig(prev => ({ ...prev, custom_headers: { ...prev?.custom_headers, '': '' } }))} className="openbitfun-model-settings__add-header-btn" leadingIcon={<Icon name="plus" size="sm" />}>{t('advancedSettings.customHeaders.addHeader')}</Button>
+                        <Button type="button" variant="outline" size="sm" onClick={() => setEditingConfig(prev => ({ ...prev, custom_headers: { ...prev?.custom_headers, '': '' } }))} className="alex-model-settings__add-header-btn" leadingIcon={<Icon name="plus" size="sm" />}>{t('advancedSettings.customHeaders.addHeader')}</Button>
                       </div>
                     </div>
                   </ConfigPageRow>
                   <ConfigPageRow
                     label={(
-                      <span className="openbitfun-model-settings__inline-header">
-                        <span className="openbitfun-model-settings__inline-header-main">
+                      <span className="alex-model-settings__inline-header">
+                        <span className="alex-model-settings__inline-header-main">
                           <span>{t('advancedSettings.customRequestBody.label')}</span>
                           <Tooltip
                             content={(
-                              <span className="openbitfun-model-settings__header-tooltip">
+                              <span className="alex-model-settings__header-tooltip">
                                 <span>{t('advancedSettings.customRequestBody.hint')}</span>
                                 <span>{getCustomRequestBodyModeHint(editingConfig.provider, editingConfig.custom_request_body_mode)}</span>
                               </span>
@@ -3270,7 +3270,7 @@ const ModelSettingsPage: React.FC = () => {
                             placement="top"
                           >
                             <span
-                              className="openbitfun-model-settings__inline-header-info"
+                              className="alex-model-settings__inline-header-info"
                               role="button"
                               tabIndex={0}
                               aria-label={t('advancedSettings.customRequestBody.hint')}
@@ -3279,13 +3279,13 @@ const ModelSettingsPage: React.FC = () => {
                             </span>
                           </Tooltip>
                         </span>
-                        <span className="openbitfun-model-settings__inline-header-actions">
+                        <span className="alex-model-settings__inline-header-actions">
                           <Tooltip content={t('advancedSettings.customRequestBody.modeMergeHint')} placement="top">
                             <Button
                               type="button"
                               variant={(editingConfig.custom_request_body_mode || 'merge') === 'merge' ? 'fill' : 'outline'}
                               size="sm"
-                              className="openbitfun-model-settings__mode-button"
+                              className="alex-model-settings__mode-button"
                               onClick={() => setEditingConfig(prev => ({ ...prev, custom_request_body_mode: 'merge' }))}
                             >
                               {t('advancedSettings.customRequestBody.modeMerge')}
@@ -3296,7 +3296,7 @@ const ModelSettingsPage: React.FC = () => {
                               type="button"
                               variant={editingConfig.custom_request_body_mode === 'trim' ? 'fill' : 'outline'}
                               size="sm"
-                              className="openbitfun-model-settings__mode-button"
+                              className="alex-model-settings__mode-button"
                               onClick={() => setEditingConfig(prev => ({ ...prev, custom_request_body_mode: 'trim' }))}
                             >
                               {t('advancedSettings.customRequestBody.modeTrim')}
@@ -3306,13 +3306,13 @@ const ModelSettingsPage: React.FC = () => {
                       </span>
                     )}
                     multiline
-                    className="openbitfun-model-settings__custom-request-body-row"
+                    className="alex-model-settings__custom-request-body-row"
                   >
-                    <div className="openbitfun-model-settings__row-control--stack">
-                      <Textarea value={editingConfig.custom_request_body || ''} onChange={(e) => setEditingConfig(prev => ({ ...prev, custom_request_body: e.target.value }))} placeholder={t('advancedSettings.customRequestBody.placeholder')} rows={8} style={{ fontFamily: 'var(--openbitfun-type-code-md-font-family)', fontSize: 'var(--openbitfun-type-code-md-font-size)' }} />
+                    <div className="alex-model-settings__row-control--stack">
+                      <Textarea value={editingConfig.custom_request_body || ''} onChange={(e) => setEditingConfig(prev => ({ ...prev, custom_request_body: e.target.value }))} placeholder={t('advancedSettings.customRequestBody.placeholder')} rows={8} style={{ fontFamily: 'var(--alex-type-code-md-font-family)', fontSize: 'var(--alex-type-code-md-font-size)' }} />
                       {editingConfig.custom_request_body && editingConfig.custom_request_body.trim() !== '' && (() => {
-                        try { JSON.parse(editingConfig.custom_request_body); return <small className="openbitfun-model-settings__json-status openbitfun-model-settings__json-status--success">{t('advancedSettings.customRequestBody.validJson')}</small>; }
-                        catch { return <small className="openbitfun-model-settings__json-status openbitfun-model-settings__json-status--error">{t('advancedSettings.customRequestBody.invalidJson')}</small>; }
+                        try { JSON.parse(editingConfig.custom_request_body); return <small className="alex-model-settings__json-status alex-model-settings__json-status--success">{t('advancedSettings.customRequestBody.validJson')}</small>; }
+                        catch { return <small className="alex-model-settings__json-status alex-model-settings__json-status--error">{t('advancedSettings.customRequestBody.invalidJson')}</small>; }
                       })()}
                     </div>
                   </ConfigPageRow>
@@ -3341,9 +3341,9 @@ const ModelSettingsPage: React.FC = () => {
     const badge = (
       <>
         <span
-          className="openbitfun-model-settings__meta-tag"
-          data-openbitfun-component="model-settings"
-          data-openbitfun-part="modelMeta"
+          className="alex-model-settings__meta-tag"
+          data-alex-component="model-settings"
+          data-alex-part="modelMeta"
         >
           {t(`category.${config.category}`)}
         </span>
@@ -3354,7 +3354,7 @@ const ModelSettingsPage: React.FC = () => {
             data-model-id={config.model_name}
             data-model-name={config.model_name}
             data-status={isTesting ? 'testing' : testResult?.success ? 'success' : 'error'}
-            className={`openbitfun-model-settings__status-dot ${isTesting ? 'is-testing' : testResult?.success ? 'is-success' : 'is-error'}`}
+            className={`alex-model-settings__status-dot ${isTesting ? 'is-testing' : testResult?.success ? 'is-success' : 'is-error'}`}
             role="status"
             aria-live="polite"
             aria-label={testStatusLabel}
@@ -3366,37 +3366,37 @@ const ModelSettingsPage: React.FC = () => {
 
     const details = (
       <div
-        className="openbitfun-model-settings__details"
-        data-openbitfun-component="model-settings"
-        data-openbitfun-part="modelDetails"
+        className="alex-model-settings__details"
+        data-alex-component="model-settings"
+        data-alex-part="modelDetails"
       >
-        <div className="openbitfun-model-settings__details-section">
-          <div className="openbitfun-model-settings__details-section-title">
+        <div className="alex-model-settings__details-section">
+          <div className="alex-model-settings__details-section-title">
             {t('details.basicInfo')}
           </div>
-          <div className="openbitfun-model-settings__details-grid">
-            <div className="openbitfun-model-settings__details-item">
-              <span className="openbitfun-model-settings__details-label">{t('form.configName')}</span>
-              <span className="openbitfun-model-settings__details-value">{providerDisplayName}</span>
+          <div className="alex-model-settings__details-grid">
+            <div className="alex-model-settings__details-item">
+              <span className="alex-model-settings__details-label">{t('form.configName')}</span>
+              <span className="alex-model-settings__details-value">{providerDisplayName}</span>
             </div>
-            <div className="openbitfun-model-settings__details-item">
-              <span className="openbitfun-model-settings__details-label">{t('details.modelName')}</span>
-              <span className="openbitfun-model-settings__details-value">{config.model_name}</span>
+            <div className="alex-model-settings__details-item">
+              <span className="alex-model-settings__details-label">{t('details.modelName')}</span>
+              <span className="alex-model-settings__details-value">{config.model_name}</span>
             </div>
-            <div className="openbitfun-model-settings__details-item">
-              <span className="openbitfun-model-settings__details-label">{t('details.contextWindow')}</span>
-              <span className="openbitfun-model-settings__details-value">{config.context_window != null ? i18nService.formatNumber(config.context_window) : '128,000'}</span>
+            <div className="alex-model-settings__details-item">
+              <span className="alex-model-settings__details-label">{t('details.contextWindow')}</span>
+              <span className="alex-model-settings__details-value">{config.context_window != null ? i18nService.formatNumber(config.context_window) : '128,000'}</span>
             </div>
-            <div className="openbitfun-model-settings__details-item openbitfun-model-settings__details-item--wide">
-              <span className="openbitfun-model-settings__details-label">{t('details.apiUrl')}</span>
-              <span className="openbitfun-model-settings__details-value">{config.base_url}</span>
+            <div className="alex-model-settings__details-item alex-model-settings__details-item--wide">
+              <span className="alex-model-settings__details-label">{t('details.apiUrl')}</span>
+              <span className="alex-model-settings__details-value">{config.base_url}</span>
             </div>
             {config.capabilities && config.capabilities.length > 0 && (
-              <div className="openbitfun-model-settings__details-item openbitfun-model-settings__details-item--wide">
-                <span className="openbitfun-model-settings__details-label">{t('details.capabilities')}</span>
-                <div className="openbitfun-model-settings__details-tags">
+              <div className="alex-model-settings__details-item alex-model-settings__details-item--wide">
+                <span className="alex-model-settings__details-label">{t('details.capabilities')}</span>
+                <div className="alex-model-settings__details-tags">
                   {config.capabilities.map(capability => (
-                    <span key={capability} className="openbitfun-model-settings__details-tag">
+                    <span key={capability} className="alex-model-settings__details-tag">
                       {t(`capabilities.${capability}`, { defaultValue: capability })}
                     </span>
                   ))}
@@ -3406,11 +3406,11 @@ const ModelSettingsPage: React.FC = () => {
           </div>
         </div>
         {testResult && (
-          <div className="openbitfun-model-settings__details-section">
-            <div className="openbitfun-model-settings__details-section-title">
+          <div className="alex-model-settings__details-section">
+            <div className="alex-model-settings__details-section-title">
               {t('actions.test')}
             </div>
-            <div className={`openbitfun-model-settings__test-result ${testResult.success ? 'success' : 'error'}`}>
+            <div className={`alex-model-settings__test-result ${testResult.success ? 'success' : 'error'}`}>
               {testResult.message}
             </div>
           </div>
@@ -3420,7 +3420,7 @@ const ModelSettingsPage: React.FC = () => {
 
     const control = (
       <>
-        <span className="openbitfun-model-settings__model-enable">
+        <span className="alex-model-settings__model-enable">
           <Switch
             checked={config.enabled}
             onChange={(e) => {
@@ -3429,9 +3429,9 @@ const ModelSettingsPage: React.FC = () => {
           />
         </span>
         <div
-          className="openbitfun-model-settings__model-actions"
-          data-openbitfun-component="model-settings"
-          data-openbitfun-part="modelActions"
+          className="alex-model-settings__model-actions"
+          data-alex-component="model-settings"
+          data-alex-part="modelActions"
         >
           <Tooltip content={connectionTestSupported
             ? t('actions.test')
@@ -3482,19 +3482,19 @@ const ModelSettingsPage: React.FC = () => {
         data-config-id={config.id || ''}
         data-model-id={config.model_name}
         data-model-name={config.model_name}
-        data-openbitfun-component="model-settings"
-        data-openbitfun-part="modelItem"
-        data-openbitfun-state={[isExpanded && 'expanded', !config.enabled && 'disabled'].filter(Boolean).join(' ') || undefined}
+        data-alex-component="model-settings"
+        data-alex-part="modelItem"
+        data-alex-state={[isExpanded && 'expanded', !config.enabled && 'disabled'].filter(Boolean).join(' ') || undefined}
       />
     );
   };
 
   const streamTtftTimeoutLabel = (
-    <span className="openbitfun-model-settings__inline-header-main">
+    <span className="alex-model-settings__inline-header-main">
       <span>{t('streamTtftTimeout.label')}</span>
       <Tooltip content={t('streamTtftTimeout.hint')} placement="top">
         <span
-          className="openbitfun-model-settings__inline-header-info"
+          className="alex-model-settings__inline-header-info"
           role="button"
           tabIndex={0}
           aria-label={t('streamTtftTimeout.hint')}
@@ -3506,11 +3506,11 @@ const ModelSettingsPage: React.FC = () => {
   );
 
   const streamIdleTimeoutLabel = (
-    <span className="openbitfun-model-settings__inline-header-main">
+    <span className="alex-model-settings__inline-header-main">
       <span>{t('streamIdleTimeout.label')}</span>
       <Tooltip content={t('streamIdleTimeout.hint')} placement="top">
         <span
-          className="openbitfun-model-settings__inline-header-info"
+          className="alex-model-settings__inline-header-info"
           role="button"
           tabIndex={0}
           aria-label={t('streamIdleTimeout.hint')}
@@ -3573,13 +3573,13 @@ const ModelSettingsPage: React.FC = () => {
 
   
   return (
-    <ConfigPageLayout className="openbitfun-model-settings" data-openbitfun-component="model-settings" data-openbitfun-part="root" data-openbitfun-view="settings">
+    <ConfigPageLayout className="alex-model-settings" data-alex-component="model-settings" data-alex-part="root" data-alex-view="settings">
       <ConfigPageHeader
         title={t('title')}
         subtitle={t('subtitle')}
       />
 
-      <ConfigPageContent className="openbitfun-model-settings__content">
+      <ConfigPageContent className="alex-model-settings__content">
         <ConfigPageSection
           title={tDefault('sections.defaults')}
           description={tDefault('subtitle')}
@@ -3597,12 +3597,12 @@ const ModelSettingsPage: React.FC = () => {
                 onClick={refreshSubscriptionAccounts}
                 aria-label={t('subscriptionAuth.rescan')}
                 disabled={isLoadingSubscriptions}
-                icon={<Icon name="refresh" size="md" className={isLoadingSubscriptions ? 'openbitfun-model-settings__spin' : ''} />}
+                icon={<Icon name="refresh" size="md" className={isLoadingSubscriptions ? 'alex-model-settings__spin' : ''} />}
               />
             </Tooltip>
           )}
         >
-          <div className="openbitfun-model-settings__cli-discovery" data-openbitfun-component="model-settings" data-openbitfun-part="subscriptionArea">
+          <div className="alex-model-settings__cli-discovery" data-alex-component="model-settings" data-alex-part="subscriptionArea">
             {subscriptionAccounts.map((account) => {
               const descriptionParts: string[] = [];
               if (account.connected && account.account) {
@@ -3643,15 +3643,15 @@ const ModelSettingsPage: React.FC = () => {
                     description={descriptionParts.map((part) => (
                       <span
                         key={part}
-                        className="openbitfun-model-settings__cli-description-line"
+                        className="alex-model-settings__cli-description-line"
                       >
                         {part}
                       </span>
                     ))}
-                    className="openbitfun-model-settings__cli-account"
+                    className="alex-model-settings__cli-account"
                     align="center"
                   >
-                    <div className="openbitfun-model-settings__cli-actions">
+                    <div className="alex-model-settings__cli-actions">
                       {account.connected ? (
                         <>
                           <Button
@@ -3720,13 +3720,13 @@ const ModelSettingsPage: React.FC = () => {
 
                   {loginPanel && (
                     <div
-                      className={`openbitfun-model-settings__subscription-login-panel openbitfun-model-settings__subscription-login-panel--${loginPanel.status}`}
-                      data-openbitfun-component="model-settings"
-                      data-openbitfun-part="subscriptionPanel"
-                      data-openbitfun-status={loginPanel.status}
+                      className={`alex-model-settings__subscription-login-panel alex-model-settings__subscription-login-panel--${loginPanel.status}`}
+                      data-alex-component="model-settings"
+                      data-alex-part="subscriptionPanel"
+                      data-alex-status={loginPanel.status}
                       role={loginPanel.status === 'failed' ? 'alert' : undefined}
                     >
-                      <div className="openbitfun-model-settings__subscription-login-summary" data-openbitfun-component="model-settings" data-openbitfun-part="subscriptionSummary">
+                      <div className="alex-model-settings__subscription-login-summary" data-alex-component="model-settings" data-alex-part="subscriptionSummary">
                         <strong>
                           {loginPanel.status === 'failed'
                             ? t('subscriptionAuth.loginNeedsRetry')
@@ -3750,14 +3750,14 @@ const ModelSettingsPage: React.FC = () => {
                       </div>
 
                       {loginPanel.status === 'pending' && loginPanel.userCode && (
-                        <div className="openbitfun-model-settings__subscription-code" data-openbitfun-component="model-settings" data-openbitfun-part="subscriptionCode">
+                        <div className="alex-model-settings__subscription-code" data-alex-component="model-settings" data-alex-part="subscriptionCode">
                           <span>{t('subscriptionAuth.verificationCode')}</span>
                           <code>{loginPanel.userCode}</code>
                         </div>
                       )}
 
                       {loginPanel.status === 'pending' && (
-                        <div className="openbitfun-model-settings__subscription-login-actions" data-openbitfun-component="model-settings" data-openbitfun-part="subscriptionActions">
+                        <div className="alex-model-settings__subscription-login-actions" data-alex-component="model-settings" data-alex-part="subscriptionActions">
                           {loginPanel.userCode && (
                             <Button
                               size="sm"
@@ -3788,7 +3788,7 @@ const ModelSettingsPage: React.FC = () => {
         </ConfigPageSection>
 
         <ConfigPageSection
-          className="openbitfun-model-settings__models-section"
+          className="alex-model-settings__models-section"
           bodySurface={false}
           title={tDefault('sections.providers')}
           description={t('subtitle')}
@@ -3815,8 +3815,8 @@ const ModelSettingsPage: React.FC = () => {
           )}
           {aiModels.length === 0 ? (
             <ConfigEmptyState
-              data-openbitfun-component="model-settings"
-              data-openbitfun-part="empty"
+              data-alex-component="model-settings"
+              data-alex-part="empty"
               icon={<Wifi aria-hidden="true" />}
               description={t('empty.noModels')}
               actions={(
@@ -3826,27 +3826,27 @@ const ModelSettingsPage: React.FC = () => {
               )}
             />
           ) : (
-            <div className="openbitfun-model-settings__collection" data-openbitfun-component="model-settings" data-openbitfun-part="collection" data-testid="settings-model-list">
+            <div className="alex-model-settings__collection" data-alex-component="model-settings" data-alex-part="collection" data-testid="settings-model-list">
               {providerGroups.map(group => {
                 const isExpanded = expandedProviderGroupKeys.has(group.key);
 
                 return (
                   <div
                     key={group.key}
-                    className="openbitfun-model-settings__provider-group"
-                    data-openbitfun-component="model-settings"
-                    data-openbitfun-part="providerGroup"
-                    data-openbitfun-state={isExpanded ? 'expanded' : undefined}
+                    className="alex-model-settings__provider-group"
+                    data-alex-component="model-settings"
+                    data-alex-part="providerGroup"
+                    data-alex-state={isExpanded ? 'expanded' : undefined}
                   >
                     <div
-                      className="openbitfun-model-settings__provider-group-header"
-                      data-openbitfun-component="model-settings"
-                      data-openbitfun-part="providerGroupHeader"
+                      className="alex-model-settings__provider-group-header"
+                      data-alex-component="model-settings"
+                      data-alex-part="providerGroupHeader"
                       data-expanded={isExpanded ? 'true' : 'false'}
                     >
                       <button
                         type="button"
-                        className="openbitfun-model-settings__provider-group-toggle"
+                        className="alex-model-settings__provider-group-toggle"
                         aria-expanded={isExpanded}
                         aria-label={`${tComponents(isExpanded ? 'tooltip.collapse' : 'tooltip.expand')} ${group.providerName}`}
                         onClick={() => toggleProviderGroup(group.key)}
@@ -3854,18 +3854,18 @@ const ModelSettingsPage: React.FC = () => {
                         <Icon
                           name={isExpanded ? 'chevron-down' : 'chevron-right'}
                           size="sm"
-                          className="openbitfun-model-settings__provider-group-chevron"
+                          className="alex-model-settings__provider-group-chevron"
                           aria-hidden="true"
                         />
-                        <span className="openbitfun-model-settings__provider-group-title" data-openbitfun-component="model-settings" data-openbitfun-part="providerGroupTitle">
+                        <span className="alex-model-settings__provider-group-title" data-alex-component="model-settings" data-alex-part="providerGroupTitle">
                           <span>{group.providerName}</span>
-                          <span className="openbitfun-model-settings__provider-group-count">{group.models.length}</span>
-                          <span className="openbitfun-model-settings__meta-tag">
+                          <span className="alex-model-settings__provider-group-count">{group.models.length}</span>
+                          <span className="alex-model-settings__meta-tag">
                             {requestFormatLabelMap[group.models[0]?.provider || 'openai'] || (group.models[0]?.provider || 'openai')}
                           </span>
                         </span>
                       </button>
-                      <div className="openbitfun-model-settings__provider-group-actions" data-openbitfun-component="model-settings" data-openbitfun-part="providerGroupActions">
+                      <div className="alex-model-settings__provider-group-actions" data-alex-component="model-settings" data-alex-part="providerGroupActions">
                         <Tooltip content={t('actions.edit')}>
                           <IconButton
                             aria-label={t('actions.edit')}
@@ -3886,7 +3886,7 @@ const ModelSettingsPage: React.FC = () => {
                       </div>
                     </div>
                     {isExpanded && (
-                      <div className="openbitfun-model-settings__provider-group-list" data-openbitfun-component="model-settings" data-openbitfun-part="providerGroupList">
+                      <div className="alex-model-settings__provider-group-list" data-alex-component="model-settings" data-alex-part="providerGroupList">
                         {group.models.map(config => renderModelCollectionItem(config))}
                       </div>
                     )}
@@ -3902,7 +3902,7 @@ const ModelSettingsPage: React.FC = () => {
           description={t('modelsDevCatalog.description')}
           bodySurface={false}
           extra={(
-            <div className="openbitfun-model-settings__catalog-actions">
+            <div className="alex-model-settings__catalog-actions">
               <Tooltip content={t('modelsDevCatalog.viewDetails')}>
                 <IconButton
                   aria-label={t('modelsDevCatalog.viewDetails')}
@@ -3921,7 +3921,7 @@ const ModelSettingsPage: React.FC = () => {
                   size="sm"
                   onClick={() => void handleRefreshModelsDev()}
                   disabled={isRefreshingModelsDev}
-                  icon={<Icon name="refresh" size="sm" className={isRefreshingModelsDev ? 'openbitfun-model-settings__spin' : ''} />}
+                  icon={<Icon name="refresh" size="sm" className={isRefreshingModelsDev ? 'alex-model-settings__spin' : ''} />}
                 />
               </Tooltip>
             </div>
@@ -4043,12 +4043,12 @@ const ModelSettingsPage: React.FC = () => {
           <DialogClose />
         </DialogHeader>
         <DialogBody inset="none">
-        <div className="openbitfun-model-settings__catalog-details">
+        <div className="alex-model-settings__catalog-details">
           <ConfigPageRow label={t('modelsDevCatalog.activeSource')} align="center">
-            <span className="openbitfun-model-settings__catalog-status-value">{modelsDevSourceLabel}</span>
+            <span className="alex-model-settings__catalog-status-value">{modelsDevSourceLabel}</span>
           </ConfigPageRow>
           <ConfigPageRow label={t('modelsDevCatalog.catalogSize')} align="center">
-            <span className="openbitfun-model-settings__catalog-status-value">
+            <span className="alex-model-settings__catalog-status-value">
               {modelsDevStatus
                 ? t('modelsDevCatalog.catalogSizeValue', {
                     providers: i18nService.formatNumber(modelsDevStatus.provider_count),
@@ -4058,10 +4058,10 @@ const ModelSettingsPage: React.FC = () => {
             </span>
           </ConfigPageRow>
           <ConfigPageRow label={t('modelsDevCatalog.cacheUpdatedAt')} align="center">
-            <span className="openbitfun-model-settings__catalog-status-value">{modelsDevUpdatedAt}</span>
+            <span className="alex-model-settings__catalog-status-value">{modelsDevUpdatedAt}</span>
           </ConfigPageRow>
           <ConfigPageRow label={t('modelsDevCatalog.cachePath')} align="center" wide>
-            <div className="openbitfun-model-settings__catalog-path">
+            <div className="alex-model-settings__catalog-path">
               <code title={modelsDevStatus?.cache_path}><OverflowText>{modelsDevStatus?.cache_path || '—'}</OverflowText></code>
               <Tooltip content={t('modelsDevCatalog.reveal')}>
                 <IconButton
@@ -4079,16 +4079,16 @@ const ModelSettingsPage: React.FC = () => {
             </div>
           </ConfigPageRow>
           <ConfigPageRow label={t('modelsDevCatalog.revision')} align="center">
-            <code className="openbitfun-model-settings__catalog-revision" title={modelsDevStatus?.revision}>
+            <code className="alex-model-settings__catalog-revision" title={modelsDevStatus?.revision}>
               {modelsDevStatus?.revision ? `${modelsDevStatus.revision.slice(0, 12)}…` : '—'}
             </code>
           </ConfigPageRow>
-          <div className="openbitfun-model-settings__catalog-offline-help" role="note">
+          <div className="alex-model-settings__catalog-offline-help" role="note">
             <Icon name="info" size="sm" aria-hidden="true" />
             <div>
               <strong>{t('modelsDevCatalog.offlineTitle')}</strong>
               <p>{t('modelsDevCatalog.offlineDescription')}</p>
-              <div className="openbitfun-model-settings__catalog-offline-actions">
+              <div className="alex-model-settings__catalog-offline-actions">
                 <Button
                   variant="outline"
                   size="sm"
@@ -4132,7 +4132,7 @@ const ModelSettingsPage: React.FC = () => {
           <DialogClose />
         </DialogHeader>
         <DialogBody inset="none">
-        <div className="openbitfun-model-settings__subscription-logout-confirm" data-openbitfun-component="model-settings" data-openbitfun-part="logoutConfirm">
+        <div className="alex-model-settings__subscription-logout-confirm" data-alex-component="model-settings" data-alex-part="logoutConfirm">
           <p>
             {subscriptionLogoutRequest?.affectedModels.length
               ? t('subscriptionAuth.logoutAffectedModels', {
@@ -4141,7 +4141,7 @@ const ModelSettingsPage: React.FC = () => {
               : t('subscriptionAuth.logoutNoAffectedModels')}
           </p>
           {!!subscriptionLogoutRequest?.affectedModels.length && (
-            <ScrollArea className="openbitfun-model-settings__subscription-logout-list">
+            <ScrollArea className="alex-model-settings__subscription-logout-list">
               <ul>
                 {subscriptionLogoutRequest.affectedModels.map((model) => (
                   <li key={model.id}>{model.name} · {model.model_name}</li>
@@ -4181,7 +4181,7 @@ const ModelSettingsPage: React.FC = () => {
             else requestCloseEditingModal();
           }
         }}
-        className="openbitfun-model-settings__editor-dialog"
+        className="alex-model-settings__editor-dialog"
         size="xl"
       >
         <DialogHeader>

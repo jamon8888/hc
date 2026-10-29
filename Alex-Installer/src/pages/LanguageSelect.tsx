@@ -1,4 +1,4 @@
-import { Button, PageHeader, Radio } from '@openbitfun/ui';
+import { Button, PageHeader, Radio } from '@alex/ui';
 import { ArrowRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { BrandMark } from '../components/BrandMark';

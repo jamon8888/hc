@@ -5,7 +5,7 @@ mod generated_locale_contract;
 mod types;
 
 /// Windows main binary file name — must match `src/apps/desktop` `[[bin]]` and Tauri NSIS output.
-const MAIN_APP_EXE: &str = "openbitfun-desktop.exe";
+const MAIN_APP_EXE: &str = "alex-desktop.exe";
 
 #[cfg(target_os = "windows")]
 mod registry;

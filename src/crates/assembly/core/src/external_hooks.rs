@@ -4,25 +4,25 @@
 //! control plane. Inspecting Hooks must not load code, recover workers, mutate
 //! integration policy, or refresh executable external capabilities.
 
-pub use openbitfun_product_domains::external_hook_catalog::{
+pub use alex_product_domains::external_hook_catalog::{
     ExternalHookCatalogEntry, ExternalHookCatalogSnapshotV1, ExternalHookHandlerKind,
     ExternalHookMatcherSummary, ExternalHookNativeActivation, ExternalHookProjectionStatus,
     ExternalHookSource, ExternalHookSourceKind, EXTERNAL_HOOK_CATALOG_SCHEMA_V1,
 };
-pub use openbitfun_product_domains::external_sources::{ExecutionDomainId, ExternalSourceContext};
+pub use alex_product_domains::external_sources::{ExecutionDomainId, ExternalSourceContext};
 
 use crate::external_sources::host_execution_domain_id;
 #[cfg(feature = "git")]
 use crate::service::workspace::{global_worktree_topology_service, WorktreeTopologyFreshness};
-use openbitfun_claude_code_adapter::{ClaudeCodeHookProvider, ClaudeCodeHookProviderOptions};
-use openbitfun_codex_adapter::{CodexHookProvider, CodexHookProviderOptions};
-use openbitfun_dsh_adapter::DshHookProvider;
-use openbitfun_external_sources::ExternalHookCatalogCoordinator;
-use openbitfun_opencode_adapter::{OpenCodeHookProvider, OpenCodeHookProviderOptions};
-use openbitfun_pi_adapter::PiHookProvider;
-use openbitfun_product_domains::external_hook_catalog::ExternalHookSourceProvider;
-use openbitfun_product_domains::external_hook_import::PreparedExternalHookImport;
-use openbitfun_product_domains::external_sources::{
+use alex_claude_code_adapter::{ClaudeCodeHookProvider, ClaudeCodeHookProviderOptions};
+use alex_codex_adapter::{CodexHookProvider, CodexHookProviderOptions};
+use alex_dsh_adapter::DshHookProvider;
+use alex_external_sources::ExternalHookCatalogCoordinator;
+use alex_opencode_adapter::{OpenCodeHookProvider, OpenCodeHookProviderOptions};
+use alex_pi_adapter::PiHookProvider;
+use alex_product_domains::external_hook_catalog::ExternalHookSourceProvider;
+use alex_product_domains::external_hook_import::PreparedExternalHookImport;
+use alex_product_domains::external_sources::{
     ExternalSourceOperationError, ExternalSourceOperationErrorCode, ExternalSourceOperationResult,
     ExternalSourceProviderError, SourceKey,
 };
@@ -157,8 +157,8 @@ impl WorkspaceExternalHookCatalogService {
 
 fn schedule_deferred_hook_discovery(
     service: Arc<WorkspaceExternalHookCatalogService>,
-    deferred: openbitfun_external_sources::DeferredDiscovery<
-        openbitfun_external_sources::ExternalHookDiscoveryResult,
+    deferred: alex_external_sources::DeferredDiscovery<
+        alex_external_sources::ExternalHookDiscoveryResult,
     >,
 ) {
     tokio::spawn(async move {

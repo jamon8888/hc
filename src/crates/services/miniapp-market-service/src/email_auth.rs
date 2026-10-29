@@ -155,7 +155,7 @@ fn verification_message(
                                 .header(ContentTransferEncoding::Base64)
                                 .body(html),
                         )
-                        .singlepart(Attachment::new_inline("openbitfun-app-icon".into()).body(
+                        .singlepart(Attachment::new_inline("alex-app-icon".into()).body(
                             include_bytes!("email/app-icon.png").to_vec(),
                             ContentType::parse("image/png").expect("valid PNG MIME type"),
                         )),
@@ -1066,7 +1066,7 @@ mod tests {
         assert!(raw.contains("Content-Type: multipart/alternative;"));
         assert!(raw.contains("Content-Type: text/html; charset=utf-8"));
         assert!(raw.contains("Content-Type: multipart/related;"));
-        assert!(raw.contains("Content-ID: <openbitfun-app-icon>"));
+        assert!(raw.contains("Content-ID: <alex-app-icon>"));
         assert!(raw.contains("Content-Disposition: inline"));
         let decode_part = |content_type: &str| {
             let part = raw
@@ -1083,7 +1083,7 @@ mod tests {
         assert!(plain.contains("Your Alex verification code is: 123456"));
         assert!(plain.is_ascii());
         let html = String::from_utf8(decode_part("text/html;")).unwrap();
-        assert!(html.contains("src=\"cid:openbitfun-app-icon\""));
+        assert!(html.contains("src=\"cid:alex-app-icon\""));
         assert!(!html.contains("src=\"https://"));
         assert_eq!(
             decode_part("image/png"),

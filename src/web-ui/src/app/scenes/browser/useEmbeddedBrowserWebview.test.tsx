@@ -50,7 +50,7 @@ async function mutate(change: () => void) {
 }
 function overlay() {
   const node = document.createElement('div');
-  node.setAttribute('data-openbitfun-native-webview-occlusion', '');
+  node.setAttribute('data-alex-native-webview-occlusion', '');
   node.getBoundingClientRect = () => new DOMRect(50, 50, 100, 100);
   return node;
 }

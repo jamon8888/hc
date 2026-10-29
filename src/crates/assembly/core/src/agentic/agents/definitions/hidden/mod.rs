@@ -6,5 +6,5 @@ pub use code_review::CodeReviewAgent;
 pub use deep_review::DeepReviewAgent;
 pub use generate_doc::GenerateDocAgent;
 
-mod openbitfun;
-pub use openbitfun::OpenBitFunAgent;
+mod alex;
+pub use alex::AlexAgent;

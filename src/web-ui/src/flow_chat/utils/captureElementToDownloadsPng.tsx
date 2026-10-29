@@ -1,4 +1,4 @@
-import { Button } from '@openbitfun/ui';
+import { Button } from '@alex/ui';
 import { downloadDir, join } from '@tauri-apps/api/path';
 import { writeFile } from '@tauri-apps/plugin-fs';
 import { notificationService } from '@/shared/notification-system';
@@ -20,8 +20,8 @@ export async function captureElementToDownloadsPng(
   fileNamePrefix: string,
 ): Promise<void> {
   const computedStyle = getComputedStyle(document.documentElement);
-  const bgColor = computedStyle.getPropertyValue('--openbitfun-color-surface-scene').trim()
-    || getBuiltinAppearanceThemeToken('--openbitfun-color-surface-scene');
+  const bgColor = computedStyle.getPropertyValue('--alex-color-surface-scene').trim()
+    || getBuiltinAppearanceThemeToken('--alex-color-surface-scene');
 
   await new Promise((resolve) => setTimeout(resolve, 0));
 

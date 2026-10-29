@@ -2,8 +2,8 @@
 //! Normal callers use SessionStorePort::resolve_workspace_storage(workspace_id).
 //! Remove with the pre-ID protocol; never use execution paths as storage fallbacks.
 use crate::api::app_state::AppState;
-use openbitfun_core::agentic::coordination::ConversationCoordinator;
-use openbitfun_runtime_ports::SessionStorePort;
+use alex_core::agentic::coordination::ConversationCoordinator;
+use alex_runtime_ports::SessionStorePort;
 
 /// ID-first session storage resolution that also takes runtime ownership of
 /// the owning workspace. `workspace_path` and the SSH fields are consulted
@@ -50,7 +50,7 @@ pub async fn desktop_effective_session_storage_path(
         .await
         .map_err(|error| error.to_string())?
         .ok_or_else(|| "Workspace ID is unavailable".to_string())?;
-    openbitfun_core::agentic::session::CoreSessionStorePort::default()
+    alex_core::agentic::session::CoreSessionStorePort::default()
         .resolve_workspace_storage(&workspace.id)
         .await
         .map(|resolution| resolution.effective_storage_path)

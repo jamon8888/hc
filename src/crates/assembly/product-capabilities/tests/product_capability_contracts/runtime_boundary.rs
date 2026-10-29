@@ -1,4 +1,4 @@
-use openbitfun_product_capabilities::{
+use alex_product_capabilities::{
     product_assembly_plan_for_profile, DeliveryProfile, ProductCapabilityId,
 };
 
@@ -56,7 +56,7 @@ fn code_agent_tools_are_selected_from_atomic_provider_groups() {
         "AgentList",
         "AgentDelete",
         "PortForward",
-        "OpenBitFunControl",
+        "AlexControl",
     ] {
         assert!(
             tool_names.contains(&explore_tool),

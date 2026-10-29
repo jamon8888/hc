@@ -1,4 +1,4 @@
-import { OverflowText, Button, IconButton } from '@openbitfun/ui';
+import { OverflowText, Button, IconButton } from '@alex/ui';
 import React, {useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore} from 'react';
 import {getActiveSurfaceId, onSurfaceActivated} from '@/infrastructure/peer-device/deviceSurface';
 import {createBtwPanelViewState, type BtwPanelViewState} from './btwPanelViewState';
@@ -24,7 +24,7 @@ import {FLOWCHAT_FOCUS_ITEM_EVENT, type FlowChatFocusItemRequest} from '../../ev
 import {fileTabManager} from '@/shared/services/FileTabManager';
 import {createTab} from '@/shared/utils/tabUtils';
 import { type LineRange } from '@/shared/editor/LineRange';
-import { Tooltip, Icon } from '@openbitfun/ui';
+import { Tooltip, Icon } from '@alex/ui';
 import { DEFAULT_RETAINED_MOUNT_MS, RetainedMountBoundary } from '@/shared/presence';
 import {resolveSessionRelationship} from '../../utils/sessionMetadata';
 import {agentAPI} from '@/infrastructure/api';
@@ -1032,8 +1032,8 @@ const BtwSessionPanelContent: React.FC<BtwSessionPanelProps & { viewState: BtwPa
 
   if (!childSessionId || !childSession) {
     return (
-      <div className="btw-session-panel btw-session-panel--empty" data-openbitfun-component="btw-session-panel" data-openbitfun-part="root" data-openbitfun-view="empty">
-        <div className="btw-session-panel__empty-state" data-openbitfun-component="btw-session-panel" data-openbitfun-part="empty">
+      <div className="btw-session-panel btw-session-panel--empty" data-alex-component="btw-session-panel" data-alex-part="root" data-alex-view="empty">
+        <div className="btw-session-panel__empty-state" data-alex-component="btw-session-panel" data-alex-part="empty">
           {t('btw.emptyThreadLabel', { label: t('btw.threadLabel') })}
         </div>
       </div>
@@ -1047,13 +1047,13 @@ const BtwSessionPanelContent: React.FC<BtwSessionPanelProps & { viewState: BtwPa
       <div
         className={`btw-session-panel${retainsReviewActionBarLayout ? ' btw-session-panel--has-action-bar' : ''}`}
         onKeyDown={handlePanelKeyDown}
-        data-openbitfun-component="btw-session-panel"
-        data-openbitfun-part="root"
-        data-openbitfun-view="session"
-        data-openbitfun-state={retainsReviewActionBarLayout ? 'hasActionBar' : undefined}
+        data-alex-component="btw-session-panel"
+        data-alex-part="root"
+        data-alex-view="session"
+        data-alex-state={retainsReviewActionBarLayout ? 'hasActionBar' : undefined}
       >
-        <div className="btw-session-panel__header" data-openbitfun-component="btw-session-panel" data-openbitfun-part="header">
-          <div className="btw-session-panel__header-left" data-openbitfun-component="btw-session-panel" data-openbitfun-part="headerMain">
+        <div className="btw-session-panel__header" data-alex-component="btw-session-panel" data-alex-part="header">
+          <div className="btw-session-panel__header-left" data-alex-component="btw-session-panel" data-alex-part="headerMain">
             {childKind === 'subagent' ? (
               <SubagentAvatar
                 sessionId={childSessionId}
@@ -1062,18 +1062,18 @@ const BtwSessionPanelContent: React.FC<BtwSessionPanelProps & { viewState: BtwPa
                 status={subagentAvatarStatus}
               />
             ) : null}
-            <span className="btw-session-panel__badge" data-openbitfun-component="btw-session-panel" data-openbitfun-part="badge">{childBadgeLabel}</span>
+            <span className="btw-session-panel__badge" data-alex-component="btw-session-panel" data-alex-part="badge">{childBadgeLabel}</span>
           </div>
           <div className="btw-session-panel__header-title-wrap">
-            <OverflowText className="btw-session-panel__title" data-openbitfun-component="btw-session-panel" data-openbitfun-part="title">
+            <OverflowText className="btw-session-panel__title" data-alex-component="btw-session-panel" data-alex-part="title">
               {displayTitle?.trim() || (viewKind === 'review-check'
                 ? childBadgeLabel
                 : resolveSessionTitle(childSession, childTitleFallback))}
             </OverflowText>
           </div>
-          <div className="btw-session-panel__header-right" data-openbitfun-component="btw-session-panel" data-openbitfun-part="actions">
+          <div className="btw-session-panel__header-right" data-alex-component="btw-session-panel" data-alex-part="actions">
             {showOriginMeta && (
-              <div className="btw-session-panel__meta" data-openbitfun-component="btw-session-panel" data-openbitfun-part="meta">
+              <div className="btw-session-panel__meta" data-alex-component="btw-session-panel" data-alex-part="meta">
                 <span className="btw-session-panel__meta-label">{childOriginLabel}</span>
                 <Icon name="link" size="2xs" />
                 <OverflowText className="btw-session-panel__meta-title">{resolveSessionTitle(parentMetadata, t('btw.parent'))}</OverflowText>
@@ -1137,8 +1137,8 @@ const BtwSessionPanelContent: React.FC<BtwSessionPanelProps & { viewState: BtwPa
           data-flowchat-parent-session-id={parentSessionId}
           tabIndex={-1}
           className="btw-session-panel__body"
-          data-openbitfun-component="btw-session-panel"
-          data-openbitfun-part="body"
+          data-alex-component="btw-session-panel"
+          data-alex-part="body"
           style={{
             paddingTop: 0,
             overflowAnchor: 'none',
@@ -1150,8 +1150,8 @@ const BtwSessionPanelContent: React.FC<BtwSessionPanelProps & { viewState: BtwPa
             {isReviewDetail && reviewDetailNotices.length > 0 && (
               <div
                 className={`btw-session-panel__empty-state${virtualItems.length > 0 ? ' btw-session-panel__empty-state--with-content' : ''}`}
-                data-openbitfun-component="btw-session-panel"
-                data-openbitfun-part="empty"
+                data-alex-component="btw-session-panel"
+                data-alex-part="empty"
                 role={reviewDetailNotices.some(({ state }) =>
                   state === 'load-failed' || state === 'failed' || state === 'timed-out')
                   ? 'alert'
@@ -1175,7 +1175,7 @@ const BtwSessionPanelContent: React.FC<BtwSessionPanelProps & { viewState: BtwPa
           </div>
           {virtualItems.length === 0 ? (
             !isReviewDetail || reviewDetailNotices.length === 0 ? (
-              <div className="btw-session-panel__empty-state" data-openbitfun-component="btw-session-panel" data-openbitfun-part="empty">{t('session.empty')}</div>
+              <div className="btw-session-panel__empty-state" data-alex-component="btw-session-panel" data-alex-part="empty">{t('session.empty')}</div>
             ) : null
           ) : (
             <BtwVirtualSessionList
@@ -1206,14 +1206,14 @@ const BtwSessionPanelContent: React.FC<BtwSessionPanelProps & { viewState: BtwPa
           onClick={handleScrollToBottom}
           focusReturnRef={scrollContainerRef}
           className="btw-session-panel__scroll-to-bottom"
-          data-openbitfun-component="btw-session-panel"
-          data-openbitfun-part="scrollToBottom"
+          data-alex-component="btw-session-panel"
+          data-alex-part="scrollToBottom"
         />
         <div
           className="btw-session-panel__minimized-indicator"
-          data-openbitfun-component="btw-session-panel"
-          data-openbitfun-part="minimized"
-          data-openbitfun-state={showMinimizedIndicator ? 'minimized' : 'hidden'}
+          data-alex-component="btw-session-panel"
+          data-alex-part="minimized"
+          data-alex-state={showMinimizedIndicator ? 'minimized' : 'hidden'}
           aria-hidden={!showMinimizedIndicator}
           {...(!showMinimizedIndicator ? { inert: '' } : {})}
         >
@@ -1241,8 +1241,8 @@ const BtwSessionPanelContent: React.FC<BtwSessionPanelProps & { viewState: BtwPa
           <div
             ref={actionBarRef}
             className="btw-session-panel__action-bar-wrapper"
-            data-openbitfun-component="btw-session-panel"
-            data-openbitfun-part="actionBar"
+            data-alex-component="btw-session-panel"
+            data-alex-part="actionBar"
             data-visible={showReviewActionBar ? 'true' : 'false'}
             aria-hidden={!showReviewActionBar}
             {...(!showReviewActionBar ? { inert: '' } : {})}

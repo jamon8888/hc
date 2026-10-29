@@ -16,7 +16,7 @@ export interface VoiceCallControlsProps {
 }
 
 export function VoiceCallControls({ labels, phase, muted, compact, onToggleMute, onOpenSettings, onEnd }: VoiceCallControlsProps) {
-  return <footer className={classNames(styles.controls, compact && styles.compactControls)} data-openbitfun-component="voice-call-panel" data-openbitfun-part="controls">
+  return <footer className={classNames(styles.controls, compact && styles.compactControls)} data-alex-component="voice-call-panel" data-alex-part="controls">
     <Tooltip content={muted ? labels.unmute : labels.mute}>
       <IconButton className={styles.control} shape="circle" aria-label={muted ? labels.unmute : labels.mute}
         aria-pressed={muted} disabled={phase === "connecting" || phase === "ending"} onClick={onToggleMute}

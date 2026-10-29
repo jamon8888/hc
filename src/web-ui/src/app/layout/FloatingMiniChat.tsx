@@ -1,7 +1,7 @@
 /** Modeless host of references to Runtime-owned conversations. */
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { ArrowUpRight, Minus, Phone, PhoneOff, X } from 'lucide-react';
-import { IconButton, LauncherButton, OverflowText, TabGroup, Button } from '@openbitfun/ui';
+import { IconButton, LauncherButton, OverflowText, TabGroup, Button } from '@alex/ui';
 import { useI18n } from '@/infrastructure/i18n';
 import { getActiveSurfaceId, getActiveSurfaceScope, onSurfaceActivated, isSurfaceChangedError } from '@/infrastructure/peer-device/deviceSurface';
 import { globalEventBus } from '@/infrastructure/event-bus';
@@ -72,8 +72,8 @@ function DockConversationView({ entry, active, onCollapse, renderHeader, onVoice
     sessionId: entry.sessionId, workspacePath: session.workspacePath,
   } : { kind: entry.kind, surfaceId: entry.surfaceId, sessionId: entry.sessionId,
     workspaceId: session.workspaceId ?? session.config.workspaceId, workspacePath: session.workspacePath || '' }, [entry, session, appName]);
-  const unavailable = <div className="openbitfun-fmc__miniapp-session-pending" role="status"
-    data-openbitfun-component="floating-mini-chat" data-openbitfun-part="pending">{t('dock.unavailable')}</div>;
+  const unavailable = <div className="alex-fmc__miniapp-session-pending" role="status"
+    data-alex-component="floating-mini-chat" data-alex-part="pending">{t('dock.unavailable')}</div>;
   if (entry.kind === 'control' && session && voiceTarget) return <ConversationViewProvider
     scope={{ ...entry, viewId: key, presentation: 'compact' }}>
     <ControlConversation session={session} sessionRef={entry} voiceTarget={voiceTarget} active={active}
@@ -144,7 +144,7 @@ export function FloatingMiniChat() {
     let disposed = false;
     setError('');
     if (!useConversationDockStore.getState().entries.some(entry => entry.surfaceId === surfaceId && entry.kind === 'control')) {
-      useConversationDockStore.getState().add({ surfaceId, sessionId: 'openbitfun-control', workspaceKey: '', kind: 'control' }, false);
+      useConversationDockStore.getState().add({ surfaceId, sessionId: 'alex-control', workspaceKey: '', kind: 'control' }, false);
     }
     void ensureControlConversation().then(result => {
       if (!disposed) useConversationDockStore.getState().add({ ...result, surfaceId, workspaceKey: sessionSceneWorkspaceKey(result.workspaceId), kind: 'control' }, false);
@@ -218,9 +218,9 @@ export function FloatingMiniChat() {
     void dropConversationInDock(event.dataTransfer);
   };
   const renderHeader = (modeSwitch: ReactNode) => <>
-      <div className={['openbitfun-fmc__header', active?.kind === 'control' && entries.length === 1 && 'openbitfun-fmc__header--identity'].filter(Boolean).join(' ')} data-openbitfun-component="floating-mini-chat" data-openbitfun-part="header">
-        <div className="openbitfun-fmc__mode-switch">{modeSwitch}</div>
-        {entries.length > 1 ? <TabGroup className="openbitfun-fmc__tabs" size="sm" value={activeKey} onValueChange={dock.select}
+      <div className={['alex-fmc__header', active?.kind === 'control' && entries.length === 1 && 'alex-fmc__header--identity'].filter(Boolean).join(' ')} data-alex-component="floating-mini-chat" data-alex-part="header">
+        <div className="alex-fmc__mode-switch">{modeSwitch}</div>
+        {entries.length > 1 ? <TabGroup className="alex-fmc__tabs" size="sm" value={activeKey} onValueChange={dock.select}
           aria-label={t('dock.tabs')} items={entries.map(entry => ({ value: dockConversationKey(entry), label: label(entry),
             endAction: entry.kind !== 'control' && !(live && dockConversationKey(entry) === callKey) ? <button type="button" aria-label={t(entry.kind === 'miniapp' ? 'dock.hideConversation' : 'session.close')} title={t(entry.kind === 'miniapp' ? 'dock.hideConversation' : 'session.close')} tabIndex={-1}
               onClick={event => { event.stopPropagation(); dock.hide(dockConversationKey(entry)); }}><X size={12} /></button> : undefined,
@@ -229,19 +229,19 @@ export function FloatingMiniChat() {
             return <div draggable={entry.kind !== 'control'} onDragStart={event => {
               dragging.current = item.value;
               if (entry.kind === 'session') beginConversationTransfer(event.dataTransfer, entry);
-              else event.dataTransfer.setData('application/x-openbitfun-dock-tab', item.value);
+              else event.dataTransfer.setData('application/x-alex-dock-tab', item.value);
             }} onDragEnd={() => { dragging.current = undefined; endConversationTransfer(); }}
               onDragOver={event => { if (dragging.current) event.preventDefault(); }}
               onDrop={event => { if (!dragging.current) return; event.preventDefault(); event.stopPropagation(); dock.reorder(dragging.current, item.value); }}
             >{node}</div>;
-          }} /> : <OverflowText className="openbitfun-fmc__title-wrapper">{active ? label(active) : 'Alex'}</OverflowText>}
+          }} /> : <OverflowText className="alex-fmc__title-wrapper">{active ? label(active) : 'Alex'}</OverflowText>}
         {active?.kind === 'session' && <IconButton size="sm" icon={<ArrowUpRight size={15} />} aria-label={t('dock.moveToMain')}
           onClick={() => returnConversationToWorkbench(active)} />}
         {active?.kind === 'miniapp' && <IconButton size="sm" icon={<ArrowUpRight size={15} />} aria-label={t('dock.openApp')} title={t('dock.openApp')}
           onClick={() => openMiniAppFromConversation(active)} />}
         <IconButton size="sm" icon={<Minus size={15} />} aria-label={t('dock.collapse')} onClick={collapse} />
       </div>
-      {live && !(active?.kind === 'control' && activeKey === callKey) && <div className="openbitfun-fmc__call-status" data-openbitfun-component="floating-mini-chat" data-openbitfun-part="callStatus">
+      {live && !(active?.kind === 'control' && activeKey === callKey) && <div className="alex-fmc__call-status" data-alex-component="floating-mini-chat" data-alex-part="callStatus">
         <button type="button" onClick={() => {
           const target = voice.target;
           if (!target) return;
@@ -253,28 +253,28 @@ export function FloatingMiniChat() {
         <IconButton size="sm" icon={<PhoneOff size={14} />} aria-label={tv('voiceCall.call.hangUp')} onClick={voice.end} />
       </div>}
   </>;
-  return <div className={['openbitfun-fmc', dock.open && 'openbitfun-fmc--open'].filter(Boolean).join(' ')}
-    data-openbitfun-component="floating-mini-chat" data-openbitfun-part="root" data-openbitfun-mode="chat"
-    data-openbitfun-state={dock.open ? 'open' : undefined}
-    data-openbitfun-communication-mode={immersiveVoice ? 'voice' : 'chat'}
+  return <div className={['alex-fmc', dock.open && 'alex-fmc--open'].filter(Boolean).join(' ')}
+    data-alex-component="floating-mini-chat" data-alex-part="root" data-alex-mode="chat"
+    data-alex-state={dock.open ? 'open' : undefined}
+    data-alex-communication-mode={immersiveVoice ? 'voice' : 'chat'}
     onDragOver={event => { if (isConversationTransfer(event.dataTransfer)) { event.preventDefault(); event.dataTransfer.dropEffect = 'move'; setDrop(true); dock.setOpen(true); } }}
     onDragLeave={event => { if (!event.currentTarget.contains(event.relatedTarget as Node)) setDrop(false); }} onDrop={acceptDrop}>
-    <LauncherButton className="openbitfun-fmc__button" aria-expanded={dock.open} aria-label={t('dock.open')}
+    <LauncherButton className="alex-fmc__button" aria-expanded={dock.open} aria-label={t('dock.open')}
       onClick={() => dock.setOpen(true)} onPointerDown={event => { if (event.button === 0) dock.setOpen(true); }}>
       {live ? <Phone size={16} /> : tv('voiceCall.call.launcherCompactLabel')}
     </LauncherButton>
     <div ref={panelRef} role="dialog" aria-modal="false" aria-label={t('dock.open')} aria-hidden={!dock.open} data-motion="presence"
       {...(!dock.open ? { inert: '' } : {})}
-      className={['openbitfun-fmc__panel', dock.open && 'openbitfun-fmc__panel--open', drop && 'openbitfun-fmc__panel--drop'].filter(Boolean).join(' ')}
-      data-openbitfun-component="floating-mini-chat" data-openbitfun-part="panel">
-      <div className="openbitfun-fmc__body" data-openbitfun-component="floating-mini-chat" data-openbitfun-part="body">
+      className={['alex-fmc__panel', dock.open && 'alex-fmc__panel--open', drop && 'alex-fmc__panel--drop'].filter(Boolean).join(' ')}
+      data-alex-component="floating-mini-chat" data-alex-part="panel">
+      <div className="alex-fmc__body" data-alex-component="floating-mini-chat" data-alex-part="body">
         {(!active || active.kind === 'control' && !flow.sessions.has(active.sessionId)) && renderHeader(null)}
         {entries.filter(entry => (visited.has(dockConversationKey(entry)) || dockConversationKey(entry) === activeKey) && (entry.kind !== 'control' || flow.sessions.has(entry.sessionId))).map(entry => <div
           key={dockConversationKey(entry)} hidden={dockConversationKey(entry) !== activeKey}
-          className="openbitfun-fmc__view">
+          className="alex-fmc__view">
           <DockConversationView entry={entry} active={dock.open && dockConversationKey(entry) === activeKey} onCollapse={collapse} renderHeader={renderHeader} onVoiceViewChange={onVoiceViewChange} />
         </div>)}
-        {(!active || active.kind === 'control' && !flow.sessions.has(active.sessionId)) && <div className="openbitfun-fmc__miniapp-session-pending" role="status" data-openbitfun-component="floating-mini-chat" data-openbitfun-part="pending">
+        {(!active || active.kind === 'control' && !flow.sessions.has(active.sessionId)) && <div className="alex-fmc__miniapp-session-pending" role="status" data-alex-component="floating-mini-chat" data-alex-part="pending">
           {error ? <><span>{t('dock.loadFailed')}</span><span>{error}</span><Button onClick={() => setRetry(value => value + 1)}>{t('dock.retry')}</Button></> : t('dock.loading')}
         </div>}
       </div>

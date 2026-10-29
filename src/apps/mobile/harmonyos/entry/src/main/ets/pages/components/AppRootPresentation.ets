@@ -180,7 +180,7 @@ export struct AppRootPresentation {
   NavigationContent() {
     Stack() {
       Navigation(this.navigationStack) { this.RouteContent(AppRoute.RemoteHome) }
-        .id('openbitfunHomeNavigation')
+        .id('alexHomeNavigation')
         .width('100%').height('100%').hideTitleBar(true)
         .mode(NavigationMode.Stack)
         .navBarWidth('100%')

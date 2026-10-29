@@ -5,20 +5,20 @@
 //! update transaction against the desktop MiniApp manager.
 
 use crate::api::app_state::AppState;
-use openbitfun_core::infrastructure::events::{emit_global_event, BackendEvent};
-use openbitfun_core::miniapp::lifecycle::miniapp_runtime_event_payload;
-use openbitfun_core::miniapp::{
+use alex_core::infrastructure::events::{emit_global_event, BackendEvent};
+use alex_core::miniapp::lifecycle::miniapp_runtime_event_payload;
+use alex_core::miniapp::{
     MiniApp, MiniAppCustomizationMetadata, MiniAppPermissionDiff, MiniAppPermissions, MiniAppSource,
 };
-use openbitfun_product_domains::miniapp::customization::diff_permissions;
-use openbitfun_product_domains::miniapp::market::{
+use alex_product_domains::miniapp::customization::diff_permissions;
+use alex_product_domains::miniapp::market::{
     CursorPage, InstalledMarketOrigin, MarketListingDetail, MarketListingSummary, MarketRelease,
     MarketSubmission, MarketSubmissionDraftRequest,
 };
-use openbitfun_product_domains::product_release::{
-    supports_market_minimum_version, OPENBITFUN_INITIAL_RELEASE_VERSION,
+use alex_product_domains::product_release::{
+    supports_market_minimum_version, ALEX_INITIAL_RELEASE_VERSION,
 };
-use openbitfun_services_integrations::miniapp_market::{
+use alex_services_integrations::miniapp_market::{
     submit_installed_app, validate_market_package, FavoriteAggregate, MarketBrowseRequest,
     MarketClient, RatingAggregate, ValidatedMarketPackage,
 };
@@ -285,7 +285,7 @@ pub async fn miniapp_market_install(
         .map_err(market_error)?;
     let detail = client.listing(&request.slug).await.map_err(market_error)?;
     let release = find_release(&detail, request.release_number)?;
-    validate_minimum_openbitfun_version(&release.min_openbitfun_version)?;
+    validate_minimum_alex_version(&release.min_alex_version)?;
     if release.yanked {
         return Err(
             "This marketplace release has been yanked and cannot be installed.".to_string(),
@@ -368,12 +368,12 @@ pub async fn miniapp_market_install(
 }
 
 async fn stage_downloaded_package(bytes: &[u8]) -> Result<ValidatedMarketPackage, String> {
-    if bytes.len() as u64 > openbitfun_product_domains::miniapp::market::MARKET_MAX_PACKAGE_BYTES {
+    if bytes.len() as u64 > alex_product_domains::miniapp::market::MARKET_MAX_PACKAGE_BYTES {
         return Err("The downloaded package exceeds 20 MiB.".to_string());
     }
     let temp_prefix = format!(
         "{}-miniapp-market-download-",
-        openbitfun_core_types::product_identity::data_namespace()
+        alex_core_types::product_identity::data_namespace()
     );
     let directory = tempfile::Builder::new()
         .prefix(&temp_prefix)
@@ -420,7 +420,7 @@ pub async fn miniapp_market_import_package(
         .await
         .map_err(|error| format!("Could not read package metadata: {error}"))?;
     if !metadata.is_file()
-        || metadata.len() > openbitfun_product_domains::miniapp::market::MARKET_MAX_PACKAGE_BYTES
+        || metadata.len() > alex_product_domains::miniapp::market::MARKET_MAX_PACKAGE_BYTES
     {
         return Err("The selected .bfminiapp file is invalid or exceeds 20 MiB.".to_string());
     }
@@ -468,13 +468,13 @@ pub async fn miniapp_market_capture_window(
 ) -> Result<String, String> {
     let position = window
         .outer_position()
-        .map_err(|error| format!("Could not read the OpenBitFun window position: {error}"))?;
+        .map_err(|error| format!("Could not read the Alex window position: {error}"))?;
     let size = window
         .outer_size()
-        .map_err(|error| format!("Could not read the OpenBitFun window size: {error}"))?;
+        .map_err(|error| format!("Could not read the Alex window size: {error}"))?;
     if size.width < 320 || size.height < 240 {
         return Err(
-            "The OpenBitFun window is too small to capture a review screenshot.".to_string(),
+            "The Alex window is too small to capture a review screenshot.".to_string(),
         );
     }
 
@@ -507,7 +507,7 @@ pub async fn miniapp_market_capture_window(
             .capture_area(relative_x, relative_y, size.width, size.height)
             .map_err(|error| {
                 format!(
-                    "Window capture failed. On macOS, grant OpenBitFun Screen Recording permission: {error}"
+                    "Window capture failed. On macOS, grant Alex Screen Recording permission: {error}"
                 )
             })?;
         let (width, height) = captured.dimensions();
@@ -603,7 +603,7 @@ async fn read_and_validate_package_file(path: &Path) -> Result<ValidatedMarketPa
         .await
         .map_err(|error| format!("Could not read package metadata: {error}"))?;
     if !metadata.is_file()
-        || metadata.len() > openbitfun_product_domains::miniapp::market::MARKET_MAX_PACKAGE_BYTES
+        || metadata.len() > alex_product_domains::miniapp::market::MARKET_MAX_PACKAGE_BYTES
     {
         return Err("The selected .bfminiapp file is invalid or exceeds 20 MiB.".to_string());
     }
@@ -668,19 +668,19 @@ fn require_permission_confirmation(
     Ok(())
 }
 
-fn validate_minimum_openbitfun_version(minimum: &str) -> Result<(), String> {
+fn validate_minimum_alex_version(minimum: &str) -> Result<(), String> {
     let minimum = semver::Version::parse(minimum)
-        .map_err(|_| "The release declares an invalid minimum OpenBitFun version.".to_string())?;
-    if minimum < OPENBITFUN_INITIAL_RELEASE_VERSION {
+        .map_err(|_| "The release declares an invalid minimum Alex version.".to_string())?;
+    if minimum < ALEX_INITIAL_RELEASE_VERSION {
         return Err(
-            "The release declares a minimum OpenBitFun version earlier than 1.0.0.".to_string(),
+            "The release declares a minimum Alex version earlier than 1.0.0.".to_string(),
         );
     }
     let current = semver::Version::parse(env!("CARGO_PKG_VERSION"))
-        .map_err(|_| "The current OpenBitFun version is invalid.".to_string())?;
+        .map_err(|_| "The current Alex version is invalid.".to_string())?;
     if !supports_market_minimum_version(&current, &minimum) {
         return Err(format!(
-            "This MiniApp requires OpenBitFun {minimum} or newer. Current version: {current}."
+            "This MiniApp requires Alex {minimum} or newer. Current version: {current}."
         ));
     }
     Ok(())
@@ -710,17 +710,17 @@ fn market_error(error: impl Serialize + std::fmt::Display) -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::validate_minimum_openbitfun_version;
+    use super::validate_minimum_alex_version;
 
     #[test]
-    fn rejects_minimum_versions_before_initial_openbitfun_release() {
-        assert!(validate_minimum_openbitfun_version("1.0.0").is_ok());
+    fn rejects_minimum_versions_before_initial_alex_release() {
+        assert!(validate_minimum_alex_version("1.0.0").is_ok());
         let pre_release_identity = [0, 9, 0]
             .into_iter()
             .map(|part| part.to_string())
             .collect::<Vec<_>>()
             .join(".");
-        assert!(validate_minimum_openbitfun_version(&pre_release_identity).is_err());
-        assert!(validate_minimum_openbitfun_version("1.0.0-rc.1").is_err());
+        assert!(validate_minimum_alex_version(&pre_release_identity).is_err());
+        assert!(validate_minimum_alex_version("1.0.0-rc.1").is_err());
     }
 }

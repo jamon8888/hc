@@ -137,7 +137,7 @@ pub fn run_fetch(
         // Support both sync returns and Promise / async function fetch.
         ctx.eval::<(), _>(
             r#"
-            globalThis.__openbitfun_normalize = function(r) {
+            globalThis.__alex_normalize = function(r) {
               if (typeof r === "string") {
                 return JSON.stringify({ status: 200, headers: { "content-type": "text/plain; charset=utf-8" }, body: r });
               }
@@ -157,12 +157,12 @@ pub fn run_fetch(
                 body: (r && r.body != null) ? String(r.body) : ""
               });
             };
-            globalThis.__openbitfun_invoke = function(req, env) {
+            globalThis.__alex_invoke = function(req, env) {
               var r = fetch(req, env);
               if (r && typeof r.then === "function") {
-                return r.then(globalThis.__openbitfun_normalize);
+                return r.then(globalThis.__alex_normalize);
               }
-              return globalThis.__openbitfun_normalize(r);
+              return globalThis.__alex_normalize(r);
             };
             "#,
         )
@@ -176,7 +176,7 @@ pub fn run_fetch(
         })?;
 
         let invoke: Function = globals
-            .get("__openbitfun_invoke")
+            .get("__alex_invoke")
             .map_err(|e| PageFunctionError::Init(e.to_string()))?;
 
         let env = build_env_object(&ctx, host)?;

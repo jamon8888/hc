@@ -12,10 +12,10 @@ use tauri::State;
 
 use crate::api::app_state::AppState;
 
-use openbitfun_core::agentic::coordination::{
+use alex_core::agentic::coordination::{
     ConversationCoordinator, DialogSubmissionPolicy, DialogTriggerSource,
 };
-use openbitfun_core::agentic::image_analysis::ImageContextData;
+use alex_core::agentic::image_analysis::ImageContextData;
 
 fn desktop_btw_submission_policy() -> DialogSubmissionPolicy {
     DialogSubmissionPolicy::for_source(DialogTriggerSource::DesktopUi)
@@ -39,7 +39,7 @@ pub struct BtwAskStreamRequest {
     #[serde(default)]
     pub user_message_metadata: Option<serde_json::Value>,
     #[serde(default)]
-    pub initial_model_selection: Option<openbitfun_runtime_ports::AgentSessionModelSelection>,
+    pub initial_model_selection: Option<alex_runtime_ports::AgentSessionModelSelection>,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -149,7 +149,7 @@ pub async fn btw_ask_stream(
             };
 
             match session.state {
-                openbitfun_core::agentic::core::SessionState::Processing {
+                alex_core::agentic::core::SessionState::Processing {
                     current_turn_id,
                     ..
                 } if current_turn_id == turn_id => {
@@ -208,7 +208,7 @@ mod tests {
                 .as_deref(),
             Some("high")
         );
-        let auto: openbitfun_runtime_ports::AgentSessionModelSelection =
+        let auto: alex_runtime_ports::AgentSessionModelSelection =
             serde_json::from_value(serde_json::json!({ "modelId": "primary" })).unwrap();
         assert!(auto.reasoning_preset.is_none());
     }

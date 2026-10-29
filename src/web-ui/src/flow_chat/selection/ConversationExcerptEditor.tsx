@@ -1,5 +1,5 @@
 import type { RefObject } from 'react';
-import { OverflowText, Textarea } from '@openbitfun/ui';
+import { OverflowText, Textarea } from '@alex/ui';
 import { useI18n } from '@/infrastructure/i18n';
 import type { ConversationExcerptContext } from '@/shared/types/context';
 import { excerptText } from '@/shared/utils/conversationExcerpt';
@@ -7,9 +7,9 @@ import { excerptText } from '@/shared/utils/conversationExcerpt';
 export function ConversationExcerptQuote({ excerpt }: { excerpt: ConversationExcerptContext }) {
   const quote = excerptText(excerpt).replace(/\s+/g, ' ').trim();
   return <div className="conversation-excerpt__quote"
-    data-openbitfun-product-component="conversation-excerpt" data-openbitfun-product-part="quote">
+    data-alex-product-component="conversation-excerpt" data-alex-product-part="quote">
     <OverflowText as="span" behavior="fade" overflowStyle="ellipsis" className="conversation-excerpt__quote-text"
-      data-openbitfun-product-component="conversation-excerpt" data-openbitfun-product-part="quoteText">{quote}</OverflowText>
+      data-alex-product-component="conversation-excerpt" data-alex-product-part="quoteText">{quote}</OverflowText>
   </div>;
 }
 

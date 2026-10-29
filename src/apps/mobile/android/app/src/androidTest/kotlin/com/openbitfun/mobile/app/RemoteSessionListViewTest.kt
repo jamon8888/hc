@@ -18,7 +18,7 @@ import com.openbitfun.mobile.app.ui.remote.SESSION_SEARCH_FIELD_TEST_TAG
 import com.openbitfun.mobile.app.ui.remote.SESSION_SEARCH_TOGGLE_TEST_TAG
 import com.openbitfun.mobile.app.ui.settings.VIEW_SETTINGS_TEST_TAG
 import com.openbitfun.mobile.app.ui.settings.VIEW_SETTINGS_TOGGLE_TEST_TAG
-import com.openbitfun.mobile.app.ui.theme.OpenBitFunTheme
+import com.openbitfun.mobile.app.ui.theme.AlexTheme
 import com.openbitfun.mobile.core.feature.session.RemoteSessionUiState
 import com.openbitfun.mobile.core.feature.layout.SettingsPlacement
 import com.openbitfun.mobile.core.feature.layout.SettingsPlacementMode
@@ -34,7 +34,7 @@ class RemoteSessionListViewTest {
     @Test
     fun remoteListUsesTheCompactSidebarHeader() {
         composeRule.setContent {
-            OpenBitFunTheme(dark = false) {
+            AlexTheme(dark = false) {
                 RemoteSessionListView(
                     state = RemoteSessionUiState.Idle,
                     workspaceState = RemoteWorkspaceUiState.Idle,
@@ -65,7 +65,7 @@ class RemoteSessionListViewTest {
     @Test
     fun viewSettingsOpensAsASheetInsteadOfExpandingTheList() {
         composeRule.setContent {
-            OpenBitFunTheme(dark = false) {
+            AlexTheme(dark = false) {
                 RemoteSessionListView(
                     state = RemoteSessionUiState.Ready(
                         sessions = emptyList(),
@@ -103,10 +103,10 @@ class RemoteSessionListViewTest {
     fun projectCreateUsesAnAnchoredCodeCoworkMenu() {
         val open = mutableStateOf(false)
         var agentType: String? = null
-        val path = "/work/openbitfun"
+        val path = "/work/alex"
 
         composeRule.setContent {
-            OpenBitFunTheme(dark = false) {
+            AlexTheme(dark = false) {
                 ProjectCreateControl(
                     path = path,
                     expanded = open.value,
@@ -126,7 +126,7 @@ class RemoteSessionListViewTest {
     fun chatSectionCreateIsASectionAnchoredAction() {
         var clicked = false
         composeRule.setContent {
-            OpenBitFunTheme(dark = false) {
+            AlexTheme(dark = false) {
                 ChatCreateControl(onCreate = { clicked = true })
             }
         }

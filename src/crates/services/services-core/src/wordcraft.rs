@@ -3,7 +3,7 @@
 //! This module is the Rust-side owner of the WordCraft capability projection:
 //! one factual record (`available` / `unsupported` / `not-installed` / `error`)
 //! derived on demand from the command discovery order
-//! **explicit path → system PATH → OpenBitFun managed runtime component**, cached
+//! **explicit path → system PATH → Alex managed runtime component**, cached
 //! until an explicit `recheck`. Worker crates may add product policy (mode /
 //! disable semantics riding `external_integration_policy`) on top; this record
 //! stays purely factual so every surface derives the same answer.
@@ -418,7 +418,7 @@ pub mod checksum {
 
         fn temp_dir(label: &str) -> PathBuf {
             let p = std::env::temp_dir().join(format!(
-                "openbitfun-wordcraft-checksum-{}-{}-{}",
+                "alex-wordcraft-checksum-{}-{}-{}",
                 label,
                 std::process::id(),
                 std::time::SystemTime::now()
@@ -482,7 +482,7 @@ mod tests {
 
     fn temp_runtime_root(label: &str) -> PathBuf {
         let p = std::env::temp_dir().join(format!(
-            "openbitfun-wordcraft-cap-{}-{}-{}",
+            "alex-wordcraft-cap-{}-{}-{}",
             label,
             std::process::id(),
             std::time::SystemTime::now()

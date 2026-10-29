@@ -41,8 +41,8 @@ export function runUpdateDownloadHandoff(
       || origin.rect.width <= 0 || origin.rect.height <= 0 || destination.width <= 0 || destination.height <= 0) return;
 
   const style = view.getComputedStyle(target);
-  const duration = milliseconds(style.getPropertyValue('--openbitfun-motion-duration-slow'));
-  const easing = style.getPropertyValue('--openbitfun-motion-easing-smooth').trim() || 'ease-in-out';
+  const duration = milliseconds(style.getPropertyValue('--alex-motion-duration-slow'));
+  const easing = style.getPropertyValue('--alex-motion-easing-smooth').trim() || 'ease-in-out';
   const media = view.matchMedia?.('(prefers-reduced-motion: reduce)');
   const animations: Animation[] = [];
   const previousVisibility = target.style.visibility;
@@ -101,7 +101,7 @@ export function runUpdateDownloadHandoff(
       { transform: 'scale(1)' },
       { transform: 'scale(1.12)', offset: 0.4 },
       { transform: 'scale(1)' },
-    ], { duration: milliseconds(style.getPropertyValue('--openbitfun-motion-duration-base')), easing });
+    ], { duration: milliseconds(style.getPropertyValue('--alex-motion-duration-base')), easing });
     animations.push(landing);
     void landing.finished.catch(() => {});
     arrive();

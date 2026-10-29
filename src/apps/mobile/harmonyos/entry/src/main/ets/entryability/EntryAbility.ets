@@ -4,7 +4,7 @@ import { display, window } from '@kit.ArkUI';
 import { MobileDesignColors, MobileTextScale } from '../generated/MobileDesignTokens';
 
 const DOMAIN = 0x0000;
-const TAG = 'OpenBitFunRemote';
+const TAG = 'AlexRemote';
 
 export default class EntryAbility extends UIAbility {
   private mainWindow?: window.Window;
@@ -12,7 +12,7 @@ export default class EntryAbility extends UIAbility {
   private previewStorage?: LocalStorage;
 
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
-    const scenarioId = want.parameters?.['openbitfunDesignPreview'];
+    const scenarioId = want.parameters?.['alexDesignPreview'];
     if (scenarioId === 'history-scroll' || scenarioId === 'durable-timeline' || scenarioId === 'composer-submit' || scenarioId === 'catalog-refresh' || scenarioId === 'catalog-refresh-dark' || scenarioId === 'device-selector' || scenarioId === 'device-selector-dark' || scenarioId === 'welcome-home' || scenarioId === 'connected-conversation' ||
       scenarioId === 'streaming-dark' ||
       scenarioId === 'reconnecting-wide' || scenarioId === 'narrow-multiline' ||

@@ -218,8 +218,8 @@ describe('FileOperationToolCard', () => {
 
     expect(mocks.getOperationSummary).not.toHaveBeenCalled();
     expect(mocks.emitSnapshotEvent).not.toHaveBeenCalled();
-    expect(container.querySelector('[data-openbitfun-change="added"]')?.textContent).toBe('+2');
-    expect(container.querySelector('[data-openbitfun-change="removed"]')?.textContent).toBe('-1');
+    expect(container.querySelector('[data-alex-change="added"]')?.textContent).toBe('+2');
+    expect(container.querySelector('[data-alex-change="removed"]')?.textContent).toBe('-1');
     const openButton = container.querySelector('[data-testid="chat-file-change-open-file"]');
     expect(openButton).not.toBeNull();
     await act(async () => {
@@ -530,11 +530,11 @@ describe('FileOperationToolCard', () => {
     expect(container.textContent).toContain('toolCards.file.failed');
     expect(container.textContent).toContain('newFile.ts');
     expect(container.textContent).not.toContain('Arguments are invalid JSON.');
-    expect(container.querySelector('[data-openbitfun-icon="warning"]')).not.toBeNull();
-    expect(container.querySelector('[data-openbitfun-part="error"]')).toBeNull();
+    expect(container.querySelector('[data-alex-icon="warning"]')).not.toBeNull();
+    expect(container.querySelector('[data-alex-part="error"]')).toBeNull();
 
     const toggle = container.querySelector(
-      '[data-openbitfun-part="affordanceButton"]',
+      '[data-alex-part="affordanceButton"]',
     ) as HTMLButtonElement | null;
     expect(toggle?.getAttribute('aria-expanded')).toBe('false');
 
@@ -543,7 +543,7 @@ describe('FileOperationToolCard', () => {
     });
 
     expect(container.querySelector('[data-testid="chat-file-change-card"]')?.getAttribute('data-expanded')).toBe('true');
-    expect(container.querySelector('[data-openbitfun-part="error"]')).not.toBeNull();
+    expect(container.querySelector('[data-alex-part="error"]')).not.toBeNull();
     expect(container.textContent).toContain('Arguments are invalid JSON.');
   });
 
@@ -593,9 +593,9 @@ describe('FileOperationToolCard', () => {
     });
 
     expect(container.querySelector('[data-testid="chat-file-change-card"]')?.getAttribute('data-expanded')).toBe('false');
-    expect(container.querySelector('[data-openbitfun-part="error"]')).toBeNull();
+    expect(container.querySelector('[data-alex-part="error"]')).toBeNull();
     expect(container.textContent).not.toContain('The target text was not found.');
-    expect(container.querySelector('[data-openbitfun-icon="warning"]')).not.toBeNull();
+    expect(container.querySelector('[data-alex-icon="warning"]')).not.toBeNull();
   });
 
   it('opens completed write cards with the resolved result path', async () => {
@@ -707,23 +707,23 @@ describe('FileOperationToolCard', () => {
     });
 
     const contentRegion = container.querySelector(
-      '[data-openbitfun-component="flow-chat-tool-card"][data-openbitfun-part="content"]',
+      '[data-alex-component="flow-chat-tool-card"][data-alex-part="content"]',
     );
     const extraRegion = container.querySelector(
-      '[data-openbitfun-component="flow-chat-tool-card"][data-openbitfun-part="extra"]',
+      '[data-alex-component="flow-chat-tool-card"][data-alex-part="extra"]',
     );
     const changeSummary = container.querySelector(
-      '[data-openbitfun-component="flow-chat-tool-card"][data-openbitfun-part="changeSummary"]',
+      '[data-alex-component="flow-chat-tool-card"][data-alex-part="changeSummary"]',
     );
     expect(contentRegion?.querySelector('[data-testid="chat-file-change-path"]')).not.toBeNull();
-    expect(contentRegion?.querySelector('[data-openbitfun-part="changeSummary"]')).toBeNull();
+    expect(contentRegion?.querySelector('[data-alex-part="changeSummary"]')).toBeNull();
     expect(extraRegion?.contains(changeSummary)).toBe(true);
-    expect(changeSummary?.querySelector('[data-openbitfun-change="added"]')?.textContent).toBe('+1');
-    expect(changeSummary?.querySelector('[data-openbitfun-change="removed"]')?.textContent).toBe('-0');
+    expect(changeSummary?.querySelector('[data-alex-change="added"]')?.textContent).toBe('+1');
+    expect(changeSummary?.querySelector('[data-alex-change="removed"]')?.textContent).toBe('-0');
     expect(changeSummary?.querySelector('svg')).toBeNull();
 
     const actionRegion = container.querySelector(
-      '[data-openbitfun-component="flow-chat-tool-card"][data-openbitfun-part="actionRegion"]',
+      '[data-alex-component="flow-chat-tool-card"][data-alex-part="actionRegion"]',
     );
     const actionButtons = Array.from(actionRegion?.querySelectorAll('button') ?? []);
     const openButton = container.querySelector(
@@ -732,11 +732,11 @@ describe('FileOperationToolCard', () => {
 
     expect(container.querySelector('[data-testid="chat-file-change-open-diff"]')).toBeNull();
     expect(actionButtons).toHaveLength(2);
-    expect(actionButtons[0]?.getAttribute('data-openbitfun-part')).toBe('affordanceButton');
+    expect(actionButtons[0]?.getAttribute('data-alex-part')).toBe('affordanceButton');
     expect(actionButtons[1]).toBe(openButton);
-    expect(openButton?.getAttribute('data-openbitfun-affordance')).toBe('open-panel-right');
-    expect(openButton?.querySelector('[data-openbitfun-icon="open-panel-right"]')).not.toBeNull();
-    expect(openButton?.closest('[data-openbitfun-part="trailingActions"]')?.getAttribute('data-divider')).toBe('true');
+    expect(openButton?.getAttribute('data-alex-affordance')).toBe('open-panel-right');
+    expect(openButton?.querySelector('[data-alex-icon="open-panel-right"]')).not.toBeNull();
+    expect(openButton?.closest('[data-alex-part="trailingActions"]')?.getAttribute('data-divider')).toBe('true');
 
     await act(async () => {
       openButton?.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true }));
@@ -786,14 +786,14 @@ describe('FileOperationToolCard', () => {
       );
     });
 
-    const contentRegion = container.querySelector('[data-openbitfun-component="flow-chat-tool-card"][data-openbitfun-part="content"]');
-    const extraRegion = container.querySelector('[data-openbitfun-part="extra"]');
-    const changeSummary = extraRegion?.querySelector('[data-openbitfun-part="changeSummary"]');
+    const contentRegion = container.querySelector('[data-alex-component="flow-chat-tool-card"][data-alex-part="content"]');
+    const extraRegion = container.querySelector('[data-alex-part="extra"]');
+    const changeSummary = extraRegion?.querySelector('[data-alex-part="changeSummary"]');
 
     expect(contentRegion?.textContent).toContain('styles.css');
-    expect(contentRegion?.querySelector('[data-openbitfun-part="changeSummary"]')).toBeNull();
-    expect(changeSummary?.querySelector('[data-openbitfun-change="added"]')?.textContent).toBe('+2');
-    expect(changeSummary?.querySelector('[data-openbitfun-change="removed"]')?.textContent).toBe('-1');
+    expect(contentRegion?.querySelector('[data-alex-part="changeSummary"]')).toBeNull();
+    expect(changeSummary?.querySelector('[data-alex-change="added"]')?.textContent).toBe('+2');
+    expect(changeSummary?.querySelector('[data-alex-change="removed"]')?.textContent).toBe('-1');
     expect(changeSummary?.querySelector('svg')).toBeNull();
     expect(container.querySelector('[data-testid="chat-file-change-open-diff"]')).toBeNull();
   });
@@ -889,25 +889,25 @@ describe('FileOperationToolCard', () => {
     });
 
     expect(container.textContent).not.toContain('toolCards.file.guidanceHint');
-    expect(container.querySelector('[data-openbitfun-icon="warning"]')).toBeNull();
+    expect(container.querySelector('[data-alex-icon="warning"]')).toBeNull();
     expect(container.textContent).not.toContain('toolCards.file.failed');
     expect(container.textContent).toContain('report.md');
     expect(container.textContent).not.toContain(
       'Use Read to load the current contents of docs/report.md before calling Write on it.',
     );
-    expect(container.querySelector('[data-openbitfun-part="error"]')).toBeNull();
+    expect(container.querySelector('[data-alex-part="error"]')).toBeNull();
 
     await act(async () => {
-      container.querySelector('[data-openbitfun-part="affordanceButton"]')
+      container.querySelector('[data-alex-part="affordanceButton"]')
         ?.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true }));
     });
 
     expect(container.textContent).toContain(
       'Use Read to load the current contents of docs/report.md before calling Write on it.',
     );
-    expect(container.querySelector('[data-openbitfun-part="error"] [data-guidance="true"]')).not.toBeNull();
+    expect(container.querySelector('[data-alex-part="error"] [data-guidance="true"]')).not.toBeNull();
     expect(container.textContent).not.toContain('toolCards.file.guidanceTitle');
-    expect(container.querySelector('[data-openbitfun-icon="warning"]')).toBeNull();
+    expect(container.querySelector('[data-alex-icon="warning"]')).toBeNull();
   });
 
   it('renders edit guardrail blocks as guidance instead of hard failure', async () => {
@@ -953,25 +953,25 @@ describe('FileOperationToolCard', () => {
     });
 
     expect(container.textContent).not.toContain('toolCards.file.guidanceHint');
-    expect(container.querySelector('[data-openbitfun-icon="warning"]')).toBeNull();
+    expect(container.querySelector('[data-alex-icon="warning"]')).toBeNull();
     expect(container.textContent).not.toContain('toolCards.file.failed');
     expect(container.textContent).toContain('main.rs');
     expect(container.textContent).not.toContain(
       'Use Read to load the current contents of src/main.rs before calling Edit on it.',
     );
-    expect(container.querySelector('[data-openbitfun-part="error"]')).toBeNull();
+    expect(container.querySelector('[data-alex-part="error"]')).toBeNull();
 
     await act(async () => {
-      container.querySelector('[data-openbitfun-part="affordanceButton"]')
+      container.querySelector('[data-alex-part="affordanceButton"]')
         ?.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true }));
     });
 
     expect(container.textContent).toContain(
       'Use Read to load the current contents of src/main.rs before calling Edit on it.',
     );
-    expect(container.querySelector('[data-openbitfun-part="error"] [data-guidance="true"]')).not.toBeNull();
+    expect(container.querySelector('[data-alex-part="error"] [data-guidance="true"]')).not.toBeNull();
     expect(container.textContent).not.toContain('toolCards.file.guidanceTitle');
-    expect(container.querySelector('[data-openbitfun-icon="warning"]')).toBeNull();
+    expect(container.querySelector('[data-alex-icon="warning"]')).toBeNull();
   });
 
   it.each(['edit_no_change', 'edit_target_not_found', 'edit_target_ambiguous'])('renders structured %s quietly even when the outer status is completed', async (code) => {
@@ -1018,25 +1018,25 @@ describe('FileOperationToolCard', () => {
     });
 
     expect(container.textContent).not.toContain('toolCards.file.guidanceHint');
-    expect(container.querySelector('[data-openbitfun-icon="warning"]')).toBeNull();
+    expect(container.querySelector('[data-alex-icon="warning"]')).toBeNull();
     expect(container.textContent).not.toContain('toolCards.file.failed');
     expect(container.textContent).toContain('main.rs');
     expect(container.textContent).not.toContain(
       'Edit inputs need correction.',
     );
-    expect(container.querySelector('[data-openbitfun-part="error"]')).toBeNull();
+    expect(container.querySelector('[data-alex-part="error"]')).toBeNull();
 
     await act(async () => {
-      container.querySelector('[data-openbitfun-part="affordanceButton"]')
+      container.querySelector('[data-alex-part="affordanceButton"]')
         ?.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true }));
     });
 
     expect(container.textContent).toContain(
       'Edit inputs need correction.',
     );
-    expect(container.querySelector('[data-openbitfun-part="error"] [data-guidance="true"]')).not.toBeNull();
+    expect(container.querySelector('[data-alex-part="error"] [data-guidance="true"]')).not.toBeNull();
     expect(container.textContent).not.toContain('toolCards.file.guidanceTitle');
-    expect(container.querySelector('[data-openbitfun-icon="warning"]')).toBeNull();
+    expect(container.querySelector('[data-alex-icon="warning"]')).toBeNull();
   });
 
   it('shows receiving content label while write content streams before file_path', async () => {
@@ -1326,7 +1326,7 @@ describe('FileOperationToolCard', () => {
     mocks.inlineDiffPreviewProps = [];
 
     const card = container.querySelector(
-      '[data-openbitfun-component="flow-chat-tool-card"][data-openbitfun-part="surface"][data-openbitfun-attention="prominent"]',
+      '[data-alex-component="flow-chat-tool-card"][data-alex-part="surface"][data-alex-attention="prominent"]',
     ) as HTMLDivElement | null;
     await act(async () => {
       card?.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true }));

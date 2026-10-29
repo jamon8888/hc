@@ -24,7 +24,7 @@ import {
   Switch,
   Textarea,
   Tooltip,
-} from '@openbitfun/ui';
+} from '@alex/ui';
 import React, { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useI18n } from '@/infrastructure/i18n';
 import { useCurrentWorkspace } from '@/infrastructure/contexts/WorkspaceContext';
@@ -231,11 +231,11 @@ const EcosystemCompatibilityScene: React.FC = () => {
     const refreshClients = () => {
       void loadCompatibility(false);
     };
-    window.addEventListener('openbitfun:acp-clients-changed', refreshClients);
-    window.addEventListener('openbitfun:acp-requirements-changed', refreshClients);
+    window.addEventListener('alex:acp-clients-changed', refreshClients);
+    window.addEventListener('alex:acp-requirements-changed', refreshClients);
     return () => {
-      window.removeEventListener('openbitfun:acp-clients-changed', refreshClients);
-      window.removeEventListener('openbitfun:acp-requirements-changed', refreshClients);
+      window.removeEventListener('alex:acp-clients-changed', refreshClients);
+      window.removeEventListener('alex:acp-requirements-changed', refreshClients);
     };
   }, [loadCompatibility]);
 
@@ -296,7 +296,7 @@ const EcosystemCompatibilityScene: React.FC = () => {
       setOwnerSurface('acp');
       return;
     }
-    window.dispatchEvent(new CustomEvent('openbitfun:create-acp-session', {
+    window.dispatchEvent(new CustomEvent('alex:create-acp-session', {
       detail: { clientId: client.id },
     }));
     notification.info(t('run.starting', { name: client.name || client.id }), { duration: 2400 });
@@ -580,20 +580,20 @@ const EcosystemCompatibilityScene: React.FC = () => {
     <div
       className="ecosystem-compatibility"
       data-testid="ecosystem-compatibility-scene"
-      data-openbitfun-scene="ecosystem-compatibility"
-      data-openbitfun-part="root"
+      data-alex-scene="ecosystem-compatibility"
+      data-alex-part="root"
     >
       <NavigationPanel
         className="ecosystem-compatibility__sidebar"
         aria-label={t('sidebar.label')}
-        data-openbitfun-scene="ecosystem-compatibility"
-        data-openbitfun-part="sidebar"
+        data-alex-scene="ecosystem-compatibility"
+        data-alex-part="sidebar"
       >
         <NavigationPanelHeader className="ecosystem-compatibility__sidebar-header">
           <header
             className="ecosystem-compatibility__navigation-header"
-            data-openbitfun-scene="ecosystem-compatibility"
-            data-openbitfun-part="header"
+            data-alex-scene="ecosystem-compatibility"
+            data-alex-part="header"
           >
             <strong>{t('title')}</strong>
             <div className="ecosystem-compatibility__navigation-scope">
@@ -631,8 +631,8 @@ const EcosystemCompatibilityScene: React.FC = () => {
         <NavigationPanelBody>
           <div
             className="ecosystem-compatibility__product-groups"
-            data-openbitfun-scene="ecosystem-compatibility"
-            data-openbitfun-part="productList"
+            data-alex-scene="ecosystem-compatibility"
+            data-alex-part="productList"
           >
             <NavigationPanelContent>
               {GROUP_ORDER.map((group) => {
@@ -686,14 +686,14 @@ const EcosystemCompatibilityScene: React.FC = () => {
 
       <main
         className="ecosystem-compatibility__main"
-        data-openbitfun-scene="ecosystem-compatibility"
-        data-openbitfun-part="main"
+        data-alex-scene="ecosystem-compatibility"
+        data-alex-part="main"
       >
         <ScrollArea
           ref={contentRef}
           className="ecosystem-compatibility__content"
-          data-openbitfun-scene="ecosystem-compatibility"
-          data-openbitfun-part="content"
+          data-alex-scene="ecosystem-compatibility"
+          data-alex-part="content"
         >
           <header
             className="ecosystem-compatibility__product-header"

@@ -1,12 +1,12 @@
 //! Canvas artifact Tauri commands.
 
 use crate::api::app_state::AppState;
-use openbitfun_product_domains::canvas::{
+use alex_product_domains::canvas::{
     parse_canvas_artifact_ref, CanvasDiagnostic, CanvasDiagnosticCategory,
     CanvasDiagnosticSeverity, CanvasRevision, CanvasSnapshot, CanvasState, CanvasStoragePort,
 };
-use openbitfun_runtime_ports::SessionStorePort;
-use openbitfun_services_integrations::canvas::CanvasService;
+use alex_runtime_ports::SessionStorePort;
+use alex_services_integrations::canvas::CanvasService;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::BTreeMap;
@@ -153,7 +153,7 @@ pub async fn save_canvas_state(
         values: request.values,
         value_versions: request.value_versions,
         updated_at: request.updated_at,
-        schema_version: openbitfun_product_domains::canvas::CANVAS_CURRENT_STATE_SCHEMA_VERSION,
+        schema_version: alex_product_domains::canvas::CANVAS_CURRENT_STATE_SCHEMA_VERSION,
     };
     let saved = service
         .save_state(reference.session_id, canvas_state)
@@ -332,7 +332,7 @@ async fn canvas_service_for_workspace(
         // legacy path.
         return Err("Canvas requests must identify the owning workspace".to_string());
     };
-    let sessions_dir = openbitfun_core::agentic::session::CoreSessionStorePort::default()
+    let sessions_dir = alex_core::agentic::session::CoreSessionStorePort::default()
         .resolve_workspace_storage(&workspace.id)
         .await
         .map_err(|e| e.to_string())?

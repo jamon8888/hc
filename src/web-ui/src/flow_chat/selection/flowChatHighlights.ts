@@ -1,8 +1,8 @@
 const definitions = {
-  excerpt: { name: 'openbitfun-flowchat-excerpt', attribute: 'data-flowchat-highlight-excerpt' },
-  annotations: { name: 'openbitfun-flowchat-annotations', attribute: 'data-flowchat-highlight-annotations' },
-  'search-match': { name: 'openbitfun-flowchat-search-match', attribute: 'data-flowchat-highlight-search-match' },
-  'search-current': { name: 'openbitfun-flowchat-search-current', attribute: 'data-flowchat-highlight-search-current' },
+  excerpt: { name: 'alex-flowchat-excerpt', attribute: 'data-flowchat-highlight-excerpt' },
+  annotations: { name: 'alex-flowchat-annotations', attribute: 'data-flowchat-highlight-annotations' },
+  'search-match': { name: 'alex-flowchat-search-match', attribute: 'data-flowchat-highlight-search-match' },
+  'search-current': { name: 'alex-flowchat-search-current', attribute: 'data-flowchat-highlight-search-current' },
 } as const;
 
 type Kind = keyof typeof definitions;

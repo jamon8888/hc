@@ -19,9 +19,9 @@ use serde_json::json;
 use std::sync::OnceLock;
 
 pub(crate) const ERROR_CODE: &str = "relay_version_retired";
-pub(crate) const MESSAGE: &str = "This Relay version has been retired. Update OpenBitFun on this device, then sign in again to continue.";
+pub(crate) const MESSAGE: &str = "This Relay version has been retired. Update Alex on this device, then sign in again to continue.";
 /// The edge proxy sets this to the version prefix it forwards, e.g. `/v/1.0.1`.
-pub(crate) const SERVED_PREFIX_HEADER: &str = "x-openbitfun-relay-served-prefix";
+pub(crate) const SERVED_PREFIX_HEADER: &str = "x-alex-relay-served-prefix";
 const RETIRED_ENV: &str = "RELAY_RETIRED";
 const RETIRED_PREFIXES_ENV: &str = "RELAY_RETIRED_VERSION_PREFIXES";
 

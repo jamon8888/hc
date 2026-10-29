@@ -3,7 +3,7 @@ import { matchingItems, queryTokens, scoreCapability } from './search.js';
 const root = document.querySelector('#app');
 const pageData = JSON.parse(document.querySelector('#page-data')?.textContent ?? '{}');
 const THEME_STORAGE_KEY = 'hacienda-work-playbook-theme';
-const SIDEBAR_SCROLL_STORAGE_KEY = 'openbitfun-playbook-sidebar-scroll';
+const SIDEBAR_SCROLL_STORAGE_KEY = 'alex-playbook-sidebar-scroll';
 const THEME_CHOICES = ['system', 'light', 'dark'];
 
 function readPreference(key) {
@@ -45,7 +45,7 @@ function storedTheme() {
 
 const state = {
   catalog: null,
-  language: readPreference('openbitfun-playbook-language')
+  language: readPreference('alex-playbook-language')
     ?? (navigator.language.startsWith('zh') ? 'zh' : 'en'),
   query: new URLSearchParams(location.search).get('q') ?? '',
   kind: 'all',
@@ -101,7 +101,7 @@ function resolvedTheme(theme = state.theme) {
 
 function syncThemeColor() {
   const surface = getComputedStyle(document.documentElement)
-    .getPropertyValue('--openbitfun-color-surface-canvas')
+    .getPropertyValue('--alex-color-surface-canvas')
     .trim();
   if (surface) {
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', surface);
@@ -141,9 +141,9 @@ function themeControl() {
 function header() {
   return `
     <header class="site-header">
-      <a class="brand" href="/" aria-label="OpenBitFun Playbook home">
+      <a class="brand" href="/" aria-label="Alex Playbook home">
         <span class="brand-mark">B</span>
-        <span><strong>OpenBitFun</strong><small>PLAYBOOK</small></span>
+        <span><strong>Alex</strong><small>PLAYBOOK</small></span>
       </a>
       <nav class="header-actions" aria-label="${text('全局操作', 'Global actions')}">
         <button class="sidebar-toggle" id="sidebar-toggle" type="button" aria-controls="docs-sidebar" aria-expanded="false">
@@ -303,10 +303,10 @@ function renderIndex() {
   root.innerHTML = pageFrame(`
       <main>
         <section class="hero">
-          <p class="eyebrow">THE OPERATING MANUAL FOR OPENBITFUN</p>
+          <p class="eyebrow">THE OPERATING MANUAL FOR ALEX</p>
           <h1>${text(
-            '<span>会用 OpenBitFun，</span><em>也会让它适应你。</em>',
-            '<span>Use OpenBitFun—and</span><em>make it yours.</em>',
+            '<span>会用 Alex，</span><em>也会让它适应你。</em>',
+            '<span>Use Alex—and</span><em>make it yours.</em>',
           )}</h1>
           <p class="hero-copy">${text(
             '一本真正按“功能 + 设置”组织的使用说明书。搜中文或 English，找到后直接照着用，也可以把同一句话交给智能体。',
@@ -399,9 +399,9 @@ function renderIndex() {
 
 function destinationLabel(capability) {
   if (capability.destination.kind === 'settings') {
-    return text('OpenBitFun 设置中的对应页面', 'The matching page in OpenBitFun Settings');
+    return text('Alex 设置中的对应页面', 'The matching page in Alex Settings');
   }
-  return text('OpenBitFun 中的对应功能入口', 'The matching feature entry in OpenBitFun');
+  return text('Alex 中的对应功能入口', 'The matching feature entry in Alex');
 }
 
 function schemaLabel(schema) {
@@ -435,8 +435,8 @@ function operationCards(capability) {
 function optionRows(capability) {
   if (!capability.options.length) {
     return `<div class="manual-empty">${text(
-      '这个页面的配置需要在 OpenBitFun 界面中确认和完成。智能体可以先替你打开到这里。',
-      'These controls require confirmation in the OpenBitFun interface. An agent can still open this page for you.',
+      '这个页面的配置需要在 Alex 界面中确认和完成。智能体可以先替你打开到这里。',
+      'These controls require confirmation in the Alex interface. An agent can still open this page for you.',
     )}</div>`;
   }
   return `<div class="option-table">${capability.options.map((option) => `
@@ -603,7 +603,7 @@ function bindCommonEvents() {
     saveSidebarScroll();
     document.body.classList.remove('sidebar-open');
     state.language = state.language === 'zh' ? 'en' : 'zh';
-    writePreference('openbitfun-playbook-language', state.language);
+    writePreference('alex-playbook-language', state.language);
     render();
   });
   document.querySelectorAll('[data-theme-choice]').forEach((button) => {
@@ -648,5 +648,5 @@ try {
   state.catalog = await response.json();
   render();
 } catch (error) {
-  root.innerHTML = `<div class="fatal-error"><h1>OpenBitFun Playbook</h1><p>${escapeHtml(error.message)}</p></div>`;
+  root.innerHTML = `<div class="fatal-error"><h1>Alex Playbook</h1><p>${escapeHtml(error.message)}</p></div>`;
 }

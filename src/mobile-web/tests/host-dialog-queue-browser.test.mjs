@@ -104,7 +104,7 @@ test('queue stays above the measured composer across phone, keyboard-height and 
     const composer=box('.chat-page__composer'),stop=box('.chat-page__send-btn.is-stop');
     const plus=box('.chat-page__composer-leading');
     const text=box('.chat-msg__assistant-content');
-    const icon=box('.chat-thinking [data-openbitfun-part="leading"]');
+    const icon=box('.chat-thinking [data-alex-part="leading"]');
     return {top:stop.top-composer.top,bottom:composer.bottom-stop.bottom,right:composer.right-stop.right,
       left:plus.left-composer.left,width:stop.width,plusWidth:plus.width,
       textLeft:text.left+parseFloat(getComputedStyle(document.querySelector('.chat-msg__assistant-content')).paddingLeft),iconLeft:icon.left};

@@ -67,7 +67,7 @@ describe('external import undo ownership and compatibility', () => {
 
   it('preserves all unrelated MCP settings and carries the reviewed CAS fingerprint', async () => {
     const config = { extra: { future: true }, mcpServers: {
-      renamed: { command: 'imported', _openbitfunImport: { sourceCandidateId: 'source-docs', behaviorVersion: 'v1' } },
+      renamed: { command: 'imported', _alexImport: { sourceCandidateId: 'source-docs', behaviorVersion: 'v1' } },
       docs: { command: 'native', env: { SECRET: 'kept-in-memory' } },
     } };
     mocks.load.mockResolvedValue({ fingerprint: 'f1', jsonConfig: JSON.stringify(config) });

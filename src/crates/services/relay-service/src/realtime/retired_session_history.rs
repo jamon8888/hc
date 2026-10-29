@@ -13,7 +13,7 @@ use axum::{
 use serde_json::json;
 
 pub(crate) const ERROR_CODE: &str = "relay_session_history_retired";
-pub(crate) const MESSAGE: &str = "This relay does not store session history. Session records are read from the online host on demand; update OpenBitFun on every device to continue.";
+pub(crate) const MESSAGE: &str = "This relay does not store session history. Session records are read from the online host on demand; update Alex on every device to continue.";
 pub(crate) const HANDSHAKE_MESSAGE: &str =
     "session-scoped realtime and relay-stored session metadata have been retired";
 

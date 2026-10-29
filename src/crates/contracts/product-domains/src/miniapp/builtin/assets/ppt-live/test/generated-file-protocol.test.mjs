@@ -179,7 +179,7 @@ test('prompt pins the stable skill key and workspace-relative delivery contract'
 });
 
 test('backend adapter reuses the topic session without overriding the host-selected model', async () => {
-  const { installOpenBitFunBackendAdapter } = await import('../src/openbitfun-backend-adapter.js');
+  const { installAlexBackendAdapter } = await import('../src/alex-backend-adapter.js');
   const ensureCalls = [];
   const calls = [];
   const app = {
@@ -202,7 +202,7 @@ test('backend adapter reuses the topic session without overriding the host-selec
       cancelStaleRuns: async () => ({ cancelledRuns: 0 }),
     },
   };
-  installOpenBitFunBackendAdapter(app);
+  installAlexBackendAdapter(app);
   const ensured = await app.backend.ensureSession({
     sessionId: 's1',
     appDataWorkspace: 'decks/demo',

@@ -2,7 +2,7 @@
 
 本文定义 Alex 所有"远程"场景共享的产品操作契约：一个操作在哪里执行、在每种远程
 场景下是否可用、需要协商什么能力。它只描述稳定所有权与运行约束；具体的行、
-理由和生成投影由 `openbitfun_product_domains::remote_surface` 承载。
+理由和生成投影由 `alex_product_domains::remote_surface` 承载。
 
 相关设计：[Remote workspace transport](remote-workspace-transport.md)、
 [Peer Device Mode](peer-device-mode.md)、[Detached dispatch](detached-task-dispatch.md)、
@@ -110,7 +110,7 @@ CI 必须结构性证明以下闭包，而不是依赖人工维护的计数：
    `remoteWorkspacePolicy`）digest 与编译期注册表一致：`pnpm run capabilities:check`。
 6. 已迁移的三个 surface 不得再出现手写 `LOCAL_ONLY_COMMANDS`：`pnpm run check:core-boundaries`
    （`scripts/core-boundaries/peer-command-policy.mjs`）。
-7. `cargo test -p openbitfun-product-domains --no-default-features remote_surface` 在每个 CI
+7. `cargo test -p alex-product-domains --no-default-features remote_surface` 在每个 CI
    矩阵目标上运行（`scripts/check-github-config.mjs` 固定该步骤）。
 
 ## 6. 新增或修改一个命令

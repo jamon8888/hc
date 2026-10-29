@@ -1,2 +1,2 @@
-// PPT Live uses OpenBitFun host primitives directly and does not require a Node worker.
+// PPT Live uses Alex host primitives directly and does not require a Node worker.
 export {};

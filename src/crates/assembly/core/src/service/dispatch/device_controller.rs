@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 use base64::Engine as _;
-use openbitfun_services_integrations::remote_ssh::dispatch_ssh::{
+use alex_services_integrations::remote_ssh::dispatch_ssh::{
     self, harden_result_directory, DispatchSshProbe,
 };
 use serde_json::{json, Value};
@@ -854,7 +854,7 @@ async fn load_device_record(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use openbitfun_services_core::dispatch_workspace::sha256_bytes;
+    use alex_services_core::dispatch_workspace::sha256_bytes;
     use std::sync::Mutex;
 
     #[test]
@@ -903,7 +903,7 @@ mod tests {
                         .is_some_and(|value| !value.is_empty()));
                     Ok(json!({
                         "changed": true,
-                        "branch": "openbitfun/dispatch/job-1",
+                        "branch": "alex/dispatch/job-1",
                         "baseCommit": "0".repeat(40),
                         "headCommit": "1".repeat(40),
                         "commitCount": 1,
@@ -1042,7 +1042,7 @@ mod tests {
                 kind: "readFileChunk".into(),
                 file_path: Some("/w/image.png".into()),
                 file_chunk: Some(
-                    openbitfun_services_core::dispatch_contract::DispatchFileChunkRequest {
+                    alex_services_core::dispatch_contract::DispatchFileChunkRequest {
                         offset: 256,
                         limit: 256,
                         expected_revision: Some("revision-1".into()),

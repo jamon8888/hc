@@ -235,7 +235,7 @@ the native Keep/Revert preview. The host confirms only after the shell and
 customization activate; failure or timeout restores the previous revision.
 
 Custom modules can also register Agent-callable commands and compose persistent
-state with events. The shipped [Creation API](public/openbitfun-creation-api.md)
+state with events. The shipped [Creation API](public/alex-creation-api.md)
 documents runtime discovery, activation and cleanup. These extensions require
 the visible local Desktop; they are unavailable on remote/Peer/headless surfaces.
 MiniApp source operations use the installed product's lifecycle owner and

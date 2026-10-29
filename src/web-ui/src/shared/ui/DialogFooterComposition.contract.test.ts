@@ -11,13 +11,13 @@ interface FooterSurfaceContract {
 const footerSurfaces: FooterSurfaceContract[] = [
   {
     source: '../../infrastructure/update/AppUpdatePanel.tsx',
-    marker: 'className="openbitfun-update-details__footer"',
+    marker: 'className="alex-update-details__footer"',
   },
   {
     source: '../../app/components/RemoteConnectDialog/RemoteConnectDisclaimer.tsx',
-    marker: 'className="openbitfun-remote-disclaimer__actions"',
+    marker: 'className="alex-remote-disclaimer__actions"',
     stylesheet: '../../app/components/RemoteConnectDialog/RemoteConnectDisclaimer.scss',
-    selector: '.openbitfun-remote-disclaimer__actions',
+    selector: '.alex-remote-disclaimer__actions',
   },
   {
     source: '../../app/components/MCPInteractionDialog/MCPInteractionDialog.tsx',
@@ -45,7 +45,7 @@ const footerSurfaces: FooterSurfaceContract[] = [
   },
   {
     source: '../../app/scenes/skills/SkillsScene.tsx',
-    marker: 'className="openbitfun-skills-scene__modal-form-actions"',
+    marker: 'className="alex-skills-scene__modal-form-actions"',
     stylesheet: '../../app/scenes/skills/SkillsScene.scss',
     selector: '&__modal-form-actions',
   },
@@ -63,7 +63,7 @@ const footerSurfaces: FooterSurfaceContract[] = [
   },
   {
     source: '../../infrastructure/config/components/RuntimeSettingsPages.tsx',
-    marker: 'className="openbitfun-debug-config__modal-footer"',
+    marker: 'className="alex-debug-config__modal-footer"',
   },
   {
     source: '../../infrastructure/config/components/HooksConfig.tsx',

@@ -36,5 +36,5 @@ pub fn run() {
             handler(invoke)
         })
         .run(tauri::generate_context!())
-        .expect("error while running OpenBitFun Installer");
+        .expect("error while running Alex Installer");
 }

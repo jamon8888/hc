@@ -11,7 +11,7 @@ use std::time::Duration;
 const MAX_PACKAGE_BYTES: usize = 20 * 1024 * 1024;
 const MAX_EXTRACTED_BYTES: u64 = 50 * 1024 * 1024;
 const MAX_FILES: usize = 1000;
-pub const ORIGIN_FILE: &str = ".openbitfun-skillhub.json";
+pub const ORIGIN_FILE: &str = ".alex-skillhub.json";
 
 pub struct SkillHubClient {
     base: Url,

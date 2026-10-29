@@ -20,7 +20,7 @@ if (process.argv.includes("--worker")) {
 }
 
 async function runParent() {
-  const isolatedRoot = await mkdtemp(join(tmpdir(), "openbitfun-sdk-real-host-"));
+  const isolatedRoot = await mkdtemp(join(tmpdir(), "alex-sdk-real-host-"));
   const workspace = join(isolatedRoot, "workspace");
   const userRoot = join(isolatedRoot, "user-root");
   const home = join(isolatedRoot, "home");
@@ -31,7 +31,7 @@ async function runParent() {
     ),
   );
 
-  const apiKey = `openbitfun-sdk-${randomBytes(24).toString("hex")}`;
+  const apiKey = `alex-sdk-${randomBytes(24).toString("hex")}`;
   let requestCount = 0;
   const requestTraces = [];
   let fixtureFailure;
@@ -56,7 +56,7 @@ async function runParent() {
       });
       response.end(
         [
-          'data: {"id":"fixture","object":"chat.completion.chunk","model":"fixture-model","choices":[{"index":0,"delta":{"role":"assistant","content":"OpenBitFun SDK "},"finish_reason":null}]}',
+          'data: {"id":"fixture","object":"chat.completion.chunk","model":"fixture-model","choices":[{"index":0,"delta":{"role":"assistant","content":"Alex SDK "},"finish_reason":null}]}',
           'data: {"id":"fixture","object":"chat.completion.chunk","model":"fixture-model","choices":[{"index":0,"delta":{"content":"fixture response"},"finish_reason":null}]}',
           'data: {"id":"fixture","object":"chat.completion.chunk","model":"fixture-model","choices":[{"index":0,"delta":{},"finish_reason":"stop"}]}',
           "data: [DONE]",
@@ -74,11 +74,11 @@ async function runParent() {
   try {
     const address = await listenLocalhost(server);
     const workerEnvironment = {
-      OPENBITFUN_SDK_SMOKE_BASE_URL: `http://127.0.0.1:${String(address.port)}/v1`,
-      OPENBITFUN_SDK_SMOKE_WORKSPACE: workspace,
+      ALEX_SDK_SMOKE_BASE_URL: `http://127.0.0.1:${String(address.port)}/v1`,
+      ALEX_SDK_SMOKE_WORKSPACE: workspace,
       OPENBITFUN_E2E_STORAGE_GUARD: "1",
-      OPENBITFUN_E2E_USER_ROOT: userRoot,
-      OPENBITFUN_E2E_HOME: home,
+      ALEX_E2E_USER_ROOT: userRoot,
+      ALEX_E2E_HOME: home,
       APPDATA: configRoot,
       XDG_CONFIG_HOME: configRoot,
       HOME: home,
@@ -141,9 +141,9 @@ async function runParent() {
 
 async function runWorker() {
   const apiKey = await readApiKeyFromStdin();
-  const workspace = requiredEnvironment("OPENBITFUN_SDK_SMOKE_WORKSPACE");
-  const baseUrl = requiredEnvironment("OPENBITFUN_SDK_SMOKE_BASE_URL");
-  const missingHost = join(workspace, "missing-openbitfun-sdk-host");
+  const workspace = requiredEnvironment("ALEX_SDK_SMOKE_WORKSPACE");
+  const baseUrl = requiredEnvironment("ALEX_SDK_SMOKE_BASE_URL");
+  const missingHost = join(workspace, "missing-alex-sdk-host");
 
   const validModel = {
     provider: "openai",
@@ -195,11 +195,11 @@ async function runWorker() {
     const deltas = items.filter((item) => item.type === "assistant_text_delta");
     const terminalResults = items.filter((item) => item.type === "result");
 
-    assert.equal(deltas.map((item) => item.text).join(""), "OpenBitFun SDK fixture response");
+    assert.equal(deltas.map((item) => item.text).join(""), "Alex SDK fixture response");
     assert.equal(terminalResults.length, 1);
     assert.deepEqual(terminalResults[0], result);
     assert.equal(result.status, "completed");
-    assert.equal(result.outputText, "OpenBitFun SDK fixture response");
+    assert.equal(result.outputText, "Alex SDK fixture response");
     assert.equal(JSON.stringify(items).includes(apiKey), false);
     process.stdout.write("phase:result_received\n");
   } finally {

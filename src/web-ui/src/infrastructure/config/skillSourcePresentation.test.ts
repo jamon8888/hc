@@ -3,7 +3,7 @@ import type { ModeSkillInfo, SkillInfo } from './types';
 import {
   buildSkillCoverageSourceMap,
   canDeleteSkill,
-  isOpenBitFunManagedSkill,
+  isAlexManagedSkill,
   findSkillByKey,
   formatSkillOrigin,
   getModeSkillRuntimeStatus,
@@ -42,11 +42,11 @@ function modeSkill(overrides: Partial<ModeSkillInfo> = {}): ModeSkillInfo {
 
 describe('skill source presentation', () => {
   it('keeps legacy native and imported copies while excluding external identities from native management', () => {
-    expect(isOpenBitFunManagedSkill(skill({ sourceId: undefined, sourceSlot: 'openbitfun-user' }))).toBe(true);
-    expect(isOpenBitFunManagedSkill(skill({ installationSource: 'github:example/external-skill' }))).toBe(true);
-    expect(isOpenBitFunManagedSkill(skill({ sourceId: undefined, sourceSlot: 'home.codex' }))).toBe(false);
-    expect(isOpenBitFunManagedSkill(skill({ sourceId: 'claude-code', sourceLabel: 'Alex' }))).toBe(false);
-    expect(isOpenBitFunManagedSkill(skill({ isBuiltin: true }))).toBe(true);
+    expect(isAlexManagedSkill(skill({ sourceId: undefined, sourceSlot: 'openbitfun-user' }))).toBe(true);
+    expect(isAlexManagedSkill(skill({ installationSource: 'github:example/external-skill' }))).toBe(true);
+    expect(isAlexManagedSkill(skill({ sourceId: undefined, sourceSlot: 'home.codex' }))).toBe(false);
+    expect(isAlexManagedSkill(skill({ sourceId: 'claude-code', sourceLabel: 'Alex' }))).toBe(false);
+    expect(isAlexManagedSkill(skill({ isBuiltin: true }))).toBe(true);
   });
 
   it('normalizes legacy discovery slots without using paths or display labels as group identity', () => {

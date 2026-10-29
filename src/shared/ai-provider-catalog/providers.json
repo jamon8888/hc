@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "catalog_kind": "openbitfun_builtin_provider_overlay",
+  "catalog_kind": "alex_builtin_provider_overlay",
   "providers": [
     {
       "id": "openbitfun",
       "display_order": 0,
       "region": "any",
       "name": "OpenBitFun",
-      "description": "OpenBitFun hosted AI service",
+      "description": "Alex hosted AI service",
       "requires_api_key": true,
       "catalog_provider_ids": [],
       "endpoints": [

@@ -127,8 +127,8 @@ export const TabGroup = forwardRef<HTMLDivElement, TabGroupProps>(function TabGr
       {...props}
       aria-orientation="horizontal"
       className={classNames(styles.tabGroup, className)}
-      data-openbitfun-component="tab-group"
-      data-openbitfun-part="root"
+      data-alex-component="tab-group"
+      data-alex-part="root"
       data-size={size}
       ref={ref}
       role="tablist"
@@ -140,7 +140,7 @@ export const TabGroup = forwardRef<HTMLDivElement, TabGroupProps>(function TabGr
         const node = (
           <div
             className={styles.item}
-            data-openbitfun-part="item"
+            data-alex-part="item"
             data-overflow-trigger
             data-has-end-action={hasEndAction ? "true" : "false"}
             data-has-icon={hasIcon ? "true" : "false"}
@@ -152,8 +152,8 @@ export const TabGroup = forwardRef<HTMLDivElement, TabGroupProps>(function TabGr
               aria-disabled={item.disabled || undefined}
               aria-selected={selected}
               className={classNames(styles.tab, item.tabProps?.className)}
-              data-openbitfun-part="tab"
-              data-openbitfun-value={item.value}
+              data-alex-part="tab"
+              data-alex-value={item.value}
               disabled={item.disabled}
               id={item.id ?? `${generatedId}-tab-${index}`}
               onClick={() => selectItem(item)}
@@ -166,7 +166,7 @@ export const TabGroup = forwardRef<HTMLDivElement, TabGroupProps>(function TabGr
               type="button"
             >
               {hasIcon && (
-                <span aria-hidden="true" className={styles.icon} data-openbitfun-icon-slot="true" data-openbitfun-part="icon">
+                <span aria-hidden="true" className={styles.icon} data-alex-icon-slot="true" data-alex-part="icon">
                   {item.icon}
                 </span>
               )}
@@ -174,24 +174,24 @@ export const TabGroup = forwardRef<HTMLDivElement, TabGroupProps>(function TabGr
                 && (typeof item.label === "string" || typeof item.label === "number") ? (
                 <RollingText
                   className={styles.label}
-                  data-openbitfun-part="label"
+                  data-alex-part="label"
                   transitionKey={item.labelTransitionKey}
                 >
                   {item.label}
                 </RollingText>
               ) : (
-                <OverflowText behavior="marquee" className={styles.label} data-openbitfun-part="label">
+                <OverflowText behavior="marquee" className={styles.label} data-alex-part="label">
                   {item.label}
                 </OverflowText>
               )}
               {item.labelSuffix != null && (
-                <span className={styles.labelSuffix} data-openbitfun-part="labelSuffix">
+                <span className={styles.labelSuffix} data-alex-part="labelSuffix">
                   {item.labelSuffix}
                 </span>
               )}
             </button>
             {hasEndAction && (
-              <span className={styles.endAction} data-openbitfun-part="endAction">
+              <span className={styles.endAction} data-alex-part="endAction">
                 {item.endAction}
               </span>
             )}

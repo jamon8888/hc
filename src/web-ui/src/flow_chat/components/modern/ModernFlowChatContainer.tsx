@@ -2654,8 +2654,8 @@ export const ModernFlowChatContainer: React.FC<ModernFlowChatContainerProps> = (
         data-flowchat-selection-root={activeSession?.sessionId ?? ''}
         tabIndex={-1}
         data-session-id={activeSession?.sessionId ?? ''}
-        data-openbitfun-component="modern-flow-chat"
-        data-openbitfun-part="root"
+        data-alex-component="modern-flow-chat"
+        data-alex-part="root"
       >
         <FlowChatSelectionBar rootRef={chatScopeRef} sessionId={activeSession?.sessionId} active={isViewportActive}
           onSelectionIntent={() => virtualListRef.current?.notifyUserSelectionIntent()} />
@@ -2693,8 +2693,8 @@ export const ModernFlowChatContainer: React.FC<ModernFlowChatContainerProps> = (
         <div
           className="modern-flowchat-container__messages"
           data-testid="flowchat-messages"
-          data-openbitfun-component="modern-flow-chat"
-          data-openbitfun-part="messages"
+          data-alex-component="modern-flow-chat"
+          data-alex-part="messages"
           data-active-session-id={activeSession?.sessionId ?? ''}
           data-history-state={historyState ?? 'none'}
           data-context-restore-state={activeSession?.contextRestoreState ?? 'none'}
@@ -2776,8 +2776,8 @@ export const ModernFlowChatContainer: React.FC<ModernFlowChatContainerProps> = (
                 className="modern-flowchat-container__history-overlay"
                 role="status"
                 aria-label={t('historyState.loadingTitle')}
-                data-openbitfun-component="modern-flow-chat"
-                data-openbitfun-part="historyOverlay"
+                data-alex-component="modern-flow-chat"
+                data-alex-part="historyOverlay"
               >
                 <HistorySessionPlaceholder
                   state={historyState === 'metadata-only' ? 'metadata-only' : 'hydrating'}
@@ -2787,15 +2787,15 @@ export const ModernFlowChatContainer: React.FC<ModernFlowChatContainerProps> = (
             {showHistoryOpenIntentOverlay && (
               <div
                 className="modern-flowchat-container__history-open-intent-shield"
-                data-openbitfun-component="modern-flow-chat"
-                data-openbitfun-part="historyOpenIntent"
+                data-alex-component="modern-flow-chat"
+                data-alex-part="historyOpenIntent"
                 role="status"
                 aria-label={t('historyState.loadingTitle')}
               >
                 <span
                   className="modern-flowchat-container__history-open-intent-spinner"
-                  data-openbitfun-component="modern-flow-chat"
-                  data-openbitfun-part="historyOpenIntentSpinner"
+                  data-alex-component="modern-flow-chat"
+                  data-alex-part="historyOpenIntentSpinner"
                   aria-hidden="true"
                 />
               </div>

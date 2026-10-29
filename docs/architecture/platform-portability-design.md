@@ -88,7 +88,7 @@ HarmonyOS PC 真实系统终端中安装并本地执行的原生 `openbitfun`：
 ## 5. 当前问题清单
 
 本清单基于上游 `ecad4f843`（2026-07-16）与
-Cargo package `openbitfun-cli` 的 `aarch64-unknown-linux-ohos` 目标依赖解析。依赖解析成功只表示问题已经可见，不表示可以编译、
+Cargo package `alex-cli` 的 `aarch64-unknown-linux-ohos` 目标依赖解析。依赖解析成功只表示问题已经可见，不表示可以编译、
 运行或交付。
 
 | 问题域 | 当前识别结果 | 主要风险 | 后续专题需要回答 |

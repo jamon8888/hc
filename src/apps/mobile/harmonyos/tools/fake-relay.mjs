@@ -149,7 +149,7 @@ let createdSession = {
   agent_type: 'code',
 };
 let currentWorkspace = {
-  path: '/workspace/OpenBitFun',
+  path: '/workspace/Alex',
   name: 'OpenBitFun',
   git_branch: 'main',
   workspace_kind: 'normal',
@@ -191,7 +191,7 @@ const assistants = [
 // Every kind the lexer knows appears once: comment, keyword, type, call,
 // constant, string and number.
 const PREVIEW_SOURCE = [
-  '// openbitfun preview fixture',
+  '// alex preview fixture',
   'fn main() {',
   '    let answer: Preview = 42;',
   '    println!("hello");',
@@ -201,13 +201,13 @@ const PREVIEW_SOURCE = [
 ].join('\n');
 
 const previewFiles = new Map([
-  ['README.md', Buffer.from('# OpenBitFun Preview\n\nThis is a fake relay file download.\n', 'utf8')],
-  ['/workspace/OpenBitFun/README.md', Buffer.from('# OpenBitFun Preview\n\nThis is a fake relay file download.\n', 'utf8')],
-  ['/workspace/OpenBitFun/IDENTITY.md', Buffer.from('# Identity\n\nOpenBitFun preview identity.\n', 'utf8')],
-  ['/workspace/OpenBitFun/USER.md', Buffer.from('# User\n\nOpenBitFun preview user.\n', 'utf8')],
-  ['/workspace/OpenBitFun/SOUL.md', Buffer.from('# Soul\n\nOpenBitFun preview soul.\n', 'utf8')],
+  ['README.md', Buffer.from('# Alex Preview\n\nThis is a fake relay file download.\n', 'utf8')],
+  ['/workspace/Alex/README.md', Buffer.from('# Alex Preview\n\nThis is a fake relay file download.\n', 'utf8')],
+  ['/workspace/Alex/IDENTITY.md', Buffer.from('# Identity\n\nAlex preview identity.\n', 'utf8')],
+  ['/workspace/Alex/USER.md', Buffer.from('# User\n\nAlex preview user.\n', 'utf8')],
+  ['/workspace/Alex/SOUL.md', Buffer.from('# Soul\n\nAlex preview soul.\n', 'utf8')],
   ['src/preview.rs', Buffer.from(PREVIEW_SOURCE, 'utf8')],
-  ['/workspace/OpenBitFun/src/preview.rs', Buffer.from(PREVIEW_SOURCE, 'utf8')],
+  ['/workspace/Alex/src/preview.rs', Buffer.from(PREVIEW_SOURCE, 'utf8')],
 ]);
 
 function isScenario(name) {
@@ -219,7 +219,7 @@ function assistantResponseContent() {
     return [
       '附件应当保留为正文中的可读文件名，并在正文下方形成独立的纵向卡片列表：',
       '',
-      '[IDENTITY.md](computer:///workspace/OpenBitFun/IDENTITY.md)、[USER.md](computer:///workspace/OpenBitFun/USER.md) 和 [SOUL.md](computer:///workspace/OpenBitFun/SOUL.md)。',
+      '[IDENTITY.md](computer:///workspace/Alex/IDENTITY.md)、[USER.md](computer:///workspace/Alex/USER.md) 和 [SOUL.md](computer:///workspace/Alex/SOUL.md)。',
     ].join('\n');
   }
   if (isScenario('long-markdown')) {
@@ -315,12 +315,12 @@ function assistantResponseItems(status = 'completed') {
 
 function activeTurnText() {
   if (isScenario('slow-active')) {
-    return 'OpenBitFun 正在持续执行，用于验证运行态停止按钮。';
+    return 'Alex 正在持续执行，用于验证运行态停止按钮。';
   }
   if (isScenario('long-markdown')) {
     return '## 鸿蒙端聊天回归验证\n\n- 正在生成长 Markdown 响应...\n- active turn 应保持稳定。';
   }
-  return 'OpenBitFun 正在执行...';
+  return 'Alex 正在执行...';
 }
 
 function currentModelCatalog() {
@@ -612,14 +612,14 @@ function responseFor(command) {
             workspace_kind: currentWorkspace.workspace_kind,
           },
           {
-            path: '/workspace/OpenBitFun_mobile',
-            name: 'OpenBitFun_mobile',
+            path: '/workspace/Alex_mobile',
+            name: 'Alex_mobile',
             last_opened: new Date(Date.now() - 86_400_000).toISOString(),
             workspace_kind: 'normal',
           },
           {
-            path: '/workspace/OpenBitFun-docs',
-            name: 'OpenBitFun-docs',
+            path: '/workspace/Alex-docs',
+            name: 'Alex-docs',
             last_opened: new Date(Date.now() - 2 * 86_400_000).toISOString(),
             workspace_kind: 'normal',
           },

@@ -2,17 +2,17 @@ use std::collections::{HashMap, HashSet, VecDeque};
 /// Chat state module
 ///
 /// Pure UI rendering state for the chat interface.
-/// All session lifecycle and persistence is handled by openbitfun-core.
+/// All session lifecycle and persistence is handled by alex-core.
 /// This module only maintains transient state needed for TUI rendering.
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
-use openbitfun_agent_runtime::prompt_markup::strip_prompt_markup;
-use openbitfun_agent_runtime::sdk::{
+use alex_agent_runtime::prompt_markup::strip_prompt_markup;
+use alex_agent_runtime::sdk::{
     PermissionRequest, SessionTranscript, TranscriptContent, TranscriptMessage,
 };
-use openbitfun_agent_tools::effective_tool_invocation;
-use openbitfun_events::ToolEventData;
-use openbitfun_runtime_ports::{AgentSessionWorkspaceBinding, SessionExecutionTarget};
+use alex_agent_tools::effective_tool_invocation;
+use alex_events::ToolEventData;
+use alex_runtime_ports::{AgentSessionWorkspaceBinding, SessionExecutionTarget};
 
 use crate::ui::permission::PermissionPrompt;
 use crate::ui::question::QuestionPrompt;
@@ -356,7 +356,7 @@ pub(crate) struct PermissionReconcileOutcome {
 
 /// Complete UI state for the chat interface.
 /// This is the single source of truth for rendering — but NOT for persistence.
-/// All persistence is handled by openbitfun-core's SessionManager.
+/// All persistence is handled by alex-core's SessionManager.
 pub(crate) struct ChatState {
     /// Core session ID (the real session managed by core)
     pub core_session_id: String,
@@ -1288,9 +1288,9 @@ impl ChatState {
     pub(crate) fn handle_subagent_event(
         &mut self,
         parent_tool_id: &str,
-        event: &openbitfun_events::AgenticEvent,
+        event: &alex_events::AgenticEvent,
     ) {
-        use openbitfun_events::AgenticEvent;
+        use alex_events::AgenticEvent;
 
         match event {
             AgenticEvent::ToolEvent { tool_event, .. } => match tool_event {
@@ -1668,13 +1668,13 @@ mod tests {
     use super::{
         ChatState, FlowItem, ModelTokenUsageSnapshot, PermissionReconcileOutcome, ToolDisplayStatus,
     };
-    use openbitfun_agent_runtime::sdk::{
+    use alex_agent_runtime::sdk::{
         PermissionDelegationContext, PermissionRequest, PermissionRequestSource,
         PermissionRequestSourceKind, SessionTranscript, TranscriptContent, TranscriptMessage,
         TranscriptToolCall,
     };
-    use openbitfun_events::{ToolEventData, ToolEventIdentity};
-    use openbitfun_runtime_ports::{
+    use alex_events::{ToolEventData, ToolEventIdentity};
+    use alex_runtime_ports::{
         AgentSessionWorkspaceBinding, SessionExecutionTarget, SessionExecutionTargetKind,
         WorktreeLifecycle,
     };
@@ -2021,13 +2021,13 @@ mod tests {
         state.handle_tool_event(&ToolEventData::EarlyDetected {
             identity: ToolEventIdentity::direct(
                 "tool-1",
-                openbitfun_agent_tools::CALL_DEFERRED_TOOL_NAME,
+                alex_agent_tools::CALL_DEFERRED_TOOL_NAME,
             ),
         });
         state.handle_tool_event(&ToolEventData::Started {
             identity: ToolEventIdentity::resolved(
                 "tool-1",
-                openbitfun_agent_tools::CALL_DEFERRED_TOOL_NAME,
+                alex_agent_tools::CALL_DEFERRED_TOOL_NAME,
                 "CreatePlan",
             ),
             params: deferred_input(),
@@ -2093,7 +2093,7 @@ mod tests {
                     text: String::new(),
                     tool_calls: vec![TranscriptToolCall {
                         tool_id: "tool-1".to_string(),
-                        tool_name: openbitfun_agent_tools::CALL_DEFERRED_TOOL_NAME.to_string(),
+                        tool_name: alex_agent_tools::CALL_DEFERRED_TOOL_NAME.to_string(),
                         arguments: wire_input.clone(),
                     }],
                 },
@@ -2114,7 +2114,7 @@ mod tests {
                 TranscriptContent::Mixed { tool_calls, .. } => tool_calls[0].tool_name.as_str(),
                 _ => panic!("expected mixed transcript content"),
             },
-            openbitfun_agent_tools::CALL_DEFERRED_TOOL_NAME
+            alex_agent_tools::CALL_DEFERRED_TOOL_NAME
         );
         assert_eq!(
             match &transcript.messages[0].content {

@@ -137,14 +137,14 @@ pub(crate) enum ActionHandler {
 }
 
 pub(crate) const SHARED_TUI_EMBEDDED_HANDOFF: &str =
-    "Exit all Shared TUI clients, wait up to 30 seconds for their Runtime to stop, then use default Embedded `openbitfun chat`";
+    "Exit all Shared TUI clients, wait up to 30 seconds for their Runtime to stop, then use default Embedded `alex chat`";
 pub(crate) const IMAGE_ATTACHMENTS_REQUIRE_MESSAGE: &str =
     "Remove image attachments before running a slash command.";
 pub(crate) fn shared_tui_image_attachment_error() -> String {
     format!("Image attachments are unavailable in Shared TUI. {SHARED_TUI_EMBEDDED_HANDOFF}.")
 }
 pub(crate) const SHARED_TUI_HELP_NOTE: &str =
-    "Shared TUI: start with `openbitfun chat --shared`. Multiple TUI processes reuse one workspace Runtime, while each TUI controls at most one Session and each Session has one controller. Use `/sessions` and Ctrl+D to delete an idle, non-current Session; use `View subagents` in the command palette to inspect this Session's subagents; use `/timeline` to navigate user messages, `/fork` to branch the current idle Session, `/rename <name>` to rename it, `/compact` to compact its context, `/diff` to review workspace changes, `/agent`, Tab, or Shift+Tab to change its Agent mode, `/models` and `/connect` to manage models, `/skills` to manage skills, `/mcp` to manage MCP servers, and `/reload [skills|instructions]` to refresh declarative context for the next message. Model, Skill, Subagent, and MCP management use this CLI process's local compatibility owner; MCP process state and tool registration are local to this CLI process and do not reconfigure an already-running Shared Runtime Host. Extensions, account-sync, usage, and other management remain Embedded. Exit all Shared TUI clients and wait up to 30 seconds before returning to default Embedded `openbitfun chat`.";
+    "Shared TUI: start with `alex chat --shared`. Multiple TUI processes reuse one workspace Runtime, while each TUI controls at most one Session and each Session has one controller. Use `/sessions` and Ctrl+D to delete an idle, non-current Session; use `View subagents` in the command palette to inspect this Session's subagents; use `/timeline` to navigate user messages, `/fork` to branch the current idle Session, `/rename <name>` to rename it, `/compact` to compact its context, `/diff` to review workspace changes, `/agent`, Tab, or Shift+Tab to change its Agent mode, `/models` and `/connect` to manage models, `/skills` to manage skills, `/mcp` to manage MCP servers, and `/reload [skills|instructions]` to refresh declarative context for the next message. Model, Skill, Subagent, and MCP management use this CLI process's local compatibility owner; MCP process state and tool registration are local to this CLI process and do not reconfigure an already-running Shared Runtime Host. Extensions, account-sync, usage, and other management remain Embedded. Exit all Shared TUI clients and wait up to 30 seconds before returning to default Embedded `alex chat`.";
 
 impl ActionHandler {
     pub(crate) const fn available_in_shared_tui(self, _context: ActionContext) -> bool {
@@ -2199,7 +2199,7 @@ mod tests {
         assert!(ActionHandler::AddModel.available_in_shared_tui(ActionContext::Startup));
         assert!(ActionHandler::Skills.available_in_shared_tui(ActionContext::Startup));
         assert!(ActionHandler::McpServers.available_in_shared_tui(ActionContext::Startup));
-        assert!(SHARED_TUI_HELP_NOTE.contains("openbitfun chat --shared"));
+        assert!(SHARED_TUI_HELP_NOTE.contains("alex chat --shared"));
         assert!(SHARED_TUI_HELP_NOTE.contains("one Session"));
         assert!(SHARED_TUI_HELP_NOTE.contains("`/models`"));
         assert!(SHARED_TUI_HELP_NOTE.contains("`/connect`"));

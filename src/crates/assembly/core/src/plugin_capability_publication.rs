@@ -3,9 +3,9 @@ use crate::agentic::agents::{
     ExternalProvidedAgent, ExternalSubagentModelBinding, ExternalSubagentRegistration,
     ExternalSubagentRoute,
 };
-use openbitfun_product_domains::external_sources::EcosystemId;
-use openbitfun_product_domains::external_subagents::ExternalSubagentMode;
-use openbitfun_product_domains::plugin_capabilities::{PluginCapabilityProjection, PluginToolRef};
+use alex_product_domains::external_sources::EcosystemId;
+use alex_product_domains::external_subagents::ExternalSubagentMode;
+use alex_product_domains::plugin_capabilities::{PluginCapabilityProjection, PluginToolRef};
 use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::path::PathBuf;
@@ -181,7 +181,7 @@ pub(crate) fn prepare(
     generation_key: &str,
     publication: PluginPublicationIdentity,
     projection: PluginCapabilityProjection,
-) -> crate::OpenBitFunResult<PluginCapabilityPublicationPlan> {
+) -> crate::AlexResult<PluginCapabilityPublicationPlan> {
     let workspace_id = workspace_id.to_owned();
     if projection.agents.is_empty() && projection.skill_roots.is_empty() {
         return Ok(PluginCapabilityPublicationPlan::empty(
@@ -192,7 +192,7 @@ pub(crate) fn prepare(
     }
 
     let ecosystem_id = EcosystemId::new(&publication.ecosystem_id).map_err(|error| {
-        crate::OpenBitFunError::Validation(format!(
+        crate::AlexError::Validation(format!(
             "Invalid plugin publication ecosystem id '{}': {error}",
             publication.ecosystem_id
         ))
@@ -329,7 +329,7 @@ pub(crate) fn active_generation_key(workspace_id: &str, route_owner: &str) -> Op
 #[cfg(test)]
 mod tests {
     use super::*;
-    use openbitfun_product_domains::plugin_capabilities::{
+    use alex_product_domains::plugin_capabilities::{
         PluginAgentProjection, PluginContributorIdentity, PluginSkillRootContribution,
     };
 

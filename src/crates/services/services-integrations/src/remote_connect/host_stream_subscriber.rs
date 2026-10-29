@@ -11,7 +11,7 @@ use std::{sync::Arc, time::Duration};
 use tokio::sync::{broadcast, mpsc, oneshot};
 
 const KEEPALIVE: Duration = Duration::from_secs(4 * 60);
-const UNSUPPORTED_HOST_MESSAGE: &str = "The controlled device runs an older OpenBitFun version that does not support on-demand session streaming. Update OpenBitFun on that device to continue.";
+const UNSUPPORTED_HOST_MESSAGE: &str = "The controlled device runs an older Alex version that does not support on-demand session streaming. Update Alex on that device to continue.";
 
 #[derive(Deserialize)]
 pub struct SessionEvent {

@@ -14,7 +14,7 @@ import {
 
 
 const log = createLogger('SystemAPI');
-const AUTO_UPDATE_CHANGED = 'openbitfun:auto-update-preference-changed';
+const AUTO_UPDATE_CHANGED = 'alex:auto-update-preference-changed';
 
 /** Matches `check_for_updates` / `CheckForUpdatesResponse` from desktop `system_api.rs` (camelCase). */
 export interface CheckForUpdatesResponse {
@@ -297,7 +297,7 @@ export class SystemAPI {
     }
   }
 
-  /** Desktop only: whether OpenBitFun should keep the local computer awake. */
+  /** Desktop only: whether Alex should keep the local computer awake. */
   async getPreventSleepEnabled(): Promise<boolean> {
     const result = await productControlAPI.get('setting.application.general');
     const enabled = result.currentOptionValues['prevent-sleep'];

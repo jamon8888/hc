@@ -18,7 +18,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import androidx.test.platform.app.InstrumentationRegistry
 import com.openbitfun.mobile.app.ui.remote.ProjectCreateControl
-import com.openbitfun.mobile.app.ui.theme.OpenBitFunTheme
+import com.openbitfun.mobile.app.ui.theme.AlexTheme
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -33,7 +33,7 @@ class HarnessProfileMenuTest {
         var selected: String? = null
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         composeRule.setContent {
-            OpenBitFunTheme(dark = dark) {
+            AlexTheme(dark = dark) {
                 Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).padding(32.dp)) {
                     var expanded by remember { mutableStateOf(true) }
                     ProjectCreateControl(

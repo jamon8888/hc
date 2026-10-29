@@ -9,7 +9,7 @@ import { standaloneEditorFileAccess } from '../services/editorFileAccess';
 
 import React, { useState, useEffect, useLayoutEffect, useCallback, useMemo, useRef } from 'react';
 import { ZoomIn, ZoomOut, RotateCw, Maximize2 } from 'lucide-react';
-import { Portal, OverflowText, Button, Icon, IconButton, Toolbar, ToolbarGroup, ToolbarSeparator, Tooltip } from '@openbitfun/ui';
+import { Portal, OverflowText, Button, Icon, IconButton, Toolbar, ToolbarGroup, ToolbarSeparator, Tooltip } from '@alex/ui';
 import { createLogger } from '@/shared/utils/logger';
 
 import { useI18n } from '@/infrastructure/i18n';
@@ -197,24 +197,24 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
       aria-modal={expanded || undefined}
       aria-label={expanded ? fileName || filePath : undefined}
       tabIndex={expanded ? -1 : undefined}
-      data-openbitfun-native-webview-occlusion={expanded || undefined}
-      className={`openbitfun-image-viewer ${className} ${expanded ? 'fullscreen' : ''}`}
-      data-openbitfun-component="image-viewer"
-      data-openbitfun-part="root"
-      data-openbitfun-state={expanded ? 'fullscreen' : undefined}
+      data-alex-native-webview-occlusion={expanded || undefined}
+      className={`alex-image-viewer ${className} ${expanded ? 'fullscreen' : ''}`}
+      data-alex-component="image-viewer"
+      data-alex-part="root"
+      data-alex-state={expanded ? 'fullscreen' : undefined}
     >
       <Toolbar
-        className="openbitfun-image-viewer__toolbar"
+        className="alex-image-viewer__toolbar"
         leading={
-          <div data-openbitfun-component="image-viewer" data-openbitfun-part="info" className="openbitfun-image-viewer__info">
-            <OverflowText className="openbitfun-image-viewer__filename">{fileName || filePath.split(/[/\\]/).pop()}</OverflowText>
+          <div data-alex-component="image-viewer" data-alex-part="info" className="alex-image-viewer__info">
+            <OverflowText className="alex-image-viewer__filename">{fileName || filePath.split(/[/\\]/).pop()}</OverflowText>
             {originCurrent && imageDimensions && (
-              <span className="openbitfun-image-viewer__dimensions">
+              <span className="alex-image-viewer__dimensions">
                 {imageDimensions.width} × {imageDimensions.height}
               </span>
             )}
             {originCurrent && fileSize > 0 && (
-              <span className="openbitfun-image-viewer__filesize">
+              <span className="alex-image-viewer__filesize">
                 {formatBytes(fileSize)}
               </span>
             )}
@@ -237,7 +237,7 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
                 <Button
                   size="sm"
                   variant="text"
-                  className="openbitfun-image-viewer__zoom-display"
+                  className="alex-image-viewer__zoom-display"
                   onClick={handleZoomReset}
                 >
                   {zoom}%
@@ -293,29 +293,29 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
         }
       />
 
-      <div data-openbitfun-component="image-viewer" data-openbitfun-part="container" className="openbitfun-image-viewer__container">
+      <div data-alex-component="image-viewer" data-alex-part="container" className="alex-image-viewer__container">
         {(!originCurrent || loading) && (
-          <div data-openbitfun-component="image-viewer" data-openbitfun-part="loading" className="openbitfun-image-viewer__loading">
-            <div className="openbitfun-image-viewer__spinner" />
+          <div data-alex-component="image-viewer" data-alex-part="loading" className="alex-image-viewer__loading">
+            <div className="alex-image-viewer__spinner" />
             <p>{t('editor.common.loading')}</p>
           </div>
         )}
 
         {originCurrent && error && (
-          <div data-openbitfun-component="image-viewer" data-openbitfun-part="error" className="openbitfun-image-viewer__error">
+          <div data-alex-component="image-viewer" data-alex-part="error" className="alex-image-viewer__error">
             <p>{error}</p>
-            <p className="openbitfun-image-viewer__error-path">{filePath}</p>
+            <p className="alex-image-viewer__error-path">{filePath}</p>
           </div>
         )}
 
         {originCurrent && !loading && !error && imageUrl && (
-          <div data-openbitfun-component="image-viewer" data-openbitfun-part="imageWrapper" className="openbitfun-image-viewer__image-wrapper">
+          <div data-alex-component="image-viewer" data-alex-part="imageWrapper" className="alex-image-viewer__image-wrapper">
             <img
               src={imageUrl}
               alt={fileName || filePath}
-              className="openbitfun-image-viewer__image"
-              data-openbitfun-component="image-viewer"
-              data-openbitfun-part="image"
+              className="alex-image-viewer__image"
+              data-alex-component="image-viewer"
+              data-alex-part="image"
               style={{
                 transform: `scale(${zoom / 100}) rotate(${rotation}deg)`,
               }}
@@ -326,7 +326,7 @@ export const ImageViewer: React.FC<ImageViewerProps> = ({
         )}
         
         {originCurrent && !loading && !error && !imageUrl && (
-          <div data-openbitfun-component="image-viewer" data-openbitfun-part="error" className="openbitfun-image-viewer__error">
+          <div data-alex-component="image-viewer" data-alex-part="error" className="alex-image-viewer__error">
             <p>{t('editor.imageViewer.imageUrlEmpty')}</p>
           </div>
         )}

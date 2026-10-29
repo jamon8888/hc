@@ -8,7 +8,7 @@ import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.test.platform.app.InstrumentationRegistry
 import com.openbitfun.mobile.app.ui.chat.tool.ToolQuestionAnswerPanel
-import com.openbitfun.mobile.app.ui.theme.OpenBitFunTheme
+import com.openbitfun.mobile.app.ui.theme.AlexTheme
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -21,7 +21,7 @@ class QuestionDraftTest {
             ToolKind.QUESTION, ToolOperation.UNKNOWN, "", "", "", "", "", "One answer only", setOf(ToolAction.ANSWER))
         val mailbox = mutableStateOf(PermissionMailboxUiState(emptyList(), false, false, listOf(question)))
         compose.setContent {
-            OpenBitFunTheme(dark = false) {
+            AlexTheme(dark = false) {
                 androidx.compose.runtime.CompositionLocalProvider(
                     com.openbitfun.mobile.app.ui.chat.tool.LocalPermissionMailbox provides mailbox.value,
                 ) {
@@ -52,7 +52,7 @@ class QuestionDraftTest {
             ToolKind.QUESTION, ToolOperation.UNKNOWN, "", "", "", "", "", "Question $id", setOf(ToolAction.ANSWER))
         val questions = mutableStateOf(listOf(question("first"), question("second")))
         compose.setContent {
-            OpenBitFunTheme(dark = false) {
+            AlexTheme(dark = false) {
                 PermissionMailboxView(PermissionMailboxUiState(emptyList(), false, false, questions.value), "session", 700.dp) {}
             }
         }
@@ -67,7 +67,7 @@ class QuestionDraftTest {
         val enabled = mutableStateOf(true)
         val answers = mutableListOf<String>()
         compose.setContent {
-            OpenBitFunTheme(dark = false) {
+            AlexTheme(dark = false) {
                 ToolQuestionAnswerPanel(question.value, "Explain the change", enabled.value) {
                     answers += it
                     enabled.value = false

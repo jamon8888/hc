@@ -1,6 +1,6 @@
 #![cfg(feature = "plugin-source")]
 
-use openbitfun_product_domains::plugin_source::{
+use alex_product_domains::plugin_source::{
     PluginPackageInput, PluginPackageManifest, PluginPackageSourceIdentity,
     PluginPackageTrustLevel, PluginTrustDecision, PluginTrustStore,
 };
@@ -546,8 +546,8 @@ fn source_changes_deny_and_revoke_invalidate_activation_atomically() {
 }
 
 #[test]
-fn pre_openbitfun_trust_store_requires_explicit_migration() {
-    let pre_openbitfun = serde_json::json!({
+fn pre_alex_trust_store_requires_explicit_migration() {
+    let pre_alex = serde_json::json!({
         "schemaVersion": 1,
         "epoch": 7,
         "records": [],
@@ -555,10 +555,10 @@ fn pre_openbitfun_trust_store_requires_explicit_migration() {
         "activationRecords": []
     });
     let store: PluginTrustStore =
-        serde_json::from_value(pre_openbitfun).expect("deserialize shaped trust store");
+        serde_json::from_value(pre_alex).expect("deserialize shaped trust store");
     let error = store
         .validate()
-        .expect_err("pre-OpenBitFun trust store must not enter the current runtime");
+        .expect_err("pre-Alex trust store must not enter the current runtime");
     assert!(error.to_string().contains("explicit data migration tool"));
 }
 
@@ -673,12 +673,12 @@ fn trust_store_schema_versions_reject_missing_null_and_cross_version_fields() {
     }"#;
     assert!(serde_json::from_str::<PluginTrustStore>(missing_v2).is_err());
 
-    for pre_openbitfun_shape in [
+    for pre_alex_shape in [
         r#"{"schemaVersion":1,"epoch":1,"records":[]}"#,
         r#"{"schemaVersion":1,"epoch":1,"records":[],"activationEpoch":null}"#,
         r#"{"schemaVersion":1,"epoch":1,"records":[],"activationRecords":null}"#,
     ] {
-        assert!(serde_json::from_str::<PluginTrustStore>(pre_openbitfun_shape).is_err());
+        assert!(serde_json::from_str::<PluginTrustStore>(pre_alex_shape).is_err());
     }
 
     let null_v2 = r#"{

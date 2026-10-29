@@ -10,7 +10,7 @@ import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom
 import androidx.test.platform.app.InstrumentationRegistry
 import com.openbitfun.mobile.app.ui.remote.RuntimeTerminalDialog
-import com.openbitfun.mobile.app.ui.theme.OpenBitFunTheme
+import com.openbitfun.mobile.app.ui.theme.AlexTheme
 import com.openbitfun.mobile.core.feature.workspace.RemoteWorkspaceIntent
 import com.openbitfun.mobile.core.feature.workspace.RuntimeTerminalUiState
 import java.util.concurrent.CopyOnWriteArrayList
@@ -32,7 +32,7 @@ class RuntimeTerminalViewTest {
         val intents = CopyOnWriteArrayList<RemoteWorkspaceIntent>()
         var dismissed = false
         compose.setContent {
-            OpenBitFunTheme(dark = false) {
+            AlexTheme(dark = false) {
                 RuntimeTerminalDialog(
                     RuntimeTerminalUiState("test-pty", "ready\r\n", false, false),
                     { intents += it },
@@ -61,7 +61,7 @@ class RuntimeTerminalViewTest {
         val dark = mutableStateOf(false)
         val intents = CopyOnWriteArrayList<RemoteWorkspaceIntent>()
         compose.setContent {
-            OpenBitFunTheme(dark = dark.value) {
+            AlexTheme(dark = dark.value) {
                 RuntimeTerminalDialog(RuntimeTerminalUiState("theme-pty", "retained output\r\n", false, false), { intents += it }, {})
             }
         }
@@ -104,7 +104,7 @@ class RuntimeTerminalViewTest {
         val state = mutableStateOf(RuntimeTerminalUiState("pty", "", false, false))
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         compose.setContent {
-            OpenBitFunTheme(dark = false) { RuntimeTerminalDialog(state.value, { intents += it }, {}) }
+            AlexTheme(dark = false) { RuntimeTerminalDialog(state.value, { intents += it }, {}) }
         }
         compose.onNodeWithText(context.getString(R.string.message_stop)).performClick()
         compose.runOnIdle { assertTrue(intents.filterIsInstance<RemoteWorkspaceIntent.WriteTerminal>().single().data == "\u0003") }

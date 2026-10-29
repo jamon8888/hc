@@ -10,7 +10,7 @@ import {
   type MutableRefObject,
 } from 'react';
 import { Loader2 } from 'lucide-react';
-import { createOverlayPortal, Icon, Menu, MenuItem } from '@openbitfun/ui';
+import { createOverlayPortal, Icon, Menu, MenuItem } from '@alex/ui';
 
 import type { AcpClientInfo } from '@/infrastructure/api/service-api/ACPClientAPI';
 import { getAppearanceOverlayHost } from '@/infrastructure/appearance/runtime/AppearanceOverlayHost';
@@ -123,7 +123,7 @@ const WorkspaceAcpSessionSubmenu = forwardRef<HTMLDivElement, WorkspaceAcpSessio
 
     const focusFirstSubmenuItem = useCallback(() => {
       submenuRef.current
-        ?.querySelector<HTMLButtonElement>('[data-openbitfun-menu-item]:not(:disabled)')
+        ?.querySelector<HTMLButtonElement>('[data-alex-menu-item]:not(:disabled)')
         ?.focus();
     }, []);
 
@@ -170,7 +170,7 @@ const WorkspaceAcpSessionSubmenu = forwardRef<HTMLDivElement, WorkspaceAcpSessio
       <>
         <MenuItem
           ref={triggerRef}
-          className={`openbitfun-nav-panel__workspace-acp-menu-trigger${open ? ' is-open' : ''}`}
+          className={`alex-nav-panel__workspace-acp-menu-trigger${open ? ' is-open' : ''}`}
           leading={<Icon name="user" size="sm" />}
           shortcut={<Icon name="chevron-right" size="sm" aria-hidden="true" />}
           aria-haspopup="menu"
@@ -185,7 +185,7 @@ const WorkspaceAcpSessionSubmenu = forwardRef<HTMLDivElement, WorkspaceAcpSessio
         {open && createOverlayPortal(
           <Menu
             ref={setSubmenuRef}
-            className="openbitfun-nav-panel__workspace-item-menu-popover openbitfun-nav-panel__workspace-acp-submenu"
+            className="alex-nav-panel__workspace-item-menu-popover alex-nav-panel__workspace-acp-submenu"
             inlineSize="content"
             aria-label={label}
             data-placement={layout?.placement}
@@ -198,7 +198,7 @@ const WorkspaceAcpSessionSubmenu = forwardRef<HTMLDivElement, WorkspaceAcpSessio
             }}
           >
             {loading ? (
-              <MenuItem leading={<Loader2 className="openbitfun-nav-panel__menu-loading-icon" aria-hidden="true" />} disabled>
+              <MenuItem leading={<Loader2 className="alex-nav-panel__menu-loading-icon" aria-hidden="true" />} disabled>
                 {t('app.loading')}
               </MenuItem>
             ) : clients.map(client => {

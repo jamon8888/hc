@@ -428,7 +428,7 @@ fn session_markdown_exports(workspace: &std::path::Path) -> Vec<std::path::PathB
 fn create_editor_helper(workspace: &std::path::Path) -> std::path::PathBuf {
     #[cfg(windows)]
     {
-        let path = workspace.join("openbitfun-test-editor.cmd");
+        let path = workspace.join("alex-test-editor.cmd");
         std::fs::write(&path, "@echo off\r\n>\"%~1\" echo EDITOR_UPDATED_DRAFT\r\n")
             .expect("write Windows editor helper");
         path
@@ -437,7 +437,7 @@ fn create_editor_helper(workspace: &std::path::Path) -> std::path::PathBuf {
     {
         use std::os::unix::fs::PermissionsExt;
 
-        let path = workspace.join("openbitfun-test-editor.sh");
+        let path = workspace.join("alex-test-editor.sh");
         std::fs::write(
             &path,
             "#!/bin/sh\nprintf '%s\\n' EDITOR_UPDATED_DRAFT > \"$1\"\n",
@@ -485,7 +485,7 @@ fn assert_exec_stream_json_ctrl_c_contract() {
         "interrupt exit code changed:\n{output}"
     );
     assert!(
-        output.contains("OPENBITFUN_EXIT: cancelled:"),
+        output.contains("ALEX_EXIT: cancelled:"),
         "missing stable cancellation diagnostic:\n{output}"
     );
     let events = strict_stream_json_events(&output);

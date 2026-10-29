@@ -1,4 +1,4 @@
-@layer openbitfun.components {
+@layer alex.components {
   .content,
   .messageRow,
   .icon,
@@ -11,54 +11,54 @@
     display: flex;
     min-inline-size: 0;
     flex-direction: column;
-    gap: var(--openbitfun-layout-confirm-dialog-content-gap);
+    gap: var(--alex-layout-confirm-dialog-content-gap);
   }
 
   .messageRow {
     display: flex;
     min-inline-size: 0;
     align-items: flex-start;
-    gap: var(--openbitfun-layout-confirm-dialog-message-gap);
-    font-family: var(--openbitfun-type-body-md-font-family);
-    font-size: var(--openbitfun-type-body-md-font-size);
-    font-weight: var(--openbitfun-type-body-md-font-weight);
-    line-height: var(--openbitfun-type-body-md-line-height);
-    letter-spacing: var(--openbitfun-type-body-md-letter-spacing);
+    gap: var(--alex-layout-confirm-dialog-message-gap);
+    font-family: var(--alex-type-body-md-font-family);
+    font-size: var(--alex-type-body-md-font-size);
+    font-weight: var(--alex-type-body-md-font-weight);
+    line-height: var(--alex-type-body-md-line-height);
+    letter-spacing: var(--alex-type-body-md-letter-spacing);
   }
 
   .icon {
     display: inline-flex;
-    flex: 0 0 var(--openbitfun-layout-confirm-dialog-icon-glyph-size);
+    flex: 0 0 var(--alex-layout-confirm-dialog-icon-glyph-size);
     align-items: center;
     justify-content: center;
-    inline-size: var(--openbitfun-layout-confirm-dialog-icon-glyph-size);
+    inline-size: var(--alex-layout-confirm-dialog-icon-glyph-size);
     /* Center the glyph in the first text line without following later wraps. */
     block-size: 1lh;
-    color: var(--openbitfun-color-status-info-emphasis);
+    color: var(--alex-color-status-info-emphasis);
   }
 
   .icon > svg,
-  .icon > [data-openbitfun-component="icon"] {
-    inline-size: var(--openbitfun-layout-confirm-dialog-icon-glyph-size);
-    block-size: var(--openbitfun-layout-confirm-dialog-icon-glyph-size);
+  .icon > [data-alex-component="icon"] {
+    inline-size: var(--alex-layout-confirm-dialog-icon-glyph-size);
+    block-size: var(--alex-layout-confirm-dialog-icon-glyph-size);
   }
 
-  .icon[data-openbitfun-status="success"] {
-    color: var(--openbitfun-color-status-success-emphasis);
+  .icon[data-alex-status="success"] {
+    color: var(--alex-color-status-success-emphasis);
   }
 
-  .icon[data-openbitfun-status="warning"] {
-    color: var(--openbitfun-color-status-warning-emphasis);
+  .icon[data-alex-status="warning"] {
+    color: var(--alex-color-status-warning-emphasis);
   }
 
-  .icon[data-openbitfun-status="danger"] {
-    color: var(--openbitfun-color-status-danger-emphasis);
+  .icon[data-alex-status="danger"] {
+    color: var(--alex-color-status-danger-emphasis);
   }
 
   .message {
     min-inline-size: 0;
     flex: 1 1 auto;
-    color: var(--openbitfun-color-content-secondary);
+    color: var(--alex-color-content-secondary);
   }
 
   .message > :first-child {
@@ -72,23 +72,23 @@
   .preview {
     overflow: auto;
     min-inline-size: 0;
-    max-block-size: var(--openbitfun-layout-confirm-dialog-preview-max-block-size);
-    padding-block: var(--openbitfun-layout-confirm-dialog-preview-padding-block);
-    padding-inline: var(--openbitfun-layout-confirm-dialog-preview-padding-inline);
-    border: var(--openbitfun-border-width-default) solid var(--openbitfun-color-border-subtle);
-    border-radius: var(--openbitfun-layout-confirm-dialog-preview-radius);
-    color: var(--openbitfun-color-content-primary);
-    background: var(--openbitfun-color-surface-tertiary);
+    max-block-size: var(--alex-layout-confirm-dialog-preview-max-block-size);
+    padding-block: var(--alex-layout-confirm-dialog-preview-padding-block);
+    padding-inline: var(--alex-layout-confirm-dialog-preview-padding-inline);
+    border: var(--alex-border-width-default) solid var(--alex-color-border-subtle);
+    border-radius: var(--alex-layout-confirm-dialog-preview-radius);
+    color: var(--alex-color-content-primary);
+    background: var(--alex-color-surface-tertiary);
   }
 
   .preview pre {
     margin: 0;
     color: inherit;
-    font-family: var(--openbitfun-type-code-sm-font-family);
-    font-size: var(--openbitfun-type-code-sm-font-size);
-    font-weight: var(--openbitfun-type-code-sm-font-weight);
-    line-height: var(--openbitfun-type-code-sm-line-height);
-    letter-spacing: var(--openbitfun-type-code-sm-letter-spacing);
+    font-family: var(--alex-type-code-sm-font-family);
+    font-size: var(--alex-type-code-sm-font-size);
+    font-weight: var(--alex-type-code-sm-font-weight);
+    line-height: var(--alex-type-code-sm-line-height);
+    letter-spacing: var(--alex-type-code-sm-letter-spacing);
     white-space: pre-wrap;
     overflow-wrap: anywhere;
   }
@@ -99,7 +99,7 @@
     }
 
     .preview {
-      border: var(--openbitfun-border-width-default) solid CanvasText;
+      border: var(--alex-border-width-default) solid CanvasText;
       color: CanvasText;
       background: Canvas;
     }

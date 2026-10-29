@@ -159,7 +159,7 @@ mod tests {
     fn contract_default_matches_the_configuration_contract_default() {
         assert_eq!(
             LocaleId::default().as_str(),
-            openbitfun_config_contracts::DEFAULT_APP_LANGUAGE
+            alex_config_contracts::DEFAULT_APP_LANGUAGE
         );
     }
 }

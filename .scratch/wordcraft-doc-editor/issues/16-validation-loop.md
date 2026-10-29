@@ -28,13 +28,13 @@ Ship the verification story per ticket 02/06/07 contracts, choosing verification
 
 Validated here (all green):
 
-- `cargo test -p openbitfun-services-core --no-default-features --features wordcraft --lib wordcraft`
+- `cargo test -p alex-services-core --no-default-features --features wordcraft --lib wordcraft`
   → 6/6 (record + checksum). Found and fixed a real compile error first: the checksum `tests`
   submodule lacked `use std::path::PathBuf;` (`use super::*` only reaches the intermediate
   `checksum` module, which imports `std::path::Path`).
-- `cargo test -p openbitfun-services-integrations --no-default-features --features mcp --lib`
+- `cargo test -p alex-services-integrations --no-default-features --features mcp --lib`
   → 30/30 family (incl. 8/8 `wordcraft_session`). `unreachable-pub` warnings pre-existing.
-- `cargo test -p openbitfun-desktop --lib wordcraft` → 4/4 after fixing a second real bug:
+- `cargo test -p alex-desktop --lib wordcraft` → 4/4 after fixing a second real bug:
   `wordcraft_session_profile_dir` seeded the fingerprint with stem+pid only, so two opens in
   one process derived the same SHA-256 and collided (start-screen included). Fixed by folding
   a monotonic per-process `AtomicU64` session sequence into the fingerprint parts.
@@ -100,5 +100,5 @@ Harness contract details worth keeping (from the script authoring pass):
 - Desktop loud-unavailable logic was extracted to a pure unit-testable decision,
   `wordcraft_api::visible_editor_rejection_reason` (launchable → None; CLI-only →
   visible-editor refusal that still admits agent editing; not-installed/error → record
-  verbatim), giving `cargo test -p openbitfun-desktop --lib wordcraft` a 7/7 pass including
+  verbatim), giving `cargo test -p alex-desktop --lib wordcraft` a 7/7 pass including
   the three new refusal-path tests.

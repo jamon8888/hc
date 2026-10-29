@@ -1,6 +1,6 @@
  
 
-import { OverlayLayer, OverlayRegion, ScrollArea, useHasModalOverlay } from '@openbitfun/ui';
+import { OverlayLayer, OverlayRegion, ScrollArea, useHasModalOverlay } from '@alex/ui';
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { Notification } from '../types';
 import { useActiveNotifications } from '../hooks/useNotificationState';
@@ -131,8 +131,8 @@ export const NotificationContainer: React.FC<React.PropsWithChildren> = ({ child
     <OverlayRegion>
       <div
         className="notification-container"
-        data-openbitfun-component="notification"
-        data-openbitfun-part="container"
+        data-alex-component="notification"
+        data-alex-part="container"
       >
         <ScrollArea className="notification-container__viewport" scrollbarVisibility="hidden">
           {children}

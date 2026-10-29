@@ -1,11 +1,11 @@
 //! Bridge the provider-neutral native hook executor to the OpenCode RPC host.
 
-use openbitfun_agent_runtime::native_hooks::{
+use alex_agent_runtime::native_hooks::{
     AgentHookMatcher, PluginHookCall, PluginHookExecutor, PluginHookResult, RuntimeHookCommitToken,
     RuntimeHookErrorPolicy, RuntimeHookKind, RuntimeHookPlan, RuntimeHookRegistration,
     RuntimeHookRegistry, RuntimeHookSource,
 };
-use openbitfun_runtime_ports::{
+use alex_runtime_ports::{
     HookFunctionAfterOutput, HookFunctionAfterRequest, HookFunctionBeforeRequest,
     HookFunctionGeneration, HookFunctionRuntime,
 };
@@ -227,16 +227,16 @@ pub(crate) fn withdraw_plugin_workspace(registry: &RuntimeHookRegistry, workspac
 }
 
 pub(crate) fn hook_names(
-    batch: &openbitfun_runtime_ports::HookFunctionRegistrationBatch,
+    batch: &alex_runtime_ports::HookFunctionRegistrationBatch,
 ) -> Vec<String> {
     batch
         .hooks
         .iter()
         .map(|hook| match hook {
-            openbitfun_runtime_ports::HookFunctionHookKind::ToolExecuteBefore => {
+            alex_runtime_ports::HookFunctionHookKind::ToolExecuteBefore => {
                 "tool.execute.before"
             }
-            openbitfun_runtime_ports::HookFunctionHookKind::ToolExecuteAfter => {
+            alex_runtime_ports::HookFunctionHookKind::ToolExecuteAfter => {
                 "tool.execute.after"
             }
         })
@@ -247,13 +247,13 @@ pub(crate) fn hook_names(
 #[cfg(test)]
 mod tests {
     use super::{commit_plugin_generation, register_plugin_hooks};
-    use openbitfun_agent_runtime::native_hooks::{
+    use alex_agent_runtime::native_hooks::{
         RuntimeHookActivation, RuntimeHookRegistry, RuntimeHookSource,
     };
-    use openbitfun_opencode_plugin_host::JsonRpcPeer;
+    use alex_opencode_plugin_host::JsonRpcPeer;
     use tokio::net::{TcpListener, TcpStream};
 
-    async fn client() -> openbitfun_opencode_plugin_host::PluginHostClient {
+    async fn client() -> alex_opencode_plugin_host::PluginHostClient {
         let listener = TcpListener::bind(("127.0.0.1", 0)).await.unwrap();
         let address = listener.local_addr().unwrap();
         let host = tokio::spawn(async move { TcpStream::connect(address).await.unwrap() });
@@ -263,7 +263,7 @@ mod tests {
             backend,
             1,
             1024 * 1024,
-            openbitfun_opencode_plugin_host::PluginHostCapabilities::all_supported(),
+            alex_opencode_plugin_host::PluginHostCapabilities::all_supported(),
         )
         .client()
     }
@@ -274,7 +274,7 @@ mod tests {
         let token = register_plugin_hooks(
             &registry,
             "C:/workspace",
-            openbitfun_opencode_plugin_host::hook_function_runtime(client().await),
+            alex_opencode_plugin_host::hook_function_runtime(client().await),
             "instance-a",
             "generation-a",
             "revision-a",
@@ -298,7 +298,7 @@ mod tests {
         let first = register_plugin_hooks(
             &registry,
             "C:/workspace",
-            openbitfun_opencode_plugin_host::hook_function_runtime(client().await),
+            alex_opencode_plugin_host::hook_function_runtime(client().await),
             "instance-a",
             "generation-a",
             "revision-a",
@@ -309,7 +309,7 @@ mod tests {
         assert!(register_plugin_hooks(
             &registry,
             "C:/workspace",
-            openbitfun_opencode_plugin_host::hook_function_runtime(client().await),
+            alex_opencode_plugin_host::hook_function_runtime(client().await),
             "instance-a",
             "generation-a",
             "revision-a",

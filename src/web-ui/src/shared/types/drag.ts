@@ -99,7 +99,7 @@ export interface DragEventPayload {
 }
 
 /**
- * Custom MIME type for transferring OpenBitFun context payloads via the browser DnD API.
+ * Custom MIME type for transferring Alex context payloads via the browser DnD API.
  */
-export const OPENBITFUN_CONTEXT_MIME_TYPE = 'application/x-openbitfun-context';
-export const OPENBITFUN_CONTEXT_JSON_MIME_TYPE = 'application/json';
+export const ALEX_CONTEXT_MIME_TYPE = 'application/x-alex-context';
+export const ALEX_CONTEXT_JSON_MIME_TYPE = 'application/json';

@@ -1,4 +1,4 @@
-use openbitfun_agent_runtime::agents::{
+use alex_agent_runtime::agents::{
     builtin_agent_definition_specs, default_model_id_for_builtin_agent,
     is_swarm_delegate_agent_type, is_swarm_planner_agent_type, mode_config_profile_label,
     mode_config_profile_member_mode_ids, mode_presentation_rank, resolve_mode_config_profile_id,
@@ -8,7 +8,7 @@ use openbitfun_agent_runtime::agents::{
     SubagentOverrideState, SubagentSourceKind, SubagentStateReason, SubagentVisibilityPolicy,
     STANDARD_HARNESS_CONFIG_ID, STANDARD_HARNESS_CONFIG_LABEL, STANDARD_HARNESS_CONFIG_MEMBERS,
 };
-use openbitfun_agent_runtime::deep_review::canonical_review_worker_agent_type;
+use alex_agent_runtime::deep_review::canonical_review_worker_agent_type;
 
 #[test]
 fn visibility_policy_supports_public_restricted_hidden_and_denied_parents() {
@@ -226,7 +226,7 @@ fn builtin_agent_definition_catalog_preserves_order_categories_models_and_visibi
     let control_agent = specs
         .iter()
         .find(|spec| spec.id == "OpenBitFun")
-        .expect("OpenBitFun control agent should be registered");
+        .expect("Alex control agent should be registered");
     assert_eq!(control_agent.category, BuiltinAgentCategory::Hidden);
     assert_eq!(control_agent.default_model_id, "primary");
     assert_eq!(default_model_id_for_builtin_agent("OpenBitFun"), "primary");

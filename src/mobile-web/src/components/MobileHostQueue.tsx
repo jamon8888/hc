@@ -1,5 +1,5 @@
 import React, { useEffect, useId, useState, useSyncExternalStore } from 'react';
-import { MobileButton, MobileBanner, MobileIconButton } from '@openbitfun/ui/mobile';
+import { MobileButton, MobileBanner, MobileIconButton } from '@alex/ui/mobile';
 import { HostDialogQueue, observeHostQueue } from '../../../shared/dialog-queue/HostDialogQueue';
 import { useI18n } from '../i18n';
 import { ArrowUp, ChevronDown, ChevronUp, Info, X } from 'lucide-react';

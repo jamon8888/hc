@@ -9,7 +9,7 @@ import type { FlowItem, FlowToolItem, ToolCardConfig } from '../types/flow-chat'
 import { isMcpToolName, parseMcpToolName } from '@/infrastructure/mcp/toolName';
 import { APPEARANCE_DOMAIN_TOKENS } from '@/infrastructure/appearance/appearanceDomainTokens';
 import { getEffectiveToolName, projectEffectiveToolItem } from '../utils/toolInvocationIdentity';
-import { getOpenBitFunControlInput, isOpenBitFunControlDiscovery } from './openBitFunControlCardModel';
+import { getAlexControlInput, isAlexControlDiscovery } from './openBitFunControlCardModel';
 
 type ToolCardDefinition = Omit<ToolCardConfig, 'attention' | 'presentation'>;
 
@@ -35,7 +35,7 @@ const AMBIENT_TOOL_CARD_NAMES = new Set([
 ]);
 
 const PROMINENT_TOOL_CARD_NAMES = new Set([
-  'OpenBitFunControl',
+  'AlexControl',
   'Write',
   'Edit',
   'Task',
@@ -83,8 +83,8 @@ function getToolCardClassification(toolName: string): Pick<ToolCardConfig, 'atte
 
 // Tool card config map - uses backend tool names
 const TOOL_CARD_DEFINITIONS: Record<string, ToolCardDefinition> = {
-  'OpenBitFunControl': {
-    toolName: 'OpenBitFunControl',
+  'AlexControl': {
+    toolName: 'AlexControl',
     displayName: 'Alex',
     icon: 'CONTROL',
     requiresConfirmation: false,
@@ -102,7 +102,7 @@ const TOOL_CARD_DEFINITIONS: Record<string, ToolCardDefinition> = {
     resultDisplayType: 'summary',
     description: 'Read file contents',
     displayMode: 'compact',
-    primaryColor: 'var(--openbitfun-color-accent-hover)'
+    primaryColor: 'var(--alex-color-accent-hover)'
   },
   'Write': {
     toolName: 'Write',
@@ -112,7 +112,7 @@ const TOOL_CARD_DEFINITIONS: Record<string, ToolCardDefinition> = {
     resultDisplayType: 'summary',
     description: 'Write or create a file',
     displayMode: 'standard',
-    primaryColor: 'var(--openbitfun-color-status-success-content)'
+    primaryColor: 'var(--alex-color-status-success-content)'
   },
   'Edit': {
     toolName: 'Edit',
@@ -122,7 +122,7 @@ const TOOL_CARD_DEFINITIONS: Record<string, ToolCardDefinition> = {
     resultDisplayType: 'detailed',
     description: 'Edit file contents',
     displayMode: 'standard',
-    primaryColor: 'var(--openbitfun-color-status-warning-content)'
+    primaryColor: 'var(--alex-color-status-warning-content)'
   },
   'Delete': {
     toolName: 'Delete',
@@ -132,7 +132,7 @@ const TOOL_CARD_DEFINITIONS: Record<string, ToolCardDefinition> = {
     resultDisplayType: 'summary',
     description: 'Delete a file',
     displayMode: 'detailed',
-    primaryColor: 'var(--openbitfun-color-status-danger-content)'
+    primaryColor: 'var(--alex-color-status-danger-content)'
   },
   'LS': {
     toolName: 'LS',
@@ -142,7 +142,7 @@ const TOOL_CARD_DEFINITIONS: Record<string, ToolCardDefinition> = {
     resultDisplayType: 'summary',
     description: 'List directory contents',
     displayMode: 'compact',
-    primaryColor: 'var(--openbitfun-domain-tool-search)'
+    primaryColor: 'var(--alex-domain-tool-search)'
   },
 
   // Search tools
@@ -327,7 +327,7 @@ const TOOL_CARD_DEFINITIONS: Record<string, ToolCardDefinition> = {
     resultDisplayType: 'detailed',
     description: 'Create and manage project plans',
     displayMode: 'detailed',
-    primaryColor: 'var(--openbitfun-color-status-warning-content)'
+    primaryColor: 'var(--alex-color-status-warning-content)'
   },
 
   'SessionControl': {
@@ -338,7 +338,7 @@ const TOOL_CARD_DEFINITIONS: Record<string, ToolCardDefinition> = {
     resultDisplayType: 'summary',
     description: 'Create, delete, or list sessions',
     displayMode: 'compact',
-    primaryColor: 'var(--openbitfun-color-accent-hover)'
+    primaryColor: 'var(--alex-color-accent-hover)'
   },
 
   'SessionMessage': {
@@ -406,7 +406,7 @@ const TOOL_CARD_DEFINITIONS: Record<string, ToolCardDefinition> = {
     resultDisplayType: 'detailed',
     description: 'Interrupt or kill a running command process',
     displayMode: 'standard',
-    primaryColor: 'var(--openbitfun-color-status-danger-content)'
+    primaryColor: 'var(--alex-color-status-danger-content)'
   },
 
   // MiniApp tool
@@ -448,7 +448,7 @@ const TOOL_CARD_DEFINITIONS: Record<string, ToolCardDefinition> = {
     resultDisplayType: 'detailed',
     description: 'Submit an Appearance package to the Skin market for review',
     displayMode: 'standard',
-    primaryColor: 'var(--openbitfun-color-accent-hover)'
+    primaryColor: 'var(--alex-color-accent-hover)'
   },
   'PageDeploy': {
     toolName: 'PageDeploy',
@@ -489,7 +489,7 @@ const TOOL_CARD_DEFINITIONS: Record<string, ToolCardDefinition> = {
     resultDisplayType: 'summary',
     description: 'Screen capture, mouse/keyboard, and accessibility control of the desktop',
     displayMode: 'compact',
-    primaryColor: 'var(--openbitfun-color-accent-hover)'
+    primaryColor: 'var(--alex-color-accent-hover)'
   },
 
   'view_image': {
@@ -500,10 +500,10 @@ const TOOL_CARD_DEFINITIONS: Record<string, ToolCardDefinition> = {
     resultDisplayType: 'detailed',
     description: '',
     displayMode: 'compact',
-    primaryColor: 'var(--openbitfun-color-accent-hover)'
+    primaryColor: 'var(--alex-color-accent-hover)'
   },
 
-  // OpenBitFun Canvas tools
+  // Alex Canvas tools
   'CreateCanvas': {
     toolName: 'CreateCanvas',
     displayName: 'Create Canvas',
@@ -557,10 +557,10 @@ export const TOOL_CARD_CONFIGS: Record<string, ToolCardConfig> = Object.fromEntr
  * Get tool card config.
  */
 export function getToolCardConfig(toolName: string, input?: unknown): ToolCardConfig {
-  if (toolName === 'OpenBitFunControl') {
+  if (toolName === 'AlexControl') {
     return {
       ...TOOL_CARD_CONFIGS[toolName],
-      attention: isOpenBitFunControlDiscovery(input) ? 'ambient' : 'prominent',
+      attention: isAlexControlDiscovery(input) ? 'ambient' : 'prominent',
     };
   }
   // Check MCP tools (prefix: mcp__).
@@ -593,15 +593,15 @@ export function getToolCardConfig(toolName: string, input?: unknown): ToolCardCo
     resultDisplayType: 'summary',
     description: `Run ${toolName} tool`,
     displayMode: 'standard',
-    primaryColor: 'var(--openbitfun-color-content-muted)'
+    primaryColor: 'var(--alex-color-content-muted)'
   };
 }
 
 /** Keep wrapper and transcript spacing aligned with action-specific card anatomy. */
 export function getToolItemCardConfig(toolItem: FlowToolItem): ToolCardConfig {
   const effective = projectEffectiveToolItem(toolItem);
-  return getToolCardConfig(effective.toolName, effective.toolName === 'OpenBitFunControl'
-    ? getOpenBitFunControlInput(effective)
+  return getToolCardConfig(effective.toolName, effective.toolName === 'AlexControl'
+    ? getAlexControlInput(effective)
     : effective.toolCall?.input);
 }
 
@@ -630,7 +630,7 @@ export function getAllToolNames(): string[] {
  * card component just to tell dedicated cards from the DefaultToolCard.
  */
 export const DEDICATED_TOOL_CARD_NAMES = new Set([
-  'OpenBitFunControl',
+  'AlexControl',
   'Read',
   'Write',
   'Edit',

@@ -7,12 +7,12 @@
 use std::collections::HashSet;
 use std::sync::{Arc, OnceLock};
 
-use openbitfun_agent_runtime::sdk::{
+use alex_agent_runtime::sdk::{
     attach_session_event_cursor, AgentEventReceiver, PermissionRequestEvent,
 };
-use openbitfun_agent_tools::effective_tool_invocation;
-use openbitfun_core::service::remote_connect::remote_server::RemoteCommand;
-use openbitfun_events::{project_agentic_frontend_event, AgenticEvent, ToolEventData};
+use alex_agent_tools::effective_tool_invocation;
+use alex_core::service::remote_connect::remote_server::RemoteCommand;
+use alex_events::{project_agentic_frontend_event, AgenticEvent, ToolEventData};
 use tokio::sync::{broadcast, mpsc, OwnedSemaphorePermit, Semaphore};
 
 use crate::account::PeerFanoutOwner;
@@ -250,10 +250,10 @@ async fn report_publication_gap(state: &PeerHostState, reason: &str) {
         for session in hub
             .active_stream_ids()
             .into_iter()
-            .filter(|session| openbitfun_core::service::remote_connect::is_session_stream(session))
+            .filter(|session| alex_core::service::remote_connect::is_session_stream(session))
         {
             if let Err(error) =
-                openbitfun_core::service::remote_connect::synchronize_session_records(
+                alex_core::service::remote_connect::synchronize_session_records(
                     &hub, &session,
                 )
                 .await
@@ -269,7 +269,7 @@ async fn report_publication_gap(state: &PeerHostState, reason: &str) {
 
 /// Returns true when the sender side closed while the stale backlog was drained.
 fn drain_broadcast_receiver(
-    rx: &mut broadcast::Receiver<openbitfun_events::AgenticEventEnvelope>,
+    rx: &mut broadcast::Receiver<alex_events::AgenticEventEnvelope>,
 ) -> bool {
     loop {
         match rx.try_recv() {
@@ -453,7 +453,7 @@ async fn handle_agentic_event(
         }
     }
 
-    openbitfun_core::service::remote_connect::notify_session_catalog_event(&event);
+    alex_core::service::remote_connect::notify_session_catalog_event(&event);
     let cursor = state.session_event_journal.record(&event);
     let Some(mut projected) = project_agentic_frontend_event(event.clone()) else {
         if let Some(turn) = terminal_turn {
@@ -467,7 +467,7 @@ async fn handle_agentic_event(
     if durable {
         let name = projected.event_name.as_str();
         let policy =
-            openbitfun_core::service::remote_connect::session_records::session_event_publication(
+            alex_core::service::remote_connect::session_records::session_event_publication(
                 name,
                 &projected.payload,
             );
@@ -483,12 +483,12 @@ async fn handle_agentic_event(
                         .or_else(|| projected.payload.get("settledTurnId"))
                         .and_then(serde_json::Value::as_str)
                     {
-                        openbitfun_core::service::remote_connect::synchronize_session_record_turn(
+                        alex_core::service::remote_connect::synchronize_session_record_turn(
                             &hub, session_id, turn,
                         )
                         .await
                     } else if name == "agentic://session-history-changed" {
-                        openbitfun_core::service::remote_connect::synchronize_session_records(
+                        alex_core::service::remote_connect::synchronize_session_records(
                             &hub, session_id,
                         )
                         .await
@@ -661,7 +661,7 @@ fn terminal_turn_key(event: &AgenticEvent) -> Option<PeerTurnKey> {
 pub(crate) struct PeerControllerEventEmitter;
 
 #[async_trait::async_trait]
-impl openbitfun_events::EventEmitter for PeerControllerEventEmitter {
+impl alex_events::EventEmitter for PeerControllerEventEmitter {
     async fn emit(&self, event_name: &str, payload: serde_json::Value) -> anyhow::Result<()> {
         fanout_peer_device_event(event_name.to_string(), payload).await;
         Ok(())
@@ -788,9 +788,9 @@ async fn fanout_peer_device_event_current(queued: QueuedPeerDeviceEvent) {
         terminal,
     } = queued;
     let mut payload = payload;
-    if let Err(error) = openbitfun_core_types::agent_identity_wire::translate_agent_identity_fields(
+    if let Err(error) = alex_core_types::agent_identity_wire::translate_agent_identity_fields(
         &mut payload,
-        openbitfun_core_types::agent_identity_wire::AgentIdentityDialect::Legacy,
+        alex_core_types::agent_identity_wire::AgentIdentityDialect::Legacy,
     ) {
         tracing::warn!(
             "Peer event contains conflicting Agent profiles; preserving records: {error}"
@@ -901,7 +901,7 @@ fn interrupted_turn_failure_projection(
 
 #[cfg(test)]
 mod tests {
-    use openbitfun_events::{AgenticEvent, AgenticEventEnvelope, AgenticEventPriority};
+    use alex_events::{AgenticEvent, AgenticEventEnvelope, AgenticEventPriority};
 
     use super::{
         continuity_is_current, drain_broadcast_receiver, enqueue_peer_device_event,

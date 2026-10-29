@@ -97,7 +97,7 @@ async function showUsageModal(): Promise<void> {
     await i18nService.changeLanguage('zh-CN');
     modalState.openSessionUsageModal({
       sessionId: fixture.sessionId,
-      workspacePath: 'D:/workspace/OpenBitFun',
+      workspacePath: 'D:/workspace/Alex',
     });
     modalState.showSessionUsageModalReport({
       sessionId: fixture.sessionId,

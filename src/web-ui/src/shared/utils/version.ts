@@ -105,10 +105,10 @@ export function getAboutInfo(): AboutInfo {
       url: 'https://opensource.org/licenses/MIT'
     },
     links: {
-      homepage: 'https://github.com/yourusername/openbitfun',
-      repository: 'https://github.com/yourusername/openbitfun',
-      documentation: 'https://github.com/yourusername/openbitfun/wiki',
-      issues: 'https://github.com/yourusername/openbitfun/issues'
+      homepage: 'https://github.com/yourusername/alex',
+      repository: 'https://github.com/yourusername/alex',
+      documentation: 'https://github.com/yourusername/alex/wiki',
+      issues: 'https://github.com/yourusername/alex/issues'
     }
   };
 }

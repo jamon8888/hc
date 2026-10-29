@@ -57,7 +57,7 @@ pub(super) const BUILTIN_SKILL_SPECS: &[BuiltinSkillSpec] = &[
         group: BuiltinSkillGroup::Meta,
     },
     BuiltinSkillSpec {
-        dir_name: "create-openbitfun-skin",
+        dir_name: "create-alex-skin",
         group: BuiltinSkillGroup::Meta,
     },
     BuiltinSkillSpec {
@@ -85,7 +85,7 @@ pub(super) const BUILTIN_SKILL_SPECS: &[BuiltinSkillSpec] = &[
         group: BuiltinSkillGroup::MiniApp,
     },
     BuiltinSkillSpec {
-        dir_name: "openbitfun-frontend-dev",
+        dir_name: "alex-frontend-dev",
         group: BuiltinSkillGroup::Creation,
     },
     BuiltinSkillSpec {

@@ -5,7 +5,7 @@ import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.test.platform.app.InstrumentationRegistry
 import com.openbitfun.mobile.app.ui.remote.RuntimeFileEditorDialog
-import com.openbitfun.mobile.app.ui.theme.OpenBitFunTheme
+import com.openbitfun.mobile.app.ui.theme.AlexTheme
 import com.openbitfun.mobile.core.feature.workspace.RemoteWorkspaceIntent
 import com.openbitfun.mobile.core.feature.workspace.RuntimeFilesUiState
 import org.junit.Assert.assertEquals
@@ -21,7 +21,7 @@ class RuntimeFileEditorTest {
         val state = mutableStateOf(RuntimeFilesUiState("/repo", emptyList(), false, "/repo/file.md", "original", false, false))
         val intents = mutableListOf<RemoteWorkspaceIntent>()
         compose.setContent {
-            OpenBitFunTheme(dark = false) {
+            AlexTheme(dark = false) {
                 RuntimeFileEditorDialog(state.value) { intents += it }
             }
         }

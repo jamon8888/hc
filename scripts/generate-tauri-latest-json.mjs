@@ -60,7 +60,7 @@ const manifest = {
 const manualInstallers = {};
 
 if (manualAssetsDir) {
-  addManualInstaller('windows-x86_64', join(manualAssetsDir, `OpenBitFun_${version}_windows-x86_64-installer.exe`));
+  addManualInstaller('windows-x86_64', join(manualAssetsDir, `Alex_${version}_windows-x86_64-installer.exe`));
 }
 
 // The macOS updater artifact is a .app.tar.gz: an update payload with no
@@ -75,7 +75,7 @@ if (installerAssetsDir) {
       .map((file) => [basename(file), file])
   );
   for (const [platform, arch] of [['darwin-aarch64', 'aarch64'], ['darwin-x86_64', 'x64']]) {
-    const installerName = `OpenBitFun_${version}_${arch}.dmg`;
+    const installerName = `Alex_${version}_${arch}.dmg`;
     const installerPath = dmgPaths.get(installerName);
     if (!installerPath) {
       fail(`Missing macOS installer ${installerName} under ${installerAssetsDir}`);

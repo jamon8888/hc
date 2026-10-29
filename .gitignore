@@ -89,7 +89,7 @@ tests/e2e/reports/
 tmp/
 Cross.toml
 
-# OpenBitFun sandbox data - auto managed
+# Alex sandbox data - auto managed
 .openbitfun/
 .cursor
 .cursor/rules/no-cargo.mdc

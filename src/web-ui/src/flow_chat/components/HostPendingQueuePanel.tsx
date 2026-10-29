@@ -2,14 +2,14 @@ import { pendingQueueManager } from '../services/flow-chat-manager/PendingQueueM
 import type { QueuedMessage } from '../types/flow-chat';
 import { useEffect, useId, useState, useSyncExternalStore } from 'react';
 import { useI18n } from '@/infrastructure/i18n';
-import { Button, IconButton, OverflowText, Tooltip } from '@openbitfun/ui';
+import { Button, IconButton, OverflowText, Tooltip } from '@alex/ui';
 import { ArrowUp, ChevronDown, ChevronUp, Copy, Info, Pencil, RotateCw, X } from 'lucide-react';
 import './HostPendingQueuePanel.scss';
 import { HostDialogQueue, observeHostQueue, type QueueOutboxRecord, type QueueItem } from '../../../../shared/dialog-queue/HostDialogQueue';
 import {
   ChatComposerQueue, ChatComposerQueueHeader, ChatComposerQueueTitle,
   ChatComposerQueueList, ChatComposerQueueItem, ChatComposerQueueItemContent, ChatComposerQueueItemActions,
-} from '@openbitfun/ui/flow-chat';
+} from '@alex/ui/flow-chat';
 
 export function HostPendingQueuePanel({ queue, onRestore }: { queue: HostDialogQueue; onRestore: (item: QueuedMessage) => boolean }) {
   const { t } = useI18n('flow-chat');
@@ -52,26 +52,26 @@ export function HostPendingQueuePanel({ queue, onRestore }: { queue: HostDialogQ
   const items = view.snapshot?.items ?? [];
   const visibleError = error || (view.error?.includes('Session is not loaded') ? null : view.error);
   if (!items.length && !view.pending.length && !visibleError) return null;
-  return <ChatComposerQueue data-openbitfun-product-component="pending-queue-panel" data-openbitfun-product-part="root" className="host-pending-queue" aria-label={t('hostQueue.title')}>
-    <ChatComposerQueueHeader data-openbitfun-product-component="pending-queue-panel" data-openbitfun-product-part="header">
+  return <ChatComposerQueue data-alex-product-component="pending-queue-panel" data-alex-product-part="root" className="host-pending-queue" aria-label={t('hostQueue.title')}>
+    <ChatComposerQueueHeader data-alex-product-component="pending-queue-panel" data-alex-product-part="header">
       <Button variant="text" size="xs" className="host-pending-queue__toggle" aria-expanded={expanded} aria-controls={listId}
         onClick={() => setExpanded(value => !value)} trailingIcon={expanded ? <ChevronDown size={14} /> : <ChevronUp size={14} />}>
-        <ChatComposerQueueTitle data-openbitfun-product-component="pending-queue-panel" data-openbitfun-product-part="title" count={items.length + view.pending.length}>{t('hostQueue.title')}</ChatComposerQueueTitle>
+        <ChatComposerQueueTitle data-alex-product-component="pending-queue-panel" data-alex-product-part="title" count={items.length + view.pending.length}>{t('hostQueue.title')}</ChatComposerQueueTitle>
       </Button>
       <Tooltip content={t('hostQueue.about')}><IconButton size="xs" aria-label={t('hostQueue.about')} aria-expanded={showHelp}
         icon={<Info size={14} />} onClick={() => setShowHelp(value => !value)} /></Tooltip>
     </ChatComposerQueueHeader>
-    {showHelp && <p data-openbitfun-product-component="pending-queue-panel" data-openbitfun-product-part="status" className="host-pending-queue__note">{t('hostQueue.memoryNotice')}</p>}
-    {visibleError && <div data-openbitfun-product-component="pending-queue-panel" data-openbitfun-product-part="status" role="alert" className="host-pending-queue__error">{visibleError}<Button size="xs" variant="text" disabled={busy} onClick={() => void run(() => queue.refresh())}>{t('hostQueue.refresh')}</Button></div>}
-    <ChatComposerQueueList data-openbitfun-product-component="pending-queue-panel" data-openbitfun-product-part="list" id={listId} hidden={!expanded}>
-      {items.map(item => <ChatComposerQueueItem data-openbitfun-product-component="pending-queue-panel" data-openbitfun-product-part="item" key={item.turnId} state={item.status === 'blocked' ? 'failed' : item.status === 'steering_pending' ? 'sending' : 'default'}>
-        <ChatComposerQueueItemContent data-openbitfun-product-component="pending-queue-panel" data-openbitfun-product-part="content">
+    {showHelp && <p data-alex-product-component="pending-queue-panel" data-alex-product-part="status" className="host-pending-queue__note">{t('hostQueue.memoryNotice')}</p>}
+    {visibleError && <div data-alex-product-component="pending-queue-panel" data-alex-product-part="status" role="alert" className="host-pending-queue__error">{visibleError}<Button size="xs" variant="text" disabled={busy} onClick={() => void run(() => queue.refresh())}>{t('hostQueue.refresh')}</Button></div>}
+    <ChatComposerQueueList data-alex-product-component="pending-queue-panel" data-alex-product-part="list" id={listId} hidden={!expanded}>
+      {items.map(item => <ChatComposerQueueItem data-alex-product-component="pending-queue-panel" data-alex-product-part="item" key={item.turnId} state={item.status === 'blocked' ? 'failed' : item.status === 'steering_pending' ? 'sending' : 'default'}>
+        <ChatComposerQueueItemContent data-alex-product-component="pending-queue-panel" data-alex-product-part="content">
           <OverflowText title={item.displayContent}>{item.displayContent || t('pendingQueue.emptyPlaceholder')}</OverflowText>
           {item.status !== 'queued' && <span className="host-pending-queue__status">{item.status === 'blocked' ? t('hostQueue.blocked') : t('hostQueue.steeringPending')}</span>}
           {item.attachmentCount > 0 && <span className="host-pending-queue__status">{t('hostQueue.attachments', { count: item.attachmentCount })}</span>}
           {item.reason && <OverflowText className="host-pending-queue__status" title={item.reason}>{item.reason}</OverflowText>}
         </ChatComposerQueueItemContent>
-        <ChatComposerQueueItemActions data-openbitfun-product-component="pending-queue-panel" data-openbitfun-product-part="actions">
+        <ChatComposerQueueItemActions data-alex-product-component="pending-queue-panel" data-alex-product-part="actions">
           <Tooltip content={t('hostQueue.edit')}><IconButton size="xs" aria-label={t('hostQueue.edit')} icon={<Pencil size={14} />} disabled={busy || !!view.error || item.status === 'steering_pending'} onClick={() => void run(async () => {
             const saved = await queue.savedDraft(item.turnId);
             if (!saved || saved.request.action !== 'submit') throw new Error(t('hostQueue.noDraft'));
@@ -81,11 +81,11 @@ export function HostPendingQueuePanel({ queue, onRestore }: { queue: HostDialogQ
           <Tooltip content={t('hostQueue.cancel')}><IconButton size="xs" aria-label={t('hostQueue.cancel')} icon={<X size={14} />} disabled={busy || !!view.error || item.status === 'steering_pending'} onClick={() => void run(() => queue.act(item, 'cancel'))} /></Tooltip>
         </ChatComposerQueueItemActions>
       </ChatComposerQueueItem>)}
-      {view.pending.map(record => <ChatComposerQueueItem data-openbitfun-product-component="pending-queue-panel" data-openbitfun-product-part="item" key={record.key} state="failed">
-        <ChatComposerQueueItemContent data-openbitfun-product-component="pending-queue-panel" data-openbitfun-product-part="content"><OverflowText className="host-pending-queue__status" title={t('hostQueue.unknown')}>{t('hostQueue.unknown')}</OverflowText>
+      {view.pending.map(record => <ChatComposerQueueItem data-alex-product-component="pending-queue-panel" data-alex-product-part="item" key={record.key} state="failed">
+        <ChatComposerQueueItemContent data-alex-product-component="pending-queue-panel" data-alex-product-part="content"><OverflowText className="host-pending-queue__status" title={t('hostQueue.unknown')}>{t('hostQueue.unknown')}</OverflowText>
           {record.request.action === 'submit' && <OverflowText title={record.request.message.displayContent ?? record.request.message.content}>{record.request.message.displayContent ?? record.request.message.content}</OverflowText>}
         </ChatComposerQueueItemContent>
-        <ChatComposerQueueItemActions data-openbitfun-product-component="pending-queue-panel" data-openbitfun-product-part="actions">
+        <ChatComposerQueueItemActions data-alex-product-component="pending-queue-panel" data-alex-product-part="actions">
           {record.restoreIntent && record.request.action === 'submit'
             ? <IconButton size="xs" aria-label={t('hostQueue.edit')} title={t('hostQueue.edit')} icon={<Pencil size={14} />} disabled={busy} onClick={() => void run(() => restoreDraft(record))} />
             : <IconButton size="xs" aria-label={t('hostQueue.checkRetry')} title={t('hostQueue.checkRetry')} icon={<RotateCw size={14} />} disabled={busy} onClick={() => void run(() => queue.retry(record))} />}

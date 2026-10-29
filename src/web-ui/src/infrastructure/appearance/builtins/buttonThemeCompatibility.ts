@@ -23,8 +23,8 @@ export function withLegacyButtonTokens(
 ): Partial<Record<AppearanceThemeTokenName, string>> {
   const result = { ...tokens };
   for (const [suffix, legacySuffix] of Object.entries(legacyButtonTokens)) {
-    const name = `--openbitfun-component-button-${suffix}` as AppearanceThemeTokenName;
-    const legacyName = `--openbitfun-${legacySuffix}` as AppearanceThemeTokenName;
+    const name = `--alex-component-button-${suffix}` as AppearanceThemeTokenName;
+    const legacyName = `--alex-${legacySuffix}` as AppearanceThemeTokenName;
     if (result[name] === undefined && tokens?.[legacyName] !== undefined) {
       result[name] = tokens[legacyName];
     }

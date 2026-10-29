@@ -48,12 +48,12 @@ Use this as the release entrypoint. `pnpm run tauri:build` does not prepare vali
 pnpm run installer:build:only
 ```
 
-`installer:build:only` requires an existing `target/release/openbitfun-desktop.exe`
+`installer:build:only` requires an existing `target/release/alex-desktop.exe`
 and its adjacent runtime directories. It never falls back to `release-fast` or
 `debug`. For an explicit Cargo target, pass the exact executable:
 
 ```powershell
-$env:OPENBITFUN_INSTALLER_APP_EXE = "target/x86_64-pc-windows-msvc/release/openbitfun-desktop.exe"
+$env:OPENBITFUN_INSTALLER_APP_EXE = "target/x86_64-pc-windows-msvc/release/alex-desktop.exe"
 pnpm run installer:build:only
 ```
 
@@ -218,25 +218,25 @@ pnpm run installer:build:only:fast
 Default release output:
 
 ```text
-src-tauri/target/release/openbitfun-installer.exe
+src-tauri/target/release/alex-installer.exe
 ```
 
 Fast build output:
 
 ```text
-src-tauri/target/release-fast/openbitfun-installer.exe
+src-tauri/target/release-fast/alex-installer.exe
 ```
 
 ## Customization guide
 
 ### Changing the UI Theme
 
-Shared light/dark values come from `@openbitfun/theme-openbitfun`. Installer-only named presets live in
+Shared light/dark values come from `@alex/theme-alex`. Installer-only named presets live in
 [installerThemesData.ts](src/theme/installerThemesData.ts), and components consume only canonical
-`--openbitfun-*` variables projected by [installerThemeRuntime.ts](src/theme/installerThemeRuntime.ts).
+`--alex-*` variables projected by [installerThemeRuntime.ts](src/theme/installerThemeRuntime.ts).
 
 Buttons, inputs, fields, selectors, checkboxes, radio controls, page headers, and
-native scrollbar styling come from the public `@openbitfun/ui` package. The
+native scrollbar styling come from the public `@alex/ui` package. The
 installer owns page layout and the install state binding. The `dev`, `build`, and
 `type-check` entrypoints prepare the public design-system packages first, so a
 clean checkout does not depend on pre-existing `dist` files.
@@ -271,7 +271,7 @@ reduced-motion preference.
 ### Adding Installer Payload
 
 Place the built Alex application files in `src-tauri/payload/` before building the installer. The build script handles this automatically.
-During `cargo build`, the payload directory is packed into an embedded zip inside `openbitfun-installer.exe`.
+During `cargo build`, the payload directory is packed into an embedded zip inside `alex-installer.exe`.
 
 ## Integration with CI/CD
 
@@ -299,5 +299,5 @@ Add to your GitHub Actions workflow:
   uses: actions/upload-artifact@v6
   with:
     name: Alex-Installer-Exe
-    path: Alex-Installer/src-tauri/target/release/openbitfun-installer.exe
+    path: Alex-Installer/src-tauri/target/release/alex-installer.exe
 ```

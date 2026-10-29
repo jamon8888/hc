@@ -23,7 +23,7 @@ pub enum KeychainError {
 }
 
 #[cfg(feature = "basemind")]
-const SERVICE: &str = "openbitfun";
+const SERVICE: &str = "alex";
 #[cfg(feature = "basemind")]
 const ACCOUNT: &str = "basemind-vault";
 

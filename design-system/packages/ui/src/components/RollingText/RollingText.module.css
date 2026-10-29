@@ -1,7 +1,7 @@
-@layer openbitfun.components {
+@layer alex.components {
   .root {
-    --_rolling-text-duration: var(--openbitfun-motion-duration-content-swap);
-    --_rolling-text-easing: var(--openbitfun-motion-easing-smooth);
+    --_rolling-text-duration: var(--alex-motion-duration-content-swap);
+    --_rolling-text-easing: var(--alex-motion-easing-smooth);
 
     position: relative;
     display: block;

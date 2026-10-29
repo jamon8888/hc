@@ -1,13 +1,13 @@
 [package]
-name = "openbitfun-agent-runtime"
+name = "alex-agent-runtime"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
-description = "Agent runtime contracts and owner decisions for OpenBitFun"
+description = "Agent runtime contracts and owner decisions for Alex"
 autotests = false
 
 [lib]
-name = "openbitfun_agent_runtime"
+name = "alex_agent_runtime"
 crate-type = ["rlib"]
 
 [[example]]
@@ -18,7 +18,7 @@ required-features = ["agent-runtime"]
 [features]
 default = []
 definition-contracts = [
-    "dep:openbitfun-core-types",
+    "dep:alex-core-types",
     "dep:regex",
     "dep:serde",
     "dep:serde_yaml",
@@ -43,12 +43,12 @@ agent-runtime = [
     "definition-contracts",
     "native-hook-runtime",
     "dep:async-trait",
-    "dep:openbitfun-agent-stream",
-    "dep:openbitfun-agent-tools",
-    "dep:openbitfun-core-types",
-    "dep:openbitfun-events",
-    "dep:openbitfun-runtime-ports",
-    "dep:openbitfun-runtime-services",
+    "dep:alex-agent-stream",
+    "dep:alex-agent-tools",
+    "dep:alex-core-types",
+    "dep:alex-events",
+    "dep:alex-runtime-ports",
+    "dep:alex-runtime-services",
     "dep:dashmap",
     "dep:hex",
     "dep:log",
@@ -68,12 +68,12 @@ agent-runtime = [
 
 [dependencies]
 async-trait = { workspace = true, optional = true }
-openbitfun-agent-stream = { path = "../agent-stream", optional = true }
-openbitfun-agent-tools = { path = "../tool-contracts", optional = true }
-openbitfun-core-types = { path = "../../contracts/core-types", optional = true }
-openbitfun-events = { path = "../../contracts/events", optional = true }
-openbitfun-runtime-ports = { path = "../../contracts/runtime-ports", optional = true, features = ["agent-api", "git-port", "permission", "plugin-runtime", "remote-workspace-ports", "runtime-event-port", "terminal-port", "workspace-ports"] }
-openbitfun-runtime-services = { path = "../runtime-services", optional = true }
+alex-agent-stream = { path = "../agent-stream", optional = true }
+alex-agent-tools = { path = "../tool-contracts", optional = true }
+alex-core-types = { path = "../../contracts/core-types", optional = true }
+alex-events = { path = "../../contracts/events", optional = true }
+alex-runtime-ports = { path = "../../contracts/runtime-ports", optional = true, features = ["agent-api", "git-port", "permission", "plugin-runtime", "remote-workspace-ports", "runtime-event-port", "terminal-port", "workspace-ports"] }
+alex-runtime-services = { path = "../runtime-services", optional = true }
 dashmap = { workspace = true, optional = true }
 hex = { workspace = true, optional = true }
 log = { workspace = true, optional = true }

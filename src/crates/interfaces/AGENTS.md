@@ -30,7 +30,7 @@ product behavior. UI apps and delivery hosts remain under `src/apps`,
 - Interface crates may depend on `assembly/core` to expose a selected delivery
   profile.
 - The portable `sdk-host` protocol crate is narrower: it depends only on stable
-  Runtime/contracts and must not depend on `openbitfun-core`, `terminal-core`,
+  Runtime/contracts and must not depend on `alex-core`, `terminal-core`,
   concrete services, the SDK Host app, or CLI. Concrete Host assembly stays in
   `src/apps/sdk-host`.
 - Interface crates must not own product policy, reusable services, protocol

@@ -3,6 +3,6 @@ import './UpdateIndicator.scss';
 
 export function UpdateIndicator() {
   const visible = useHasAppUpdate();
-  return visible ? <span className="openbitfun-update-indicator" aria-hidden="true"
-    data-testid="app-update-indicator" data-openbitfun-component="update" data-openbitfun-part="indicator" /> : null;
+  return visible ? <span className="alex-update-indicator" aria-hidden="true"
+    data-testid="app-update-indicator" data-alex-component="update" data-alex-part="indicator" /> : null;
 }

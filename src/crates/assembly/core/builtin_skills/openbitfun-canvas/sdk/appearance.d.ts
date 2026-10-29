@@ -1,6 +1,6 @@
 export type { CanvasPalette, CanvasTokens } from "./canvas-tokens.js";
 export { canvasPaletteDark, canvasPaletteLight, canvasTokens, canvasTokensLight, } from "./canvas-tokens.js";
-/** Typography presets used by the built-in `openbitfun/canvas` components. */
+/** Typography presets used by the built-in `alex/canvas` components. */
 export declare const canvasTypography: {
     readonly h1: {
         readonly fontSize: "24px";

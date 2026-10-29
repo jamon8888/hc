@@ -21,19 +21,19 @@ export default defineConfig(({ command }) => ({
       command === "serve"
         ? [
             {
-              find: /^@openbitfun\/ui\/flow-chat$/,
+              find: /^@alex\/ui\/flow-chat$/,
               replacement: path.join(uiSourceDirectory, "flow-chat.ts"),
             },
             {
-              find: /^@openbitfun\/ui\/registry$/,
+              find: /^@alex\/ui\/registry$/,
               replacement: path.join(uiSourceDirectory, "registry.ts"),
             },
             {
-              find: /^@openbitfun\/ui\/styles\.css$/,
+              find: /^@alex\/ui\/styles\.css$/,
               replacement: path.join(uiSourceDirectory, "styles/layers.css"),
             },
             {
-              find: /^@openbitfun\/ui$/,
+              find: /^@alex\/ui$/,
               replacement: path.join(uiSourceDirectory, "index.ts"),
             },
           ]
@@ -41,9 +41,9 @@ export default defineConfig(({ command }) => ({
   },
   optimizeDeps: {
     exclude: [
-      "@openbitfun/design-tokens",
-      "@openbitfun/theme-openbitfun",
-      "@openbitfun/ui",
+      "@alex/design-tokens",
+      "@alex/theme-alex",
+      "@alex/ui",
     ],
   },
   server: {

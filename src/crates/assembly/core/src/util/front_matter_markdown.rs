@@ -1,1 +1,1 @@
-pub use openbitfun_services_core::markdown::FrontMatterMarkdown;
+pub use alex_services_core::markdown::FrontMatterMarkdown;

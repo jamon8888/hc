@@ -12,8 +12,8 @@ pub mod types;
 pub mod workspace;
 
 pub use citation::{
-    parse_openbitfun_memory_citation, parse_openbitfun_memory_citation_payloads,
-    strip_openbitfun_memory_citations,
+    parse_alex_memory_citation, parse_alex_memory_citation_payloads,
+    strip_alex_memory_citations,
 };
 pub use phase2_agent::MemoryPhase2Agent;
 pub(crate) use read_path::build_memory_read_path_reminder;

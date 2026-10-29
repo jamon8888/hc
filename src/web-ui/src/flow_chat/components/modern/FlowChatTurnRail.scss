@@ -53,7 +53,7 @@
     width: 5px;
     height: 2px;
     border-radius: 1px;
-    background: var(--openbitfun-color-content-primary);
+    background: var(--alex-color-content-primary);
     opacity: 0.2;
     transform: translateY(-50%);
     transform-origin: left center;
@@ -69,7 +69,7 @@
   &:not([data-hovering='true']) &__item[aria-current='step'] &__bar {
     width: 5px;
     height: 2px;
-    background: var(--openbitfun-color-content-primary);
+    background: var(--alex-color-content-primary);
     opacity: 0.8;
   }
 
@@ -79,7 +79,7 @@
   }
 
   &__item:focus-visible &__bar {
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--openbitfun-color-accent-default) 35%, transparent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--alex-color-accent-default) 35%, transparent);
   }
 
   // Fixed hit areas and row heights keep the hover fan from moving its target.
@@ -88,7 +88,7 @@
   &__item[data-hover-distance='1'] &__bar { width: 15px; }
   &__item[data-hover-distance='0'] &__bar {
     width: transcriptLayout.$turn-rail-width;
-    background: var(--openbitfun-color-content-primary);
+    background: var(--alex-color-content-primary);
     opacity: 0.8;
   }
 
@@ -100,19 +100,19 @@
   }
 
   &__tooltip-turn {
-    color: var(--openbitfun-color-content-secondary);
-    font-size: var(--openbitfun-type-flow-micro-font-size);
-    font-weight: var(--openbitfun-type-label-selected-font-weight);
-    line-height: var(--openbitfun-type-flow-meta-line-height);
-    letter-spacing: var(--openbitfun-type-body-sm-letter-spacing);
+    color: var(--alex-color-content-secondary);
+    font-size: var(--alex-type-flow-micro-font-size);
+    font-weight: var(--alex-type-label-selected-font-weight);
+    line-height: var(--alex-type-flow-meta-line-height);
+    letter-spacing: var(--alex-type-body-sm-letter-spacing);
   }
 
   &__tooltip-message {
     display: block;
-    color: var(--openbitfun-color-content-primary);
-    font-size: var(--openbitfun-type-flow-control-font-size);
-    line-height: var(--openbitfun-type-flow-support-line-height);
-    letter-spacing: var(--openbitfun-type-body-sm-letter-spacing);
+    color: var(--alex-color-content-primary);
+    font-size: var(--alex-type-flow-control-font-size);
+    line-height: var(--alex-type-flow-support-line-height);
+    letter-spacing: var(--alex-type-body-sm-letter-spacing);
     overflow-wrap: anywhere;
     white-space: pre-wrap;
 

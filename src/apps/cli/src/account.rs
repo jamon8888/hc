@@ -9,15 +9,15 @@ use std::time::Duration;
 
 use anyhow::{anyhow, Result};
 use async_trait::async_trait;
-use openbitfun_product_domains::account::{AccountDevice, AccountInfo, AccountSnapshotProjection};
+use alex_product_domains::account::{AccountDevice, AccountInfo, AccountSnapshotProjection};
 use tokio::sync::RwLock;
 
-use openbitfun_core::service::remote_connect::account::AccountSession;
-use openbitfun_core::service::remote_connect::account_runtime::{
+use alex_core::service::remote_connect::account::AccountSession;
+use alex_core::service::remote_connect::account_runtime::{
     AccountRoutingStartRequest, AccountRuntime, AccountRuntimeHost,
     BackgroundRoutingOwnerRetirementError,
 };
-use openbitfun_core::service::remote_connect::{
+use alex_core::service::remote_connect::{
     self, encryption, relay_client::RelayClient, relay_client::RelayEvent, session_store,
     DeviceIdentity, RemoteServer,
 };
@@ -39,7 +39,7 @@ pub(crate) fn build_management_account_runtime() -> Arc<AccountRuntime> {
 }
 
 pub(crate) fn account_snapshot_projection(
-    snapshot: openbitfun_core::service::remote_connect::account_runtime::AccountSnapshot,
+    snapshot: alex_core::service::remote_connect::account_runtime::AccountSnapshot,
 ) -> AccountSnapshotProjection {
     AccountSnapshotProjection {
         logged_in: snapshot.logged_in,
@@ -70,7 +70,7 @@ pub(crate) fn account_snapshot_projection(
 }
 
 pub(crate) fn account_login_status_message(
-    result: &openbitfun_core::service::remote_connect::account_runtime::AccountLoginResult,
+    result: &alex_core::service::remote_connect::account_runtime::AccountLoginResult,
 ) -> String {
     if result.routing_connected {
         format!(
@@ -123,7 +123,7 @@ pub(crate) fn bounded_account_error(message: &str) -> String {
 /// CLI-owned routing effects injected into the shared Account Runtime.
 pub(crate) struct CliAccountRoutingHost {
     host_stream_hub:
-        RwLock<Option<Arc<openbitfun_core::service::remote_connect::host_stream::HostStreamHub>>>,
+        RwLock<Option<Arc<alex_core::service::remote_connect::host_stream::HostStreamHub>>>,
     self_ref: Weak<CliAccountRoutingHost>,
     runtime: OnceLock<Weak<AccountRuntime>>,
     relay_client: RwLock<Option<Arc<RelayClient>>>,
@@ -149,7 +149,7 @@ impl CliAccountRoutingHost {
     /// Host streams served to controllers while this device's routing is alive.
     pub(crate) async fn host_stream_hub(
         &self,
-    ) -> Option<Arc<openbitfun_core::service::remote_connect::host_stream::HostStreamHub>> {
+    ) -> Option<Arc<alex_core::service::remote_connect::host_stream::HostStreamHub>> {
         self.host_stream_hub.read().await.clone()
     }
 
@@ -389,7 +389,7 @@ impl CliAccountRoutingHost {
                             .routing_loop_is_current(account_generation, relay_client)
                             .await
                     {
-                        let hub = openbitfun_core::service::remote_connect::start_host_stream_hub(
+                        let hub = alex_core::service::remote_connect::start_host_stream_hub(
                             Arc::new(CliHostStreamNotifier {
                                 routing: self.self_ref.clone(),
                             }),
@@ -486,7 +486,7 @@ impl CliAccountRoutingHost {
                 // requesting device; every other command goes to the dispatcher.
                 let hub = self.host_stream_hub().await;
                 let response =
-                    match openbitfun_core::service::remote_connect::handle_host_stream_command(
+                    match alex_core::service::remote_connect::handle_host_stream_command(
                         hub.as_ref(),
                         &source_device_id,
                         &command,
@@ -770,7 +770,7 @@ struct CliHostStreamNotifier {
     routing: Weak<CliAccountRoutingHost>,
 }
 
-impl openbitfun_core::service::remote_connect::host_stream::HostStreamNotifier
+impl alex_core::service::remote_connect::host_stream::HostStreamNotifier
     for CliHostStreamNotifier
 {
     fn notify(&self, target_device_id: &str, payload: serde_json::Value) {
@@ -793,10 +793,10 @@ impl openbitfun_core::service::remote_connect::host_stream::HostStreamNotifier
                     return;
                 }
             };
-            use openbitfun_core::service::remote_connect::remote_server::RemoteCommand;
+            use alex_core::service::remote_connect::remote_server::RemoteCommand;
             let envelope = match serde_json::to_string(&RemoteCommand::DeviceEvent {
                 event:
-                    openbitfun_core::service::remote_connect::host_stream::HOST_STREAM_CHANGED_EVENT
+                    alex_core::service::remote_connect::host_stream::HOST_STREAM_CHANGED_EVENT
                         .to_owned(),
                 payload,
             }) {

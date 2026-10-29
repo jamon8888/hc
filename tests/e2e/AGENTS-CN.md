@@ -26,7 +26,7 @@
 ## 命令
 
 ```bash
-cargo build -p openbitfun-desktop
+cargo build -p alex-desktop
 pnpm --dir tests/e2e install
 pnpm --dir tests/e2e run test:l0
 pnpm --dir tests/e2e run test:l0:all

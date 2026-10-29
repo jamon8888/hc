@@ -20,7 +20,7 @@ import type { CanvasTab, EditorGroupId, TabState } from '../types';
 import { CanvasStoreModeContext } from '../stores';
 import { writeSessionTabDrag } from '@/app/workbench/canvasTabTransfer';
 import './Tab.scss';
-import { Tooltip } from '@openbitfun/ui';
+import { Tooltip } from '@alex/ui';
 export interface TabProps {
   /** Standard TabGroup item; this wrapper owns document interactions only. */
   children: React.ReactNode;
@@ -327,9 +327,9 @@ export const Tab: React.FC<TabProps> = ({
 
   return (
     <Tooltip content={tooltipText} placement="bottom">
-      <div data-openbitfun-product-component="canvas-tab" data-openbitfun-product-part="root" data-openbitfun-group={groupId}
+      <div data-alex-product-component="canvas-tab" data-alex-product-part="root" data-alex-group={groupId}
         data-overflow-trigger
-        data-openbitfun-state={[
+        data-alex-state={[
           isActive && 'active',
           isDragging && 'dragging',
           tab.isDirty && 'dirty',

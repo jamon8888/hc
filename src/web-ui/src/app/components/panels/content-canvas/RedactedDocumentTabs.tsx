@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { Toolbar, ToolbarGroup } from '@openbitfun/ui';
+import { Toolbar, ToolbarGroup } from '@alex/ui';
 import { FileText, Shield } from 'lucide-react';
 import { MarkdownRenderer } from '@/infrastructure/markdown/MarkdownRenderer';
 import { basemindAPI, workspaceAPI } from '@/infrastructure/api';
@@ -186,14 +186,14 @@ export const RedactedDocumentTabs: React.FC<RedactedDocumentTabsProps> = ({
   return (
     <div
       className="redacted-document-tabs"
-      data-openbitfun-component="redacted-document-tabs"
-      data-openbitfun-part="root"
-      data-openbitfun-state={viewerState}
+      data-alex-component="redacted-document-tabs"
+      data-alex-part="root"
+      data-alex-state={viewerState}
     >
       <Toolbar
         className="redacted-document-tabs__toolbar"
-        data-openbitfun-component="redacted-document-tabs"
-        data-openbitfun-part="toolbar"
+        data-alex-component="redacted-document-tabs"
+        data-alex-part="toolbar"
         leading={
           <ToolbarGroup role="tablist" aria-label={fileName}>
             <button
@@ -202,8 +202,8 @@ export const RedactedDocumentTabs: React.FC<RedactedDocumentTabsProps> = ({
               aria-selected={activeTab === 'source'}
               onClick={() => setActiveTab('source')}
               className={`redacted-document-tabs__tab ${activeTab === 'source' ? 'active' : ''}`}
-              data-openbitfun-component="redacted-document-tabs"
-              data-openbitfun-part="tab"
+              data-alex-component="redacted-document-tabs"
+              data-alex-part="tab"
             >
               <FileText size={14} /> {t('tabs.source')}
             </button>
@@ -213,8 +213,8 @@ export const RedactedDocumentTabs: React.FC<RedactedDocumentTabsProps> = ({
               aria-selected={activeTab === 'redacted'}
               onClick={() => setActiveTab('redacted')}
               className={`redacted-document-tabs__tab ${activeTab === 'redacted' ? 'active' : ''}`}
-              data-openbitfun-component="redacted-document-tabs"
-              data-openbitfun-part="tab"
+              data-alex-component="redacted-document-tabs"
+              data-alex-part="tab"
             >
               <Shield size={14} />
               {t('tabs.redacted')}
@@ -229,8 +229,8 @@ export const RedactedDocumentTabs: React.FC<RedactedDocumentTabsProps> = ({
         trailing={
           <ToolbarGroup
             className="redacted-document-tabs__entity-summary"
-            data-openbitfun-component="redacted-document-tabs"
-            data-openbitfun-part="summary"
+            data-alex-component="redacted-document-tabs"
+            data-alex-part="summary"
           >
             {totalEntities > 0 && (
               <span className="redacted-document-tabs__entity-badge">
@@ -258,20 +258,20 @@ export const RedactedDocumentTabs: React.FC<RedactedDocumentTabsProps> = ({
 
       <div
         className="redacted-document-tabs__content"
-        data-openbitfun-component="redacted-document-tabs"
-        data-openbitfun-part="content"
+        data-alex-component="redacted-document-tabs"
+        data-alex-part="content"
       >
         {activeTab === 'source' ? (
           <div
             className="redacted-document-tabs__source"
-            data-openbitfun-component="redacted-document-tabs"
-            data-openbitfun-part="source"
+            data-alex-component="redacted-document-tabs"
+            data-alex-part="source"
           >
             {sourceState === 'loading' || sourceState === 'idle' ? (
               <div
                 className="redacted-document-tabs__loading"
-                data-openbitfun-component="redacted-document-tabs"
-                data-openbitfun-part="loading"
+                data-alex-component="redacted-document-tabs"
+                data-alex-part="loading"
               >
                 <div className="redacted-document-tabs__spinner" />
                 <span>{t('state.sourceLoading')}</span>
@@ -299,8 +299,8 @@ export const RedactedDocumentTabs: React.FC<RedactedDocumentTabsProps> = ({
             ) : (
               <div
                 className="redacted-document-tabs__notice"
-                data-openbitfun-component="redacted-document-tabs"
-                data-openbitfun-part="notice"
+                data-alex-component="redacted-document-tabs"
+                data-alex-part="notice"
               >
                 {t('state.sourceUnavailable', { fileName })}
               </div>
@@ -309,14 +309,14 @@ export const RedactedDocumentTabs: React.FC<RedactedDocumentTabsProps> = ({
         ) : (
           <div
             className="redacted-document-tabs__redacted"
-            data-openbitfun-component="redacted-document-tabs"
-            data-openbitfun-part="redacted"
+            data-alex-component="redacted-document-tabs"
+            data-alex-part="redacted"
           >
             {redactedState === 'loading' || redactedState === 'idle' ? (
               <div
                 className="redacted-document-tabs__loading"
-                data-openbitfun-component="redacted-document-tabs"
-                data-openbitfun-part="loading"
+                data-alex-component="redacted-document-tabs"
+                data-alex-part="loading"
               >
                 <div className="redacted-document-tabs__spinner" />
                 <span>{t('state.loading')}</span>
@@ -324,16 +324,16 @@ export const RedactedDocumentTabs: React.FC<RedactedDocumentTabsProps> = ({
             ) : redactedState === 'unsupported' ? (
               <div
                 className="redacted-document-tabs__notice"
-                data-openbitfun-component="redacted-document-tabs"
-                data-openbitfun-part="notice"
+                data-alex-component="redacted-document-tabs"
+                data-alex-part="notice"
               >
                 {t('state.peerUnsupported')}
               </div>
             ) : redactedState === 'error' ? (
               <div
                 className="redacted-document-tabs__notice"
-                data-openbitfun-component="redacted-document-tabs"
-                data-openbitfun-part="notice"
+                data-alex-component="redacted-document-tabs"
+                data-alex-part="notice"
               >
                 <span>{t('state.loadFailed')}</span>
                 {redactedError && (

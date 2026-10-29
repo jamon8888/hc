@@ -2,12 +2,12 @@
 //! concrete implementations.
 //!
 //! This crate intentionally contains only DTOs and traits. It must not depend
-//! on concrete managers, platform adapters, `openbitfun-core`, or app crates.
+//! on concrete managers, platform adapters, `alex-core`, or app crates.
 
 use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "agent-api")]
-pub use openbitfun_core_types::{
+pub use alex_core_types::{
     SessionExecutionTarget, SessionExecutionTargetKind, SessionExecutionTargetRequest,
     SessionUsageReport, WorktreeError, WorktreeErrorCode, WorktreeLifecycle, WorktreeSettings,
     WorktreeSummary,
@@ -41,11 +41,11 @@ pub use local_workspace_snapshot::{
     LocalWorkspaceSnapshotTurnRequest,
 };
 #[cfg(feature = "product-search")]
-pub use openbitfun_product_domains::product_search::{
+pub use alex_product_domains::product_search::{
     SessionContentSearchRequest, SessionContentSearchResponse,
 };
 #[cfg(feature = "permission")]
-pub use openbitfun_product_domains::tool_permissions::{
+pub use alex_product_domains::tool_permissions::{
     deserialize_optional_permission_mode, resolve_child_permission_policy, resolve_permission_mode,
     resolve_permission_policy, wildcard_matches, ChildPermissionPolicyLayers, PermissionAuditEvent,
     PermissionAuditRecord, PermissionConstraintLayer, PermissionDelegationContext,

@@ -1,1 +1,1 @@
-pub use openbitfun_agent_runtime::prompt::{UserContextPolicy, UserContextSection};
+pub use alex_agent_runtime::prompt::{UserContextPolicy, UserContextSection};

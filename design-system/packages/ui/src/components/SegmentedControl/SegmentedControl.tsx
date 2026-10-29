@@ -133,8 +133,8 @@ export const SegmentedControl = forwardRef<HTMLDivElement, SegmentedControlProps
         {...props}
         aria-disabled={disabled || undefined}
         className={classNames(styles.root, className)}
-        data-openbitfun-component="segmented-control"
-        data-openbitfun-part="root"
+        data-alex-component="segmented-control"
+        data-alex-part="root"
         data-disabled={disabled ? "true" : "false"}
         data-distribution={distribution}
         data-size={size}
@@ -151,8 +151,8 @@ export const SegmentedControl = forwardRef<HTMLDivElement, SegmentedControlProps
               aria-checked={interaction === "radio" ? selected : undefined}
               aria-pressed={interaction === "buttons" ? selected : undefined}
               className={styles.segment}
-              data-openbitfun-part="segment"
-              data-openbitfun-value={option.value}
+              data-alex-part="segment"
+              data-alex-value={option.value}
               disabled={disabled || option.disabled}
               key={option.value}
               onClick={() => selectOption(option)}
@@ -165,13 +165,13 @@ export const SegmentedControl = forwardRef<HTMLDivElement, SegmentedControlProps
               type="button"
             >
               {option.icon && (
-                <span aria-hidden="true" className={styles.icon} data-openbitfun-icon-slot="true" data-openbitfun-part="icon">
+                <span aria-hidden="true" className={styles.icon} data-alex-icon-slot="true" data-alex-part="icon">
                   {option.icon}
                 </span>
               )}
               {labelBehavior === "static"
-                ? <span className={styles.label} data-openbitfun-part="label">{option.label}</span>
-                : <OverflowText className={styles.label} data-openbitfun-part="label">{option.label}</OverflowText>}
+                ? <span className={styles.label} data-alex-part="label">{option.label}</span>
+                : <OverflowText className={styles.label} data-alex-part="label">{option.label}</OverflowText>}
             </button>
           );
         })}

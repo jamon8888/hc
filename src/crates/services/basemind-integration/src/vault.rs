@@ -59,7 +59,7 @@ fn xpcc_encrypt(plaintext: &[u8], passphrase: &str) -> Result<Vec<u8>, VaultErro
     // Derive key via scrypt
     let mut key = [0u8; 32];
     let params = Params::RECOMMENDED;
-    scrypt(passphrase.as_bytes(), b"openbitfun-salt", &params, &mut key)
+    scrypt(passphrase.as_bytes(), b"alex-salt", &params, &mut key)
         .map_err(|e| VaultError::Encrypt(format!("scrypt: {e}")))?;
 
     let cipher = Aes256Gcm::new(Key::<Aes256Gcm>::from_slice(&key));
@@ -101,7 +101,7 @@ fn xpcc_decrypt(encrypted: &[u8], passphrase: &str) -> Result<Vec<u8>, VaultErro
 
     let mut key = [0u8; 32];
     let params = Params::RECOMMENDED;
-    scrypt(passphrase.as_bytes(), b"openbitfun-salt", &params, &mut key)
+    scrypt(passphrase.as_bytes(), b"alex-salt", &params, &mut key)
         .map_err(|e| VaultError::Decrypt(format!("scrypt: {e}")))?;
 
     let cipher = Aes256Gcm::new(Key::<Aes256Gcm>::from_slice(&key));

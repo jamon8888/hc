@@ -172,7 +172,7 @@ describe('floating mini chat bubble MiniApp registration', () => {
     expect(source).toContain("showIcon={entry.kind === 'miniapp'}");
     expect(source).not.toContain('getMiniAppIconGradient');
     expect(welcomeSource).toContain('computeFlowChatInputStackFooterPx(inputHeight)');
-    expect(welcomeSource).toContain('openbitfun-fmc__miniapp-welcome-content');
+    expect(welcomeSource).toContain('alex-fmc__miniapp-welcome-content');
     expect(welcomeSource).toContain('WELCOME_CONTENT_BLOCK_PADDING_PX + inputClearance');
     expect(styles).toContain('overflow-y: auto;');
     expect(source).toContain('state.sessions.get(entry.sessionId)');

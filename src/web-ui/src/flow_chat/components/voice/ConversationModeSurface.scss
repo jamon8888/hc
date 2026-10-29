@@ -1,6 +1,6 @@
 @use '../../markdown-typography' as markdownTypography;
 
-.openbitfun-conversation-mode-surface {
+.alex-conversation-mode-surface {
   flex: 1;
   min-width: 0;
   min-height: 0;
@@ -9,7 +9,7 @@
   flex-direction: column;
 }
 
-.openbitfun-conversation-mode-surface__body {
+.alex-conversation-mode-surface__body {
   flex: 1;
   min-width: 0;
   min-height: 0;
@@ -18,90 +18,90 @@
   flex-direction: column;
 }
 
-.openbitfun-conversation-mode-surface__switch {
+.alex-conversation-mode-surface__switch {
   display: flex;
   flex: 0 0 auto;
-  padding: var(--openbitfun-space-2);
-  border-top: 1px solid var(--openbitfun-color-border-subtle);
+  padding: var(--alex-space-2);
+  border-top: 1px solid var(--alex-color-border-subtle);
   background: transparent;
 }
 
-.openbitfun-conversation-mode-surface__switch-button {
+.alex-conversation-mode-surface__switch-button {
   display: inline-flex;
   width: 100%;
   min-height: 38px;
   align-items: center;
   justify-content: center;
-  gap: var(--openbitfun-space-2);
-  padding: var(--openbitfun-space-2) var(--openbitfun-space-3);
+  gap: var(--alex-space-2);
+  padding: var(--alex-space-2) var(--alex-space-3);
   border: 0;
-  border-radius: var(--openbitfun-radius-base);
+  border-radius: var(--alex-radius-base);
   background: transparent;
-  color: var(--openbitfun-color-content-secondary);
+  color: var(--alex-color-content-secondary);
   font: inherit;
-  font-size: var(--openbitfun-type-label-sm-font-size);
-  font-weight: var(--openbitfun-type-label-sm-font-weight);
-  line-height: var(--openbitfun-type-label-md-line-height);
+  font-size: var(--alex-type-label-sm-font-size);
+  font-weight: var(--alex-type-label-sm-font-weight);
+  line-height: var(--alex-type-label-md-line-height);
   white-space: nowrap;
   cursor: pointer;
   transition:
-    background var(--openbitfun-motion-duration-fast) var(--openbitfun-motion-easing-standard),
-    color var(--openbitfun-motion-duration-fast) var(--openbitfun-motion-easing-standard),
-    transform var(--openbitfun-motion-duration-fast) var(--openbitfun-motion-easing-standard);
+    background var(--alex-motion-duration-fast) var(--alex-motion-easing-standard),
+    color var(--alex-motion-duration-fast) var(--alex-motion-easing-standard),
+    transform var(--alex-motion-duration-fast) var(--alex-motion-easing-standard);
 
   @media (hover: hover) and (pointer: fine) {
     &:hover:not(:disabled) {
-      background: var(--openbitfun-color-action-quiet-hover);
-      color: var(--openbitfun-color-content-primary);
+      background: var(--alex-color-action-quiet-hover);
+      color: var(--alex-color-content-primary);
     }
 
   }
 
   &:active:not(:disabled) {
-    background: var(--openbitfun-color-action-neutral-surface-hover);
+    background: var(--alex-color-action-neutral-surface-hover);
   }
 
   &:focus-visible {
-    outline: 2px solid var(--openbitfun-color-accent-default);
+    outline: 2px solid var(--alex-color-accent-default);
     outline-offset: 2px;
   }
 
   &:disabled {
     cursor: default;
-    opacity: var(--openbitfun-opacity-disabled);
+    opacity: var(--alex-opacity-disabled);
   }
 
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .openbitfun-conversation-mode-surface__switch-button {
+  .alex-conversation-mode-surface__switch-button {
     transition: none;
   }
 
-  .openbitfun-conversation-mode-surface__switch-button:active:not(:disabled) {
+  .alex-conversation-mode-surface__switch-button:active:not(:disabled) {
     transform: none;
   }
 
 }
-.openbitfun-conversation-mode-surface__logo {
+.alex-conversation-mode-surface__logo {
   display: block;
   width: 20px;
   height: 20px;
   background: currentColor;
-  mask: url('/brand/openbitfun-mark.svg') center / contain no-repeat;
-  -webkit-mask: url('/brand/openbitfun-mark.svg') center / contain no-repeat;
+  mask: url('/brand/alex-mark.svg') center / contain no-repeat;
+  -webkit-mask: url('/brand/alex-mark.svg') center / contain no-repeat;
 }
 
-.openbitfun-conversation-mode-surface--integrated {
-  --_conversation-header-overlap: calc(var(--openbitfun-control-height-sm) + var(--openbitfun-space-6));
+.alex-conversation-mode-surface--integrated {
+  --_conversation-header-overlap: calc(var(--alex-control-height-sm) + var(--alex-space-6));
   position: relative;
   container-type: size;
   color: inherit;
 
-  &[data-openbitfun-state='voice'] { --_conversation-header-overlap: 0px; }
+  &[data-alex-state='voice'] { --_conversation-header-overlap: 0px; }
 
   // The identity stays on one axis; text records pass beneath its compact form.
-  .openbitfun-conversation-mode-surface__body > [data-openbitfun-part='identity'] {
+  .alex-conversation-mode-surface__body > [data-alex-part='identity'] {
     z-index: 1;
     isolation: isolate;
     margin-block-end: calc(0px - var(--_conversation-header-overlap));
@@ -113,53 +113,53 @@
       z-index: -1;
       inset: 0;
       pointer-events: none;
-      background: var(--openbitfun-color-surface-raised);
+      background: var(--alex-color-surface-raised);
       // Keep mask coverage independent of translucent text colors; fade inside the lower edge.
-      -webkit-mask-image: linear-gradient(to bottom, var(--openbitfun-color-content-on-light) calc(100% - var(--openbitfun-space-1)), transparent);
-      mask-image: linear-gradient(to bottom, var(--openbitfun-color-content-on-light) calc(100% - var(--openbitfun-space-1)), transparent);
+      -webkit-mask-image: linear-gradient(to bottom, var(--alex-color-content-on-light) calc(100% - var(--alex-space-1)), transparent);
+      mask-image: linear-gradient(to bottom, var(--alex-color-content-on-light) calc(100% - var(--alex-space-1)), transparent);
       opacity: 0;
-      transition: opacity var(--openbitfun-motion-duration-base) var(--openbitfun-motion-easing-standard);
+      transition: opacity var(--alex-motion-duration-base) var(--alex-motion-easing-standard);
     }
   }
 
-  &[data-openbitfun-state='chat'] .openbitfun-conversation-mode-surface__body:has(
-    > .openbitfun-conversation-mode-surface__transcript[data-scrolled='true']
-  ) > [data-openbitfun-part='identity']::before { opacity: 1; }
+  &[data-alex-state='chat'] .alex-conversation-mode-surface__body:has(
+    > .alex-conversation-mode-surface__transcript[data-scrolled='true']
+  ) > [data-alex-part='identity']::before { opacity: 1; }
 
-  .openbitfun-conversation-mode-surface__transcript {
+  .alex-conversation-mode-surface__transcript {
     padding-block-start: 0;
-    scroll-padding-block-start: calc(var(--_conversation-header-overlap) + var(--openbitfun-space-3));
+    scroll-padding-block-start: calc(var(--_conversation-header-overlap) + var(--alex-space-3));
 
-    > [data-openbitfun-part='entries'] {
-      padding-block-start: calc(var(--_conversation-header-overlap) + var(--openbitfun-space-3));
+    > [data-alex-part='entries'] {
+      padding-block-start: calc(var(--_conversation-header-overlap) + var(--alex-space-3));
       transition: padding-block-start 480ms cubic-bezier(0.22, 1, 0.36, 1);
     }
   }
 
   @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
-    .openbitfun-conversation-mode-surface__body > [data-openbitfun-part='identity']::before {
-      background: color-mix(in srgb, var(--openbitfun-color-surface-raised) 72%, transparent);
-      -webkit-backdrop-filter: var(--openbitfun-effect-blur-medium) var(--openbitfun-effect-blur-medium);
-      backdrop-filter: var(--openbitfun-effect-blur-medium) var(--openbitfun-effect-blur-medium);
+    .alex-conversation-mode-surface__body > [data-alex-part='identity']::before {
+      background: color-mix(in srgb, var(--alex-color-surface-raised) 72%, transparent);
+      -webkit-backdrop-filter: var(--alex-effect-blur-medium) var(--alex-effect-blur-medium);
+      backdrop-filter: var(--alex-effect-blur-medium) var(--alex-effect-blur-medium);
     }
   }
 
   @media (prefers-reduced-transparency: reduce) {
-    .openbitfun-conversation-mode-surface__body > [data-openbitfun-part='identity']::before {
-      background: var(--openbitfun-color-surface-raised);
+    .alex-conversation-mode-surface__body > [data-alex-part='identity']::before {
+      background: var(--alex-color-surface-raised);
       -webkit-backdrop-filter: none;
       backdrop-filter: none;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .openbitfun-conversation-mode-surface__body > [data-openbitfun-part='identity'],
-    .openbitfun-conversation-mode-surface__body > [data-openbitfun-part='identity']::before,
-    .openbitfun-conversation-mode-surface__transcript > [data-openbitfun-part='entries'] { transition: none; }
+    .alex-conversation-mode-surface__body > [data-alex-part='identity'],
+    .alex-conversation-mode-surface__body > [data-alex-part='identity']::before,
+    .alex-conversation-mode-surface__transcript > [data-alex-part='entries'] { transition: none; }
   }
 }
 
-.openbitfun-conversation-mode-surface__voice-header {
+.alex-conversation-mode-surface__voice-header {
   display: grid;
   grid-template-rows: 1fr;
   flex: 0 0 auto;
@@ -174,9 +174,9 @@
     transition: grid-template-rows 480ms cubic-bezier(0.22, 1, 0.36, 1), opacity 160ms, visibility 0s 160ms;
   }
 }
-.openbitfun-conversation-mode-surface__voice-header-content { min-height: 0; overflow: hidden; }
+.alex-conversation-mode-surface__voice-header-content { min-height: 0; overflow: hidden; }
 
-.openbitfun-conversation-mode-surface__composer {
+.alex-conversation-mode-surface__composer {
   display: grid;
   grid-template-rows: 1fr;
   flex: 0 0 auto;
@@ -191,40 +191,40 @@
     transition: grid-template-rows 700ms cubic-bezier(0.22, 1, 0.36, 1), opacity 160ms, visibility 0s 160ms;
   }
 }
-.openbitfun-conversation-mode-surface__composer-content { min-height: 0; overflow: hidden; }
-.openbitfun-conversation-mode-surface__transcript {
+.alex-conversation-mode-surface__composer-content { min-height: 0; overflow: hidden; }
+.alex-conversation-mode-surface__transcript {
   .markdown-renderer { white-space: normal; }
 
-  &[data-openbitfun-presentation='chat'] {
+  &[data-alex-presentation='chat'] {
     @include markdownTypography.apply;
   }
 }
 
-.openbitfun-conversation-mode-surface__transcript[data-openbitfun-presentation='voice'] .markdown-renderer {
+.alex-conversation-mode-surface__transcript[data-alex-presentation='voice'] .markdown-renderer {
   color: inherit;
   font: inherit;
   :is(p, h1, h2, h3, h4, h5, h6, strong, em, li) { color: inherit; }
 }
-.openbitfun-conversation-mode-surface__history {
+.alex-conversation-mode-surface__history {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--openbitfun-space-2);
-  color: var(--openbitfun-color-content-secondary);
-  font-size: var(--openbitfun-type-label-sm-font-size);
-  line-height: var(--openbitfun-type-label-sm-line-height);
+  gap: var(--alex-space-2);
+  color: var(--alex-color-content-secondary);
+  font-size: var(--alex-type-label-sm-font-size);
+  line-height: var(--alex-type-label-sm-line-height);
 }
-.openbitfun-conversation-mode-surface__images {
+.alex-conversation-mode-surface__images {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--openbitfun-space-2);
-  margin-top: var(--openbitfun-space-2);
-  img { display: block; max-width: 160px; max-height: 160px; object-fit: contain; border-radius: var(--openbitfun-radius-base); }
+  gap: var(--alex-space-2);
+  margin-top: var(--alex-space-2);
+  img { display: block; max-width: 160px; max-height: 160px; object-fit: contain; border-radius: var(--alex-radius-base); }
 }
-.openbitfun-conversation-mode-surface__image-preview { display: block; max-width: 100%; max-height: 75vh; object-fit: contain; }
+.alex-conversation-mode-surface__image-preview { display: block; max-width: 100%; max-height: 75vh; object-fit: contain; }
 @media (prefers-reduced-motion: reduce) {
-  .openbitfun-conversation-mode-surface__voice-header,
-  .openbitfun-conversation-mode-surface__voice-header[aria-hidden='true'],
-  .openbitfun-conversation-mode-surface__composer,
-  .openbitfun-conversation-mode-surface__composer[aria-hidden='true'] { transition: none; }
+  .alex-conversation-mode-surface__voice-header,
+  .alex-conversation-mode-surface__voice-header[aria-hidden='true'],
+  .alex-conversation-mode-surface__composer,
+  .alex-conversation-mode-surface__composer[aria-hidden='true'] { transition: none; }
 }

@@ -2,5 +2,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    openbitfun_installer_lib::run()
+    alex_installer_lib::run()
 }

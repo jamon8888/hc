@@ -39,7 +39,7 @@ class ConversationHeaderTest {
         composeRule.setContent {
             ConversationHeader(
                 title = "",
-                contextTitle = "OpenBitFun · main",
+                contextTitle = "Alex · main",
                 canStop = false,
                 enabled = true,
                 onBack = {},
@@ -50,7 +50,7 @@ class ConversationHeaderTest {
         }
 
         composeRule.onNodeWithText(string(R.string.conversation_title_default)).assertIsDisplayed()
-        composeRule.onNodeWithText("OpenBitFun · main").assertIsDisplayed()
+        composeRule.onNodeWithText("Alex · main").assertIsDisplayed()
     }
 
     @Test

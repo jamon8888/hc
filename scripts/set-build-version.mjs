@@ -57,7 +57,7 @@ export function setBuildVersion(root, version) {
     `$1${version}$2`,
   );
   replaceVersion(
-    path.join(root, 'src/apps/mobile/ios/OpenBitFun/Info.plist'),
+    path.join(root, 'src/apps/mobile/ios/Alex/Info.plist'),
     /(<key>CFBundleShortVersionString<\/key>\s*<string>)[^<]+(<\/string>)/m,
     `$1${version}$2`,
   );

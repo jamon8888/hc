@@ -3,7 +3,7 @@ use crate::native_hooks::{
     dispatch_pre_tool_use, hook_settings_paths, ordered_layers, overview, overview_with_facts,
     take_pending_session_context, AgentHooksConfig, NativeHookSessionFacts,
 };
-use openbitfun_agent_runtime::native_hooks::{
+use alex_agent_runtime::native_hooks::{
     AgentHookEvent, AgentHookScope, AgentHookSettingsLayer,
 };
 use serde_json::json;

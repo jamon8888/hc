@@ -1,5 +1,5 @@
 import { Monitor } from 'lucide-react';
-import type { IconSize } from '@openbitfun/ui';
+import type { IconSize } from '@alex/ui';
 import type { DeviceOverviewDevice } from '../deviceInterconnectionOverview';
 import { getDeviceArtworkKind } from './deviceArtworkKind';
 import { DEVICE_MARK_BY_ARTWORK, DEVICE_SYSTEM_MARKS } from './deviceSystemMarks';
@@ -7,11 +7,11 @@ import { DEVICE_MARK_BY_ARTWORK, DEVICE_SYSTEM_MARKS } from './deviceSystemMarks
 type DeviceSystemFacts = Pick<DeviceOverviewDevice, 'kind' | 'name' | 'os' | 'hostKind'>;
 
 const ICON_TOKEN_SIZE: Record<IconSize, string> = {
-  '2xs': 'var(--openbitfun-control-icon-size2xs)',
-  xs: 'var(--openbitfun-control-icon-size-xs)',
-  sm: 'var(--openbitfun-control-icon-size-sm)',
-  md: 'var(--openbitfun-control-icon-size-md)',
-  lg: 'var(--openbitfun-control-icon-size-lg)',
+  '2xs': 'var(--alex-control-icon-size2xs)',
+  xs: 'var(--alex-control-icon-size-xs)',
+  sm: 'var(--alex-control-icon-size-sm)',
+  md: 'var(--alex-control-icon-size-md)',
+  lg: 'var(--alex-control-icon-size-lg)',
 };
 
 /**

@@ -1,4 +1,4 @@
-//! OpenBitFun Page: versioned publish + Page Functions serve.
+//! Alex Page: versioned publish + Page Functions serve.
 //!
 //! Flow: upload draft → freeze version → deploy production pointer.
 //! Preview: `/p/{user}/{slug}/@v/{version}/...`
@@ -11,7 +11,7 @@ use axum::routing::{get, post};
 use axum::{Extension, Json, Router};
 use base64::{engine::general_purpose::STANDARD as B64, Engine};
 use dashmap::DashMap;
-use openbitfun_page_function_runtime::{
+use alex_page_function_runtime::{
     run_fetch, FetchRequest, PageFunctionError, PageMeta, DEFAULT_TIMEOUT, WORKER_ENTRY_PATH,
 };
 use serde::{Deserialize, Serialize};
@@ -50,7 +50,7 @@ const MAX_PAGE_BROWSER_GRANTS: usize = 8192;
 const MAX_PAGE_BROWSER_GRANTS_PER_USER: usize = 512;
 const MAX_PAGE_LOGIN_REQUESTS: usize = 4096;
 const MAX_PAGE_LOGIN_EXCHANGES: usize = 4096;
-const PAGE_ACCESS_COOKIE: &str = "openbitfun_page_access";
+const PAGE_ACCESS_COOKIE: &str = "alex_page_access";
 const PAGE_UPLOAD_SESSION_TTL: Duration = Duration::from_secs(15 * 60);
 const MAX_PAGE_UPLOAD_SESSIONS: usize = 4096;
 const MAX_PAGE_UPLOAD_SESSIONS_PER_USER: usize = 64;

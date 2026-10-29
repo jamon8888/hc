@@ -40,7 +40,7 @@ export const forbiddenContentRules = [
     patterns: [
       {
         regex:
-          /\b(?:OpenCode|DeepSeek|HookFunction|serde_json|openbitfun_[a-z0-9_]+_adapter)\b/,
+          /\b(?:OpenCode|DeepSeek|HookFunction|serde_json|alex_[a-z0-9_]+_adapter)\b/,
         message:
           'plugin capability publication must not depend on ecosystem adapters, raw config, or Host runtime contracts',
       },
@@ -75,19 +75,19 @@ export const forbiddenContentRules = [
     patterns: [
       {
         regex:
-          /^\s*openbitfun-(?:app-server-client|app-server-protocol|tui-management)\s*=/m,
+          /^\s*alex-(?:app-server-client|app-server-protocol|tui-management)\s*=/m,
         message:
-          'openbitfun-cli must not depend on the typed App Server client transport, wire DTOs, or a shared TUI management crate',
+          'alex-cli must not depend on the typed App Server client transport, wire DTOs, or a shared TUI management crate',
       },
     ],
   },
   {
     path: 'src/crates/interfaces/app-server/Cargo.toml',
-    reason: 'App Server must select explicit openbitfun-core owner features',
+    reason: 'App Server must select explicit alex-core owner features',
     patterns: [
       {
         regex: /features\s*=\s*\[[^\]]*"product-full"/,
-        message: 'app-server must not select the broad openbitfun-core/product-full union',
+        message: 'app-server must not select the broad alex-core/product-full union',
       },
     ],
   },
@@ -105,11 +105,11 @@ export const forbiddenContentRules = [
   {
     path: 'src/crates/adapters/agent-runtime-ipc/Cargo.toml',
     reason:
-      'agent-runtime-ipc may reuse bounded JSON encoding without enabling openbitfun-transport features',
+      'agent-runtime-ipc may reuse bounded JSON encoding without enabling alex-transport features',
     patterns: [
       {
         regex:
-          /openbitfun-transport\s*=\s*\{[^}\r\n]*(?:features|default-features)\s*=/,
+          /alex-transport\s*=\s*\{[^}\r\n]*(?:features|default-features)\s*=/,
         message:
           'agent-runtime-ipc must not enable event-host or Tauri transport features',
       },
@@ -237,7 +237,7 @@ export const forbiddenContentRules = [
       {
         regex: /\bAgenticEvent::[A-Z]/,
         message:
-          'Tauri transport adapter must not match agentic event variants directly; use openbitfun-events frontend projection',
+          'Tauri transport adapter must not match agentic event variants directly; use alex-events frontend projection',
       },
     ],
   },
@@ -245,7 +245,7 @@ export const forbiddenContentRules = [
     path: 'src/crates/execution/agent-runtime/tests/agent_session_contracts/sdk_smoke.rs',
     patterns: [
       {
-        regex: /\bopenbitfun_runtime_services::test_support\b/,
+        regex: /\balex_runtime_services::test_support\b/,
         message:
           'agent-runtime SDK smoke tests must prove the public sdk facade is enough; do not rely on runtime-services test_support',
       },
@@ -260,11 +260,11 @@ export const forbiddenContentRules = [
     path: 'src/crates/execution/agent-runtime/src/sdk.rs',
     patterns: [
       {
-        regex: /\bopenbitfun_core\b/,
-        message: 'SDK facade must not expose openbitfun-core',
+        regex: /\balex_core\b/,
+        message: 'SDK facade must not expose alex-core',
       },
       {
-        regex: /\bopenbitfun_product_capabilities\b/,
+        regex: /\balex_product_capabilities\b/,
         message: 'SDK facade must not expose product assembly facts',
       },
       {
@@ -299,9 +299,9 @@ export const forbiddenContentRules = [
     path: 'src/crates/assembly/product-capabilities/tests/product_capability_contracts/product_sdk_assembly.rs',
     patterns: [
       {
-        regex: /\bopenbitfun_core\b/,
+        regex: /\balex_core\b/,
         message:
-          'product assembly to SDK smoke must not depend on openbitfun-core',
+          'product assembly to SDK smoke must not depend on alex-core',
       },
       {
         regex: /\bCoreRuntimeServicesProvider\b/,
@@ -320,17 +320,17 @@ export const forbiddenContentRules = [
       {
         regex: /\bprocess_manager::/,
         message:
-          'core browser launcher facade must not own browser process execution; use openbitfun-services-integrations browser_control launcher',
+          'core browser launcher facade must not own browser process execution; use alex-services-integrations browser_control launcher',
       },
       {
         regex: /\b(?:std::process::Command|Command::new\()/,
         message:
-          'core browser launcher facade must not construct browser launch commands; use openbitfun-services-integrations browser_control launcher',
+          'core browser launcher facade must not construct browser launch commands; use alex-services-integrations browser_control launcher',
       },
       {
         regex: /\breqwest::/,
         message:
-          'core browser launcher facade must not own CDP network probing; use openbitfun-services-integrations browser_control launcher',
+          'core browser launcher facade must not own CDP network probing; use alex-services-integrations browser_control launcher',
       },
     ],
   },
@@ -340,7 +340,7 @@ export const forbiddenContentRules = [
       {
         regex: /\breqwest::/,
         message:
-          'core CDP client facade must not own HTTP endpoint probing; use openbitfun-services-integrations browser_control CDP provider',
+          'core CDP client facade must not own HTTP endpoint probing; use alex-services-integrations browser_control CDP provider',
       },
     ],
   },
@@ -350,7 +350,7 @@ export const forbiddenContentRules = [
       {
         regex: /\breqwest::/,
         message:
-          'core WebFetch tool must not own HTTP clients; use openbitfun-services-integrations web provider',
+          'core WebFetch tool must not own HTTP clients; use alex-services-integrations web provider',
       },
     ],
   },
@@ -360,7 +360,7 @@ export const forbiddenContentRules = [
       {
         regex: /\breqwest::/,
         message:
-          'core WebSearch tool must not own provider HTTP clients; use openbitfun-services-integrations web provider',
+          'core WebSearch tool must not own provider HTTP clients; use alex-services-integrations web provider',
       },
       {
         regex: /strip_prefix\("Title: "\)/,
@@ -395,22 +395,22 @@ export const forbiddenContentRules = [
       {
         regex: /\bstatic\s+FILE_LOCKS\b/,
         message:
-          'core persistence wrapper must not own file locks; use openbitfun-services-core persistence owner',
+          'core persistence wrapper must not own file locks; use alex-services-core persistence owner',
       },
       {
         regex: /\bserde_json::to_string_pretty\b/,
         message:
-          'core persistence wrapper must not own JSON serialization; use openbitfun-services-core persistence owner',
+          'core persistence wrapper must not own JSON serialization; use alex-services-core persistence owner',
       },
       {
         regex: /\btokio::fs::rename\b/,
         message:
-          'core persistence wrapper must not own atomic file replacement; use openbitfun-services-core persistence owner',
+          'core persistence wrapper must not own atomic file replacement; use alex-services-core persistence owner',
       },
       {
         regex: /\bfn create_backup\b/,
         message:
-          'core persistence wrapper must not own backup creation; use openbitfun-services-core persistence owner',
+          'core persistence wrapper must not own backup creation; use alex-services-core persistence owner',
       },
     ],
   },
@@ -420,22 +420,22 @@ export const forbiddenContentRules = [
       {
         regex: /\btokio::fs::read_dir\b/,
         message:
-          'core storage cleanup wrapper must not own directory traversal; use openbitfun-services-core cleanup owner',
+          'core storage cleanup wrapper must not own directory traversal; use alex-services-core cleanup owner',
       },
       {
         regex: /\btokio::fs::remove_file\b/,
         message:
-          'core storage cleanup wrapper must not own cleanup deletion; use openbitfun-services-core cleanup owner',
+          'core storage cleanup wrapper must not own cleanup deletion; use alex-services-core cleanup owner',
       },
       {
         regex: /\bfn cleanup_recursively\b/,
         message:
-          'core storage cleanup wrapper must not own recursive cleanup; use openbitfun-services-core cleanup owner',
+          'core storage cleanup wrapper must not own recursive cleanup; use alex-services-core cleanup owner',
       },
       {
         regex: /\bfn calculate_dir_size\b/,
         message:
-          'core storage cleanup wrapper must not own cleanup size accounting; use openbitfun-services-core cleanup owner',
+          'core storage cleanup wrapper must not own cleanup size accounting; use alex-services-core cleanup owner',
       },
     ],
   },
@@ -445,27 +445,27 @@ export const forbiddenContentRules = [
       {
         regex: /\bconst\s+MODEL_STATS_FILE\b/,
         message:
-          'core token usage wrapper must not own token usage file layout; use openbitfun-services-core token usage owner',
+          'core token usage wrapper must not own token usage file layout; use alex-services-core token usage owner',
       },
       {
         regex: /\bRecordsBatch\b/,
         message:
-          'core token usage wrapper must not own token usage persistence batches; use openbitfun-services-core token usage owner',
+          'core token usage wrapper must not own token usage persistence batches; use alex-services-core token usage owner',
       },
       {
         regex: /\bfn persist_record\b/,
         message:
-          'core token usage wrapper must not own record persistence; use openbitfun-services-core token usage owner',
+          'core token usage wrapper must not own record persistence; use alex-services-core token usage owner',
       },
       {
         regex: /\btokio::fs::/,
         message:
-          'core token usage wrapper must not own token usage file IO; use openbitfun-services-core token usage owner',
+          'core token usage wrapper must not own token usage file IO; use alex-services-core token usage owner',
       },
       {
         regex: /\bchrono::/,
         message:
-          'core token usage wrapper must not own token usage time aggregation; use openbitfun-services-core token usage owner',
+          'core token usage wrapper must not own token usage time aggregation; use alex-services-core token usage owner',
       },
     ],
   },
@@ -475,12 +475,12 @@ export const forbiddenContentRules = [
       {
         regex: /\btokio::fs::read_to_string\b/,
         message:
-          'core instruction context wrapper must not own workspace instruction file IO; use openbitfun-services-core workspace instruction owner',
+          'core instruction context wrapper must not own workspace instruction file IO; use alex-services-core workspace instruction owner',
       },
       {
         regex: /\bfor file_name in\b/,
         message:
-          'core instruction context wrapper must not own instruction file ordering; use openbitfun-services-core workspace instruction owner',
+          'core instruction context wrapper must not own instruction file ordering; use alex-services-core workspace instruction owner',
       },
     ],
   },
@@ -490,17 +490,17 @@ export const forbiddenContentRules = [
       {
         regex: /\bserde_yaml::from_str\b/,
         message:
-          'core front-matter markdown facade must not own YAML parsing; use openbitfun-services-core markdown owner',
+          'core front-matter markdown facade must not own YAML parsing; use alex-services-core markdown owner',
       },
       {
         regex: /\bserde_yaml::to_string\b/,
         message:
-          'core front-matter markdown facade must not own YAML serialization; use openbitfun-services-core markdown owner',
+          'core front-matter markdown facade must not own YAML serialization; use alex-services-core markdown owner',
       },
       {
         regex: /\bstd::fs::write\b/,
         message:
-          'core front-matter markdown facade must not own markdown persistence; use openbitfun-services-core markdown owner',
+          'core front-matter markdown facade must not own markdown persistence; use alex-services-core markdown owner',
       },
     ],
   },
@@ -510,27 +510,27 @@ export const forbiddenContentRules = [
       {
         regex: /\breqwest::/,
         message:
-          'core review platform service must not own concrete HTTP clients; use openbitfun-services-integrations review platform HTTP transport',
+          'core review platform service must not own concrete HTTP clients; use alex-services-integrations review platform HTTP transport',
       },
       {
         regex: /\btokio::fs\b|\bstd::fs\b/,
         message:
-          'core review platform service must not own token or provider file IO; use openbitfun-services-integrations review platform owner',
+          'core review platform service must not own token or provider file IO; use alex-services-integrations review platform owner',
       },
       {
         regex: /\bprocess_manager::|\bCommand::new\(|\bexecute_git_command\b|\bgit\s+remote\b|\brev-parse\b/,
         message:
-          'core review platform service must not own Git probing; use openbitfun-services-integrations review platform owner',
+          'core review platform service must not own Git probing; use alex-services-integrations review platform owner',
       },
       {
         regex: /\bserde_json::|\bjson!\b|\bValue\b/,
         message:
-          'core review platform service must not own provider DTO parsing; use openbitfun-services-integrations review platform owner',
+          'core review platform service must not own provider DTO parsing; use alex-services-integrations review platform owner',
       },
       {
         regex: /\bstruct\s+(?:Github|Gitlab|Gitcode)|\bimpl\s+ReviewProvider\b|\btrait\s+ReviewProvider\b/,
         message:
-          'core review platform service must not own provider implementations; use openbitfun-services-integrations review platform owner',
+          'core review platform service must not own provider implementations; use alex-services-integrations review platform owner',
       },
     ],
   },
@@ -540,27 +540,27 @@ export const forbiddenContentRules = [
       {
         regex: /\bprocess_manager::/,
         message:
-          'core computer-use system facade must not spawn local system processes directly; use openbitfun-services-core local system provider',
+          'core computer-use system facade must not spawn local system processes directly; use alex-services-core local system provider',
       },
       {
         regex: /\btokio::process::/,
         message:
-          'core computer-use system facade must not own async process execution; use openbitfun-services-core local system provider',
+          'core computer-use system facade must not own async process execution; use alex-services-core local system provider',
       },
       {
         regex: /\b(?:std::process::Command|Command::new\()/,
         message:
-          'core computer-use system facade must not construct local system commands directly; use openbitfun-services-core local system provider',
+          'core computer-use system facade must not construct local system commands directly; use alex-services-core local system provider',
       },
       {
         regex: /\bfn\s+script_invocation\b/,
         message:
-          'core computer-use system facade must not own script invocation selection; use openbitfun-services-core local system provider',
+          'core computer-use system facade must not own script invocation selection; use alex-services-core local system provider',
       },
       {
         regex: /\bfn\s+platform_open_attempts\b/,
         message:
-          'core computer-use system facade must not own platform open-app command selection; use openbitfun-services-core local system provider',
+          'core computer-use system facade must not own platform open-app command selection; use alex-services-core local system provider',
       },
     ],
   },
@@ -595,32 +595,32 @@ export const forbiddenContentRules = [
       {
         regex: /\breqwest::/,
         message:
-          'core Weixin bot facade must not own provider HTTP clients; use openbitfun-services-integrations Weixin provider',
+          'core Weixin bot facade must not own provider HTTP clients; use alex-services-integrations Weixin provider',
       },
       {
         regex: /\baes::/,
         message:
-          'core Weixin bot facade must not own provider AES/CDN crypto; use openbitfun-services-integrations Weixin provider',
+          'core Weixin bot facade must not own provider AES/CDN crypto; use alex-services-integrations Weixin provider',
       },
       {
         regex: /\bhex::/,
         message:
-          'core Weixin bot facade must not own provider hex encoding; use openbitfun-services-integrations Weixin provider',
+          'core Weixin bot facade must not own provider hex encoding; use alex-services-integrations Weixin provider',
       },
       {
         regex: /\bmd5::/,
         message:
-          'core Weixin bot facade must not own provider MD5 signing; use openbitfun-services-integrations Weixin provider',
+          'core Weixin bot facade must not own provider MD5 signing; use alex-services-integrations Weixin provider',
       },
       {
         regex: /\bfn\s+sync_buf_path\b/,
         message:
-          'core Weixin bot facade must not own provider sync-buffer storage layout; use openbitfun-services-integrations Weixin provider',
+          'core Weixin bot facade must not own provider sync-buffer storage layout; use alex-services-integrations Weixin provider',
       },
       {
         regex: /\bfn\s+parse_weixin_cdn_aes_key\b/,
         message:
-          'core Weixin bot facade must not own provider CDN AES key parsing; use openbitfun-services-integrations Weixin provider',
+          'core Weixin bot facade must not own provider CDN AES key parsing; use alex-services-integrations Weixin provider',
       },
     ],
   },
@@ -990,22 +990,22 @@ export const forbiddenContentRules = [
       {
         regex: /\bstatic GLOBAL_DEEP_REVIEW_BUDGET_TRACKER\b/,
         message:
-          'core DeepReview policy facade must not re-own runtime budget state; use openbitfun-agent-runtime::deep_review',
+          'core DeepReview policy facade must not re-own runtime budget state; use alex-agent-runtime::deep_review',
       },
       {
         regex: /\bstatic GLOBAL_DEEP_REVIEW_QUEUE_CONTROL_TRACKER\b/,
         message:
-          'core DeepReview policy facade must not re-own queue control state; use openbitfun-agent-runtime::deep_review',
+          'core DeepReview policy facade must not re-own queue control state; use alex-agent-runtime::deep_review',
       },
       {
         regex: /\bpub struct DeepReviewExecutionPolicy\b/,
         message:
-          'core DeepReview policy facade must not redefine execution policy; use openbitfun-agent-runtime::deep_review',
+          'core DeepReview policy facade must not redefine execution policy; use alex-agent-runtime::deep_review',
       },
       {
         regex: /\bpub fn record_deep_review_task_budget\b/,
         message:
-          'core DeepReview policy facade must not re-own task budget recording; use openbitfun-agent-runtime::deep_review',
+          'core DeepReview policy facade must not re-own task budget recording; use alex-agent-runtime::deep_review',
       },
     ],
   },
@@ -1015,12 +1015,12 @@ export const forbiddenContentRules = [
       {
         regex: /\bfn fill_deep_review_packet_metadata\b/,
         message:
-          'core DeepReview report must not re-own packet metadata enrichment; use openbitfun-agent-runtime::deep_review::report',
+          'core DeepReview report must not re-own packet metadata enrichment; use alex-agent-runtime::deep_review::report',
       },
       {
         regex: /\bfn deep_review_cache_from_completed_reviewers\b/,
         message:
-          'core DeepReview report must not re-own cache update logic; use openbitfun-agent-runtime::deep_review::report',
+          'core DeepReview report must not re-own cache update logic; use alex-agent-runtime::deep_review::report',
       },
       {
         regex: /\bmetadata\.deep_review_cache\s*=\s*Some\s*\(/,
@@ -1030,17 +1030,17 @@ export const forbiddenContentRules = [
       {
         regex: /\bstruct DeepReviewCacheUpdate\b/,
         message:
-          'core DeepReview report must not re-own cache update DTO; use openbitfun-agent-runtime::deep_review::report',
+          'core DeepReview report must not re-own cache update DTO; use alex-agent-runtime::deep_review::report',
       },
       {
         regex: /"kind": "concurrency_limited"/,
         message:
-          'core DeepReview report must not re-own runtime tracker reliability signal shaping; use openbitfun-agent-runtime::deep_review::report',
+          'core DeepReview report must not re-own runtime tracker reliability signal shaping; use alex-agent-runtime::deep_review::report',
       },
       {
         regex: /DeepReview runtime diagnostics:/,
         message:
-          'core DeepReview report must not re-own runtime diagnostics log formatting; use openbitfun-agent-runtime::deep_review::diagnostics',
+          'core DeepReview report must not re-own runtime diagnostics log formatting; use alex-agent-runtime::deep_review::diagnostics',
       },
     ],
   },
@@ -1050,47 +1050,47 @@ export const forbiddenContentRules = [
       {
         regex: /\bfn string_for_any_key\b/,
         message:
-          'core DeepReview task adapter must not re-own manifest key normalization; use openbitfun-agent-runtime::deep_review::task_execution',
+          'core DeepReview task adapter must not re-own manifest key normalization; use alex-agent-runtime::deep_review::task_execution',
       },
       {
         regex: /\bfn deep_review_packet_id_for_cache\b/,
         message:
-          'core DeepReview task adapter must not re-own packet id inference; use openbitfun-agent-runtime::deep_review::task_execution',
+          'core DeepReview task adapter must not re-own packet id inference; use alex-agent-runtime::deep_review::task_execution',
       },
       {
         regex: /\bfn ensure_deep_review_retry_coverage\b/,
         message:
-          'core DeepReview task adapter must not re-own retry coverage validation; use openbitfun-agent-runtime::deep_review::task_execution',
+          'core DeepReview task adapter must not re-own retry coverage validation; use alex-agent-runtime::deep_review::task_execution',
       },
       {
         regex: /\bfn provider_capacity_queue_wait_seconds_for_attempt\b/,
         message:
-          'core DeepReview task adapter must not re-own provider capacity backoff; use openbitfun-agent-runtime::deep_review::task_execution',
+          'core DeepReview task adapter must not re-own provider capacity backoff; use alex-agent-runtime::deep_review::task_execution',
       },
       {
         regex: /\bclassify_deep_review_capacity_error\b/,
         message:
-          'core DeepReview task adapter must not directly classify provider or local capacity errors; use openbitfun-agent-runtime::deep_review::task_execution',
+          'core DeepReview task adapter must not directly classify provider or local capacity errors; use alex-agent-runtime::deep_review::task_execution',
       },
       {
         regex: /\bDeepReviewCapacityFailFastReason::DeterministicProviderError\b/,
         message:
-          'core DeepReview task adapter must not re-own provider capacity category fallback; use openbitfun-agent-runtime::deep_review::task_execution',
+          'core DeepReview task adapter must not re-own provider capacity category fallback; use alex-agent-runtime::deep_review::task_execution',
       },
       {
         regex: /\bfn provider_capacity_wait_can_wake_on_active_reviewer_release\b/,
         message:
-          'core DeepReview task adapter must not re-own provider capacity queue wake policy; use openbitfun-agent-runtime::deep_review::task_execution',
+          'core DeepReview task adapter must not re-own provider capacity queue wake policy; use alex-agent-runtime::deep_review::task_execution',
       },
       {
         regex: /\bqueue_expired_without_active_reviewer\b/,
         message:
-          'core DeepReview task adapter must not re-own reviewer admission queue expiry policy; use openbitfun-agent-runtime::deep_review::task_execution',
+          'core DeepReview task adapter must not re-own reviewer admission queue expiry policy; use alex-agent-runtime::deep_review::task_execution',
       },
       {
         regex: /\bstruct QueueWaitTimer\b/,
         message:
-          'core DeepReview task adapter must not re-own queue wait timing; use openbitfun-agent-runtime::deep_review::task_execution',
+          'core DeepReview task adapter must not re-own queue wait timing; use alex-agent-runtime::deep_review::task_execution',
       },
       {
         regex: /runtime_task_execution::decide_provider_capacity_queue_step/,
@@ -1105,37 +1105,37 @@ export const forbiddenContentRules = [
       {
         regex: /\bcontrol_snapshot\.(?:cancelled|paused|skip_optional)\b/,
         message:
-          'core DeepReview task adapter must not re-own queue control decision priority; use openbitfun-agent-runtime::deep_review::task_execution',
+          'core DeepReview task adapter must not re-own queue control decision priority; use alex-agent-runtime::deep_review::task_execution',
       },
       {
         regex: /\bfn prompt_with_deep_review_retry_scope\b/,
         message:
-          'core DeepReview task adapter must not re-own retry prompt shaping; use openbitfun-agent-runtime::deep_review::task_execution',
+          'core DeepReview task adapter must not re-own retry prompt shaping; use alex-agent-runtime::deep_review::task_execution',
       },
       {
         regex: /<partial_result status=/,
         message:
-          'core DeepReview task adapter must not re-own task completion result presentation; use openbitfun-agent-runtime::deep_review::task_execution',
+          'core DeepReview task adapter must not re-own task completion result presentation; use alex-agent-runtime::deep_review::task_execution',
       },
       {
         regex: /completed successfully with result:/,
         message:
-          'core DeepReview task adapter must not re-own task completion result presentation; use openbitfun-agent-runtime::deep_review::task_execution',
+          'core DeepReview task adapter must not re-own task completion result presentation; use alex-agent-runtime::deep_review::task_execution',
       },
       {
         regex: /Retries used:/,
         message:
-          'core DeepReview task adapter must not re-own retry guidance presentation; use openbitfun-agent-runtime::deep_review::task_execution',
+          'core DeepReview task adapter must not re-own retry guidance presentation; use alex-agent-runtime::deep_review::task_execution',
       },
       {
         regex: /DeepReview automatic retry elapsed guard exceeded/,
         message:
-          'core DeepReview task adapter must not re-own auto-retry admission policy; use openbitfun-agent-runtime::deep_review::task_execution',
+          'core DeepReview task adapter must not re-own auto-retry admission policy; use alex-agent-runtime::deep_review::task_execution',
       },
       {
         regex: /cancelled coverage/,
         message:
-          'core DeepReview task adapter must not re-own cancelled reviewer presentation; use openbitfun-agent-runtime::deep_review::task_execution',
+          'core DeepReview task adapter must not re-own cancelled reviewer presentation; use alex-agent-runtime::deep_review::task_execution',
       },
     ],
   },
@@ -1215,12 +1215,12 @@ export const forbiddenContentRules = [
       {
         regex: /\bComputer use \/ `key_chord`\b/,
         message:
-          'core prompt builder must not re-own ComputerUse environment guidance; use openbitfun-agent-runtime::prompt',
+          'core prompt builder must not re-own ComputerUse environment guidance; use alex-agent-runtime::prompt',
       },
       {
         regex: /\bfn computer_use_key_chord_guidance\b/,
         message:
-          'core prompt builder must not re-own prompt environment guidance helpers; use openbitfun-agent-runtime::prompt',
+          'core prompt builder must not re-own prompt environment guidance helpers; use alex-agent-runtime::prompt',
       },
     ],
   },
@@ -1230,17 +1230,17 @@ export const forbiddenContentRules = [
       {
         regex: /\btokio::fs\b/,
         message:
-          'core MiniApp host-dispatch adapter must not own filesystem execution; use openbitfun-services-integrations::miniapp::host_dispatch',
+          'core MiniApp host-dispatch adapter must not own filesystem execution; use alex-services-integrations::miniapp::host_dispatch',
       },
       {
         regex: /\bprocess_manager::create_tokio_command\b/,
         message:
-          'core MiniApp host-dispatch adapter must not own shell process execution; use openbitfun-services-integrations::miniapp::host_dispatch',
+          'core MiniApp host-dispatch adapter must not own shell process execution; use alex-services-integrations::miniapp::host_dispatch',
       },
       {
         regex: /\breqwest::Client\b/,
         message:
-          'core MiniApp host-dispatch adapter must not own net.fetch execution; use openbitfun-services-integrations::miniapp::host_dispatch',
+          'core MiniApp host-dispatch adapter must not own net.fetch execution; use alex-services-integrations::miniapp::host_dispatch',
       },
       {
         regex: /\basync fn dispatch_fs\b/,
@@ -1270,17 +1270,17 @@ export const forbiddenContentRules = [
       {
         regex: /\btokio::process\b/,
         message:
-          'core MiniApp JS worker facade must not own worker process types; use openbitfun-services-integrations::miniapp::worker',
+          'core MiniApp JS worker facade must not own worker process types; use alex-services-integrations::miniapp::worker',
       },
       {
         regex: /\bprocess_manager::create_tokio_command\b/,
         message:
-          'core MiniApp JS worker facade must not spawn worker processes; use openbitfun-services-integrations::miniapp::worker',
+          'core MiniApp JS worker facade must not spawn worker processes; use alex-services-integrations::miniapp::worker',
       },
       {
         regex: /\bPendingResponseMap\b/,
         message:
-          'core MiniApp JS worker facade must not own JSON-RPC response routing; use openbitfun-services-integrations::miniapp::worker',
+          'core MiniApp JS worker facade must not own JSON-RPC response routing; use alex-services-integrations::miniapp::worker',
       },
     ],
   },
@@ -1290,27 +1290,27 @@ export const forbiddenContentRules = [
       {
         regex: /\bworker_pool_at_capacity\b/,
         message:
-          'core MiniApp worker pool facade must not own pool policy; use openbitfun-services-integrations::miniapp::worker_pool',
+          'core MiniApp worker pool facade must not own pool policy; use alex-services-integrations::miniapp::worker_pool',
       },
       {
         regex: /\bselect_lru_worker\b/,
         message:
-          'core MiniApp worker pool facade must not own LRU policy; use openbitfun-services-integrations::miniapp::worker_pool',
+          'core MiniApp worker pool facade must not own LRU policy; use alex-services-integrations::miniapp::worker_pool',
       },
       {
         regex: /\bplan_install_deps\b/,
         message:
-          'core MiniApp worker pool facade must not own install-deps planning; use openbitfun-services-integrations::miniapp::worker_pool',
+          'core MiniApp worker pool facade must not own install-deps planning; use alex-services-integrations::miniapp::worker_pool',
       },
       {
         regex: /\bprocess_manager::create_tokio_command\b/,
         message:
-          'core MiniApp worker pool facade must not execute install-deps processes; use openbitfun-services-integrations::miniapp::worker_pool',
+          'core MiniApp worker pool facade must not execute install-deps processes; use alex-services-integrations::miniapp::worker_pool',
       },
       {
         regex: /\bHashMap<String, WorkerEntry>\b/,
         message:
-          'core MiniApp worker pool facade must not own worker pool state; use openbitfun-services-integrations::miniapp::worker_pool',
+          'core MiniApp worker pool facade must not own worker pool state; use alex-services-integrations::miniapp::worker_pool',
       },
     ],
   },
@@ -1320,27 +1320,27 @@ export const forbiddenContentRules = [
       {
         regex: /\btokio::fs\b/,
         message:
-          'core MiniApp storage facade must not own filesystem IO; use openbitfun-services-integrations::miniapp::storage',
+          'core MiniApp storage facade must not own filesystem IO; use alex-services-integrations::miniapp::storage',
       },
       {
         regex: /\bMiniAppStorageLayout\b/,
         message:
-          'core MiniApp storage facade must not own storage layout logic; use openbitfun-services-integrations::miniapp::storage',
+          'core MiniApp storage facade must not own storage layout logic; use alex-services-integrations::miniapp::storage',
       },
       {
         regex: /\bbuild_package_json\b/,
         message:
-          'core MiniApp storage facade must not own package-json storage assembly; use openbitfun-services-integrations::miniapp::storage',
+          'core MiniApp storage facade must not own package-json storage assembly; use alex-services-integrations::miniapp::storage',
       },
       {
         regex: /\bparse_npm_dependencies\b/,
         message:
-          'core MiniApp storage facade must not own package-json dependency parsing; use openbitfun-services-integrations::miniapp::storage',
+          'core MiniApp storage facade must not own package-json dependency parsing; use alex-services-integrations::miniapp::storage',
       },
       {
         regex: /\bDRAFTS_CLEANUP_MARKER\b/,
         message:
-          'core MiniApp storage facade must not own draft cleanup marker IO; use openbitfun-services-integrations::miniapp::storage',
+          'core MiniApp storage facade must not own draft cleanup marker IO; use alex-services-integrations::miniapp::storage',
       },
     ],
   },
@@ -1350,22 +1350,22 @@ export const forbiddenContentRules = [
       {
         regex: /\bCoreFunctionAgentGitService\b/,
         message:
-          'core function-agent port adapters must not re-own Git concrete snapshots; use openbitfun-services-integrations::function_agents',
+          'core function-agent port adapters must not re-own Git concrete snapshots; use alex-services-integrations::function_agents',
       },
       {
         regex: /\bgit_stdout_lenient\b/,
         message:
-          'core function-agent port adapters must not re-own lenient Git process fallback; use openbitfun-services-integrations::function_agents',
+          'core function-agent port adapters must not re-own lenient Git process fallback; use alex-services-integrations::function_agents',
       },
       {
         regex: /\bGitService::get_status\b/,
         message:
-          'core function-agent port adapters must not re-own Git status snapshots; use openbitfun-services-integrations::function_agents',
+          'core function-agent port adapters must not re-own Git status snapshots; use alex-services-integrations::function_agents',
       },
       {
         regex: /\bcreate_command\("git"\)/,
         message:
-          'core function-agent port adapters must not spawn Git concrete commands; use openbitfun-services-integrations::function_agents',
+          'core function-agent port adapters must not spawn Git concrete commands; use alex-services-integrations::function_agents',
       },
     ],
   },
@@ -1375,12 +1375,12 @@ export const forbiddenContentRules = [
       {
         regex: /\bpub enum ProductCapabilityBuildError\b/,
         message:
-          'product-capabilities must not redefine tool provider group selection errors; use openbitfun-tool-packs',
+          'product-capabilities must not redefine tool provider group selection errors; use alex-tool-packs',
       },
       {
         regex: /\bproduct_tool_provider_group_plan\(\)\b/,
         message:
-          'product-capabilities must not scan product tool provider plans locally; use openbitfun-tool-packs selector',
+          'product-capabilities must not scan product tool provider plans locally; use alex-tool-packs selector',
       },
       {
         regex: /\bdefault_product_tool_provider_group_plan\b/,
@@ -1395,27 +1395,27 @@ export const forbiddenContentRules = [
       {
         regex: /\btokio::fs::/,
         message:
-          'core filesystem service must not own async local filesystem IO; use openbitfun-services-core filesystem primitives',
+          'core filesystem service must not own async local filesystem IO; use alex-services-core filesystem primitives',
       },
       {
         regex: /\bstd::fs::/,
         message:
-          'core filesystem service must not own sync local filesystem IO; use openbitfun-services-core filesystem primitives',
+          'core filesystem service must not own sync local filesystem IO; use alex-services-core filesystem primitives',
       },
       {
         regex: /\bignore::WalkBuilder\b/,
         message:
-          'core filesystem service must not own local file walking/search implementation; use openbitfun-services-core filesystem primitives',
+          'core filesystem service must not own local file walking/search implementation; use alex-services-core filesystem primitives',
       },
       {
         regex: /\bsha2::/,
         message:
-          'core filesystem service must not own editor-sync hashing implementation; use openbitfun-services-core filesystem primitives',
+          'core filesystem service must not own editor-sync hashing implementation; use alex-services-core filesystem primitives',
       },
       {
         regex: /\bbase64::/,
         message:
-          'core filesystem service must not own binary file encoding implementation; use openbitfun-services-core filesystem primitives',
+          'core filesystem service must not own binary file encoding implementation; use alex-services-core filesystem primitives',
       },
     ],
   },
@@ -1425,32 +1425,32 @@ export const forbiddenContentRules = [
       {
         regex: /\bManagedClient\b/,
         message:
-          'core workspace-search facade must not own flashgrep daemon clients; use openbitfun-services-integrations::workspace_search',
+          'core workspace-search facade must not own flashgrep daemon clients; use alex-services-integrations::workspace_search',
       },
       {
         regex: /\bRepoSession\b/,
         message:
-          'core workspace-search facade must not own flashgrep repo sessions; use openbitfun-services-integrations::workspace_search',
+          'core workspace-search facade must not own flashgrep repo sessions; use alex-services-integrations::workspace_search',
       },
       {
         regex: /\bwith_scan_fallback\b/,
         message:
-          'core workspace-search facade must not own scan fallback policy; use openbitfun-services-integrations::workspace_search',
+          'core workspace-search facade must not own scan fallback policy; use alex-services-integrations::workspace_search',
       },
       {
         regex: /\bconvert_hits_to_file_search_results\b/,
         message:
-          'core workspace-search facade must not own hit conversion; use openbitfun-services-integrations::workspace_search',
+          'core workspace-search facade must not own hit conversion; use alex-services-integrations::workspace_search',
       },
       {
         regex: /\bsplit_preview\b/,
         message:
-          'core workspace-search facade must not own preview mapping; use openbitfun-services-integrations::workspace_search',
+          'core workspace-search facade must not own preview mapping; use alex-services-integrations::workspace_search',
       },
       {
         regex: /\bdunce::canonicalize\b/,
         message:
-          'core workspace-search facade must not own local search path normalization; use openbitfun-services-integrations::workspace_search',
+          'core workspace-search facade must not own local search path normalization; use alex-services-integrations::workspace_search',
       },
     ],
   },
@@ -1458,7 +1458,7 @@ export const forbiddenContentRules = [
     path: 'src/crates/assembly/core/src/service/search/mod.rs',
     patterns: [
       {
-        regex: /\bopenbitfun_services_integrations::workspace_search::flashgrep\b/,
+        regex: /\balex_services_integrations::workspace_search::flashgrep\b/,
         message:
           'core must not import flashgrep internals; use the remote workspace-search stdio facade instead',
       },
@@ -1469,7 +1469,7 @@ export const forbiddenContentRules = [
     patterns: [
       {
         regex:
-          /\b(?:owner::flashgrep|workspace_search::flashgrep|openbitfun_services_integrations::workspace_search::flashgrep)\b/,
+          /\b(?:owner::flashgrep|workspace_search::flashgrep|alex_services_integrations::workspace_search::flashgrep)\b/,
         message:
           'core workspace search facade must not depend on flashgrep internals; use stable workspace-search config and DTO APIs',
       },
@@ -1485,17 +1485,17 @@ export const forbiddenContentRules = [
       {
         regex: /\bconst\s+REMOTE_FLASHGREP_INSTALL_DIR\b/,
         message:
-          'core remote workspace search must not own remote flashgrep install facts; use openbitfun-services-integrations::remote_ssh::workspace_search',
+          'core remote workspace search must not own remote flashgrep install facts; use alex-services-integrations::remote_ssh::workspace_search',
       },
       {
         regex: /\bconst\s+REMOTE_(?:OS|ARCHITECTURE)_PROBES\b/,
         message:
-          'core remote workspace search must not own remote probe facts; use openbitfun-services-integrations::remote_ssh::workspace_search',
+          'core remote workspace search must not own remote probe facts; use alex-services-integrations::remote_ssh::workspace_search',
       },
       {
         regex: /\bstruct\s+LocalFlashgrepBundle\b/,
         message:
-          'core remote workspace search must not own local remote-search bundle DTOs; use openbitfun-services-integrations::remote_ssh::workspace_search',
+          'core remote workspace search must not own local remote-search bundle DTOs; use alex-services-integrations::remote_ssh::workspace_search',
       },
       {
         regex:
@@ -1506,7 +1506,7 @@ export const forbiddenContentRules = [
       {
         regex: /\b(?:RemoteStdioRepoSession|RemoteStdioDaemonClient|RemoteSearchContext|REMOTE_STDIO_SESSIONS|REMOTE_SEARCH_CONTEXTS)\b/,
         message:
-          'core remote workspace search must not own remote flashgrep session/context lifecycle; use openbitfun-services-integrations::remote_ssh::workspace_search',
+          'core remote workspace search must not own remote flashgrep session/context lifecycle; use alex-services-integrations::remote_ssh::workspace_search',
       },
       {
         regex: /\bfn\s+(?:ensure_remote_search_context|convert_stdio_search_results|remote_stdio_session_key|remote_search_context_key|schedule_remote_stdio_session_release)\b/,
@@ -1573,12 +1573,12 @@ export const forbiddenContentRules = [
       {
         regex: /\bpub\s+enum\s+UserContextSection\b/,
         message:
-          'core prompt builder must not own user-context section facts; use openbitfun-agent-runtime prompt contracts',
+          'core prompt builder must not own user-context section facts; use alex-agent-runtime prompt contracts',
       },
       {
         regex: /\bpub\s+struct\s+UserContextPolicy\b/,
         message:
-          'core prompt builder must not own user-context policy facts; use openbitfun-agent-runtime prompt contracts',
+          'core prompt builder must not own user-context policy facts; use alex-agent-runtime prompt contracts',
       },
     ],
   },
@@ -1588,37 +1588,37 @@ export const forbiddenContentRules = [
       {
         regex: /\bpub const STANDARD_HARNESS_PROMPT_TEMPLATE\b/,
         message:
-          'core agent mode module must not own Standard Harness prompt facts; use openbitfun-agent-runtime agents',
+          'core agent mode module must not own Standard Harness prompt facts; use alex-agent-runtime agents',
       },
       {
         regex: /\bpub const STANDARD_HARNESS_CONFIG_ID\b/,
         message:
-          'core agent mode module must not own Standard Harness config profile facts; use openbitfun-agent-runtime agents',
+          'core agent mode module must not own Standard Harness config profile facts; use alex-agent-runtime agents',
       },
       {
         regex: /\bpub const STANDARD_HARNESS_CONFIG_MEMBERS\b/,
         message:
-          'core agent mode module must not own Standard Harness membership facts; use openbitfun-agent-runtime agents',
+          'core agent mode module must not own Standard Harness membership facts; use alex-agent-runtime agents',
       },
       {
         regex: /\bpub fn resolve_mode_config_profile_id\b/,
         message:
-          'core agent mode module must not own mode config profile resolution; use openbitfun-agent-runtime agents',
+          'core agent mode module must not own mode config profile resolution; use alex-agent-runtime agents',
       },
       {
         regex: /\bpub fn mode_config_profile_member_mode_ids\b/,
         message:
-          'core agent mode module must not own mode config profile membership; use openbitfun-agent-runtime agents',
+          'core agent mode module must not own mode config profile membership; use alex-agent-runtime agents',
       },
       {
         regex: /\bpub fn mode_config_profile_label\b/,
         message:
-          'core agent mode module must not own mode config profile labels; use openbitfun-agent-runtime agents',
+          'core agent mode module must not own mode config profile labels; use alex-agent-runtime agents',
       },
       {
         regex: /\bpub fn standard_harness_user_context_policy\b/,
         message:
-          'core agent mode module must not own Standard Harness context policy; use openbitfun-agent-runtime agents',
+          'core agent mode module must not own Standard Harness context policy; use alex-agent-runtime agents',
       },
     ],
   },
@@ -1628,12 +1628,12 @@ export const forbiddenContentRules = [
       {
         regex: /"agentic"\s*=>\s*0[\s\S]*"Cowork"\s*=>\s*1/,
         message:
-          'core agent registry query must not own mode presentation order; use openbitfun-agent-runtime agents',
+          'core agent registry query must not own mode presentation order; use alex-agent-runtime agents',
       },
       {
         regex: /\bfn subagent_source_rank\b/,
         message:
-          'core agent registry query must not own subagent source presentation rank; use openbitfun-agent-runtime agents',
+          'core agent registry query must not own subagent source presentation rank; use alex-agent-runtime agents',
       },
     ],
   },
@@ -1643,7 +1643,7 @@ export const forbiddenContentRules = [
       {
         regex: /\bpub enum SubAgentSource\b/,
         message:
-          'core agent registry must not own subagent source DTOs; use openbitfun-agent-runtime agents',
+          'core agent registry must not own subagent source DTOs; use alex-agent-runtime agents',
       },
     ],
   },
@@ -1653,32 +1653,32 @@ export const forbiddenContentRules = [
       {
         regex: /\bpub const PROMPT_CACHE_SCHEMA_VERSION\b/,
         message:
-          'core prompt cache must not own prompt-cache schema facts; use openbitfun-agent-runtime prompt_cache',
+          'core prompt cache must not own prompt-cache schema facts; use alex-agent-runtime prompt_cache',
       },
       {
         regex: /\bpub struct PromptCachePolicy\b/,
         message:
-          'core prompt cache must not own prompt-cache policy; use openbitfun-agent-runtime prompt_cache',
+          'core prompt cache must not own prompt-cache policy; use alex-agent-runtime prompt_cache',
       },
       {
         regex: /\bpub struct SessionPromptCache\b/,
         message:
-          'core prompt cache must not own prompt-cache DTOs; use openbitfun-agent-runtime prompt_cache',
+          'core prompt cache must not own prompt-cache DTOs; use alex-agent-runtime prompt_cache',
       },
       {
         regex: /\bpub enum PromptCacheScope\b/,
         message:
-          'core prompt cache must not own prompt-cache invalidation scope; use openbitfun-agent-runtime prompt_cache',
+          'core prompt cache must not own prompt-cache invalidation scope; use alex-agent-runtime prompt_cache',
       },
       {
         regex: /\bpub struct SessionPromptCacheStore\b/,
         message:
-          'core prompt cache must not own in-memory prompt-cache store; use openbitfun-agent-runtime prompt_cache',
+          'core prompt cache must not own in-memory prompt-cache store; use alex-agent-runtime prompt_cache',
       },
       {
         regex: /\bpub enum PromptCacheLookup\b/,
         message:
-          'core prompt cache must not own prompt-cache lookup outcomes; use openbitfun-agent-runtime prompt_cache',
+          'core prompt cache must not own prompt-cache lookup outcomes; use alex-agent-runtime prompt_cache',
       },
     ],
   },
@@ -1688,22 +1688,22 @@ export const forbiddenContentRules = [
       {
         regex: /\bpub struct FileRevision\b/,
         message:
-          'core review_read_receipt must not own file revision DTOs; use openbitfun-agent-runtime review_read_receipt',
+          'core review_read_receipt must not own file revision DTOs; use alex-agent-runtime review_read_receipt',
       },
       {
         regex: /\bpub struct ReviewReadCoverage\b/,
         message:
-          'core review_read_receipt must not own review coverage DTOs; use openbitfun-agent-runtime review_read_receipt',
+          'core review_read_receipt must not own review coverage DTOs; use alex-agent-runtime review_read_receipt',
       },
       {
         regex: /\bpub struct ReviewReadReceiptStore\b/,
         message:
-          'core review_read_receipt must not own the receipt store; use openbitfun-agent-runtime review_read_receipt',
+          'core review_read_receipt must not own the receipt store; use alex-agent-runtime review_read_receipt',
       },
       {
         regex: /\bDashMap\b/,
         message:
-          'core review_read_receipt must not own receipt storage maps; use openbitfun-agent-runtime review_read_receipt',
+          'core review_read_receipt must not own receipt storage maps; use alex-agent-runtime review_read_receipt',
       },
     ],
   },
@@ -1713,32 +1713,32 @@ export const forbiddenContentRules = [
       {
         regex: /\bpub enum EvidenceLedgerTargetKind\b/,
         message:
-          'core evidence_ledger must not own evidence ledger DTOs; use openbitfun-agent-runtime evidence_ledger',
+          'core evidence_ledger must not own evidence ledger DTOs; use alex-agent-runtime evidence_ledger',
       },
       {
         regex: /\bpub struct EvidenceLedgerEvent\b/,
         message:
-          'core evidence_ledger must not own evidence ledger events; use openbitfun-agent-runtime evidence_ledger',
+          'core evidence_ledger must not own evidence ledger events; use alex-agent-runtime evidence_ledger',
       },
       {
         regex: /\bpub struct SessionEvidenceLedger\b/,
         message:
-          'core evidence_ledger must not own evidence ledger store; use openbitfun-agent-runtime evidence_ledger',
+          'core evidence_ledger must not own evidence ledger store; use alex-agent-runtime evidence_ledger',
       },
       {
         regex: /\bimpl From<EvidenceLedgerSummary> for CompressionContract\b/,
         message:
-          'core evidence_ledger must not own compression contract projection; use openbitfun-agent-runtime evidence_ledger',
+          'core evidence_ledger must not own compression contract projection; use alex-agent-runtime evidence_ledger',
       },
       {
         regex: /\buuid::Uuid::new_v4\b/,
         message:
-          'core evidence_ledger must not own evidence ledger event id generation; use openbitfun-agent-runtime evidence_ledger',
+          'core evidence_ledger must not own evidence ledger event id generation; use alex-agent-runtime evidence_ledger',
       },
       {
         regex: /\bDashMap\b/,
         message:
-          'core evidence_ledger must not own evidence ledger storage maps; use openbitfun-agent-runtime evidence_ledger',
+          'core evidence_ledger must not own evidence ledger storage maps; use alex-agent-runtime evidence_ledger',
       },
     ],
   },
@@ -1748,7 +1748,7 @@ export const forbiddenContentRules = [
       {
         regex: /\bimpl From<LightCheckpoint> for EvidenceLedgerCheckpoint\b/,
         message:
-          'core tool context runtime must not own checkpoint evidence projection; use openbitfun-agent-runtime evidence_ledger',
+          'core tool context runtime must not own checkpoint evidence projection; use alex-agent-runtime evidence_ledger',
       },
       {
         regex: /\bTerminalRuntimePort\b/,
@@ -1763,17 +1763,17 @@ export const forbiddenContentRules = [
       {
         regex: /\bpub struct UserInputManager\b/,
         message:
-          'core user_input_manager must not own user-input channel state; use openbitfun-agent-runtime user_questions',
+          'core user_input_manager must not own user-input channel state; use alex-agent-runtime user_questions',
       },
       {
         regex: /\boneshot::Sender\b/,
         message:
-          'core user_input_manager must not own user-input wait channels; use openbitfun-agent-runtime user_questions',
+          'core user_input_manager must not own user-input wait channels; use alex-agent-runtime user_questions',
       },
       {
         regex: /\bDashMap\b/,
         message:
-          'core user_input_manager must not own user-input channel storage; use openbitfun-agent-runtime user_questions',
+          'core user_input_manager must not own user-input channel storage; use alex-agent-runtime user_questions',
       },
     ],
   },
@@ -1803,7 +1803,7 @@ export const forbiddenContentRules = [
       {
         regex: /\bArc<DashMap<String,\s*CancellationToken>>\b/,
         message:
-          'core round executor must not own dialog-turn cancellation token storage; use openbitfun-agent-runtime turn_cancellation',
+          'core round executor must not own dialog-turn cancellation token storage; use alex-agent-runtime turn_cancellation',
       },
       {
         regex: /\bcancellation_tokens:\s*Arc<DashMap\b/,
@@ -2168,17 +2168,17 @@ export const forbiddenContentRules = [
       {
         regex: /\bpub struct TurnSkillAgentSnapshotStore\b/,
         message:
-          'core turn_skill_agent_snapshot_store must not own in-memory skill/agent snapshot store; use openbitfun-agent-runtime skill_agent_snapshot',
+          'core turn_skill_agent_snapshot_store must not own in-memory skill/agent snapshot store; use alex-agent-runtime skill_agent_snapshot',
       },
       {
         regex: /\bDashMap\b/,
         message:
-          'core turn_skill_agent_snapshot_store must not own skill/agent snapshot storage maps; use openbitfun-agent-runtime skill_agent_snapshot',
+          'core turn_skill_agent_snapshot_store must not own skill/agent snapshot storage maps; use alex-agent-runtime skill_agent_snapshot',
       },
       {
         regex: /\bBTreeMap\b/,
         message:
-          'core turn_skill_agent_snapshot_store must not own sparse turn snapshot ordering; use openbitfun-agent-runtime skill_agent_snapshot',
+          'core turn_skill_agent_snapshot_store must not own sparse turn snapshot ordering; use alex-agent-runtime skill_agent_snapshot',
       },
     ],
   },
@@ -2188,37 +2188,37 @@ export const forbiddenContentRules = [
       {
         regex: /\bpub struct SkillSnapshotEntry\b/,
         message:
-          'core skill_agent_snapshot must not own skill snapshot DTOs; use openbitfun-agent-runtime skill_agent_snapshot',
+          'core skill_agent_snapshot must not own skill snapshot DTOs; use alex-agent-runtime skill_agent_snapshot',
       },
       {
         regex: /\bpub struct AgentSnapshotEntry\b/,
         message:
-          'core skill_agent_snapshot must not own agent snapshot DTOs; use openbitfun-agent-runtime skill_agent_snapshot',
+          'core skill_agent_snapshot must not own agent snapshot DTOs; use alex-agent-runtime skill_agent_snapshot',
       },
       {
         regex: /\bpub struct TurnSkillAgentSnapshot\b/,
         message:
-          'core skill_agent_snapshot must not own turn snapshot DTOs; use openbitfun-agent-runtime skill_agent_snapshot',
+          'core skill_agent_snapshot must not own turn snapshot DTOs; use alex-agent-runtime skill_agent_snapshot',
       },
       {
         regex: /\bpub struct SkillAgentDiff\b/,
         message:
-          'core skill_agent_snapshot must not own skill/agent diff contracts; use openbitfun-agent-runtime skill_agent_snapshot',
+          'core skill_agent_snapshot must not own skill/agent diff contracts; use alex-agent-runtime skill_agent_snapshot',
       },
       {
         regex: /\bpub fn diff_skill_agent_snapshot\b/,
         message:
-          'core skill_agent_snapshot must not own skill/agent diff rendering; use openbitfun-agent-runtime skill_agent_snapshot',
+          'core skill_agent_snapshot must not own skill/agent diff rendering; use alex-agent-runtime skill_agent_snapshot',
       },
       {
         regex: /\bfn render_titled_skill_entries\b/,
         message:
-          'core skill_agent_snapshot must not own skill update rendering helpers; use openbitfun-agent-runtime skill_agent_snapshot',
+          'core skill_agent_snapshot must not own skill update rendering helpers; use alex-agent-runtime skill_agent_snapshot',
       },
       {
         regex: /\bfn render_titled_subagent_entries\b/,
         message:
-          'core skill_agent_snapshot must not own agent update rendering helpers; use openbitfun-agent-runtime skill_agent_snapshot',
+          'core skill_agent_snapshot must not own agent update rendering helpers; use alex-agent-runtime skill_agent_snapshot',
       },
     ],
   },
@@ -2228,12 +2228,12 @@ export const forbiddenContentRules = [
       {
         regex: /\bpub\s+struct\s+ToolListingSections\b/,
         message:
-          'core prompt builder must not own tool-listing reminder facts; use openbitfun-agent-runtime prompt contracts',
+          'core prompt builder must not own tool-listing reminder facts; use alex-agent-runtime prompt contracts',
       },
       {
         regex: /\bpub\s+struct\s+PrependedPromptReminders\b/,
         message:
-          'core prompt builder must not own prepended-reminder ordering facts; use openbitfun-agent-runtime prompt contracts',
+          'core prompt builder must not own prepended-reminder ordering facts; use alex-agent-runtime prompt contracts',
       },
     ],
   },
@@ -2243,7 +2243,7 @@ export const forbiddenContentRules = [
       {
         regex: /\bpub\s+enum\s+FinishReason\b/,
         message:
-          'core execution types must not own finish-reason event facts; use openbitfun-agent-runtime events',
+          'core execution types must not own finish-reason event facts; use alex-agent-runtime events',
       },
     ],
   },
@@ -2253,17 +2253,17 @@ export const forbiddenContentRules = [
       {
         regex: /SessionState::Idle\s*=>\s*"idle"/,
         message:
-          'core event types must not own session-state wire labels; use openbitfun-agent-runtime events',
+          'core event types must not own session-state wire labels; use alex-agent-runtime events',
       },
       {
         regex: /SessionState::Processing\s*\{[^}]*\}\s*=>\s*"processing"/,
         message:
-          'core event types must not own session-state wire labels; use openbitfun-agent-runtime events',
+          'core event types must not own session-state wire labels; use alex-agent-runtime events',
       },
       {
         regex: /SessionState::Error\s*\{[^}]*\}\s*=>\s*"error"/,
         message:
-          'core event types must not own session-state wire labels; use openbitfun-agent-runtime events',
+          'core event types must not own session-state wire labels; use alex-agent-runtime events',
       },
     ],
   },
@@ -2273,22 +2273,22 @@ export const forbiddenContentRules = [
       {
         regex: /\bpub\s+struct\s+SessionStateManager\b/,
         message:
-          'core session state manager path must remain a compatibility facade; use openbitfun-agent-runtime session_state_manager',
+          'core session state manager path must remain a compatibility facade; use alex-agent-runtime session_state_manager',
       },
       {
         regex: /\bDashMap\b/,
         message:
-          'core session state manager path must not own session state storage; use openbitfun-agent-runtime session_state_manager',
+          'core session state manager path must not own session state storage; use alex-agent-runtime session_state_manager',
       },
       {
         regex: /\bAgenticEvent::SessionStateChanged\b/,
         message:
-          'core session state manager path must not emit session-state events directly; use openbitfun-agent-runtime session_state_manager',
+          'core session state manager path must not emit session-state events directly; use alex-agent-runtime session_state_manager',
       },
       {
         regex: /\bimpl\s+SessionStateManager\b/,
         message:
-          'core session state manager path must not reimplement session state transitions; use openbitfun-agent-runtime session_state_manager',
+          'core session state manager path must not reimplement session state transitions; use alex-agent-runtime session_state_manager',
       },
     ],
   },
@@ -2298,62 +2298,62 @@ export const forbiddenContentRules = [
       {
         regex: /\bconst\s+MAX_QUEUE_DEPTH\b/,
         message:
-          'core scheduler must not own dialog queue capacity; use openbitfun-agent-runtime scheduler',
+          'core scheduler must not own dialog queue capacity; use alex-agent-runtime scheduler',
       },
       {
         regex: /\bstd::collections::VecDeque\b/,
         message:
-          'core scheduler must not own dialog queue storage; use openbitfun-agent-runtime scheduler',
+          'core scheduler must not own dialog queue storage; use alex-agent-runtime scheduler',
       },
       {
         regex: /\bactive_turns:\s*Arc<dashmap::DashMap\b/,
         message:
-          'core scheduler must not own active-turn state maps; use openbitfun-agent-runtime scheduler stores',
+          'core scheduler must not own active-turn state maps; use alex-agent-runtime scheduler stores',
       },
       {
         regex: /\bstruct\s+ActiveTurn\b/,
         message:
-          'core scheduler must not own active-turn facts; use openbitfun-agent-runtime scheduler',
+          'core scheduler must not own active-turn facts; use alex-agent-runtime scheduler',
       },
       {
         regex: /\bfn\s+format_agent_session_reply\b/,
         message:
-          'core scheduler must not own agent-session reply text assembly; use openbitfun-agent-runtime scheduler',
+          'core scheduler must not own agent-session reply text assembly; use alex-agent-runtime scheduler',
       },
       {
         regex: /automated reply to a previous SessionMessage call/,
         message:
-          'core scheduler must not own agent-session reply reminder text; use openbitfun-agent-runtime scheduler',
+          'core scheduler must not own agent-session reply reminder text; use alex-agent-runtime scheduler',
       },
       {
         regex: /RoundInjectionKind::UserSteering/,
         message:
-          'core scheduler must not own steering injection construction; use openbitfun-agent-runtime scheduler',
+          'core scheduler must not own steering injection construction; use alex-agent-runtime scheduler',
       },
       {
         regex: /RoundInjectionTarget::ExactTurn/,
         message:
-          'core scheduler must not own steering exact-turn targeting; use openbitfun-agent-runtime scheduler',
+          'core scheduler must not own steering exact-turn targeting; use alex-agent-runtime scheduler',
       },
       {
         regex: /RoundInjectionKind::ThreadGoalObjectiveUpdated/,
         message:
-          'core scheduler must not own thread-goal background injection construction; use openbitfun-agent-runtime scheduler',
+          'core scheduler must not own thread-goal background injection construction; use alex-agent-runtime scheduler',
       },
       {
         regex: /RoundInjectionKind::BackgroundResult/,
         message:
-          'core scheduler must not own background result injection construction; use openbitfun-agent-runtime scheduler',
+          'core scheduler must not own background result injection construction; use alex-agent-runtime scheduler',
       },
       {
         regex: /RoundInjectionTarget::CurrentRunningTurn/,
         message:
-          'core scheduler must not own current-turn background injection targeting; use openbitfun-agent-runtime scheduler',
+          'core scheduler must not own current-turn background injection targeting; use alex-agent-runtime scheduler',
       },
       {
         regex: /\bfn\s+turn_outcome_kind\s*\(/,
         message:
-          'core scheduler must not own turn-outcome event facts; use openbitfun-agent-runtime events',
+          'core scheduler must not own turn-outcome event facts; use alex-agent-runtime events',
       },
     ],
   },
@@ -2362,31 +2362,31 @@ export const forbiddenContentRules = [
     patterns: [
       {
         regex: /\bpub struct DynamicMcpToolInfo\b/,
-        message: 'core tool framework must not redefine DynamicMcpToolInfo; use openbitfun-agent-tools',
+        message: 'core tool framework must not redefine DynamicMcpToolInfo; use alex-agent-tools',
       },
       {
         regex: /\bpub struct DynamicToolInfo\b/,
-        message: 'core tool framework must not redefine DynamicToolInfo; use openbitfun-agent-tools',
+        message: 'core tool framework must not redefine DynamicToolInfo; use alex-agent-tools',
       },
       {
         regex: /\bpub struct ToolRenderOptions\b/,
-        message: 'core tool framework must not redefine ToolRenderOptions; use openbitfun-agent-tools',
+        message: 'core tool framework must not redefine ToolRenderOptions; use alex-agent-tools',
       },
       {
         regex: /\bpub enum ToolPathBackend\b/,
-        message: 'core tool framework must not redefine ToolPathBackend; use openbitfun-agent-tools',
+        message: 'core tool framework must not redefine ToolPathBackend; use alex-agent-tools',
       },
       {
         regex: /\bpub struct ToolPathResolution\b/,
-        message: 'core tool framework must not redefine ToolPathResolution; use openbitfun-agent-tools',
+        message: 'core tool framework must not redefine ToolPathResolution; use alex-agent-tools',
       },
       {
         regex: /\bpub struct ToolContextFacts\b/,
-        message: 'core tool framework must not redefine ToolContextFacts; use openbitfun-agent-tools',
+        message: 'core tool framework must not redefine ToolContextFacts; use alex-agent-tools',
       },
       {
         regex: /\bpub enum ToolWorkspaceKind\b/,
-        message: 'core tool framework must not redefine ToolWorkspaceKind; use openbitfun-agent-tools',
+        message: 'core tool framework must not redefine ToolWorkspaceKind; use alex-agent-tools',
       },
       {
         regex: /\bpub struct ToolUseContext\b/,
@@ -2446,37 +2446,37 @@ export const forbiddenContentRules = [
       {
         regex: /\bfn serialize_result_for_assistant\b/,
         message:
-          'core tool pipeline must not own provider-neutral assistant result rendering; use openbitfun-agent-tools',
+          'core tool pipeline must not own provider-neutral assistant result rendering; use alex-agent-tools',
       },
       {
         regex: /\bconst TOOL_ERROR_ARGUMENTS_PREVIEW_BYTES\b/,
         message:
-          'core tool pipeline must not own tool error argument preview limits; use openbitfun-agent-tools',
+          'core tool pipeline must not own tool error argument preview limits; use alex-agent-tools',
       },
       {
         regex: /\bfn truncate_arguments_preview\b/,
         message:
-          'core tool pipeline must not own tool error argument preview rendering; use openbitfun-agent-tools',
+          'core tool pipeline must not own tool error argument preview rendering; use alex-agent-tools',
       },
       {
         regex: /\bfn truncate_raw_arguments_preview\b/,
         message:
-          'core tool pipeline must not own raw tool argument preview rendering; use openbitfun-agent-tools',
+          'core tool pipeline must not own raw tool argument preview rendering; use alex-agent-tools',
       },
       {
         regex: /\bconst USER_STEERING_INTERRUPTED_MESSAGE\b/,
         message:
-          'core tool pipeline must not own steering-interrupted result presentation; use openbitfun-agent-tools',
+          'core tool pipeline must not own steering-interrupted result presentation; use alex-agent-tools',
       },
       {
         regex: /\bfn build_truncation_recovery_notice\b/,
         message:
-          'core tool pipeline must not own truncation recovery notice policy; use openbitfun-agent-tools',
+          'core tool pipeline must not own truncation recovery notice policy; use alex-agent-tools',
       },
       {
         regex: /\bfn is_write_like_tool_name\b/,
         message:
-          'core tool pipeline must not own write-like truncation classification; use openbitfun-agent-tools',
+          'core tool pipeline must not own write-like truncation classification; use alex-agent-tools',
       },
       {
         regex: /\bstruct\s+ToolBatch\b/,
@@ -2521,12 +2521,12 @@ export const forbiddenContentRules = [
       {
         regex: /remote_workspace_git_metadata_unavailable|workspace_unavailable|git_status_unavailable:/,
         message:
-          'core tool context must not own light-checkpoint summary policy; use openbitfun-agent-runtime::checkpoint',
+          'core tool context must not own light-checkpoint summary policy; use alex-agent-runtime::checkpoint',
       },
       {
         regex: /format!\(\s*"staged=\{\}, unstaged=\{\}, untracked=\{\}"/,
         message:
-          'core tool context must not own local git dirty-state checkpoint formatting; use openbitfun-agent-runtime::checkpoint',
+          'core tool context must not own local git dirty-state checkpoint formatting; use alex-agent-runtime::checkpoint',
       },
     ],
   },
@@ -2536,12 +2536,12 @@ export const forbiddenContentRules = [
       {
         regex: /\bFrontMatterMarkdown\b/,
         message:
-          'core custom subagent facade must not own markdown front-matter IO; use openbitfun-agent-runtime',
+          'core custom subagent facade must not own markdown front-matter IO; use alex-agent-runtime',
       },
       {
         regex: /\bserde_yaml::Mapping\b/,
         message:
-          'core custom subagent facade must not own markdown metadata serialization; use openbitfun-agent-runtime',
+          'core custom subagent facade must not own markdown metadata serialization; use alex-agent-runtime',
       },
     ],
   },
@@ -2551,17 +2551,17 @@ export const forbiddenContentRules = [
       {
         regex: /\bCustomSubagentLoader\b/,
         message:
-          'core custom subagent registry must not restore the old loader owner; use openbitfun-agent-runtime discovery report',
+          'core custom subagent registry must not restore the old loader owner; use alex-agent-runtime discovery report',
       },
       {
         regex: /\bread_dir\b/,
         message:
-          'core custom subagent registry must not own directory scanning; use openbitfun-agent-runtime discovery report',
+          'core custom subagent registry must not own directory scanning; use alex-agent-runtime discovery report',
       },
       {
         regex: /\.extension\(\)\.is_some_and\(\|ext\|\s*ext\s*==\s*"md"\)/,
         message:
-          'core custom subagent registry must not own markdown file discovery; use openbitfun-agent-runtime discovery report',
+          'core custom subagent registry must not own markdown file discovery; use alex-agent-runtime discovery report',
       },
     ],
   },
@@ -2571,12 +2571,12 @@ export const forbiddenContentRules = [
       {
         regex: /\bstruct\s+DelegationPolicy\b/,
         message:
-          'core subagent runtime must not redefine DelegationPolicy; use openbitfun-runtime-ports',
+          'core subagent runtime must not redefine DelegationPolicy; use alex-runtime-ports',
       },
       {
         regex: /\benum\s+SubagentContextMode\b/,
         message:
-          'core subagent runtime must not redefine SubagentContextMode; use openbitfun-runtime-ports',
+          'core subagent runtime must not redefine SubagentContextMode; use alex-runtime-ports',
       },
     ],
   },
@@ -2586,7 +2586,7 @@ export const forbiddenContentRules = [
       {
         regex: /\benum\s+DialogTriggerSource\b/,
         message:
-          'core coordinator must not redefine DialogTriggerSource; use openbitfun-runtime-ports',
+          'core coordinator must not redefine DialogTriggerSource; use alex-runtime-ports',
       },
     ],
   },
@@ -2596,27 +2596,27 @@ export const forbiddenContentRules = [
       {
         regex: /\benum\s+DialogQueuePriority\b/,
         message:
-          'core scheduler must not redefine DialogQueuePriority; use openbitfun-runtime-ports',
+          'core scheduler must not redefine DialogQueuePriority; use alex-runtime-ports',
       },
       {
         regex: /\bstruct\s+DialogSubmissionPolicy\b/,
         message:
-          'core scheduler must not redefine DialogSubmissionPolicy; use openbitfun-runtime-ports',
+          'core scheduler must not redefine DialogSubmissionPolicy; use alex-runtime-ports',
       },
       {
         regex: /\benum\s+DialogSubmitOutcome\b/,
         message:
-          'core scheduler must not redefine DialogSubmitOutcome; use openbitfun-runtime-ports',
+          'core scheduler must not redefine DialogSubmitOutcome; use alex-runtime-ports',
       },
       {
         regex: /\bstruct\s+AgentSessionReplyRoute\b/,
         message:
-          'core scheduler must not redefine AgentSessionReplyRoute; use openbitfun-runtime-ports',
+          'core scheduler must not redefine AgentSessionReplyRoute; use alex-runtime-ports',
       },
       {
         regex: /\benum\s+DialogSteerOutcome\b/,
         message:
-          'core scheduler must not redefine DialogSteerOutcome; use openbitfun-runtime-ports',
+          'core scheduler must not redefine DialogSteerOutcome; use alex-runtime-ports',
       },
     ],
   },
@@ -2626,27 +2626,27 @@ export const forbiddenContentRules = [
       {
         regex: /\bstruct\s+RoundInjection\b/,
         message:
-          'core round-boundary runtime must not redefine RoundInjection; use openbitfun-runtime-ports',
+          'core round-boundary runtime must not redefine RoundInjection; use alex-runtime-ports',
       },
       {
         regex: /\btrait\s+DialogRoundInjectionSource\b/,
         message:
-          'core round-boundary runtime must not redefine DialogRoundInjectionSource; use openbitfun-runtime-ports',
+          'core round-boundary runtime must not redefine DialogRoundInjectionSource; use alex-runtime-ports',
       },
       {
         regex: /\benum\s+RoundInjectionKind\b/,
         message:
-          'core round-boundary runtime must not redefine RoundInjectionKind; use openbitfun-runtime-ports',
+          'core round-boundary runtime must not redefine RoundInjectionKind; use alex-runtime-ports',
       },
       {
         regex: /\benum\s+RoundInjectionTarget\b/,
         message:
-          'core round-boundary runtime must not redefine RoundInjectionTarget; use openbitfun-runtime-ports',
+          'core round-boundary runtime must not redefine RoundInjectionTarget; use alex-runtime-ports',
       },
       {
         regex: /\bpub\s+struct\s+SessionRoundInjectionBuffer\b/,
         message:
-          'core round-boundary runtime must not own round injection buffer; use openbitfun-agent-runtime',
+          'core round-boundary runtime must not own round injection buffer; use alex-agent-runtime',
       },
     ],
   },
@@ -2655,59 +2655,59 @@ export const forbiddenContentRules = [
     patterns: [
       {
         regex: /\bconst\s+GOAL_MODE_METADATA_KEY\b/,
-        message: 'core goal mode types must not redefine GOAL_MODE_METADATA_KEY; use openbitfun-runtime-ports',
+        message: 'core goal mode types must not redefine GOAL_MODE_METADATA_KEY; use alex-runtime-ports',
       },
       {
         regex: /\bconst\s+MAX_GOAL_CONTINUATIONS\b/,
-        message: 'core goal mode types must not redefine MAX_GOAL_CONTINUATIONS; use openbitfun-runtime-ports',
+        message: 'core goal mode types must not redefine MAX_GOAL_CONTINUATIONS; use alex-runtime-ports',
       },
       {
         regex: /\bconst\s+MAX_CONTEXT_SUMMARY_CHARS\b/,
-        message: 'core goal mode types must not redefine MAX_CONTEXT_SUMMARY_CHARS; use openbitfun-runtime-ports',
+        message: 'core goal mode types must not redefine MAX_CONTEXT_SUMMARY_CHARS; use alex-runtime-ports',
       },
       {
         regex: /\bstruct\s+ThreadGoal\b/,
-        message: 'core goal mode types must not redefine ThreadGoal; use openbitfun-runtime-ports',
+        message: 'core goal mode types must not redefine ThreadGoal; use alex-runtime-ports',
       },
       {
         regex: /\benum\s+ThreadGoalStatus\b/,
-        message: 'core goal mode types must not redefine ThreadGoalStatus; use openbitfun-runtime-ports',
+        message: 'core goal mode types must not redefine ThreadGoalStatus; use alex-runtime-ports',
       },
       {
         regex: /\bstruct\s+GoalGenerationResult\b/,
-        message: 'core goal mode types must not redefine GoalGenerationResult; use openbitfun-runtime-ports',
+        message: 'core goal mode types must not redefine GoalGenerationResult; use alex-runtime-ports',
       },
       {
         regex: /\bstruct\s+ThreadGoalToolResponse\b/,
-        message: 'core goal mode types must not redefine ThreadGoalToolResponse; use openbitfun-runtime-ports',
+        message: 'core goal mode types must not redefine ThreadGoalToolResponse; use alex-runtime-ports',
       },
       {
         regex: /\bstruct\s+GoalActivationResult\b/,
-        message: 'core goal mode types must not redefine GoalActivationResult; use openbitfun-runtime-ports',
+        message: 'core goal mode types must not redefine GoalActivationResult; use alex-runtime-ports',
       },
       {
         regex: /\bstruct\s+GoalContinuationPlan\b/,
-        message: 'core goal mode types must not redefine GoalContinuationPlan; use openbitfun-runtime-ports',
+        message: 'core goal mode types must not redefine GoalContinuationPlan; use alex-runtime-ports',
       },
       {
         regex: /\bpub\s+struct\s+ThreadGoalRuntime\b/,
         message:
-          'core goal mode must not own thread goal runtime accounting; use openbitfun-agent-runtime',
+          'core goal mode must not own thread goal runtime accounting; use alex-agent-runtime',
       },
       {
         regex: /\bfn\s+build_thread_goal_continuation_plan\b/,
         message:
-          'core goal mode must not own thread goal continuation planning; use openbitfun-agent-runtime',
+          'core goal mode must not own thread goal continuation planning; use alex-agent-runtime',
       },
       {
         regex: /\bfn\s+goal_tool_response\b/,
         message:
-          'core goal mode must not own thread goal tool response assembly; use openbitfun-agent-runtime',
+          'core goal mode must not own thread goal tool response assembly; use alex-agent-runtime',
       },
       {
         regex: /\bfn\s+billable_tokens_from_counts\b/,
         message:
-          'core goal mode must not own thread goal token accounting policy; use openbitfun-agent-runtime',
+          'core goal mode must not own thread goal token accounting policy; use alex-agent-runtime',
       },
     ],
   },
@@ -2716,15 +2716,15 @@ export const forbiddenContentRules = [
     patterns: [
       {
         regex: /\bstruct\s+CompressionContract\b/,
-        message: 'core message model must not redefine CompressionContract; use openbitfun-runtime-ports',
+        message: 'core message model must not redefine CompressionContract; use alex-runtime-ports',
       },
       {
         regex: /\bstruct\s+CompressionContractItem\b/,
-        message: 'core message model must not redefine CompressionContractItem; use openbitfun-runtime-ports',
+        message: 'core message model must not redefine CompressionContractItem; use alex-runtime-ports',
       },
       {
         regex: /\bfn\s+render_contract_items\b/,
-        message: 'core message model must not own compression contract rendering; use openbitfun-runtime-ports',
+        message: 'core message model must not own compression contract rendering; use alex-runtime-ports',
       },
     ],
   },
@@ -2733,7 +2733,7 @@ export const forbiddenContentRules = [
     patterns: [
       {
         regex: /\bstruct\s+RelatedPath\b/,
-        message: 'core workspace manager must not redefine RelatedPath; use openbitfun-runtime-ports',
+        message: 'core workspace manager must not redefine RelatedPath; use alex-runtime-ports',
       },
     ],
   },
@@ -2843,32 +2843,32 @@ export const forbiddenContentRules = [
       {
         regex: /\bpub\s+trait\s+WorkspaceFileSystem\b/,
         message:
-          'workspace file-system contract must be owned by openbitfun-runtime-ports; keep only concrete adapters or re-exports in core',
+          'workspace file-system contract must be owned by alex-runtime-ports; keep only concrete adapters or re-exports in core',
       },
       {
         regex: /\bpub\s+trait\s+WorkspaceShell\b/,
         message:
-          'workspace shell contract must be owned by openbitfun-runtime-ports; keep only concrete adapters or re-exports in core',
+          'workspace shell contract must be owned by alex-runtime-ports; keep only concrete adapters or re-exports in core',
       },
       {
         regex: /\bpub\s+struct\s+WorkspaceServices\b/,
         message:
-          'workspace service bundle contract must be owned by openbitfun-runtime-ports; keep only concrete adapters or re-exports in core',
+          'workspace service bundle contract must be owned by alex-runtime-ports; keep only concrete adapters or re-exports in core',
       },
       {
         regex: /\bpub\s+struct\s+WorkspaceCommandOptions\b/,
         message:
-          'workspace command contract must be owned by openbitfun-runtime-ports; keep only concrete adapters or re-exports in core',
+          'workspace command contract must be owned by alex-runtime-ports; keep only concrete adapters or re-exports in core',
       },
       {
         regex: /\bpub\s+struct\s+WorkspaceCommandResult\b/,
         message:
-          'workspace command result contract must be owned by openbitfun-runtime-ports; keep only concrete adapters or re-exports in core',
+          'workspace command result contract must be owned by alex-runtime-ports; keep only concrete adapters or re-exports in core',
       },
       {
         regex: /\bpub\s+struct\s+WorkspaceDirEntry\b/,
         message:
-          'workspace directory entry contract must be owned by openbitfun-runtime-ports; keep only concrete adapters or re-exports in core',
+          'workspace directory entry contract must be owned by alex-runtime-ports; keep only concrete adapters or re-exports in core',
       },
     ],
   },
@@ -3007,21 +3007,21 @@ export const forbiddenContentRules = [
     patterns: [
       {
         regex: /\bpub enum ToolPathOperation\b/,
-        message: 'core tool restrictions must not redefine ToolPathOperation; use openbitfun-agent-tools',
+        message: 'core tool restrictions must not redefine ToolPathOperation; use alex-agent-tools',
       },
       {
         regex: /\bpub struct ToolPathPolicy\b/,
-        message: 'core tool restrictions must not redefine ToolPathPolicy; use openbitfun-agent-tools',
+        message: 'core tool restrictions must not redefine ToolPathPolicy; use alex-agent-tools',
       },
       {
         regex: /\bpub struct ToolRuntimeRestrictions\b/,
         message:
-          'core tool restrictions must not redefine ToolRuntimeRestrictions; use openbitfun-agent-tools',
+          'core tool restrictions must not redefine ToolRuntimeRestrictions; use alex-agent-tools',
       },
       {
         regex: /\bfn\s+normalize_absolute_posix_path\b/,
         message:
-          'core tool restrictions must not redefine remote POSIX path normalization; use openbitfun-agent-tools',
+          'core tool restrictions must not redefine remote POSIX path normalization; use alex-agent-tools',
       },
     ],
   },
@@ -3029,24 +3029,24 @@ export const forbiddenContentRules = [
     path: 'src/crates/assembly/core/src/agentic/tools/workspace_paths.rs',
     patterns: [
       {
-        regex: /\bpub const OPENBITFUN_RUNTIME_URI_PREFIX\b/,
+        regex: /\bpub const ALEX_RUNTIME_URI_PREFIX\b/,
         message:
-          'core workspace path facade must not redefine the runtime URI prefix; use openbitfun-agent-tools',
+          'core workspace path facade must not redefine the runtime URI prefix; use alex-agent-tools',
       },
       {
-        regex: /\bpub struct ParsedOpenBitFunRuntimeUri\b/,
+        regex: /\bpub struct ParsedAlexRuntimeUri\b/,
         message:
-          'core workspace path facade must not redefine ParsedOpenBitFunRuntimeUri; use openbitfun-agent-tools',
+          'core workspace path facade must not redefine ParsedAlexRuntimeUri; use alex-agent-tools',
       },
       {
         regex: /\bfn\s+posix_normalize_components\b/,
         message:
-          'core workspace path facade must not redefine remote POSIX path normalization; use openbitfun-agent-tools',
+          'core workspace path facade must not redefine remote POSIX path normalization; use alex-agent-tools',
       },
       {
         regex: /Component::ParentDir/,
         message:
-          'core workspace path facade must not redefine host path normalization; use openbitfun-agent-tools',
+          'core workspace path facade must not redefine host path normalization; use alex-agent-tools',
       },
     ],
   },
@@ -3056,17 +3056,17 @@ export const forbiddenContentRules = [
       {
         regex: /\bstruct DynamicToolMetadata\b/,
         message:
-          'core tool registry must not own dynamic tool metadata storage; use openbitfun-agent-tools ToolRegistry',
+          'core tool registry must not own dynamic tool metadata storage; use alex-agent-tools ToolRegistry',
       },
       {
         regex: /\btools\s*:\s*IndexMap\b/,
         message:
-          'core tool registry must not own the generic tool map; use openbitfun-agent-tools ToolRegistry',
+          'core tool registry must not own the generic tool map; use alex-agent-tools ToolRegistry',
       },
       {
         regex: /\bdynamic_tools\s*:\s*IndexMap\b/,
         message:
-          'core tool registry must not own the dynamic tool map; use openbitfun-agent-tools ToolRegistry',
+          'core tool registry must not own the dynamic tool map; use alex-agent-tools ToolRegistry',
       },
     ],
   },
@@ -3076,22 +3076,22 @@ export const forbiddenContentRules = [
       {
         regex: /\bfn\s+generate_preview\b/,
         message:
-          'core tool result storage must delegate pure preview generation to openbitfun-agent-tools',
+          'core tool result storage must delegate pure preview generation to alex-agent-tools',
       },
       {
         regex: /\bfn\s+build_persisted_output_message\b/,
         message:
-          'core tool result storage must delegate persisted-output rendering to openbitfun-agent-tools',
+          'core tool result storage must delegate persisted-output rendering to alex-agent-tools',
       },
       {
         regex: /\bfn\s+select_candidates_to_persist\b/,
         message:
-          'core tool result storage must delegate round-budget selection to openbitfun-agent-tools',
+          'core tool result storage must delegate round-budget selection to alex-agent-tools',
       },
       {
         regex: /\bstruct\s+ToolResultStoragePolicy\b/,
         message:
-          'core tool result storage must use the provider-neutral storage policy from openbitfun-agent-tools',
+          'core tool result storage must use the provider-neutral storage policy from alex-agent-tools',
       },
     ],
   },
@@ -4082,9 +4082,9 @@ export const forbiddenContentUnderRules = [
       },
       {
         regex:
-          /\bopenbitfun_transport\b(?!::(?:encode_json_with_limit|JsonCodecError)\b)/,
+          /\balex_transport\b(?!::(?:encode_json_with_limit|JsonCodecError)\b)/,
         message:
-          'agent-runtime-ipc may consume only the reviewed bounded JSON API from openbitfun-transport',
+          'agent-runtime-ipc may consume only the reviewed bounded JSON API from alex-transport',
       },
     ],
   },
@@ -4095,7 +4095,7 @@ export const forbiddenContentUnderRules = [
     patterns: [
       {
         regex:
-          /\b(?:PluginRuntimeReadResponse|PluginStatusSnapshot|PluginResponseEnvelope|PluginDispatchEnvelope|PluginEffectCandidate|PluginQuarantineState|PluginRuntimeClient|PluginRuntimeBinding|openbitfun_plugin_runtime_client|openbitfun_agent_runtime::runtime)\b/,
+          /\b(?:PluginRuntimeReadResponse|PluginStatusSnapshot|PluginResponseEnvelope|PluginDispatchEnvelope|PluginEffectCandidate|PluginQuarantineState|PluginRuntimeClient|PluginRuntimeBinding|alex_plugin_runtime_client|alex_agent_runtime::runtime)\b/,
         message:
           'product entrypoints must not consume raw plugin runtime client contracts; project through the capability surface contract first',
       },
@@ -4107,9 +4107,9 @@ export const forbiddenContentUnderRules = [
       'only the reviewed stdio Server Host assembly point may import the App Server implementation; TUI, controller, and headless CLI must stay on stable contracts',
     patterns: [
       {
-        regex: /\bopenbitfun_app_server\b/,
+        regex: /\balex_app_server\b/,
         message:
-          'openbitfun-app-server implementation imports belong only in src/apps/cli/src/server_host.rs, the reviewed stdio Server Host assembly point',
+          'alex-app-server implementation imports belong only in src/apps/cli/src/server_host.rs, the reviewed stdio Server Host assembly point',
         allowPaths: ['src/apps/cli/src/server_host.rs'],
       },
     ],
@@ -4121,7 +4121,7 @@ export const forbiddenContentUnderRules = [
     patterns: [
       {
         regex:
-          /\b(?:PluginRuntimeReadResponse|PluginStatusSnapshot|PluginResponseEnvelope|PluginDispatchEnvelope|PluginEffectCandidate|PluginQuarantineState|PluginRuntimeClient|PluginRuntimeBinding|openbitfun_plugin_runtime_client|openbitfun_agent_runtime::runtime)\b/,
+          /\b(?:PluginRuntimeReadResponse|PluginStatusSnapshot|PluginResponseEnvelope|PluginDispatchEnvelope|PluginEffectCandidate|PluginQuarantineState|PluginRuntimeClient|PluginRuntimeBinding|alex_plugin_runtime_client|alex_agent_runtime::runtime)\b/,
         message:
           'Server/API interfaces must not consume raw plugin runtime client contracts; define a projected contract first',
       },
@@ -4134,7 +4134,7 @@ export const forbiddenContentUnderRules = [
     patterns: [
       {
         regex:
-          /\b(?:PluginRuntimeReadResponse|PluginStatusSnapshot|PluginResponseEnvelope|PluginDispatchEnvelope|PluginEffectCandidate|PluginQuarantineState|PluginRuntimeClient|PluginRuntimeBinding|openbitfun_plugin_runtime_client|openbitfun_agent_runtime::runtime)\b/,
+          /\b(?:PluginRuntimeReadResponse|PluginStatusSnapshot|PluginResponseEnvelope|PluginDispatchEnvelope|PluginEffectCandidate|PluginQuarantineState|PluginRuntimeClient|PluginRuntimeBinding|alex_plugin_runtime_client|alex_agent_runtime::runtime)\b/,
         message:
           'frontend surfaces must not consume raw plugin runtime client contracts; project through the capability surface contract first',
       },
@@ -4147,7 +4147,7 @@ export const forbiddenContentUnderRules = [
     patterns: [
       {
         regex:
-          /\b(?:PluginRuntimeReadResponse|PluginStatusSnapshot|PluginResponseEnvelope|PluginDispatchEnvelope|PluginEffectCandidate|PluginQuarantineState|PluginRuntimeClient|PluginRuntimeBinding|openbitfun_plugin_runtime_client|openbitfun_agent_runtime::runtime)\b/,
+          /\b(?:PluginRuntimeReadResponse|PluginStatusSnapshot|PluginResponseEnvelope|PluginDispatchEnvelope|PluginEffectCandidate|PluginQuarantineState|PluginRuntimeClient|PluginRuntimeBinding|alex_plugin_runtime_client|alex_agent_runtime::runtime)\b/,
         message:
           'mobile surfaces must not consume raw plugin runtime client contracts; project through the capability surface contract first',
       },
@@ -4160,7 +4160,7 @@ export const forbiddenContentUnderRules = [
     patterns: [
       {
         regex:
-          /\b(?:PluginRuntimeReadResponse|PluginStatusSnapshot|PluginResponseEnvelope|PluginDispatchEnvelope|PluginEffectCandidate|PluginQuarantineState|PluginRuntimeClient|PluginRuntimeBinding|openbitfun_plugin_runtime_client|openbitfun_agent_runtime::runtime)\b/,
+          /\b(?:PluginRuntimeReadResponse|PluginStatusSnapshot|PluginResponseEnvelope|PluginDispatchEnvelope|PluginEffectCandidate|PluginQuarantineState|PluginRuntimeClient|PluginRuntimeBinding|alex_plugin_runtime_client|alex_agent_runtime::runtime)\b/,
         message:
           'installer surfaces must not consume raw plugin runtime client contracts; project through the capability surface contract first',
       },
@@ -4173,7 +4173,7 @@ export const forbiddenContentUnderRules = [
     patterns: [
       {
         regex:
-          /\b(?:use\s+openbitfun_opencode_adapter\b|extern\s+crate\s+openbitfun_opencode_adapter\b|openbitfun_opencode_adapter::)/,
+          /\b(?:use\s+alex_opencode_adapter\b|extern\s+crate\s+alex_opencode_adapter\b|alex_opencode_adapter::)/,
         allowPaths: [
           'src/crates/adapters/opencode-adapter/tests/opencode_source_adapter.rs',
           'src/crates/adapters/opencode-adapter/tests/opencode_static_source_contracts/opencode_command_adapter.rs',
@@ -4190,7 +4190,7 @@ export const forbiddenContentUnderRules = [
           'src/crates/assembly/core/src/plugin_host.rs',
         ],
         message:
-          'only a reviewed product composition root may import openbitfun-opencode-adapter through a capability-specific provider boundary',
+          'only a reviewed product composition root may import alex-opencode-adapter through a capability-specific provider boundary',
       },
     ],
   },
@@ -4201,9 +4201,9 @@ export const forbiddenContentUnderRules = [
     patterns: [
       {
         regex:
-          /\b(?:use\s+openbitfun_opencode_adapter\b|extern\s+crate\s+openbitfun_opencode_adapter\b|openbitfun_opencode_adapter::)/,
+          /\b(?:use\s+alex_opencode_adapter\b|extern\s+crate\s+alex_opencode_adapter\b|alex_opencode_adapter::)/,
         message:
-          'only a reviewed product composition root may import openbitfun-opencode-adapter and inject it into PluginRuntimeClient',
+          'only a reviewed product composition root may import alex-opencode-adapter and inject it into PluginRuntimeClient',
       },
     ],
   },
@@ -4211,7 +4211,7 @@ export const forbiddenContentUnderRules = [
     path: 'src',
     reason: 'Claude Code declarative source adapter imports are limited to its fixtures and composition roots',
     patterns: [{
-      regex: /\b(?:use\s+openbitfun_claude_code_adapter\b|extern\s+crate\s+openbitfun_claude_code_adapter\b|openbitfun_claude_code_adapter::)/,
+      regex: /\b(?:use\s+alex_claude_code_adapter\b|extern\s+crate\s+alex_claude_code_adapter\b|alex_claude_code_adapter::)/,
       allowPaths: [
         'src/crates/adapters/claude-code-adapter/tests/claude_code_source_contracts/hook_source.rs',
         'src/crates/adapters/claude-code-adapter/tests/claude_code_source_contracts/command_source.rs',
@@ -4228,7 +4228,7 @@ export const forbiddenContentUnderRules = [
     path: 'src',
     reason: 'Codex declarative source adapter imports are limited to its fixtures and composition roots',
     patterns: [{
-      regex: /\b(?:use\s+openbitfun_codex_adapter\b|extern\s+crate\s+openbitfun_codex_adapter\b|openbitfun_codex_adapter::)/,
+      regex: /\b(?:use\s+alex_codex_adapter\b|extern\s+crate\s+alex_codex_adapter\b|alex_codex_adapter::)/,
       allowPaths: [
         'src/crates/adapters/codex-adapter/tests/codex_source_contracts/hook_source.rs',
         'src/crates/adapters/codex-adapter/tests/codex_source_contracts/subagent_source.rs',
@@ -4244,7 +4244,7 @@ export const forbiddenContentUnderRules = [
     path: 'src',
     reason: 'shared bounded static-source support is private to reviewed ecosystem source adapters',
     patterns: [{
-      regex: /\b(?:use\s+openbitfun_static_hook_support\b|extern\s+crate\s+openbitfun_static_hook_support\b|openbitfun_static_hook_support::)/,
+      regex: /\b(?:use\s+alex_static_hook_support\b|extern\s+crate\s+alex_static_hook_support\b|alex_static_hook_support::)/,
       allowPaths: [
         'src/crates/adapters/static-hook-support/tests/parser.rs',
         'src/crates/adapters/dsh-adapter/src/hook_source.rs',
@@ -4292,7 +4292,7 @@ export const forbiddenContentUnderRules = [
         regex:
           /crate::agentic::subagent_runtime(?:::|\s*::|::\{)(?:[^;\n]*\b(?:DelegationPolicy|SubagentContextMode)\b)/,
         message:
-          'DelegationPolicy and SubagentContextMode must be imported from openbitfun-runtime-ports, not the core compatibility re-export',
+          'DelegationPolicy and SubagentContextMode must be imported from alex-runtime-ports, not the core compatibility re-export',
       },
     ],
   },
@@ -4419,7 +4419,7 @@ export const forbiddenContentUnderRules = [
   {
     path: 'src/crates/assembly/core/src/agentic/tools/pipeline',
     reason:
-      'core pipeline must delegate deterministic tool execution admission policy to openbitfun-agent-tools',
+      'core pipeline must delegate deterministic tool execution admission policy to alex-agent-tools',
     patterns: [
       {
         regex: /\bvalidate_tool_allowed_by_list\s*\(/,

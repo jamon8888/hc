@@ -211,7 +211,7 @@ mod native {
     fn create_preview_window(parent: HWND) -> Result<HWND, String> {
         let instance =
             unsafe { GetModuleHandleW(None) }.map_err(|e| native_error("GetModuleHandleW", e))?;
-        let class = w!("OpenBitFunFilePreviewTarget");
+        let class = w!("AlexFilePreviewTarget");
         let wc = WNDCLASSW {
             lpfnWndProc: Some(window_proc),
             hInstance: instance.into(),

@@ -82,14 +82,14 @@ impl EditContentError {
             "new_string must be different from old_string",
         )
     }
-    pub fn detail(&self) -> Option<openbitfun_core_types::errors::ToolErrorDetail> {
+    pub fn detail(&self) -> Option<alex_core_types::errors::ToolErrorDetail> {
         let code = match self.kind {
             EditContentErrorKind::EmptyTarget => return None,
             EditContentErrorKind::NoChange => "edit_no_change",
             EditContentErrorKind::TargetNotFound => "edit_target_not_found",
             EditContentErrorKind::TargetAmbiguous => "edit_target_ambiguous",
         };
-        Some(openbitfun_core_types::errors::ToolErrorDetail {
+        Some(alex_core_types::errors::ToolErrorDetail {
             code: code.into(),
             kind: "guidance".into(),
         })
@@ -563,7 +563,7 @@ mod tests {
             .duration_since(UNIX_EPOCH)
             .expect("time went backwards")
             .as_nanos();
-        let path = std::env::temp_dir().join(format!("openbitfun-edit-file-test-{unique}.txt"));
+        let path = std::env::temp_dir().join(format!("alex-edit-file-test-{unique}.txt"));
         fs::write(&path, contents).expect("temp file should be written");
         path
     }

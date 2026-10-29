@@ -27,7 +27,7 @@ import com.openbitfun.mobile.app.ui.preview.MOBILE_DESIGN_GALLERY_TEST_TAG
 import com.openbitfun.mobile.app.ui.preview.MobileDesignGallery
 import com.openbitfun.mobile.app.ui.preview.generated.MobilePreviewScenario
 import com.openbitfun.mobile.app.ui.preview.generated.MobilePreviewScenarios
-import com.openbitfun.mobile.app.ui.theme.OpenBitFunTheme
+import com.openbitfun.mobile.app.ui.theme.AlexTheme
 import com.openbitfun.mobile.app.ui.theme.generated.MobileDesignColors
 import com.openbitfun.mobile.app.R
 import kotlin.math.abs
@@ -130,7 +130,7 @@ class MobileDesignPreviewVisualTest {
     @OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
     private fun assertBackgroundProbe(dark: Boolean, expected: androidx.compose.ui.graphics.Color) {
         composeRule.setContent {
-            OpenBitFunTheme(dark = dark) {
+            AlexTheme(dark = dark) {
                 Box(
                     Modifier
                         .fillMaxSize()

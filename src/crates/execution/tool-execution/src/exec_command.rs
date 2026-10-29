@@ -14,8 +14,8 @@ const REMOTE_EXEC_ENV_SNAPSHOT_MAX_OUTPUT_CHARS: usize = 128 * 1024;
 const REMOTE_EXEC_ENV_SNAPSHOT_CONTROL_YIELD_TIME_MS: u64 = 500;
 const REMOTE_EXEC_ENV_SNAPSHOT_CONTROL_MAX_OUTPUT_CHARS: usize = 2_000;
 const REMOTE_EXEC_ENV_SNAPSHOT_TTL: Duration = Duration::from_secs(10 * 60);
-const REMOTE_ENV_SNAPSHOT_BEGIN: &str = "__OPENBITFUN_REMOTE_ENV_SNAPSHOT_BEGIN__";
-const REMOTE_ENV_SNAPSHOT_END: &str = "__OPENBITFUN_REMOTE_ENV_SNAPSHOT_END__";
+const REMOTE_ENV_SNAPSHOT_BEGIN: &str = "__ALEX_REMOTE_ENV_SNAPSHOT_BEGIN__";
+const REMOTE_ENV_SNAPSHOT_END: &str = "__ALEX_REMOTE_ENV_SNAPSHOT_END__";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ExecCommandControlAction {
@@ -287,7 +287,7 @@ pub fn exec_command_noninteractive_env() -> HashMap<String, String> {
         ("GH_PAGER".to_string(), "cat".to_string()),
         ("GIT_TERMINAL_PROMPT".to_string(), "0".to_string()),
         ("GIT_EDITOR".to_string(), "true".to_string()),
-        ("OPENBITFUN_NONINTERACTIVE".to_string(), "1".to_string()),
+        ("ALEX_NONINTERACTIVE".to_string(), "1".to_string()),
     ])
 }
 
@@ -408,34 +408,34 @@ pub fn remote_exec_non_tty_control_wrapper(
     let escaped_cmd = exec_command_shell_escape(cmd);
     let shell_args = remote_exec_shell_login_args(&shell_kind).join(" ");
     format!(
-        r#"__openbitfun_shell={escaped_shell}
-__openbitfun_cmd={escaped_cmd}
+        r#"__alex_shell={escaped_shell}
+__alex_cmd={escaped_cmd}
 if command -v setsid >/dev/null 2>&1; then
-  setsid "$__openbitfun_shell" {shell_args} "$__openbitfun_cmd" &
+  setsid "$__alex_shell" {shell_args} "$__alex_cmd" &
 else
-  "$__openbitfun_shell" {shell_args} "$__openbitfun_cmd" &
+  "$__alex_shell" {shell_args} "$__alex_cmd" &
 fi
-__openbitfun_child=$!
-__openbitfun_pgid=$__openbitfun_child
-__openbitfun_stop() {{
-  __openbitfun_signal=${{1:-INT}}
-  __openbitfun_exit=${{2:-130}}
-  __openbitfun_grace=${{3:-{REMOTE_NON_TTY_INTERRUPT_GRACE_SECONDS}}}
+__alex_child=$!
+__alex_pgid=$__alex_child
+__alex_stop() {{
+  __alex_signal=${{1:-INT}}
+  __alex_exit=${{2:-130}}
+  __alex_grace=${{3:-{REMOTE_NON_TTY_INTERRUPT_GRACE_SECONDS}}}
   trap - INT TERM
-  kill -"$__openbitfun_signal" "-$__openbitfun_pgid" 2>/dev/null || kill -"$__openbitfun_signal" "$__openbitfun_child" 2>/dev/null || true
-  if [ "$__openbitfun_grace" -gt 0 ]; then
-    sleep "$__openbitfun_grace"
+  kill -"$__alex_signal" "-$__alex_pgid" 2>/dev/null || kill -"$__alex_signal" "$__alex_child" 2>/dev/null || true
+  if [ "$__alex_grace" -gt 0 ]; then
+    sleep "$__alex_grace"
   fi
-  kill -KILL "-$__openbitfun_pgid" 2>/dev/null || kill -KILL "$__openbitfun_child" 2>/dev/null || true
-  wait "$__openbitfun_child" 2>/dev/null || true
-  exit "$__openbitfun_exit"
+  kill -KILL "-$__alex_pgid" 2>/dev/null || kill -KILL "$__alex_child" 2>/dev/null || true
+  wait "$__alex_child" 2>/dev/null || true
+  exit "$__alex_exit"
 }}
-trap '__openbitfun_stop INT 130 {REMOTE_NON_TTY_INTERRUPT_GRACE_SECONDS}' INT
-trap '__openbitfun_stop KILL 137 0' TERM
-wait "$__openbitfun_child"
-__openbitfun_status=$?
+trap '__alex_stop INT 130 {REMOTE_NON_TTY_INTERRUPT_GRACE_SECONDS}' INT
+trap '__alex_stop KILL 137 0' TERM
+wait "$__alex_child"
+__alex_status=$?
 trap - INT TERM
-exit "$__openbitfun_status""#
+exit "$__alex_status""#
     )
 }
 
@@ -1308,12 +1308,12 @@ mod tests {
         );
 
         assert!(wrapper
-            .contains("setsid \"$__openbitfun_shell\" -o pipefail -lc \"$__openbitfun_cmd\" &"));
-        assert!(wrapper.contains("trap '__openbitfun_stop INT 130 2' INT"));
-        assert!(wrapper.contains("trap '__openbitfun_stop KILL 137 0' TERM"));
-        assert!(wrapper.contains("__openbitfun_grace=${3:-2}"));
-        assert!(wrapper.contains("kill -KILL \"-$__openbitfun_pgid\""));
-        assert!(wrapper.contains("__openbitfun_cmd='python3 -c '\\''print(1)'\\'''"));
+            .contains("setsid \"$__alex_shell\" -o pipefail -lc \"$__alex_cmd\" &"));
+        assert!(wrapper.contains("trap '__alex_stop INT 130 2' INT"));
+        assert!(wrapper.contains("trap '__alex_stop KILL 137 0' TERM"));
+        assert!(wrapper.contains("__alex_grace=${3:-2}"));
+        assert!(wrapper.contains("kill -KILL \"-$__alex_pgid\""));
+        assert!(wrapper.contains("__alex_cmd='python3 -c '\\''print(1)'\\'''"));
     }
 
     #[test]
@@ -1341,7 +1341,7 @@ mod tests {
         );
 
         let snapshot = parse_remote_exec_env_snapshot_output(
-            "noise\r\n__OPENBITFUN_REMOTE_ENV_SNAPSHOT_BEGIN__\r\nPATH=/home/me/.nvm/bin:/usr/bin\r\nNVM_DIR=/home/me/.nvm\r\nPWD=/tmp\r\nBAD-NAME=value\r\n__OPENBITFUN_REMOTE_ENV_SNAPSHOT_END__\r\nmore noise",
+            "noise\r\n__ALEX_REMOTE_ENV_SNAPSHOT_BEGIN__\r\nPATH=/home/me/.nvm/bin:/usr/bin\r\nNVM_DIR=/home/me/.nvm\r\nPWD=/tmp\r\nBAD-NAME=value\r\n__ALEX_REMOTE_ENV_SNAPSHOT_END__\r\nmore noise",
         )
         .expect("snapshot should parse");
 

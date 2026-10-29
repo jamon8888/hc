@@ -7,7 +7,7 @@
 
 use super::types::TokenUsageRecord;
 use crate::service::config::types::AIModelConfig;
-use openbitfun_services_core::token_usage::{
+use alex_services_core::token_usage::{
     UsageAttribution, UsageAttributionStatus, UsageDimensionAttribution, UsageStatisticsFilterKind,
 };
 use std::collections::HashMap;
@@ -367,13 +367,13 @@ mod tests {
     fn same_named_models_from_different_suppliers_keep_distinct_keys() {
         let resolver = UsageAttributionResolver::new(&[
             config(
-                "cfg-openbitfun",
+                "cfg-alex",
                 "OpenBitFun",
                 "anthropic",
                 "MiniMax-M3",
                 "https://gateway.example.com",
                 None,
-                Some("provider-openbitfun"),
+                Some("provider-alex"),
             ),
             config(
                 "cfg-minimax",
@@ -386,7 +386,7 @@ mod tests {
             ),
         ]);
 
-        let first = resolver.attribute(&record("cfg-openbitfun", "MiniMax-M3"));
+        let first = resolver.attribute(&record("cfg-alex", "MiniMax-M3"));
         let second = resolver.attribute(&record("cfg-minimax", "MiniMax-M3"));
         assert_eq!(first.model.name, second.model.name);
         assert_ne!(first.model.key, second.model.key);

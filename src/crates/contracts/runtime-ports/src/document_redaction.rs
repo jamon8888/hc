@@ -1,10 +1,10 @@
 //! PII-safe document redaction port.
 //!
-//! The only shape `openbitfun-core` ever sees for document extraction
+//! The only shape `alex-core` ever sees for document extraction
 //! (SPEC §3, invariant I1): a document the agent reads is extracted and
 //! redacted by the sidecar, so no unredacted text reaches the model context.
 //!
-//! The concrete pipeline lives in `openbitfun-basemind-integration` and is
+//! The concrete pipeline lives in `alex-basemind-integration` and is
 //! published by the host at the composition root, the same way the
 //! `RagSearchPort` is published (D11).
 

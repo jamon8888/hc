@@ -3,7 +3,7 @@ use std::io::{Read, Seek, SeekFrom, Write};
 use std::path::{Path, PathBuf};
 
 use anyhow::{anyhow, bail, Context, Result};
-use openbitfun_agent_runtime::sdk::{PermissionReply, PermissionRequest};
+use alex_agent_runtime::sdk::{PermissionReply, PermissionRequest};
 use serde::{Deserialize, Serialize};
 
 use super::protocol::{
@@ -218,7 +218,7 @@ pub(crate) struct DispatchStore {
 
 impl DispatchStore {
     pub(crate) fn open_default() -> Result<Self> {
-        let path_manager = openbitfun_core::infrastructure::PathManager::new()
+        let path_manager = alex_core::infrastructure::PathManager::new()
             .map_err(|error| anyhow!("resolve OpenBitFun storage root: {error}"))?;
         let store = Self::open(path_manager.product_home_dir().join("dispatch"))?;
         if let Err(error) = store.maybe_collect_expired_terminal_jobs() {
@@ -2241,7 +2241,7 @@ mod tests {
     use crate::dispatch::protocol::{
         DispatchApprovalPolicy, DispatchSetupAuditEvent, DispatchSubmitRequest,
     };
-    use openbitfun_agent_runtime::sdk::{PermissionRequestSource, PermissionRequestSourceKind};
+    use alex_agent_runtime::sdk::{PermissionRequestSource, PermissionRequestSourceKind};
     use serde_json::Map;
 
     fn request(job_id: &str) -> DispatchSubmitRequest {
@@ -3169,9 +3169,9 @@ mod tests {
     #[cfg(unix)]
     #[test]
     fn cross_process_reader_and_writer_remain_consistent_during_rotation() {
-        const MODE_ENV: &str = "OPENBITFUN_DISPATCH_ROTATION_STRESS_MODE";
-        const ROOT_ENV: &str = "OPENBITFUN_DISPATCH_ROTATION_STRESS_ROOT";
-        const DONE_ENV: &str = "OPENBITFUN_DISPATCH_ROTATION_STRESS_DONE";
+        const MODE_ENV: &str = "ALEX_DISPATCH_ROTATION_STRESS_MODE";
+        const ROOT_ENV: &str = "ALEX_DISPATCH_ROTATION_STRESS_ROOT";
+        const DONE_ENV: &str = "ALEX_DISPATCH_ROTATION_STRESS_DONE";
 
         if let Some(mode) = std::env::var_os(MODE_ENV) {
             let root = PathBuf::from(std::env::var_os(ROOT_ENV).expect("stress root"));
@@ -3228,14 +3228,14 @@ mod tests {
         let executable = std::env::current_exe().expect("test executable");
         let test_name =
             "dispatch::store::tests::cross_process_reader_and_writer_remain_consistent_during_rotation";
-        let mut reader = openbitfun_services_core::process_manager::create_command(&executable)
+        let mut reader = alex_services_core::process_manager::create_command(&executable)
             .args(["--exact", test_name, "--nocapture"])
             .env(MODE_ENV, "reader")
             .env(ROOT_ENV, &root)
             .env(DONE_ENV, &done)
             .spawn()
             .expect("spawn stress reader");
-        let writer = openbitfun_services_core::process_manager::create_command(&executable)
+        let writer = alex_services_core::process_manager::create_command(&executable)
             .args(["--exact", test_name, "--nocapture"])
             .env(MODE_ENV, "writer")
             .env(ROOT_ENV, &root)
@@ -3378,7 +3378,7 @@ mod tests {
 
     #[test]
     fn default_store_honors_path_manager_storage_overrides() {
-        const CHILD_ENV: &str = "OPENBITFUN_DISPATCH_PATH_TEST_CHILD";
+        const CHILD_ENV: &str = "ALEX_DISPATCH_PATH_TEST_CHILD";
         if let Some(expected_home) = std::env::var_os(CHILD_ENV) {
             let store = DispatchStore::open_default().expect("open isolated default store");
             assert_eq!(store.root, PathBuf::from(expected_home).join("dispatch"));
@@ -3386,9 +3386,9 @@ mod tests {
         }
 
         let dir = tempfile::tempdir().expect("tempdir");
-        let openbitfun_home = dir.path().join("openbitfun-home");
+        let alex_home = dir.path().join("alex-home");
         let user_root = dir.path().join("user-root");
-        let output = openbitfun_services_core::process_manager::create_command(
+        let output = alex_services_core::process_manager::create_command(
             std::env::current_exe().expect("test executable"),
         )
         .args([
@@ -3396,12 +3396,12 @@ mod tests {
             "dispatch::store::tests::default_store_honors_path_manager_storage_overrides",
             "--nocapture",
         ])
-        .env(CHILD_ENV, &openbitfun_home)
-        .env("OPENBITFUN_HOME", &openbitfun_home)
-        .env("OPENBITFUN_USER_ROOT", &user_root)
-        .env("OPENBITFUN_E2E_STORAGE_GUARD", "1")
-        .env_remove("OPENBITFUN_E2E_HOME")
-        .env_remove("OPENBITFUN_E2E_USER_ROOT")
+        .env(CHILD_ENV, &alex_home)
+        .env("ALEX_HOME", &alex_home)
+        .env("ALEX_USER_ROOT", &user_root)
+        .env("ALEX_E2E_STORAGE_GUARD", "1")
+        .env_remove("ALEX_E2E_HOME")
+        .env_remove("ALEX_E2E_USER_ROOT")
         .output()
         .expect("run isolated path test");
         assert!(
@@ -3410,8 +3410,8 @@ mod tests {
             String::from_utf8_lossy(&output.stdout),
             String::from_utf8_lossy(&output.stderr)
         );
-        assert!(openbitfun_home.join("dispatch/jobs").is_dir());
-        assert!(openbitfun_home.join("dispatch/workspaces").is_dir());
+        assert!(alex_home.join("dispatch/jobs").is_dir());
+        assert!(alex_home.join("dispatch/workspaces").is_dir());
     }
 
     #[test]

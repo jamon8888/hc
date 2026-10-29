@@ -30,7 +30,7 @@ test("Dialog and Sheet compose the shared overlay kernel and compound anatomy", 
     "body",
     "footer",
   ]) {
-    assert.match(source, new RegExp(`data-openbitfun-part=\\"${part}\\"`));
+    assert.match(source, new RegExp(`data-alex-part=\\"${part}\\"`));
   }
   assert.match(source, /aria-describedby=\{ariaDescribedBy \?\? \(hasDescription \? descriptionId : undefined\)\}/);
   assert.match(source, /aria-labelledby=\{ariaLabelledBy \?\? \(!ariaLabel && hasTitle \? titleId : undefined\)\}/);
@@ -52,17 +52,17 @@ test("Dialog geometry and typography use public design tokens", async () => {
   const styles = await readFile(new URL("../dist/styles.css", import.meta.url), "utf8");
 
   for (const token of [
-    "--openbitfun-overlay-dialog-viewport-gutter",
-    "--openbitfun-overlay-dialog-backdrop-blur",
-    "--openbitfun-overlay-dialog-surface-radius",
-    "--openbitfun-overlay-dialog-header-padding-inline",
-    "--openbitfun-overlay-dialog-footer-padding-inline",
-    "--openbitfun-overlay-dialog-max-inline-size-xxlarge",
-    "--openbitfun-type-heading-dialog-font-size",
-    "--openbitfun-type-heading-dialog-font-weight",
-    "--openbitfun-color-overlay-scrim",
-    "--openbitfun-color-surface-raised",
-    "--openbitfun-shadow-overlay",
+    "--alex-overlay-dialog-viewport-gutter",
+    "--alex-overlay-dialog-backdrop-blur",
+    "--alex-overlay-dialog-surface-radius",
+    "--alex-overlay-dialog-header-padding-inline",
+    "--alex-overlay-dialog-footer-padding-inline",
+    "--alex-overlay-dialog-max-inline-size-xxlarge",
+    "--alex-type-heading-dialog-font-size",
+    "--alex-type-heading-dialog-font-weight",
+    "--alex-color-overlay-scrim",
+    "--alex-color-surface-raised",
+    "--alex-shadow-overlay",
   ]) {
     assert.match(styles, new RegExp(token));
   }
@@ -84,9 +84,9 @@ test("DialogFooter exposes a centered frosted floating action layer", async () =
   assert.match(styles, /\[data-appearance=floating\]\{[^}]*position:absolute/);
   assert.match(styles, /\[data-appearance=floating\]\{[^}]*justify-content:center/);
   assert.match(styles, /\[data-appearance=floating\]:before\{[^}]*background:linear-gradient/);
-  assert.match(styles, /\[data-appearance=floating\]:before\{[^}]*backdrop-filter:var\(--openbitfun-overlay-dialog-footer-blur\)/);
+  assert.match(styles, /\[data-appearance=floating\]:before\{[^}]*backdrop-filter:var\(--alex-overlay-dialog-footer-blur\)/);
   assert.match(styles, /\[data-appearance=floating\]\{[^}]*pointer-events:auto/);
-  assert.match(styles, /--openbitfun-overlay-dialog-footer-action-min-width/);
+  assert.match(styles, /--alex-overlay-dialog-footer-action-min-width/);
 });
 
 test("dialog separators are explicit and do not leak native attributes", () => {

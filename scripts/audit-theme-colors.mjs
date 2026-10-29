@@ -332,7 +332,7 @@ function collectGeneratedWidgetPayloadVarNames(content) {
 
   if (/Object\.values\(themeCssVariables\)/.test(content)) {
     const themeContract = PACKAGE_CSS_VAR_DEFINITION_CONTRACTS.find(
-      contract => contract.packageName === '@openbitfun/theme-openbitfun',
+      contract => contract.packageName === '@alex/theme-alex',
     );
     if (themeContract?.variables.length) return [...themeContract.variables];
   }
@@ -1472,7 +1472,7 @@ function audit(options) {
   const generatedWidgetPayloadVarNames = new Set(generatedWidgetPayloadVars.map(entry => entry.key));
   const canonicalThemeVariableNames = new Set(
     PACKAGE_CSS_VAR_DEFINITION_CONTRACTS.find(
-      contract => contract.packageName === '@openbitfun/theme-openbitfun',
+      contract => contract.packageName === '@alex/theme-alex',
     )?.variables ?? [],
   );
   const generatedWidgetPayloadMissingCanonicalThemeVars = hasGeneratedWidgetPayloadContract

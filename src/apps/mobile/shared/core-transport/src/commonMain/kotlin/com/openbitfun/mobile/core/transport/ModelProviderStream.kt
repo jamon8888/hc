@@ -223,7 +223,7 @@ public class ModelProviderStreamClient internal constructor(
                 ModelProviderProtocol.ANTHROPIC -> {
                     header("x-api-key", apiKey)
                     header("anthropic-version", "2023-06-01")
-                    if ("openbitfun.com" in baseUrl.lowercase()) header("X-Verification-Code", "from_openbitfun")
+                    if ("openbitfun.com" in baseUrl.lowercase()) header("X-Verification-Code", "from_alex")
                 }
                 ModelProviderProtocol.OPEN_AI -> header(HttpHeaders.Authorization, "Bearer $apiKey")
             }

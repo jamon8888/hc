@@ -3,10 +3,10 @@ use std::sync::Arc;
 
 use crate::service::config::ConfigService;
 use crate::service::mcp::server::MCPServerConfig;
-use crate::util::errors::OpenBitFunResult;
+use crate::util::errors::AlexResult;
 
 pub struct MCPConfigService {
-    pub(super) inner: openbitfun_services_integrations::mcp::config::MCPConfigService,
+    pub(super) inner: alex_services_integrations::mcp::config::MCPConfigService,
 }
 
 struct CoreMCPConfigStore {
@@ -14,20 +14,20 @@ struct CoreMCPConfigStore {
 }
 
 #[async_trait]
-impl openbitfun_services_integrations::mcp::config::MCPConfigStore for CoreMCPConfigStore {
+impl alex_services_integrations::mcp::config::MCPConfigStore for CoreMCPConfigStore {
     async fn get_config_value(
         &self,
         key: &str,
-    ) -> openbitfun_services_integrations::mcp::MCPRuntimeResult<Option<serde_json::Value>> {
+    ) -> alex_services_integrations::mcp::MCPRuntimeResult<Option<serde_json::Value>> {
         match self
             .config_service
             .get_config::<serde_json::Value>(Some(key))
             .await
         {
             Ok(value) => Ok(Some(value)),
-            Err(crate::util::errors::OpenBitFunError::NotFound(_)) => Ok(None),
+            Err(crate::util::errors::AlexError::NotFound(_)) => Ok(None),
             Err(error) => Err(
-                openbitfun_services_integrations::mcp::MCPRuntimeError::configuration(
+                alex_services_integrations::mcp::MCPRuntimeError::configuration(
                     error.to_string(),
                 ),
             ),
@@ -38,12 +38,12 @@ impl openbitfun_services_integrations::mcp::config::MCPConfigStore for CoreMCPCo
         &self,
         key: &str,
         value: serde_json::Value,
-    ) -> openbitfun_services_integrations::mcp::MCPRuntimeResult<()> {
+    ) -> alex_services_integrations::mcp::MCPRuntimeResult<()> {
         self.config_service
             .set_config(key, value)
             .await
             .map_err(|e| {
-                openbitfun_services_integrations::mcp::MCPRuntimeError::configuration(e.to_string())
+                alex_services_integrations::mcp::MCPRuntimeError::configuration(e.to_string())
             })
     }
 
@@ -52,12 +52,12 @@ impl openbitfun_services_integrations::mcp::config::MCPConfigStore for CoreMCPCo
         key: &str,
         expected: Option<serde_json::Value>,
         replacement: serde_json::Value,
-    ) -> openbitfun_services_integrations::mcp::MCPRuntimeResult<bool> {
+    ) -> alex_services_integrations::mcp::MCPRuntimeResult<bool> {
         self.config_service
             .compare_and_set_json_config(key, expected, replacement)
             .await
             .map_err(|error| {
-                openbitfun_services_integrations::mcp::MCPRuntimeError::configuration(
+                alex_services_integrations::mcp::MCPRuntimeError::configuration(
                     error.to_string(),
                 )
             })
@@ -66,50 +66,50 @@ impl openbitfun_services_integrations::mcp::config::MCPConfigStore for CoreMCPCo
 
 impl MCPConfigService {
     pub fn get_remote_authorization_value(config: &MCPServerConfig) -> Option<String> {
-        openbitfun_services_integrations::mcp::config::MCPConfigService::get_remote_authorization_value(
+        alex_services_integrations::mcp::config::MCPConfigService::get_remote_authorization_value(
             config,
         )
     }
 
     pub fn get_remote_authorization_source(config: &MCPServerConfig) -> Option<&'static str> {
-        openbitfun_services_integrations::mcp::config::MCPConfigService::get_remote_authorization_source(
+        alex_services_integrations::mcp::config::MCPConfigService::get_remote_authorization_source(
             config,
         )
     }
 
     pub fn has_remote_authorization(config: &MCPServerConfig) -> bool {
-        openbitfun_services_integrations::mcp::config::MCPConfigService::has_remote_authorization(
+        alex_services_integrations::mcp::config::MCPConfigService::has_remote_authorization(
             config,
         )
     }
 
     pub fn has_remote_oauth(config: &MCPServerConfig) -> bool {
-        openbitfun_services_integrations::mcp::config::MCPConfigService::has_remote_oauth(config)
+        alex_services_integrations::mcp::config::MCPConfigService::has_remote_oauth(config)
     }
 
     pub fn has_remote_xaa(config: &MCPServerConfig) -> bool {
-        openbitfun_services_integrations::mcp::config::MCPConfigService::has_remote_xaa(config)
+        alex_services_integrations::mcp::config::MCPConfigService::has_remote_xaa(config)
     }
 
-    pub fn new(config_service: Arc<ConfigService>) -> OpenBitFunResult<Self> {
+    pub fn new(config_service: Arc<ConfigService>) -> AlexResult<Self> {
         let store = Arc::new(CoreMCPConfigStore { config_service });
         Ok(Self {
-            inner: openbitfun_services_integrations::mcp::config::MCPConfigService::new(store),
+            inner: alex_services_integrations::mcp::config::MCPConfigService::new(store),
         })
     }
 
-    pub async fn load_all_configs(&self) -> OpenBitFunResult<Vec<MCPServerConfig>> {
+    pub async fn load_all_configs(&self) -> AlexResult<Vec<MCPServerConfig>> {
         Ok(self.inner.load_all_configs().await?)
     }
 
     pub async fn get_server_config(
         &self,
         server_id: &str,
-    ) -> OpenBitFunResult<Option<MCPServerConfig>> {
+    ) -> AlexResult<Option<MCPServerConfig>> {
         Ok(self.inner.get_server_config(server_id).await?)
     }
 
-    pub async fn save_server_config(&self, config: &MCPServerConfig) -> OpenBitFunResult<()> {
+    pub async fn save_server_config(&self, config: &MCPServerConfig) -> AlexResult<()> {
         Ok(self.inner.save_server_config(config).await?)
     }
 
@@ -117,7 +117,7 @@ impl MCPConfigService {
         &self,
         server_id: &str,
         authorization_value: &str,
-    ) -> OpenBitFunResult<MCPServerConfig> {
+    ) -> AlexResult<MCPServerConfig> {
         Ok(self
             .inner
             .set_remote_authorization(server_id, authorization_value)
@@ -127,19 +127,19 @@ impl MCPConfigService {
     pub async fn clear_remote_authorization(
         &self,
         server_id: &str,
-    ) -> OpenBitFunResult<MCPServerConfig> {
+    ) -> AlexResult<MCPServerConfig> {
         Ok(self.inner.clear_remote_authorization(server_id).await?)
     }
 
-    pub async fn delete_server_config(&self, server_id: &str) -> OpenBitFunResult<()> {
+    pub async fn delete_server_config(&self, server_id: &str) -> AlexResult<()> {
         Ok(self.inner.delete_server_config(server_id).await?)
     }
 
     pub async fn user_import_snapshot(
         &self,
     ) -> Result<
-        openbitfun_services_integrations::mcp::config::MCPUserImportSnapshot,
-        openbitfun_services_integrations::mcp::config::MCPImportError,
+        alex_services_integrations::mcp::config::MCPUserImportSnapshot,
+        alex_services_integrations::mcp::config::MCPImportError,
     > {
         self.inner.user_import_snapshot().await
     }
@@ -147,8 +147,8 @@ impl MCPConfigService {
     pub async fn apply_user_import(
         &self,
         expected_fingerprint: &str,
-        imports: Vec<openbitfun_services_integrations::mcp::config::MCPImportServer>,
-    ) -> Result<(), openbitfun_services_integrations::mcp::config::MCPImportError> {
+        imports: Vec<alex_services_integrations::mcp::config::MCPImportServer>,
+    ) -> Result<(), alex_services_integrations::mcp::config::MCPImportError> {
         self.inner
             .apply_user_import(expected_fingerprint, imports)
             .await
@@ -219,7 +219,7 @@ mod tests {
             Some("headers")
         );
         assert_eq!(
-            openbitfun_services_integrations::mcp::config::normalize_mcp_authorization_value(
+            alex_services_integrations::mcp::config::normalize_mcp_authorization_value(
                 "plain-token"
             )
             .as_deref(),

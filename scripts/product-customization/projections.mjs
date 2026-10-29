@@ -41,11 +41,11 @@ export function productBuildEnvironment(resolution) {
     resolution.productNames[resolution.assembly.fallbackLocale]
     ?? resolution.productNames[resolution.assembly.defaultLocale];
   const environment = {
-    OPENBITFUN_PRODUCT_ID: resolution.assembly.productId,
-    OPENBITFUN_DATA_NAMESPACE: resolution.assembly.dataNamespace,
-    OPENBITFUN_HIDDEN_DATA_DIRECTORY: `.${resolution.assembly.dataNamespace}`,
-    OPENBITFUN_PRODUCT_BINARY_NAME: resolution.assembly.binaryName,
-    OPENBITFUN_PRODUCT_DISPLAY_NAME: fallbackName,
+    ALEX_PRODUCT_ID: resolution.assembly.productId,
+    ALEX_DATA_NAMESPACE: resolution.assembly.dataNamespace,
+    ALEX_HIDDEN_DATA_DIRECTORY: `.${resolution.assembly.dataNamespace}`,
+    ALEX_PRODUCT_BINARY_NAME: resolution.assembly.binaryName,
+    ALEX_PRODUCT_DISPLAY_NAME: fallbackName,
   };
   if (!resolution.isDefaultProduct) {
     const cargoTargetRoot = process.env.CARGO_TARGET_DIR

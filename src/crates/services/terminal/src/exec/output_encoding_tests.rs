@@ -114,11 +114,11 @@ async fn git_bash_cat_preserves_utf8_fixture_through_exec_command() {
                 argv: vec![
                     shell.path.to_string_lossy().into_owned(),
                     "-lc".into(),
-                    "cat -- \"$OPENBITFUN_ENCODING_FIXTURE\"".into(),
+                    "cat -- \"$ALEX_ENCODING_FIXTURE\"".into(),
                 ],
                 cwd: dir.path().to_path_buf(),
                 env: HashMap::from([(
-                    "OPENBITFUN_ENCODING_FIXTURE".into(),
+                    "ALEX_ENCODING_FIXTURE".into(),
                     path.to_string_lossy().replace('\\', "/"),
                 )]),
                 tty: false,

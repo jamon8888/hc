@@ -4,7 +4,7 @@
 
 use async_trait::async_trait;
 use log::{debug, warn};
-use openbitfun_agent_runtime::user_questions::{
+use alex_agent_runtime::user_questions::{
     ask_user_question_available_in_context, build_answered_user_question_result,
     build_cancelled_user_question_result, build_timed_out_user_question_result,
     validate_ask_user_question_input, wait_for_user_question_response_until, AskUserQuestionInput,
@@ -18,7 +18,7 @@ use uuid::Uuid;
 use crate::agentic::tools::framework::{Tool, ToolResult, ToolUseContext};
 use crate::agentic::tools::user_input_manager::get_user_input_manager;
 use crate::infrastructure::events::event_system::{get_global_event_system, BackendEvent};
-use crate::util::errors::OpenBitFunResult;
+use crate::util::errors::AlexResult;
 
 /// AskUserQuestion tool
 pub struct AskUserQuestionTool;
@@ -68,7 +68,7 @@ impl AskUserQuestionTool {
                 }
             };
             let Some(relationship) =
-                openbitfun_services_core::session::normalized_session_relationship(&metadata)
+                alex_services_core::session::normalized_session_relationship(&metadata)
             else {
                 break;
             };
@@ -117,7 +117,7 @@ impl Tool for AskUserQuestionTool {
         "AskUserQuestion"
     }
 
-    async fn description(&self) -> OpenBitFunResult<String> {
+    async fn description(&self) -> AlexResult<String> {
         Ok(r#"Use this tool when you need to ask the user questions during execution. This allows you to:
 1. Gather user preferences or requirements
 2. Clarify ambiguous instructions
@@ -239,7 +239,7 @@ Usage notes:
         &self,
         input: &Value,
         context: &ToolUseContext,
-    ) -> OpenBitFunResult<Vec<ToolResult>> {
+    ) -> AlexResult<Vec<ToolResult>> {
         let service = crate::service::config::global::GlobalConfigManager::get_service().await?;
         let ai_config: crate::service::config::types::AIConfig =
             service.get_config(Some("ai")).await?;
@@ -257,9 +257,9 @@ impl AskUserQuestionTool {
         input: &Value,
         context: &ToolUseContext,
         timeout: Option<std::time::Duration>,
-    ) -> OpenBitFunResult<Vec<ToolResult>> {
+    ) -> AlexResult<Vec<ToolResult>> {
         if !Self::is_available_for_tool_context(Some(context)) {
-            return Err(crate::util::errors::OpenBitFunError::tool(
+            return Err(crate::util::errors::AlexError::tool(
                 "AskUserQuestion is unavailable because this execution surface cannot accept interactive user input",
             ));
         }
@@ -267,7 +267,7 @@ impl AskUserQuestionTool {
         // 1. Parse input parameters
         let tool_input: AskUserQuestionInput =
             serde_json::from_value(input.clone()).map_err(|e| {
-                crate::util::errors::OpenBitFunError::Validation(format!(
+                crate::util::errors::AlexError::Validation(format!(
                     "Failed to parse input parameters: {}",
                     e
                 ))
@@ -275,7 +275,7 @@ impl AskUserQuestionTool {
 
         // 2. Validate question format
         if let Err(error) = validate_ask_user_question_input(&tool_input) {
-            return Err(crate::util::errors::OpenBitFunError::Validation(error));
+            return Err(crate::util::errors::AlexError::Validation(error));
         }
 
         let question_count = tool_input.questions.len();
@@ -386,7 +386,7 @@ mod tests {
     use super::AskUserQuestionTool;
     use crate::agentic::tools::framework::{Tool, ToolUseContext};
     use crate::agentic::tools::user_input_manager::get_user_input_manager;
-    use openbitfun_agent_runtime::user_questions::USER_INPUT_MODEL_ROUND_CONTEXT_KEY;
+    use alex_agent_runtime::user_questions::USER_INPUT_MODEL_ROUND_CONTEXT_KEY;
     use std::collections::HashMap;
 
     fn context_with_custom_data(custom_data: HashMap<String, serde_json::Value>) -> ToolUseContext {
@@ -401,7 +401,7 @@ mod tests {
             custom_data,
             computer_use_host: None,
             runtime_tool_restrictions: Default::default(),
-            runtime_handles: openbitfun_runtime_ports::ToolRuntimeHandles::default(),
+            runtime_handles: alex_runtime_ports::ToolRuntimeHandles::default(),
         }
     }
 
@@ -575,7 +575,7 @@ mod tests {
         let child = format!("child-{unique}");
         let parent = format!("parent-{unique}");
         let mut context = context_with_custom_data(HashMap::from([(
-            openbitfun_agent_runtime::user_questions::USER_INPUT_PARENT_CONTEXT_KEY.to_string(),
+            alex_agent_runtime::user_questions::USER_INPUT_PARENT_CONTEXT_KEY.to_string(),
             serde_json::json!({ "session_id": parent, "dialog_turn_id": "parent-turn" }),
         )]));
         context.session_id = Some(child.clone());

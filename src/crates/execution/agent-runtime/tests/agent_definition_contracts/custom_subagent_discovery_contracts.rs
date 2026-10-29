@@ -1,5 +1,5 @@
-use openbitfun_agent_runtime::custom_agent::CustomAgentKind;
-use openbitfun_agent_runtime::custom_subagent::{
+use alex_agent_runtime::custom_agent::CustomAgentKind;
+use alex_agent_runtime::custom_subagent::{
     custom_subagent_possible_dirs, custom_subagent_save_markdown_file,
     load_custom_subagent_definitions, CustomSubagentDefinition, CustomSubagentDiscoveryRoots,
     CustomSubagentKind,
@@ -31,26 +31,26 @@ fn build_definition(
 }
 
 #[test]
-fn custom_subagent_discovery_preserves_openbitfun_priority_and_ignores_foreign_agent_dirs() {
-    let workspace = TestTempDir::new("openbitfun-runtime-subagent-workspace");
-    let openbitfun_user = TestTempDir::new("openbitfun-runtime-subagent-user");
-    let home = TestTempDir::new("openbitfun-runtime-subagent-home");
+fn custom_subagent_discovery_preserves_alex_priority_and_ignores_foreign_agent_dirs() {
+    let workspace = TestTempDir::new("alex-runtime-subagent-workspace");
+    let alex_user = TestTempDir::new("alex-runtime-subagent-user");
+    let home = TestTempDir::new("alex-runtime-subagent-home");
 
-    let project_openbitfun = workspace.path.join(".openbitfun").join("agents");
+    let project_alex = workspace.path.join(".openbitfun").join("agents");
     let project_claude = workspace.path.join(".claude").join("agents");
-    let user_openbitfun = openbitfun_user.path.join("agents");
+    let user_alex = alex_user.path.join("agents");
     let home_claude = home.path.join(".claude").join("agents");
-    fs::create_dir_all(&project_openbitfun)
-        .expect("project openbitfun agents dir should be created");
+    fs::create_dir_all(&project_alex)
+        .expect("project alex agents dir should be created");
     fs::create_dir_all(&project_claude).expect("project claude agents dir should be created");
-    fs::create_dir_all(&user_openbitfun).expect("user openbitfun agents dir should be created");
+    fs::create_dir_all(&user_alex).expect("user alex agents dir should be created");
     fs::create_dir_all(&home_claude).expect("home claude agents dir should be created");
 
     write_agent(
-        &project_openbitfun.join("shared.md"),
+        &project_alex.join("shared.md"),
         "Shared",
         "Shared",
-        "Project OpenBitFun agent",
+        "Project Alex agent",
         CustomSubagentKind::Project,
     );
     write_agent(
@@ -61,10 +61,10 @@ fn custom_subagent_discovery_preserves_openbitfun_priority_and_ignores_foreign_a
         CustomSubagentKind::Project,
     );
     write_agent(
-        &user_openbitfun.join("user-only.md"),
+        &user_alex.join("user-only.md"),
         "UserOnly",
         "UserOnly",
-        "OpenBitFun user agent",
+        "Alex user agent",
         CustomSubagentKind::User,
     );
     write_agent(
@@ -74,11 +74,11 @@ fn custom_subagent_discovery_preserves_openbitfun_priority_and_ignores_foreign_a
         "Claude user agent",
         CustomSubagentKind::User,
     );
-    fs::write(project_openbitfun.join("ignored.txt"), "ignored")
+    fs::write(project_alex.join("ignored.txt"), "ignored")
         .expect("ignored text file should be written");
-    fs::create_dir_all(project_openbitfun.join("nested")).expect("nested dir should be created");
+    fs::create_dir_all(project_alex.join("nested")).expect("nested dir should be created");
     write_agent(
-        &project_openbitfun.join("nested").join("nested.md"),
+        &project_alex.join("nested").join("nested.md"),
         "Nested",
         "Nested",
         "Nested project agent",
@@ -87,7 +87,7 @@ fn custom_subagent_discovery_preserves_openbitfun_priority_and_ignores_foreign_a
 
     let roots = CustomSubagentDiscoveryRoots {
         workspace_root: Some(workspace.path.clone()),
-        openbitfun_user_agents_dir: Some(user_openbitfun.clone()),
+        alex_user_agents_dir: Some(user_alex.clone()),
         home_dir: Some(home.path.clone()),
     };
 
@@ -96,7 +96,7 @@ fn custom_subagent_discovery_preserves_openbitfun_priority_and_ignores_foreign_a
         dirs.iter()
             .map(|entry| entry.path.as_path())
             .collect::<Vec<_>>(),
-        vec![project_openbitfun.as_path(), user_openbitfun.as_path()]
+        vec![project_alex.as_path(), user_alex.as_path()]
     );
     assert_eq!(
         dirs.iter().map(|entry| entry.level).collect::<Vec<_>>(),
@@ -115,23 +115,23 @@ fn custom_subagent_discovery_preserves_openbitfun_priority_and_ignores_foreign_a
     );
     assert_eq!(
         report.definitions[0].definition.description,
-        "Project OpenBitFun agent"
+        "Project Alex agent"
     );
     assert_eq!(
         report.definitions[0].path,
-        project_openbitfun.join("shared.md")
+        project_alex.join("shared.md")
     );
 }
 
 #[test]
 fn custom_subagent_discovery_reports_parse_errors_without_dropping_valid_files() {
-    let workspace = TestTempDir::new("openbitfun-runtime-subagent-invalid");
-    let project_openbitfun = workspace.path.join(".openbitfun").join("agents");
-    fs::create_dir_all(&project_openbitfun).expect("project agents dir should be created");
-    let broken_path = project_openbitfun.join("broken.md");
+    let workspace = TestTempDir::new("alex-runtime-subagent-invalid");
+    let project_alex = workspace.path.join(".openbitfun").join("agents");
+    fs::create_dir_all(&project_alex).expect("project agents dir should be created");
+    let broken_path = project_alex.join("broken.md");
     fs::write(&broken_path, "No front matter").expect("broken markdown file should be written");
     write_agent(
-        &project_openbitfun.join("valid.md"),
+        &project_alex.join("valid.md"),
         "Valid",
         "Valid",
         "Valid project agent",
@@ -140,7 +140,7 @@ fn custom_subagent_discovery_reports_parse_errors_without_dropping_valid_files()
 
     let roots = CustomSubagentDiscoveryRoots {
         workspace_root: Some(workspace.path.clone()),
-        openbitfun_user_agents_dir: None,
+        alex_user_agents_dir: None,
         home_dir: None,
     };
 

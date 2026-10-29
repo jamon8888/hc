@@ -33,12 +33,12 @@ describeWithJsdom('composer clipboard payload', () => {
 
   it('matches every inline token family in text order', () => {
     const mcp = createMcpPromptReference({ serverName: 'Docs', serverId: 'docs' });
-    const text = `[$pdf] ${mcp} [[openbitfun-additional-mode:review]] plain`;
+    const text = `[$pdf] ${mcp} [[alex-additional-mode:review]] plain`;
 
     expect(getComposerInlineTokenMatches(text).map(match => match.token)).toEqual([
       '[$pdf]',
       mcp,
-      '[[openbitfun-additional-mode:review]]',
+      '[[alex-additional-mode:review]]',
     ]);
     expect(getComposerInlineTokenMatches('plain text')).toEqual([]);
   });

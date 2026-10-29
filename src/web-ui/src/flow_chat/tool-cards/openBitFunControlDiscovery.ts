@@ -4,12 +4,12 @@ import { controlRecord } from './openBitFunControlCardModel';
 
 export class ControlDiscoveryError extends Error {
   constructor(readonly code: 'catalog-changed' | 'invalid-page') {
-    super(`OpenBitFun discovery failed: ${code}`);
+    super(`Alex discovery failed: ${code}`);
   }
 }
 
 /** Read the complete query from the same product host, without changing the recorded tool result. */
-export async function loadAllOpenBitFunControlResults(
+export async function loadAllAlexControlResults(
   request: ProductControlDiscoveryRequest,
   initialResult: Record<string, unknown>,
   scope: Pick<SurfaceScope, 'assertCurrent'>,
@@ -26,10 +26,10 @@ export async function loadAllOpenBitFunControlResults(
 
   // Start at zero so a card recording a later page can still show the whole query.
   for (;;) {
-    scope.assertCurrent('Read OpenBitFun discovery results');
+    scope.assertCurrent('Read Alex discovery results');
     signal.throwIfAborted();
     const page = controlRecord(await readPage({ ...request, cursor }));
-    scope.assertCurrent('Apply OpenBitFun discovery results');
+    scope.assertCurrent('Apply Alex discovery results');
     signal.throwIfAborted();
     if (digest !== undefined && page.catalogDigest !== digest) throw new ControlDiscoveryError('catalog-changed');
     if (typeof page.catalogDigest === 'string') digest = page.catalogDigest;

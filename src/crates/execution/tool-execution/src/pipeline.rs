@@ -1,7 +1,7 @@
 //! Provider-neutral tool pipeline planning helpers.
 
 use dashmap::DashMap;
-use openbitfun_events::{ToolEventData, ToolEventIdentity, ToolImageAttachment};
+use alex_events::{ToolEventData, ToolEventIdentity, ToolImageAttachment};
 use std::sync::Arc;
 use tokio_util::sync::CancellationToken;
 
@@ -111,7 +111,7 @@ pub enum ToolStateEventKind {
     },
     Failed {
         error: String,
-        error_detail: Option<openbitfun_core_types::errors::ToolErrorDetail>,
+        error_detail: Option<alex_core_types::errors::ToolErrorDetail>,
         duration_ms: Option<u64>,
         queue_wait_ms: Option<u64>,
         preflight_ms: Option<u64>,
@@ -369,12 +369,12 @@ fn redact_data_url_in_json(value: &mut serde_json::Value) {
 mod tests {
     use super::ToolStateEventKind;
     use super::{sanitize_tool_result_for_event, tool_state_event_data, ToolStateEventFacts};
-    use openbitfun_events::{ToolEventData, ToolEventIdentity};
+    use alex_events::{ToolEventData, ToolEventIdentity};
     use serde_json::json;
 
     #[test]
     fn failed_event_preserves_classification() {
-        let detail = openbitfun_core_types::errors::ToolErrorDetail {
+        let detail = alex_core_types::errors::ToolErrorDetail {
             code: "edit_target_not_found".into(),
             kind: "guidance".into(),
         };
@@ -403,7 +403,7 @@ mod tests {
             state: ToolStateEventKind::Completed {
                 result: json!({ "path": "preview.png" }),
                 result_for_assistant: Some("Image attached".to_string()),
-                image_attachments: Some(vec![openbitfun_events::ToolImageAttachment {
+                image_attachments: Some(vec![alex_events::ToolImageAttachment {
                     mime_type: "image/png".to_string(),
                     data_base64: "AAAA".to_string(),
                 }]),

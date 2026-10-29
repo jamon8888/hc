@@ -7,7 +7,7 @@
 
 Implement the headless `wordcraft-cli mcp` session lifecycle per tickets 04/05: one server per
 workspace session with a document open, idle-reaped (~10 min) and reaped on close; spawn only
-via `openbitfun_services_core::process_manager::{create_command, create_tokio_command}` (no bare
+via `alex_services_core::process_manager::{create_command, create_tokio_command}` (no bare
 `Command`); per-process `WORDCRAFT_PROFILE_DIR` under Alex state; `--author
 "Alex Agent (<session>)"`; both `--automation-*-root` mapped to the active workspace.
 Register it as a managed MCP server (bridged into the runtime's MCP stack), with tool guidance
@@ -18,7 +18,7 @@ lifecycle tests (spawn/reap/confine) in `services-integrations`.
 
 ## Answer
 
-Landed as `mcp::server::wordcraft_session` in `openbitfun-services-integrations` (behind the
+Landed as `mcp::server::wordcraft_session` in `alex-services-integrations` (behind the
 existing `mcp` feature, which already composes `services-core/process-runtime` — no manifest or
 governance churn):
 
@@ -42,8 +42,8 @@ governance churn):
 Verification (services-integrations AGENTS.md):
 
 ```bash
-cargo test -p openbitfun-services-integrations --no-default-features --features mcp --lib mcp::server::wordcraft  # 5/5 pass
-cargo test -p openbitfun-services-integrations --no-default-features --features mcp --lib                         # 27/27 pass
+cargo test -p alex-services-integrations --no-default-features --features mcp --lib mcp::server::wordcraft  # 5/5 pass
+cargo test -p alex-services-integrations --no-default-features --features mcp --lib                         # 27/27 pass
 pnpm run check:core-boundaries      # pass
 ```
 

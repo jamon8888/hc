@@ -17,7 +17,7 @@
     feature = "web-tools",
 ))]
 pub(crate) fn reqwest_client_builder() -> reqwest::ClientBuilder {
-    openbitfun_services_core::tls_provider::ensure_ring_crypto_provider();
+    alex_services_core::tls_provider::ensure_ring_crypto_provider();
     reqwest::Client::builder()
 }
 
@@ -28,7 +28,7 @@ pub(crate) fn reqwest_client_builder() -> reqwest::ClientBuilder {
     feature = "remote-connect",
 ))]
 pub(crate) fn reqwest_client() -> reqwest::Client {
-    openbitfun_services_core::tls_provider::ensure_ring_crypto_provider();
+    alex_services_core::tls_provider::ensure_ring_crypto_provider();
     reqwest::Client::new()
 }
 

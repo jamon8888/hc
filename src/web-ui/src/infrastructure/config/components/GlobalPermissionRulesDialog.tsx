@@ -16,7 +16,7 @@ import {
   DialogHeader,
   DialogHeading,
   DialogTitle,
-} from '@openbitfun/ui';
+} from '@alex/ui';
 import React, {
   useCallback,
   useEffect,
@@ -385,20 +385,20 @@ export const GlobalPermissionRulesDialog: React.FC<GlobalPermissionRulesDialogPr
       <DialogHeader>
         <DialogHeading>
           <DialogTitle>{t('permissionPolicy.globalRulesDialogTitle')}</DialogTitle>
-          <DialogDescription data-openbitfun-component="global-permission-rules-dialog" data-openbitfun-part="intro">
+          <DialogDescription data-alex-component="global-permission-rules-dialog" data-alex-part="intro">
             {t('permissionPolicy.globalRulesDialogDescription')}
           </DialogDescription>
         </DialogHeading>
         <DialogClose disabled={isSaving} />
       </DialogHeader>
       <DialogBody>
-        <div ref={dialogRootRef} className="global-permission-rules-dialog" data-openbitfun-component="global-permission-rules-dialog" data-openbitfun-part="root">
+        <div ref={dialogRootRef} className="global-permission-rules-dialog" data-alex-component="global-permission-rules-dialog" data-alex-part="root">
           <FormSection
-            data-openbitfun-component="global-permission-rules-dialog"
-            data-openbitfun-part="section"
+            data-alex-component="global-permission-rules-dialog"
+            data-alex-part="section"
             className="global-permission-rules-dialog__section"
             title={(
-              <span data-openbitfun-component="global-permission-rules-dialog" data-openbitfun-part="sectionHeader">
+              <span data-alex-component="global-permission-rules-dialog" data-alex-part="sectionHeader">
                 {t('permissionPolicy.globalRulesTitle')}
               </span>
             )}
@@ -417,7 +417,7 @@ export const GlobalPermissionRulesDialog: React.FC<GlobalPermissionRulesDialogPr
           >
             {draftRules.length === 0 ? (
               <FieldGroup>
-                <div data-openbitfun-component="global-permission-rules-dialog" data-openbitfun-part="empty" className="global-permission-rules-dialog__empty">
+                <div data-alex-component="global-permission-rules-dialog" data-alex-part="empty" className="global-permission-rules-dialog__empty">
                   {t('permissionPolicy.globalRulesEmpty')}
                 </div>
               </FieldGroup>
@@ -425,8 +425,8 @@ export const GlobalPermissionRulesDialog: React.FC<GlobalPermissionRulesDialogPr
               <FieldGroup
                 appearance="subtle"
                 dividers={false}
-                data-openbitfun-component="global-permission-rules-dialog"
-                data-openbitfun-part="rules"
+                data-alex-component="global-permission-rules-dialog"
+                data-alex-part="rules"
                 className="global-permission-rules-dialog__rules"
               >
                 <div className="global-permission-rules-dialog__rule-heading" aria-hidden="true">
@@ -447,8 +447,8 @@ export const GlobalPermissionRulesDialog: React.FC<GlobalPermissionRulesDialogPr
                           ruleRowsRef.current.delete(rule.localId);
                         }
                       }}
-                      data-openbitfun-component="global-permission-rules-dialog"
-                      data-openbitfun-part="rule"
+                      data-alex-component="global-permission-rules-dialog"
+                      data-alex-part="rule"
                       data-rule-id={rule.localId}
                       data-exiting={exiting ? 'true' : 'false'}
                       aria-hidden={exiting || undefined}
@@ -483,7 +483,7 @@ export const GlobalPermissionRulesDialog: React.FC<GlobalPermissionRulesDialogPr
                         onChange={(event) => updateDraftRule(rule.localId, { resource: event.target.value })}
                         size="sm"
                       />
-                      <div data-openbitfun-component="global-permission-rules-dialog" data-openbitfun-part="ruleActions" className="global-permission-rules-dialog__rule-actions">
+                      <div data-alex-component="global-permission-rules-dialog" data-alex-part="ruleActions" className="global-permission-rules-dialog__rule-actions">
                         <Tooltip content={t('permissionPolicy.moveGlobalRuleUp')}>
                           <IconButton
                             type="button"
@@ -529,7 +529,7 @@ export const GlobalPermissionRulesDialog: React.FC<GlobalPermissionRulesDialogPr
         </div>
       </DialogBody>
       {rulesDirty ? (
-        <DialogFooter data-openbitfun-component="global-permission-rules-dialog" data-openbitfun-part="footer">
+        <DialogFooter data-alex-component="global-permission-rules-dialog" data-alex-part="footer">
           <Button
             type="button"
             variant="fill"

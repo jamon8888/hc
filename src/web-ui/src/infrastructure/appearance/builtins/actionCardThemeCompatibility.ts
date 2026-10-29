@@ -4,9 +4,9 @@ export function withLegacyActionCardToken(
   tokens: Partial<Record<AppearanceThemeTokenName, string>> | undefined,
 ): Partial<Record<AppearanceThemeTokenName, string>> {
   const result = { ...tokens };
-  if (result['--openbitfun-color-action-card-background'] === undefined
-    && tokens?.['--openbitfun-color-action-neutral-surface'] !== undefined) {
-    result['--openbitfun-color-action-card-background'] = tokens['--openbitfun-color-action-neutral-surface'];
+  if (result['--alex-color-action-card-background'] === undefined
+    && tokens?.['--alex-color-action-neutral-surface'] !== undefined) {
+    result['--alex-color-action-card-background'] = tokens['--alex-color-action-neutral-surface'];
   }
   return result;
 }

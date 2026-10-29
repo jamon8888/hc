@@ -2,10 +2,10 @@
 import React, { act, useRef, useState } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { DesignSystemProvider, Dialog, OverlayLayer, OverlayRegion, Portal, MenuPopover, subscribeOverlayInteraction } from '@openbitfun/ui';
+import { DesignSystemProvider, Dialog, OverlayLayer, OverlayRegion, Portal, MenuPopover, subscribeOverlayInteraction } from '@alex/ui';
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
-const slot = (id: string) => document.querySelector(`[data-test-layer="${id}"]`)!.closest<HTMLElement>('[data-openbitfun-overlay-layer]')!;
+const slot = (id: string) => document.querySelector(`[data-test-layer="${id}"]`)!.closest<HTMLElement>('[data-alex-overlay-layer]')!;
 const rank = (id: string) => Number(slot(id).style.zIndex);
 
 describe('document overlay ownership', () => {
@@ -21,7 +21,7 @@ describe('document overlay ownership', () => {
   });
   afterEach(() => {
     act(() => root.unmount()); container.remove();
-    document.querySelectorAll('[data-openbitfun-overlay-host]').forEach(element => element.remove());
+    document.querySelectorAll('[data-alex-overlay-host]').forEach(element => element.remove());
     vi.useRealTimers(); vi.unstubAllGlobals();
   });
 
@@ -283,7 +283,7 @@ describe('document overlay ownership', () => {
   it('shares the coordinator across separately loaded package instances', async () => {
     act(() => root.render(<Portal><button>Open surface</button></Portal>));
     vi.resetModules();
-    const reloadedEntry = await import('@openbitfun/ui');
+    const reloadedEntry = await import('@alex/ui');
     expect(reloadedEntry.hasOverlayLayers(document)).toBe(true);
     act(() => root.render(null));
     expect(reloadedEntry.hasOverlayLayers(document)).toBe(false);

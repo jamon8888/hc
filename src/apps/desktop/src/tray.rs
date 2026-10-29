@@ -1,4 +1,4 @@
-//! System tray integration for OpenBitFun Desktop.
+//! System tray integration for Alex Desktop.
 //!
 //! Creates a system tray icon with a context menu. On Windows and Linux the tray
 //! icon is always visible while the process is running; on macOS the icon appears
@@ -20,9 +20,9 @@ use tauri::menu::{CheckMenuItemBuilder, MenuBuilder, MenuItemBuilder};
 use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
 use tauri::{AppHandle, Emitter, Manager};
 
-use openbitfun_core::service::config::app_language::get_app_language;
-use openbitfun_core::service::config::types::AIExperienceConfig;
-use openbitfun_core::service::i18n::LocaleId;
+use alex_core::service::config::app_language::get_app_language;
+use alex_core::service::config::types::AIExperienceConfig;
+use alex_core::service::i18n::LocaleId;
 
 use crate::api::app_state::AppState;
 use crate::startup_trace::DesktopStartupTrace;
@@ -353,7 +353,7 @@ pub fn set_unread_count(app: &AppHandle, count: u32) -> Result<(), String> {
 #[cfg(target_os = "macos")]
 fn macos_tray_icon() -> Result<tauri::image::Image<'static>, image::ImageError> {
     let mark = image::load_from_memory(include_bytes!(
-        "../../../../assets/brand/source/openbitfun-app-mark.png"
+        "../../../../assets/brand/source/alex-app-mark.png"
     ))?
     .into_rgba8();
     // The solid source has a 51 px transparent border on its 512 px canvas.

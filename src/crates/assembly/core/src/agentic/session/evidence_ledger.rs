@@ -1,3 +1,3 @@
 //! Compatibility facade for session evidence ledger state.
 
-pub use openbitfun_agent_runtime::evidence_ledger::*;
+pub use alex_agent_runtime::evidence_ledger::*;

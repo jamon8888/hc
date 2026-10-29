@@ -7,8 +7,8 @@ import { DispatchTargetPicker } from './DispatchTargetPicker';
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
-vi.mock('@openbitfun/ui', async importOriginal => ({
-  ...await importOriginal<typeof import('@openbitfun/ui')>(),
+vi.mock('@alex/ui', async importOriginal => ({
+  ...await importOriginal<typeof import('@alex/ui')>(),
   Tooltip: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
@@ -86,7 +86,7 @@ describe('DispatchTargetPicker overlay', () => {
 
   afterEach(() => {
     act(() => root.unmount());
-    document.querySelector('[data-openbitfun-overlay-host="true"]')?.remove();
+    document.querySelector('[data-alex-overlay-host="true"]')?.remove();
     container.remove();
     vi.restoreAllMocks();
   });
@@ -109,7 +109,7 @@ describe('DispatchTargetPicker overlay', () => {
     await act(async () => trigger?.click());
 
     const menu = document.querySelector<HTMLElement>('[data-testid="dispatch-target-menu"]');
-    expect(menu?.closest('[data-openbitfun-overlay-host]')?.getAttribute('data-openbitfun-overlay-host')).toBe('true');
+    expect(menu?.closest('[data-alex-overlay-host]')?.getAttribute('data-alex-overlay-host')).toBe('true');
     expect(menu?.style.visibility).toBe('visible');
     expect(menu?.style.left).toBe('240px');
     expect(menu?.style.top).toBe('293px');
@@ -213,7 +213,7 @@ describe('DispatchTargetPicker overlay', () => {
     await act(async () => trigger?.click());
 
     const option = Array.from(
-      document.querySelectorAll<HTMLButtonElement>('[data-openbitfun-menu-item]'),
+      document.querySelectorAll<HTMLButtonElement>('[data-alex-menu-item]'),
     ).find(node => node.textContent?.includes('Old build'));
     expect(option).toBeDefined();
     // The device is visible with its reason but cannot be selected.

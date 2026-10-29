@@ -14,16 +14,16 @@ export const APP_INFO = {
 
 
 export const STORAGE_KEYS = {
-  LANGUAGE: 'openbitfun-language',
-  LEFT_PANEL_WIDTH: 'openbitfun-left-panel-width',
-  LEFT_PANEL_COLLAPSED: 'openbitfun-left-panel-collapsed',
-  RIGHT_PANEL_COLLAPSED: 'openbitfun-right-panel-collapsed',
-  RECENT_WORKSPACES: 'openbitfun-recent-workspaces',
-  USER_PREFERENCES: 'openbitfun-user-preferences',
-  MODEL_CONFIGS: 'openbitfun-model-configs',
-  CHAT_HISTORY: 'openbitfun-chat-history',
-  DIFF_CLOSE_WARNING_DISABLED: 'openbitfun-diff-close-warning-disabled',
-  MANUAL_TERMINAL_PROFILES: 'openbitfun-manual-terminal-profiles'
+  LANGUAGE: 'alex-language',
+  LEFT_PANEL_WIDTH: 'alex-left-panel-width',
+  LEFT_PANEL_COLLAPSED: 'alex-left-panel-collapsed',
+  RIGHT_PANEL_COLLAPSED: 'alex-right-panel-collapsed',
+  RECENT_WORKSPACES: 'alex-recent-workspaces',
+  USER_PREFERENCES: 'alex-user-preferences',
+  MODEL_CONFIGS: 'alex-model-configs',
+  CHAT_HISTORY: 'alex-chat-history',
+  DIFF_CLOSE_WARNING_DISABLED: 'alex-diff-close-warning-disabled',
+  MANUAL_TERMINAL_PROFILES: 'alex-manual-terminal-profiles'
 } as const;
 
 

@@ -7,7 +7,7 @@ described as a Preview SDK yet.
 The slice validates the intended public object model:
 
 - one application-level `AgentClient` owns one managed native
-  `openbitfun-sdk-host` process and one Host connection;
+  `alex-sdk-host` process and one Host connection;
 - `client.query()` uses a Host-managed transient Session;
 - `client.sessions.create()` creates a durable Session whose Turns reuse the
   same connection, while `client.sessions.resume(id)` attaches it to a later
@@ -42,16 +42,16 @@ existing `agent-runtime::sdk` API.
 
 ## Repository usage
 
-Build the private SDK and `openbitfun-sdk-host`, then stage that already-built Host
+Build the private SDK and `alex-sdk-host`, then stage that already-built Host
 into the local package. This does not install Alex or publish anything:
 
 ```bash
-cargo build -p openbitfun-sdk-host-app
+cargo build -p alex-sdk-host-app
 pnpm --dir sdk/typescript build
-pnpm --dir sdk/typescript stage:host -- ../../target/debug/openbitfun-sdk-host.exe
+pnpm --dir sdk/typescript stage:host -- ../../target/debug/alex-sdk-host.exe
 ```
 
-Use `openbitfun-sdk-host` without `.exe` on macOS and Linux. The staging command
+Use `alex-sdk-host` without `.exe` on macOS and Linux. The staging command
 copies only the current platform's executable into the package build under
 `dist/sdk/typescript/native/<platform>-<arch>/`.
 
@@ -59,7 +59,7 @@ The trusted application then supplies one process-lifetime model configuration;
 the SDK finds and manages the staged native Host automatically:
 
 ```typescript
-import { AgentClient } from "@openbitfun/agent-sdk";
+import { AgentClient } from "@alex/agent-sdk";
 
 const apiKey = await trustedSecretStore.read("openai");
 await using client = await AgentClient.start({

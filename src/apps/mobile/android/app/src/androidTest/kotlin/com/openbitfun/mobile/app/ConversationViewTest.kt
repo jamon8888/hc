@@ -38,7 +38,7 @@ import com.openbitfun.mobile.app.ui.chat.ConversationTimelineView
 import com.openbitfun.mobile.app.ui.chat.COMPOSER_INPUT_TEST_TAG
 import com.openbitfun.mobile.app.ui.chat.COMPOSER_SEND_TEST_TAG
 import com.openbitfun.mobile.app.ui.chat.ConversationView
-import com.openbitfun.mobile.app.ui.theme.OpenBitFunTheme
+import com.openbitfun.mobile.app.ui.theme.AlexTheme
 import com.openbitfun.mobile.core.feature.connection.ConnectionPhase
 import com.openbitfun.mobile.core.feature.layout.SettingsPlacement
 import com.openbitfun.mobile.core.feature.layout.SettingsPlacementMode
@@ -66,7 +66,7 @@ class ConversationViewTest {
                 "request-1", "write", listOf("/workspace/readme.md"), null, "Write")
         ), false, false)
         restoration.setContent {
-            OpenBitFunTheme(dark = false) {
+            AlexTheme(dark = false) {
                 com.openbitfun.mobile.app.ui.chat.PermissionMailboxView(mailbox, "session", 600.dp, intents::add)
             }
         }
@@ -95,7 +95,7 @@ class ConversationViewTest {
         val capture = composeRule.onRoot().captureToImage().asAndroidBitmap()
         val context = androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().targetContext
         val values = android.content.ContentValues().apply {
-            put(android.provider.MediaStore.Downloads.DISPLAY_NAME, "openbitfun-permission-mailbox-${if (dark) "dark" else "light"}.png")
+            put(android.provider.MediaStore.Downloads.DISPLAY_NAME, "alex-permission-mailbox-${if (dark) "dark" else "light"}.png")
             put(android.provider.MediaStore.Downloads.MIME_TYPE, "image/png")
         }
         val uri = requireNotNull(context.contentResolver.insert(android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI, values))
@@ -140,7 +140,7 @@ class ConversationViewTest {
         val answer = List(500) { "A long answer line." }.joinToString(" ") + " tail-marker"
 
         composeRule.setContent {
-            OpenBitFunTheme(dark = false) {
+            AlexTheme(dark = false) {
                 ConversationTimelineView(
                     rows = listOf(assistantRow(answer)),
                     hasMoreMessages = false,
@@ -179,7 +179,7 @@ class ConversationViewTest {
         val row = mutableStateOf(assistantRow("stream-start", streaming = true))
 
         composeRule.setContent {
-            OpenBitFunTheme(dark = false) {
+            AlexTheme(dark = false) {
                 TimelineForTest(listOf(row.value))
             }
         }
@@ -205,7 +205,7 @@ class ConversationViewTest {
         val rows = mutableStateOf((1..40).map { index -> assistantRow("message-$index", id = "message-$index") })
 
         composeRule.setContent {
-            OpenBitFunTheme(dark = false) {
+            AlexTheme(dark = false) {
                 TimelineForTest(rows.value)
             }
         }
@@ -242,7 +242,7 @@ class ConversationViewTest {
         val loading = mutableStateOf(HistoryLoadState.IDLE)
         var requests = 0
         composeRule.setContent {
-            OpenBitFunTheme(dark = false) {
+            AlexTheme(dark = false) {
                 TimelineForTest(rows.value, hasMoreMessages = true, historyLoadState = loading.value,
                     onLoadOlder = { requests++; loading.value = HistoryLoadState.LOADING })
             }
@@ -275,7 +275,7 @@ class ConversationViewTest {
         )
 
         composeRule.setContent {
-            OpenBitFunTheme(dark = false) {
+            AlexTheme(dark = false) {
                 TimelineForTest(rows.value, hasMoreMessages = true)
             }
         }
@@ -419,7 +419,7 @@ class ConversationViewTest {
         val restoration = androidx.compose.ui.test.junit4.StateRestorationTester(composeRule)
         val state = mutableStateOf(readyState(sessionId = "s-code", draft = "send me"))
         restoration.setContent {
-            OpenBitFunTheme(dark = false) {
+            AlexTheme(dark = false) {
                 ConversationView(
                     state = state.value, phase = ConnectionPhase.CONNECTED,
                     settingsPlacement = SettingsPlacement(SettingsPlacementMode.BOTTOM, 0, 0, 0),
@@ -448,7 +448,7 @@ class ConversationViewTest {
     @Test
     fun emptyStateShowsInvitationCopy() {
         composeRule.setContent {
-            OpenBitFunTheme(dark = false) {
+            AlexTheme(dark = false) {
                 ConversationEmptyState(modifier = Modifier.fillMaxSize())
             }
         }
@@ -479,7 +479,7 @@ class ConversationViewTest {
     fun insetsKeepTheEndsOfTheTranscriptClearOfTheFloatingOverlays() {
         val bottomInset = mutableStateOf(96.dp)
         composeRule.setContent {
-            OpenBitFunTheme(dark = false) {
+            AlexTheme(dark = false) {
                 TimelineForTest(
                     rows = listOf(assistantRow("inset-marker")),
                     topInset = 72.dp,
@@ -512,7 +512,7 @@ class ConversationViewTest {
         dark: Boolean = false,
     ) {
         composeRule.setContent {
-            OpenBitFunTheme(dark = dark) {
+            AlexTheme(dark = dark) {
                 androidx.compose.material3.Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = androidx.compose.material3.MaterialTheme.colorScheme.background,

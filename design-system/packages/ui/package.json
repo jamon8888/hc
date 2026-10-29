@@ -1,7 +1,7 @@
 {
-  "name": "@openbitfun/ui",
+  "name": "@alex/ui",
   "version": "0.1.0",
-  "description": "Theme-independent React components for OpenBitFun product surfaces",
+  "description": "Theme-independent React components for Alex product surfaces",
   "license": "MIT",
   "type": "module",
   "files": [
@@ -39,7 +39,7 @@
     "prepack": "pnpm run build"
   },
   "dependencies": {
-    "@openbitfun/design-tokens": "workspace:^",
+    "@alex/design-tokens": "workspace:^",
     "lucide-react": "^0.541.0"
   },
   "peerDependencies": {

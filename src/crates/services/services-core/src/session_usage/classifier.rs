@@ -1,4 +1,4 @@
-pub use openbitfun_core_types::UsageToolCategory;
+pub use alex_core_types::UsageToolCategory;
 
 pub fn classify_tool_usage(
     tool_name: &str,

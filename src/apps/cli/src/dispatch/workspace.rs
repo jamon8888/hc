@@ -19,7 +19,7 @@ use std::time::{Duration, Instant};
 
 use anyhow::{bail, Context, Result};
 use base64::Engine as _;
-use openbitfun_services_core::dispatch_workspace::sha256_file;
+use alex_services_core::dispatch_workspace::sha256_file;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
@@ -79,7 +79,7 @@ const MAX_BUNDLE_BYTES: u64 = 2 * 1024 * 1024 * 1024;
 /// Cap on the change list reported after a sync, so a huge refactor cannot push
 /// the response past the smallest host transport envelope.
 const MAX_REPORTED_CHANGES: usize = 2_000;
-const DEFAULT_SYNC_COMMIT_MESSAGE: &str = "OpenBitFun dispatch result";
+const DEFAULT_SYNC_COMMIT_MESSAGE: &str = "Alex dispatch result";
 /// A freshly spawned child may not have published an inspectable process
 /// identity by the first poll. Keep that tiny start window from spawning a
 /// duplicate worker while still allowing a dead child to be recovered.
@@ -1075,9 +1075,9 @@ fn sync_in_store(
                 "-c",
                 "commit.gpgsign=false",
                 "-c",
-                "user.name=OpenBitFun Dispatch",
+                "user.name=Alex Dispatch",
                 "-c",
-                "user.email=dispatch@openbitfun.local",
+                "user.email=dispatch@alex.local",
                 "commit",
                 "--no-verify",
                 "-m",
@@ -1573,7 +1573,7 @@ fn commit_exists(repo: &Path, commit: &str) -> Result<bool> {
 }
 
 fn git_command(dir: &Path) -> Command {
-    let mut command = openbitfun_services_core::process_manager::create_command("git");
+    let mut command = alex_services_core::process_manager::create_command("git");
     command
         .current_dir(dir)
         // A detached dispatch worker has nobody to answer a credential or
@@ -1930,7 +1930,7 @@ mod tests {
                 project_label: Some("OpenBitFun".to_string()),
                 remote_url: None,
                 base_commit: "0".repeat(40),
-                branch: "openbitfun/dispatch/job-1".to_string(),
+                branch: "alex/dispatch/job-1".to_string(),
             },
         )
         .expect("provision");
@@ -1961,7 +1961,7 @@ mod tests {
                 project_label: Some("OpenBitFun".to_string()),
                 remote_url: Some(source.to_string_lossy().to_string()),
                 base_commit: base_commit.clone(),
-                branch: "openbitfun/dispatch/job-1".to_string(),
+                branch: "alex/dispatch/job-1".to_string(),
             },
         )
         .expect("provision");
@@ -2013,7 +2013,7 @@ mod tests {
                 project_label: Some("OpenBitFun".to_string()),
                 remote_url: Some(missing.to_string_lossy().to_string()),
                 base_commit: "0".repeat(40),
-                branch: "openbitfun/dispatch/job-1".to_string(),
+                branch: "alex/dispatch/job-1".to_string(),
             },
         )
         .expect("provision");
@@ -2062,7 +2062,7 @@ mod tests {
                         .to_string(),
                 ),
                 base_commit: "0".repeat(40),
-                branch: "openbitfun/dispatch/job-1".to_string(),
+                branch: "alex/dispatch/job-1".to_string(),
             },
         )
         .expect("provision");
@@ -2364,10 +2364,10 @@ mod tests {
 
     #[test]
     fn completed_clean_sync_poll_returns_the_durable_result() {
-        const CHILD_ENV: &str = "OPENBITFUN_DISPATCH_CLEAN_SYNC_POLL_CHILD";
-        if let Some(openbitfun_home) = std::env::var_os(CHILD_ENV) {
+        const CHILD_ENV: &str = "ALEX_DISPATCH_CLEAN_SYNC_POLL_CHILD";
+        if let Some(alex_home) = std::env::var_os(CHILD_ENV) {
             let store = DispatchStore::open_default().expect("open isolated default store");
-            let source = PathBuf::from(openbitfun_home).join("source");
+            let source = PathBuf::from(alex_home).join("source");
             let base_commit = init_source_repository(&source);
             provision_from_bundle(&store, &source, &base_commit);
 
@@ -2418,9 +2418,9 @@ mod tests {
         }
 
         let dir = tempfile::tempdir().expect("tempdir");
-        let openbitfun_home = dir.path().join("openbitfun-home");
+        let alex_home = dir.path().join("alex-home");
         let user_root = dir.path().join("user-root");
-        let output = openbitfun_services_core::process_manager::create_command(
+        let output = alex_services_core::process_manager::create_command(
             std::env::current_exe().expect("test executable"),
         )
         .args([
@@ -2428,12 +2428,12 @@ mod tests {
             "dispatch::workspace::tests::completed_clean_sync_poll_returns_the_durable_result",
             "--nocapture",
         ])
-        .env(CHILD_ENV, &openbitfun_home)
-        .env("OPENBITFUN_HOME", &openbitfun_home)
-        .env("OPENBITFUN_USER_ROOT", &user_root)
-        .env("OPENBITFUN_E2E_STORAGE_GUARD", "1")
-        .env_remove("OPENBITFUN_E2E_HOME")
-        .env_remove("OPENBITFUN_E2E_USER_ROOT")
+        .env(CHILD_ENV, &alex_home)
+        .env("ALEX_HOME", &alex_home)
+        .env("ALEX_USER_ROOT", &user_root)
+        .env("ALEX_E2E_STORAGE_GUARD", "1")
+        .env_remove("ALEX_E2E_HOME")
+        .env_remove("ALEX_E2E_USER_ROOT")
         .output()
         .expect("run isolated clean-sync poll test");
         assert!(
@@ -2630,7 +2630,7 @@ mod tests {
                 project_label: Some("OpenBitFun".to_string()),
                 remote_url: None,
                 base_commit: "0".repeat(40),
-                branch: "openbitfun/dispatch/job-1".to_string(),
+                branch: "alex/dispatch/job-1".to_string(),
             },
         )
         .expect("partial repository should be rebuilt");
@@ -2718,7 +2718,7 @@ mod tests {
         let bundle = temp.path().join("base.bundle");
         git(
             &source,
-            &["branch", &format!("openbitfun/dispatch/{first}")],
+            &["branch", &format!("alex/dispatch/{first}")],
         )
         .expect("managed branch");
         git(
@@ -2727,7 +2727,7 @@ mod tests {
                 "bundle",
                 "create",
                 path_arg(&bundle).expect("path"),
-                &format!("openbitfun/dispatch/{first}"),
+                &format!("alex/dispatch/{first}"),
             ],
         )
         .expect("bundle");
@@ -2739,7 +2739,7 @@ mod tests {
             remote_url: None,
             project_label: Some("OpenBitFun".to_string()),
             base_commit: base_commit.clone(),
-            branch: format!("openbitfun/dispatch/{job_id}"),
+            branch: format!("alex/dispatch/{job_id}"),
         };
 
         // The first session has to carry the objects over: nothing is cached yet.
@@ -2802,7 +2802,7 @@ mod tests {
                 &["symbolic-ref", "--quiet", "--short", "HEAD"],
             )
             .expect("branch");
-            assert_eq!(branch.trim(), format!("openbitfun/dispatch/{job_id}"));
+            assert_eq!(branch.trim(), format!("alex/dispatch/{job_id}"));
         }
 
         // And re-provisioning either one is still idempotent.
@@ -2859,13 +2859,13 @@ mod tests {
     /// of a project onto one directory and made the second one fail to provision.
     #[test]
     fn every_job_of_one_project_gets_its_own_worktree_directory() {
-        let name = |job_id: &str| worktree_directory_name(Some("OpenBitFun"), None, job_id);
+        let name = |job_id: &str| worktree_directory_name(Some("Alex"), None, job_id);
         let first = name("dispatch-3d82ff46-bbf9-44c3-9c0f-2a1b0c4d5e6f");
         let second = name("dispatch-ac8fe8a3-85c7-4091-9ba4-856db2d55c2b");
 
         assert_ne!(first, second);
-        assert!(first.starts_with("OpenBitFun-"), "{first} lost its label");
-        assert!(second.starts_with("OpenBitFun-"), "{second} lost its label");
+        assert!(first.starts_with("Alex-"), "{first} lost its label");
+        assert!(second.starts_with("Alex-"), "{second} lost its label");
         // Stable across calls: a retry must land on the directory it already has.
         assert_eq!(first, name("dispatch-3d82ff46-bbf9-44c3-9c0f-2a1b0c4d5e6f"));
         // Ids that differ only past the slice window still separate.

@@ -49,7 +49,7 @@ function repositoryPath(root, path) {
 }
 
 // This crates.io source is patched only to select the product TLS provider.
-// It is an external dependency, not an OpenBitFun runtime owner. Resolved
+// It is an external dependency, not an Alex runtime owner. Resolved
 // feature checks below still include it and its full dependency closure.
 function isVendoredExternalManifest(root, manifestPath) {
   return repositoryPath(root, manifestPath) === 'third_party/eioc/Cargo.toml';
@@ -311,49 +311,49 @@ function reqwestDependencyFeatureReferences(references) {
 }
 
 const REQWEST_PACKAGE_PROFILES = new Map([
-  ['openbitfun-core', { dependencyFeatures: [], optional: true }],
-  ['openbitfun-services-integrations', {
+  ['alex-core', { dependencyFeatures: [], optional: true }],
+  ['alex-services-integrations', {
     dependencyFeatures: ['http2'],
     optional: true,
     servicesOwners: true,
   }],
-  ['openbitfun-ai-adapters', {
+  ['alex-ai-adapters', {
     dependencyFeatures: ['http2', 'json', 'rustls-no-provider', 'socks', 'stream'],
     optional: false,
     allowedPackageFeatureRefs: new Set(['reqwest/form']),
     requiredPackageFeatureRefs: new Map([
       ['subscription-auth', new Set(['reqwest/form'])],
     ]),
-    tlsProviderDependency: 'openbitfun-services-core',
+    tlsProviderDependency: 'alex-services-core',
   }],
   // Loopback MCP JSON-RPC over plain HTTP; model downloads stay sidecar-owned.
-  ['openbitfun-basemind-integration', {
+  ['alex-basemind-integration', {
     dependencyFeatures: ['json'],
     optional: true,
   }],
-  ['openbitfun-cli', {
+  ['alex-cli', {
     dependencyFeatures: ['http2', 'rustls-no-provider', 'stream'],
     optional: false,
-    tlsProviderDependency: 'openbitfun-services-core',
+    tlsProviderDependency: 'alex-services-core',
   }],
-  ['openbitfun-desktop', {
+  ['alex-desktop', {
     dependencyFeatures: ['http2', 'json', 'query', 'rustls-no-provider', 'stream'],
     optional: false,
   }],
-  ['openbitfun-miniapp-market-service', {
+  ['alex-miniapp-market-service', {
     dependencyFeatures: ['form', 'http2', 'json', 'rustls-no-provider'],
     optional: false,
-    tlsProviderDependency: 'openbitfun-services-core',
+    tlsProviderDependency: 'alex-services-core',
   }],
   // Relay verifies global identity over bounded JSON HTTPS; no streaming or form API.
-  ['openbitfun-relay-service', {
+  ['alex-relay-service', {
     dependencyFeatures: ['json', 'rustls-no-provider'],
     optional: false,
   }],
-  ['openbitfun-skin-market-service', {
+  ['alex-skin-market-service', {
     dependencyFeatures: ['http2', 'json', 'rustls-no-provider'],
     optional: false,
-    tlsProviderDependency: 'openbitfun-services-core',
+    tlsProviderDependency: 'alex-services-core',
   }],
 ]);
 
@@ -517,27 +517,27 @@ const THIRD_PARTY_CAPABILITY_PROFILES = new Map([
   ['axum', {
     label: 'Axum',
     packages: new Map([
-      ['openbitfun-ai-adapters', dependencyProfile(['json'], { kind: 'dev' })],
-      ['openbitfun-core', dependencyProfile(['json'], { optional: true })],
-      ['openbitfun-desktop', dependencyProfile(['json'])],
-      ['openbitfun-miniapp-market-server', dependencyProfile(['json'])],
-      ['openbitfun-miniapp-market-service', dependencyProfile(['json'])],
-      ['openbitfun-relay-server', dependencyProfile([])],
-      ['openbitfun-relay-service', dependencyProfile(['json', 'ws'])],
-      ['openbitfun-server', dependencyProfile(['json', 'ws'])],
-      ['openbitfun-skin-market-server', dependencyProfile(['json'])],
-      ['openbitfun-skin-market-service', dependencyProfile(['json'])],
-      ['openbitfun-webdriver', dependencyProfile(['json'])],
+      ['alex-ai-adapters', dependencyProfile(['json'], { kind: 'dev' })],
+      ['alex-core', dependencyProfile(['json'], { optional: true })],
+      ['alex-desktop', dependencyProfile(['json'])],
+      ['alex-miniapp-market-server', dependencyProfile(['json'])],
+      ['alex-miniapp-market-service', dependencyProfile(['json'])],
+      ['alex-relay-server', dependencyProfile([])],
+      ['alex-relay-service', dependencyProfile(['json', 'ws'])],
+      ['alex-server', dependencyProfile(['json', 'ws'])],
+      ['alex-skin-market-server', dependencyProfile(['json'])],
+      ['alex-skin-market-service', dependencyProfile(['json'])],
+      ['alex-webdriver', dependencyProfile(['json'])],
     ]),
   }],
   ['git2', {
     label: 'Git2',
     packages: new Map([
-      ['openbitfun-services-core', dependencyProfile(['vendored-libgit2'], {
+      ['alex-services-core', dependencyProfile(['vendored-libgit2'], {
         optional: true,
         useDefaultFeatures: false,
       })],
-      ['openbitfun-services-integrations', dependencyProfile(['vendored-libgit2'], {
+      ['alex-services-integrations', dependencyProfile(['vendored-libgit2'], {
         optional: true,
         useDefaultFeatures: false,
       })],
@@ -546,29 +546,29 @@ const THIRD_PARTY_CAPABILITY_PROFILES = new Map([
   ['image', {
     label: 'Image',
     packages: new Map([
-      ['openbitfun-services-core', dependencyProfile([], {
+      ['alex-services-core', dependencyProfile([], {
         optional: true,
         useDefaultFeatures: false,
         ownerFeatureCapabilities: new Map([
           ['pet-packages', ['gif', 'jpeg', 'png', 'webp']],
         ]),
       })],
-      ['openbitfun-cli', dependencyProfile(['gif', 'jpeg', 'png', 'webp'], {
+      ['alex-cli', dependencyProfile(['gif', 'jpeg', 'png', 'webp'], {
         useDefaultFeatures: false,
       })],
-      ['openbitfun-core', dependencyProfile(['bmp', 'gif', 'jpeg', 'png', 'webp'], {
+      ['alex-core', dependencyProfile(['bmp', 'gif', 'jpeg', 'png', 'webp'], {
         optional: true,
         useDefaultFeatures: false,
       })],
       // Desktop owns bounded controller-local drag thumbnail decoding.
       // Keep only its raster input formats and PNG/JPEG output codecs.
-      ['openbitfun-desktop', dependencyProfile(['bmp', 'gif', 'jpeg', 'png', 'webp'], {
+      ['alex-desktop', dependencyProfile(['bmp', 'gif', 'jpeg', 'png', 'webp'], {
         useDefaultFeatures: false,
       })],
-      ['openbitfun-miniapp-market-service', dependencyProfile(['jpeg', 'png', 'webp'], {
+      ['alex-miniapp-market-service', dependencyProfile(['jpeg', 'png', 'webp'], {
         useDefaultFeatures: false,
       })],
-      ['openbitfun-services-integrations', dependencyProfile([], {
+      ['alex-services-integrations', dependencyProfile([], {
         allowDependencyFeatureAlias: true,
         optional: true,
         useDefaultFeatures: false,
@@ -577,10 +577,10 @@ const THIRD_PARTY_CAPABILITY_PROFILES = new Map([
           ['remote-connect', ['bmp', 'gif', 'jpeg', 'png', 'webp']],
         ]),
       })],
-      ['openbitfun-skin-market-service', dependencyProfile(['gif', 'jpeg', 'png', 'webp'], {
+      ['alex-skin-market-service', dependencyProfile(['gif', 'jpeg', 'png', 'webp'], {
         useDefaultFeatures: false,
       })],
-      ['openbitfun-webdriver', dependencyProfile(['png'], {
+      ['alex-webdriver', dependencyProfile(['png'], {
         useDefaultFeatures: false,
       })],
     ]),
@@ -588,16 +588,16 @@ const THIRD_PARTY_CAPABILITY_PROFILES = new Map([
   ['tokio-tungstenite', {
     label: 'Tokio Tungstenite',
     packages: new Map([
-      ['openbitfun-core', { ...dependencyProfile([], { optional: true }),
+      ['alex-core', { ...dependencyProfile([], { optional: true }),
         devProfile: dependencyProfile([], { kind: 'dev' }),
       }],
       // Loopback WebSocket lifecycle regressions only; the relay runtime is
       // an Axum server and does not acquire a TLS/client capability.
-      ['openbitfun-relay-service', dependencyProfile(['connect', 'handshake'], {
+      ['alex-relay-service', dependencyProfile(['connect', 'handshake'], {
         kind: 'dev',
         useDefaultFeatures: false,
       })],
-      ['openbitfun-services-integrations', dependencyProfile([], {
+      ['alex-services-integrations', dependencyProfile([], {
         optional: true,
         ownerFeatureCapabilities: new Map([
           ['remote-connect', ['rustls-tls-native-roots']],
@@ -609,13 +609,13 @@ const THIRD_PARTY_CAPABILITY_PROFILES = new Map([
   ['tower-http', {
     label: 'Tower HTTP',
     packages: new Map([
-      ['openbitfun-core', dependencyProfile(['cors'], { optional: true })],
-      ['openbitfun-desktop', dependencyProfile(['fs'])],
-      ['openbitfun-miniapp-market-service', dependencyProfile(['fs', 'set-header', 'trace'])],
-      ['openbitfun-relay-server', dependencyProfile(['fs'])],
-      ['openbitfun-relay-service', dependencyProfile(['cors'])],
-      ['openbitfun-server', dependencyProfile(['cors'])],
-      ['openbitfun-skin-market-service', dependencyProfile(['fs'])],
+      ['alex-core', dependencyProfile(['cors'], { optional: true })],
+      ['alex-desktop', dependencyProfile(['fs'])],
+      ['alex-miniapp-market-service', dependencyProfile(['fs', 'set-header', 'trace'])],
+      ['alex-relay-server', dependencyProfile(['fs'])],
+      ['alex-relay-service', dependencyProfile(['cors'])],
+      ['alex-server', dependencyProfile(['cors'])],
+      ['alex-skin-market-service', dependencyProfile(['fs'])],
     ]),
   }],
 ]);
@@ -848,7 +848,7 @@ const RESOLVED_THIRD_PARTY_CAPABILITY_POLICIES = new Map([
     versionPrefix: '0.25.',
     ignoredVersionPrefixes: ['0.24.'],
     // macOS clipboard support currently adds TIFF through arboard. The other
-    // formats are the codecs selected by reviewed OpenBitFun owners.
+    // formats are the codecs selected by reviewed Alex owners.
     allowedFeatures: new Set(['bmp', 'gif', 'jpeg', 'png', 'tiff', 'webp']),
   }],
 ]);
@@ -933,9 +933,9 @@ export function findRuntimeServicesTestSupportFeatureViolations(packages) {
   };
 
   for (const pkg of packages) {
-    const runtimeServiceAliases = new Set(['openbitfun-runtime-services']);
+    const runtimeServiceAliases = new Set(['alex-runtime-services']);
     for (const dependency of pkg.dependencies ?? []) {
-      if (dependency.name !== 'openbitfun-runtime-services') {
+      if (dependency.name !== 'alex-runtime-services') {
         continue;
       }
       runtimeServiceAliases.add(dependency.rename ?? dependency.name);
@@ -947,7 +947,7 @@ export function findRuntimeServicesTestSupportFeatureViolations(packages) {
           path: pkg.manifest_path,
           line: 1,
           message:
-            `${pkg.name} must not enable openbitfun-runtime-services/test-support for its `
+            `${pkg.name} must not enable alex-runtime-services/test-support for its `
             + dependencyDescription(dependency),
         });
       }
@@ -967,12 +967,12 @@ export function findRuntimeServicesTestSupportFeatureViolations(packages) {
         path: pkg.manifest_path,
         line: 1,
         message:
-          `${pkg.name}:${featureName} must not expose openbitfun-runtime-services/test-support `
+          `${pkg.name}:${featureName} must not expose alex-runtime-services/test-support `
           + 'through a package feature',
       });
     }
 
-    if (pkg.name === 'openbitfun-runtime-services') {
+    if (pkg.name === 'alex-runtime-services') {
       for (const featureName of Object.keys(pkg.features ?? {})) {
         if (featureName === 'test-support') {
           continue;
@@ -985,7 +985,7 @@ export function findRuntimeServicesTestSupportFeatureViolations(packages) {
           path: pkg.manifest_path,
           line: 1,
           message:
-            `openbitfun-runtime-services:${featureName} must not expose test-support; `
+            `alex-runtime-services:${featureName} must not expose test-support; `
             + `reachable via ${path.join(' -> ')}`,
         });
       }
@@ -1102,11 +1102,11 @@ export function findServicesIntegrationsReqwestFeatureViolations(pkg) {
         message: `${pkg.name}:${featureName} is missing reqwest/rustls-no-provider`,
       });
     }
-    if (!references.includes('openbitfun-services-core/tls-provider')) {
+    if (!references.includes('alex-services-core/tls-provider')) {
       violations.push({
         path: pkg.manifest_path,
         line: 1,
-        message: `${pkg.name}:${featureName} is missing openbitfun-services-core/tls-provider`,
+        message: `${pkg.name}:${featureName} is missing alex-services-core/tls-provider`,
       });
     }
     for (const reference of ownerFeatureReferences.get(featureName) ?? []) {
@@ -1174,7 +1174,7 @@ export function findServicesCorePlatformDependencyFeatureViolations(packages) {
   const violations = [];
 
   for (const pkg of packages) {
-    if (pkg.name !== 'openbitfun-services-core') {
+    if (pkg.name !== 'alex-services-core') {
       continue;
     }
     for (const dependency of pkg.dependencies ?? []) {
@@ -1201,7 +1201,7 @@ export function findServicesIntegrationsPlatformDependencyFeatureViolations(pack
   const violations = [];
 
   for (const pkg of packages) {
-    if (pkg.name !== 'openbitfun-services-integrations') {
+    if (pkg.name !== 'alex-services-integrations') {
       continue;
     }
     const dependencies = (pkg.dependencies ?? []).filter(
@@ -1264,16 +1264,16 @@ export function findTokioDependencyFeatureViolations(packages) {
         });
       }
       const featureOwnedIntegrationRuntime =
-        pkg.name === 'openbitfun-services-integrations'
+        pkg.name === 'alex-services-integrations'
         && (dependency.kind ?? null) === null;
       const featureOwnedServicesCoreRuntime =
-        pkg.name === 'openbitfun-services-core'
+        pkg.name === 'alex-services-core'
         && (dependency.kind ?? null) === null;
       const featureOwnedCoreRuntime =
-        pkg.name === 'openbitfun-core'
+        pkg.name === 'alex-core'
         && (dependency.kind ?? null) === null;
       const featureOwnedAgentRuntime =
-        pkg.name === 'openbitfun-agent-runtime'
+        pkg.name === 'alex-agent-runtime'
         && (dependency.kind ?? null) === null;
       if (
         featureOwnedIntegrationRuntime
@@ -1310,20 +1310,20 @@ export function findTokioDependencyFeatureViolations(packages) {
       }
     }
 
-    if (pkg.name === 'openbitfun-services-integrations') {
+    if (pkg.name === 'alex-services-integrations') {
       violations.push(...findServicesIntegrationsTokioFeatureViolations(pkg));
     }
-    if (pkg.name === 'openbitfun-services-core') {
+    if (pkg.name === 'alex-services-core') {
       violations.push(...findServicesCoreTokioFeatureViolations(pkg));
     }
-    if (pkg.name === 'openbitfun-core') {
+    if (pkg.name === 'alex-core') {
       violations.push(...findOwnedTokioFeatureViolations(
         pkg,
         CORE_TOKIO_FEATURES,
         CORE_TOKIO_AGGREGATES,
       ));
     }
-    if (pkg.name === 'openbitfun-agent-runtime') {
+    if (pkg.name === 'alex-agent-runtime') {
       violations.push(...findOwnedTokioFeatureViolations(
         pkg,
         AGENT_RUNTIME_TOKIO_FEATURES,
@@ -1451,7 +1451,7 @@ export function findProductEntrypointCoreFeatureViolations(
   ];
   const CORE_TEST_SUPPORT_FEATURE = 'test-support';
   const reviewedCoreFeatureClosures = new Map([
-    ['openbitfun-cli', [
+    ['alex-cli', [
       'tools-pages',
       ...coreCompatibilityReviewedFeatures,
       'product-search',
@@ -1460,17 +1460,17 @@ export function findProductEntrypointCoreFeatureViolations(
       'opencode-plugin-host',
       'ssh-remote',
     ]],
-    ['openbitfun-acp', [...new Set([...acpClientCoreFeatures, ...acpServerCoreFeatures])]],
-    ['openbitfun-app-server', [
+    ['alex-acp', [...new Set([...acpClientCoreFeatures, ...acpServerCoreFeatures])]],
+    ['alex-app-server', [
       'external-sources',
       'git',
       'i18n-runtime',
       'remote-connect',
       'web-tools',
     ]],
-    ['openbitfun-sdk-host-app', coreCompatibilityReviewedFeatures],
+    ['alex-sdk-host-app', coreCompatibilityReviewedFeatures],
   ]);
-  const fullProductCoreEntrypoints = new Set(['openbitfun-desktop', 'openbitfun-server']);
+  const fullProductCoreEntrypoints = new Set(['alex-desktop', 'alex-server']);
   const fullProductCoreEntrypointsFound = new Set();
   const coreCompatibilityActiveFeatures = [
     'agent-runtime',
@@ -1517,7 +1517,7 @@ export function findProductEntrypointCoreFeatureViolations(
     'ssh-remote',
   ];
   const reviewedActiveCoreFeatureClosures = new Map([
-    ['openbitfun-cli', [
+    ['alex-cli', [
       'tools-pages',
       ...acpActiveCoreFeatures,
       'i18n-runtime',
@@ -1526,9 +1526,9 @@ export function findProductEntrypointCoreFeatureViolations(
       'opencode-plugin-host',
       'remote-connect',
     ]],
-    ['openbitfun-acp', acpActiveCoreFeatures],
-    ['openbitfun-sdk-host-app', coreCompatibilityActiveFeatures],
-    ['openbitfun-app-server', [
+    ['alex-acp', acpActiveCoreFeatures],
+    ['alex-sdk-host-app', coreCompatibilityActiveFeatures],
+    ['alex-app-server', [
       'agent-runtime',
       'ai-adapter-runtime',
       'external-sources',
@@ -1558,8 +1558,8 @@ export function findProductEntrypointCoreFeatureViolations(
     ]],
   ]);
   const reviewedForbiddenDependencyOwnerFeatures = new Map([
-    ['openbitfun-sdk-host-app', new Map([
-      ['openbitfun-services-integrations', [
+    ['alex-sdk-host-app', new Map([
+      ['alex-services-integrations', [
         'announcement',
         'function-agents',
         'product-full',
@@ -1567,8 +1567,8 @@ export function findProductEntrypointCoreFeatureViolations(
         'remote-ssh',
         'remote-ssh-concrete',
       ]],
-      ['openbitfun-product-domains', ['function-agents', 'product-full']],
-      ['openbitfun-services-core', ['dispatch-workspace']],
+      ['alex-product-domains', ['function-agents', 'product-full']],
+      ['alex-services-core', ['dispatch-workspace']],
     ])],
   ]);
   const packageByManifest = new Map(
@@ -1577,16 +1577,16 @@ export function findProductEntrypointCoreFeatureViolations(
   const violations = [];
 
   const reviewedAcpRoleSelections = new Map([
-    ['openbitfun-cli', {
+    ['alex-cli', {
       label: 'CLI',
       requiredFeatures: ['client', 'server'],
     }],
-    ['openbitfun-desktop', {
+    ['alex-desktop', {
       label: 'Desktop',
       requiredFeatures: ['client'],
     }],
   ]);
-  const acpPackage = packages.find((pkg) => pkg.name === 'openbitfun-acp');
+  const acpPackage = packages.find((pkg) => pkg.name === 'alex-acp');
   if (acpPackage) {
     const reviewedConsumersFound = new Set();
     for (const sourcePackage of packages) {
@@ -1596,7 +1596,7 @@ export function findProductEntrypointCoreFeatureViolations(
         }
         return packageByManifest.get(
           normalizedPath(join(candidate.path, 'Cargo.toml')),
-        )?.name === 'openbitfun-acp';
+        )?.name === 'alex-acp';
       });
       const normalDependencies = declaredDependencies.filter(
         (dependency) => dependency.kind === null,
@@ -1607,7 +1607,7 @@ export function findProductEntrypointCoreFeatureViolations(
           violations.push({
             path: sourcePackage.manifest_path,
             line: 1,
-            message: `openbitfun-acp consumer ${sourcePackage.name} must register an explicit role selection`,
+            message: `alex-acp consumer ${sourcePackage.name} must register an explicit role selection`,
           });
         }
         continue;
@@ -1623,14 +1623,14 @@ export function findProductEntrypointCoreFeatureViolations(
         violations.push({
           path: sourcePackage.manifest_path,
           line: 1,
-          message: `${rule.label} ACP role selection must keep an unconditional normal openbitfun-acp dependency`,
+          message: `${rule.label} ACP role selection must keep an unconditional normal alex-acp dependency`,
         });
       }
       if (declaredDependencies.some((dependency) => dependency.optional === true)) {
         violations.push({
           path: sourcePackage.manifest_path,
           line: 1,
-          message: `${rule.label} ACP role selection must not make a openbitfun-acp dependency optional`,
+          message: `${rule.label} ACP role selection must not make a alex-acp dependency optional`,
         });
       }
       if (declaredDependencies.some((dependency) => dependency.uses_default_features !== false)) {
@@ -1673,7 +1673,7 @@ export function findProductEntrypointCoreFeatureViolations(
         violations.push({
           path: sourcePackage.manifest_path,
           line: 1,
-          message: `${rule.label} ACP role selection must keep the openbitfun-acp dependency`,
+          message: `${rule.label} ACP role selection must keep the alex-acp dependency`,
         });
       }
     }
@@ -1695,13 +1695,13 @@ export function findProductEntrypointCoreFeatureViolations(
       const targetPackage = packageByManifest.get(
         normalizedPath(join(dependency.path, 'Cargo.toml')),
       );
-      if (targetPackage?.name !== 'openbitfun-core') {
+      if (targetPackage?.name !== 'alex-core') {
         continue;
       }
       const roleOwnedAcpDependency =
-        sourcePackage.name === 'openbitfun-acp' && dependency.optional === true;
+        sourcePackage.name === 'alex-acp' && dependency.optional === true;
       if (dependency.kind === 'dev') {
-        // A `[dev-dependencies]` edge on openbitfun-core only widens the test
+        // A `[dev-dependencies]` edge on alex-core only widens the test
         // build. It may switch on Core test-support constructors (isolated
         // workspace catalogs for in-process fixtures) and nothing else; the
         // product capability closure is owned by the normal dependency edge.
@@ -1710,7 +1710,7 @@ export function findProductEntrypointCoreFeatureViolations(
           violations.push({
             path: sourcePackage.manifest_path,
             line: 1,
-            message: `${sourcePackage.name} openbitfun-core dev-dependency may select only ${CORE_TEST_SUPPORT_FEATURE}, not [${devSelectedFeatures.join(', ')}]`,
+            message: `${sourcePackage.name} alex-core dev-dependency may select only ${CORE_TEST_SUPPORT_FEATURE}, not [${devSelectedFeatures.join(', ')}]`,
           });
         }
         continue;
@@ -1722,7 +1722,7 @@ export function findProductEntrypointCoreFeatureViolations(
         violations.push({
           path: sourcePackage.manifest_path,
           line: 1,
-          message: `product entrypoint ${sourcePackage.name} must select at least one explicit feature for its openbitfun-core ${dependencyDescription(dependency)}`,
+          message: `product entrypoint ${sourcePackage.name} must select at least one explicit feature for its alex-core ${dependencyDescription(dependency)}`,
         });
       }
       if (fullProductCoreEntrypoints.has(sourcePackage.name)) {
@@ -1762,7 +1762,7 @@ export function findProductEntrypointCoreFeatureViolations(
       }
     }
   }
-  for (const sourceName of packages.some((pkg) => pkg.name === 'openbitfun-core')
+  for (const sourceName of packages.some((pkg) => pkg.name === 'alex-core')
     ? fullProductCoreEntrypoints
     : []) {
     const sourcePackage = packages.find((pkg) => pkg.name === sourceName);
@@ -1770,12 +1770,12 @@ export function findProductEntrypointCoreFeatureViolations(
       violations.push({
         path: sourcePackage.manifest_path,
         line: 1,
-        message: `${sourceName} Core capability closure must keep the openbitfun-core dependency`,
+        message: `${sourceName} Core capability closure must keep the alex-core dependency`,
       });
     }
   }
 
-  const corePackage = packages.find((pkg) => pkg.name === 'openbitfun-core');
+  const corePackage = packages.find((pkg) => pkg.name === 'alex-core');
   if (corePackage) {
     const forbiddenCoreFeatures = [
       'product-full',
@@ -1795,10 +1795,10 @@ export function findProductEntrypointCoreFeatureViolations(
       const rootSelectedFeatures = Object.keys(rootPackage.features ?? {})
         .filter((feature) => feature !== 'default');
       const rootLabel = new Map([
-        ['openbitfun-cli', 'CLI'],
-        ['openbitfun-acp', 'ACP'],
-        ['openbitfun-app-server', 'App Server'],
-        ['openbitfun-sdk-host-app', 'SDK Host'],
+        ['alex-cli', 'CLI'],
+        ['alex-acp', 'ACP'],
+        ['alex-app-server', 'App Server'],
+        ['alex-sdk-host-app', 'SDK Host'],
       ]).get(rootName) ?? rootName;
       const forbiddenOwnerFeatures =
         reviewedForbiddenDependencyOwnerFeatures.get(rootName);
@@ -1919,7 +1919,7 @@ export function findProductEntrypointCoreFeatureViolations(
             targetPath,
           );
 
-          if (targetPackage.name === 'openbitfun-core') {
+          if (targetPackage.name === 'alex-core') {
             const activeCoreFeatures = targetState.featureState.active;
             const unexpected = forbiddenCoreFeatures.find((feature) =>
               activeCoreFeatures.has(feature))

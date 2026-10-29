@@ -29,11 +29,11 @@ kotlin {
         withHostTest {}
     }
 
-    val xcframework = XCFramework("OpenBitFunMobileCore")
+    val xcframework = XCFramework("AlexMobileCore")
     val appleTargets = listOf(iosArm64(), iosSimulatorArm64())
     appleTargets.forEach { target ->
         target.binaries.framework {
-            baseName = "OpenBitFunMobileCore"
+            baseName = "AlexMobileCore"
             isStatic = true
             transitiveExport = true
             export(project(":core-domain"))

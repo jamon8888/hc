@@ -1,5 +1,5 @@
 use crate::{atomic_write_json, LegacyMigrationError, LegacyMigrationResult, MigrationLayout};
-use openbitfun_product_domains::legacy_migration::{
+use alex_product_domains::legacy_migration::{
     FindingSeverity, MigrationDiagnostic, MigrationDomainObservation, MigrationDomainState,
     MigrationFailureDiagnosticCode, MigrationFailureDiagnostics, MigrationFailureJournalEntry,
     MigrationJournalEvent, MigrationPhase, MigrationReleaseObservation, MigrationRunReport,

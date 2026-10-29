@@ -1,4 +1,4 @@
-use openbitfun_services_core::local_instructions::{
+use alex_services_core::local_instructions::{
     local_instruction_path_exists, read_local_instruction_file, LocalInstructionFile,
 };
 use std::path::PathBuf;

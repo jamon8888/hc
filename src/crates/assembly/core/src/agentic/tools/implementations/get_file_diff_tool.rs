@@ -1,7 +1,7 @@
 use crate::agentic::tools::framework::{
     Tool, ToolExposure, ToolRenderOptions, ToolResult, ToolUseContext, ValidationResult,
 };
-use crate::agentic::tools::workspace_paths::is_openbitfun_tool_uri;
+use crate::agentic::tools::workspace_paths::is_alex_tool_uri;
 use crate::service::git::git_service::GitService;
 use crate::service::git::git_types::GitDiffParams;
 use crate::service::git::git_utils::get_repository_root;
@@ -10,10 +10,10 @@ use crate::service::review_platform::{
     ReviewPlatformService, ReviewRepositoryLocator,
 };
 use crate::service::snapshot::manager::get_snapshot_manager_for_workspace;
-use crate::util::errors::{OpenBitFunError, OpenBitFunResult};
+use crate::util::errors::{AlexError, AlexResult};
 use async_trait::async_trait;
 use log::{debug, warn};
-use openbitfun_agent_runtime::deep_review::{
+use alex_agent_runtime::deep_review::{
     admit_review_provider_diff_acquisition, record_review_diff_limitation, record_review_diff_page,
     record_review_target_stale, review_diff_budget_exhausted, review_diff_page_was_returned,
     ReviewDiffBudgetAdmission, ReviewTargetEvidence, ReviewTargetEvidenceSource,
@@ -179,12 +179,12 @@ impl GetFileDiffTool {
         Self
     }
 
-    fn target_evidence(context: &ToolUseContext) -> OpenBitFunResult<Option<ReviewTargetEvidence>> {
+    fn target_evidence(context: &ToolUseContext) -> AlexResult<Option<ReviewTargetEvidence>> {
         let Some(manifest) = context.custom_data.get("deep_review_run_manifest") else {
             return Ok(None);
         };
         ReviewTargetEvidence::from_context_value(manifest).map_err(|error| {
-            OpenBitFunError::tool(format!("Invalid prepared Review target evidence: {error}"))
+            AlexError::tool(format!("Invalid prepared Review target evidence: {error}"))
         })
     }
 
@@ -192,9 +192,9 @@ impl GetFileDiffTool {
         context: &ToolUseContext,
         evidence: &ReviewTargetEvidence,
         logical_path: &str,
-    ) -> OpenBitFunResult<ProviderFileDiffRoute> {
+    ) -> AlexResult<ProviderFileDiffRoute> {
         let pull_request = evidence.pull_request().ok_or_else(|| {
-            OpenBitFunError::tool(
+            AlexError::tool(
                 "Prepared pull request Review identity is unavailable".to_string(),
             )
         })?;
@@ -204,16 +204,16 @@ impl GetFileDiffTool {
             "gitee" => Some(ReviewPlatformKind::Gitee),
             "gitcode" => None,
             value => {
-                return Err(OpenBitFunError::tool(format!(
+                return Err(AlexError::tool(format!(
                     "Prepared pull request provider is unsupported: {value}"
                 )))
             }
         };
         let base_revision = evidence.base_revision().ok_or_else(|| {
-            OpenBitFunError::tool("Prepared pull request base revision is unavailable".to_string())
+            AlexError::tool("Prepared pull request base revision is unavailable".to_string())
         })?;
         let head_revision = evidence.head_revision().ok_or_else(|| {
-            OpenBitFunError::tool("Prepared pull request head revision is unavailable".to_string())
+            AlexError::tool("Prepared pull request head revision is unavailable".to_string())
         })?;
         let file_page_hint = evidence.file_page_hint_for_path(logical_path, 100);
         if let Some(platform) = platform {
@@ -289,9 +289,9 @@ impl GetFileDiffTool {
     fn ensure_prepared_target_path(
         relative_path: Option<&str>,
         context: &ToolUseContext,
-    ) -> OpenBitFunResult<()> {
+    ) -> AlexResult<()> {
         if relative_path.is_none() && Self::target_evidence(context)?.is_some() {
-            return Err(OpenBitFunError::tool(
+            return Err(AlexError::tool(
                 "Prepared Review targets only allow workspace-relative target paths".to_string(),
             ));
         }
@@ -301,20 +301,20 @@ impl GetFileDiffTool {
     fn exact_review_target(
         relative_path: &str,
         context: &ToolUseContext,
-    ) -> OpenBitFunResult<Option<ExactReviewTarget>> {
+    ) -> AlexResult<Option<ExactReviewTarget>> {
         let Some(evidence) = Self::target_evidence(context)? else {
             return Ok(None);
         };
         if !evidence.contains_file(relative_path) {
-            return Err(OpenBitFunError::tool(
+            return Err(AlexError::tool(
                 "Requested file is outside the prepared Review target evidence".to_string(),
             ));
         }
         let Some((base, head)) = evidence.diff_revisions_for_path(relative_path) else {
             if evidence.source()
-                != openbitfun_agent_runtime::deep_review::ReviewTargetEvidenceSource::Workspace
+                != alex_agent_runtime::deep_review::ReviewTargetEvidenceSource::Workspace
             {
-                return Err(OpenBitFunError::tool(
+                return Err(AlexError::tool(
                     "Prepared Review target does not provide a consumable exact diff for this file; preserve limited coverage"
                         .to_string(),
                 ));
@@ -333,7 +333,7 @@ impl GetFileDiffTool {
     async fn exact_review_diff(
         &self,
         request: ExactReviewDiffRequest<'_>,
-    ) -> OpenBitFunResult<Value> {
+    ) -> AlexResult<Value> {
         let ExactReviewDiffRequest {
             workspace_root,
             logical_path,
@@ -348,7 +348,7 @@ impl GetFileDiffTool {
             GitService::get_review_diff(workspace_root, base_revision, head_revision, paths)
                 .await
                 .map_err(|error| {
-                    OpenBitFunError::tool(format!(
+                    AlexError::tool(format!(
                         "Failed to read prepared Review target diff: {error}"
                     ))
                 })?;
@@ -390,7 +390,7 @@ impl GetFileDiffTool {
         evidence: &ReviewTargetEvidence,
         logical_path: &str,
         diff_offset: usize,
-    ) -> OpenBitFunResult<Option<Value>> {
+    ) -> AlexResult<Option<Value>> {
         self.pull_request_review_diff_with_service(
             context,
             evidence,
@@ -408,12 +408,12 @@ impl GetFileDiffTool {
         logical_path: &str,
         diff_offset: usize,
         service: &dyn ProviderFileDiffService,
-    ) -> OpenBitFunResult<Option<Value>> {
+    ) -> AlexResult<Option<Value>> {
         if evidence.source() != ReviewTargetEvidenceSource::PullRequest {
             return Ok(None);
         }
         if !evidence.contains_file(logical_path) {
-            return Err(OpenBitFunError::tool(
+            return Err(AlexError::tool(
                 "Requested file is outside the prepared Review target evidence".to_string(),
             ));
         }
@@ -531,7 +531,7 @@ impl GetFileDiffTool {
         cursor: Option<&str>,
         binding: &str,
         path: &str,
-    ) -> OpenBitFunResult<usize> {
+    ) -> AlexResult<usize> {
         let Some(cursor) = cursor else {
             return Ok(0);
         };
@@ -540,18 +540,18 @@ impl GetFileDiffTool {
         let offset = parts.next().and_then(|value| value.parse::<usize>().ok());
         let signature = parts.next();
         if version != Some("review-v1") || parts.next().is_some() {
-            return Err(OpenBitFunError::tool(
+            return Err(AlexError::tool(
                 "Invalid prepared Review continuation cursor".to_string(),
             ));
         }
         let Some(offset) = offset else {
-            return Err(OpenBitFunError::tool(
+            return Err(AlexError::tool(
                 "Invalid prepared Review continuation cursor".to_string(),
             ));
         };
         let expected = Self::review_cursor(binding, path, offset);
         if signature.is_none() || expected != cursor {
-            return Err(OpenBitFunError::tool(
+            return Err(AlexError::tool(
                 "Prepared Review continuation cursor does not match this target file".to_string(),
             ));
         }
@@ -563,7 +563,7 @@ impl GetFileDiffTool {
         diff_offset: usize,
         cursor_binding: &str,
         logical_path: &str,
-    ) -> OpenBitFunResult<Value> {
+    ) -> AlexResult<Value> {
         let diff = data
             .get("diff_content")
             .and_then(Value::as_str)
@@ -572,7 +572,7 @@ impl GetFileDiffTool {
         let total_chars = chars.len();
         let consumable_chars = total_chars.min(PREPARED_REVIEW_DIFF_TOTAL_CHARS);
         if diff_offset > consumable_chars {
-            return Err(OpenBitFunError::tool(format!(
+            return Err(AlexError::tool(format!(
                 "diff_offset {} exceeds prepared Review diff budget {}",
                 diff_offset, consumable_chars
             )));
@@ -859,7 +859,7 @@ impl GetFileDiffTool {
         &self,
         file_path: &Path,
         workspace_id: Option<&str>,
-    ) -> Option<OpenBitFunResult<Value>> {
+    ) -> Option<AlexResult<Value>> {
         let snapshot_manager = workspace_id.and_then(get_snapshot_manager_for_workspace)?;
 
         // Get snapshot service
@@ -917,14 +917,14 @@ impl GetFileDiffTool {
         review_status: Option<&str>,
         review_paths: Option<&[String]>,
         review_workspace_root: Option<&Path>,
-    ) -> Option<OpenBitFunResult<Value>> {
+    ) -> Option<AlexResult<Value>> {
         // Get directory containing the file
         let file_dir = file_path.parent()?;
         let prepared_workspace_root = if review_safe {
             match review_workspace_root {
                 Some(root) => Some(root),
                 None => {
-                    return Some(Err(OpenBitFunError::tool(
+                    return Some(Err(AlexError::tool(
                         "Workspace root is required for prepared Review diff".to_string(),
                     )))
                 }
@@ -972,7 +972,7 @@ impl GetFileDiffTool {
             Ok(root) => root,
             Err(e) => {
                 if review_safe {
-                    return Some(Err(OpenBitFunError::tool(format!(
+                    return Some(Err(AlexError::tool(format!(
                         "Prepared Review Git repository is unavailable: {e}"
                     ))));
                 }
@@ -1012,7 +1012,7 @@ impl GetFileDiffTool {
                     let repo_relative = match absolute.strip_prefix(repo_root_path) {
                         Ok(path) => path,
                         Err(_) => {
-                            return Some(Err(OpenBitFunError::tool(
+                            return Some(Err(AlexError::tool(
                                 "Prepared Review path is outside the discovered Git repository"
                                     .to_string(),
                             )))
@@ -1044,7 +1044,7 @@ impl GetFileDiffTool {
             Ok(diff) => diff,
             Err(e) => {
                 if review_safe {
-                    return Some(Err(OpenBitFunError::tool(format!(
+                    return Some(Err(AlexError::tool(format!(
                         "Prepared Review Git diff is unavailable within the safety boundary: {e}"
                     ))));
                 }
@@ -1107,7 +1107,7 @@ impl GetFileDiffTool {
             let (diff_content, modified_content, additions, deletions) =
                 if diff_output.is_empty() && review_status == Some("added") {
                     let metadata = fs::symlink_metadata(file_path).map_err(|error| {
-                        OpenBitFunError::tool(format!(
+                        AlexError::tool(format!(
                             "Failed to inspect prepared Review new file: {error}"
                         ))
                     });
@@ -1116,14 +1116,14 @@ impl GetFileDiffTool {
                         Err(error) => return Some(Err(error)),
                     };
                     if Self::is_symlink_or_reparse_point(&metadata) {
-                        return Some(Err(OpenBitFunError::tool(
+                        return Some(Err(AlexError::tool(
                         "Prepared Review does not read untracked symlink or reparse-point targets"
                             .to_string(),
                     )));
                     }
                     let size = metadata.len();
                     if size > REVIEW_NEW_FILE_CONTENT_LIMIT {
-                        return Some(Err(OpenBitFunError::tool(format!(
+                        return Some(Err(AlexError::tool(format!(
                             "Prepared Review new file exceeds the {} byte safety limit",
                             REVIEW_NEW_FILE_CONTENT_LIMIT
                         ))));
@@ -1131,7 +1131,7 @@ impl GetFileDiffTool {
                     let content = match fs::read_to_string(file_path) {
                         Ok(content) => content,
                         Err(error) => {
-                            return Some(Err(OpenBitFunError::tool(format!(
+                            return Some(Err(AlexError::tool(format!(
                                 "Failed to read prepared Review new file: {error}"
                             ))))
                         }
@@ -1197,9 +1197,9 @@ impl GetFileDiffTool {
     }
 
     /// Return full file content
-    fn return_full_content(&self, file_path: &Path) -> OpenBitFunResult<Value> {
+    fn return_full_content(&self, file_path: &Path) -> AlexResult<Value> {
         let content = fs::read_to_string(file_path)
-            .map_err(|e| OpenBitFunError::tool(format!("Failed to read file: {}", e)))?;
+            .map_err(|e| AlexError::tool(format!("Failed to read file: {}", e)))?;
 
         let total_lines = content.lines().count();
 
@@ -1226,7 +1226,7 @@ impl Tool for GetFileDiffTool {
         "GetFileDiff"
     }
 
-    async fn description(&self) -> OpenBitFunResult<String> {
+    async fn description(&self) -> AlexResult<String> {
         Ok(
             r#"Gets the diff for a file, showing changes from its baseline or Git HEAD.
 
@@ -1249,7 +1249,7 @@ Usage:
     async fn description_with_context(
         &self,
         context: Option<&ToolUseContext>,
-    ) -> OpenBitFunResult<String> {
+    ) -> AlexResult<String> {
         let prepared = context
             .and_then(|context| Self::target_evidence(context).ok().flatten())
             .is_some();
@@ -1341,11 +1341,11 @@ Usage:
                     };
                 }
                 None => {
-                    if is_openbitfun_tool_uri(file_path) {
+                    if is_alex_tool_uri(file_path) {
                         return ValidationResult {
                             result: false,
                             message: Some(
-                                "Tool context is required to resolve OpenBitFun URIs".to_string(),
+                                "Tool context is required to resolve Alex URIs".to_string(),
                             ),
                             error_code: Some(400),
                             meta: None,
@@ -1505,11 +1505,11 @@ Usage:
         &self,
         input: &Value,
         context: &ToolUseContext,
-    ) -> OpenBitFunResult<Vec<ToolResult>> {
+    ) -> AlexResult<Vec<ToolResult>> {
         let file_path = input
             .get("file_path")
             .and_then(|v| v.as_str())
-            .ok_or_else(|| OpenBitFunError::tool("file_path is required".to_string()))?;
+            .ok_or_else(|| AlexError::tool("file_path is required".to_string()))?;
 
         let resolved = context.resolve_tool_path(file_path)?;
         debug!(
@@ -1528,7 +1528,7 @@ Usage:
             if resolved.uses_remote_workspace_backend() {
                 let logical_path = relative_path.as_deref().unwrap_or(file_path);
                 if !evidence.contains_file(logical_path) {
-                    return Err(OpenBitFunError::tool(
+                    return Err(AlexError::tool(
                         "Requested file is outside the prepared Review target evidence".to_string(),
                     ));
                 }
@@ -1553,7 +1553,7 @@ Usage:
                 Self::review_cursor_offset(cursor, evidence.fingerprint(), path)?
             }
             (None, _) if cursor.is_some() => {
-                return Err(OpenBitFunError::tool(
+                return Err(AlexError::tool(
                     "cursor is only available for prepared Review diffs".to_string(),
                 ))
             }
@@ -1628,7 +1628,7 @@ Usage:
 
         if let Some((base_revision, head_revision, paths, fingerprint)) = exact_target {
             let workspace_root = context.workspace_root().ok_or_else(|| {
-                OpenBitFunError::tool(
+                AlexError::tool(
                     "Workspace root is required for Review target diff".to_string(),
                 )
             })?;
@@ -1669,14 +1669,14 @@ Usage:
 
         if resolved.uses_remote_workspace_backend() {
             let ws_fs = context.ws_fs().ok_or_else(|| {
-                OpenBitFunError::tool(
+                AlexError::tool(
                     "Workspace file system not available for remote diff".to_string(),
                 )
             })?;
             let content = ws_fs
                 .read_file_text(&resolved.resolved_path)
                 .await
-                .map_err(|e| OpenBitFunError::tool(format!("Failed to read file: {}", e)))?;
+                .map_err(|e| AlexError::tool(format!("Failed to read file: {}", e)))?;
             let total_lines = content.lines().count();
             let data = json!({
                 "file_path": resolved.logical_path,
@@ -1717,7 +1717,7 @@ Usage:
         let path = Path::new(&resolved.resolved_path);
         if resolved.is_runtime_artifact() {
             let content = fs::read_to_string(path)
-                .map_err(|e| OpenBitFunError::tool(format!("Failed to read file: {}", e)))?;
+                .map_err(|e| AlexError::tool(format!("Failed to read file: {}", e)))?;
             let total_lines = content.lines().count();
             let data = json!({
                 "file_path": resolved.logical_path,
@@ -1839,7 +1839,7 @@ Usage:
         }
 
         if prepared_review {
-            return Err(OpenBitFunError::tool(
+            return Err(AlexError::tool(
                 "Prepared Review diff is unavailable because the target file is not in a readable Git repository"
                     .to_string(),
             ));
@@ -1936,7 +1936,7 @@ mod tests {
             directory.path(),
             &[
                 "-c",
-                "user.name=OpenBitFun Tests",
+                "user.name=Alex Tests",
                 "-c",
                 "user.email=tests@openbitfun.dev",
                 "commit",
@@ -2284,7 +2284,7 @@ mod tests {
         let (parent_turn_id, _) = GetFileDiffTool::review_budget_identity(&context)
             .expect("review budget identity should be available");
         for _ in
-            0..openbitfun_agent_runtime::deep_review::REVIEW_PROVIDER_DIFF_MAX_ACQUISITIONS_PER_TURN
+            0..alex_agent_runtime::deep_review::REVIEW_PROVIDER_DIFF_MAX_ACQUISITIONS_PER_TURN
         {
             assert!(admit_review_provider_diff_acquisition(parent_turn_id));
         }
@@ -2509,7 +2509,7 @@ mod tests {
             directory.path(),
             &[
                 "-c",
-                "user.name=OpenBitFun Tests",
+                "user.name=Alex Tests",
                 "-c",
                 "user.email=tests@openbitfun.dev",
                 "commit",
@@ -2579,7 +2579,7 @@ mod tests {
             directory.path(),
             &[
                 "-c",
-                "user.name=OpenBitFun Tests",
+                "user.name=Alex Tests",
                 "-c",
                 "user.email=tests@openbitfun.dev",
                 "commit",
@@ -2640,7 +2640,7 @@ mod tests {
             directory.path(),
             &[
                 "-c",
-                "user.name=OpenBitFun Tests",
+                "user.name=Alex Tests",
                 "-c",
                 "user.email=tests@openbitfun.dev",
                 "commit",
@@ -2697,7 +2697,7 @@ mod tests {
             "connection-id".to_string(),
             "Remote".to_string(),
             crate::service::remote_ssh::workspace_state::WorkspaceSessionIdentity {
-                workspace_kind: openbitfun_core_types::WorkspaceKind::Remote,
+                workspace_kind: alex_core_types::WorkspaceKind::Remote,
                 hostname: "example.test".to_string(),
                 logical_workspace_path: "/workspace".to_string(),
                 remote_connection_id: Some("connection-id".to_string()),
@@ -2759,7 +2759,7 @@ mod tests {
             &nested,
             &[
                 "-c",
-                "user.name=OpenBitFun Tests",
+                "user.name=Alex Tests",
                 "-c",
                 "user.email=tests@openbitfun.dev",
                 "commit",
@@ -2873,7 +2873,7 @@ mod tests {
             directory.path(),
             &[
                 "-c",
-                "user.name=OpenBitFun Tests",
+                "user.name=Alex Tests",
                 "-c",
                 "user.email=tests@openbitfun.dev",
                 "commit",
@@ -2891,7 +2891,7 @@ mod tests {
             directory.path(),
             &[
                 "-c",
-                "user.name=OpenBitFun Tests",
+                "user.name=Alex Tests",
                 "-c",
                 "user.email=tests@openbitfun.dev",
                 "commit",

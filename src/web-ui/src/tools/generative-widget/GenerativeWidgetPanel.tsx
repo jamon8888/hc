@@ -1,4 +1,4 @@
-import { Button, Textarea } from '@openbitfun/ui';
+import { Button, Textarea } from '@alex/ui';
 import React from 'react';
 import { Code2, RotateCcw, Save } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -97,8 +97,8 @@ export const GenerativeWidgetPanel: React.FC<GenerativeWidgetPanelProps> = ({
 
   if (!draftCode) {
     return (
-      <div className="openbitfun-generative-widget-panel openbitfun-generative-widget-panel--empty" data-openbitfun-component="generative-widget" data-openbitfun-part="empty" data-openbitfun-state="empty">
-        <div className="openbitfun-generative-widget-panel__empty-copy">
+      <div className="alex-generative-widget-panel alex-generative-widget-panel--empty" data-alex-component="generative-widget" data-alex-part="empty" data-alex-state="empty">
+        <div className="alex-generative-widget-panel__empty-copy">
           {t('toolCards.generativeUI.empty')}
         </div>
       </div>
@@ -106,14 +106,14 @@ export const GenerativeWidgetPanel: React.FC<GenerativeWidgetPanelProps> = ({
   }
 
   return (
-    <div className="openbitfun-generative-widget-panel" data-openbitfun-component="generative-widget" data-openbitfun-part="root">
-      <div className="openbitfun-generative-widget-panel__toolbar" data-openbitfun-component="generative-widget" data-openbitfun-part="toolbar">
-        <div className="openbitfun-generative-widget-panel__toolbar-meta" data-openbitfun-component="generative-widget" data-openbitfun-part="toolbarMeta">
-          <span className={`openbitfun-generative-widget-panel__save-state openbitfun-generative-widget-panel__save-state--${saveState}`}>
+    <div className="alex-generative-widget-panel" data-alex-component="generative-widget" data-alex-part="root">
+      <div className="alex-generative-widget-panel__toolbar" data-alex-component="generative-widget" data-alex-part="toolbar">
+        <div className="alex-generative-widget-panel__toolbar-meta" data-alex-component="generative-widget" data-alex-part="toolbarMeta">
+          <span className={`alex-generative-widget-panel__save-state alex-generative-widget-panel__save-state--${saveState}`}>
             {saveLabel}
           </span>
         </div>
-        <div className="openbitfun-generative-widget-panel__toolbar-actions" data-openbitfun-component="generative-widget" data-openbitfun-part="toolbarActions">
+        <div className="alex-generative-widget-panel__toolbar-actions" data-alex-component="generative-widget" data-alex-part="toolbarActions">
           <Button
             variant="outline"
             size="sm"
@@ -136,21 +136,21 @@ export const GenerativeWidgetPanel: React.FC<GenerativeWidgetPanelProps> = ({
         </div>
       </div>
 
-      <div className="openbitfun-generative-widget-panel__workspace" data-openbitfun-component="generative-widget" data-openbitfun-part="workspace">
-        <section className="openbitfun-generative-widget-panel__pane openbitfun-generative-widget-panel__pane--editor" data-openbitfun-component="generative-widget" data-openbitfun-part="editorPane">
-          <div className="openbitfun-generative-widget-panel__pane-header" data-openbitfun-component="generative-widget" data-openbitfun-part="paneHeader">
-            <span className="openbitfun-generative-widget-panel__pane-title">
+      <div className="alex-generative-widget-panel__workspace" data-alex-component="generative-widget" data-alex-part="workspace">
+        <section className="alex-generative-widget-panel__pane alex-generative-widget-panel__pane--editor" data-alex-component="generative-widget" data-alex-part="editorPane">
+          <div className="alex-generative-widget-panel__pane-header" data-alex-component="generative-widget" data-alex-part="paneHeader">
+            <span className="alex-generative-widget-panel__pane-title">
               <Code2 size={14} />
               <span>{t('toolCards.generativeUI.source')}</span>
             </span>
           </div>
           <Textarea
-            className="openbitfun-generative-widget-panel__editor-field"
+            className="alex-generative-widget-panel__editor-field"
             font="mono"
             layout="fill"
             resize="none"
-            data-openbitfun-component="generative-widget"
-            data-openbitfun-part="editor"
+            data-alex-component="generative-widget"
+            data-alex-part="editor"
             value={draftCode}
             onValueChange={(value) => {
               setDraftCode(value);
@@ -166,7 +166,7 @@ export const GenerativeWidgetPanel: React.FC<GenerativeWidgetPanelProps> = ({
       </div>
 
       {saveError && (
-        <div className="openbitfun-generative-widget-panel__error" data-openbitfun-component="generative-widget" data-openbitfun-part="error">
+        <div className="alex-generative-widget-panel__error" data-alex-component="generative-widget" data-alex-part="error">
           {saveError}
         </div>
       )}

@@ -1,12 +1,12 @@
 [package]
-name = "openbitfun-core"
+name = "alex-core"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
-description = "OpenBitFun Core Library - Platform-agnostic business logic"
+description = "Alex Core Library - Platform-agnostic business logic"
 
 [lib]
-name = "openbitfun_core"
+name = "alex_core"
 crate-type = ["rlib"]
 
 [dependencies]
@@ -55,42 +55,42 @@ include_dir = { workspace = true, optional = true }
 similar = { workspace = true, optional = true }
 
 # Shared AI protocol adapters
-openbitfun-ai-adapters = { path = "../../adapters/ai-adapters", optional = true }
+alex-ai-adapters = { path = "../../adapters/ai-adapters", optional = true }
 
 # Lightweight agent stream processing
-openbitfun-agent-stream = { path = "../../execution/agent-stream", optional = true }
+alex-agent-stream = { path = "../../execution/agent-stream", optional = true }
 
 # Immutable built-in Agent prompt content
-openbitfun-agent-content = { path = "../agent-content", optional = true }
+alex-agent-content = { path = "../agent-content", optional = true }
 
 # Agent runtime owner contracts
-openbitfun-agent-runtime = { path = "../../execution/agent-runtime", optional = true }
-openbitfun-agent-workflows = { path = "../../execution/agent-workflows", optional = true }
+alex-agent-runtime = { path = "../../execution/agent-runtime", optional = true }
+alex-agent-workflows = { path = "../../execution/agent-workflows", optional = true }
 
 # Product capability pack contracts
-openbitfun-product-capabilities = { path = "../product-capabilities", optional = true }
+alex-product-capabilities = { path = "../product-capabilities", optional = true }
 
 # Ecosystem-neutral external source lifecycle coordinator
-openbitfun-external-sources = { path = "../external-sources", optional = true }
+alex-external-sources = { path = "../external-sources", optional = true }
 
 # Agent tool contracts
-openbitfun-agent-tools = { path = "../../execution/tool-contracts", optional = true }
+alex-agent-tools = { path = "../../execution/tool-contracts", optional = true }
 
 # Tool pack provider plan
-openbitfun-tool-packs = { path = "../../execution/tool-provider-groups", optional = true }
+alex-tool-packs = { path = "../../execution/tool-provider-groups", optional = true }
 
 # Core service owner crate
-openbitfun-services-core = { path = "../../services/services-core", features = ["json-io", "product-identity", "workspace-identity"] }
+alex-services-core = { path = "../../services/services-core", features = ["json-io", "product-identity", "workspace-identity"] }
 
 # Integration service owner crate
-openbitfun-services-integrations = { path = "../../services/services-integrations", optional = true }
+alex-services-integrations = { path = "../../services/services-integrations", optional = true }
 
 # Optional compatibility export for the independent offline migration adapters.
-openbitfun-legacy-migration-adapters = { path = "../../services/legacy-migration-adapters", optional = true }
+alex-legacy-migration-adapters = { path = "../../services/legacy-migration-adapters", optional = true }
 
 # Product domain owner crate
-openbitfun-product-domains = { path = "../../contracts/product-domains", optional = true }
-openbitfun-config-contracts = { path = "../../contracts/config-contracts" }
+alex-product-domains = { path = "../../contracts/product-domains", optional = true }
+alex-config-contracts = { path = "../../contracts/config-contracts" }
 
 # Tool runtime
 tool-runtime = { path = "../../execution/tool-execution", optional = true }
@@ -111,19 +111,19 @@ urlencoding = { workspace = true }
 tokio-tungstenite = { workspace = true, optional = true }
 
 # Event layer dependency (lowest layer)
-openbitfun-core-types = { path = "../../contracts/core-types" }
-openbitfun-events = { path = "../../contracts/events" }
-openbitfun-runtime-ports = { path = "../../contracts/runtime-ports", features = ["permission", "workspace-ports"] }
-openbitfun-runtime-services = { path = "../../execution/runtime-services", optional = true }
+alex-core-types = { path = "../../contracts/core-types" }
+alex-events = { path = "../../contracts/events" }
+alex-runtime-ports = { path = "../../contracts/runtime-ports", features = ["permission", "workspace-ports"] }
+alex-runtime-services = { path = "../../execution/runtime-services", optional = true }
 
 # Reviewed product-full plugin composition root.
-openbitfun-opencode-adapter = { path = "../../adapters/opencode-adapter", optional = true }
-openbitfun-pi-adapter = { path = "../../adapters/pi-adapter", optional = true }
-openbitfun-dsh-adapter = { path = "../../adapters/dsh-adapter", optional = true }
-openbitfun-opencode-plugin-host = { path = "../../adapters/opencode-plugin-host", optional = true }
-openbitfun-claude-code-adapter = { path = "../../adapters/claude-code-adapter", optional = true }
-openbitfun-codex-adapter = { path = "../../adapters/codex-adapter", optional = true }
-openbitfun-plugin-runtime-client = { path = "../../execution/plugin-runtime-client", optional = true }
+alex-opencode-adapter = { path = "../../adapters/opencode-adapter", optional = true }
+alex-pi-adapter = { path = "../../adapters/pi-adapter", optional = true }
+alex-dsh-adapter = { path = "../../adapters/dsh-adapter", optional = true }
+alex-opencode-plugin-host = { path = "../../adapters/opencode-plugin-host", optional = true }
+alex-claude-code-adapter = { path = "../../adapters/claude-code-adapter", optional = true }
+alex-codex-adapter = { path = "../../adapters/codex-adapter", optional = true }
+alex-plugin-runtime-client = { path = "../../execution/plugin-runtime-client", optional = true }
 
 [features]
 # Full product runtime compatibility set. Product entrypoints with a narrower
@@ -139,12 +139,12 @@ default = []
 # product matrix. The other two upstream crates are non-optional and propagate
 # their `ts` features directly.
 ts = [
-    "openbitfun-config-contracts/ts",
+    "alex-config-contracts/ts",
     "dep:ts-rs",
-    "openbitfun-core-types/ts",
-    "openbitfun-services-integrations?/ts",
-    "openbitfun-product-domains?/ts",
-    "openbitfun-runtime-ports/ts",
+    "alex-core-types/ts",
+    "alex-services-integrations?/ts",
+    "alex-product-domains?/ts",
+    "alex-runtime-ports/ts",
 ]
 product-full = [
     "agent-runtime",
@@ -204,24 +204,24 @@ test-support = []
 # owns the existing agent/session/tool lifecycle, not app presentation or
 # external ecosystem discovery.
 agent-runtime = [
-    "dep:openbitfun-product-domains",
-    "openbitfun-services-core/coordination-store",
-    "openbitfun-services-core/session-event-format",
+    "dep:alex-product-domains",
+    "alex-services-core/coordination-store",
+    "alex-services-core/session-event-format",
     "ai-adapter-runtime",
-    "dep:openbitfun-agent-runtime",
-    "openbitfun-agent-runtime/agent-runtime",
-    "dep:openbitfun-agent-content",
-    "dep:openbitfun-agent-stream",
-    "dep:openbitfun-agent-tools",
-    "openbitfun-agent-tools/computer-use-contract",
-    "openbitfun-runtime-ports/agent-api",
-    "openbitfun-runtime-ports/git-port",
-    "openbitfun-runtime-ports/remote-exec-port",
-    "openbitfun-runtime-ports/remote-workspace-ports",
-    "openbitfun-runtime-ports/runtime-event-port",
-    "openbitfun-runtime-ports/terminal-port",
-    "openbitfun-runtime-ports/tool-runtime-handles",
-    "openbitfun-runtime-ports/workspace-ports",
+    "dep:alex-agent-runtime",
+    "alex-agent-runtime/agent-runtime",
+    "dep:alex-agent-content",
+    "dep:alex-agent-stream",
+    "dep:alex-agent-tools",
+    "alex-agent-tools/computer-use-contract",
+    "alex-runtime-ports/agent-api",
+    "alex-runtime-ports/git-port",
+    "alex-runtime-ports/remote-exec-port",
+    "alex-runtime-ports/remote-workspace-ports",
+    "alex-runtime-ports/runtime-event-port",
+    "alex-runtime-ports/terminal-port",
+    "alex-runtime-ports/tool-runtime-handles",
+    "alex-runtime-ports/workspace-ports",
     "dep:base64",
     "dep:dashmap",
     "dep:filetime",
@@ -238,19 +238,19 @@ agent-runtime = [
     "dep:tokio-util",
     "dep:tool-runtime",
     "tool-runtime/shell-analysis",
-    "openbitfun-services-core/permission",
-    "openbitfun-services-core/memory-store",
-    "openbitfun-services-core/runtime-ownership",
-    "openbitfun-services-core/workspace-text-runtime",
-    "openbitfun-services-core/session-git",
-    "openbitfun-services-core/token-usage-statistics",
+    "alex-services-core/permission",
+    "alex-services-core/memory-store",
+    "alex-services-core/runtime-ownership",
+    "alex-services-core/workspace-text-runtime",
+    "alex-services-core/session-git",
+    "alex-services-core/token-usage-statistics",
     "filesystem",
     "local-storage",
     "process-runtime",
     "terminal",
     "workspace-runtime",
     "product-capabilities",
-    "openbitfun-product-domains/external-sources",
+    "alex-product-domains/external-sources",
     "runtime-services",
     "tool-packs",
     "tools-basic",
@@ -261,10 +261,10 @@ agent-runtime = [
     "tokio/time",
 ]
 product-search = [
-    "dep:openbitfun-product-domains",
+    "dep:alex-product-domains",
     "agent-runtime",
-    "openbitfun-runtime-ports/product-search",
-    "openbitfun-services-core/session-search",
+    "alex-runtime-ports/product-search",
+    "alex-services-core/session-search",
 ]
 # Backend Fluent translation state. Locale contracts and model-facing language
 # facts remain available without this runtime implementation.
@@ -274,13 +274,13 @@ external-sources = [
     "model-catalog",
     "mcp-runtime",
     "script-tool-runtime",
-    "dep:openbitfun-opencode-adapter",
-    "dep:openbitfun-dsh-adapter",
-    "dep:openbitfun-pi-adapter",
-    "dep:openbitfun-claude-code-adapter",
-    "dep:openbitfun-codex-adapter",
-    "dep:openbitfun-external-sources",
-    "openbitfun-services-integrations/hook-import",
+    "dep:alex-opencode-adapter",
+    "dep:alex-dsh-adapter",
+    "dep:alex-pi-adapter",
+    "dep:alex-claude-code-adapter",
+    "dep:alex-codex-adapter",
+    "dep:alex-external-sources",
+    "alex-services-integrations/hook-import",
     "plugin-source",
     "file-watch",
     "workspace-watch",
@@ -290,48 +290,48 @@ external-sources = [
 # Agent lifecycle. Product entrypoints compose only the owners they expose.
 model-catalog = [
     "ai-adapter-runtime",
-    "openbitfun-services-integrations/models-dev",
+    "alex-services-integrations/models-dev",
     "runtime-services",
 ]
 mcp-runtime = [
     "agent-runtime",
-    "openbitfun-agent-tools/mcp-bridge",
+    "alex-agent-tools/mcp-bridge",
     "dep:axum",
     "dep:reqwest",
-    "openbitfun-services-integrations/mcp",
+    "alex-services-integrations/mcp",
     "tokio/rt-multi-thread",
 ]
 remote-connect = [
-    "openbitfun-services-core/workspace-transfer",
+    "alex-services-core/workspace-transfer",
     "agent-runtime",
     "git",
     "model-catalog",
-    "openbitfun-services-integrations/remote-connect",
+    "alex-services-integrations/remote-connect",
 ]
 workspace-search = [
     "workspace-runtime",
-    "openbitfun-services-integrations/workspace-search",
+    "alex-services-integrations/workspace-search",
 ]
 browser-control = [
     "dep:tokio-tungstenite",
-    "openbitfun-services-integrations/browser-control",
+    "alex-services-integrations/browser-control",
     "tokio/net",
     "tokio/rt",
     "tokio/time",
 ]
 web-tools = [
-    "openbitfun-runtime-ports/web-search-port",
-    "openbitfun-services-core/credential-vault",
-    "openbitfun-services-integrations/web-tools",
+    "alex-runtime-ports/web-search-port",
+    "alex-services-core/credential-vault",
+    "alex-services-integrations/web-tools",
     "tool-runtime/web-readable",
 ]
 deep-research = [
-    "dep:openbitfun-agent-workflows",
-    "openbitfun-services-integrations/deep-research",
+    "dep:alex-agent-workflows",
+    "alex-services-integrations/deep-research",
 ]
 script-tool-runtime = [
-    "openbitfun-runtime-ports/script-tool-runtime",
-    "openbitfun-services-integrations/script-tool-runtime",
+    "alex-runtime-ports/script-tool-runtime",
+    "alex-services-integrations/script-tool-runtime",
 ]
 scheduled-jobs = [
     "dep:chrono-tz",
@@ -340,73 +340,73 @@ scheduled-jobs = [
 # Additive dependency modifiers. Weak dependency feature references preserve
 # the owning runtime boundary instead of activating that runtime by themselves.
 document-read = ["tool-runtime?/document-read"]
-subscription-auth = ["openbitfun-ai-adapters?/subscription-auth"]
+subscription-auth = ["alex-ai-adapters?/subscription-auth"]
 
-# Tool groups mirror the provider-neutral groups in openbitfun-tool-packs. They
+# Tool groups mirror the provider-neutral groups in alex-tool-packs. They
 # compose concrete service owners but never form a product-shaped umbrella.
 tools-basic = [
-    "openbitfun-tool-packs/basic",
+    "alex-tool-packs/basic",
     "workspace-search",
 ]
 tools-git = [
-    "openbitfun-tool-packs/git",
+    "alex-tool-packs/git",
     "git",
     "review-platform",
 ]
 tools-mcp = [
-    "openbitfun-tool-packs/mcp",
+    "alex-tool-packs/mcp",
     "mcp-runtime",
 ]
 # RAG search: the tool wrapper (ticket 06, rag_search_tool.rs) delegates through
 # the injected `RagSearchPort` (D11); the concrete PII-safe pipeline stays in
-# openbitfun-basemind-integration, constructed at the host composition root.
+# alex-basemind-integration, constructed at the host composition root.
 tools-rag = [
-    "openbitfun-runtime-ports/rag-search",
-    "openbitfun-runtime-ports/document-redaction",
-    "openbitfun-runtime-ports/prompt-pseudonymization",
-    "openbitfun-tool-packs/basemind",
-    "openbitfun-product-capabilities/basemind",
+    "alex-runtime-ports/rag-search",
+    "alex-runtime-ports/document-redaction",
+    "alex-runtime-ports/prompt-pseudonymization",
+    "alex-tool-packs/basemind",
+    "alex-product-capabilities/basemind",
 ]
 tools-browser-web = [
-    "openbitfun-tool-packs/browser-web",
+    "alex-tool-packs/browser-web",
     "browser-control",
     "web-tools",
 ]
 tools-computer-use = [
-    "openbitfun-tool-packs/computer-use",
+    "alex-tool-packs/computer-use",
 ]
 tools-image-analysis = [
-    "openbitfun-tool-packs/image-analysis",
+    "alex-tool-packs/image-analysis",
 ]
 tools-miniapp = [
-    "dep:openbitfun-product-domains",
-    "openbitfun-tool-packs/miniapp",
-    "openbitfun-product-domains/appearance-market",
-    "openbitfun-product-domains/miniapp",
-    "openbitfun-services-integrations/miniapp-runtime",
-    "openbitfun-services-integrations/miniapp-market",
+    "dep:alex-product-domains",
+    "alex-tool-packs/miniapp",
+    "alex-product-domains/appearance-market",
+    "alex-product-domains/miniapp",
+    "alex-services-integrations/miniapp-runtime",
+    "alex-services-integrations/miniapp-market",
     "runtime-services",
     "dep:reqwest",
     "dep:semver",
 ]
 tools-pages = [
-    "openbitfun-tool-packs/pages",
+    "alex-tool-packs/pages",
 ]
 tools-creation = [
-    "openbitfun-tool-packs/creation",
+    "alex-tool-packs/creation",
 ]
 tools-canvas = [
-    "openbitfun-tool-packs/canvas",
+    "alex-tool-packs/canvas",
     "canvas-runtime",
 ]
 tools-agent-control = [
-    "openbitfun-tool-packs/agent-control",
+    "alex-tool-packs/agent-control",
     "scheduled-jobs",
 ]
 plugin-runtime = [
     "external-sources",
-    "dep:openbitfun-plugin-runtime-client",
-    "openbitfun-runtime-ports/plugin-runtime",
+    "dep:alex-plugin-runtime-client",
+    "alex-runtime-ports/plugin-runtime",
 ]
 # Managed OpenCode Host assembly. Its HTTP compatibility routes consume the
 # Agent lifecycle plus model, Git, and Remote Connect owners; keep that
@@ -415,73 +415,73 @@ opencode-plugin-host = [
     "plugin-runtime",
     "remote-connect",
     "git",
-    "dep:openbitfun-opencode-plugin-host",
-    "openbitfun-runtime-ports/hook-function-runtime",
+    "dep:alex-opencode-plugin-host",
+    "alex-runtime-ports/hook-function-runtime",
 ]
 ai-adapter-runtime = [
-    "dep:openbitfun-ai-adapters",
+    "dep:alex-ai-adapters",
 ]
-product-capabilities = ["dep:openbitfun-product-capabilities"]
+product-capabilities = ["dep:alex-product-capabilities"]
 plugin-source = [
-    "dep:openbitfun-product-domains",
-    "openbitfun-product-domains/plugin-source",
-    "openbitfun-services-integrations/plugin-source",
+    "dep:alex-product-domains",
+    "alex-product-domains/plugin-source",
+    "alex-services-integrations/plugin-source",
 ]
 function-agents = [
-    "dep:openbitfun-product-domains",
+    "dep:alex-product-domains",
     "ai-adapter-runtime",
-    "openbitfun-product-domains/function-agents",
-    "openbitfun-services-integrations/function-agents",
+    "alex-product-domains/function-agents",
+    "alex-services-integrations/function-agents",
     "runtime-services",
 ]
 canvas-runtime = [
-    "dep:openbitfun-product-domains",
-    "openbitfun-services-integrations/canvas-runtime",
+    "dep:alex-product-domains",
+    "alex-services-integrations/canvas-runtime",
 ]
-runtime-services = ["dep:openbitfun-runtime-services"]
-legacy-migration = ["dep:openbitfun-legacy-migration-adapters"]
-announcement = ["openbitfun-services-integrations/announcement"]
-file-watch = ["openbitfun-services-integrations/file-watch"]
-git = ["openbitfun-services-integrations/git"]
-review-platform = ["openbitfun-services-integrations/review-platform"]
+runtime-services = ["dep:alex-runtime-services"]
+legacy-migration = ["dep:alex-legacy-migration-adapters"]
+announcement = ["alex-services-integrations/announcement"]
+file-watch = ["alex-services-integrations/file-watch"]
+git = ["alex-services-integrations/git"]
+review-platform = ["alex-services-integrations/review-platform"]
 service-integrations = ["announcement", "file-watch", "git", "review-platform"]
-diagnostics = ["openbitfun-services-core/diagnostics"]
-diff = ["openbitfun-services-core/diff"]
-dispatch-store = ["dep:base64", "local-storage", "openbitfun-services-core/dispatch-workspace"]
-filesystem = ["openbitfun-services-core/filesystem"]
-local-storage = ["dep:openbitfun-agent-tools", "openbitfun-services-core/local-storage"]
-process-runtime = ["openbitfun-services-core/process-runtime"]
+diagnostics = ["alex-services-core/diagnostics"]
+diff = ["alex-services-core/diff"]
+dispatch-store = ["dep:base64", "local-storage", "alex-services-core/dispatch-workspace"]
+filesystem = ["alex-services-core/filesystem"]
+local-storage = ["dep:alex-agent-tools", "alex-services-core/local-storage"]
+process-runtime = ["alex-services-core/process-runtime"]
 terminal = ["dep:terminal-core"]
 workspace-runtime = [
-    "openbitfun-services-core/workspace-persistence",
+    "alex-services-core/workspace-persistence",
     "dep:serde_yaml",
     "filesystem",
     "local-storage",
     "process-runtime",
-    "openbitfun-services-core/markdown",
-    "openbitfun-services-core/workspace-identity",
-    "openbitfun-services-core/workspace-instructions",
-    "openbitfun-services-core/workspace-runtime",
+    "alex-services-core/markdown",
+    "alex-services-core/workspace-identity",
+    "alex-services-core/workspace-instructions",
+    "alex-services-core/workspace-runtime",
 ]
 workspace-watch = ["workspace-runtime", "dep:notify"]
 remote-workspace = [
     "workspace-runtime",
-    "dep:openbitfun-services-integrations",
-    "openbitfun-services-integrations/remote-ssh",
+    "dep:alex-services-integrations",
+    "alex-services-integrations/remote-ssh",
 ]
-tool-packs = ["dep:openbitfun-tool-packs"]
+tool-packs = ["dep:alex-tool-packs"]
 # Deprecated compatibility feature. Tauri integration is desktop-owned now;
 # keep the public feature name as a no-op for downstream manifests.
 tauri-support = []
 ssh-remote = [
     "remote-workspace",
-    "openbitfun-services-integrations/remote-ssh-concrete",
+    "alex-services-integrations/remote-ssh-concrete",
 ]
 
 [dev-dependencies]
 # Loopback Socket.IO fixture for remote controller interaction tests.
 tokio-tungstenite = { workspace = true }
-openbitfun-runtime-services = { path = "../../execution/runtime-services", features = ["test-support"] }
+alex-runtime-services = { path = "../../execution/runtime-services", features = ["test-support"] }
 tempfile = { workspace = true }
 tokio = { workspace = true, features = ["macros", "rt-multi-thread", "test-util"] }
 

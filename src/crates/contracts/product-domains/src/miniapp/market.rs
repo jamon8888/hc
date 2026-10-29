@@ -71,8 +71,8 @@ pub struct MarketListingSummary {
     pub tags: Vec<String>,
     pub owner: MarketUserSummary,
     pub latest_release: u32,
-    #[serde(rename = "minOpenBitFunVersion")]
-    pub min_openbitfun_version: String,
+    #[serde(rename = "minAlexVersion")]
+    pub min_alex_version: String,
     pub permissions: MiniAppPermissions,
     pub screenshot_urls: Vec<String>,
     pub rating_average: f64,
@@ -106,8 +106,8 @@ pub struct MarketRelease {
     pub release_id: String,
     pub listing_id: String,
     pub release_number: u32,
-    #[serde(rename = "minOpenBitFunVersion")]
-    pub min_openbitfun_version: String,
+    #[serde(rename = "minAlexVersion")]
+    pub min_alex_version: String,
     pub changelog: String,
     pub package_sha256: String,
     pub package_size: u64,
@@ -151,8 +151,8 @@ pub struct MarketSubmission {
     pub icon: String,
     pub category: String,
     pub tags: Vec<String>,
-    #[serde(rename = "minOpenBitFunVersion")]
-    pub min_openbitfun_version: String,
+    #[serde(rename = "minAlexVersion")]
+    pub min_alex_version: String,
     pub changelog: String,
     pub license: MarketLicense,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -183,8 +183,8 @@ pub struct MarketSubmissionDraftRequest {
     pub category: String,
     #[serde(default)]
     pub tags: Vec<String>,
-    #[serde(rename = "minOpenBitFunVersion")]
-    pub min_openbitfun_version: String,
+    #[serde(rename = "minAlexVersion")]
+    pub min_alex_version: String,
     pub changelog: String,
     pub license: MarketLicense,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -354,7 +354,7 @@ mod tests {
         let value = listing
             .as_object_mut()
             .unwrap()
-            .remove("minOpenBitFunVersion")
+            .remove("minAlexVersion")
             .unwrap();
         let retired_field = ["min", "Bit", "fun", "Version"].concat();
         listing
@@ -363,6 +363,6 @@ mod tests {
             .insert(retired_field, value);
 
         let error = serde_json::from_value::<MarketListingDetail>(listing).unwrap_err();
-        assert!(error.to_string().contains("minOpenBitFunVersion"));
+        assert!(error.to_string().contains("minAlexVersion"));
     }
 }

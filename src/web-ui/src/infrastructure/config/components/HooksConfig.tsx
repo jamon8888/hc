@@ -10,7 +10,7 @@ import {
   DialogHeader,
   DialogHeading,
   DialogTitle,
-} from '@openbitfun/ui';
+} from '@alex/ui';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCurrentWorkspace } from '@/infrastructure/contexts/WorkspaceContext';
@@ -474,7 +474,7 @@ const HooksConfig: React.FC<HooksConfigProps> = ({ embedded = false }) => {
               {importSnapshot.imports.length === 0
                 && corruptDiagnostics.length === 0 ? (
                   <ConfigPageRow
-                    className="openbitfun-hooks-config__empty"
+                    className="alex-hooks-config__empty"
                     label={<span data-hooks-empty="true">{t('imports.empty')}</span>}
                     multiline
                   >
@@ -609,7 +609,7 @@ const HooksConfig: React.FC<HooksConfigProps> = ({ embedded = false }) => {
 
   if (embedded) {
     return (
-      <div className="openbitfun-hooks-config openbitfun-hooks-config--embedded">
+      <div className="alex-hooks-config alex-hooks-config--embedded">
         {content}
       </div>
     );

@@ -21,9 +21,9 @@ vi.mock('react-i18next', async () => {
   };
 });
 
-vi.mock('@openbitfun/ui', async () => ({
-  ...await vi.importActual<typeof import('@openbitfun/ui')>('@openbitfun/ui'),
-  Icon: ({ name }: { name: string }) => <span data-openbitfun-component="icon" data-openbitfun-name={name} />,
+vi.mock('@alex/ui', async () => ({
+  ...await vi.importActual<typeof import('@alex/ui')>('@alex/ui'),
+  Icon: ({ name }: { name: string }) => <span data-alex-component="icon" data-alex-name={name} />,
   Tooltip: ({ content, children }: { content: React.ReactNode; children: React.ReactElement }) => (
     <>
       {children}

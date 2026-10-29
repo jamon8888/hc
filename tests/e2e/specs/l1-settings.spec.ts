@@ -44,8 +44,8 @@ describe('L1 Settings', () => {
       const selectors = [
         '[data-testid="header-config-btn"]',
         '[data-testid="header-settings-btn"]',
-        '.openbitfun-header-right button',
-        '.openbitfun-nav-bar__right button',
+        '.alex-header-right button',
+        '.alex-nav-bar__right button',
         'button[aria-label*="Settings"]',
         'button[aria-label*="设置"]',
       ];
@@ -87,10 +87,10 @@ describe('L1 Settings', () => {
       if (!buttonFound) {
         console.log('[L1] Searching all header buttons for settings...');
         const headerContainers = [
-          '.openbitfun-header-right',
-          '.openbitfun-nav-bar__right',
-          '.openbitfun-nav-bar__controls',
-          '.openbitfun-nav-bar',
+          '.alex-header-right',
+          '.alex-nav-bar__right',
+          '.alex-nav-bar__controls',
+          '.alex-nav-bar',
         ];
 
         for (const containerSelector of headerContainers) {
@@ -144,7 +144,7 @@ describe('L1 Settings', () => {
       // If still not found, verify we can detect the header structure
       if (!buttonFound) {
         console.log('[L1] Settings button not found - verifying header structure');
-        const header = await $('.openbitfun-nav-bar, .openbitfun-header');
+        const header = await $('.alex-nav-bar, .alex-header');
         const headerExists = await header.isExisting();
         console.log(`[L1] Header exists: ${headerExists}`);
         
@@ -181,7 +181,7 @@ describe('L1 Settings', () => {
       await browser.pause(1000);
 
       // Check if panel is open
-      const panel = await $('.openbitfun-config-center-panel');
+      const panel = await $('.alex-config-center-panel');
       const panelExists = await panel.isExisting();
 
       if (panelExists) {
@@ -214,7 +214,7 @@ describe('L1 Settings', () => {
       }
 
       const contentSelectors = [
-        '.openbitfun-config-center-content',
+        '.alex-config-center-content',
         '[class*="settings-content"]',
         '[class*="config-content"]',
       ];
@@ -242,7 +242,7 @@ describe('L1 Settings', () => {
         return;
       }
 
-      const inputs = await browser.$$('.openbitfun-config-center-panel input, .openbitfun-config-center-panel select, .openbitfun-config-center-panel textarea');
+      const inputs = await browser.$$('.alex-config-center-panel input, .alex-config-center-panel select, .alex-config-center-panel textarea');
       console.log('[L1] Settings inputs found:', inputs.length);
 
       expect(inputs.length).toBeGreaterThanOrEqual(0);
@@ -296,7 +296,7 @@ describe('L1 Settings', () => {
         return;
       }
 
-      const backdrop = await $('.openbitfun-config-center-backdrop');
+      const backdrop = await $('.alex-config-center-backdrop');
       const backdropExists = await backdrop.isExisting();
 
       if (backdropExists) {

@@ -83,7 +83,7 @@ const LazyAppLayout = lazy(async () => {
 const LazyGlobalSearchRoot = lazy(() => import('./global-search/GlobalSearchRoot'));
 
 /**
- * OpenBitFun main application component.
+ * Alex main application component.
  *
  * Unified architecture:
  * - Use a single AppLayout component
@@ -112,7 +112,7 @@ function App() {
   const interactiveShellReadyFrameRef = useRef<number | null>(null);
   const reportedFrontendTransactionRef = useRef<string | null>(null);
   const openBitFunControlStartupRef = useRef(false);
-  const [openBitFunControlReady, setOpenBitFunControlReady] = useState(false);
+  const [openBitFunControlReady, setAlexControlReady] = useState(false);
   const workspaceLoadingRef = useRef(workspaceLoading);
   const appLayoutReadyRef = useRef(false);
   const [interactiveShellReady, setInteractiveShellReady] = useState(false);
@@ -139,7 +139,7 @@ function App() {
     }
     interactiveShellReadyRef.current = true;
     startupTrace.markPhase('interactive_shell_ready', { reason, afterPaint });
-    window.dispatchEvent(new CustomEvent('openbitfun:interactive-shell-ready', {
+    window.dispatchEvent(new CustomEvent('alex:interactive-shell-ready', {
       detail: { reason },
     }));
     setInteractiveShellReady(true);
@@ -197,7 +197,7 @@ function App() {
       return;
     }
     const transactionId = new URLSearchParams(window.location.search)
-      .get('openbitfunFrontendTransaction');
+      .get('alexFrontendTransaction');
     const controller = new AbortController();
     const creation = createCreationUiApi(controller.signal);
     recordCreationActivationError(null);
@@ -298,7 +298,7 @@ function App() {
     let disposed = false;
 
     void import('@tauri-apps/api/event')
-      .then(({ listen }) => listen('openbitfun_main_window_close_requested', () => {
+      .then(({ listen }) => listen('alex_main_window_close_requested', () => {
         userCloseRequestedRef.current = true;
         startupTrace.markPhase('main_window_user_close_requested', { reason: 'user-close-requested' });
       }))
@@ -331,7 +331,7 @@ function App() {
       await api.invoke('show_main_window');
       log.debug('Main window shown', { reason });
       startupTrace.markPhase('main_window_shown', { reason });
-      window.dispatchEvent(new CustomEvent('openbitfun:main-window-shown', { detail: { reason } }));
+      window.dispatchEvent(new CustomEvent('alex:main-window-shown', { detail: { reason } }));
     } catch (error: any) {
       log.error('Failed to show main window', error);
 
@@ -342,7 +342,7 @@ function App() {
         await mainWindow.setFocus();
         log.debug('Main window shown via fallback', { reason });
         startupTrace.markPhase('main_window_shown_fallback', { reason });
-        window.dispatchEvent(new CustomEvent('openbitfun:main-window-shown', { detail: { reason } }));
+        window.dispatchEvent(new CustomEvent('alex:main-window-shown', { detail: { reason } }));
       } catch (fallbackError) {
         log.error('Fallback window show failed', fallbackError);
         mainWindowShownRef.current = false;
@@ -386,7 +386,7 @@ function App() {
     if (isTauriRuntime()) {
       mainWindowShownRef.current = true;
       startupTrace.markPhase('main_window_shown', { reason: 'startup-native' });
-      window.dispatchEvent(new CustomEvent('openbitfun:main-window-shown', {
+      window.dispatchEvent(new CustomEvent('alex:main-window-shown', {
         detail: { reason: 'startup-native' },
       }));
       return;
@@ -436,14 +436,14 @@ function App() {
     }
     openBitFunControlStartupRef.current = true;
     void import('./global-search/openBitFunControlBridge')
-      .then(({ initializeOpenBitFunControlBridge }) => initializeOpenBitFunControlBridge())
+      .then(({ initializeAlexControlBridge }) => initializeAlexControlBridge())
       .then(() => {
-        startupTrace.markPhase('openbitfun_control_surface_ready');
-        setOpenBitFunControlReady(true);
+        startupTrace.markPhase('alex_control_surface_ready');
+        setAlexControlReady(true);
       })
       .catch(error => {
         openBitFunControlStartupRef.current = false;
-        log.error('Failed to initialize the OpenBitFun control surface', error);
+        log.error('Failed to initialize the Alex control surface', error);
       });
   }, [interactiveShellReady, startupOverlayVisible]);
 
@@ -887,7 +887,7 @@ function App() {
         if (cancelled || !runtimeInfo.previousUnexpectedExit?.notifyOnStartup) {
           return;
         }
-        const recoveryKey = `openbitfun:unexpected-exit-notice:${runtimeInfo.previousUnexpectedExit.sessionLogDir || 'unknown'}`;
+        const recoveryKey = `alex:unexpected-exit-notice:${runtimeInfo.previousUnexpectedExit.sessionLogDir || 'unknown'}`;
         if (sessionStorage.getItem(recoveryKey) === 'shown') {
           return;
         }

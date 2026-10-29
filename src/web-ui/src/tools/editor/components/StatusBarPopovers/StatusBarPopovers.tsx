@@ -17,7 +17,7 @@ import {
 
 import { useI18n } from '@/infrastructure/i18n';
 import './StatusBarPopovers.scss';
-import { createOverlayPortal, Input, Listbox, ListboxOption } from '@openbitfun/ui';
+import { createOverlayPortal, Input, Listbox, ListboxOption } from '@alex/ui';
 
 export type StatusBarPopoverType = 'position' | 'indent' | 'encoding' | 'language';
 
@@ -83,18 +83,18 @@ export const GoToLinePopover: React.FC<GoToLinePopoverProps> = ({
   return createOverlayPortal(
     <div
       className="status-bar-popover"
-      data-openbitfun-component="status-bar-popover"
-      data-openbitfun-part="root"
-      data-openbitfun-popover="line"
+      data-alex-component="status-bar-popover"
+      data-alex-part="root"
+      data-alex-popover="line"
       style={{ top, left }}
       role="dialog"
       aria-label={t('editor.statusBar.goToLine')}
     >
-      <div data-openbitfun-component="status-bar-popover" data-openbitfun-part="hint" className="status-bar-popover__hint">{t('editor.statusBar.goToLineHint')}</div>
-      <div data-openbitfun-component="status-bar-popover" data-openbitfun-part="inputWrap" className="status-bar-popover__input-wrap">
+      <div data-alex-component="status-bar-popover" data-alex-part="hint" className="status-bar-popover__hint">{t('editor.statusBar.goToLineHint')}</div>
+      <div data-alex-component="status-bar-popover" data-alex-part="inputWrap" className="status-bar-popover__input-wrap">
         <Input
-          data-openbitfun-component="status-bar-popover"
-          data-openbitfun-part="input"
+          data-alex-component="status-bar-popover"
+          data-alex-part="input"
           ref={inputRef}
           type="text"
           className="status-bar-popover__input"
@@ -150,14 +150,14 @@ export const IndentPopover: React.FC<IndentPopoverProps> = ({
   return createOverlayPortal(
     <div
       className="status-bar-popover"
-      data-openbitfun-component="status-bar-popover"
-      data-openbitfun-part="root"
-      data-openbitfun-popover="indent"
+      data-alex-component="status-bar-popover"
+      data-alex-part="root"
+      data-alex-popover="indent"
       style={{ top, left }}
       role="dialog"
       aria-label={t('editor.statusBar.indentSettings')}
     >
-      <div data-openbitfun-component="status-bar-popover" data-openbitfun-part="hint" className="status-bar-popover__hint">{t('editor.statusBar.selectIndent')}</div>
+      <div data-alex-component="status-bar-popover" data-alex-part="hint" className="status-bar-popover__hint">{t('editor.statusBar.selectIndent')}</div>
       <Listbox
         autoFocusOption
         aria-label={t('editor.statusBar.selectIndent')}
@@ -211,14 +211,14 @@ export const EncodingPopover: React.FC<EncodingPopoverProps> = ({
   return createOverlayPortal(
     <div
       className="status-bar-popover"
-      data-openbitfun-component="status-bar-popover"
-      data-openbitfun-part="root"
-      data-openbitfun-popover="encoding"
+      data-alex-component="status-bar-popover"
+      data-alex-part="root"
+      data-alex-popover="encoding"
       style={{ top, left }}
       role="dialog"
       aria-label={t('editor.statusBar.fileEncoding')}
     >
-      <div data-openbitfun-component="status-bar-popover" data-openbitfun-part="hint" className="status-bar-popover__hint">{t('editor.statusBar.selectEncoding')}</div>
+      <div data-alex-component="status-bar-popover" data-alex-part="hint" className="status-bar-popover__hint">{t('editor.statusBar.selectEncoding')}</div>
       <Listbox
         autoFocusOption
         aria-label={t('editor.statusBar.selectEncoding')}
@@ -322,14 +322,14 @@ export const LanguagePopover: React.FC<LanguagePopoverProps> = ({
   return createOverlayPortal(
     <div
       className="status-bar-popover"
-      data-openbitfun-component="status-bar-popover"
-      data-openbitfun-part="root"
-      data-openbitfun-popover="language"
+      data-alex-component="status-bar-popover"
+      data-alex-part="root"
+      data-alex-popover="language"
       style={{ top, left, maxHeight: 320 }}
       role="dialog"
       aria-label={t('editor.statusBar.selectLanguageMode')}
     >
-      <div data-openbitfun-component="status-bar-popover" data-openbitfun-part="hint" className="status-bar-popover__hint">{t('editor.statusBar.selectLanguageModeHint')}</div>
+      <div data-alex-component="status-bar-popover" data-alex-part="hint" className="status-bar-popover__hint">{t('editor.statusBar.selectLanguageModeHint')}</div>
       <Listbox
         autoFocusOption
         aria-label={t('editor.statusBar.selectLanguageModeHint')}

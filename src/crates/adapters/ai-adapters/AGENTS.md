@@ -2,11 +2,11 @@
 
 Scope: this guide applies to `src/crates/adapters/ai-adapters`.
 
-`openbitfun-ai-adapters` owns provider-specific request/response mapping, stream
+`alex-ai-adapters` owns provider-specific request/response mapping, stream
 protocol parsing, subscription auth (in-app OAuth login and credential
 resolution), and provider/model selection helpers that are independent of core
 config IO. Keep provider quirks here, then convert stream chunks into the
-provider-neutral contracts owned by `openbitfun-agent-stream`.
+provider-neutral contracts owned by `alex-agent-stream`.
 
 ## Guardrails
 
@@ -83,17 +83,17 @@ flag describes the public API, not subscription availability. OpenCode public ca
 models must stay grouped by plan and wire format. Never mask a failed account
 lookup with a static catalog or another application's local model cache.
 
-For the auth/discovery path, use `cargo test -p openbitfun-ai-adapters --features
+For the auth/discovery path, use `cargo test -p alex-ai-adapters --features
 subscription-auth --lib`. Device-grant timing tests use the dev-only Tokio
 test clock and synthetic tokens; they do not authorize real accounts.
 
 ```bash
-cargo test -p openbitfun-agent-stream
-cargo test -p openbitfun-ai-adapters
-cargo test -p openbitfun-ai-adapters --lib opencode_catalog
-cargo test -p openbitfun-ai-adapters --features subscription-auth subscription_auth
-cargo test -p openbitfun-ai-adapters --lib providers::shared::tests
-cargo test -p openbitfun-ai-adapters --features subscription-auth --lib providers::shared::tests
+cargo test -p alex-agent-stream
+cargo test -p alex-ai-adapters
+cargo test -p alex-ai-adapters --lib opencode_catalog
+cargo test -p alex-ai-adapters --features subscription-auth subscription_auth
+cargo test -p alex-ai-adapters --lib providers::shared::tests
+cargo test -p alex-ai-adapters --features subscription-auth --lib providers::shared::tests
 ```
 
 If stream behavior affects core integration, also run the relevant tests in

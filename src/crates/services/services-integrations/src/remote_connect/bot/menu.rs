@@ -6,7 +6,7 @@
 //!
 //! There is intentionally no per-platform menu state in this module — menu
 //! semantics live in the command router's `dispatch` entry point in
-//! `openbitfun-core::service::remote_connect::bot::command_router`.
+//! `alex-core::service::remote_connect::bot::command_router`.
 
 use serde::{Deserialize, Serialize};
 

@@ -8,29 +8,29 @@ import { activateInteractiveCapability } from './interactiveCapabilityActivator'
 import { activateProductAction } from './productActionActivator';
 import { getInteractiveCapability, getInteractiveControlDefinition } from './interactiveCapabilityCatalog';
 
-const log = createLogger('OpenBitFunControlBridge');
-const REQUEST_EVENT = 'agentic://openbitfun-control-request';
-const APPLIED_EVENT = 'agentic://openbitfun-control-applied';
-const EFFECT_EVENT = 'agentic://openbitfun-control-effect';
+const log = createLogger('AlexControlBridge');
+const REQUEST_EVENT = 'agentic://alex-control-request';
+const APPLIED_EVENT = 'agentic://alex-control-applied';
+const EFFECT_EVENT = 'agentic://alex-control-effect';
 
-type OpenBitFunControlAction = 'list' | 'search' | 'get' | 'open' | 'execute' | 'configure';
+type AlexControlAction = 'list' | 'search' | 'get' | 'open' | 'execute' | 'configure';
 
-export interface OpenBitFunControlRequest {
+export interface AlexControlRequest {
   requestId: string;
-  action: OpenBitFunControlAction;
+  action: AlexControlAction;
   capabilityId?: string;
   itemId?: string;
   operationId?: string;
 }
 
-interface OpenBitFunControlResponse {
+interface AlexControlResponse {
   requestId: string;
   success: boolean;
   result?: unknown;
   error?: string;
 }
 
-export interface OpenBitFunControlAppliedEvent {
+export interface AlexControlAppliedEvent {
   capabilityId: string;
   operationId?: string;
   optionId?: string;
@@ -38,7 +38,7 @@ export interface OpenBitFunControlAppliedEvent {
   value?: unknown;
 }
 
-export interface OpenBitFunControlEffectEvent extends OpenBitFunControlAppliedEvent {
+export interface AlexControlEffectEvent extends AlexControlAppliedEvent {
   requestId: string;
   phase: 'commit' | 'rollback';
 }
@@ -52,15 +52,15 @@ let detachListenerInstalled = false;
 function errorMessage(error: unknown): string {
   if (error instanceof Error && error.message.trim()) return error.message;
   if (typeof error === 'string' && error.trim()) return error;
-  return 'OpenBitFunControl presentation request failed';
+  return 'AlexControl presentation request failed';
 }
 
 /**
  * The Web UI owns presentation only. Discovery, validation, state reads and
  * mutations stay in the native ProductControl executor shared with the Agent.
  */
-export async function executeOpenBitFunPresentationRequest(
-  request: OpenBitFunControlRequest,
+export async function executeAlexPresentationRequest(
+  request: AlexControlRequest,
 ): Promise<unknown> {
   if (!request.capabilityId) throw new Error('capabilityId is required');
   if (request.action === 'open') {
@@ -74,7 +74,7 @@ export async function executeOpenBitFunPresentationRequest(
   }
   if (request.action === 'execute') {
     const capability = getInteractiveCapability(request.capabilityId);
-    if (!capability) throw new Error(`Unknown OpenBitFun capability: ${request.capabilityId}`);
+    if (!capability) throw new Error(`Unknown Alex capability: ${request.capabilityId}`);
     const operation = capability.operations.find(({ id }) => id === request.operationId);
     if (!operation) {
       throw new Error(`Unknown operation for ${capability.id}: ${request.operationId ?? ''}`);
@@ -95,13 +95,13 @@ export async function executeOpenBitFunPresentationRequest(
   );
 }
 
-async function reportResponse(response: OpenBitFunControlResponse): Promise<void> {
-  await api.invoke('report_openbitfun_control_result', { request: response });
+async function reportResponse(response: AlexControlResponse): Promise<void> {
+  await api.invoke('report_alex_control_result', { request: response });
 }
 
-async function handleRequest(request: OpenBitFunControlRequest): Promise<void> {
+async function handleRequest(request: AlexControlRequest): Promise<void> {
   try {
-    const result = await executeOpenBitFunPresentationRequest(request);
+    const result = await executeAlexPresentationRequest(request);
     await reportResponse({ requestId: request.requestId, success: true, result });
   } catch (error) {
     try {
@@ -111,7 +111,7 @@ async function handleRequest(request: OpenBitFunControlRequest): Promise<void> {
         error: errorMessage(error),
       });
     } catch (reportError) {
-      log.warn('Failed to report OpenBitFunControl presentation result', {
+      log.warn('Failed to report AlexControl presentation result', {
         requestId: request.requestId,
         error: reportError,
       });
@@ -119,7 +119,7 @@ async function handleRequest(request: OpenBitFunControlRequest): Promise<void> {
   }
 }
 
-function appearanceAlreadyApplied(event: OpenBitFunControlAppliedEvent): boolean {
+function appearanceAlreadyApplied(event: AlexControlAppliedEvent): boolean {
   if (!event.changedPaths.includes('appearance.selection') || typeof event.value !== 'string') {
     return false;
   }
@@ -127,15 +127,15 @@ function appearanceAlreadyApplied(event: OpenBitFunControlAppliedEvent): boolean
     || appearanceService.hasAppliedPendingSelection(event.value);
 }
 
-function languageAlreadyApplied(event: OpenBitFunControlAppliedEvent): boolean {
+function languageAlreadyApplied(event: AlexControlAppliedEvent): boolean {
   return event.changedPaths.includes('app.language')
     && typeof event.value === 'string'
     && i18nService.getCurrentLocale() === event.value;
 }
 
 /** Apply a persisted native transaction to the live presentation runtime. */
-export async function applyOpenBitFunControlEffect(
-  event: OpenBitFunControlAppliedEvent,
+export async function applyAlexControlEffect(
+  event: AlexControlAppliedEvent,
 ): Promise<{ status: 'applied' | 'alreadyApplied' }> {
   const appearanceReady = appearanceAlreadyApplied(event);
   const languageReady = languageAlreadyApplied(event);
@@ -156,9 +156,9 @@ export async function applyOpenBitFunControlEffect(
   return { status: 'applied' };
 }
 
-async function handleEffect(event: OpenBitFunControlEffectEvent): Promise<void> {
+async function handleEffect(event: AlexControlEffectEvent): Promise<void> {
   try {
-    const result = await applyOpenBitFunControlEffect(event);
+    const result = await applyAlexControlEffect(event);
     await reportResponse({ requestId: event.requestId, success: true, result });
   } catch (error) {
     await reportResponse({
@@ -166,7 +166,7 @@ async function handleEffect(event: OpenBitFunControlEffectEvent): Promise<void> 
       success: false,
       error: errorMessage(error),
     }).catch(reportError => {
-      log.warn('Failed to report OpenBitFunControl runtime effect', {
+      log.warn('Failed to report AlexControl runtime effect', {
         requestId: event.requestId,
         phase: event.phase,
         error: reportError,
@@ -175,7 +175,7 @@ async function handleEffect(event: OpenBitFunControlEffectEvent): Promise<void> 
   }
 }
 
-async function handleAppliedEvent(event: OpenBitFunControlAppliedEvent): Promise<void> {
+async function handleAppliedEvent(event: AlexControlAppliedEvent): Promise<void> {
   try {
     await configManager.applyExternalReload();
   } catch (error) {
@@ -189,21 +189,21 @@ async function handleAppliedEvent(event: OpenBitFunControlAppliedEvent): Promise
 }
 
 function markSurfaceDetached(): void {
-  void api.invoke('mark_openbitfun_control_surface_unready').catch(error => {
+  void api.invoke('mark_alex_control_surface_unready').catch(error => {
     log.debug('ProductControl surface was already detached', { error });
   });
 }
 
-export async function initializeOpenBitFunControlBridge(): Promise<void> {
+export async function initializeAlexControlBridge(): Promise<void> {
   if (requestUnlisten) return;
   creationUnlisten = listenForCreationRequests();
-  requestUnlisten = api.listen<OpenBitFunControlRequest>(REQUEST_EVENT, request => {
+  requestUnlisten = api.listen<AlexControlRequest>(REQUEST_EVENT, request => {
     void handleRequest(request);
   });
-  appliedUnlisten = api.listen<OpenBitFunControlAppliedEvent>(APPLIED_EVENT, event => {
+  appliedUnlisten = api.listen<AlexControlAppliedEvent>(APPLIED_EVENT, event => {
     void handleAppliedEvent(event);
   });
-  effectUnlisten = api.listen<OpenBitFunControlEffectEvent>(EFFECT_EVENT, event => {
+  effectUnlisten = api.listen<AlexControlEffectEvent>(EFFECT_EVENT, event => {
     void handleEffect(event);
   });
   if (!detachListenerInstalled && typeof window !== 'undefined') {
@@ -211,7 +211,7 @@ export async function initializeOpenBitFunControlBridge(): Promise<void> {
     detachListenerInstalled = true;
   }
   try {
-    await api.invoke('mark_openbitfun_control_surface_ready', { request: { creationApiVersion: 1 } });
+    await api.invoke('mark_alex_control_surface_ready', { request: { creationApiVersion: 1 } });
   } catch (error) {
     creationUnlisten?.();
     creationUnlisten = null;

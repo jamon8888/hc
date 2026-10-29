@@ -31,9 +31,9 @@
 
     background: linear-gradient(
       to bottom,
-      var(--openbitfun-color-surface-scene) 0%,
-      color-mix(in srgb, var(--openbitfun-color-surface-scene) 80%, transparent) 40%,
-      color-mix(in srgb, var(--openbitfun-color-surface-scene) 40%, transparent) 70%,
+      var(--alex-color-surface-scene) 0%,
+      color-mix(in srgb, var(--alex-color-surface-scene) 80%, transparent) 40%,
+      color-mix(in srgb, var(--alex-color-surface-scene) 40%, transparent) 70%,
       transparent 100%
     );
   }
@@ -55,8 +55,8 @@
   &__btn {
     &::before { content: none; }
 
-    > [data-openbitfun-part='icon'] {
-      --openbitfun-opacity-icon-artwork: inherit;
+    > [data-alex-part='icon'] {
+      --alex-opacity-icon-artwork: inherit;
       inline-size: 16px;
       block-size: 16px;
     }
@@ -67,9 +67,9 @@
     width: 30px;
     height: 30px;
     border-radius: 50%;
-    border: 1.5px solid var(--openbitfun-color-border-default);
-    background: var(--openbitfun-color-surface-scene);
-    color: var(--openbitfun-color-content-muted);
+    border: 1.5px solid var(--alex-color-border-default);
+    background: var(--alex-color-surface-scene);
+    color: var(--alex-color-content-muted);
     cursor: pointer;
     padding: 0;
 
@@ -78,15 +78,15 @@
       opacity 120ms ease;
 
     &:hover {
-      border-color: var(--openbitfun-color-field-border-hover);
-      color: var(--openbitfun-color-content-primary);
+      border-color: var(--alex-color-field-border-hover);
+      color: var(--alex-color-content-primary);
       transform: translateY(-1px);
     }
 
     &:focus-visible {
       outline: none;
-      border-color: var(--openbitfun-color-border-strong);
-      color: var(--openbitfun-color-content-primary);
+      border-color: var(--alex-color-border-strong);
+      color: var(--alex-color-content-primary);
     }
   }
 }

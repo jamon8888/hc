@@ -272,7 +272,7 @@ describe('useInstalledSkills', () => {
     });
     await act(async () => {
       resolveLoad?.([{
-        key: 'openbitfun:user:test',
+        key: 'alex:user:test',
         name: 'test',
         description: '',
         path: 'D:/skills/test',
@@ -297,7 +297,7 @@ describe('useInstalledSkills', () => {
       resolveDelete = resolve;
     }));
     const skill: SkillInfo = {
-      key: 'openbitfun:user:test',
+      key: 'alex:user:test',
       name: 'test',
       description: '',
       path: 'D:/skills/test',

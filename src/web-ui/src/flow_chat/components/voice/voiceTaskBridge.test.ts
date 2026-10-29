@@ -196,20 +196,20 @@ describe('voice task conclusion', () => {
     const conclusion = summarizeVoiceTaskConclusion([
       '我已经通读了项目的 README.md 和 README.zh-CN.md（项目自述是最权威的定位来源），下面是整理好的介绍。',
       '',
-      '## OpenBitFun 项目介绍',
+      '## Alex 项目介绍',
       '',
-      'OpenBitFun 是一个桌面 AI Agent，能把任务变成可打开的应用界面。',
+      'Alex 是一个桌面 AI Agent，能把任务变成可打开的应用界面。',
       '它支持编码、办公和桌面执行（包括浏览器、终端与文件系统）。',
-      'OpenBitFun 是一个桌面 AI Agent，能把任务变成可打开的应用界面。',
+      'Alex 是一个桌面 AI Agent，能把任务变成可打开的应用界面。',
     ].join('\n'));
 
     expect(conclusion).toBe(
-      'OpenBitFun 是一个桌面 AI Agent，能把任务变成可打开的应用界面。'
+      'Alex 是一个桌面 AI Agent，能把任务变成可打开的应用界面。'
       + '它支持编码、办公和桌面执行包括浏览器、终端与文件系统。',
     );
     expect(conclusion).not.toMatch(/[()（）]/);
     expect(conclusion).not.toContain('README.md');
-    expect(conclusion.match(/OpenBitFun 是一个桌面 AI Agent/g)).toHaveLength(1);
+    expect(conclusion.match(/Alex 是一个桌面 AI Agent/g)).toHaveLength(1);
   });
 
   it('returns an empty conclusion when no final public text exists', () => {

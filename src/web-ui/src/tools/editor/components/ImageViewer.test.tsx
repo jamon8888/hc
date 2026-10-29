@@ -14,8 +14,8 @@ vi.mock('@/infrastructure/i18n', () => {
   const t = (key: string) => key;
   return { useI18n: () => ({ t }) };
 });
-vi.mock('@openbitfun/ui', async (importOriginal) => ({
-  ...await importOriginal<typeof import('@openbitfun/ui')>(),
+vi.mock('@alex/ui', async (importOriginal) => ({
+  ...await importOriginal<typeof import('@alex/ui')>(),
   OverflowText: ({ children }: React.PropsWithChildren) => <span>{children}</span>,
   Button: ({ children, onClick }: React.PropsWithChildren<{ onClick?: () => void }>) => <button onClick={onClick}>{children}</button>,
   Icon: () => null,
@@ -67,7 +67,7 @@ it('joins the overlay stack in fullscreen and restores its control on Escape', a
   const label = 'editor.imageViewer.enterFullscreen';
   await act(async () => container.querySelector<HTMLButtonElement>(`[aria-label="${label}"]`)!.click());
   const dialog = document.querySelector('[role="dialog"]')!;
-  expect(dialog.closest('[data-openbitfun-overlay-layer]')).not.toBeNull();
+  expect(dialog.closest('[data-alex-overlay-layer]')).not.toBeNull();
   expect(dialog.getAttribute('aria-modal')).toBe('true');
   expect(container.hasAttribute('inert')).toBe(true);
   await act(async () => document.activeElement!.dispatchEvent(new KeyboardEvent('keydown', {

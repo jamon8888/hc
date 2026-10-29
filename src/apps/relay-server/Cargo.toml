@@ -1,16 +1,16 @@
 [package]
-name = "openbitfun-relay-server"
+name = "alex-relay-server"
 version = "1.0.2" # x-release-please-version
-authors = ["OpenBitFun Team"]
+authors = ["Alex Team"]
 edition = "2021"
-description = "OpenBitFun standalone Remote Connect relay server"
+description = "Alex standalone Remote Connect relay server"
 
 [lib]
-name = "openbitfun_relay_server"
+name = "alex_relay_server"
 path = "src/lib.rs"
 
 [[bin]]
-name = "openbitfun-relay-server"
+name = "alex-relay-server"
 path = "src/main.rs"
 
 [[bin]]
@@ -20,7 +20,7 @@ path = "src/bin/relay_admin.rs"
 [dependencies]
 # Dependencies stay explicit so this application and relay-service can be
 # built from their reduced standalone Docker context.
-openbitfun-relay-service = { path = "../../crates/services/relay-service" }
+alex-relay-service = { path = "../../crates/services/relay-service" }
 axum = "0.8"
 tower-http = { version = "0.6.11", features = ["fs"] }
 tokio = { version = "1.52", default-features = false, features = ["rt-multi-thread", "macros", "net", "time", "sync"] }

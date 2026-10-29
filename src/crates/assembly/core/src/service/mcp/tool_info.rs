@@ -1,1 +1,1 @@
-pub use openbitfun_services_integrations::mcp::McpToolInfo;
+pub use alex_services_integrations::mcp::McpToolInfo;

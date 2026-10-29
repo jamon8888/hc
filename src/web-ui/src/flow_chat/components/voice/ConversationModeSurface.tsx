@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { Phone } from 'lucide-react';
-import { OverflowText, IconButton, VoiceCallIdentity, VoiceCallControls, VoiceCallHeader } from '@openbitfun/ui';
+import { OverflowText, IconButton, VoiceCallIdentity, VoiceCallControls, VoiceCallHeader } from '@alex/ui';
 import { useI18n } from '@/infrastructure/i18n';
 
 import { RealtimeVoiceCallPanel } from './RealtimeVoiceCallPanel';
@@ -99,36 +99,36 @@ export function ConversationModeSurface({
   return (
     <div
       className={[
-        'openbitfun-conversation-mode-surface',
+        'alex-conversation-mode-surface',
         className,
-        integrated && 'openbitfun-conversation-mode-surface--integrated',
+        integrated && 'alex-conversation-mode-surface--integrated',
       ].filter(Boolean).join(' ')}
-      data-openbitfun-component="conversation-mode-surface"
-      data-openbitfun-part="root"
-      data-openbitfun-state={isVoiceMode ? 'voice' : 'chat'}
+      data-alex-component="conversation-mode-surface"
+      data-alex-part="root"
+      data-alex-state={isVoiceMode ? 'voice' : 'chat'}
     >
       {!isVoiceMode && renderHeader?.(integrated ? null : <IconButton
         size="sm"
         data-testid={switchTestId}
-        icon={<span className="openbitfun-conversation-mode-surface__logo" aria-hidden="true" />}
+        icon={<span className="alex-conversation-mode-surface__logo" aria-hidden="true" />}
         aria-label={t(isVoiceMode ? 'voiceCall.call.switchToChat' : 'voiceCall.call.switchToVoice')}
         aria-pressed={isVoiceMode}
         title={t(isVoiceMode ? 'voiceCall.call.switchToChat' : 'voiceCall.call.switchToVoice')}
         disabled={!ownsCall && (voiceStartDisabled || phase !== 'idle')}
         onClick={handleModeSwitch}
       />)}
-      {integrated && <div ref={voiceHeaderRef} className="openbitfun-conversation-mode-surface__voice-header" aria-hidden={!isVoiceMode}
-        data-openbitfun-component="conversation-mode-surface" data-openbitfun-part="voiceHeader">
-        <div className="openbitfun-conversation-mode-surface__voice-header-content">
+      {integrated && <div ref={voiceHeaderRef} className="alex-conversation-mode-surface__voice-header" aria-hidden={!isVoiceMode}
+        data-alex-component="conversation-mode-surface" data-alex-part="voiceHeader">
+        <div className="alex-conversation-mode-surface__voice-header-content">
           <VoiceCallHeader title={t('voiceCall.call.title')} phase={phase === 'idle' ? 'live' : phase}
             labels={{ back: t('voiceCall.call.switchToChat'), close: t('voiceCall.call.close') }}
             onBack={() => setShowVoice(false)} onClose={onCloseVoice ?? controller.end} />
         </div>
       </div>}
       <div
-        className="openbitfun-conversation-mode-surface__body"
-        data-openbitfun-component="conversation-mode-surface"
-        data-openbitfun-part="body"
+        className="alex-conversation-mode-surface__body"
+        data-alex-component="conversation-mode-surface"
+        data-alex-part="body"
       >
         {integrated && <VoiceCallIdentity expanded={isVoiceMode} active={active && ownsCall && phase === 'live'}
           leading={headerAction}
@@ -146,25 +146,25 @@ export function ConversationModeSurface({
             unmute: t('voiceCall.call.unmute'), settings: t('voiceCall.call.settings'), end: t('voiceCall.call.hangUp') }}
           onToggleMute={controller.toggleMute} onOpenSettings={controller.openSettings} onEnd={controller.end} />}
         <ConversationTextVisibilityContext.Provider value={!isVoiceMode}>
-          {integrated ? <div ref={composerRef} className="openbitfun-conversation-mode-surface__composer" aria-hidden={isVoiceMode}
-            data-openbitfun-component="conversation-mode-surface" data-openbitfun-part="composer">
-            <div className="openbitfun-conversation-mode-surface__composer-content">{children}</div>
+          {integrated ? <div ref={composerRef} className="alex-conversation-mode-surface__composer" aria-hidden={isVoiceMode}
+            data-alex-component="conversation-mode-surface" data-alex-part="composer">
+            <div className="alex-conversation-mode-surface__composer-content">{children}</div>
           </div> : <div hidden={isVoiceMode} style={{ display: isVoiceMode ? 'none' : 'contents' }}>{children}</div>}
         </ConversationTextVisibilityContext.Provider>
       </div>
 
       {showModeSwitch && !integrated ? (
         <footer
-          className="openbitfun-conversation-mode-surface__switch"
-          data-openbitfun-component="conversation-mode-surface"
-          data-openbitfun-part="modeSwitch"
+          className="alex-conversation-mode-surface__switch"
+          data-alex-component="conversation-mode-surface"
+          data-alex-part="modeSwitch"
         >
           <button data-overflow-trigger
             type="button"
-            className="openbitfun-conversation-mode-surface__switch-button"
+            className="alex-conversation-mode-surface__switch-button"
             data-testid={switchTestId}
-            data-openbitfun-component="conversation-mode-surface"
-            data-openbitfun-part="modeSwitchButton"
+            data-alex-component="conversation-mode-surface"
+            data-alex-part="modeSwitchButton"
             disabled={!ownsCall && (voiceStartDisabled || phase !== 'idle')}
             onClick={handleModeSwitch}
           >

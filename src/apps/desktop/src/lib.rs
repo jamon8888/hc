@@ -1,6 +1,6 @@
 #![recursion_limit = "256"]
 #![allow(non_snake_case)]
-//! OpenBitFun Desktop - Tauri-based desktop application with TransportAdapter architecture
+//! Alex Desktop - Tauri-based desktop application with TransportAdapter architecture
 //!
 //! The reqwest HTTP/2 and MCP transport type graph exceeds rustc's default
 //! trait-evaluation recursion budget when desktop tasks require `Send`.
@@ -29,7 +29,7 @@ mod embedded_relay_host;
 pub mod frontend_workbench;
 pub mod logging;
 pub mod macos_menubar;
-mod openbitfun_control_host;
+mod alex_control_host;
 pub mod runtime;
 pub mod sleep_prevention;
 pub mod startup_trace;
@@ -39,18 +39,18 @@ mod window_state_support;
 #[cfg(target_os = "windows")]
 mod window_webview_geometry;
 
-use openbitfun_agent_runtime::sdk::{attach_session_event_cursor, SessionEventJournal};
-use openbitfun_core::agentic::tools::computer_use_capability::set_computer_use_desktop_available;
-use openbitfun_core::agentic::tools::computer_use_host::ComputerUseHostRef;
-use openbitfun_core::infrastructure::ai::AIClientFactory;
-use openbitfun_core::infrastructure::{get_path_manager_arc, try_get_path_manager_arc};
-use openbitfun_core::service::search::get_global_workspace_search_service;
-use openbitfun_core::service::session_projection_store::{
+use alex_agent_runtime::sdk::{attach_session_event_cursor, SessionEventJournal};
+use alex_core::agentic::tools::computer_use_capability::set_computer_use_desktop_available;
+use alex_core::agentic::tools::computer_use_host::ComputerUseHostRef;
+use alex_core::infrastructure::ai::AIClientFactory;
+use alex_core::infrastructure::{get_path_manager_arc, try_get_path_manager_arc};
+use alex_core::service::search::get_global_workspace_search_service;
+use alex_core::service::session_projection_store::{
     runtime_event_log_dir, FileSessionProjectionStore,
 };
-use openbitfun_core::util::{elapsed_ms, TimingCollector};
-use openbitfun_events::AgenticEvent;
-use openbitfun_transport::{TauriTransportAdapter, TransportAdapter};
+use alex_core::util::{elapsed_ms, TimingCollector};
+use alex_events::AgenticEvent;
+use alex_transport::{TauriTransportAdapter, TransportAdapter};
 use serde::Deserialize;
 use std::path::PathBuf;
 use std::sync::{
@@ -95,23 +95,23 @@ use api::system_api::*;
 use api::tool_api::*;
 use startup_trace::{DesktopStartupTrace, DesktopStartupTraceSnapshot};
 
-pub(crate) const PLUGIN_HOST_LAUNCH_POLICY: openbitfun_core::plugin_host::PluginHostLaunchPolicy =
-    openbitfun_core::plugin_host::PluginHostLaunchPolicy::Enabled;
+pub(crate) const PLUGIN_HOST_LAUNCH_POLICY: alex_core::plugin_host::PluginHostLaunchPolicy =
+    alex_core::plugin_host::PluginHostLaunchPolicy::Enabled;
 
 pub(crate) fn ensure_rustls_crypto_provider() {
-    openbitfun_core::service::remote_connect::ensure_rustls_crypto_provider();
+    alex_core::service::remote_connect::ensure_rustls_crypto_provider();
 }
 
 /// Agentic Coordinator state
 #[derive(Clone)]
 pub struct CoordinatorState {
-    pub coordinator: Arc<openbitfun_core::agentic::coordination::ConversationCoordinator>,
+    pub coordinator: Arc<alex_core::agentic::coordination::ConversationCoordinator>,
 }
 
 /// Dialog scheduler state (primary entry point for user messages)
 #[derive(Clone)]
 pub struct SchedulerState {
-    pub scheduler: Arc<openbitfun_core::agentic::coordination::DialogScheduler>,
+    pub scheduler: Arc<alex_core::agentic::coordination::DialogScheduler>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -126,7 +126,7 @@ static MAIN_WINDOW_HIDDEN_ON_MACOS: AtomicBool = AtomicBool::new(false);
 #[cfg(target_os = "macos")]
 static MAIN_WINDOW_CLOSE_PENDING_ON_MACOS: AtomicBool = AtomicBool::new(false);
 
-const MAIN_WINDOW_CLOSE_REQUESTED_EVENT: &str = "openbitfun_main_window_close_requested";
+const MAIN_WINDOW_CLOSE_REQUESTED_EVENT: &str = "alex_main_window_close_requested";
 const BROWSER_WEBVIEW_PAGE_LOAD_EVENT: &str = "browser-webview-page-load";
 
 #[cfg(target_os = "windows")]
@@ -134,7 +134,7 @@ fn show_fatal_startup_error(message: &str) {
     use windows::core::PCWSTR;
     use windows::Win32::UI::WindowsAndMessaging::{MessageBoxW, MB_ICONERROR, MB_OK};
 
-    let title = "OpenBitFun startup error"
+    let title = "Alex startup error"
         .encode_utf16()
         .chain(std::iter::once(0))
         .collect::<Vec<_>>();
@@ -154,7 +154,7 @@ fn show_fatal_startup_error(message: &str) {
 
 #[cfg(not(target_os = "windows"))]
 fn show_fatal_startup_error(message: &str) {
-    eprintln!("OpenBitFun startup error: {message}");
+    eprintln!("Alex startup error: {message}");
 }
 const CRON_DESKTOP_START_FALLBACK_DELAY: Duration = Duration::from_secs(120);
 pub(crate) const MAIN_WINDOW_DEFAULT_WIDTH: f64 = 1200.0;
@@ -333,7 +333,7 @@ fn handle_secondary_launch(app: &tauri::AppHandle) {
 }
 
 pub(crate) fn e2e_storage_guard_enabled() -> bool {
-    std::env::var("OPENBITFUN_E2E_STORAGE_GUARD")
+    std::env::var("ALEX_E2E_STORAGE_GUARD")
         .ok()
         .is_some_and(|value| value == "1" || value.eq_ignore_ascii_case("true"))
 }
@@ -397,7 +397,7 @@ pub(crate) fn restore_main_window_state(window: &tauri::WebviewWindow) -> bool {
 #[tauri::command]
 async fn webdriver_bridge_result(request: WebdriverBridgeResultRequest) -> Result<(), String> {
     log::debug!("webdriver_bridge_result command invoked");
-    openbitfun_webdriver::handle_bridge_result(request.payload)
+    alex_webdriver::handle_bridge_result(request.payload)
 }
 
 #[tauri::command]
@@ -447,27 +447,27 @@ pub async fn run() {
     // reuse the same provider instead of each attempting their own install_default().
     ensure_rustls_crypto_provider();
 
-    eprintln!("=== OpenBitFun Desktop Starting ===");
+    eprintln!("=== Alex Desktop Starting ===");
 
-    if let Err(error) = openbitfun_core::agentic::system::select_agentic_system_profile(
-        openbitfun_core::agentic::system::DeliveryProfile::Desktop,
+    if let Err(error) = alex_core::agentic::system::select_agentic_system_profile(
+        alex_core::agentic::system::DeliveryProfile::Desktop,
     ) {
         log::error!("Failed to select Desktop agent profile: {}", error);
         show_fatal_startup_error(&format!(
-            "OpenBitFun could not select its Desktop agent profile and cannot continue.\n\n{error}\n\nSee early-startup.log for details."
+            "Alex could not select its Desktop agent profile and cannot continue.\n\n{error}\n\nSee early-startup.log for details."
         ));
         return;
     }
 
     let step_started = Instant::now();
-    if let Err(e) = openbitfun_core::service::config::initialize_global_config().await {
+    if let Err(e) = alex_core::service::config::initialize_global_config().await {
         log::error!("Failed to initialize global config service: {}", e);
         show_fatal_startup_error(&format!(
-            "OpenBitFun could not initialize its configuration and cannot continue.\n\n{e}\n\nSee early-startup.log for details."
+            "Alex could not initialize its configuration and cannot continue.\n\n{e}\n\nSee early-startup.log for details."
         ));
         return;
     }
-    if let Ok(config_service) = openbitfun_core::service::config::get_global_config_service().await
+    if let Ok(config_service) = alex_core::service::config::get_global_config_service().await
     {
         for diagnostic in config_service.load_diagnostics().await {
             log::warn!(
@@ -482,17 +482,17 @@ pub async fn run() {
     startup_trace.record_elapsed_step("native_pre_tauri", "initialize_global_config", step_started);
 
     let step_started = Instant::now();
-    match openbitfun_core::plugin_host::initialize_configured_plugin_host_with_log_file(
+    match alex_core::plugin_host::initialize_configured_plugin_host_with_log_file(
         PLUGIN_HOST_LAUNCH_POLICY,
         Some(session_log_dir.join("plugin-host.log")),
     )
     .await
     {
-        Ok(openbitfun_core::plugin_host::PluginHostStartup::Disabled) => {}
+        Ok(alex_core::plugin_host::PluginHostStartup::Disabled) => {}
         Ok(status) => log::info!("Plugin host initialization completed: {:?}", status),
         Err(error) => {
             log::error!("Failed to initialize configured plugin host: {}", error);
-            openbitfun_core::plugin_host::report_configured_plugin_activation_failure(
+            alex_core::plugin_host::report_configured_plugin_activation_failure(
                 "Desktop startup",
                 None,
                 error,
@@ -513,8 +513,8 @@ pub async fn run() {
         (startup_log_level, log_level_duration_ms),
         (ai_factory_result, ai_factory_duration_ms),
     ) = {
-        use openbitfun_core::service::config::get_global_config_service;
-        use openbitfun_core::service::i18n::initialize_global_i18n_service;
+        use alex_core::service::config::get_global_config_service;
+        use alex_core::service::i18n::initialize_global_i18n_service;
 
         // Initialize global I18nService so bot/remote-connect language is always in sync.
         let i18n_task = async {
@@ -597,7 +597,7 @@ pub async fn run() {
 
     let step_started = Instant::now();
     let workspace_search_enabled =
-        openbitfun_core::service::search::workspace_search_feature_enabled().await;
+        alex_core::service::search::workspace_search_feature_enabled().await;
     startup_trace.record_elapsed_step(
         "native_pre_tauri",
         "workspace_search_feature_enabled",
@@ -689,7 +689,7 @@ pub async fn run() {
         if !logging::is_embedded_webdriver_mode() {
             builder = builder.plugin(tauri_plugin_single_instance::init(|app, args, cwd| {
                 log::info!(
-                    "Existing OpenBitFun Desktop instance received launch request: args_count={}, cwd={}",
+                    "Existing Alex Desktop instance received launch request: args_count={}, cwd={}",
                     args.len(),
                     cwd
                 );
@@ -736,7 +736,7 @@ pub async fn run() {
                 };
                 let url = payload.url().to_string();
                 api::browser_api::update_browser_target_url(label, &url);
-                openbitfun_core::agentic::tools::browser_control::builtin_browser::publish_builtin_browser_page_load(
+                alex_core::agentic::tools::browser_control::builtin_browser::publish_builtin_browser_page_load(
                     label,
                     event,
                     &url,
@@ -782,10 +782,10 @@ pub async fn run() {
                     .join("../../..")
                     .join("dist");
                 #[cfg(debug_assertions)]
-                let development_dist = if std::env::var("OPENBITFUN_E2E_STORAGE_GUARD").as_deref() == Ok("1")
-                    && std::env::var("OPENBITFUN_E2E_PACKAGED_FRONTEND").as_deref() == Ok("1")
+                let development_dist = if std::env::var("ALEX_E2E_STORAGE_GUARD").as_deref() == Ok("1")
+                    && std::env::var("ALEX_E2E_PACKAGED_FRONTEND").as_deref() == Ok("1")
                 {
-                    std::env::var_os("OPENBITFUN_E2E_FRONTEND_DIR").map(PathBuf::from).unwrap_or(development_dist)
+                    std::env::var_os("ALEX_E2E_FRONTEND_DIR").map(PathBuf::from).unwrap_or(development_dist)
                 } else { development_dist };
                 development_dist
                     .join("index.html")
@@ -829,7 +829,7 @@ pub async fn run() {
                             match std::process::Command::new("reg")
                                 .args([
                                     "query",
-                                    r"HKCU\Software\OpenBitFun Team\OpenBitFun",
+                                    r"HKCU\Software\Alex Team\Alex",
                                     "/ve",
                                 ])
                                 .creation_flags(CREATE_NO_WINDOW)
@@ -845,7 +845,7 @@ pub async fn run() {
                             let _ = std::process::Command::new("reg")
                                 .args([
                                     "add",
-                                    r"HKCU\Software\OpenBitFun Team\OpenBitFun",
+                                    r"HKCU\Software\Alex Team\Alex",
                                     "/ve",
                                     "/d",
                                     &dir_str,
@@ -878,7 +878,7 @@ pub async fn run() {
                 let step_started = Instant::now();
                 let flashgrep_path = startup_flashgrep_path.clone().or_else(|| {
                     let binary_names =
-                        openbitfun_core::service::search::workspace_search_daemon_binary_names();
+                        alex_core::service::search::workspace_search_daemon_binary_names();
                     for binary_name in binary_names {
                         let primary = format!("flashgrep/{}", binary_name);
                         if let Ok(path) = app
@@ -916,7 +916,7 @@ pub async fn run() {
                 } else {
                     log::warn!(
                         "Workspace search daemon startup check failed: {}",
-                        openbitfun_core::service::search::workspace_search_daemon_missing_hint()
+                        alex_core::service::search::workspace_search_daemon_missing_hint()
                     );
                 }
                 startup_trace.record_elapsed_step(
@@ -938,7 +938,7 @@ pub async fn run() {
             #[cfg(feature = "basemind")]
             {
                 log::info!("Installing the refusing ACP prompt interceptor until the pseudonymizer is published");
-                openbitfun_acp::set_prompt_interceptor(Some(std::sync::Arc::new(
+                alex_acp::set_prompt_interceptor(Some(std::sync::Arc::new(
                     AcpRefusingPromptInterceptor,
                 )));
             }
@@ -1081,9 +1081,9 @@ pub async fn run() {
                 window_duration_ms
             );
             let webdriver_started = Instant::now();
-            openbitfun_webdriver::maybe_start(app_handle.clone());
+            alex_webdriver::maybe_start(app_handle.clone());
             builtin_browser_host::install(app_handle.clone());
-            openbitfun_control_host::install(app_handle.clone());
+            alex_control_host::install(app_handle.clone());
             startup_trace.record_elapsed_step(
                 "native_setup",
                 "maybe_start_webdriver",
@@ -1117,7 +1117,7 @@ pub async fn run() {
                         .get_config::<String>(Some("app.language"))
                         .await
                         .unwrap_or_else(|_| {
-                            openbitfun_core::service::i18n::default_locale_code().to_string()
+                            alex_core::service::i18n::default_locale_code().to_string()
                         });
 
                     let has_workspace = workspace_id.read().await.is_some();
@@ -1163,7 +1163,7 @@ pub async fn run() {
             );
 
             // Reattach to a browser that is already running with remote
-            // debugging on, so a OpenBitFun restart does not drop the connection.
+            // debugging on, so a Alex restart does not drop the connection.
             let step_started = Instant::now();
             api::browser_control_api::init_on_startup();
             startup_trace.record_elapsed_step(
@@ -1225,7 +1225,7 @@ pub async fn run() {
                 setup_duration_ms,
                 since_process_start_ms
             );
-            log::info!("OpenBitFun Desktop started successfully");
+            log::info!("Alex Desktop started successfully");
             Ok(())
         })
         .on_window_event({
@@ -1414,10 +1414,10 @@ pub async fn run() {
             initialize_workspace_startup_state,
             get_available_tools,
             report_ide_control_result,
-            openbitfun_control_host::mark_openbitfun_control_surface_ready,
-            openbitfun_control_host::mark_openbitfun_control_surface_unready,
-            openbitfun_control_host::product_control_invoke,
-            openbitfun_control_host::report_openbitfun_control_result,
+            alex_control_host::mark_alex_control_surface_ready,
+            alex_control_host::mark_alex_control_surface_unready,
+            alex_control_host::product_control_invoke,
+            alex_control_host::report_alex_control_result,
             get_health_status,
             get_statistics,
             test_ai_connection,
@@ -1800,7 +1800,7 @@ pub async fn run() {
             api::remote_connect_api::account_subscribe_session,
             api::remote_connect_api::account_unsubscribe_session,
             api::remote_connect_api::account_load_older_session,
-            // OpenBitFun Page API
+            // Alex Page API
             api::pages_api::page_publish,
             api::pages_api::page_save_version,
             api::pages_api::page_list,
@@ -2026,14 +2026,14 @@ pub async fn run() {
 }
 
 async fn init_agentic_system() -> anyhow::Result<(
-    Arc<openbitfun_core::agentic::coordination::ConversationCoordinator>,
-    Arc<openbitfun_core::agentic::coordination::DialogScheduler>,
-    Arc<openbitfun_core::agentic::events::EventQueue>,
-    Arc<openbitfun_core::agentic::events::EventRouter>,
+    Arc<alex_core::agentic::coordination::ConversationCoordinator>,
+    Arc<alex_core::agentic::coordination::DialogScheduler>,
+    Arc<alex_core::agentic::events::EventQueue>,
+    Arc<alex_core::agentic::events::EventRouter>,
     Arc<AIClientFactory>,
-    Arc<openbitfun_core::service::token_usage::TokenUsageService>,
+    Arc<alex_core::service::token_usage::TokenUsageService>,
 )> {
-    use openbitfun_core::agentic::*;
+    use alex_core::agentic::*;
 
     let ai_client_factory = AIClientFactory::get_global().await?;
 
@@ -2055,7 +2055,7 @@ async fn init_agentic_system() -> anyhow::Result<(
     let tool_registry = tools::registry::get_global_tool_registry();
     let tool_state_manager = Arc::new(tools::pipeline::ToolStateManager::new(event_queue.clone()));
     let permission_request_manager =
-        openbitfun_core::product_runtime::core_permission_request_manager()
+        alex_core::product_runtime::core_permission_request_manager()
             .map_err(anyhow::Error::msg)?;
 
     let computer_use_host: ComputerUseHostRef =
@@ -2089,7 +2089,7 @@ async fn init_agentic_system() -> anyhow::Result<(
     ));
 
     let runtime_ownership = Arc::new(
-        openbitfun_core::runtime_ownership::CoreRuntimeOwnership::embedded(
+        alex_core::runtime_ownership::CoreRuntimeOwnership::embedded(
             path_manager.as_ref(),
             "desktop",
         ),
@@ -2103,22 +2103,22 @@ async fn init_agentic_system() -> anyhow::Result<(
         runtime_ownership,
     ));
     coordinator.set_terminal_port(
-        openbitfun_core::product_runtime::CoreRuntimeServicesProvider::terminal_port(),
+        alex_core::product_runtime::CoreRuntimeServicesProvider::terminal_port(),
     );
     coordinator.set_remote_exec_port(
-        openbitfun_core::product_runtime::CoreRuntimeServicesProvider::remote_exec_port(),
+        alex_core::product_runtime::CoreRuntimeServicesProvider::remote_exec_port(),
     );
 
     coordination::ConversationCoordinator::set_global(coordinator.clone());
 
     // Initialize token usage service and register subscriber
     let token_usage_service = Arc::new(
-        openbitfun_core::service::token_usage::TokenUsageService::new(path_manager.clone())
+        alex_core::service::token_usage::TokenUsageService::new(path_manager.clone())
             .await
             .map_err(|e| anyhow::anyhow!("Failed to initialize token usage service: {}", e))?,
     );
     let token_usage_subscriber = Arc::new(
-        openbitfun_core::service::token_usage::TokenUsageSubscriber::new(
+        alex_core::service::token_usage::TokenUsageSubscriber::new(
             token_usage_service.clone(),
         ),
     );
@@ -2126,7 +2126,7 @@ async fn init_agentic_system() -> anyhow::Result<(
     event_router.subscribe_internal(
         "session_context_usage".to_string(),
         Arc::new(
-            openbitfun_core::agentic::session::SessionContextUsageSubscriber::new(
+            alex_core::agentic::session::SessionContextUsageSubscriber::new(
                 session_manager.clone(),
             ),
         ),
@@ -2142,15 +2142,15 @@ async fn init_agentic_system() -> anyhow::Result<(
     coordination::set_global_scheduler(scheduler.clone());
     api::remote_connect_api::set_dialog_scheduler(scheduler.clone());
 
-    let cron_service = openbitfun_core::service::cron::CronService::new(
+    let cron_service = alex_core::service::cron::CronService::new(
         path_manager.clone(),
         coordinator.clone(),
         scheduler.clone(),
     )
     .await
     .map_err(|e| anyhow::anyhow!("Failed to initialize cron service: {}", e))?;
-    openbitfun_core::service::cron::set_global_cron_service(cron_service.clone());
-    let cron_subscriber = Arc::new(openbitfun_core::service::cron::CronEventSubscriber::new(
+    alex_core::service::cron::set_global_cron_service(cron_service.clone());
+    let cron_subscriber = Arc::new(alex_core::service::cron::CronEventSubscriber::new(
         cron_service.clone(),
     ));
     event_router.subscribe_internal("cron_jobs".to_string(), cron_subscriber);
@@ -2182,7 +2182,7 @@ async fn init_agentic_system() -> anyhow::Result<(
 }
 
 async fn init_function_agents(ai_client_factory: Arc<AIClientFactory>) -> anyhow::Result<()> {
-    let _ = openbitfun_core::function_agents::git_func_agent::GitFunctionAgent::new(
+    let _ = alex_core::function_agents::git_func_agent::GitFunctionAgent::new(
         ai_client_factory.clone(),
     );
 
@@ -2299,7 +2299,7 @@ pub(crate) async fn perform_process_exit_cleanup() -> bool {
     }
 
     log::info!("Desktop process graceful shutdown started");
-    match openbitfun_core::plugin_host::shutdown_configured_plugin_host().await {
+    match alex_core::plugin_host::shutdown_configured_plugin_host().await {
         Ok(Some(report)) => log::info!(
             "Desktop plugin host shutdown completed: generation={}, disposition={:?}, rpc_completed={}, exit_code={:?}, duration_ms={}",
             report.generation,
@@ -2314,7 +2314,7 @@ pub(crate) async fn perform_process_exit_cleanup() -> bool {
     if let Some(search_service) = get_global_workspace_search_service() {
         search_service.shutdown_blocking();
     }
-    openbitfun_core::util::process_manager::cleanup_all_processes();
+    alex_core::util::process_manager::cleanup_all_processes();
     api::remote_connect_api::cleanup_on_exit();
     PROCESS_EXIT_CLEANUP_COMPLETE.store(true, Ordering::Release);
     notify.notify_waiters();
@@ -2348,13 +2348,13 @@ pub(crate) fn perform_process_exit_cleanup_emergency() -> bool {
     if let Some(search_service) = get_global_workspace_search_service() {
         search_service.shutdown_blocking();
     }
-    openbitfun_core::util::process_manager::cleanup_all_processes();
+    alex_core::util::process_manager::cleanup_all_processes();
     api::remote_connect_api::cleanup_on_exit();
     true
 }
 
 fn configure_workspace_search_daemon_env() -> Option<std::path::PathBuf> {
-    let path = openbitfun_core::service::search::resolve_workspace_search_daemon_program_path();
+    let path = alex_core::service::search::resolve_workspace_search_daemon_program_path();
     if let Some(path) = path.as_ref() {
         std::env::set_var("FLASHGREP_DAEMON_BIN", path);
     }
@@ -2440,11 +2440,11 @@ pub(crate) fn basemind_ner_model_dir() -> Option<std::path::PathBuf> {
 /// per launch and set on this command's environment only — never on the
 /// process-wide environment — so an agent sandbox cannot inherit it.
 fn start_bundled_basemind_daemon(path: &std::path::Path) {
-    use openbitfun_core::util::process_manager::create_command;
+    use alex_core::util::process_manager::create_command;
 
     // Randomness failure is an error, not a panic: the host reports it and
     // skips the launch, and the feature degrades loudly through the probe.
-    let token = match openbitfun_basemind_integration::generate_gateway_token() {
+    let token = match alex_basemind_integration::generate_gateway_token() {
         Ok(token) => token,
         Err(error) => {
             log::warn!(
@@ -2465,7 +2465,7 @@ fn start_bundled_basemind_daemon(path: &std::path::Path) {
     command
         .arg("comms")
         .arg("start")
-        .env(openbitfun_basemind_integration::GATEWAY_TOKEN_ENV, token)
+        .env(alex_basemind_integration::GATEWAY_TOKEN_ENV, token)
         .stdin(std::process::Stdio::null())
         .stdout(std::process::Stdio::null())
         .stderr(std::process::Stdio::null());
@@ -2485,11 +2485,11 @@ fn start_bundled_basemind_daemon(path: &std::path::Path) {
 /// happen after `comms start` returns. Waiting here keeps the ports from
 /// being missing on a cold start, where the daemon is coming up with the
 /// product.
-fn wait_for_basemind_endpoint() -> Option<openbitfun_basemind_integration::DaemonEndpoint> {
+fn wait_for_basemind_endpoint() -> Option<alex_basemind_integration::DaemonEndpoint> {
     const ATTEMPTS: u32 = 20;
     const RETRY_DELAY: std::time::Duration = std::time::Duration::from_millis(200);
     for attempt in 0..ATTEMPTS {
-        if let Ok(endpoint) = openbitfun_basemind_integration::daemon::discover() {
+        if let Ok(endpoint) = alex_basemind_integration::daemon::discover() {
             return Some(endpoint);
         }
         if attempt + 1 < ATTEMPTS {
@@ -2510,14 +2510,14 @@ struct AcpRefusingPromptInterceptor;
 
 #[cfg(feature = "basemind")]
 #[async_trait::async_trait]
-impl openbitfun_acp::AcpPromptInterceptor for AcpRefusingPromptInterceptor {
+impl alex_acp::AcpPromptInterceptor for AcpRefusingPromptInterceptor {
     async fn pseudonymize(
         &self,
         _prompt: &str,
         _workspace_root: &std::path::Path,
-        _openbitfun_session_id: &str,
-    ) -> openbitfun_core::util::errors::OpenBitFunResult<String> {
-        Err(openbitfun_core::util::errors::OpenBitFunError::service(
+        _alex_session_id: &str,
+    ) -> alex_core::util::errors::AlexResult<String> {
+        Err(alex_core::util::errors::AlexError::service(
             "PII pseudonymization is unavailable: the basemind sidecar is not running",
         ))
     }
@@ -2525,40 +2525,40 @@ impl openbitfun_acp::AcpPromptInterceptor for AcpRefusingPromptInterceptor {
 
 /// The ACP prompt interceptor backed by the basemind pseudonymization port.
 ///
-/// The ACP client seam expects the OpenBitFun error type, so this adapter
+/// The ACP client seam expects the Alex error type, so this adapter
 /// translates the port's failure into the fail-closed answer the ACP prompt
 /// path must give.
 #[cfg(feature = "basemind")]
 struct AcpPromptInterceptorAdapter {
-    port: std::sync::Arc<dyn openbitfun_runtime_ports::PromptPseudonymizationPort>,
+    port: std::sync::Arc<dyn alex_runtime_ports::PromptPseudonymizationPort>,
 }
 
 #[cfg(feature = "basemind")]
 impl AcpPromptInterceptorAdapter {
-    fn new(port: std::sync::Arc<dyn openbitfun_runtime_ports::PromptPseudonymizationPort>) -> Self {
+    fn new(port: std::sync::Arc<dyn alex_runtime_ports::PromptPseudonymizationPort>) -> Self {
         Self { port }
     }
 }
 
 #[cfg(feature = "basemind")]
 #[async_trait::async_trait]
-impl openbitfun_acp::AcpPromptInterceptor for AcpPromptInterceptorAdapter {
+impl alex_acp::AcpPromptInterceptor for AcpPromptInterceptorAdapter {
     async fn pseudonymize(
         &self,
         prompt: &str,
         workspace_root: &std::path::Path,
-        openbitfun_session_id: &str,
-    ) -> openbitfun_core::util::errors::OpenBitFunResult<String> {
+        alex_session_id: &str,
+    ) -> alex_core::util::errors::AlexResult<String> {
         self.port
             .pseudonymize(
                 prompt,
-                openbitfun_session_id,
+                alex_session_id,
                 &workspace_root.to_string_lossy(),
             )
             .await
             .map(|pseudonymized| pseudonymized.text)
             .map_err(|error| {
-                openbitfun_core::util::errors::OpenBitFunError::service(format!(
+                alex_core::util::errors::AlexError::service(format!(
                     "PII pseudonymization failed (basemind required): {error}"
                 ))
             })
@@ -2569,17 +2569,17 @@ impl openbitfun_acp::AcpPromptInterceptor for AcpPromptInterceptorAdapter {
 ///
 /// The host owns the composition: it builds the sidecar client, the identity
 /// registry and the session vault, and hands the pipeline to the runtime as
-/// a port. `openbitfun-core` only ever sees the port trait (D11).
+/// a port. `alex-core` only ever sees the port trait (D11).
 #[cfg(feature = "basemind")]
 fn publish_basemind_search_port(sidecar: &std::path::Path) {
-    use openbitfun_basemind_integration::{
+    use alex_basemind_integration::{
         BasemindClient, IdentityRegistry, RagSearchPortAdapter, RagSearchTool, SessionVault,
     };
 
     // The ACP refusing seat was installed BEFORE the sidecar resolve, so the
     // host's PII promise holds even if later startup steps fail. The real
     // interceptor below replaces it on success (SPEC §11.4, I9).
-    let data_dir = match openbitfun_core::infrastructure::app_paths::try_get_path_manager_arc() {
+    let data_dir = match alex_core::infrastructure::app_paths::try_get_path_manager_arc() {
         Ok(manager) => manager.user_data_dir().join("basemind"),
         Err(error) => {
             log::warn!("Basemind search port is not available: {}", error);
@@ -2620,7 +2620,7 @@ fn publish_basemind_search_port(sidecar: &std::path::Path) {
         );
     }
     let client = BasemindClient::lazy(Some(sidecar.to_path_buf())).with_redaction_policy(
-        openbitfun_basemind_integration::RedactionPolicy::bundled(ner_model_dir),
+        alex_basemind_integration::RedactionPolicy::bundled(ner_model_dir),
     );
     let registry = match IdentityRegistry::new(registry_dir.clone()) {
         Ok(registry) => registry,
@@ -2662,38 +2662,38 @@ fn publish_basemind_search_port(sidecar: &std::path::Path) {
         }
     };
     let pseudonymizer = std::sync::Arc::new(
-        openbitfun_basemind_integration::BasemindPromptPseudonymizer::new(
-            openbitfun_basemind_integration::PromptPseudonymizer::new(
+        alex_basemind_integration::BasemindPromptPseudonymizer::new(
+            alex_basemind_integration::PromptPseudonymizer::new(
                 client.clone(),
                 registry_for_prompt,
                 vault_for_prompt,
             ),
         ),
     );
-    let port: std::sync::Arc<dyn openbitfun_runtime_ports::PromptPseudonymizationPort> =
+    let port: std::sync::Arc<dyn alex_runtime_ports::PromptPseudonymizationPort> =
         pseudonymizer.clone();
-    openbitfun_core::service::rag_search::set_global_prompt_pseudonymization_port(Some(port));
+    alex_core::service::rag_search::set_global_prompt_pseudonymization_port(Some(port));
 
     // ACP clients (OpenCode, Claude Code, Codex, and any bundled interpreter
     // that joins through the same client layer) get the same interception:
     // the prompt one of them receives carries session tokens, never the
     // personal values (SPEC §11.4, I9). The seam lives in the ACP client; the
     // sidecar-backed implementation lives here at the composition root.
-    let acp_port: std::sync::Arc<dyn openbitfun_runtime_ports::PromptPseudonymizationPort> =
+    let acp_port: std::sync::Arc<dyn alex_runtime_ports::PromptPseudonymizationPort> =
         pseudonymizer.clone();
-    openbitfun_acp::set_prompt_interceptor(Some(std::sync::Arc::new(
+    alex_acp::set_prompt_interceptor(Some(std::sync::Arc::new(
         AcpPromptInterceptorAdapter::new(acp_port),
     )));
 
     let tool = RagSearchTool::new(client.clone(), registry, vault);
     let port = std::sync::Arc::new(RagSearchPortAdapter::new(tool));
-    openbitfun_core::service::rag_search::set_global_rag_search_port(Some(port));
+    alex_core::service::rag_search::set_global_rag_search_port(Some(port));
 
     // The document redaction port is the interception that keeps unredacted
     // document text out of the model context (SPEC §3, I1).
     let redactor =
-        std::sync::Arc::new(openbitfun_basemind_integration::BasemindDocumentRedactor::new(client));
-    openbitfun_core::service::rag_search::set_global_document_redaction_port(Some(redactor));
+        std::sync::Arc::new(alex_basemind_integration::BasemindDocumentRedactor::new(client));
+    alex_core::service::rag_search::set_global_document_redaction_port(Some(redactor));
     log::info!("Basemind search and redaction ports published");
 }
 
@@ -2705,9 +2705,9 @@ async fn deliver_event_to_webview(
     event: AgenticEvent,
     session_event_journal: &SessionEventJournal,
 ) {
-    openbitfun_core::service::remote_connect::notify_session_catalog_event(&event);
+    alex_core::service::remote_connect::notify_session_catalog_event(&event);
     let cursor = session_event_journal.record(&event);
-    let Some(mut projected) = openbitfun_events::project_agentic_frontend_event(event) else {
+    let Some(mut projected) = alex_events::project_agentic_frontend_event(event) else {
         log::warn!("Unhandled AgenticEvent type in desktop delivery");
         return;
     };
@@ -2725,7 +2725,7 @@ async fn deliver_event_to_webview(
     ) {
         let name = projected.event_name.as_str();
         let policy =
-            openbitfun_core::service::remote_connect::session_records::session_event_publication(
+            alex_core::service::remote_connect::session_records::session_event_publication(
                 name,
                 &projected.payload,
             );
@@ -2737,12 +2737,12 @@ async fn deliver_event_to_webview(
                     .or_else(|| projected.payload.get("settledTurnId"))
                     .and_then(serde_json::Value::as_str)
                 {
-                    openbitfun_core::service::remote_connect::synchronize_session_record_turn(
+                    alex_core::service::remote_connect::synchronize_session_record_turn(
                         &hub, session_id, turn,
                     )
                     .await
                 } else if name == "agentic://session-history-changed" {
-                    openbitfun_core::service::remote_connect::synchronize_session_records(
+                    alex_core::service::remote_connect::synchronize_session_records(
                         &hub, session_id,
                     )
                     .await
@@ -2832,8 +2832,8 @@ async fn flush_coalesced<D, F>(
 ///   flushed in place before processing continues. Text therefore waits at
 ///   most one window regardless of queue pressure.
 async fn event_loop_driver<D, F>(
-    event_queue: Arc<openbitfun_core::agentic::events::EventQueue>,
-    event_router: Arc<openbitfun_core::agentic::events::EventRouter>,
+    event_queue: Arc<alex_core::agentic::events::EventQueue>,
+    event_router: Arc<alex_core::agentic::events::EventRouter>,
     mut deliver: D,
 ) where
     D: FnMut(AgenticEvent) -> F,
@@ -2972,8 +2972,8 @@ async fn event_loop_driver<D, F>(
 }
 
 fn start_event_loop_with_transport(
-    event_queue: Arc<openbitfun_core::agentic::events::EventQueue>,
-    event_router: Arc<openbitfun_core::agentic::events::EventRouter>,
+    event_queue: Arc<alex_core::agentic::events::EventQueue>,
+    event_router: Arc<alex_core::agentic::events::EventRouter>,
     transport: Arc<TauriTransportAdapter>,
     session_event_journal: Arc<SessionEventJournal>,
 ) {
@@ -2990,7 +2990,7 @@ fn start_event_loop_with_transport(
 }
 
 fn init_services(app_handle: tauri::AppHandle, default_log_level: log::LevelFilter) {
-    use openbitfun_core::{infrastructure, service};
+    use alex_core::{infrastructure, service};
 
     spawn_runtime_log_level_listener(default_log_level);
     spawn_workspace_search_feature_listener(app_handle.clone());
@@ -3005,7 +3005,7 @@ fn init_services(app_handle: tauri::AppHandle, default_log_level: log::LevelFilt
 
         service::snapshot::initialize_snapshot_event_emitter(emitter.clone());
 
-        openbitfun_core::service::initialize_file_watch_service(emitter.clone());
+        alex_core::service::initialize_file_watch_service(emitter.clone());
 
         if let Err(e) = workspace_identity_watch_service
             .set_event_emitter(emitter.clone())
@@ -3028,7 +3028,7 @@ fn init_services(app_handle: tauri::AppHandle, default_log_level: log::LevelFilt
 }
 
 async fn resolve_runtime_log_level(default_level: log::LevelFilter) -> log::LevelFilter {
-    use openbitfun_core::service::config::get_global_config_service;
+    use alex_core::service::config::get_global_config_service;
 
     if let Ok(config_service) = get_global_config_service().await {
         if let Ok(config_level) = config_service
@@ -3050,7 +3050,7 @@ async fn resolve_runtime_log_level(default_level: log::LevelFilter) -> log::Leve
 }
 
 fn spawn_runtime_log_level_listener(default_level: log::LevelFilter) {
-    use openbitfun_core::service::config::{subscribe_config_updates, ConfigUpdateEvent};
+    use alex_core::service::config::{subscribe_config_updates, ConfigUpdateEvent};
 
     tokio::spawn(async move {
         if let Some(mut receiver) = subscribe_config_updates() {
@@ -3060,7 +3060,7 @@ fn spawn_runtime_log_level_listener(default_level: log::LevelFilter) {
                         if let Some(level) = logging::parse_log_level(&new_level) {
                             logging::apply_runtime_log_level(level, "config_update_event");
                             if let Err(error) =
-                                openbitfun_core::plugin_host::set_configured_plugin_host_log_level(
+                                alex_core::plugin_host::set_configured_plugin_host_log_level(
                                     logging::level_to_str(level),
                                 )
                                 .await
@@ -3078,7 +3078,7 @@ fn spawn_runtime_log_level_listener(default_level: log::LevelFilter) {
                         let level = resolve_runtime_log_level(default_level).await;
                         logging::apply_runtime_log_level(level, "config_reloaded");
                         if let Err(error) =
-                            openbitfun_core::plugin_host::set_configured_plugin_host_log_level(
+                            alex_core::plugin_host::set_configured_plugin_host_log_level(
                                 logging::level_to_str(level),
                             )
                             .await
@@ -3104,16 +3104,16 @@ fn spawn_runtime_log_level_listener(default_level: log::LevelFilter) {
 
 fn create_event_emitter(
     transport: Arc<TauriTransportAdapter>,
-) -> Arc<dyn openbitfun_core::infrastructure::events::EventEmitter> {
-    use openbitfun_transport::TransportEmitter;
-    let inner: Arc<dyn openbitfun_core::infrastructure::events::EventEmitter> =
+) -> Arc<dyn alex_core::infrastructure::events::EventEmitter> {
+    use alex_transport::TransportEmitter;
+    let inner: Arc<dyn alex_core::infrastructure::events::EventEmitter> =
         Arc::new(TransportEmitter::new(transport));
     let inner = api::remote_connect_api::wrap_peer_aware_emitter(inner);
     api::miniapp_agent_api::wrap_miniapp_agent_context_cleanup_emitter(inner)
 }
 
 fn spawn_workspace_search_feature_listener(app_handle: tauri::AppHandle) {
-    use openbitfun_core::service::config::{subscribe_config_updates, ConfigUpdateEvent};
+    use alex_core::service::config::{subscribe_config_updates, ConfigUpdateEvent};
 
     let app_state: tauri::State<'_, api::AppState> = app_handle.state();
     let workspace_search_service = app_state.workspace_search_service.clone();
@@ -3122,7 +3122,7 @@ fn spawn_workspace_search_feature_listener(app_handle: tauri::AppHandle) {
 
     tokio::spawn(async move {
         let mut feature_enabled =
-            openbitfun_core::service::search::workspace_search_feature_enabled().await;
+            alex_core::service::search::workspace_search_feature_enabled().await;
 
         let Some(mut receiver) = subscribe_config_updates() else {
             log::warn!("Config update subscription unavailable for workspace search listener");
@@ -3133,7 +3133,7 @@ fn spawn_workspace_search_feature_listener(app_handle: tauri::AppHandle) {
             match receiver.recv().await {
                 Ok(ConfigUpdateEvent::AppUpdated) | Ok(ConfigUpdateEvent::ConfigReloaded) => {
                     let next_enabled =
-                        openbitfun_core::service::search::workspace_search_feature_enabled().await;
+                        alex_core::service::search::workspace_search_feature_enabled().await;
 
                     if next_enabled == feature_enabled {
                         continue;
@@ -3149,11 +3149,11 @@ fn spawn_workspace_search_feature_listener(app_handle: tauri::AppHandle) {
                     }
 
                     let resolved_path = configure_workspace_search_daemon_env();
-                    if !openbitfun_core::service::search::workspace_search_daemon_available() {
+                    if !alex_core::service::search::workspace_search_daemon_available() {
                         log::warn!(
                             "Workspace search feature enabled but daemon is unavailable: path={:?}, hint={}",
                             resolved_path.as_ref().map(|path| path.display().to_string()),
-                            openbitfun_core::service::search::workspace_search_daemon_missing_hint()
+                            alex_core::service::search::workspace_search_daemon_missing_hint()
                         );
                         feature_enabled = true;
                         continue;
@@ -3167,14 +3167,14 @@ fn spawn_workspace_search_feature_listener(app_handle: tauri::AppHandle) {
                     };
                     if let Some(current_workspace) = current_workspace {
                         if current_workspace.workspace_kind
-                            != openbitfun_core::service::workspace::WorkspaceKind::Remote
+                            != alex_core::service::workspace::WorkspaceKind::Remote
                         {
                             let current_workspace = current_workspace.root_path;
                             match workspace_search_service.open_repo(&current_workspace).await {
                                 Ok(_) => {
                                     workspace_search_service.schedule_auto_index(
                                         &current_workspace,
-                                        openbitfun_core::service::search::WorkspaceSearchAutoIndexPriority::Focused,
+                                        alex_core::service::search::WorkspaceSearchAutoIndexPriority::Focused,
                                     ).await;
                                     log::info!(
                                         "Workspace search feature enabled; warmed current workspace: path={}",
@@ -3212,7 +3212,7 @@ pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 #[cfg(test)]
 mod event_loop_driver_tests {
     use super::*;
-    use openbitfun_core::agentic::events::{EventQueue, EventQueueConfig, EventRouter};
+    use alex_core::agentic::events::{EventQueue, EventQueueConfig, EventRouter};
 
     fn text_chunk(text: &str) -> AgenticEvent {
         AgenticEvent::TextChunk {

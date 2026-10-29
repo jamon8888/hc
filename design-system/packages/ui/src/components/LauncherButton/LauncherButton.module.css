@@ -1,4 +1,4 @@
-@layer openbitfun.components {
+@layer alex.components {
   .root,
   .icon,
   .label {
@@ -9,62 +9,62 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-inline-size: var(--openbitfun-control-launcher-button-min-inline-size);
-    block-size: var(--openbitfun-control-launcher-button-block-size);
-    gap: var(--openbitfun-control-launcher-button-gap);
+    min-inline-size: var(--alex-control-launcher-button-min-inline-size);
+    block-size: var(--alex-control-launcher-button-block-size);
+    gap: var(--alex-control-launcher-button-gap);
     margin: 0;
     padding-block: 0;
-    padding-inline: var(--openbitfun-control-launcher-button-padding-inline);
+    padding-inline: var(--alex-control-launcher-button-padding-inline);
     border: 0;
-    border-radius: var(--openbitfun-control-launcher-button-radius) 0 0 0;
-    color: var(--openbitfun-color-control-launcher-content);
-    background: var(--openbitfun-color-control-launcher-background);
-    font-family: var(--openbitfun-type-code-meta-font-family);
-    font-size: var(--openbitfun-type-code-meta-font-size);
-    font-weight: var(--openbitfun-type-code-meta-font-weight);
+    border-radius: var(--alex-control-launcher-button-radius) 0 0 0;
+    color: var(--alex-color-control-launcher-content);
+    background: var(--alex-color-control-launcher-background);
+    font-family: var(--alex-type-code-meta-font-family);
+    font-size: var(--alex-type-code-meta-font-size);
+    font-weight: var(--alex-type-code-meta-font-weight);
     font-synthesis: none;
-    letter-spacing: var(--openbitfun-type-code-meta-letter-spacing);
-    line-height: var(--openbitfun-type-code-meta-line-height);
+    letter-spacing: var(--alex-type-code-meta-letter-spacing);
+    line-height: var(--alex-type-code-meta-line-height);
     white-space: nowrap;
     cursor: pointer;
     transition:
-      color var(--openbitfun-motion-duration-fast) var(--openbitfun-motion-easing-standard),
-      background-color var(--openbitfun-motion-duration-fast) var(--openbitfun-motion-easing-standard);
+      color var(--alex-motion-duration-fast) var(--alex-motion-easing-standard),
+      background-color var(--alex-motion-duration-fast) var(--alex-motion-easing-standard);
   }
 
-  .root:is(:hover, [data-openbitfun-preview-state="hover"]):not(:disabled) {
-    color: var(--openbitfun-color-control-launcher-content-hover);
-    background: var(--openbitfun-color-control-launcher-background-hover);
+  .root:is(:hover, [data-alex-preview-state="hover"]):not(:disabled) {
+    color: var(--alex-color-control-launcher-content-hover);
+    background: var(--alex-color-control-launcher-background-hover);
   }
 
-  .root:is(:active, [data-openbitfun-preview-state="active"]):not(:disabled) {
-    color: var(--openbitfun-color-control-launcher-content-pressed);
-    background: var(--openbitfun-color-control-launcher-background-pressed);
+  .root:is(:active, [data-alex-preview-state="active"]):not(:disabled) {
+    color: var(--alex-color-control-launcher-content-pressed);
+    background: var(--alex-color-control-launcher-background-pressed);
   }
 
-  .root:is(:focus-visible, [data-openbitfun-preview-state="focus-visible"]) {
-    outline: var(--openbitfun-focus-width) solid var(--openbitfun-color-focus-ring);
-    outline-offset: calc(var(--openbitfun-focus-offset) * -1);
+  .root:is(:focus-visible, [data-alex-preview-state="focus-visible"]) {
+    outline: var(--alex-focus-width) solid var(--alex-color-focus-ring);
+    outline-offset: calc(var(--alex-focus-offset) * -1);
   }
 
   .root:disabled {
-    color: var(--openbitfun-color-control-launcher-content-disabled);
+    color: var(--alex-color-control-launcher-content-disabled);
     cursor: not-allowed;
-    opacity: var(--openbitfun-opacity-disabled);
+    opacity: var(--alex-opacity-disabled);
   }
 
   .icon {
     display: inline-flex;
-    flex: 0 0 var(--openbitfun-control-launcher-button-icon-size);
+    flex: 0 0 var(--alex-control-launcher-button-icon-size);
     align-items: center;
     justify-content: center;
-    inline-size: var(--openbitfun-control-launcher-button-icon-size);
-    block-size: var(--openbitfun-control-launcher-button-icon-size);
+    inline-size: var(--alex-control-launcher-button-icon-size);
+    block-size: var(--alex-control-launcher-button-icon-size);
     color: currentColor;
   }
 
   .icon > :where(svg, img),
-  .icon > [data-openbitfun-component="icon"] {
+  .icon > [data-alex-component="icon"] {
     display: block;
     inline-size: 100%;
     block-size: 100%;
@@ -83,7 +83,7 @@
 
   @media (forced-colors: active) {
     .root {
-      border: var(--openbitfun-border-width-default) solid ButtonText;
+      border: var(--alex-border-width-default) solid ButtonText;
       color: ButtonText;
       background: ButtonFace;
     }

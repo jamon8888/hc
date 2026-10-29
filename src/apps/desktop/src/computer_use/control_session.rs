@@ -1,9 +1,9 @@
 //! Desktop GUI resource admission. Runtime remains the task/permission owner.
-use openbitfun_agent_tools::computer_use_control::{
+use alex_agent_tools::computer_use_control::{
     action_is_observation, action_requires_foreground, ControlClick, ControlMode, ControlPointer,
     ControlSnapshot,
 };
-use openbitfun_core::agentic::tools::computer_use_host::ComputerUseActionLease;
+use alex_core::agentic::tools::computer_use_host::ComputerUseActionLease;
 use std::cell::Cell;
 use std::sync::{Mutex, OnceLock};
 

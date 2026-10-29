@@ -16,8 +16,8 @@ describe('renderer appearance contracts', () => {
     expect(settings).toBeDefined();
     expect(themeTokenAppearanceAdapter.validate({
       ...settings,
-      tokens: { ...settings?.tokens, '--openbitfun-color-unregistered': '#ffffff' },
-    })).toContain('Unsupported root token name: --openbitfun-color-unregistered');
+      tokens: { ...settings?.tokens, '--alex-color-unregistered': '#ffffff' },
+    })).toContain('Unsupported root token name: --alex-color-unregistered');
   });
 
   it('accepts every built-in Widget payload and rejects unregistered variables', () => {

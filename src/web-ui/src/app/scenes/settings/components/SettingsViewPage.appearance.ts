@@ -10,7 +10,7 @@ export const settingsViewPageAppearanceDescriptor: AppearanceSurfaceDescriptor =
   ],
   facets: [{
     id: 'view',
-    attribute: 'data-openbitfun-view',
+    attribute: 'data-alex-view',
     values: ['voice', 'shortcuts', 'editor', 'terminal', 'quick-actions', 'hooks'],
   }],
 };

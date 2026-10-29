@@ -1,12 +1,12 @@
 //! Persistent product-control conversation; media connections never own Sessions.
 use super::ConversationCoordinator;
 use crate::agentic::core::SessionConfig;
-use crate::util::errors::{OpenBitFunError, OpenBitFunResult};
-use openbitfun_services_core::json_store::JsonFileStore;
+use crate::util::errors::{AlexError, AlexResult};
+use alex_services_core::json_store::JsonFileStore;
 use serde::{Deserialize, Serialize};
 use tokio::sync::Mutex;
 
-const CONTROL_SESSION_ID: &str = "openbitfun-control";
+const CONTROL_SESSION_ID: &str = "alex-control";
 static ENSURE_CONTROL: Mutex<()> = Mutex::const_new(());
 
 fn legacy_session_id() -> String {
@@ -61,16 +61,16 @@ pub struct VoiceExchangeRequest {
 }
 
 impl ConversationCoordinator {
-    pub async fn ensure_control_conversation(&self) -> OpenBitFunResult<ControlConversation> {
+    pub async fn ensure_control_conversation(&self) -> AlexResult<ControlConversation> {
         self.select_control_conversation(None).await
     }
 
     pub async fn create_control_conversation(
         &self,
         request: CreateControlConversationRequest,
-    ) -> OpenBitFunResult<ControlConversation> {
+    ) -> AlexResult<ControlConversation> {
         if request.expected_session_id.is_empty() {
-            return Err(OpenBitFunError::validation(
+            return Err(AlexError::validation(
                 "The current control conversation is required",
             ));
         }
@@ -81,7 +81,7 @@ impl ConversationCoordinator {
     async fn select_control_conversation(
         &self,
         expected_session_id: Option<&str>,
-    ) -> OpenBitFunResult<ControlConversation> {
+    ) -> AlexResult<ControlConversation> {
         let workspace = self
             .get_session_manager()
             .path_manager()
@@ -95,7 +95,7 @@ impl ConversationCoordinator {
         &self,
         workspace: &std::path::Path,
         expected_session_id: Option<&str>,
-    ) -> OpenBitFunResult<ControlConversation> {
+    ) -> AlexResult<ControlConversation> {
         let _guard = ENSURE_CONTROL.lock().await;
         let manager = self.get_session_manager();
         tokio::fs::create_dir_all(&workspace).await?;
@@ -103,7 +103,7 @@ impl ConversationCoordinator {
         // hidden workspace record so the session, its history reads, and remote
         // controllers address it by workspace ID rather than by this path.
         let workspace_service = crate::service::workspace::get_global_workspace_service()
-            .ok_or_else(|| OpenBitFunError::service("Workspace service is unavailable"))?;
+            .ok_or_else(|| AlexError::service("Workspace service is unavailable"))?;
         let workspace_record = workspace_service
             .track_workspace_activity(
                 workspace.to_path_buf(),
@@ -128,7 +128,7 @@ impl ConversationCoordinator {
             .unwrap_or_default();
         let create_new = expected_session_id.is_some_and(|id| id == state.session_id);
         let session_id = if create_new {
-            format!("openbitfun-control-{}", uuid::Uuid::new_v4())
+            format!("alex-control-{}", uuid::Uuid::new_v4())
         } else {
             state.session_id.clone()
         };
@@ -155,7 +155,7 @@ impl ConversationCoordinator {
                 )
                 .await?;
             } else {
-                return Err(OpenBitFunError::session(
+                return Err(AlexError::session(
                     "The saved control conversation is unavailable",
                 ));
             }
@@ -180,7 +180,7 @@ impl ConversationCoordinator {
     pub async fn record_voice_exchange(
         &self,
         request: VoiceExchangeRequest,
-    ) -> OpenBitFunResult<()> {
+    ) -> AlexResult<()> {
         self.ensure_session_runtime_ownership(&request.session_id, None)?;
         self.get_session_manager()
             .append_voice_exchange(
@@ -201,7 +201,7 @@ mod tests {
     fn legacy_selection_and_future_fields_round_trip() {
         let legacy: ControlConversationState = serde_json::from_str("{}").unwrap();
         assert_eq!(legacy.session_id, CONTROL_SESSION_ID);
-        let payload = serde_json::json!({"sessionId": "openbitfun-control-new", "futureField": {"keep": true}});
+        let payload = serde_json::json!({"sessionId": "alex-control-new", "futureField": {"keep": true}});
         let state: ControlConversationState = serde_json::from_value(payload.clone()).unwrap();
         assert_eq!(serde_json::to_value(state).unwrap(), payload);
     }

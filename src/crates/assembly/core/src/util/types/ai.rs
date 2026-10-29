@@ -1,4 +1,4 @@
-pub use openbitfun_core_types::{ConnectionTestMessageCode, ConnectionTestResult, RemoteModelInfo};
+pub use alex_core_types::{ConnectionTestMessageCode, ConnectionTestResult, RemoteModelInfo};
 
 #[cfg(feature = "ai-adapter-runtime")]
-pub use openbitfun_ai_adapters::types::{GeminiResponse, GeminiUsage};
+pub use alex_ai_adapters::types::{GeminiResponse, GeminiUsage};

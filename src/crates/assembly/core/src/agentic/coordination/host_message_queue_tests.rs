@@ -1,4 +1,4 @@
-use openbitfun_runtime_ports::{
+use alex_runtime_ports::{
     DialogQueueAction as Action, DialogQueueMessage, DialogQueueRequest,
     DialogQueueStatus as Status,
 };

@@ -14,7 +14,7 @@
 
 - `src/api/`：Tauri commands
 - `src/api/peer_host_invoke.rs`：Peer Device Mode host-invoke bridge 与 control attach；
-  允许/拒绝与能力来自 Product Operation Registry（`openbitfun_product_domains::remote_surface`），
+  允许/拒绝与能力来自 Product Operation Registry（`alex_product_domains::remote_surface`），
   不再有本地表
 - `src/api/remote_workspace_policy.rs`：证明每个已注册 Tauri 命令在注册表中恰有一行的闭包测试
 - `src/lib.rs`、`src/main.rs`：应用启动与装配
@@ -77,18 +77,18 @@ pnpm run prepare:dsh-profile   # 可选：本地 DeepSeek Harness 会话
 ## 验证
 
 ```bash
-cargo check -p openbitfun-desktop && cargo test -p openbitfun-desktop
+cargo check -p alex-desktop && cargo test -p alex-desktop
 ```
 
 窗口布局恢复、旧状态兼容和快照保存使用：
 
 ```bash
-cargo test -p openbitfun-desktop --lib window_state_support::tests
+cargo test -p alex-desktop --lib window_state_support::tests
 pnpm --dir src/web-ui run test:run src/app/startup/startupPerformanceContract.test.ts
 ```
 
 如果改动影响启动、WebDriver、browser/computer-use 或打包行为，还需要运行：
 
 ```bash
-cargo build -p openbitfun-desktop
+cargo build -p alex-desktop
 ```

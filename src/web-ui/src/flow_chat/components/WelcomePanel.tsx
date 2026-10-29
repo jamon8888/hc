@@ -6,7 +6,7 @@
 import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FolderOpen, FolderPlus } from 'lucide-react';
-import { subscribeOverlayInteraction, createOverlayPortal, Button, Menu, MenuItem, MenuSeparator, Icon, PageHeader } from '@openbitfun/ui';
+import { subscribeOverlayInteraction, createOverlayPortal, Button, Menu, MenuItem, MenuSeparator, Icon, PageHeader } from '@alex/ui';
 import { useApp } from '../../app/hooks/useApp';
 import { createLogger } from '@/shared/utils/logger';
 import { useWorkspaceContext } from '@/infrastructure/contexts/WorkspaceContext';
@@ -163,8 +163,8 @@ export const WelcomePanel: React.FC<WelcomePanelProps> = ({
             {i > 0 && t('welcome.commaSeparator')}
             <Button labelBehavior="static" variant="text"
               type="button"
-              data-openbitfun-product-component="welcome-panel"
-              data-openbitfun-product-part="gitAction"
+              data-alex-product-component="welcome-panel"
+              data-alex-product-part="gitAction"
               className="welcome-panel__inline-btn"
               onClick={handleGitClick}
             >
@@ -237,26 +237,26 @@ export const WelcomePanel: React.FC<WelcomePanelProps> = ({
   }, [onQuickAction]);
 
   return (
-    <div data-openbitfun-product-component="welcome-panel" data-openbitfun-product-part="root" className={`welcome-panel ${className}`}>
-      <div data-openbitfun-product-component="welcome-panel" data-openbitfun-product-part="content" className="welcome-panel__content">
+    <div data-alex-product-component="welcome-panel" data-alex-product-part="root" className={`welcome-panel ${className}`}>
+      <div data-alex-product-component="welcome-panel" data-alex-product-part="content" className="welcome-panel__content">
         {/* Greeting */}
-        <div data-openbitfun-product-component="welcome-panel" data-openbitfun-product-part="greeting" className="welcome-panel__greeting">
+        <div data-alex-product-component="welcome-panel" data-alex-product-part="greeting" className="welcome-panel__greeting">
           <PageHeader
             size="display"
-            title={<span data-openbitfun-product-component="welcome-panel" data-openbitfun-product-part="heading">
+            title={<span data-alex-product-component="welcome-panel" data-alex-product-part="heading">
               {greeting.title}
               {aiPartnerKey && <>，{t(aiPartnerKey)}{isClawSession && assistantName ? `，${assistantName}` : ''}</>}
             </span>}
             description={greeting.subtitle ? (
-              <span data-openbitfun-product-component="welcome-panel" data-openbitfun-product-part="tagline">{greeting.subtitle}</span>
+              <span data-alex-product-component="welcome-panel" data-alex-product-part="tagline">{greeting.subtitle}</span>
             ) : undefined}
           />
         </div>
 
-        <div data-openbitfun-product-component="welcome-panel" data-openbitfun-product-part="divider" className="welcome-panel__divider" />
+        <div data-alex-product-component="welcome-panel" data-alex-product-part="divider" className="welcome-panel__divider" />
 
         {/* Narrative: workspace + git in natural language */}
-        <div data-openbitfun-product-component="welcome-panel" data-openbitfun-product-part="narrative" className="welcome-panel__narrative">
+        <div data-alex-product-component="welcome-panel" data-alex-product-part="narrative" className="welcome-panel__narrative">
           <p className="welcome-panel__narrative-text">
             {isClawSession ? (
               t('welcome.narrativeClaw')
@@ -265,8 +265,8 @@ export const WelcomePanel: React.FC<WelcomePanelProps> = ({
                 {t('welcome.noWorkspaceHint')}
                 <Button labelBehavior="static" variant="text"
                   type="button"
-                  data-openbitfun-product-component="welcome-panel"
-                  data-openbitfun-product-part="openWorkspaceAction"
+                  data-alex-product-component="welcome-panel"
+                  data-alex-product-part="openWorkspaceAction"
                   className="welcome-panel__inline-btn welcome-panel__inline-btn--interactive"
                   onClick={() => { void handleOpenOtherFolder(); }}
                   disabled={isSelectingWorkspace}
@@ -297,9 +297,9 @@ export const WelcomePanel: React.FC<WelcomePanelProps> = ({
                         }
                         ref={workspaceTriggerRef}
                         type="button"
-                        data-openbitfun-product-component="welcome-panel"
-                        data-openbitfun-product-part="workspaceAction"
-                        data-openbitfun-state={workspaceDropdownOpen ? 'open' : undefined}
+                        data-alex-product-component="welcome-panel"
+                        data-alex-product-part="workspaceAction"
+                        data-alex-state={workspaceDropdownOpen ? 'open' : undefined}
                         className={`welcome-panel__inline-btn welcome-panel__inline-btn--interactive${workspaceDropdownOpen ? ' welcome-panel__inline-btn--active' : ''}`}
                         onClick={() => setWorkspaceDropdownOpen(v => !v)}
                         disabled={isSelectingWorkspace}
@@ -312,9 +312,9 @@ export const WelcomePanel: React.FC<WelcomePanelProps> = ({
                       {workspaceDropdownOpen && createOverlayPortal(
                         <Menu
                           ref={workspaceMenuRef}
-                          data-openbitfun-product-component="welcome-panel"
-                          data-openbitfun-product-part="workspaceMenu"
-                          data-openbitfun-placement={workspaceMenuLayout?.placement ?? 'bottom'}
+                          data-alex-product-component="welcome-panel"
+                          data-alex-product-part="workspaceMenu"
+                          data-alex-placement={workspaceMenuLayout?.placement ?? 'bottom'}
                           className="welcome-panel__dropdown"
                           style={{
                             top: `${workspaceMenuLayout?.top ?? 0}px`,
@@ -325,8 +325,8 @@ export const WelcomePanel: React.FC<WelcomePanelProps> = ({
                           aria-label={t('shared:features.workspace')}
                         >
                           <MenuItem
-                            data-openbitfun-product-component="welcome-panel"
-                            data-openbitfun-product-part="workspaceItem"
+                            data-alex-product-component="welcome-panel"
+                            data-alex-product-part="workspaceItem"
                             leading={<FolderPlus size={12} />}
                             onClick={() => { void handleCreateWorkspace(); }}
                           >
@@ -350,8 +350,8 @@ export const WelcomePanel: React.FC<WelcomePanelProps> = ({
                               {otherWorkspaces.map(ws => (
                                 <MenuItem
                                   key={ws.id}
-                                  data-openbitfun-product-component="welcome-panel"
-                                  data-openbitfun-product-part="workspaceItem"
+                                  data-alex-product-component="welcome-panel"
+                                  data-alex-product-part="workspaceItem"
                                   leading={<FolderOpen size={12} />}
                                   onClick={() => { void handleSwitchWorkspace(ws); }}
                                   title={ws.rootPath}
@@ -373,8 +373,8 @@ export const WelcomePanel: React.FC<WelcomePanelProps> = ({
                           variant="text"
                           leadingIcon={<Icon name="git" size="lg" style={{ width: 13, height: 13 }} className="welcome-panel__inline-icon" />}
                           type="button"
-                          data-openbitfun-product-component="welcome-panel"
-                          data-openbitfun-product-part="gitAction"
+                          data-alex-product-component="welcome-panel"
+                          data-alex-product-part="gitAction"
                           className="welcome-panel__inline-btn"
                           onClick={handleGitClick}
                         >
@@ -401,7 +401,7 @@ export const WelcomePanel: React.FC<WelcomePanelProps> = ({
 
         {/* Cowork examples */}
         {isCoworkSession && (
-          <div data-openbitfun-product-component="welcome-panel" data-openbitfun-product-part="cowork" className="welcome-panel__cowork">
+          <div data-alex-product-component="welcome-panel" data-alex-product-part="cowork" className="welcome-panel__cowork">
             <CoworkExampleCards resetKey={0} onSelectPrompt={p => handleQuickActionClick(p)} />
           </div>
         )}

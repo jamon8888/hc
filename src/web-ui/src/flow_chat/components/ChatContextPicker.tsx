@@ -1,4 +1,4 @@
-import { subscribeOverlayInteraction, createOverlayPortal, Disclosure } from '@openbitfun/ui';
+import { subscribeOverlayInteraction, createOverlayPortal, Disclosure } from '@alex/ui';
 /**
  * Unified chat context picker.
  * The source level exposes files, skills, MCP, and images; typing searches providers together.
@@ -14,7 +14,7 @@ import {
   ListboxOption,
   OverflowText,
   Tooltip,
-} from '@openbitfun/ui';
+} from '@alex/ui';
 import { useTranslation } from 'react-i18next';
 import { File, Loader2, MessageCircle, Plug, RotateCcw } from 'lucide-react';
 import { sessionAPI, workspaceAPI } from '@/infrastructure/api';
@@ -778,19 +778,19 @@ export const ChatContextPicker: React.FC<ChatContextPickerProps> = ({
 
   const picker = (
     <div
-      data-openbitfun-component="chat-context-picker"
-      data-openbitfun-part="root"
-      data-openbitfun-state={[
+      data-alex-component="chat-context-picker"
+      data-alex-part="root"
+      data-alex-state={[
         isLoading && 'loading',
         (fileLoadError || (showMcpStatus && mcpLoadFailed)) && 'error',
       ].filter(Boolean).join(' ') || undefined}
-      data-openbitfun-placement={isOverlay ? overlayLayout?.placement ?? 'top' : undefined}
+      data-alex-placement={isOverlay ? overlayLayout?.placement ?? 'top' : undefined}
       ref={containerRef}
       className={`chat-context-picker${isOverlay ? ' chat-context-picker--overlay' : ''}${displayItems.some(item => item.kind === 'skill') ? ' chat-context-picker--skills' : ''}`}
       style={style}
       onMouseDown={event => event.preventDefault()}
     >
-      <div data-openbitfun-component="chat-context-picker" data-openbitfun-part="header" className="chat-context-picker__header">
+      <div data-alex-component="chat-context-picker" data-alex-part="header" className="chat-context-picker__header">
         {canNavigateBack && (
           <Tooltip content={t('contextPicker.goBack')}>
             <IconButton
@@ -806,8 +806,8 @@ export const ChatContextPicker: React.FC<ChatContextPickerProps> = ({
           <div className="chat-context-picker__directory-label" title={currentViewLabel}>
             {view === 'files' ? (
               <span
-                data-openbitfun-component="chat-context-picker"
-                data-openbitfun-part="currentDirectoryPath"
+                data-alex-component="chat-context-picker"
+                data-alex-part="currentDirectoryPath"
                 className="chat-context-picker__directory-path chat-context-picker__directory-path--file"
               >
                 {currentDirectoryTailStart > 0 && (
@@ -821,8 +821,8 @@ export const ChatContextPicker: React.FC<ChatContextPickerProps> = ({
               </span>
             ) : (
               <span
-                data-openbitfun-component="chat-context-picker"
-                data-openbitfun-part="currentViewLabel"
+                data-alex-component="chat-context-picker"
+                data-alex-part="currentViewLabel"
                 className="chat-context-picker__directory-path"
               >
                 <OverflowText title="">{currentViewLabel}</OverflowText>
@@ -842,7 +842,7 @@ export const ChatContextPicker: React.FC<ChatContextPickerProps> = ({
           />
         )}
       </div>
-      <div data-openbitfun-component="chat-context-picker" data-openbitfun-part="content" className="chat-context-picker__content">
+      <div data-alex-component="chat-context-picker" data-alex-part="content" className="chat-context-picker__content">
         <Listbox
           aria-label={isSearchMode
             ? t('contextPicker.searchResults')
@@ -851,7 +851,7 @@ export const ChatContextPicker: React.FC<ChatContextPickerProps> = ({
           focusMode="virtual"
         >
           {displayItems.length === 0 && fileLoadError ? (
-          <ListboxEmpty data-openbitfun-state="error" className="chat-context-picker__empty">
+          <ListboxEmpty data-alex-state="error" className="chat-context-picker__empty">
             <span>{t(fileLoadError === 'search'
               ? 'contextPicker.searchUnavailable'
               : 'contextPicker.browseUnavailable')}</span>
@@ -898,7 +898,7 @@ export const ChatContextPicker: React.FC<ChatContextPickerProps> = ({
                   title={skill ? '' : undefined}
                   key={key}
                   data-index={index}
-                  data-openbitfun-context-kind={selection.kind === 'source' || selection.kind === 'action'
+                  data-alex-context-kind={selection.kind === 'source' || selection.kind === 'action'
                     ? selection.id
                     : selection.kind === 'mcp' ? `mcp-${selection.item.kind}` : selection.kind}
                   indicator={selection.kind === 'source' || (file?.isDirectory && !isSearchMode)
@@ -929,8 +929,8 @@ export const ChatContextPicker: React.FC<ChatContextPickerProps> = ({
                           overflowStyle="ellipsis"
                           marqueeTrigger="interaction"
                           className="chat-context-picker__skill-description"
-                          data-openbitfun-component="chat-context-picker"
-                          data-openbitfun-part="skillDescription"
+                          data-alex-component="chat-context-picker"
+                          data-alex-part="skillDescription"
                           title=""
                         >
                           {skillDescription}
@@ -960,7 +960,7 @@ export const ChatContextPicker: React.FC<ChatContextPickerProps> = ({
               </ListboxEmpty>
             )}
             {fileLoadError && (
-              <ListboxEmpty data-openbitfun-state="error" className="chat-context-picker__empty">
+              <ListboxEmpty data-alex-state="error" className="chat-context-picker__empty">
                 <span>{t(fileLoadError === 'search'
                   ? 'contextPicker.searchUnavailable'
                   : 'contextPicker.browseUnavailable')}</span>
@@ -979,7 +979,7 @@ export const ChatContextPicker: React.FC<ChatContextPickerProps> = ({
           {skillDiagnostics.map((item, index) => <p key={index}>{item.path}: {item.message}</p>)}
         </Disclosure> : !skillDiagnosticsAvailable && <p role="status">{t('contextPicker.skillsDiagnosticsUnavailable')}</p>
       )}
-      <div data-openbitfun-component="chat-context-picker" data-openbitfun-part="footer" className="chat-context-picker__footer">
+      <div data-alex-component="chat-context-picker" data-alex-part="footer" className="chat-context-picker__footer">
         <span><KeyHint>↑</KeyHint><KeyHint>↓</KeyHint> {t('contextPicker.navHint')}</span>
         {!isSearchMode && (view === 'sources' || view === 'files') && (
           <span><KeyHint>→</KeyHint> {t('contextPicker.enterHint')}</span>

@@ -1,25 +1,25 @@
 //! Compatibility facade for managed plugin package review.
 //!
-//! Product assembly supplies OpenBitFun path ownership. Concrete discovery,
+//! Product assembly supplies Alex path ownership. Concrete discovery,
 //! integrity checks, locking, and trust persistence are service concerns.
 
-use openbitfun_services_integrations::plugin_source::ManagedPluginSourceService;
+use alex_services_integrations::plugin_source::ManagedPluginSourceService;
 use std::path::Path;
 
 pub type ManagedPluginTrustLevel =
-    openbitfun_services_integrations::plugin_source::ManagedPluginTrustLevel;
+    alex_services_integrations::plugin_source::ManagedPluginTrustLevel;
 pub type ManagedPluginTrustDecision =
-    openbitfun_services_integrations::plugin_source::ManagedPluginTrustDecision;
+    alex_services_integrations::plugin_source::ManagedPluginTrustDecision;
 pub type ManagedPluginPackageView =
-    openbitfun_services_integrations::plugin_source::ManagedPluginPackageView;
+    alex_services_integrations::plugin_source::ManagedPluginPackageView;
 pub type ManagedPluginSourceIssue =
-    openbitfun_services_integrations::plugin_source::ManagedPluginSourceIssue;
+    alex_services_integrations::plugin_source::ManagedPluginSourceIssue;
 pub type ManagedPluginSourceSnapshot =
-    openbitfun_services_integrations::plugin_source::ManagedPluginSourceSnapshot;
+    alex_services_integrations::plugin_source::ManagedPluginSourceSnapshot;
 pub type ManagedPluginSourceError =
-    openbitfun_services_integrations::plugin_source::ManagedPluginSourceError;
+    alex_services_integrations::plugin_source::ManagedPluginSourceError;
 
-/// Refresh OpenBitFun-managed user and workspace package roots.
+/// Refresh Alex-managed user and workspace package roots.
 pub async fn refresh_managed_plugin_sources(
     workspace: &Path,
 ) -> Result<ManagedPluginSourceSnapshot, ManagedPluginSourceError> {

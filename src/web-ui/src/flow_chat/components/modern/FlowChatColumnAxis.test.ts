@@ -26,7 +26,7 @@ describe('FlowChat transcript column axis', () => {
     const transcriptLayout = readSource('../../_transcript-layout.scss');
 
     expect(chatInput).toMatch(
-      /\.openbitfun-context-drop-zone\.openbitfun-chat-input-drop-zone \{[\s\S]*?left: 50%;[\s\S]*?transform: translateX\(-50%\);[\s\S]*?max-width: 900px;/,
+      /\.alex-context-drop-zone\.alex-chat-input-drop-zone \{[\s\S]*?left: 50%;[\s\S]*?transform: translateX\(-50%\);[\s\S]*?max-width: 900px;/,
     );
     expect(transcriptLayout).toMatch(
       /@mixin reading-column \{[\s\S]*?max-width: 900px;/,
@@ -47,7 +47,7 @@ describe('FlowChat transcript column axis', () => {
     expect(readingColumn).toContain('margin-inline: auto;');
     expect(readingColumn).not.toContain('margin-inline-start: max(');
     expect(readingColumn).toMatch(
-      /width: calc\(100% - #\{\$turn-rail-offset \+ \$turn-rail-width\} - var\(--openbitfun-space-1\) - var\(--openbitfun-space-2\)\);/,
+      /width: calc\(100% - #\{\$turn-rail-offset \+ \$turn-rail-width\} - var\(--alex-space-1\) - var\(--alex-space-2\)\);/,
     );
   });
 

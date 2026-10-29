@@ -9,7 +9,7 @@
 - [ ] Create `src/web-ui/src/app/components/panels/content-canvas/RevealableEntityBadge.tsx`:
   - Props: `entityType`, `entityId`, `maskedLabel` (e.g., `[PERSON_1]`)
   - Color by type: PERSON=blue, DATE=gray, ORG=green, IBAN=red, EMAIL=purple, PHONE=orange, ADDRESS=brown, etc.
-  - Tooltip from `@openbitfun/ui` showing entity type + count
+  - Tooltip from `@alex/ui` showing entity type + count
   - On click → `basemindAPI.revealEntity(entityId)` → shows real value in temporary overlay (portal)
   - Overlay auto-dismisses on outside click / escape / timeout (5s)
   - Never modifies underlying markdown or conversation state

@@ -53,7 +53,7 @@ internal fun AccountIdentityCard(userId: String, modifier: Modifier) {
                 verticalArrangement = Arrangement.spacedBy(2.dp),
             ) {
                 Text(
-                    stringResource(R.string.remote_settings_openbitfun_user),
+                    stringResource(R.string.remote_settings_alex_user),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

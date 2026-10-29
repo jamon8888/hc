@@ -3,24 +3,24 @@
 use crate::api::workspace_activation::{
     spawn_restored_workspace_auto_index, spawn_workspace_background_warmup,
 };
-use openbitfun_core::agentic::side_question::SideQuestionRuntime;
-use openbitfun_core::agentic::{agents, tools};
-use openbitfun_core::infrastructure::ai::{AIClient, AIClientFactory};
-use openbitfun_core::miniapp::{
+use alex_core::agentic::side_question::SideQuestionRuntime;
+use alex_core::agentic::{agents, tools};
+use alex_core::infrastructure::ai::{AIClient, AIClientFactory};
+use alex_core::miniapp::{
     initialize_global_miniapp_manager, seed_builtin_miniapps, JsWorkerPool, MiniAppManager,
 };
-use openbitfun_core::service::remote_ssh::{
+use alex_core::service::remote_ssh::{
     global_port_forward_manager, init_remote_workspace_manager, PortForwardManager,
     RemoteFileService, RemoteTerminalManager, SSHConnectionManager,
 };
-use openbitfun_core::service::{
+use alex_core::service::{
     announcement, config, filesystem, mcp, search, token_usage, workspace,
 };
-use openbitfun_core::util::errors::*;
-use openbitfun_services_integrations::speech::{SpeechService, SpeechStoragePaths};
+use alex_core::util::errors::*;
+use alex_services_integrations::speech::{SpeechService, SpeechStoragePaths};
 
 #[cfg(feature = "basemind")]
-use openbitfun_basemind_integration::BasemindClient;
+use alex_basemind_integration::BasemindClient;
 
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
@@ -81,7 +81,7 @@ pub struct AppState {
     pub speech_service: Arc<SpeechService>,
     pub agent_registry: Arc<agents::AgentRegistry>,
     pub mcp_service: Option<Arc<mcp::MCPService>>,
-    pub acp_client_service: Option<Arc<openbitfun_acp::AcpClientService>>,
+    pub acp_client_service: Option<Arc<alex_acp::AcpClientService>>,
     pub token_usage_service: Arc<token_usage::TokenUsageService>,
     pub miniapp_manager: Arc<MiniAppManager>,
     pub js_worker_pool: Option<Arc<JsWorkerPool>>,
@@ -109,7 +109,7 @@ pub struct AppState {
     /// write behind the store's own locks.
     #[cfg(feature = "basemind")]
     pub basemind_redaction_stores: Arc<
-        tokio::sync::Mutex<HashMap<String, Arc<openbitfun_basemind_integration::RedactionStore>>>,
+        tokio::sync::Mutex<HashMap<String, Arc<alex_basemind_integration::RedactionStore>>>,
     >,
     pub announcement_scheduler: Arc<announcement::AnnouncementScheduler>,
 }
@@ -117,16 +117,16 @@ pub struct AppState {
 impl AppState {
     pub async fn new_async(
         token_usage_service: Arc<token_usage::TokenUsageService>,
-    ) -> OpenBitFunResult<Self> {
+    ) -> AlexResult<Self> {
         let start_time = std::time::Instant::now();
 
         let config_service = config::get_global_config_service().await.map_err(|e| {
-            OpenBitFunError::config(format!("Failed to get global config service: {}", e))
+            AlexError::config(format!("Failed to get global config service: {}", e))
         })?;
 
         let ai_client = Arc::new(RwLock::new(None));
         let ai_client_factory = AIClientFactory::get_global().await.map_err(|e| {
-            OpenBitFunError::service(format!("Failed to get global AIClientFactory: {}", e))
+            AlexError::service(format!("Failed to get global AIClientFactory: {}", e))
         })?;
         let side_question_runtime = Arc::new(SideQuestionRuntime::new());
 
@@ -161,9 +161,9 @@ impl AppState {
         };
         let path_manager = workspace_service.path_manager().clone();
         let acp_client_service = Some(
-            openbitfun_acp::AcpClientService::new(config_service.clone(), path_manager.clone())
+            alex_acp::AcpClientService::new(config_service.clone(), path_manager.clone())
                 .map_err(|e| {
-                    OpenBitFunError::service(format!(
+                    AlexError::service(format!(
                         "Failed to initialize ACP client service: {}",
                         e
                     ))
@@ -174,7 +174,7 @@ impl AppState {
             announcement::AnnouncementScheduler::new(&path_manager)
                 .await
                 .map_err(|e| {
-                    OpenBitFunError::service(format!(
+                    AlexError::service(format!(
                         "Failed to initialize announcement scheduler: {}",
                         e
                     ))
@@ -472,7 +472,7 @@ impl AppState {
         workspace_id: Option<&str>,
     ) -> Result<Arc<BasemindClient>, String> {
         let _ = workspace_id;
-        openbitfun_basemind_integration::verify_version().map_err(|error| error.to_string())?;
+        alex_basemind_integration::verify_version().map_err(|error| error.to_string())?;
         // The client follows the daemon (it may have self-terminated and
         // restarted on a fresh port since startup) and obeys the same
         // fail-closed redaction policy as the startup-published ports: every
@@ -481,7 +481,7 @@ impl AppState {
         // the NER requirement still stands — the sidecar then refuses the
         // call rather than answering with pattern-only output.
         let sidecar_binary = crate::basemind_sidecar_binary().map(std::path::Path::to_path_buf);
-        let policy = openbitfun_basemind_integration::RedactionPolicy {
+        let policy = alex_basemind_integration::RedactionPolicy {
             require_ner: true,
             ner_model_dir: crate::basemind_ner_model_dir()
                 .map(|dir| dir.to_string_lossy().into_owned()),
@@ -503,7 +503,7 @@ impl AppState {
     pub async fn get_basemind_redaction_store(
         &self,
         workspace_id: Option<&str>,
-    ) -> Result<Arc<openbitfun_basemind_integration::RedactionStore>, String> {
+    ) -> Result<Arc<alex_basemind_integration::RedactionStore>, String> {
         let (workspace_id, _) = self.basemind_workspace(workspace_id).await?;
         let mut stores = self.basemind_redaction_stores.lock().await;
         if let Some(store) = stores.get(&workspace_id) {
@@ -520,7 +520,7 @@ impl AppState {
         std::fs::create_dir_all(&data_dir)
             .map_err(|error| format!("failed to create basemind data dir: {error}"))?;
         let store = Arc::new(
-            openbitfun_basemind_integration::RedactionStore::new(
+            alex_basemind_integration::RedactionStore::new(
                 data_dir.join("registry"),
                 data_dir.join("vault"),
                 workspace_id.clone(),
@@ -574,7 +574,7 @@ impl AppState {
 
         // Persist to SSHConnectionManager for restoration on restart
         if let Ok(manager) = self.get_ssh_manager_async().await {
-            let core_workspace = openbitfun_core::service::remote_ssh::RemoteWorkspace {
+            let core_workspace = alex_core::service::remote_ssh::RemoteWorkspace {
                 connection_id: workspace.connection_id.clone(),
                 remote_path: workspace.remote_path.clone(),
                 connection_name: workspace.connection_name.clone(),
@@ -630,14 +630,14 @@ impl AppState {
 
     /// Remove one remote workspace from persistence + registry (`connection_id` + `remote_path`).
     pub async fn unregister_remote_workspace_entry(&self, connection_id: &str, remote_path: &str) {
-        let rp = openbitfun_core::service::remote_ssh::normalize_remote_workspace_path(remote_path);
+        let rp = alex_core::service::remote_ssh::normalize_remote_workspace_path(remote_path);
         if let Ok(manager) = self.get_ssh_manager_async().await {
             if let Err(e) = manager.remove_remote_workspace(connection_id, &rp).await {
                 log::warn!("Failed to remove persisted remote workspace: {}", e);
             }
         }
         if let Some(state_manager) =
-            openbitfun_core::service::remote_ssh::get_remote_workspace_manager()
+            alex_core::service::remote_ssh::get_remote_workspace_manager()
         {
             state_manager
                 .unregister_remote_workspace(connection_id, &rp)
@@ -648,14 +648,14 @@ impl AppState {
             .as_ref()
             .map(|w| {
                 w.connection_id == connection_id
-                    && openbitfun_core::service::remote_ssh::normalize_remote_workspace_path(
+                    && alex_core::service::remote_ssh::normalize_remote_workspace_path(
                         &w.remote_path,
                     ) == rp
             })
             .unwrap_or(false);
         if clear_slot {
             *slot = None;
-            if let Some(m) = openbitfun_core::service::remote_ssh::get_remote_workspace_manager() {
+            if let Some(m) = alex_core::service::remote_ssh::get_remote_workspace_manager() {
                 m.set_active_connection_hint(None).await;
             }
         }

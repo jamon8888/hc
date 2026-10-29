@@ -4,7 +4,7 @@ import type { GitWorkspaceScope } from '@/infrastructure/api/service-api/GitAPI'
  * Shows a branch's commits and supports cherry-pick when applicable.
  */
 
-import { OverflowText, Button, Icon, IconButton, SearchField, Select, ScrollArea } from '@openbitfun/ui';
+import { OverflowText, Button, Icon, IconButton, SearchField, Select, ScrollArea } from '@alex/ui';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Square, CheckSquare } from 'lucide-react';
@@ -313,8 +313,8 @@ export const GitBranchHistoryView: React.FC<GitBranchHistoryViewProps> = ({
 
   if (loading) {
     return (
-      <div className={`git-branch-history-view git-branch-history-view--loading ${className}`} data-openbitfun-component="git-branch-history" data-openbitfun-part="root" data-openbitfun-state="loading">
-        <div data-openbitfun-component="git-branch-history" data-openbitfun-part="loading" className="git-branch-history-view__loading">
+      <div className={`git-branch-history-view git-branch-history-view--loading ${className}`} data-alex-component="git-branch-history" data-alex-part="root" data-alex-state="loading">
+        <div data-alex-component="git-branch-history" data-alex-part="loading" className="git-branch-history-view__loading">
           <div className="git-branch-history-view__spinner" />
           <p>{t('branchHistory.loading', { branch: branchName })}</p>
         </div>
@@ -324,8 +324,8 @@ export const GitBranchHistoryView: React.FC<GitBranchHistoryViewProps> = ({
 
   if (error) {
     return (
-      <div className={`git-branch-history-view git-branch-history-view--error ${className}`} data-openbitfun-component="git-branch-history" data-openbitfun-part="root" data-openbitfun-state="error">
-        <div data-openbitfun-component="git-branch-history" data-openbitfun-part="error" className="git-branch-history-view__error">
+      <div className={`git-branch-history-view git-branch-history-view--error ${className}`} data-alex-component="git-branch-history" data-alex-part="root" data-alex-state="error">
+        <div data-alex-component="git-branch-history" data-alex-part="error" className="git-branch-history-view__error">
           <p>{t('branchHistory.loadFailedWithMessage', { error })}</p>
           <Button variant="outline" size="sm" onClick={loadCommits}>
             {t('branchHistory.retry')}
@@ -336,9 +336,9 @@ export const GitBranchHistoryView: React.FC<GitBranchHistoryViewProps> = ({
   }
 
   return (
-    <div className={`git-branch-history-view ${className}`} data-openbitfun-component="git-branch-history" data-openbitfun-part="root">
-      <div data-openbitfun-component="git-branch-history" data-openbitfun-part="header" className="git-branch-history-view__header">
-        <div data-openbitfun-component="git-branch-history" data-openbitfun-part="headerLeft" className="git-branch-history-view__header-left">
+    <div className={`git-branch-history-view ${className}`} data-alex-component="git-branch-history" data-alex-part="root">
+      <div data-alex-component="git-branch-history" data-alex-part="header" className="git-branch-history-view__header">
+        <div data-alex-component="git-branch-history" data-alex-part="headerLeft" className="git-branch-history-view__header-left">
           {canCherryPick && (
             <div 
               className="git-branch-history-view__select-all"
@@ -362,8 +362,8 @@ export const GitBranchHistoryView: React.FC<GitBranchHistoryViewProps> = ({
           )}
           
           <SearchField
-            data-openbitfun-component="git-branch-history"
-            data-openbitfun-part="search"
+            data-alex-component="git-branch-history"
+            data-alex-part="search"
             value={searchQuery}
             onValueChange={setSearchQuery}
             leadingIcon={<Icon name="search" size="sm" aria-hidden />}
@@ -390,7 +390,7 @@ export const GitBranchHistoryView: React.FC<GitBranchHistoryViewProps> = ({
           )}
         </div>
         
-        <div data-openbitfun-component="git-branch-history" data-openbitfun-part="headerRight" className="git-branch-history-view__header-right">
+        <div data-alex-component="git-branch-history" data-alex-part="headerRight" className="git-branch-history-view__header-right">
           {canCherryPick && (
             <Button
               size="sm"
@@ -416,28 +416,28 @@ export const GitBranchHistoryView: React.FC<GitBranchHistoryViewProps> = ({
         </div>
       </div>
 
-      <ScrollArea data-openbitfun-component="git-branch-history" data-openbitfun-part="content" className="git-branch-history-view__content">
+      <ScrollArea data-alex-component="git-branch-history" data-alex-part="content" className="git-branch-history-view__content">
         {filteredCommits.length === 0 ? (
-          <div data-openbitfun-component="git-branch-history" data-openbitfun-part="empty" className="git-branch-history-view__empty">
+          <div data-alex-component="git-branch-history" data-alex-part="empty" className="git-branch-history-view__empty">
             <p>{searchQuery ? t('empty.noMatchingCommits') : t('empty.noCommits')}</p>
           </div>
         ) : (
-          <div data-openbitfun-component="git-branch-history" data-openbitfun-part="commits" className="git-branch-history-view__commits">
+          <div data-alex-component="git-branch-history" data-alex-part="commits" className="git-branch-history-view__commits">
             {filteredCommits.map((commit, index) => {
               const isExpanded = expandedCommits.has(commit.hash);
               const isSelected = selectedCommits.has(commit.hash);
               
               return (
                 <div 
-                  data-openbitfun-component="git-branch-history"
-                  data-openbitfun-part="commit"
-                  data-openbitfun-state={[isExpanded && 'expanded', isSelected && 'selected'].filter(Boolean).join(' ') || undefined}
+                  data-alex-component="git-branch-history"
+                  data-alex-part="commit"
+                  data-alex-state={[isExpanded && 'expanded', isSelected && 'selected'].filter(Boolean).join(' ') || undefined}
                   key={commit.hash}
                   className={`git-branch-history-view__commit ${isExpanded ? 'git-branch-history-view__commit--expanded' : ''} ${isSelected ? 'git-branch-history-view__commit--selected' : ''}`}
                 >
                   <div data-overflow-trigger
-                    data-openbitfun-component="git-branch-history"
-                    data-openbitfun-part="commitMain"
+                    data-alex-component="git-branch-history"
+                    data-alex-part="commitMain"
                     className="git-branch-history-view__commit-main"
                     onClick={() => toggleCommitExpand(commit.hash)}
                   >
@@ -454,7 +454,7 @@ export const GitBranchHistoryView: React.FC<GitBranchHistoryViewProps> = ({
                       </div>
                     )}
                     
-                    <div data-openbitfun-component="git-branch-history" data-openbitfun-part="timeline" className="git-branch-history-view__timeline">
+                    <div data-alex-component="git-branch-history" data-alex-part="timeline" className="git-branch-history-view__timeline">
                       <div className="git-branch-history-view__timeline-node" title={commit.author}>
                         {commit.author.charAt(0).toUpperCase()}
                       </div>
@@ -463,7 +463,7 @@ export const GitBranchHistoryView: React.FC<GitBranchHistoryViewProps> = ({
                       )}
                     </div>
                     
-                    <div data-openbitfun-component="git-branch-history" data-openbitfun-part="commitInfo" className="git-branch-history-view__commit-info">
+                    <div data-alex-component="git-branch-history" data-alex-part="commitInfo" className="git-branch-history-view__commit-info">
                       <div className="git-branch-history-view__commit-message"><OverflowText>
                         {commit.message}
                       </OverflowText></div>
@@ -494,7 +494,7 @@ export const GitBranchHistoryView: React.FC<GitBranchHistoryViewProps> = ({
                   </div>
                   
                   {isExpanded && (
-                    <div data-openbitfun-component="git-branch-history" data-openbitfun-part="commitDetails" className="git-branch-history-view__commit-details">
+                    <div data-alex-component="git-branch-history" data-alex-part="commitDetails" className="git-branch-history-view__commit-details">
                       <div className="git-branch-history-view__detail-row">
                         <span className="git-branch-history-view__detail-label">
                           {t('branchHistory.details.fullHash')}

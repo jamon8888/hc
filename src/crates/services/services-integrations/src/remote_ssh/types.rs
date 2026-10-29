@@ -55,7 +55,7 @@ pub struct SSHConnectionConfig {
     /// Optional Docker container that becomes the effective workspace target.
     #[serde(default)]
     pub container: Option<ContainerWorkspaceConfig>,
-    /// A Linux distribution owned by the Windows host running OpenBitFun.
+    /// A Linux distribution owned by the Windows host running Alex.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub wsl: Option<WslWorkspaceConfig>,
     /// Connection and authentication timeout/retry policy.
@@ -207,7 +207,7 @@ fn default_true() -> bool {
     true
 }
 
-/// How OpenBitFun enters a configured container workspace.
+/// How Alex enters a configured container workspace.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub enum ContainerAccess {
@@ -227,7 +227,7 @@ pub struct ContainerWorkspaceConfig {
     /// Container name or ID.
     pub name: String,
     pub access: ContainerAccess,
-    /// Run Docker on the local OpenBitFun machine instead of an SSH host.
+    /// Run Docker on the local Alex machine instead of an SSH host.
     #[serde(default)]
     pub local: bool,
     /// Docker CLI path on the machine that owns the container.

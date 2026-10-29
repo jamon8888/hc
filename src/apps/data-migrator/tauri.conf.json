@@ -2,7 +2,7 @@
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "OpenBitFun Data Migrator",
   "version": "0.1.1",
-  "mainBinaryName": "openbitfun-data-migrator",
+  "mainBinaryName": "alex-data-migrator",
   "identifier": "com.openbitfun.data-migrator",
   "build": {
     "frontendDist": "ui"
@@ -10,11 +10,11 @@
   "bundle": {
     "active": true,
     "targets": "all",
-    "publisher": "OpenBitFun Team",
+    "publisher": "Alex Team",
     "icon": [
-      "icons/openbitfun-app-icon.icns",
-      "icons/openbitfun-app-icon.ico",
-      "icons/openbitfun-app-icon.png"
+      "icons/alex-app-icon.icns",
+      "icons/alex-app-icon.ico",
+      "icons/alex-app-icon.png"
     ],
     "resources": {
       "../../../THIRD_PARTY_NOTICES.md": "THIRD_PARTY_NOTICES.md"
@@ -24,7 +24,7 @@
     "windows": [
       {
         "label": "migrator",
-        "title": "OpenBitFun Data Migrator",
+        "title": "Alex Data Migrator",
         "width": 860,
         "height": 680,
         "minWidth": 680,

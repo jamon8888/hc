@@ -17,7 +17,7 @@
 //! fall back to the public `CGEvent::post_to_pid`.
 //!
 //! Ported from cua-driver-rs `platform-macos/src/input/skylight.rs` (v0.6.8),
-//! adapted to OpenBitFun's error types and logging conventions.
+//! adapted to Alex's error types and logging conventions.
 
 #![allow(dead_code)]
 

@@ -24,7 +24,7 @@ asset name shown on the release page when verifying another download.
 
 ```bash
 VERSION=v1.0.0
-ASSET=openbitfun-cli-1.0.0-aarch64-unknown-linux-gnu.tar.gz
+ASSET=alex-cli-1.0.0-aarch64-unknown-linux-gnu.tar.gz
 BASE="https://github.com/GCWing/OpenBitFun/releases/download/$VERSION"
 PUBLIC_KEY=RWR2o8Bsvnz0UOBc3NoTVW06wdiGM7pLP3LpiL4A3Sp4nxkBsWlJRTxn
 

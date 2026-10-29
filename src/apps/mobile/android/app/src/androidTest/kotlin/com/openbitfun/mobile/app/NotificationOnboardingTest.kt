@@ -14,7 +14,7 @@ import androidx.compose.ui.test.performClick
 import androidx.test.platform.app.InstrumentationRegistry
 import com.openbitfun.mobile.app.platform.NotificationOnboarding as OnboardingStore
 import com.openbitfun.mobile.app.ui.shell.NotificationOnboarding
-import com.openbitfun.mobile.app.ui.theme.OpenBitFunTheme
+import com.openbitfun.mobile.app.ui.theme.AlexTheme
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -40,7 +40,7 @@ class NotificationOnboardingTest {
                     LocalContext provides context,
                     LocalActivityResultRegistryOwner provides registryOwner,
                 ) {
-                    OpenBitFunTheme(dark = false) { NotificationOnboarding() }
+                    AlexTheme(dark = false) { NotificationOnboarding() }
                 }
             }
             composeRule.onNodeWithText(context.getString(R.string.notification_onboarding_title)).assertIsDisplayed()

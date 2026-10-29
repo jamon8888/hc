@@ -23,7 +23,7 @@ describe('floating MiniApp chat activity', () => {
   it('uses the design-system launcher to open the conversation dock', () => {
     const component = readSource('./FloatingMiniChat.tsx');
     expect(component).toContain('<LauncherButton');
-    expect(component).toContain('className="openbitfun-fmc__button"');
+    expect(component).toContain('className="alex-fmc__button"');
     expect(component).toContain('aria-expanded={dock.open}');
     expect(component).toContain("aria-label={t('dock.open')}");
     expect(component).not.toContain('leadingIcon=');
@@ -36,9 +36,9 @@ describe('floating MiniApp chat activity', () => {
     const stylesheet = readSource('./FloatingMiniChat.scss');
 
     expect(component).toMatch(/<div\b[^>]*role="dialog"[^>]*data-motion="presence"/);
-    expect(stylesheet).not.toContain('--openbitfun-color-control-launcher');
-    expect(stylesheet).not.toContain('--openbitfun-color-control-highlight');
-    expect(stylesheet).toMatch(/\.openbitfun-fmc__button\s*\{[\s\S]*?\.openbitfun-fmc--open &[\s\S]*?visibility: hidden;[\s\S]*?pointer-events: none;/);
+    expect(stylesheet).not.toContain('--alex-color-control-launcher');
+    expect(stylesheet).not.toContain('--alex-color-control-highlight');
+    expect(stylesheet).toMatch(/\.alex-fmc__button\s*\{[\s\S]*?\.alex-fmc--open &[\s\S]*?visibility: hidden;[\s\S]*?pointer-events: none;/);
     expect(stylesheet).toContain('transition-behavior: allow-discrete;');
   });
 

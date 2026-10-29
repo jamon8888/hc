@@ -20,7 +20,7 @@ import com.openbitfun.mobile.app.ui.theme.generated.MobileTextScale
  * `resources/base` and `resources/dark` colour elements.
  *
  * Stock `lightColorScheme()` / `darkColorScheme()` is Material's purple baseline,
- * which is not what the other client looks like: OpenBitFun's is a warm paper-and-ink
+ * which is not what the other client looks like: Alex's is a warm paper-and-ink
  * palette. Every screen here already speaks in Material roles rather than
  * literals, so aligning the two clients is a matter of what those roles resolve
  * to — nothing below this file had to change to get the new colours.
@@ -125,7 +125,7 @@ private val DarkScheme = darkColorScheme(
  * [success] is the connection dot's "connected" green — it is not `primary`,
  * because primary here is near-black ink and a black dot reads as "off".
  */
-internal data class OpenBitFunColors(
+internal data class AlexColors(
     val transparent: Color,
     val statusSuccess: Color,
     val shellScrim: Color,
@@ -190,7 +190,7 @@ internal data class CodeSyntaxColors(
     val targetBackground: Color,
 )
 
-private val LightExtras = OpenBitFunColors(
+private val LightExtras = AlexColors(
     transparent = LightTokens.Transparent,
     statusSuccess = LightTokens.StatusSuccess,
     shellScrim = LightTokens.ShellScrim,
@@ -231,7 +231,7 @@ private val LightExtras = OpenBitFunColors(
     ),
 )
 
-private val DarkExtras = OpenBitFunColors(
+private val DarkExtras = AlexColors(
     transparent = DarkTokens.Transparent,
     statusSuccess = DarkTokens.StatusSuccess,
     shellScrim = DarkTokens.ShellScrim,
@@ -272,14 +272,14 @@ private val DarkExtras = OpenBitFunColors(
     ),
 )
 
-private val LocalOpenBitFunColors = staticCompositionLocalOf { LightExtras }
+private val LocalAlexColors = staticCompositionLocalOf { LightExtras }
 
 /**
  * Harmony's mobile surfaces use a small, explicit type scale rather than the
  * platform Material defaults. Keeping the roles here makes every remaining
  * Material control start from the same geometry as the ArkUI counterpart.
  */
-private val OpenBitFunTypography = androidx.compose.material3.Typography(
+private val AlexTypography = androidx.compose.material3.Typography(
     displayLarge = MobileDesignTypography.DisplayLarge,
     displayMedium = MobileDesignTypography.DisplayMedium,
     displaySmall = MobileDesignTypography.DisplaySmall,
@@ -298,18 +298,18 @@ private val OpenBitFunTypography = androidx.compose.material3.Typography(
 )
 
 /** The extra palette for the theme in scope. Reads like `MaterialTheme.colorScheme`. */
-internal val openBitFunColors: OpenBitFunColors
-    @Composable @ReadOnlyComposable get() = LocalOpenBitFunColors.current
+internal val openBitFunColors: AlexColors
+    @Composable @ReadOnlyComposable get() = LocalAlexColors.current
 
 @Composable
-internal fun OpenBitFunTheme(dark: Boolean, content: @Composable () -> Unit) {
+internal fun AlexTheme(dark: Boolean, content: @Composable () -> Unit) {
     CompositionLocalProvider(
-        LocalOpenBitFunColors provides if (dark) DarkExtras else LightExtras,
+        LocalAlexColors provides if (dark) DarkExtras else LightExtras,
         LocalDensity provides textScaledDensity(),
     ) {
         MaterialTheme(
             colorScheme = if (dark) DarkScheme else LightScheme,
-            typography = OpenBitFunTypography,
+            typography = AlexTypography,
             content = content,
         )
     }

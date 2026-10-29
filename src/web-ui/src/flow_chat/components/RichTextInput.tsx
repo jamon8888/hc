@@ -3,7 +3,7 @@
  * Supports inline context tags and the @ chat context picker trigger.
  */
 
-import { Button, Dialog, DialogBody, DialogClose, DialogFooter, DialogHeader, DialogHeading, DialogTitle, Icon, Textarea } from '@openbitfun/ui';
+import { Button, Dialog, DialogBody, DialogClose, DialogFooter, DialogHeader, DialogHeading, DialogTitle, Icon, Textarea } from '@alex/ui';
 import React, { useRef, useEffect, useCallback, useState } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { MessageCircle, Plug } from 'lucide-react';
@@ -349,9 +349,9 @@ export const RichTextInput = React.forwardRef<HTMLDivElement, RichTextInputProps
   const createTagElement = useCallback((context: ContextItem): HTMLSpanElement => {
     const tag = document.createElement('span');
     tag.className = 'rich-text-tag-pill';
-    tag.dataset.openbitfunComponent = 'rich-text-input';
-    tag.dataset.openbitfunPart = 'contextTag';
-    tag.dataset.openbitfunContextType = context.type;
+    tag.dataset.alexComponent = 'rich-text-input';
+    tag.dataset.alexPart = 'contextTag';
+    tag.dataset.alexContextType = context.type;
     tag.contentEditable = 'false';
     tag.dataset.contextId = context.id;
     tag.dataset.contextType = context.type;
@@ -363,23 +363,23 @@ export const RichTextInput = React.forwardRef<HTMLDivElement, RichTextInputProps
       tag.classList.add('rich-text-tag-pill--session-reference');
       const badge = document.createElement('span');
       badge.className = 'rich-text-tag-pill__badge rich-text-tag-pill__badge--icon';
-      badge.dataset.openbitfunComponent = 'rich-text-input';
-      badge.dataset.openbitfunPart = 'tagBadge';
+      badge.dataset.alexComponent = 'rich-text-input';
+      badge.dataset.alexPart = 'tagBadge';
       badge.innerHTML = SESSION_REFERENCE_BADGE_ICON;
       tag.appendChild(badge);
     }
     
     const text = document.createElement('span');
     text.className = 'rich-text-tag-pill__text';
-    text.dataset.openbitfunComponent = 'rich-text-input';
-    text.dataset.openbitfunPart = 'tagText';
+    text.dataset.alexComponent = 'rich-text-input';
+    text.dataset.alexPart = 'tagText';
     // Show name only, no # prefix
     text.textContent = getContextDisplayName(context);
     
     const remove = document.createElement('button');
     remove.className = 'rich-text-tag-pill__remove';
-    remove.dataset.openbitfunComponent = 'rich-text-input';
-    remove.dataset.openbitfunPart = 'tagRemove';
+    remove.dataset.alexComponent = 'rich-text-input';
+    remove.dataset.alexPart = 'tagRemove';
     remove.textContent = '×';
     remove.title = 'Remove';
     remove.onclick = (e) => {
@@ -411,9 +411,9 @@ export const RichTextInput = React.forwardRef<HTMLDivElement, RichTextInputProps
     capsule.className = 'rich-text-large-paste';
     capsule.contentEditable = 'false';
     capsule.setAttribute('contenteditable', 'false');
-    capsule.dataset.openbitfunComponent = 'rich-text-input';
-    capsule.dataset.openbitfunPart = 'contextTag';
-    capsule.dataset.openbitfunContextType = 'large-paste';
+    capsule.dataset.alexComponent = 'rich-text-input';
+    capsule.dataset.alexPart = 'contextTag';
+    capsule.dataset.alexContextType = 'large-paste';
     capsule.dataset.largePastePlaceholder = placeholder;
     capsule.dataset.tagFormat = placeholder;
     capsule.tabIndex = 0;
@@ -462,9 +462,9 @@ export const RichTextInput = React.forwardRef<HTMLDivElement, RichTextInputProps
 
     const tag = document.createElement('span');
     tag.className = 'rich-text-tag-pill rich-text-tag-pill--widget-ref';
-    tag.dataset.openbitfunComponent = 'rich-text-input';
-    tag.dataset.openbitfunPart = 'contextTag';
-    tag.dataset.openbitfunContextType = 'widget-reference';
+    tag.dataset.alexComponent = 'rich-text-input';
+    tag.dataset.alexPart = 'contextTag';
+    tag.dataset.alexContextType = 'widget-reference';
     tag.contentEditable = 'false';
     tag.dataset.tagFormat = token;
     tag.dataset.inlineTokenType = 'widget-ref';
@@ -472,20 +472,20 @@ export const RichTextInput = React.forwardRef<HTMLDivElement, RichTextInputProps
 
     const badge = document.createElement('span');
     badge.className = 'rich-text-tag-pill__badge';
-    badge.dataset.openbitfunComponent = 'rich-text-input';
-    badge.dataset.openbitfunPart = 'tagBadge';
+    badge.dataset.alexComponent = 'rich-text-input';
+    badge.dataset.alexPart = 'tagBadge';
     badge.textContent = 'UI';
 
     const text = document.createElement('span');
     text.className = 'rich-text-tag-pill__text rich-text-tag-pill__text--widget-ref';
-    text.dataset.openbitfunComponent = 'rich-text-input';
-    text.dataset.openbitfunPart = 'tagText';
+    text.dataset.alexComponent = 'rich-text-input';
+    text.dataset.alexPart = 'tagText';
     text.textContent = payload.displayText;
 
     const remove = document.createElement('button');
     remove.className = 'rich-text-tag-pill__remove';
-    remove.dataset.openbitfunComponent = 'rich-text-input';
-    remove.dataset.openbitfunPart = 'tagRemove';
+    remove.dataset.alexComponent = 'rich-text-input';
+    remove.dataset.alexPart = 'tagRemove';
     remove.textContent = '×';
     remove.title = 'Remove';
     remove.onclick = (e) => {
@@ -520,9 +520,9 @@ export const RichTextInput = React.forwardRef<HTMLDivElement, RichTextInputProps
       'rich-text-tag-pill--skill-ref',
       options.modifierClass,
     ].filter(Boolean).join(' ');
-    tag.dataset.openbitfunComponent = 'rich-text-input';
-    tag.dataset.openbitfunPart = 'contextTag';
-    tag.dataset.openbitfunContextType = options.contextType;
+    tag.dataset.alexComponent = 'rich-text-input';
+    tag.dataset.alexPart = 'contextTag';
+    tag.dataset.alexContextType = options.contextType;
     tag.contentEditable = 'false';
     tag.setAttribute('contenteditable', 'false');
     tag.dataset.tagFormat = options.token;
@@ -531,20 +531,20 @@ export const RichTextInput = React.forwardRef<HTMLDivElement, RichTextInputProps
 
     const badge = document.createElement('span');
     badge.className = 'rich-text-tag-pill__badge rich-text-tag-pill__badge--icon';
-    badge.dataset.openbitfunComponent = 'rich-text-input';
-    badge.dataset.openbitfunPart = 'tagBadge';
+    badge.dataset.alexComponent = 'rich-text-input';
+    badge.dataset.alexPart = 'tagBadge';
     badge.innerHTML = options.badgeIcon ?? SKILL_REFERENCE_BADGE_ICON;
 
     const text = document.createElement('span');
     text.className = 'rich-text-tag-pill__text rich-text-tag-pill__text--skill-ref';
-    text.dataset.openbitfunComponent = 'rich-text-input';
-    text.dataset.openbitfunPart = 'tagText';
+    text.dataset.alexComponent = 'rich-text-input';
+    text.dataset.alexPart = 'tagText';
     text.textContent = options.displayText;
 
     const remove = document.createElement('button');
     remove.className = 'rich-text-tag-pill__remove';
-    remove.dataset.openbitfunComponent = 'rich-text-input';
-    remove.dataset.openbitfunPart = 'tagRemove';
+    remove.dataset.alexComponent = 'rich-text-input';
+    remove.dataset.alexPart = 'tagRemove';
     remove.textContent = '×';
     remove.title = 'Remove';
     remove.onclick = (e) => {
@@ -678,7 +678,7 @@ export const RichTextInput = React.forwardRef<HTMLDivElement, RichTextInputProps
             kind: 'inline-token',
             token,
             tokenType: 'skill',
-            label: element.querySelector('[data-openbitfun-part="tagText"]')?.textContent || skill.skillName,
+            label: element.querySelector('[data-alex-part="tagText"]')?.textContent || skill.skillName,
           });
           return;
         }
@@ -1262,7 +1262,7 @@ export const RichTextInput = React.forwardRef<HTMLDivElement, RichTextInputProps
 
     const body = document.createElement('div');
     body.appendChild(range.cloneContents());
-    body.querySelectorAll('[data-openbitfun-part="tagRemove"]').forEach(node => node.remove());
+    body.querySelectorAll('[data-alex-part="tagRemove"]').forEach(node => node.remove());
 
     const sanitizedText = sanitizeText(readComposerDomText(body));
     const tokens = sanitizedText.startsWith('/')
@@ -1736,9 +1736,9 @@ export const RichTextInput = React.forwardRef<HTMLDivElement, RichTextInputProps
   return (
     <>
       <div
-        data-openbitfun-component="rich-text-input"
-        data-openbitfun-part="root"
-        data-openbitfun-state={[isFocused ? 'focused' : '', disabled ? 'disabled' : ''].filter(Boolean).join(' ') || undefined}
+        data-alex-component="rich-text-input"
+        data-alex-part="root"
+        data-alex-state={[isFocused ? 'focused' : '', disabled ? 'disabled' : ''].filter(Boolean).join(' ') || undefined}
         {...restProps}
         ref={internalRef}
         className={`rich-text-input ${isFocused ? 'rich-text-input--focused' : ''} ${className}`}

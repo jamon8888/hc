@@ -1,4 +1,4 @@
-import { Checkbox, OverflowText } from '@openbitfun/ui';
+import { Checkbox, OverflowText } from '@alex/ui';
 import { forwardRef, type HTMLAttributes } from 'react';
 import './AgentCapabilityOption.scss';
 
@@ -27,9 +27,9 @@ export const AgentCapabilityOption = forwardRef<HTMLSpanElement, AgentCapability
         {...props}
         ref={ref}
         className={['agent-capability-option', className].filter(Boolean).join(' ')}
-        data-openbitfun-component="agent-capability-option"
-        data-openbitfun-part="root"
-        data-openbitfun-state={checked ? 'selected' : undefined}
+        data-alex-component="agent-capability-option"
+        data-alex-part="root"
+        data-alex-state={checked ? 'selected' : undefined}
         data-overflow-trigger
       >
         <Checkbox

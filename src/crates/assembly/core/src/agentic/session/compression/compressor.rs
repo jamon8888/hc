@@ -8,7 +8,7 @@ use crate::agentic::core::{
     MessageSemanticKind,
 };
 use crate::service::session::TranscriptLineRange;
-use crate::util::errors::OpenBitFunResult;
+use crate::util::errors::AlexResult;
 use log::{debug, trace};
 use std::borrow::Cow;
 
@@ -70,7 +70,7 @@ impl ContextCompressor {
         runtime_messages: &[Message],
         context_window: usize,
         recent_target_tokens: usize,
-    ) -> OpenBitFunResult<Option<CompressionPlan>> {
+    ) -> AlexResult<Option<CompressionPlan>> {
         self.plan_compression_internal(
             session_id,
             None,
@@ -87,7 +87,7 @@ impl ContextCompressor {
         runtime_messages: &[Message],
         context_window: usize,
         recent_target_tokens: usize,
-    ) -> OpenBitFunResult<Option<CompressionPlan>> {
+    ) -> AlexResult<Option<CompressionPlan>> {
         self.plan_compression_internal(
             session_id,
             Some(current_turn_id),
@@ -104,7 +104,7 @@ impl ContextCompressor {
         runtime_messages: &[Message],
         context_window: usize,
         recent_target_tokens: usize,
-    ) -> OpenBitFunResult<Option<CompressionPlan>> {
+    ) -> AlexResult<Option<CompressionPlan>> {
         let runtime_messages = if runtime_messages.iter().any(|message| {
             message
                 .internal_reminder_kind()
@@ -345,7 +345,7 @@ impl ContextCompressor {
         mut plan: CompressionPlan,
         runtime_messages: &[Message],
         current_turn_id: &str,
-    ) -> OpenBitFunResult<Option<CompressionPlan>> {
+    ) -> AlexResult<Option<CompressionPlan>> {
         let conversation = Self::canonical_conversation(runtime_messages)
             .cloned()
             .collect::<Vec<_>>();
@@ -410,9 +410,9 @@ impl ContextCompressor {
         plan: CompressionPlan,
         contract: Option<CompressionContract>,
         model_summary: String,
-    ) -> OpenBitFunResult<CompressionResult> {
+    ) -> AlexResult<CompressionResult> {
         let summary = Self::normalize_model_summary_output(&model_summary).ok_or_else(|| {
-            crate::OpenBitFunError::AIClient(
+            crate::AlexError::AIClient(
                 "Context compression requires a non-empty model summary".to_string(),
             )
         })?;

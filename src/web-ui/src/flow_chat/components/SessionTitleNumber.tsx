@@ -4,9 +4,9 @@ import './SessionTitleNumber.scss';
 export function SessionTitleNumber({ number }: { number?: string }) {
   return number ? (
     <span
-      className="openbitfun-session-title-number"
-      data-openbitfun-component="session-title-number"
-      data-openbitfun-part="root"
+      className="alex-session-title-number"
+      data-alex-component="session-title-number"
+      data-alex-part="root"
     >{number}</span>
   ) : null;
 }

@@ -2,7 +2,7 @@
 import React, { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import { NumberInput } from '@openbitfun/ui';
+import { NumberInput } from '@alex/ui';
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 let container: HTMLDivElement;

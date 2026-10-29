@@ -1,15 +1,15 @@
-@layer openbitfun.components {
-  .overlay[data-openbitfun-component="mobile-sheet"] {
+@layer alex.components {
+  .overlay[data-alex-component="mobile-sheet"] {
     position: fixed;
     inset: 0;
-    z-index: var(--openbitfun-layer-modal);
+    z-index: var(--alex-layer-modal);
     box-sizing: border-box;
     display: flex;
     align-items: flex-end;
     justify-content: center;
     padding: 0;
-    background: var(--openbitfun-color-overlay-scrim);
-    animation: openbitfun-mobile-sheet-overlay-enter var(--openbitfun-motion-duration-base) var(--openbitfun-motion-easing-enter) both;
+    background: var(--alex-color-overlay-scrim);
+    animation: alex-mobile-sheet-overlay-enter var(--alex-motion-duration-base) var(--alex-motion-easing-enter) both;
   }
 
   .root {
@@ -23,13 +23,13 @@
     overflow: hidden;
     margin-inline: auto;
     padding-block-end: env(safe-area-inset-bottom, 0px);
-    border: var(--openbitfun-border-width-default) solid var(--openbitfun-color-border-subtle);
-    border-start-start-radius: var(--openbitfun-radius-2xl);
-    border-start-end-radius: var(--openbitfun-radius-2xl);
-    color: var(--openbitfun-color-content-primary);
-    background: var(--openbitfun-color-surface-panel);
-    box-shadow: var(--openbitfun-shadow-overlay);
-    animation: openbitfun-mobile-sheet-surface-enter var(--openbitfun-motion-duration-base) var(--openbitfun-motion-easing-enter) both;
+    border: var(--alex-border-width-default) solid var(--alex-color-border-subtle);
+    border-start-start-radius: var(--alex-radius-2xl);
+    border-start-end-radius: var(--alex-radius-2xl);
+    color: var(--alex-color-content-primary);
+    background: var(--alex-color-surface-panel);
+    box-shadow: var(--alex-shadow-overlay);
+    animation: alex-mobile-sheet-surface-enter var(--alex-motion-duration-base) var(--alex-motion-easing-enter) both;
   }
 
   .handle {
@@ -37,9 +37,9 @@
     block-size: 4px;
     flex: 0 0 auto;
     align-self: center;
-    margin-block-start: var(--openbitfun-space-2);
-    border-radius: var(--openbitfun-radius-pill);
-    background: var(--openbitfun-color-border-strong);
+    margin-block-start: var(--alex-space-2);
+    border-radius: var(--alex-radius-pill);
+    background: var(--alex-color-border-strong);
   }
 
   .header,
@@ -52,10 +52,10 @@
   .header {
     display: grid;
     align-items: center;
-    grid-template-columns: minmax(var(--openbitfun-space-12), 1fr) minmax(0, auto) minmax(var(--openbitfun-space-12), 1fr);
-    gap: var(--openbitfun-space-3);
+    grid-template-columns: minmax(var(--alex-space-12), 1fr) minmax(0, auto) minmax(var(--alex-space-12), 1fr);
+    gap: var(--alex-space-3);
     flex: 0 0 auto;
-    padding: var(--openbitfun-space-3) var(--openbitfun-space-4) var(--openbitfun-space-2);
+    padding: var(--alex-space-3) var(--alex-space-4) var(--alex-space-2);
     text-align: center;
   }
 
@@ -66,20 +66,20 @@
     min-inline-size: 0;
     margin: 0;
     overflow: hidden;
-    color: var(--openbitfun-color-content-primary);
-    font-family: var(--openbitfun-type-body-lg-font-family);
-    font-size: var(--openbitfun-type-body-lg-font-size);
-    font-weight: var(--openbitfun-type-label-selected-font-weight);
-    line-height: var(--openbitfun-type-body-lg-line-height);
+    color: var(--alex-color-content-primary);
+    font-family: var(--alex-type-body-lg-font-family);
+    font-size: var(--alex-type-body-lg-font-size);
+    font-weight: var(--alex-type-label-selected-font-weight);
+    line-height: var(--alex-type-body-lg-line-height);
     white-space: normal;
     overflow-wrap: anywhere;
   }
 
   .description {
     margin: 0;
-    color: var(--openbitfun-color-content-muted);
-    font-size: var(--openbitfun-type-body-sm-font-size);
-    line-height: var(--openbitfun-type-body-sm-line-height);
+    color: var(--alex-color-content-muted);
+    font-size: var(--alex-type-body-sm-font-size);
+    line-height: var(--alex-type-body-sm-line-height);
   }
 
   .body {
@@ -87,9 +87,9 @@
     min-block-size: 0;
     flex: 1 1 auto;
     flex-direction: column;
-    gap: var(--openbitfun-space-2);
+    gap: var(--alex-space-2);
     overflow: auto;
-    padding: 0 var(--openbitfun-space-3) var(--openbitfun-space-2);
+    padding: 0 var(--alex-space-3) var(--alex-space-2);
     overscroll-behavior: contain;
   }
 
@@ -97,35 +97,35 @@
     display: flex;
     flex: 0 0 auto;
     flex-direction: column;
-    gap: var(--openbitfun-space-2);
-    padding: 0 var(--openbitfun-space-3) var(--openbitfun-space-3);
+    gap: var(--alex-space-2);
+    padding: 0 var(--alex-space-3) var(--alex-space-3);
   }
 
   .overlay[data-state="exiting"] {
     pointer-events: none;
-    animation: openbitfun-mobile-sheet-overlay-exit var(--openbitfun-motion-duration-base) var(--openbitfun-motion-easing-exit) both;
+    animation: alex-mobile-sheet-overlay-exit var(--alex-motion-duration-base) var(--alex-motion-easing-exit) both;
   }
 
   .root[data-state="exiting"] {
-    animation: openbitfun-mobile-sheet-surface-exit var(--openbitfun-motion-duration-base) var(--openbitfun-motion-easing-exit) both;
+    animation: alex-mobile-sheet-surface-exit var(--alex-motion-duration-base) var(--alex-motion-easing-exit) both;
   }
 
-  @keyframes openbitfun-mobile-sheet-overlay-enter { from { opacity: 0; } to { opacity: 1; } }
-  @keyframes openbitfun-mobile-sheet-overlay-exit { from { opacity: 1; } to { opacity: 0; } }
-  @keyframes openbitfun-mobile-sheet-surface-enter { from { transform: translateY(100%); } to { transform: none; } }
-  @keyframes openbitfun-mobile-sheet-surface-exit { from { transform: none; } to { transform: translateY(100%); } }
+  @keyframes alex-mobile-sheet-overlay-enter { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes alex-mobile-sheet-overlay-exit { from { opacity: 1; } to { opacity: 0; } }
+  @keyframes alex-mobile-sheet-surface-enter { from { transform: translateY(100%); } to { transform: none; } }
+  @keyframes alex-mobile-sheet-surface-exit { from { transform: none; } to { transform: translateY(100%); } }
 
   @media (min-width: 700px) {
     .root {
-      margin-block-end: var(--openbitfun-space-4);
-      border-radius: var(--openbitfun-radius-2xl);
+      margin-block-end: var(--alex-space-4);
+      border-radius: var(--alex-radius-2xl);
     }
   }
 
   @media (max-width: 359px) {
-    .header { padding-inline: var(--openbitfun-space-3); }
+    .header { padding-inline: var(--alex-space-3); }
     .body,
-    .footer { padding-inline: var(--openbitfun-space-2); }
+    .footer { padding-inline: var(--alex-space-2); }
   }
 
   @media (prefers-reduced-motion: reduce) {

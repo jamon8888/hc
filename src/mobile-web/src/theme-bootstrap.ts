@@ -1,4 +1,4 @@
-import { themes } from '@openbitfun/theme-openbitfun';
+import { themes } from '@alex/theme-alex';
 
 // Apply the saved theme before React and the main stylesheet load, avoiding a
 // light/dark flash without requiring an inline script under the mobile CSP.
@@ -14,7 +14,7 @@ try {
   }
 }
 const root = document.documentElement;
-root.setAttribute('data-openbitfun-design-system-root', '');
+root.setAttribute('data-alex-design-system-root', '');
 root.setAttribute('data-color-scheme', initialTheme);
 root.setAttribute('data-contrast', 'standard');
 root.setAttribute('data-density', 'comfortable');

@@ -11,8 +11,8 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
 
-vi.mock('@openbitfun/ui', async importOriginal => ({
-  ...await importOriginal<typeof import('@openbitfun/ui')>(),
+vi.mock('@alex/ui', async importOriginal => ({
+  ...await importOriginal<typeof import('@alex/ui')>(),
   Tooltip: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
@@ -47,7 +47,7 @@ describe('SessionMenu', () => {
     Object.defineProperty(window, 'innerHeight', { configurable: true, value: 800 });
 
     rectSpy = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function () {
-      if (this instanceof HTMLElement && this.classList.contains('openbitfun-session-menu__trigger')) {
+      if (this instanceof HTMLElement && this.classList.contains('alex-session-menu__trigger')) {
         return {
           top: 760,
           bottom: 784,
@@ -78,7 +78,7 @@ describe('SessionMenu', () => {
 
   afterEach(() => {
     act(() => root.unmount());
-    document.querySelector('[data-openbitfun-overlay-host="true"]')?.remove();
+    document.querySelector('[data-alex-overlay-host="true"]')?.remove();
     container.remove();
     rectSpy.mockRestore();
     widthSpy.mockRestore();
@@ -91,15 +91,15 @@ describe('SessionMenu', () => {
       root.render(<SessionMenu />);
     });
 
-    const trigger = container.querySelector<HTMLButtonElement>('.openbitfun-session-menu__trigger');
+    const trigger = container.querySelector<HTMLButtonElement>('.alex-session-menu__trigger');
     await act(async () => {
       trigger!.click();
       await Promise.resolve();
     });
 
-    const dropdown = document.querySelector<HTMLElement>('.openbitfun-session-menu__dropdown');
-    expect(dropdown?.closest('[data-openbitfun-overlay-host]')?.getAttribute('data-openbitfun-overlay-host')).toBe('true');
-    expect(dropdown?.dataset.openbitfunPlacement).toBe('top');
+    const dropdown = document.querySelector<HTMLElement>('.alex-session-menu__dropdown');
+    expect(dropdown?.closest('[data-alex-overlay-host]')?.getAttribute('data-alex-overlay-host')).toBe('true');
+    expect(dropdown?.dataset.alexPlacement).toBe('top');
     expect(dropdown?.style.visibility).toBe('visible');
     expect(Number.parseFloat(dropdown?.style.left ?? '')).toBeLessThanOrEqual(752);
   });

@@ -10,7 +10,7 @@ import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import com.openbitfun.mobile.app.ui.chat.tool.ToolConfirmationPanel
-import com.openbitfun.mobile.app.ui.theme.OpenBitFunTheme
+import com.openbitfun.mobile.app.ui.theme.AlexTheme
 import org.junit.Rule
 import org.junit.Test
 
@@ -21,7 +21,7 @@ class ToolConfirmationPanelTest {
     @Test
     fun approvalShowsVerdictButtonsWithoutEditableInput() {
         composeRule.setContent {
-            OpenBitFunTheme(dark = false) {
+            AlexTheme(dark = false) {
                 ToolConfirmationPanel(
                     input = "",
                     canApprove = true,
@@ -42,7 +42,7 @@ class ToolConfirmationPanelTest {
         var rejected = 0
         var approved = 0
         composeRule.setContent {
-            OpenBitFunTheme(dark = false) {
+            AlexTheme(dark = false) {
                 ToolConfirmationPanel(canApprove = true, canReject = true, enabled = true, input = "{}",
                     onApprove = { approved++ }, onReject = { rejected++ })
             }

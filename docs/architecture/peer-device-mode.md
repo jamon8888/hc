@@ -321,7 +321,7 @@ FS) and must not be mixed with Peer Device Mode.
 - Local-only commands (window chrome, updater, account login/logout, peer
   control plane) never execute on the peer on behalf of a controller. Which
   commands those are is declared once, per command, in the Product Operation
-  Registry (`openbitfun_product_domains::remote_surface`); the desktop host, the
+  Registry (`alex_product_domains::remote_surface`); the desktop host, the
   CLI host, and the Web UI transport adapter derive their tables from it. See
   [remote-surface-contract.md](remote-surface-contract.md).
 - Unsupported or denied commands fail loudly; they must not fall back to the

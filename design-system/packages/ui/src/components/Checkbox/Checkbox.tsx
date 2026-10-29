@@ -53,21 +53,21 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Che
   return (
     <label
       className={classNames(styles.root, className)}
-      data-openbitfun-component="checkbox"
+      data-alex-component="checkbox"
       data-appearance={appearance}
       data-disabled={disabled ? "true" : "false"}
       data-indeterminate={indeterminate ? "true" : "false"}
       data-invalid={invalid ? "true" : "false"}
       data-size={size}
     >
-      <span className={styles.control} data-openbitfun-part="control">
+      <span className={styles.control} data-alex-part="control">
         <input
           {...props}
           aria-invalid={invalid || undefined}
           checked={checked}
           className={styles.input}
           defaultChecked={defaultChecked}
-          data-openbitfun-part="input"
+          data-alex-part="input"
           disabled={disabled}
           onChange={(event) => {
             onChange?.(event);
@@ -76,12 +76,12 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Che
           ref={inputRef}
           type="checkbox"
         />
-        {appearance === "custom" && <span aria-hidden="true" className={styles.box} data-openbitfun-part="box">
+        {appearance === "custom" && <span aria-hidden="true" className={styles.box} data-alex-part="box">
           <>{indeterminate ? <LucideMinus className={styles.icon} aria-hidden="true" /> : <LucideCheck className={styles.icon} aria-hidden="true" />}</>
         </span>}
       </span>
       {hasContent && (
-        <span className={styles.content} data-openbitfun-part="content">
+        <span className={styles.content} data-alex-part="content">
           {label !== undefined && <span className={styles.label}>{label}</span>}
           {description !== undefined && <span className={styles.description}>{description}</span>}
           {children}

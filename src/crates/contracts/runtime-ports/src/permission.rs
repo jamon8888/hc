@@ -1,6 +1,6 @@
 use crate::{PortResult, RuntimeServicePort};
 use async_trait::async_trait;
-use openbitfun_product_domains::tool_permissions::{
+use alex_product_domains::tool_permissions::{
     PermissionAuditRecord, PermissionGrant, PermissionGrantKey,
 };
 

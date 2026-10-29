@@ -6,7 +6,7 @@
  * scheduled without knowing which workspace it runs in.
  */
 
-import { OverflowText, Button, Combobox, Icon, Input, Select, Switch, ScrollArea, Textarea } from '@openbitfun/ui';
+import { OverflowText, Button, Combobox, Icon, Input, Select, Switch, ScrollArea, Textarea } from '@alex/ui';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { CalendarClock, ClipboardList } from 'lucide-react';
 import { agentAPI, type ModeInfo } from '@/infrastructure/api/service-api/AgentAPI';
@@ -167,10 +167,10 @@ const TodoEditor: React.FC<TodoEditorProps> = ({
 
   return (
     <form
-      className="openbitfun-todos__editor"
+      className="alex-todos__editor"
       aria-label={title}
-      data-openbitfun-scene="todos"
-      data-openbitfun-part="editor"
+      data-alex-scene="todos"
+      data-alex-part="editor"
       data-testid="todos-editor"
       onSubmit={(event) => {
         event.preventDefault();
@@ -178,44 +178,44 @@ const TodoEditor: React.FC<TodoEditorProps> = ({
       }}
     >
       <header
-        className="openbitfun-todos__editor-intro"
-        data-openbitfun-scene="todos"
-        data-openbitfun-part="editorIntro"
+        className="alex-todos__editor-intro"
+        data-alex-scene="todos"
+        data-alex-part="editorIntro"
       >
-        <span className="openbitfun-todos__editor-intro-icon" aria-hidden="true">
+        <span className="alex-todos__editor-intro-icon" aria-hidden="true">
           <CalendarClock size={24} strokeWidth={1.8} />
         </span>
-        <div className="openbitfun-todos__editor-intro-copy">
-          <h2 className="openbitfun-todos__editor-title">{title}</h2>
-          <p className="openbitfun-todos__editor-description">
+        <div className="alex-todos__editor-intro-copy">
+          <h2 className="alex-todos__editor-title">{title}</h2>
+          <p className="alex-todos__editor-description">
             {isEditing ? t('editor.editDescription') : t('editor.createDescription')}
           </p>
         </div>
       </header>
 
       <ScrollArea
-        className="openbitfun-todos__editor-body"
-        data-openbitfun-scene="todos"
-        data-openbitfun-part="editorBody"
+        className="alex-todos__editor-body"
+        data-alex-scene="todos"
+        data-alex-part="editorBody"
       >
         <section
-          className="openbitfun-todos__editor-section"
+          className="alex-todos__editor-section"
           aria-labelledby="todos-editor-information-title"
-          data-openbitfun-scene="todos"
-          data-openbitfun-part="editorSection"
+          data-alex-scene="todos"
+          data-alex-part="editorSection"
         >
-          <h3 id="todos-editor-information-title" className="openbitfun-todos__editor-section-title">
+          <h3 id="todos-editor-information-title" className="alex-todos__editor-section-title">
             {t('editor.sections.information')}
           </h3>
 
-          <div className="openbitfun-todos__editor-grid" data-openbitfun-scene="todos" data-openbitfun-part="editorGrid">
-            <div className="openbitfun-todos__field-card" data-openbitfun-scene="todos" data-openbitfun-part="field">
-              <span className="openbitfun-todos__field-label">
+          <div className="alex-todos__editor-grid" data-alex-scene="todos" data-alex-part="editorGrid">
+            <div className="alex-todos__field-card" data-alex-scene="todos" data-alex-part="field">
+              <span className="alex-todos__field-label">
                 <ClipboardList size={16} aria-hidden="true" />
                 {t('editor.fields.name')}
               </span>
               <Input
-                className="openbitfun-todos__field-control"
+                className="alex-todos__field-control"
                 value={draft.name}
                 invalid={validationErrors.name}
                 aria-label={t('editor.fields.name')}
@@ -230,14 +230,14 @@ const TodoEditor: React.FC<TodoEditorProps> = ({
               />
             </div>
 
-            <div className="openbitfun-todos__field-card" data-openbitfun-scene="todos" data-openbitfun-part="field">
-              <span className="openbitfun-todos__field-label">
+            <div className="alex-todos__field-card" data-alex-scene="todos" data-alex-part="field">
+              <span className="alex-todos__field-label">
                 <Icon name="folder" size="md" aria-hidden="true" />
                 {t('shared:features.workspace')}
               </span>
               <Combobox
                 size="md"
-                className="openbitfun-todos__field-control"
+                className="alex-todos__field-control"
                 options={workspaceSelectOptions}
                 value={selectedWorkspaceId}
                 placeholder={t('editor.placeholders.workspace')}
@@ -247,24 +247,24 @@ const TodoEditor: React.FC<TodoEditorProps> = ({
             </div>
 
             {boundSessionId ? (
-              <div className="openbitfun-todos__field-card" data-openbitfun-scene="todos" data-openbitfun-part="field">
-                <span className="openbitfun-todos__field-label">
+              <div className="alex-todos__field-card" data-alex-scene="todos" data-alex-part="field">
+                <span className="alex-todos__field-label">
                   <Icon name="user" size="md" aria-hidden="true" />
                   {t('editor.fields.runsIn')}
                 </span>
-                <span className="openbitfun-todos__field-static" title={boundSessionId}><OverflowText>
+                <span className="alex-todos__field-static" title={boundSessionId}><OverflowText>
                   {t('target.existingSession')}
                 </OverflowText></span>
               </div>
             ) : (
-              <div className="openbitfun-todos__field-card" data-openbitfun-scene="todos" data-openbitfun-part="field">
-                <span className="openbitfun-todos__field-label">
+              <div className="alex-todos__field-card" data-alex-scene="todos" data-alex-part="field">
+                <span className="alex-todos__field-label">
                   <Icon name="user" size="md" aria-hidden="true" />
                   {t('editor.fields.agentType')}
                 </span>
                 <Select
                   size="md"
-                  className="openbitfun-todos__field-control"
+                  className="alex-todos__field-control"
                   options={agentTypeOptions}
                   value={draft.agentType}
                   invalid={validationErrors.agentType}
@@ -279,14 +279,14 @@ const TodoEditor: React.FC<TodoEditorProps> = ({
               </div>
             )}
 
-            <div className="openbitfun-todos__field-card" data-openbitfun-scene="todos" data-openbitfun-part="field">
-              <span className="openbitfun-todos__field-label">
+            <div className="alex-todos__field-card" data-alex-scene="todos" data-alex-part="field">
+              <span className="alex-todos__field-label">
                 <Icon name="refresh" size="md" aria-hidden="true" />
                 {t('editor.fields.scheduleKind')}
               </span>
               <Select
                 size="md"
-                className="openbitfun-todos__field-control"
+                className="alex-todos__field-control"
                 value={draft.scheduleKind}
                 options={[
                   { value: 'at', label: t('schedule.kinds.at') },
@@ -299,8 +299,8 @@ const TodoEditor: React.FC<TodoEditorProps> = ({
               />
             </div>
 
-            <div className="openbitfun-todos__field-card" data-openbitfun-scene="todos" data-openbitfun-part="field">
-              <span className="openbitfun-todos__field-label">
+            <div className="alex-todos__field-card" data-alex-scene="todos" data-alex-part="field">
+              <span className="alex-todos__field-label">
                 <Icon name="clock" size="md" aria-hidden="true" />
                 {draft.scheduleKind === 'at'
                   ? t('editor.fields.at')
@@ -311,7 +311,7 @@ const TodoEditor: React.FC<TodoEditorProps> = ({
 
               {draft.scheduleKind === 'at' ? (
                 <LocalizedDateTimeField
-                  className="openbitfun-todos__field-control openbitfun-todos__field-control--datetime"
+                  className="alex-todos__field-control alex-todos__field-control--datetime"
                   value={draft.at}
                   error={validationErrors.at}
                   aria-label={t('editor.fields.at')}
@@ -330,9 +330,9 @@ const TodoEditor: React.FC<TodoEditorProps> = ({
               ) : null}
 
               {draft.scheduleKind === 'every' ? (
-                <div className="openbitfun-todos__interval">
+                <div className="alex-todos__interval">
                   <Input
-                    className="openbitfun-todos__field-control"
+                    className="alex-todos__field-control"
                     type="number"
                     value={draft.everyValue}
                     invalid={validationErrors.everyValue}
@@ -348,7 +348,7 @@ const TodoEditor: React.FC<TodoEditorProps> = ({
                   />
                   <Select
                     size="md"
-                    className="openbitfun-todos__field-control"
+                    className="alex-todos__field-control"
                     value={draft.everyUnit}
                     options={INTERVAL_UNIT_OPTIONS.map((unit) => ({
                       value: unit,
@@ -362,7 +362,7 @@ const TodoEditor: React.FC<TodoEditorProps> = ({
 
               {draft.scheduleKind === 'cron' ? (
                 <Input
-                  className="openbitfun-todos__field-control"
+                  className="alex-todos__field-control"
                   value={draft.expr}
                   invalid={validationErrors.cronExpr}
                   aria-label={t('editor.fields.cronExpr')}
@@ -379,27 +379,27 @@ const TodoEditor: React.FC<TodoEditorProps> = ({
           </div>
 
           <div
-            className="openbitfun-todos__editor-runtime"
-            data-openbitfun-scene="todos"
-            data-openbitfun-part="editorRuntime"
+            className="alex-todos__editor-runtime"
+            data-alex-scene="todos"
+            data-alex-part="editorRuntime"
           >
-            <label className="openbitfun-todos__editor-enable">
+            <label className="alex-todos__editor-enable">
               <Switch
                 checked={draft.enabled}
                 aria-label={t('editor.enabled.title')}
                 onChange={(event) => updateDraft({ enabled: event.currentTarget.checked })}
               />
-              <span className="openbitfun-todos__editor-enable-copy">
+              <span className="alex-todos__editor-enable-copy">
                 <strong>{t('editor.enabled.title')}</strong>
                 <span>{t('editor.enabled.description')}</span>
               </span>
             </label>
-            <span className="openbitfun-todos__editor-runtime-divider" aria-hidden="true" />
-            <div className="openbitfun-todos__editor-smart">
-              <span className="openbitfun-todos__editor-smart-icon" aria-hidden="true">
+            <span className="alex-todos__editor-runtime-divider" aria-hidden="true" />
+            <div className="alex-todos__editor-smart">
+              <span className="alex-todos__editor-smart-icon" aria-hidden="true">
                 <Icon name="spark" size="md" />
               </span>
-              <span className="openbitfun-todos__editor-smart-copy">
+              <span className="alex-todos__editor-smart-copy">
                 <strong>{t('editor.smartExecution.title')}</strong>
                 <span>{t('editor.smartExecution.description')}</span>
               </span>
@@ -408,16 +408,16 @@ const TodoEditor: React.FC<TodoEditorProps> = ({
         </section>
 
         <section
-          className="openbitfun-todos__editor-section"
+          className="alex-todos__editor-section"
           aria-labelledby="todos-editor-prompt-title"
-          data-openbitfun-scene="todos"
-          data-openbitfun-part="editorSection"
+          data-alex-scene="todos"
+          data-alex-part="editorSection"
         >
-          <h3 id="todos-editor-prompt-title" className="openbitfun-todos__editor-section-title">
+          <h3 id="todos-editor-prompt-title" className="alex-todos__editor-section-title">
             {t('editor.sections.prompt')}
           </h3>
           <Textarea
-            className="openbitfun-todos__editor-prompt"
+            className="alex-todos__editor-prompt"
             value={draft.text}
             invalid={validationErrors.text}
             showCount
@@ -435,13 +435,13 @@ const TodoEditor: React.FC<TodoEditorProps> = ({
         </section>
 
         <section
-          className="openbitfun-todos__editor-advanced"
-          data-openbitfun-scene="todos"
-          data-openbitfun-part="editorAdvanced"
+          className="alex-todos__editor-advanced"
+          data-alex-scene="todos"
+          data-alex-part="editorAdvanced"
         >
           <button
             type="button"
-            className="openbitfun-todos__editor-advanced-trigger"
+            className="alex-todos__editor-advanced-trigger"
             aria-expanded={advancedOpen}
             aria-controls="todos-editor-advanced-panel"
             onClick={() => setAdvancedOpen((open) => !open)}
@@ -452,49 +452,49 @@ const TodoEditor: React.FC<TodoEditorProps> = ({
           </button>
 
           {advancedOpen ? (
-            <div id="todos-editor-advanced-panel" className="openbitfun-todos__editor-advanced-panel">
+            <div id="todos-editor-advanced-panel" className="alex-todos__editor-advanced-panel">
               {draft.scheduleKind === 'every' ? (
-                <div className="openbitfun-todos__field-card" data-openbitfun-scene="todos" data-openbitfun-part="field">
-                  <span className="openbitfun-todos__field-label">
+                <div className="alex-todos__field-card" data-alex-scene="todos" data-alex-part="field">
+                  <span className="alex-todos__field-label">
                     <Icon name="clock" size="md" aria-hidden="true" />
                     {t('editor.fields.anchor')}
                   </span>
                   <LocalizedDateTimeField
-                    className="openbitfun-todos__field-control openbitfun-todos__field-control--datetime"
+                    className="alex-todos__field-control alex-todos__field-control--datetime"
                     value={draft.anchorMs}
                     aria-label={t('editor.fields.anchor')}
                     onChange={(anchorMs) => updateDraft({ anchorMs })}
                   />
-                  <span className="openbitfun-todos__field-note">{t('editor.placeholders.anchor')}</span>
+                  <span className="alex-todos__field-note">{t('editor.placeholders.anchor')}</span>
                 </div>
               ) : null}
 
               {draft.scheduleKind === 'cron' ? (
-                <div className="openbitfun-todos__field-card" data-openbitfun-scene="todos" data-openbitfun-part="field">
-                  <span className="openbitfun-todos__field-label">
+                <div className="alex-todos__field-card" data-alex-scene="todos" data-alex-part="field">
+                  <span className="alex-todos__field-label">
                     <Icon name="clock" size="md" aria-hidden="true" />
                     {t('editor.fields.timezone')}
                   </span>
                   <Input
-                    className="openbitfun-todos__field-control"
+                    className="alex-todos__field-control"
                     value={draft.tz}
                     aria-label={t('editor.fields.timezone')}
                     placeholder={t('editor.placeholders.timezone')}
                     onChange={(event) => updateDraft({ tz: event.currentTarget.value })}
                     size="md"
                   />
-                  <span className="openbitfun-todos__field-note">{t('editor.hints.cronExpr')}</span>
+                  <span className="alex-todos__field-note">{t('editor.hints.cronExpr')}</span>
                 </div>
               ) : null}
 
               {boundSessionId ? (
-                <p className="openbitfun-todos__editor-advanced-note">
+                <p className="alex-todos__editor-advanced-note">
                   {t('editor.hints.boundSession')}
                 </p>
               ) : null}
 
               {draft.scheduleKind === 'at' && !boundSessionId ? (
-                <p className="openbitfun-todos__editor-advanced-note">
+                <p className="alex-todos__editor-advanced-note">
                   {t('editor.advanced.empty')}
                 </p>
               ) : null}
@@ -503,16 +503,16 @@ const TodoEditor: React.FC<TodoEditorProps> = ({
         </section>
 
         {workspaceOptions.length === 0 ? (
-          <p className="openbitfun-todos__warning" data-openbitfun-scene="todos" data-openbitfun-part="warning">
+          <p className="alex-todos__warning" data-alex-scene="todos" data-alex-part="warning">
             {t('editor.noWorkspace')}
           </p>
         ) : null}
       </ScrollArea>
 
       <footer
-        className="openbitfun-todos__editor-actions"
-        data-openbitfun-scene="todos"
-        data-openbitfun-part="editorActions"
+        className="alex-todos__editor-actions"
+        data-alex-scene="todos"
+        data-alex-part="editorActions"
       >
         <Button
           type="button"

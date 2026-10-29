@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { OverflowText, Icon, IconButton, Input } from '@openbitfun/ui';
+import { OverflowText, Icon, IconButton, Input } from '@alex/ui';
 import { AlertTriangle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { createLogger } from '@/shared/utils/logger';
@@ -31,16 +31,16 @@ const BrowserScene: React.FC = () => {
     <div
       className="browser-scene"
       data-testid="browser-panel"
-      data-openbitfun-scene="browser"
-      data-openbitfun-part="root"
-      data-openbitfun-state={browser.isLoading ? 'loading' : undefined}
+      data-alex-scene="browser"
+      data-alex-part="root"
+      data-alex-state={browser.isLoading ? 'loading' : undefined}
     >
       <form
         className="browser-scene__toolbar"
         onSubmit={handleSubmit}
         data-testid="browser-panel-title"
-        data-openbitfun-scene="browser"
-        data-openbitfun-part="toolbar"
+        data-alex-scene="browser"
+        data-alex-part="toolbar"
       >
         <IconButton
           type="button"
@@ -84,13 +84,13 @@ const BrowserScene: React.FC = () => {
       </form>
 
       {browser.error ? (
-        <div className="browser-scene__error" data-testid="browser-error-message" data-openbitfun-scene="browser" data-openbitfun-part="error">
+        <div className="browser-scene__error" data-testid="browser-error-message" data-alex-scene="browser" data-alex-part="error">
           <AlertTriangle size={16} />
           <span>{browser.error}</span>
         </div>
       ) : null}
 
-      <div className="browser-scene__content" data-testid="browser-page-frame" data-openbitfun-scene="browser" data-openbitfun-part="content">
+      <div className="browser-scene__content" data-testid="browser-page-frame" data-alex-scene="browser" data-alex-part="content">
         {!browser.isTauri ? (
           <iframe
             className="browser-scene__iframe"

@@ -51,7 +51,7 @@ public sealed interface RelayFailure {
     public data class ClientOutdated(val message: String?) : RelayFailure
 
     /**
-     * The desktop runs an OpenBitFun version without `read_stream`, so its
+     * The desktop runs an Alex version without `read_stream`, so its
      * sessions cannot be streamed on demand. Only updating that device helps;
      * nothing is retried here.
      */

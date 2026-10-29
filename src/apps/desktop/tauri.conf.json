@@ -11,11 +11,11 @@
   "bundle": {
     "active": true,
     "targets": "all",
-    "publisher": "OpenBitFun Team",
+    "publisher": "Alex Team",
     "icon": [
-      "icons/openbitfun-app-icon.icns",
-      "icons/openbitfun-app-icon.ico",
-      "icons/openbitfun-app-icon.png"
+      "icons/alex-app-icon.icns",
+      "icons/alex-app-icon.ico",
+      "icons/alex-app-icon.png"
     ],
     "resources": {
       "../../mobile-web/dist": "mobile-web/dist",
@@ -68,14 +68,14 @@
           "zlib1g"
         ],
         "files": {
-          "/usr/share/icons/hicolor/16x16/apps/openbitfun-desktop.png": "icons/hicolor/16x16/apps/openbitfun-desktop.png",
-          "/usr/share/icons/hicolor/32x32/apps/openbitfun-desktop.png": "icons/hicolor/32x32/apps/openbitfun-desktop.png",
-          "/usr/share/icons/hicolor/48x48/apps/openbitfun-desktop.png": "icons/hicolor/48x48/apps/openbitfun-desktop.png",
-          "/usr/share/icons/hicolor/64x64/apps/openbitfun-desktop.png": "icons/hicolor/64x64/apps/openbitfun-desktop.png",
-          "/usr/share/icons/hicolor/96x96/apps/openbitfun-desktop.png": "icons/hicolor/96x96/apps/openbitfun-desktop.png",
-          "/usr/share/icons/hicolor/128x128/apps/openbitfun-desktop.png": "icons/hicolor/128x128/apps/openbitfun-desktop.png",
-          "/usr/share/icons/hicolor/256x256/apps/openbitfun-desktop.png": "icons/hicolor/256x256/apps/openbitfun-desktop.png",
-          "/usr/share/icons/hicolor/512x512/apps/openbitfun-desktop.png": "icons/hicolor/512x512/apps/openbitfun-desktop.png"
+          "/usr/share/icons/hicolor/16x16/apps/alex-desktop.png": "icons/hicolor/16x16/apps/alex-desktop.png",
+          "/usr/share/icons/hicolor/32x32/apps/alex-desktop.png": "icons/hicolor/32x32/apps/alex-desktop.png",
+          "/usr/share/icons/hicolor/48x48/apps/alex-desktop.png": "icons/hicolor/48x48/apps/alex-desktop.png",
+          "/usr/share/icons/hicolor/64x64/apps/alex-desktop.png": "icons/hicolor/64x64/apps/alex-desktop.png",
+          "/usr/share/icons/hicolor/96x96/apps/alex-desktop.png": "icons/hicolor/96x96/apps/alex-desktop.png",
+          "/usr/share/icons/hicolor/128x128/apps/alex-desktop.png": "icons/hicolor/128x128/apps/alex-desktop.png",
+          "/usr/share/icons/hicolor/256x256/apps/alex-desktop.png": "icons/hicolor/256x256/apps/alex-desktop.png",
+          "/usr/share/icons/hicolor/512x512/apps/alex-desktop.png": "icons/hicolor/512x512/apps/alex-desktop.png"
         },
         "postInstallScript": "scripts/post-install-icons.sh"
       },

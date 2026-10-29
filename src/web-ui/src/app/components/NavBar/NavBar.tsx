@@ -17,7 +17,7 @@ import { useI18n } from '../../../infrastructure/i18n';
 import { createLogger } from '@/shared/utils/logger';
 import { isMacOSDesktopRuntime, supportsNativeWindowDragging } from '@/infrastructure/runtime';
 import './NavBar.scss';
-import { Icon, OverflowText, Tooltip } from '@openbitfun/ui';
+import { Icon, OverflowText, Tooltip } from '@alex/ui';
 
 const log = createLogger('NavBar');
 
@@ -82,17 +82,17 @@ const NavBar: React.FC<NavBarProps> = ({
     onMaximize?.();
   }, [onMaximize]);
 
-  const rootClassName = `openbitfun-nav-bar${isCollapsed ? ' openbitfun-nav-bar--collapsed' : ''}${isMacOS ? ' openbitfun-nav-bar--macos' : ''} ${className}`;
+  const rootClassName = `alex-nav-bar${isCollapsed ? ' alex-nav-bar--collapsed' : ''}${isMacOS ? ' alex-nav-bar--macos' : ''} ${className}`;
 
   if (isCollapsed) {
     return (
-      <div data-openbitfun-component="nav-bar" data-openbitfun-part="root" data-openbitfun-state="collapsed" data-openbitfun-theme-scope="chrome" className={rootClassName} role="toolbar" aria-label={t('nav.aria.navControl')} onMouseDown={handleBarMouseDown} onDoubleClick={handleBarDoubleClick}>
+      <div data-alex-component="nav-bar" data-alex-part="root" data-alex-state="collapsed" data-alex-theme-scope="chrome" className={rootClassName} role="toolbar" aria-label={t('nav.aria.navControl')} onMouseDown={handleBarMouseDown} onDoubleClick={handleBarDoubleClick}>
         <Tooltip content={t('header.expandLeftPanel')} placement="bottom" followCursor>
           <button
             type="button"
-            className="openbitfun-nav-bar__panel-toggle"
-            data-openbitfun-component="nav-bar"
-            data-openbitfun-part="panelToggle"
+            className="alex-nav-bar__panel-toggle"
+            data-alex-component="nav-bar"
+            data-alex-part="panelToggle"
             onClick={onExpandNav}
             aria-label={t('header.expandLeftPanel')}
           >
@@ -104,13 +104,13 @@ const NavBar: React.FC<NavBarProps> = ({
   }
 
   return (
-    <div data-openbitfun-component="nav-bar" data-openbitfun-part="root" data-openbitfun-theme-scope="chrome" className={rootClassName} role="toolbar" aria-label={t('nav.aria.navControl')} onMouseDown={handleBarMouseDown} onDoubleClick={handleBarDoubleClick}>
+    <div data-alex-component="nav-bar" data-alex-part="root" data-alex-theme-scope="chrome" className={rootClassName} role="toolbar" aria-label={t('nav.aria.navControl')} onMouseDown={handleBarMouseDown} onDoubleClick={handleBarDoubleClick}>
       <Tooltip content={t('header.collapseLeftPanel')} placement="bottom" followCursor>
         <button
           type="button"
-          className="openbitfun-nav-bar__panel-toggle"
-          data-openbitfun-component="nav-bar"
-          data-openbitfun-part="panelToggle"
+          className="alex-nav-bar__panel-toggle"
+          data-alex-component="nav-bar"
+          data-alex-part="panelToggle"
           onClick={onExpandNav}
           aria-label={t('header.collapseLeftPanel')}
         >
@@ -122,9 +122,9 @@ const NavBar: React.FC<NavBarProps> = ({
       <Tooltip content={t('nav.backShortcut')} placement="bottom" followCursor disabled={!canGoBack}>
         <button
           type="button"
-          className={`openbitfun-nav-bar__btn${!canGoBack ? ' is-inactive' : ''}`}
-          data-openbitfun-component="nav-bar"
-          data-openbitfun-part="back"
+          className={`alex-nav-bar__btn${!canGoBack ? ' is-inactive' : ''}`}
+          data-alex-component="nav-bar"
+          data-alex-part="back"
           onClick={canGoBack ? goBack : undefined}
           aria-disabled={!canGoBack}
           aria-label={t('nav.back')}
@@ -136,9 +136,9 @@ const NavBar: React.FC<NavBarProps> = ({
       <Tooltip content={t('nav.forwardShortcut')} placement="bottom" followCursor disabled={!canGoForward}>
         <button
           type="button"
-          className={`openbitfun-nav-bar__btn${!canGoForward ? ' is-inactive' : ''}`}
-          data-openbitfun-component="nav-bar"
-          data-openbitfun-part="forward"
+          className={`alex-nav-bar__btn${!canGoForward ? ' is-inactive' : ''}`}
+          data-alex-component="nav-bar"
+          data-alex-part="forward"
           onClick={canGoForward ? goForward : undefined}
           aria-disabled={!canGoForward}
           aria-label={t('nav.forward')}
@@ -149,9 +149,9 @@ const NavBar: React.FC<NavBarProps> = ({
 
       {title && (
         <OverflowText
-          className="openbitfun-nav-bar__title"
-          data-openbitfun-component="nav-bar"
-          data-openbitfun-part="title"
+          className="alex-nav-bar__title"
+          data-alex-component="nav-bar"
+          data-alex-part="title"
           title={title}
         >
           {title}

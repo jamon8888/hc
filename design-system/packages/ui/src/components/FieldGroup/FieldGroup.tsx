@@ -50,31 +50,31 @@ export const FormSection = forwardRef<HTMLElement, FormSectionProps>(
       <section
         {...props}
         className={classNames(styles.section, className)}
-        data-openbitfun-component="form-section"
+        data-alex-component="form-section"
         ref={ref}
       >
         {(title !== undefined && title !== null)
           || (description !== undefined && description !== null)
           || (leading !== undefined && leading !== null)
           || (actions !== undefined && actions !== null) ? (
-            <div className={styles.header} data-openbitfun-part="header">
+            <div className={styles.header} data-alex-part="header">
               {(title !== undefined && title !== null)
                 || (description !== undefined && description !== null)
                 || (leading !== undefined && leading !== null) ? (
-                  <div className={styles.headingRegion} data-openbitfun-part="heading-region">
+                  <div className={styles.headingRegion} data-alex-part="heading-region">
                     {leading !== undefined && leading !== null && (
-                      <div className={styles.leading} data-openbitfun-part="leading">{leading}</div>
+                      <div className={styles.leading} data-alex-part="leading">{leading}</div>
                     )}
                     {(title !== undefined && title !== null)
                       || (description !== undefined && description !== null) ? (
-                        <div className={styles.headingContent} data-openbitfun-part="heading-content">
+                        <div className={styles.headingContent} data-alex-part="heading-content">
                           {title !== undefined && title !== null && createElement(
                             headingAs,
-                            { className: styles.title, "data-openbitfun-part": "title" },
+                            { className: styles.title, "data-alex-part": "title" },
                             title,
                           )}
                           {description !== undefined && description !== null && (
-                            <div className={styles.description} data-openbitfun-part="description">
+                            <div className={styles.description} data-alex-part="description">
                               {description}
                             </div>
                           )}
@@ -83,7 +83,7 @@ export const FormSection = forwardRef<HTMLElement, FormSectionProps>(
                   </div>
                 ) : null}
               {actions !== undefined && actions !== null && (
-                <div className={styles.actions} data-openbitfun-part="actions">{actions}</div>
+                <div className={styles.actions} data-alex-part="actions">{actions}</div>
               )}
             </div>
           ) : null}
@@ -108,7 +108,7 @@ export const FieldGroup = forwardRef<HTMLDivElement, FieldGroupProps>(
           {...props}
           className={classNames(styles.group, className)}
           data-appearance={appearance}
-          data-openbitfun-component="field-group"
+          data-alex-component="field-group"
           data-dividers={dividers ? "true" : "false"}
           data-field-surface={fieldSurface}
           ref={ref}
@@ -133,7 +133,7 @@ export const FieldRow = forwardRef<HTMLDivElement, FieldRowProps>(
         {...props}
         className={classNames(styles.row, className)}
         data-align={align}
-        data-openbitfun-part="row"
+        data-alex-part="row"
         data-padding={padding}
         ref={ref}
       >

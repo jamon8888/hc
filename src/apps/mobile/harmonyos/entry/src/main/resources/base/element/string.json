@@ -2,11 +2,11 @@
   "string": [
     {
       "name": "module_desc",
-      "value": "OpenBitFun remote control client"
+      "value": "Alex remote control client"
     },
     {
       "name": "EntryAbility_desc",
-      "value": "Connect to OpenBitFun desktop and control remote sessions"
+      "value": "Connect to Alex desktop and control remote sessions"
     },
     {
       "name": "EntryAbility_label",
@@ -14,11 +14,11 @@
     },
     {
       "name": "permission_camera_reason",
-      "value": "Used to scan the OpenBitFun desktop remote connection QR code."
+      "value": "Used to scan the Alex desktop remote connection QR code."
     },
     {
       "name": "permission_read_pasteboard_reason",
-      "value": "Used to paste the OpenBitFun desktop remote connection link."
+      "value": "Used to paste the Alex desktop remote connection link."
     },
     {
       "name": "permission_microphone_reason",

@@ -109,7 +109,7 @@ export default function BackgroundTerminalProjection({ projection }: {
 
   return <div className="background-command-output-panel__projection"
     data-terminal-id={terminalId} data-readonly="true"
-    data-openbitfun-component="background-command-output-panel" data-openbitfun-part="terminal">
+    data-alex-component="background-command-output-panel" data-alex-part="terminal">
     <div ref={host} className="background-command-output-panel__projection-host" />
   </div>;
 }

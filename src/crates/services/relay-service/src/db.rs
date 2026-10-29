@@ -572,7 +572,7 @@ pub fn is_valid_device_kind(kind: &str) -> bool {
     DEVICE_KINDS.contains(&kind)
 }
 
-/// Whether a row is an OpenBitFun host this account can reach and drive, as
+/// Whether a row is an Alex host this account can reach and drive, as
 /// opposed to a controller (a phone or a watch).
 ///
 /// A missing kind predates client-side reporting, and is read as a desktop:
@@ -1214,7 +1214,7 @@ pub fn is_valid_auth_token(token: &str) -> bool {
 
 // ── Pages (published static sites) ──────────────────────────────────────
 
-/// Visibility levels for a published OpenBitFun Page.
+/// Visibility levels for a published Alex Page.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PageVisibility {
     /// Only the page owner (with their token) can access.
@@ -2575,7 +2575,7 @@ mod tests {
     #[tokio::test]
     async fn legacy_global_device_schema_is_migrated_without_ambiguous_tokens() {
         let db_path = std::env::temp_dir().join(format!(
-            "openbitfun-relay-device-migration-{}-{}.db",
+            "alex-relay-device-migration-{}-{}.db",
             std::process::id(),
             rand::random::<u64>()
         ));
@@ -2883,7 +2883,7 @@ mod tests {
     #[tokio::test]
     async fn reopening_a_database_keeps_the_device_kind_column_and_its_values() {
         let db_path = std::env::temp_dir().join(format!(
-            "openbitfun-relay-device-kind-migration-{}-{}.db",
+            "alex-relay-device-kind-migration-{}-{}.db",
             std::process::id(),
             rand::random::<u64>()
         ));
@@ -2916,7 +2916,7 @@ mod tests {
     #[tokio::test]
     async fn legacy_pages_receive_nonempty_authorization_generations() {
         let db_path = std::env::temp_dir().join(format!(
-            "openbitfun-relay-page-generation-migration-{}-{}.db",
+            "alex-relay-page-generation-migration-{}-{}.db",
             std::process::id(),
             rand::random::<u64>()
         ));

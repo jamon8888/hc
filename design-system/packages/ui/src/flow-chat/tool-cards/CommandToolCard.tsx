@@ -156,22 +156,22 @@ export function CommandToolCard({
   };
 
   const details = hasDetails ? (
-    <div className={styles.details} data-openbitfun-part="details">
+    <div className={styles.details} data-alex-part="details">
       {hasOutputFrame && (
         <div
           className={styles.outputFrame}
-          data-openbitfun-part="outputFrame"
+          data-alex-part="outputFrame"
           data-density={outputDensity}
           data-sizing={outputSizing}
         >
           {outputAction && <span className={styles.outputActions}>{outputAction}</span>}
           {output
-            ? <div className={styles.output} data-openbitfun-part="output">{output}</div>
-            : <div className={styles.waiting} data-openbitfun-part="waiting">{waitingContent}</div>}
+            ? <div className={styles.output} data-alex-part="output">{output}</div>
+            : <div className={styles.waiting} data-alex-part="waiting">{waitingContent}</div>}
         </div>
       )}
       {hasFooter && (
-        <div className={styles.footer} data-openbitfun-part="footer">
+        <div className={styles.footer} data-alex-part="footer">
           {footerItems.map((item, index) => (
             <span
               className={styles.footerItem}
@@ -195,9 +195,9 @@ export function CommandToolCard({
     <div
       {...props}
       className={classNames(styles.root, className)}
-      data-openbitfun-component="command-tool-card"
-      data-openbitfun-part="root"
-      data-openbitfun-status={status}
+      data-alex-component="command-tool-card"
+      data-alex-part="root"
+      data-alex-status={status}
     >
       <ProminentToolCard
         errorContent={error ? <div className={styles.error}>{error}</div> : undefined}
@@ -215,7 +215,7 @@ export function CommandToolCard({
             content={(
               <code
                 className={styles.command}
-                data-openbitfun-part="command"
+                data-alex-part="command"
                 data-empty={resolvedCommand ? "false" : "true"}
                 data-testid={commandTestId}
               ><OverflowText overflowStyle="ellipsis">
@@ -223,7 +223,7 @@ export function CommandToolCard({
               </OverflowText></code>
             )}
             extra={(statusSummary || statusLabel) ? (
-              <span className={styles.statusSummary} data-openbitfun-part="statusSummary">
+              <span className={styles.statusSummary} data-alex-part="statusSummary">
                 {statusSummary}
                 {statusLabel && (
                   <span className={styles.statusLabel} data-tone={statusTone}>{statusLabel}</span>

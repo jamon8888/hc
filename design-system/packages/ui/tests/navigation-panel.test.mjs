@@ -23,7 +23,7 @@ test("NavigationPanelItem forwards static labels and keeps native navigation sem
   assert.match(markup, /<button[^>]+aria-current="page"/);
   assert.match(markup, /data-active="true"/);
   assert.match(markup, /type="button"/);
-  assert.match(markup, /data-openbitfun-part="label">My submitted appearance packages<\/span>/);
+  assert.match(markup, /data-alex-part="label">My submitted appearance packages<\/span>/);
   assert.doesNotMatch(markup, /data-overflow-behavior|data-overflow-content|labelBehavior/);
   const defaultMarkup = renderToStaticMarkup(createElement(NavigationPanelItem, null, "Navigation"));
   assert.match(defaultMarkup, /data-overflow-behavior="marquee"/);
@@ -60,11 +60,11 @@ test("NavigationPanel composes independent header, grouped body, and footer regi
   );
 
   assert.match(markup, /<nav[^>]+aria-label="Application navigation"/);
-  assert.match(markup, /data-openbitfun-component="navigation-panel"/);
-  assert.match(markup, /data-openbitfun-part="header"/);
-  assert.match(markup, /data-openbitfun-part="content"/);
-  assert.match(markup, /data-openbitfun-part="footer"/);
-  assert.match(markup, /data-openbitfun-scrollbar-visibility="always"/);
+  assert.match(markup, /data-alex-component="navigation-panel"/);
+  assert.match(markup, /data-alex-part="header"/);
+  assert.match(markup, /data-alex-part="content"/);
+  assert.match(markup, /data-alex-part="footer"/);
+  assert.match(markup, /data-alex-scrollbar-visibility="always"/);
   assert.match(markup, /aria-labelledby="[^"]+"/);
   assert.match(markup, /aria-current="page"/);
   assert.match(markup, /disabled=""/);
@@ -78,11 +78,11 @@ test("NavigationPanel styling reuses shared action and scrollbar contracts", asy
     "utf8",
   );
 
-  assert.match(styles, /--openbitfun-layout-navigation-panel-inline-size/);
-  assert.match(styles, /--openbitfun-layout-navigation-panel-footer-height/);
-  assert.match(styles, /\.items\s*\{[^}]*gap: calc\(var\(--openbitfun-space-1\) \/ 2\)/);
-  assert.match(styles, /--openbitfun-color-surface-chrome/);
-  assert.match(styles, /--openbitfun-color-selection-surface/);
+  assert.match(styles, /--alex-layout-navigation-panel-inline-size/);
+  assert.match(styles, /--alex-layout-navigation-panel-footer-height/);
+  assert.match(styles, /\.items\s*\{[^}]*gap: calc\(var\(--alex-space-1\) \/ 2\)/);
+  assert.match(styles, /--alex-color-surface-chrome/);
+  assert.match(styles, /--alex-color-selection-surface/);
   assert.match(styles, /aria-current/);
   assert.match(styles, /scrollbar-gutter: stable/);
   assert.doesNotMatch(styles, /#[0-9a-f]{3,8}/i);
@@ -99,16 +99,16 @@ test("NavigationPanel separates group captions, destinations, and the selected d
   );
   const heading = styles.match(/\.headingLabel\s*\{([^}]+)\}/)?.[1];
   assert.ok(heading);
-  assert.match(heading, /color: var\(--openbitfun-color-content-caption\)/);
-  assert.match(heading, /font-family: var\(--openbitfun-type-label-xs-font-family\)/);
-  assert.match(heading, /font-size: var\(--openbitfun-type-label-xs-font-size\)/);
-  assert.match(heading, /font-weight: var\(--openbitfun-type-label-xs-font-weight\)/);
-  assert.match(heading, /line-height: var\(--openbitfun-type-label-xs-line-height\)/);
-  assert.match(styles, /\.item\[data-openbitfun-tone="neutral"\]:not\(\[data-disabled="true"\]\)\s*\{\s*color: var\(--openbitfun-color-content-primary\)/);
-  assert.match(actionStyles, /\.label\s*\{[^}]*font-size: var\(--openbitfun-type-label-md-font-size\)/);
-  assert.match(actionStyles, /\.label\s*\{[^}]*font-weight: var\(--openbitfun-type-label-md-font-weight\)/);
-  assert.match(styles, /\.item > \[data-openbitfun-part="trigger"\]\[aria-current\] > \[data-openbitfun-part="label"\]\s*\{\s*font-weight: var\(--openbitfun-type-label-selected-font-weight\)/);
-  assert.match(styles, /@media \(prefers-contrast: more\)[\s\S]*?color: var\(--openbitfun-color-content-muted\)/);
-  assert.match(styles, /:global\(\[data-contrast="high"\]\) \.headingLabel\s*\{\s*color: var\(--openbitfun-color-content-muted\)/);
+  assert.match(heading, /color: var\(--alex-color-content-caption\)/);
+  assert.match(heading, /font-family: var\(--alex-type-label-xs-font-family\)/);
+  assert.match(heading, /font-size: var\(--alex-type-label-xs-font-size\)/);
+  assert.match(heading, /font-weight: var\(--alex-type-label-xs-font-weight\)/);
+  assert.match(heading, /line-height: var\(--alex-type-label-xs-line-height\)/);
+  assert.match(styles, /\.item\[data-alex-tone="neutral"\]:not\(\[data-disabled="true"\]\)\s*\{\s*color: var\(--alex-color-content-primary\)/);
+  assert.match(actionStyles, /\.label\s*\{[^}]*font-size: var\(--alex-type-label-md-font-size\)/);
+  assert.match(actionStyles, /\.label\s*\{[^}]*font-weight: var\(--alex-type-label-md-font-weight\)/);
+  assert.match(styles, /\.item > \[data-alex-part="trigger"\]\[aria-current\] > \[data-alex-part="label"\]\s*\{\s*font-weight: var\(--alex-type-label-selected-font-weight\)/);
+  assert.match(styles, /@media \(prefers-contrast: more\)[\s\S]*?color: var\(--alex-color-content-muted\)/);
+  assert.match(styles, /:global\(\[data-contrast="high"\]\) \.headingLabel\s*\{\s*color: var\(--alex-color-content-muted\)/);
   assert.match(styles, /@media \(forced-colors: active\)[\s\S]*?color: CanvasText/);
 });

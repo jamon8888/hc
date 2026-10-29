@@ -52,7 +52,7 @@ function deferred<T>() {
   return { promise, resolve, reject };
 }
 
-const repositoryPath = { workspaceId: 'workspace-1', repositoryPath: 'D:/workspace/OpenBitFun' };
+const repositoryPath = { workspaceId: 'workspace-1', repositoryPath: 'D:/workspace/Alex' };
 
 describe('GitStateManager refresh performance guards', () => {
   let manager: GitStateManager;

@@ -6,7 +6,7 @@
 
 use std::sync::{mpsc, Arc};
 
-use openbitfun_core::service::config::{
+use alex_core::service::config::{
     subscribe_config_updates, ConfigService, ConfigUpdateEvent,
 };
 use serde::Deserialize;
@@ -93,7 +93,7 @@ impl Default for SleepPreventionState {
 fn start_worker() -> Result<mpsc::Sender<SleepPreventionRequest>, String> {
     let (sender, receiver) = mpsc::channel();
     std::thread::Builder::new()
-        .name("openbitfun-sleep-prevention".to_string())
+        .name("alex-sleep-prevention".to_string())
         .spawn(move || run_worker(receiver))
         .map_err(|error| format!("Failed to start sleep-prevention worker: {}", error))?;
     Ok(sender)
@@ -119,7 +119,7 @@ fn set_inhibitor_enabled(
         if inhibitor.is_none() {
             let guard = keepawake::Builder::default()
                 .idle(true)
-                .reason("Prevent sleep is enabled in OpenBitFun")
+                .reason("Prevent sleep is enabled in Alex")
                 .app_name("OpenBitFun")
                 .app_reverse_domain("com.openbitfun.desktop")
                 .create()
@@ -287,7 +287,7 @@ pub async fn set_prevent_sleep_enabled(
     app: AppHandle,
     request: SetPreventSleepEnabledRequest,
 ) -> Result<(), String> {
-    crate::openbitfun_control_host::configure_option_from_gui(
+    crate::alex_control_host::configure_option_from_gui(
         &app,
         "setting.application.general",
         "prevent-sleep",
@@ -334,7 +334,7 @@ mod tests {
     use super::{
         apply_then_persist, config_event_requires_sync, start_worker, SleepPreventionState,
     };
-    use openbitfun_core::service::config::ConfigUpdateEvent;
+    use alex_core::service::config::ConfigUpdateEvent;
     use std::sync::{Arc, Mutex};
 
     #[tokio::test]

@@ -1,4 +1,4 @@
-import { Alert, Button, Combobox, ConfirmDialog, IconButton, Input, Select, Switch, Tooltip, type ComboboxOption } from '@openbitfun/ui';
+import { Alert, Button, Combobox, ConfirmDialog, IconButton, Input, Select, Switch, Tooltip, type ComboboxOption } from '@alex/ui';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Archive, FolderOpen } from 'lucide-react';
@@ -117,7 +117,7 @@ function LaunchAtLoginSetting() {
         description={t('launchAtLogin.toggleDescription')}
         align="center"
       >
-        <div data-openbitfun-component="application-settings" data-openbitfun-part="launchAtLogin">
+        <div data-alex-component="application-settings" data-alex-part="launchAtLogin">
           <Switch
             checked={enabled}
             onChange={(e) => {
@@ -212,7 +212,7 @@ function AutoUpdateSetting() {
         description={t('autoUpdate.toggleDescription')}
         align="center"
       >
-        <div data-openbitfun-component="application-settings" data-openbitfun-part="autoUpdate">
+        <div data-alex-component="application-settings" data-alex-part="autoUpdate">
           <Switch
             checked={enabled}
             onChange={(e) => {
@@ -307,7 +307,7 @@ function PreventSleepSetting() {
         description={t('preventSleep.toggleDescription')}
         align="center"
       >
-        <div data-openbitfun-component="application-settings" data-openbitfun-part="preventSleep">
+        <div data-alex-component="application-settings" data-alex-part="preventSleep">
           <Switch
             checked={enabled}
             onChange={(event) => {
@@ -471,8 +471,8 @@ function LoggingSection() {
   }
 
   return (
-    <div className="openbitfun-logging-config" data-openbitfun-component="application-settings" data-openbitfun-part="logging">
-      <div className="openbitfun-logging-config__content">
+    <div className="alex-logging-config" data-alex-component="application-settings" data-alex-part="logging">
+      <div className="alex-logging-config__content">
         <ConfigMessage message={message} />
 
         {runtimeInfo?.previousUnexpectedExit?.detected && (
@@ -529,9 +529,9 @@ function LoggingSection() {
             description={t('logging.path.description')}
             multiline
           >
-            <div className="openbitfun-logging-config__path-row" data-openbitfun-component="application-settings" data-openbitfun-part="logPath">
+            <div className="alex-logging-config__path-row" data-alex-component="application-settings" data-alex-part="logPath">
               <Input
-                className="openbitfun-logging-config__path-box"
+                className="alex-logging-config__path-box"
                 aria-label={t('logging.sections.path')}
                 title={runtimeInfo?.sessionLogDir || undefined}
                 value={runtimeInfo?.sessionLogDir || '-'}
@@ -689,8 +689,8 @@ function TerminalSection() {
   }
 
   return (
-    <div className="openbitfun-terminal-config" data-openbitfun-component="application-settings" data-openbitfun-part="terminal">
-      <div className="openbitfun-terminal-config__content">
+    <div className="alex-terminal-config" data-alex-component="application-settings" data-alex-part="terminal">
+      <div className="alex-terminal-config__content">
         <ConfigMessage message={message} />
 
         {shouldShowCmdFallbackNotice && (
@@ -719,7 +719,7 @@ function TerminalSection() {
                 disabled={saving}
               />
             ) : (
-              <div className="openbitfun-terminal-config__no-shells">{t('terminal.controls.noShells')}</div>
+              <div className="alex-terminal-config__no-shells">{t('terminal.controls.noShells')}</div>
             )}
           </ConfigPageRow>
 
@@ -820,7 +820,7 @@ function WindowBehaviorSetting() {
         description={t('windowBehavior.closeButtonDescription')}
         align="center"
       >
-        <div data-openbitfun-component="application-settings" data-openbitfun-part="windowBehavior">
+        <div data-alex-component="application-settings" data-alex-part="windowBehavior">
           <Select
             size="sm"
             value={behavior}
@@ -929,7 +929,7 @@ function NotificationSettings() {
         description={t('notifications.dialogCompletion.description')}
         align="center"
       >
-        <div data-openbitfun-component="application-settings" data-openbitfun-part="notifications">
+        <div data-alex-component="application-settings" data-alex-part="notifications">
           <Switch
             checked={dialogNotify}
             onChange={(e) => { void handleDialogNotifyToggle(e.target.checked); }}
@@ -977,16 +977,16 @@ const ApplicationSettingsPage: React.FC<ApplicationSettingsPageProps> = ({ page 
 
   return (
     <ConfigPageLayout
-      className="openbitfun-application-settings"
-      data-openbitfun-component="application-settings"
-      data-openbitfun-part="root"
-      data-openbitfun-view={page}
+      className="alex-application-settings"
+      data-alex-component="application-settings"
+      data-alex-part="root"
+      data-alex-view={page}
     >
       <ConfigPageHeader title={title} subtitle={subtitle} />
       <ConfigPageContent
-        className="openbitfun-application-settings__content"
-        data-openbitfun-component="application-settings"
-        data-openbitfun-part="content"
+        className="alex-application-settings__content"
+        data-alex-component="application-settings"
+        data-alex-part="content"
       >
         {page === 'general' ? (
           <>

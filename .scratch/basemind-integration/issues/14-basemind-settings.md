@@ -6,7 +6,7 @@
 
 **Status:** ready-for-agent
 
-- [ ] In `openbitfun_core::service::config::types` (or `basemind-integration`):
+- [ ] In `alex_core::service::config::types` (or `basemind-integration`):
   ```rust
   #[derive(Serialize, Deserialize, Clone, Default)]
   pub struct BasemindConfig {

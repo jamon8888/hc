@@ -9,7 +9,7 @@ import androidx.compose.ui.test.performClick
 import com.openbitfun.mobile.app.ui.settings.MODEL_CATALOG_FAILURE_TEST_TAG
 import com.openbitfun.mobile.app.ui.settings.MODEL_CATALOG_RETRY_TEST_TAG
 import com.openbitfun.mobile.app.ui.settings.RemoteSettingsSheet
-import com.openbitfun.mobile.app.ui.theme.OpenBitFunTheme
+import com.openbitfun.mobile.app.ui.theme.AlexTheme
 import com.openbitfun.mobile.core.feature.session.ModelCatalogFailure
 import com.openbitfun.mobile.core.feature.session.RemoteSessionIntent
 import com.openbitfun.mobile.core.feature.session.RemoteSessionUiState
@@ -70,7 +70,7 @@ class RemoteSettingsSheetTest {
         onIntent: (RemoteSessionIntent) -> Unit = {},
     ) {
         composeRule.setContent {
-            OpenBitFunTheme(dark = false) {
+            AlexTheme(dark = false) {
                 RemoteSettingsSheet(
                     state = state,
                     sessionId = "s-code",

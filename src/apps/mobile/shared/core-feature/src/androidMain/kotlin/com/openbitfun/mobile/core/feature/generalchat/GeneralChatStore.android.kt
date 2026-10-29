@@ -10,7 +10,7 @@ public fun GeneralChatStore.Companion.create(
     context: Context,
 ): GeneralChatStore {
     val application = context.applicationContext
-    val persistence = androidPersistenceStores(application, "openbitfun-mobile.db")
+    val persistence = androidPersistenceStores(application, "alex-mobile.db")
     return GeneralChatStore.create(
         scope = scope,
         stream = GeneralChatStore.providerStream(),

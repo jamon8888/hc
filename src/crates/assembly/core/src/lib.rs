@@ -3,7 +3,7 @@
 //! Compatibility facade and full product runtime assembly.
 //!
 //! New implementation code should live in owner crates under `src/crates/*`.
-//! This crate re-exports legacy paths and wires the full OpenBitFun product runtime.
+//! This crate re-exports legacy paths and wires the full Alex product runtime.
 
 #[cfg(feature = "agent-runtime")]
 pub mod agentic; // Agent system, tool system, and product runtime orchestration
@@ -70,16 +70,16 @@ pub(crate) mod service_agent_runtime;
 pub mod util; // General types, errors, helper functions
 
 #[cfg(feature = "remote-connect")]
-pub use openbitfun_services_integrations::remote_connect::{
+pub use alex_services_integrations::remote_connect::{
     LocalModelsDevCatalogs, RemoteModelCatalog as AIModelCatalog,
 };
 
 #[cfg(feature = "agent-runtime")]
-pub fn get_builtin_ai_provider_catalog() -> openbitfun_core_types::ProviderCatalog {
+pub fn get_builtin_ai_provider_catalog() -> alex_core_types::ProviderCatalog {
     infrastructure::ai::provider_catalog::resolve_builtin_provider_catalog(
         None,
-        "openbitfun-builtin".to_string(),
-        openbitfun_core_types::ProviderCatalogSource::OpenBitFun,
+        "alex-builtin".to_string(),
+        alex_core_types::ProviderCatalogSource::OpenBitFun,
     )
 }
 
@@ -114,24 +114,24 @@ pub async fn get_local_models_dev_catalogs() -> Result<LocalModelsDevCatalogs, S
 
 #[cfg(feature = "model-catalog")]
 pub async fn project_ai_model_reasoning_catalog(
-    request: openbitfun_core_types::ReasoningCatalogProjectionRequest,
-) -> openbitfun_core_types::ReasoningCatalogProjection {
+    request: alex_core_types::ReasoningCatalogProjectionRequest,
+) -> alex_core_types::ReasoningCatalogProjection {
     infrastructure::ai::reasoning_catalog::project_reasoning_catalog_request(request).await
 }
 
 #[cfg(feature = "model-catalog")]
-pub async fn get_models_dev_catalog_status() -> openbitfun_core_types::ModelsDevCatalogStatus {
+pub async fn get_models_dev_catalog_status() -> alex_core_types::ModelsDevCatalogStatus {
     infrastructure::ai::reasoning_catalog::get_models_dev_catalog_status().await
 }
 
 #[cfg(feature = "model-catalog")]
 pub async fn refresh_models_dev_catalog_now(
-) -> Result<openbitfun_core_types::ModelsDevRefreshResult, String> {
+) -> Result<alex_core_types::ModelsDevRefreshResult, String> {
     infrastructure::ai::reasoning_catalog::refresh_models_dev_catalog_now().await
 }
 
 // Export main types
-pub use openbitfun_runtime_ports as runtime_ports;
+pub use alex_runtime_ports as runtime_ports;
 pub use util::errors::*;
 pub use util::types::*;
 
@@ -165,4 +165,4 @@ pub use agentic::tools::registry::ToolRegistry;
 
 // Version information
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
-pub const CORE_NAME: &str = "OpenBitFun Core";
+pub const CORE_NAME: &str = "Alex Core";

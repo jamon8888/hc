@@ -1,8 +1,8 @@
-import { ActionCard } from '@openbitfun/ui';
+import { ActionCard } from '@alex/ui';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { OverflowText, Button, Icon, IconButton, Select, Tooltip } from '@openbitfun/ui';
+import { OverflowText, Button, Icon, IconButton, Select, Tooltip } from '@alex/ui';
 
 import { confirmDialog } from '@/infrastructure/confirm-dialog';
 import {
@@ -21,7 +21,7 @@ import {
 } from './appearancePackageEntryVisibility';
 import { ConfigPageSection, formatStandaloneUiText } from './common';
 
-const DEFAULT_APPEARANCE_PREVIEW_SRC = '/assets/appearance/openbitfun-default-preview@4x.png';
+const DEFAULT_APPEARANCE_PREVIEW_SRC = '/assets/appearance/alex-default-preview@4x.png';
 
 function downloadArchive(bytes: ArrayBuffer, filename: string): void {
   const url = URL.createObjectURL(new Blob([bytes], { type: 'application/zip' }));
@@ -81,13 +81,13 @@ export function AppearancePackageFailurePanel({
       className="appearance-package-config__diagnostics"
       role="alert"
       aria-live="polite"
-      data-openbitfun-component="appearance-settings"
-      data-openbitfun-part="packageDiagnostics"
+      data-alex-component="appearance-settings"
+      data-alex-part="packageDiagnostics"
     >
       <div
         className="appearance-package-config__diagnostics-header"
-        data-openbitfun-component="appearance-settings"
-        data-openbitfun-part="packageDiagnosticsHeader"
+        data-alex-component="appearance-settings"
+        data-alex-part="packageDiagnosticsHeader"
       >
         <AlertTriangle size={17} aria-hidden="true" />
         <div>
@@ -111,8 +111,8 @@ export function AppearancePackageFailurePanel({
             <section
               key={group.key}
               className="appearance-package-config__diagnostics-group"
-              data-openbitfun-component="appearance-settings"
-              data-openbitfun-part="packageDiagnosticsGroup"
+              data-alex-component="appearance-settings"
+              data-alex-part="packageDiagnosticsGroup"
             >
               <h4>
                 {group.surfaceKind === 'component'
@@ -125,8 +125,8 @@ export function AppearancePackageFailurePanel({
                 {group.issues.map(issue => (
                   <li
                     key={`${issue.code}:${issue.path}`}
-                    data-openbitfun-component="appearance-settings"
-                    data-openbitfun-part="packageDiagnosticIssue"
+                    data-alex-component="appearance-settings"
+                    data-alex-part="packageDiagnosticIssue"
                   >
                     <span>{issueText(issue, t)}</span>
                     <code>{issue.path}</code>
@@ -136,8 +136,8 @@ export function AppearancePackageFailurePanel({
               {group.allowedParts.length > 0 && (
                 <details
                   className="appearance-package-config__diagnostics-parts"
-                  data-openbitfun-component="appearance-settings"
-                  data-openbitfun-part="packageDiagnosticAllowedParts"
+                  data-alex-component="appearance-settings"
+                  data-alex-part="packageDiagnosticAllowedParts"
                 >
                   <summary>{t('package.diagnostics.allowedParts')}</summary>
                   <div>{group.allowedParts.map(part => <code key={part}>{part}</code>)}</div>
@@ -251,10 +251,10 @@ function AppearancePackagePreview({
       aria-label={appearanceName}
       data-testid="appearance-package-card"
       data-appearance-id={appearanceId}
-      data-openbitfun-component="appearance-settings"
-      data-openbitfun-part="packagePreview"
-      data-openbitfun-package-type={packageType}
-      data-openbitfun-state={state || undefined}
+      data-alex-component="appearance-settings"
+      data-alex-part="packagePreview"
+      data-alex-package-type={packageType}
+      data-alex-state={state || undefined}
     >
       {onSelect ? (
         <ActionCard
@@ -415,8 +415,8 @@ export function AppearancePackageConfigSection() {
       extra={hasPackageActions ? (
         <div
           className="appearance-package-config__actions"
-          data-openbitfun-component="appearance-settings"
-          data-openbitfun-part="packageActions"
+          data-alex-component="appearance-settings"
+          data-alex-part="packageActions"
         >
           {APPEARANCE_MARKET_ENTRY_VISIBLE && (
             <Button
@@ -460,10 +460,10 @@ export function AppearancePackageConfigSection() {
           )}
         </div>
       ) : undefined}
-      data-openbitfun-component="appearance-settings"
-      data-openbitfun-part="packageSection"
-      data-openbitfun-package-type={selectedAppearance ? 'imported' : 'native'}
-      data-openbitfun-state={busy ? 'disabled' : undefined}
+      data-alex-component="appearance-settings"
+      data-alex-part="packageSection"
+      data-alex-package-type={selectedAppearance ? 'imported' : 'native'}
+      data-alex-state={busy ? 'disabled' : undefined}
     >
       {APPEARANCE_PACKAGE_IMPORT_VISIBLE && (
         <input
@@ -488,8 +488,8 @@ export function AppearancePackageConfigSection() {
         >
           <span
             className="appearance-package-config__builtin-theme-select"
-            data-openbitfun-component="appearance-settings"
-            data-openbitfun-part="packageBuiltinTheme"
+            data-alex-component="appearance-settings"
+            data-alex-part="packageBuiltinTheme"
           >
             <Select
               size="sm"
@@ -526,8 +526,8 @@ export function AppearancePackageConfigSection() {
       {unavailableSelectionId && (
         <div
           className="appearance-package-config__missing-selection"
-          data-openbitfun-component="appearance-settings"
-          data-openbitfun-part="packageMissingSelection"
+          data-alex-component="appearance-settings"
+          data-alex-part="packageMissingSelection"
         >
           <AlertTriangle size={16} aria-hidden="true" />
           <span>{t('package.missingSelection', { id: unavailableSelectionId })}</span>

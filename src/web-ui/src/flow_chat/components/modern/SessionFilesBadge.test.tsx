@@ -44,8 +44,8 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-vi.mock('@openbitfun/ui', async importOriginal => ({
-  ...await importOriginal<typeof import('@openbitfun/ui')>(),
+vi.mock('@alex/ui', async importOriginal => ({
+  ...await importOriginal<typeof import('@alex/ui')>(),
   Tooltip: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
@@ -194,7 +194,7 @@ describe('SessionFilesBadge', () => {
     act(() => {
       root.unmount();
     });
-    dom.window.document.querySelector('[data-openbitfun-overlay-host="true"]')?.remove();
+    dom.window.document.querySelector('[data-alex-overlay-host="true"]')?.remove();
     vi.useRealTimers();
     vi.unstubAllGlobals();
   });
@@ -211,15 +211,15 @@ describe('SessionFilesBadge', () => {
 
     const toggle = container.querySelector('.session-files-badge__button') as HTMLButtonElement | null;
     expect(toggle).not.toBeNull();
-    expect(toggle?.querySelector('[data-openbitfun-name="chevron-down"]')).not.toBeNull();
+    expect(toggle?.querySelector('[data-alex-name="chevron-down"]')).not.toBeNull();
 
     await act(async () => {
       toggle?.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true }));
     });
-    expect(toggle?.querySelector('[data-openbitfun-name="chevron-up"]')).not.toBeNull();
+    expect(toggle?.querySelector('[data-alex-name="chevron-up"]')).not.toBeNull();
 
     const filesPopover = dom.window.document.querySelector<HTMLElement>('.session-files-badge__popover');
-    expect(filesPopover?.closest('[data-openbitfun-overlay-host]')?.getAttribute('data-openbitfun-overlay-host')).toBe('true');
+    expect(filesPopover?.closest('[data-alex-overlay-host]')?.getAttribute('data-alex-overlay-host')).toBe('true');
     expect(filesPopover?.style.visibility).toBe('visible');
     expect(dom.window.document.body.textContent).toContain('2 files');
 
@@ -253,7 +253,7 @@ describe('SessionFilesBadge', () => {
     const actionsButton = container.querySelector('.session-files-badge__review-btn') as HTMLButtonElement | null;
     expect(actionsButton).not.toBeNull();
     expect(actionsButton?.dataset.size).toBe('xs');
-    expect(actionsButton?.querySelector('[data-openbitfun-name="commit"]')).not.toBeNull();
+    expect(actionsButton?.querySelector('[data-alex-name="commit"]')).not.toBeNull();
     expect(actionsButton?.textContent).toBe('');
 
     await act(async () => {
@@ -261,7 +261,7 @@ describe('SessionFilesBadge', () => {
     });
 
     const reviewPopover = dom.window.document.querySelector<HTMLElement>('.session-files-badge__review-menu-popover');
-    expect(reviewPopover?.closest('[data-openbitfun-overlay-host]')?.getAttribute('data-openbitfun-overlay-host')).toBe('true');
+    expect(reviewPopover?.closest('[data-alex-overlay-host]')?.getAttribute('data-alex-overlay-host')).toBe('true');
     expect(reviewPopover?.style.visibility).toBe('visible');
     expect(dom.window.document.body.textContent).toContain('Review');
     expect(dom.window.document.body.textContent).not.toContain('Review: Strict');

@@ -2,7 +2,7 @@
 export const mobileTokens = {
   "version": 1,
   "identity": {
-    "name": "OpenBitFun Mobile",
+    "name": "Alex Mobile",
     "signature": "Paper-and-ink conversation chrome with a single blue information accent"
   },
   "colors": {
@@ -1286,7 +1286,7 @@ export const mobileComponents = {
         "primary_action",
         "content_on_action"
       ],
-      "platformNotes": "Reference: desktop ChatInputApprovalBand and @openbitfun/ui raised Card, neutral resource Card, fill reject Button and primary allow Button. Preserve desktop 12-unit card radius/padding and 8-unit gaps, with 36-unit mobile actions. Resource content scrolls within the band; actions do not stretch across the card. JSON editing remains a quiet, collapsed mobile-web capability. status_warning ports desktop amber.550 for the short shield glyph: neither success/danger nor the blue file-link accent communicates pending approval."
+      "platformNotes": "Reference: desktop ChatInputApprovalBand and @alex/ui raised Card, neutral resource Card, fill reject Button and primary allow Button. Preserve desktop 12-unit card radius/padding and 8-unit gaps, with 36-unit mobile actions. Resource content scrolls within the band; actions do not stretch across the card. JSON editing remains a quiet, collapsed mobile-web capability. status_warning ports desktop amber.550 for the short shield glyph: neither success/danger nor the blue file-link accent communicates pending approval."
     }
   }
 };
@@ -1318,7 +1318,7 @@ export const mobilePreviewScenarios = {
       ],
       "composer": {
         "draft": "",
-        "placeholder": "向 OpenBitFun 提问",
+        "placeholder": "向 Alex 提问",
         "phase": "connected",
         "streaming": false
       }
@@ -1390,7 +1390,7 @@ export const mobilePreviewScenarios = {
       },
       "header": {
         "title": "检查移动端长标题、正文与控制目标的可读性",
-        "subtitle": "远程开发工作站 · OpenBitFun / feature/mobile-reading"
+        "subtitle": "远程开发工作站 · Alex / feature/mobile-reading"
       },
       "messages": [
         {
@@ -1404,7 +1404,7 @@ export const mobilePreviewScenarios = {
       ],
       "composer": {
         "draft": "请检查输入框是否能保留多行中文草稿。\n模型选择后内容应继续保留。\n附件与文本应各自成行。",
-        "placeholder": "向 OpenBitFun 提问",
+        "placeholder": "向 Alex 提问",
         "phase": "connected",
         "streaming": false
       }
@@ -1420,7 +1420,7 @@ export const mobilePreviewScenarios = {
       },
       "header": {
         "title": "检查移动端长标题、正文与控制目标的可读性",
-        "subtitle": "远程开发工作站 · OpenBitFun / feature/mobile-reading"
+        "subtitle": "远程开发工作站 · Alex / feature/mobile-reading"
       },
       "messages": [
         {
@@ -1434,7 +1434,7 @@ export const mobilePreviewScenarios = {
       ],
       "composer": {
         "draft": "请保留当前会话与控制目标。",
-        "placeholder": "向 OpenBitFun 提问",
+        "placeholder": "向 Alex 提问",
         "phase": "connected",
         "streaming": false
       }
@@ -1450,7 +1450,7 @@ export const mobilePreviewScenarios = {
       },
       "header": {
         "title": "检查移动端长标题、正文与控制目标的可读性",
-        "subtitle": "远程开发工作站 · OpenBitFun / feature/mobile-reading"
+        "subtitle": "远程开发工作站 · Alex / feature/mobile-reading"
       },
       "messages": [
         {
@@ -1464,7 +1464,7 @@ export const mobilePreviewScenarios = {
       ],
       "composer": {
         "draft": "",
-        "placeholder": "向 OpenBitFun 提问",
+        "placeholder": "向 Alex 提问",
         "phase": "connected",
         "streaming": false
       }

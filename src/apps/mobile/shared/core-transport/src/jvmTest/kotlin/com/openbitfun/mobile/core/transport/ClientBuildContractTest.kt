@@ -26,7 +26,7 @@ class ClientBuildContractTest {
         val accountContract = source("src/crates/contracts/product-domains/src/account.rs")
         assertTrue(
             accountContract.contains("pub const CLIENT_PROTOCOL_VERSION: u32 = $CLIENT_PROTOCOL_VERSION;"),
-            "CLIENT_PROTOCOL_VERSION must equal openbitfun_product_domains::account::CLIENT_PROTOCOL_VERSION",
+            "CLIENT_PROTOCOL_VERSION must equal alex_product_domains::account::CLIENT_PROTOCOL_VERSION",
         )
         val webContract = source("src/shared/relay-transport/ClientBuild.ts")
         assertTrue(

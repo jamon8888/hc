@@ -1,6 +1,6 @@
 #![cfg(feature = "local-storage")]
 
-use openbitfun_services_core::exclusive_file_lease::{ExclusiveFileLease, ExclusiveFileLeaseError};
+use alex_services_core::exclusive_file_lease::{ExclusiveFileLease, ExclusiveFileLeaseError};
 use std::path::Path;
 use std::process::{Command, Stdio};
 use std::time::{Duration, Instant};
@@ -90,9 +90,9 @@ fn abnormal_process_exit_releases_the_lease() {
         .arg("--exact")
         .arg("abnormal_exit_child_holds_lease")
         .arg("--nocapture")
-        .env("OPENBITFUN_EXCLUSIVE_FILE_LEASE_CHILD", "1")
-        .env("OPENBITFUN_EXCLUSIVE_FILE_LEASE_LOCK_PATH", &lock_path)
-        .env("OPENBITFUN_EXCLUSIVE_FILE_LEASE_READY_PATH", &ready_path)
+        .env("ALEX_EXCLUSIVE_FILE_LEASE_CHILD", "1")
+        .env("ALEX_EXCLUSIVE_FILE_LEASE_LOCK_PATH", &lock_path)
+        .env("ALEX_EXCLUSIVE_FILE_LEASE_READY_PATH", &ready_path)
         .stdout(Stdio::null())
         .stderr(Stdio::null())
         .spawn()
@@ -123,14 +123,14 @@ fn abnormal_process_exit_releases_the_lease() {
 
 #[test]
 fn abnormal_exit_child_holds_lease() {
-    if std::env::var_os("OPENBITFUN_EXCLUSIVE_FILE_LEASE_CHILD").is_none() {
+    if std::env::var_os("ALEX_EXCLUSIVE_FILE_LEASE_CHILD").is_none() {
         return;
     }
     let lock_path = std::path::PathBuf::from(
-        std::env::var_os("OPENBITFUN_EXCLUSIVE_FILE_LEASE_LOCK_PATH").expect("child lock path"),
+        std::env::var_os("ALEX_EXCLUSIVE_FILE_LEASE_LOCK_PATH").expect("child lock path"),
     );
     let ready_path = std::path::PathBuf::from(
-        std::env::var_os("OPENBITFUN_EXCLUSIVE_FILE_LEASE_READY_PATH").expect("child ready path"),
+        std::env::var_os("ALEX_EXCLUSIVE_FILE_LEASE_READY_PATH").expect("child ready path"),
     );
     let _lease = ExclusiveFileLease::try_acquire(Path::new(&lock_path)).expect("child lease");
     std::fs::write(ready_path, b"ready").expect("publish child readiness");

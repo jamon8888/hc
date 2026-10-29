@@ -1,15 +1,15 @@
 //! Weixin iLink bot orchestration for Remote Connect.
 //!
-//! Provider HTTP/CDN/QR/message parsing lives in `openbitfun-services-integrations`.
+//! Provider HTTP/CDN/QR/message parsing lives in `alex-services-integrations`.
 //! This module keeps product pairing, command routing, persistence, and agent
 //! turn orchestration.
 
 use anyhow::{anyhow, Result};
 use base64::{engine::general_purpose::STANDARD as B64, Engine as _};
 use log::{debug, error, info, warn};
-use openbitfun_services_integrations::remote_connect::bot::weixin as weixin_provider;
-use openbitfun_services_integrations::remote_connect::bot::weixin::WeixinProviderClient;
-pub use openbitfun_services_integrations::remote_connect::bot::weixin::{
+use alex_services_integrations::remote_connect::bot::weixin as weixin_provider;
+use alex_services_integrations::remote_connect::bot::weixin::WeixinProviderClient;
+pub use alex_services_integrations::remote_connect::bot::weixin::{
     WeixinConfig, WeixinQrPollResponse, WeixinQrPollStatus, WeixinQrStartResponse,
     MAX_INBOUND_IMAGES, MAX_WEIXIN_FILE_BYTES, WEIXIN_SESSION_EXPIRED_ERRCODE,
 };
@@ -30,7 +30,7 @@ use super::{
 use crate::agentic::coordination::get_global_coordinator;
 use crate::agentic::events::{AgenticEvent, EventSubscriber};
 use crate::service::remote_connect::remote_server::ImageAttachment;
-use openbitfun_agent_runtime::event_bus::EventSubscriberResult;
+use alex_agent_runtime::event_bus::EventSubscriberResult;
 
 const LONG_POLL_TIMEOUT_SECS: u64 = 36;
 
@@ -87,7 +87,7 @@ fn pending_matches_binding(state: &BotChatState, item: &PendingOutbound) -> bool
 }
 
 fn append_remote_push_notice(result: &mut HandleResult, language: super::BotLanguage) {
-    let notice = openbitfun_services_integrations::remote_connect::bot::strings_for(language)
+    let notice = alex_services_integrations::remote_connect::bot::strings_for(language)
         .weixin_remote_push_unsupported;
     result.reply.push_str("\n\n");
     result.reply.push_str(notice);
@@ -151,7 +151,7 @@ fn settled_turn_text(mut poll: Value, turn_id: &str) -> Option<String> {
     // a partial overlay until its own subscriber sees the persistence fence.
     // Prefer the persisted record regardless of subscriber execution order.
     poll["active_turn"] = Value::Null;
-    let turn = openbitfun_services_integrations::remote_connect::bot::remote_turn::observe_turn(
+    let turn = alex_services_integrations::remote_connect::bot::remote_turn::observe_turn(
         &poll, turn_id,
     )?;
     (matches!(turn.status.as_str(), "done" | "completed") && turn.error.is_none())
@@ -491,7 +491,7 @@ impl WeixinBot {
     /// Reads the assistant text of `turn_id` through the replay-safe turn
     /// projection the inbound reply path already relies on.
     async fn read_turn_text(&self, session_id: &str, turn_id: &str) -> String {
-        use openbitfun_services_integrations::remote_connect::{
+        use alex_services_integrations::remote_connect::{
             handle_remote_poll_command, RemoteCommand,
         };
 
@@ -938,9 +938,9 @@ impl WeixinBot {
                         self.try_send_text(&peer, err, "pairing-invalid").await;
                     } else if !text.is_empty() {
                         let err = if language.is_chinese() {
-                            "\u{8bf7}\u{8f93}\u{5165} OpenBitFun \u{684c}\u{9762}\u{7aef}\u{8fdc}\u{7a0b}\u{8fde}\u{63a5}\u{4e2d}\u{663e}\u{793a}\u{7684} 6 \u{4f4d}\u{914d}\u{5bf9}\u{7801}\u{3002}"
+                            "\u{8bf7}\u{8f93}\u{5165} Alex \u{684c}\u{9762}\u{7aef}\u{8fdc}\u{7a0b}\u{8fde}\u{63a5}\u{4e2d}\u{663e}\u{793a}\u{7684} 6 \u{4f4d}\u{914d}\u{5bf9}\u{7801}\u{3002}"
                         } else {
-                            "Please send the 6-digit pairing code from OpenBitFun Desktop Remote Connect."
+                            "Please send the 6-digit pairing code from Alex Desktop Remote Connect."
                         };
                         self.try_send_text(&peer, err, "pairing-prompt").await;
                     } else if weixin_provider::has_inbound_image_items(msg) {
@@ -1730,7 +1730,7 @@ mod tests {
             };
             append_remote_push_notice(&mut result, language);
             let notice =
-                openbitfun_services_integrations::remote_connect::bot::strings_for(language)
+                alex_services_integrations::remote_connect::bot::strings_for(language)
                     .weixin_remote_push_unsupported;
             assert!(result.reply.contains(notice));
             assert!(result.menu.render_plain_text(language).contains(notice));

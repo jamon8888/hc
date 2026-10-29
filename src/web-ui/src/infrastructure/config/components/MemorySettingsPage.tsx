@@ -10,7 +10,7 @@ import {
   type SelectOption,
   Switch,
   Tooltip,
-} from '@openbitfun/ui';
+} from '@alex/ui';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FolderOpen, RotateCcw } from 'lucide-react';
@@ -306,9 +306,9 @@ const MemorySettingsPage: React.FC = () => {
   if (loading || loadFailed) {
     return (
       <ConfigPageLayout
-        className="openbitfun-memories-config"
-        data-openbitfun-component="config"
-        data-openbitfun-part="root"
+        className="alex-memories-config"
+        data-alex-component="config"
+        data-alex-part="root"
       >
         <ConfigPageHeader title={t('title')} subtitle={t('subtitle')} />
         <ConfigPageContent>
@@ -331,9 +331,9 @@ const MemorySettingsPage: React.FC = () => {
 
   return (
     <ConfigPageLayout
-      className="openbitfun-memories-config"
-      data-openbitfun-component="config"
-      data-openbitfun-part="root"
+      className="alex-memories-config"
+      data-alex-component="config"
+      data-alex-part="root"
     >
       <ConfigPageHeader title={t('title')} subtitle={t('subtitle')} />
       <ConfigPageContent>

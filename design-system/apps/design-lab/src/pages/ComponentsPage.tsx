@@ -63,7 +63,7 @@ import {
   type ContrastMode,
   type DensityMode,
   type TokenOverrides,
-} from "@openbitfun/ui";
+} from "@alex/ui";
 import {
   MobileBadge,
   MobileBanner,
@@ -84,8 +84,8 @@ import {
   MobileStatus,
   MobileTextField,
   MobileTextarea,
-} from "@openbitfun/ui/mobile";
-import { componentRegistry, type ComponentMeta } from "@openbitfun/ui/registry";
+} from "@alex/ui/mobile";
+import { componentRegistry, type ComponentMeta } from "@alex/ui/registry";
 import { useI18n } from "../i18n";
 import {
   getComponentCategoryLabel,

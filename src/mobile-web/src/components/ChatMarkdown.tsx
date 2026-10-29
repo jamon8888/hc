@@ -27,7 +27,7 @@ import swift from 'react-syntax-highlighter/dist/esm/languages/prism/swift';
 import tsx from 'react-syntax-highlighter/dist/esm/languages/prism/tsx';
 import typescript from 'react-syntax-highlighter/dist/esm/languages/prism/typescript';
 import yaml from 'react-syntax-highlighter/dist/esm/languages/prism/yaml';
-import { MobileButton, MobileIconButton, MobileLink } from '@openbitfun/ui/mobile';
+import { MobileButton, MobileIconButton, MobileLink } from '@alex/ui/mobile';
 import { useI18n } from '../i18n';
 import { useTheme } from '../theme';
 import { RemoteArtifactImage } from './RemoteArtifactImage';
@@ -398,16 +398,16 @@ export const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, onFil
             customStyle={{
               margin: 0,
               borderRadius: '8px',
-              fontSize: 'var(--openbitfun-type-code-sm-font-size)',
-              lineHeight: 'var(--openbitfun-type-body-md-line-height)',
+              fontSize: 'var(--alex-type-code-sm-font-size)',
+              lineHeight: 'var(--alex-type-body-md-line-height)',
             }}
             codeTagProps={{
               style: {
-                fontFamily: 'var(--openbitfun-type-code-md-font-family)',
+                fontFamily: 'var(--alex-type-code-md-font-family)',
               },
             }}
             lineNumberStyle={{
-              color: 'var(--openbitfun-color-content-muted)',
+              color: 'var(--alex-color-content-muted)',
               paddingRight: '1em',
               textAlign: 'right' as const,
               userSelect: 'none' as const,

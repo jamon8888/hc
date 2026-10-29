@@ -2,7 +2,7 @@ import { useLayoutEffect, useRef, type RefObject } from 'react';
 
 export const STREAMING_TEXT_REVEAL_MS = 160;
 const LEVELS = 32;
-const NAME = 'openbitfun-stream-reveal-';
+const NAME = 'alex-stream-reveal-';
 const ACTIVE_ATTRIBUTE = 'data-stream-reveal-active';
 // Several renderer owners may share a text parent; only the last releases it.
 const activeElementOwners = new WeakMap<Element, number>();

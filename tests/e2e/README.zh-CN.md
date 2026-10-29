@@ -12,7 +12,7 @@
 
 ```bash
 # 构建 debug 应用
-cargo build -p openbitfun-desktop
+cargo build -p alex-desktop
 
 # 安装测试依赖
 pnpm --dir tests/e2e install
@@ -60,7 +60,7 @@ tests/e2e/
 ### 应用未构建
 
 ```bash
-cargo build -p openbitfun-desktop
+cargo build -p alex-desktop
 ```
 
 ### 测试超时

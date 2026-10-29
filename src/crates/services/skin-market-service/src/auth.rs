@@ -1,7 +1,7 @@
 use crate::db::{Database, LocalUser};
 use crate::error::{SkinMarketError, SkinMarketResult};
 use axum::http::{header, HeaderMap};
-use openbitfun_product_domains::appearance_market::AppearanceMarketUserSummary;
+use alex_product_domains::appearance_market::AppearanceMarketUserSummary;
 use reqwest::Client;
 use serde::Deserialize;
 use std::time::Duration;
@@ -33,7 +33,7 @@ struct IdentityResponse {
 
 impl IdentityVerifier {
     pub(crate) fn new(me_url: Url) -> anyhow::Result<Self> {
-        openbitfun_services_core::tls_provider::ensure_ring_crypto_provider();
+        alex_services_core::tls_provider::ensure_ring_crypto_provider();
         Ok(Self {
             client: Client::builder()
                 .connect_timeout(Duration::from_secs(3))

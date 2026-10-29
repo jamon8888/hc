@@ -5,7 +5,7 @@ import { configAPI } from '@/infrastructure/api';
 import { globalEventBus } from '@/infrastructure/event-bus';
 import { getActiveSurfaceScope, onSurfaceActivated } from '@/infrastructure/peer-device/deviceSurface';
 import type { SkillInfo, SkillLevel, SkillValidationResult, SkillScanDiagnostic } from '@/infrastructure/config/types';
-import { canDeleteSkill, isOpenBitFunManagedSkill, getSkillOriginSourceId, getSkillSourceLabel } from '@/infrastructure/config/skillSourcePresentation';
+import { canDeleteSkill, isAlexManagedSkill, getSkillOriginSourceId, getSkillSourceLabel } from '@/infrastructure/config/skillSourcePresentation';
 import { useWorkspaceManagerSync } from '@/infrastructure/hooks/useWorkspaceManagerSync';
 import { useNotification } from '@/shared/notification-system';
 import { createLogger } from '@/shared/utils/logger';
@@ -342,7 +342,7 @@ export function useInstalledSkills({
   }, [capabilityIsCurrent, currentCapabilityEpoch, loadSkills, notification, t, workspace?.id]);
 
   const canToggleSkill = useCallback((skill: SkillInfo) => (
-    directManagementSupported || (skill.level === 'user' && isOpenBitFunManagedSkill(skill))
+    directManagementSupported || (skill.level === 'user' && isAlexManagedSkill(skill))
   ), [directManagementSupported]);
 
   const handleGlobalSkillToggle = useCallback(async (skill: SkillInfo, enabled: boolean) => {

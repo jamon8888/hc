@@ -1,11 +1,11 @@
 {
   "schemaVersion": 5,
   "product": "OpenBitFun",
-  "title": "OpenBitFun Playbook",
+  "title": "Alex Playbook",
   "origin": "https://playbook.openbitfun.com",
   "source": "src/shared/interactive-capabilities/catalog.json",
-  "digest": "1079dbf9acd4553eb63143eb39df8933bce073a9ba4336cfe77a53f20bddfc7e",
-  "ownerDigest": "c636ad3c1880179a303addbae83782888ece86d7d6bc2ad545b290e4be04af43",
+  "digest": "6a7d299be0e64441d1fe6cdc6a4cf02c2af8bef3975f4c086c13d1bdc57d50e2",
+  "ownerDigest": "97fdf1ccd6b569a515ddc78ad654ec364337c1a897b2fbdd9ce64e0aa95024e1",
   "searchAcceptance": [
     {
       "id": "companion-pet-mixed",
@@ -8892,7 +8892,7 @@
       },
       "presentationTarget": {
         "kind": "event",
-        "eventName": "openbitfun:open-remote-connect"
+        "eventName": "alex:open-remote-connect"
       }
     },
     {
@@ -8938,7 +8938,7 @@
       "openReason": "unstructuredInteraction",
       "presentationTarget": {
         "kind": "event",
-        "eventName": "openbitfun:open-remote-connect"
+        "eventName": "alex:open-remote-connect"
       }
     },
     {
@@ -8984,7 +8984,7 @@
       "openReason": "unstructuredInteraction",
       "presentationTarget": {
         "kind": "event",
-        "eventName": "openbitfun:open-remote-connect"
+        "eventName": "alex:open-remote-connect"
       }
     },
     {
@@ -9030,7 +9030,7 @@
       "openReason": "unstructuredInteraction",
       "presentationTarget": {
         "kind": "event",
-        "eventName": "openbitfun:open-remote-connect"
+        "eventName": "alex:open-remote-connect"
       }
     },
     {
@@ -9076,7 +9076,7 @@
       "openReason": "unstructuredInteraction",
       "presentationTarget": {
         "kind": "event",
-        "eventName": "openbitfun:open-remote-connect"
+        "eventName": "alex:open-remote-connect"
       }
     },
     {
@@ -9122,7 +9122,7 @@
       "openReason": "externalAuth",
       "presentationTarget": {
         "kind": "event",
-        "eventName": "openbitfun:open-remote-connect"
+        "eventName": "alex:open-remote-connect"
       }
     },
     {
@@ -9168,7 +9168,7 @@
       "openReason": "unstructuredInteraction",
       "presentationTarget": {
         "kind": "event",
-        "eventName": "openbitfun:open-remote-connect"
+        "eventName": "alex:open-remote-connect"
       }
     },
     {
@@ -9214,7 +9214,7 @@
       "openReason": "unstructuredInteraction",
       "presentationTarget": {
         "kind": "event",
-        "eventName": "openbitfun:open-remote-connect"
+        "eventName": "alex:open-remote-connect"
       }
     },
     {
@@ -9266,7 +9266,7 @@
       },
       "presentationTarget": {
         "kind": "event",
-        "eventName": "openbitfun:open-remote-connect",
+        "eventName": "alex:open-remote-connect",
         "detail": {
           "group": "account"
         }
@@ -9315,7 +9315,7 @@
       "openReason": "unstructuredInteraction",
       "presentationTarget": {
         "kind": "event",
-        "eventName": "openbitfun:open-remote-connect",
+        "eventName": "alex:open-remote-connect",
         "detail": {
           "group": "account"
         }
@@ -9364,7 +9364,7 @@
       "openReason": "unstructuredInteraction",
       "presentationTarget": {
         "kind": "event",
-        "eventName": "openbitfun:open-remote-connect",
+        "eventName": "alex:open-remote-connect",
         "detail": {
           "group": "account"
         }
@@ -9413,7 +9413,7 @@
       "openReason": "unstructuredInteraction",
       "presentationTarget": {
         "kind": "event",
-        "eventName": "openbitfun:open-remote-connect",
+        "eventName": "alex:open-remote-connect",
         "detail": {
           "group": "account"
         }
@@ -9462,7 +9462,7 @@
       "openReason": "unstructuredInteraction",
       "presentationTarget": {
         "kind": "event",
-        "eventName": "openbitfun:open-remote-connect",
+        "eventName": "alex:open-remote-connect",
         "detail": {
           "group": "account"
         }
@@ -9511,7 +9511,7 @@
       "openReason": "unstructuredInteraction",
       "presentationTarget": {
         "kind": "event",
-        "eventName": "openbitfun:open-remote-connect",
+        "eventName": "alex:open-remote-connect",
         "detail": {
           "group": "account"
         }
@@ -9560,7 +9560,7 @@
       "openReason": "unstructuredInteraction",
       "presentationTarget": {
         "kind": "event",
-        "eventName": "openbitfun:open-remote-connect",
+        "eventName": "alex:open-remote-connect",
         "detail": {
           "group": "account"
         }
@@ -9609,7 +9609,7 @@
       "openReason": "unstructuredInteraction",
       "presentationTarget": {
         "kind": "event",
-        "eventName": "openbitfun:open-remote-connect",
+        "eventName": "alex:open-remote-connect",
         "detail": {
           "group": "account"
         }
@@ -9658,7 +9658,7 @@
       "openReason": "unstructuredInteraction",
       "presentationTarget": {
         "kind": "event",
-        "eventName": "openbitfun:open-remote-connect",
+        "eventName": "alex:open-remote-connect",
         "detail": {
           "group": "account"
         }
@@ -10591,7 +10591,7 @@
         "additionalProperties": true
       },
       "delegateTools": [
-        "OpenBitFunControl"
+        "AlexControl"
       ],
       "presentationTarget": {
         "kind": "settings",
@@ -10636,7 +10636,7 @@
         "additionalProperties": true
       },
       "delegateTools": [
-        "OpenBitFunControl"
+        "AlexControl"
       ],
       "presentationTarget": {
         "kind": "settings",
@@ -10681,7 +10681,7 @@
         "additionalProperties": true
       },
       "delegateTools": [
-        "OpenBitFunControl"
+        "AlexControl"
       ],
       "presentationTarget": {
         "kind": "settings",
@@ -10726,7 +10726,7 @@
         "additionalProperties": true
       },
       "delegateTools": [
-        "OpenBitFunControl"
+        "AlexControl"
       ],
       "presentationTarget": {
         "kind": "settings",
@@ -11945,7 +11945,7 @@
             "type": "string"
           },
           "packagePath": {
-            "description": "Imported OpenBitFun pet-package directory.",
+            "description": "Imported Alex pet-package directory.",
             "minLength": 1,
             "type": "string"
           }
@@ -19270,13 +19270,13 @@
         "创建、归档、恢复和分叉会话",
         "暂停、继续或引导正在运行的任务",
         "查看工具调用、权限请求和用量",
-        "用创造模式安全定制正在运行的 OpenBitFun 前端"
+        "用创造模式安全定制正在运行的 Alex 前端"
       ],
       "highlightsEn": [
         "Create, archive, restore, and fork sessions",
         "Pause, continue, or steer running work",
         "Inspect tool calls, permission requests, and usage",
-        "Safely customize the running OpenBitFun frontend in Creative mode"
+        "Safely customize the running Alex frontend in Creative mode"
       ],
       "items": [
         {
@@ -19512,12 +19512,12 @@
       "stepsZh": [
         "打开 AI 助手或新建会话",
         "选择项目、模型和工作模式",
-        "描述目标；OpenBitFun 会在会话中持续记录进度"
+        "描述目标；Alex 会在会话中持续记录进度"
       ],
       "stepsEn": [
         "Open the AI assistant or create a session",
         "Choose a project, model, and working mode",
-        "Describe the goal; OpenBitFun keeps progress in the session"
+        "Describe the goal; Alex keeps progress in the session"
       ],
       "agentExamplesZh": [
         "新建一个会话，我们来排查这个构建错误",
@@ -19573,11 +19573,11 @@
         "创建、归档、恢复和分叉会话",
         "暂停、继续或引导正在运行的任务",
         "查看工具调用、权限请求和用量",
-        "用创造模式安全定制正在运行的 OpenBitFun 前端",
+        "用创造模式安全定制正在运行的 Alex 前端",
         "Create, archive, restore, and fork sessions",
         "Pause, continue, or steer running work",
         "Inspect tool calls, permission requests, and usage",
-        "Safely customize the running OpenBitFun frontend in Creative mode",
+        "Safely customize the running Alex frontend in Creative mode",
         "打开并新建一个 AI 会话",
         "Open and create a new AI session",
         "重命名、归档、恢复、删除、分叉与导出会话",
@@ -20446,11 +20446,11 @@
             ],
             "workflowZh": [
               "先用 Read 读取当前内容，再根据改动范围选择 Edit 精确替换或 Write 创建/完整写入文件",
-              "文件工具沿用 OpenBitFun 的工作区、权限与变更快照语义；写入后重新读取或查看差异确认结果"
+              "文件工具沿用 Alex 的工作区、权限与变更快照语义；写入后重新读取或查看差异确认结果"
             ],
             "workflowEn": [
               "Read the current content first, then use Edit for exact replacements or Write for creation/full rewrites",
-              "The file tools preserve OpenBitFun workspace, permission, and change-snapshot semantics; read back or inspect the diff after writing"
+              "The file tools preserve Alex workspace, permission, and change-snapshot semantics; read back or inspect the diff after writing"
             ]
           }
         },
@@ -20638,9 +20638,9 @@
         "Use rag_search to query the indexed workspace in plain language and get the matching code chunks, their source files, and a relevance score",
         "Personal values in the hits are replaced by opaque session tokens, so the model never sees the original value; the interface restores it only when the user asks",
         "先用 Read 读取当前内容，再根据改动范围选择 Edit 精确替换或 Write 创建/完整写入文件",
-        "文件工具沿用 OpenBitFun 的工作区、权限与变更快照语义；写入后重新读取或查看差异确认结果",
+        "文件工具沿用 Alex 的工作区、权限与变更快照语义；写入后重新读取或查看差异确认结果",
         "Read the current content first, then use Edit for exact replacements or Write for creation/full rewrites",
-        "The file tools preserve OpenBitFun workspace, permission, and change-snapshot semantics; read back or inspect the diff after writing",
+        "The file tools preserve Alex workspace, permission, and change-snapshot semantics; read back or inspect the diff after writing",
         "GetFileDiff",
         "若 GetFileDiff 是延迟工具，先用 GetToolSpec 加载它的当前契约",
         "按工作区、会话或目标文件读取差异，并在页面或快照变化后重新获取最新结果",
@@ -21438,8 +21438,8 @@
       "categoryId": "workspace",
       "titleZh": "内置浏览器",
       "titleEn": "Built-in browser",
-      "summaryZh": "在 OpenBitFun 内打开网页和本地服务；智能体可直接读取页面、选择元素并点击、填写、滚动或截图。",
-      "summaryEn": "Open webpages and local services inside OpenBitFun, where an agent can inspect the page and select, click, fill, scroll, or capture elements directly.",
+      "summaryZh": "在 Alex 内打开网页和本地服务；智能体可直接读取页面、选择元素并点击、填写、滚动或截图。",
+      "summaryEn": "Open webpages and local services inside Alex, where an agent can inspect the page and select, click, fill, scroll, or capture elements directly.",
       "keywordsZh": [
         "浏览器",
         "网页",
@@ -21479,20 +21479,20 @@
       "items": [
         {
           "id": "open-urls",
-          "titleZh": "输入完整网址、本地域名或开发服务端口并在 OpenBitFun 内打开",
-          "titleEn": "Open full URLs, local hostnames, or development-service ports inside OpenBitFun",
+          "titleZh": "输入完整网址、本地域名或开发服务端口并在 Alex 内打开",
+          "titleEn": "Open full URLs, local hostnames, or development-service ports inside Alex",
           "control": {
             "kind": "delegate",
             "tools": [
               "ControlHub"
             ],
             "workflowZh": [
-              "用户给出网址时，用 browser.open_builtin 打开并取得内置页面的 session_id；用户只要求显示内置浏览器且没有网址时，改用 OpenBitFunControl 打开 feature.browser 能力根入口，不得臆造 about:blank",
+              "用户给出网址时，用 browser.open_builtin 打开并取得内置页面的 session_id；用户只要求显示内置浏览器且没有网址时，改用 AlexControl 打开 feature.browser 能力根入口，不得臆造 about:blank",
               "对同一个 session_id 指定 target 为 builtin，也可用 target_url 或 target_title 定位；快照、点击、填写、滚动和截图等动作与外部 CDP 浏览器共用同一套契约",
               "页面变化后重新快照并使用最新元素引用；只有网络追踪、原始 CDP 和文件输入等协议扩展才切换到 external"
             ],
             "workflowEn": [
-              "When the user supplies a URL, open it with browser.open_builtin and keep the returned built-in session_id; when they only want the built-in browser surface, open the feature.browser capability root with OpenBitFunControl and never invent about:blank",
+              "When the user supplies a URL, open it with browser.open_builtin and keep the returned built-in session_id; when they only want the built-in browser surface, open the feature.browser capability root with AlexControl and never invent about:blank",
               "Address that session_id with target set to builtin, or locate it by target_url or target_title; snapshots, clicks, fills, scrolling, screenshots, and other portable actions share the external CDP contract",
               "Take a new snapshot after page changes and use fresh element refs; switch to external only for protocol extensions such as network tracing, raw CDP, or file-input injection"
             ]
@@ -21528,12 +21528,12 @@
               "ControlHub"
             ],
             "workflowZh": [
-              "用户给出网址时，用 browser.open_builtin 打开并取得内置页面的 session_id；用户只要求显示内置浏览器且没有网址时，改用 OpenBitFunControl 打开 feature.browser 能力根入口，不得臆造 about:blank",
+              "用户给出网址时，用 browser.open_builtin 打开并取得内置页面的 session_id；用户只要求显示内置浏览器且没有网址时，改用 AlexControl 打开 feature.browser 能力根入口，不得臆造 about:blank",
               "对同一个 session_id 指定 target 为 builtin，也可用 target_url 或 target_title 定位；快照、点击、填写、滚动和截图等动作与外部 CDP 浏览器共用同一套契约",
               "页面变化后重新快照并使用最新元素引用；只有网络追踪、原始 CDP 和文件输入等协议扩展才切换到 external"
             ],
             "workflowEn": [
-              "When the user supplies a URL, open it with browser.open_builtin and keep the returned built-in session_id; when they only want the built-in browser surface, open the feature.browser capability root with OpenBitFunControl and never invent about:blank",
+              "When the user supplies a URL, open it with browser.open_builtin and keep the returned built-in session_id; when they only want the built-in browser surface, open the feature.browser capability root with AlexControl and never invent about:blank",
               "Address that session_id with target set to builtin, or locate it by target_url or target_title; snapshots, clicks, fills, scrolling, screenshots, and other portable actions share the external CDP contract",
               "Take a new snapshot after page changes and use fresh element refs; switch to external only for protocol extensions such as network tracing, raw CDP, or file-input injection"
             ]
@@ -21549,12 +21549,12 @@
               "ControlHub"
             ],
             "workflowZh": [
-              "用户给出网址时，用 browser.open_builtin 打开并取得内置页面的 session_id；用户只要求显示内置浏览器且没有网址时，改用 OpenBitFunControl 打开 feature.browser 能力根入口，不得臆造 about:blank",
+              "用户给出网址时，用 browser.open_builtin 打开并取得内置页面的 session_id；用户只要求显示内置浏览器且没有网址时，改用 AlexControl 打开 feature.browser 能力根入口，不得臆造 about:blank",
               "对同一个 session_id 指定 target 为 builtin，也可用 target_url 或 target_title 定位；快照、点击、填写、滚动和截图等动作与外部 CDP 浏览器共用同一套契约",
               "页面变化后重新快照并使用最新元素引用；只有网络追踪、原始 CDP 和文件输入等协议扩展才切换到 external"
             ],
             "workflowEn": [
-              "When the user supplies a URL, open it with browser.open_builtin and keep the returned built-in session_id; when they only want the built-in browser surface, open the feature.browser capability root with OpenBitFunControl and never invent about:blank",
+              "When the user supplies a URL, open it with browser.open_builtin and keep the returned built-in session_id; when they only want the built-in browser surface, open the feature.browser capability root with AlexControl and never invent about:blank",
               "Address that session_id with target set to builtin, or locate it by target_url or target_title; snapshots, clicks, fills, scrolling, screenshots, and other portable actions share the external CDP contract",
               "Take a new snapshot after page changes and use fresh element refs; switch to external only for protocol extensions such as network tracing, raw CDP, or file-input injection"
             ]
@@ -21570,12 +21570,12 @@
               "ControlHub"
             ],
             "workflowZh": [
-              "用户给出网址时，用 browser.open_builtin 打开并取得内置页面的 session_id；用户只要求显示内置浏览器且没有网址时，改用 OpenBitFunControl 打开 feature.browser 能力根入口，不得臆造 about:blank",
+              "用户给出网址时，用 browser.open_builtin 打开并取得内置页面的 session_id；用户只要求显示内置浏览器且没有网址时，改用 AlexControl 打开 feature.browser 能力根入口，不得臆造 about:blank",
               "对同一个 session_id 指定 target 为 builtin，也可用 target_url 或 target_title 定位；快照、点击、填写、滚动和截图等动作与外部 CDP 浏览器共用同一套契约",
               "页面变化后重新快照并使用最新元素引用；只有网络追踪、原始 CDP 和文件输入等协议扩展才切换到 external"
             ],
             "workflowEn": [
-              "When the user supplies a URL, open it with browser.open_builtin and keep the returned built-in session_id; when they only want the built-in browser surface, open the feature.browser capability root with OpenBitFunControl and never invent about:blank",
+              "When the user supplies a URL, open it with browser.open_builtin and keep the returned built-in session_id; when they only want the built-in browser surface, open the feature.browser capability root with AlexControl and never invent about:blank",
               "Address that session_id with target set to builtin, or locate it by target_url or target_title; snapshots, clicks, fills, scrolling, screenshots, and other portable actions share the external CDP contract",
               "Take a new snapshot after page changes and use fresh element refs; switch to external only for protocol extensions such as network tracing, raw CDP, or file-input injection"
             ]
@@ -21591,12 +21591,12 @@
               "ControlHub"
             ],
             "workflowZh": [
-              "用户给出网址时，用 browser.open_builtin 打开并取得内置页面的 session_id；用户只要求显示内置浏览器且没有网址时，改用 OpenBitFunControl 打开 feature.browser 能力根入口，不得臆造 about:blank",
+              "用户给出网址时，用 browser.open_builtin 打开并取得内置页面的 session_id；用户只要求显示内置浏览器且没有网址时，改用 AlexControl 打开 feature.browser 能力根入口，不得臆造 about:blank",
               "对同一个 session_id 指定 target 为 builtin，也可用 target_url 或 target_title 定位；快照、点击、填写、滚动和截图等动作与外部 CDP 浏览器共用同一套契约",
               "页面变化后重新快照并使用最新元素引用；只有网络追踪、原始 CDP 和文件输入等协议扩展才切换到 external"
             ],
             "workflowEn": [
-              "When the user supplies a URL, open it with browser.open_builtin and keep the returned built-in session_id; when they only want the built-in browser surface, open the feature.browser capability root with OpenBitFunControl and never invent about:blank",
+              "When the user supplies a URL, open it with browser.open_builtin and keep the returned built-in session_id; when they only want the built-in browser surface, open the feature.browser capability root with AlexControl and never invent about:blank",
               "Address that session_id with target set to builtin, or locate it by target_url or target_title; snapshots, clicks, fills, scrolling, screenshots, and other portable actions share the external CDP contract",
               "Take a new snapshot after page changes and use fresh element refs; switch to external only for protocol extensions such as network tracing, raw CDP, or file-input injection"
             ]
@@ -21612,12 +21612,12 @@
               "ControlHub"
             ],
             "workflowZh": [
-              "用户给出网址时，用 browser.open_builtin 打开并取得内置页面的 session_id；用户只要求显示内置浏览器且没有网址时，改用 OpenBitFunControl 打开 feature.browser 能力根入口，不得臆造 about:blank",
+              "用户给出网址时，用 browser.open_builtin 打开并取得内置页面的 session_id；用户只要求显示内置浏览器且没有网址时，改用 AlexControl 打开 feature.browser 能力根入口，不得臆造 about:blank",
               "对同一个 session_id 指定 target 为 builtin，也可用 target_url 或 target_title 定位；快照、点击、填写、滚动和截图等动作与外部 CDP 浏览器共用同一套契约",
               "页面变化后重新快照并使用最新元素引用；只有网络追踪、原始 CDP 和文件输入等协议扩展才切换到 external"
             ],
             "workflowEn": [
-              "When the user supplies a URL, open it with browser.open_builtin and keep the returned built-in session_id; when they only want the built-in browser surface, open the feature.browser capability root with OpenBitFunControl and never invent about:blank",
+              "When the user supplies a URL, open it with browser.open_builtin and keep the returned built-in session_id; when they only want the built-in browser surface, open the feature.browser capability root with AlexControl and never invent about:blank",
               "Address that session_id with target set to builtin, or locate it by target_url or target_title; snapshots, clicks, fills, scrolling, screenshots, and other portable actions share the external CDP contract",
               "Take a new snapshot after page changes and use fresh element refs; switch to external only for protocol extensions such as network tracing, raw CDP, or file-input injection"
             ]
@@ -21633,12 +21633,12 @@
               "ControlHub"
             ],
             "workflowZh": [
-              "用户给出网址时，用 browser.open_builtin 打开并取得内置页面的 session_id；用户只要求显示内置浏览器且没有网址时，改用 OpenBitFunControl 打开 feature.browser 能力根入口，不得臆造 about:blank",
+              "用户给出网址时，用 browser.open_builtin 打开并取得内置页面的 session_id；用户只要求显示内置浏览器且没有网址时，改用 AlexControl 打开 feature.browser 能力根入口，不得臆造 about:blank",
               "对同一个 session_id 指定 target 为 builtin，也可用 target_url 或 target_title 定位；快照、点击、填写、滚动和截图等动作与外部 CDP 浏览器共用同一套契约",
               "页面变化后重新快照并使用最新元素引用；只有网络追踪、原始 CDP 和文件输入等协议扩展才切换到 external"
             ],
             "workflowEn": [
-              "When the user supplies a URL, open it with browser.open_builtin and keep the returned built-in session_id; when they only want the built-in browser surface, open the feature.browser capability root with OpenBitFunControl and never invent about:blank",
+              "When the user supplies a URL, open it with browser.open_builtin and keep the returned built-in session_id; when they only want the built-in browser surface, open the feature.browser capability root with AlexControl and never invent about:blank",
               "Address that session_id with target set to builtin, or locate it by target_url or target_title; snapshots, clicks, fills, scrolling, screenshots, and other portable actions share the external CDP contract",
               "Take a new snapshot after page changes and use fresh element refs; switch to external only for protocol extensions such as network tracing, raw CDP, or file-input injection"
             ]
@@ -21674,12 +21674,12 @@
               "ControlHub"
             ],
             "workflowZh": [
-              "用户给出网址时，用 browser.open_builtin 打开并取得内置页面的 session_id；用户只要求显示内置浏览器且没有网址时，改用 OpenBitFunControl 打开 feature.browser 能力根入口，不得臆造 about:blank",
+              "用户给出网址时，用 browser.open_builtin 打开并取得内置页面的 session_id；用户只要求显示内置浏览器且没有网址时，改用 AlexControl 打开 feature.browser 能力根入口，不得臆造 about:blank",
               "对同一个 session_id 指定 target 为 builtin，也可用 target_url 或 target_title 定位；快照、点击、填写、滚动和截图等动作与外部 CDP 浏览器共用同一套契约",
               "页面变化后重新快照并使用最新元素引用；只有网络追踪、原始 CDP 和文件输入等协议扩展才切换到 external"
             ],
             "workflowEn": [
-              "When the user supplies a URL, open it with browser.open_builtin and keep the returned built-in session_id; when they only want the built-in browser surface, open the feature.browser capability root with OpenBitFunControl and never invent about:blank",
+              "When the user supplies a URL, open it with browser.open_builtin and keep the returned built-in session_id; when they only want the built-in browser surface, open the feature.browser capability root with AlexControl and never invent about:blank",
               "Address that session_id with target set to builtin, or locate it by target_url or target_title; snapshots, clicks, fills, scrolling, screenshots, and other portable actions share the external CDP contract",
               "Take a new snapshot after page changes and use fresh element refs; switch to external only for protocol extensions such as network tracing, raw CDP, or file-input injection"
             ]
@@ -21695,12 +21695,12 @@
               "ControlHub"
             ],
             "workflowZh": [
-              "用户给出网址时，用 browser.open_builtin 打开并取得内置页面的 session_id；用户只要求显示内置浏览器且没有网址时，改用 OpenBitFunControl 打开 feature.browser 能力根入口，不得臆造 about:blank",
+              "用户给出网址时，用 browser.open_builtin 打开并取得内置页面的 session_id；用户只要求显示内置浏览器且没有网址时，改用 AlexControl 打开 feature.browser 能力根入口，不得臆造 about:blank",
               "对同一个 session_id 指定 target 为 builtin，也可用 target_url 或 target_title 定位；快照、点击、填写、滚动和截图等动作与外部 CDP 浏览器共用同一套契约",
               "页面变化后重新快照并使用最新元素引用；只有网络追踪、原始 CDP 和文件输入等协议扩展才切换到 external"
             ],
             "workflowEn": [
-              "When the user supplies a URL, open it with browser.open_builtin and keep the returned built-in session_id; when they only want the built-in browser surface, open the feature.browser capability root with OpenBitFunControl and never invent about:blank",
+              "When the user supplies a URL, open it with browser.open_builtin and keep the returned built-in session_id; when they only want the built-in browser surface, open the feature.browser capability root with AlexControl and never invent about:blank",
               "Address that session_id with target set to builtin, or locate it by target_url or target_title; snapshots, clicks, fills, scrolling, screenshots, and other portable actions share the external CDP contract",
               "Take a new snapshot after page changes and use fresh element refs; switch to external only for protocol extensions such as network tracing, raw CDP, or file-input injection"
             ]
@@ -21716,12 +21716,12 @@
               "ControlHub"
             ],
             "workflowZh": [
-              "用户给出网址时，用 browser.open_builtin 打开并取得内置页面的 session_id；用户只要求显示内置浏览器且没有网址时，改用 OpenBitFunControl 打开 feature.browser 能力根入口，不得臆造 about:blank",
+              "用户给出网址时，用 browser.open_builtin 打开并取得内置页面的 session_id；用户只要求显示内置浏览器且没有网址时，改用 AlexControl 打开 feature.browser 能力根入口，不得臆造 about:blank",
               "对同一个 session_id 指定 target 为 builtin，也可用 target_url 或 target_title 定位；快照、点击、填写、滚动和截图等动作与外部 CDP 浏览器共用同一套契约",
               "页面变化后重新快照并使用最新元素引用；只有网络追踪、原始 CDP 和文件输入等协议扩展才切换到 external"
             ],
             "workflowEn": [
-              "When the user supplies a URL, open it with browser.open_builtin and keep the returned built-in session_id; when they only want the built-in browser surface, open the feature.browser capability root with OpenBitFunControl and never invent about:blank",
+              "When the user supplies a URL, open it with browser.open_builtin and keep the returned built-in session_id; when they only want the built-in browser surface, open the feature.browser capability root with AlexControl and never invent about:blank",
               "Address that session_id with target set to builtin, or locate it by target_url or target_title; snapshots, clicks, fills, scrolling, screenshots, and other portable actions share the external CDP contract",
               "Take a new snapshot after page changes and use fresh element refs; switch to external only for protocol extensions such as network tracing, raw CDP, or file-input injection"
             ]
@@ -21741,12 +21741,12 @@
       "agentControl": {
         "tool": "ControlHub",
         "workflowZh": [
-          "用户给出网址时，用 browser.open_builtin 打开并取得内置页面的 session_id；用户只要求显示内置浏览器且没有网址时，改用 OpenBitFunControl 打开 feature.browser 能力根入口，不得臆造 about:blank",
+          "用户给出网址时，用 browser.open_builtin 打开并取得内置页面的 session_id；用户只要求显示内置浏览器且没有网址时，改用 AlexControl 打开 feature.browser 能力根入口，不得臆造 about:blank",
           "对同一个 session_id 指定 target 为 builtin，也可用 target_url 或 target_title 定位；快照、点击、填写、滚动和截图等动作与外部 CDP 浏览器共用同一套契约",
           "页面变化后重新快照并使用最新元素引用；只有网络追踪、原始 CDP 和文件输入等协议扩展才切换到 external"
         ],
         "workflowEn": [
-          "When the user supplies a URL, open it with browser.open_builtin and keep the returned built-in session_id; when they only want the built-in browser surface, open the feature.browser capability root with OpenBitFunControl and never invent about:blank",
+          "When the user supplies a URL, open it with browser.open_builtin and keep the returned built-in session_id; when they only want the built-in browser surface, open the feature.browser capability root with AlexControl and never invent about:blank",
           "Address that session_id with target set to builtin, or locate it by target_url or target_title; snapshots, clicks, fills, scrolling, screenshots, and other portable actions share the external CDP contract",
           "Take a new snapshot after page changes and use fresh element refs; switch to external only for protocol extensions such as network tracing, raw CDP, or file-input injection"
         ]
@@ -21800,8 +21800,8 @@
         "Let an agent inspect and operate the built-in page",
         "Share one action contract with external CDP browsers",
         "Keep the page beside a session",
-        "输入完整网址、本地域名或开发服务端口并在 OpenBitFun 内打开",
-        "Open full URLs, local hostnames, or development-service ports inside OpenBitFun",
+        "输入完整网址、本地域名或开发服务端口并在 Alex 内打开",
+        "Open full URLs, local hostnames, or development-service ports inside Alex",
         "让智能体搜索网页并按需读取指定页面正文",
         "Let an agent search the web and fetch selected page content on demand",
         "使用后退、前进和地址栏浏览页面历史",
@@ -21830,10 +21830,10 @@
         "Open this URL in the built-in browser and find the sign-in button",
         "Inspect the current built-in page and fill this form",
         "Use the built-in browser to open the search result and summarize the page",
-        "用户给出网址时，用 browser.open_builtin 打开并取得内置页面的 session_id；用户只要求显示内置浏览器且没有网址时，改用 OpenBitFunControl 打开 feature.browser 能力根入口，不得臆造 about:blank",
+        "用户给出网址时，用 browser.open_builtin 打开并取得内置页面的 session_id；用户只要求显示内置浏览器且没有网址时，改用 AlexControl 打开 feature.browser 能力根入口，不得臆造 about:blank",
         "对同一个 session_id 指定 target 为 builtin，也可用 target_url 或 target_title 定位；快照、点击、填写、滚动和截图等动作与外部 CDP 浏览器共用同一套契约",
         "页面变化后重新快照并使用最新元素引用；只有网络追踪、原始 CDP 和文件输入等协议扩展才切换到 external",
-        "When the user supplies a URL, open it with browser.open_builtin and keep the returned built-in session_id; when they only want the built-in browser surface, open the feature.browser capability root with OpenBitFunControl and never invent about:blank",
+        "When the user supplies a URL, open it with browser.open_builtin and keep the returned built-in session_id; when they only want the built-in browser surface, open the feature.browser capability root with AlexControl and never invent about:blank",
         "Address that session_id with target set to builtin, or locate it by target_url or target_title; snapshots, clicks, fills, scrolling, screenshots, and other portable actions share the external CDP contract",
         "Take a new snapshot after page changes and use fresh element refs; switch to external only for protocol extensions such as network tracing, raw CDP, or file-input injection",
         "ControlHub",
@@ -22309,8 +22309,8 @@
       "categoryId": "automation",
       "titleZh": "Mini Apps 小应用",
       "titleEn": "Mini Apps",
-      "summaryZh": "在 OpenBitFun 内安装、创建和运行轻量应用，让界面、数据与智能体工作流组合在一起。",
-      "summaryEn": "Install, create, and run lightweight apps inside OpenBitFun, combining UI, data, and agent workflows.",
+      "summaryZh": "在 Alex 内安装、创建和运行轻量应用，让界面、数据与智能体工作流组合在一起。",
+      "summaryEn": "Install, create, and run lightweight apps inside Alex, combining UI, data, and agent workflows.",
       "keywordsZh": [
         "Mini App",
         "小应用",
@@ -22905,12 +22905,12 @@
               "UpdateCanvas"
             ],
             "workflowZh": [
-              "用 CreateCanvas 提交单文件 TSX，并仅从 openbitfun/canvas 导入允许的运行时组件",
-              "保留返回的 openbitfun-canvas 引用，先 ReadCanvas 获取当前版本，再用 PatchCanvas 做局部改动或 UpdateCanvas 完整更新"
+              "用 CreateCanvas 提交单文件 TSX，并仅从 alex/canvas 导入允许的运行时组件",
+              "保留返回的 alex-canvas 引用，先 ReadCanvas 获取当前版本，再用 PatchCanvas 做局部改动或 UpdateCanvas 完整更新"
             ],
             "workflowEn": [
-              "Use CreateCanvas with a single TSX file and import runtime components only from openbitfun/canvas",
-              "Keep the returned openbitfun-canvas reference, inspect it with ReadCanvas, then use PatchCanvas for focused changes or UpdateCanvas for a full update"
+              "Use CreateCanvas with a single TSX file and import runtime components only from alex/canvas",
+              "Keep the returned alex-canvas reference, inspect it with ReadCanvas, then use PatchCanvas for focused changes or UpdateCanvas for a full update"
             ]
           }
         },
@@ -23065,10 +23065,10 @@
         "ReadCanvas",
         "PatchCanvas",
         "UpdateCanvas",
-        "用 CreateCanvas 提交单文件 TSX，并仅从 openbitfun/canvas 导入允许的运行时组件",
-        "保留返回的 openbitfun-canvas 引用，先 ReadCanvas 获取当前版本，再用 PatchCanvas 做局部改动或 UpdateCanvas 完整更新",
-        "Use CreateCanvas with a single TSX file and import runtime components only from openbitfun/canvas",
-        "Keep the returned openbitfun-canvas reference, inspect it with ReadCanvas, then use PatchCanvas for focused changes or UpdateCanvas for a full update",
+        "用 CreateCanvas 提交单文件 TSX，并仅从 alex/canvas 导入允许的运行时组件",
+        "保留返回的 alex-canvas 引用，先 ReadCanvas 获取当前版本，再用 PatchCanvas 做局部改动或 UpdateCanvas 完整更新",
+        "Use CreateCanvas with a single TSX file and import runtime components only from alex/canvas",
+        "Keep the returned alex-canvas reference, inspect it with ReadCanvas, then use PatchCanvas for focused changes or UpdateCanvas for a full update",
         "GenerativeUI",
         "仅在可视化或交互能明显帮助理解时使用 GenerativeUI，并输出紧凑、自包含且适配明暗外观的组件",
         "需要持久编辑或独立产物时改用 Canvas；纯文本足够时不创建组件",
@@ -23950,8 +23950,8 @@
       "categoryId": "connect",
       "titleZh": "Remote Connect 与多设备",
       "titleEn": "Remote Connect & devices",
-      "summaryZh": "从手机、Bot 或另一台 OpenBitFun 设备连接当前主机，远程查看会话、回答权限并继续工作。",
-      "summaryEn": "Connect to this host from mobile, a bot, or another OpenBitFun device to inspect sessions, answer permissions, and continue work remotely.",
+      "summaryZh": "从手机、Bot 或另一台 Alex 设备连接当前主机，远程查看会话、回答权限并继续工作。",
+      "summaryEn": "Connect to this host from mobile, a bot, or another Alex device to inspect sessions, answer permissions, and continue work remotely.",
       "keywordsZh": [
         "Remote Connect",
         "远程控制",
@@ -24053,13 +24053,13 @@
         },
         {
           "id": "peer-device",
-          "titleZh": "进入 Peer Device Mode，把另一台 OpenBitFun 设备作为命令与事件数据面",
-          "titleEn": "Enter Peer Device Mode and use another OpenBitFun device as the command and event data plane",
+          "titleZh": "进入 Peer Device Mode，把另一台 Alex 设备作为命令与事件数据面",
+          "titleEn": "Enter Peer Device Mode and use another Alex device as the command and event data plane",
           "control": {
             "kind": "open",
             "reasonCode": "unstructuredInteraction",
-            "reasonZh": "“进入 Peer Device Mode，把另一台 OpenBitFun 设备作为命令与事件数据面”由多个实时状态相关步骤组成，目前没有一个能确定完成整个流程的单一结构化 Command；智能体会打开精确入口，并把后续交互保留在用户可见界面。",
-            "reasonEn": "“Enter Peer Device Mode and use another OpenBitFun device as the command and event data plane” spans multiple live-state-dependent steps and currently has no single structured Command that can deterministically complete the whole workflow; the Agent opens the exact entry and keeps the remaining interaction visible to the user."
+            "reasonZh": "“进入 Peer Device Mode，把另一台 Alex 设备作为命令与事件数据面”由多个实时状态相关步骤组成，目前没有一个能确定完成整个流程的单一结构化 Command；智能体会打开精确入口，并把后续交互保留在用户可见界面。",
+            "reasonEn": "“Enter Peer Device Mode and use another Alex device as the command and event data plane” spans multiple live-state-dependent steps and currently has no single structured Command that can deterministically complete the whole workflow; the Agent opens the exact entry and keeps the remaining interaction visible to the user."
           }
         }
       ],
@@ -24085,7 +24085,7 @@
       ],
       "destination": {
         "kind": "event",
-        "eventName": "openbitfun:open-remote-connect"
+        "eventName": "alex:open-remote-connect"
       },
       "operations": [],
       "options": [],
@@ -24129,8 +24129,8 @@
         "Sign in with GitHub, sign out, and inspect identity status",
         "列出、连接、查看设备型号与系统、设置别名和删除同账户设备",
         "List, connect, inspect model and OS, set aliases, and remove same-account devices",
-        "进入 Peer Device Mode，把另一台 OpenBitFun 设备作为命令与事件数据面",
-        "Enter Peer Device Mode and use another OpenBitFun device as the command and event data plane",
+        "进入 Peer Device Mode，把另一台 Alex 设备作为命令与事件数据面",
+        "Enter Peer Device Mode and use another Alex device as the command and event data plane",
         "打开 Remote Connect",
         "我想配置手机远程控制",
         "带我管理已连接设备",
@@ -24146,8 +24146,8 @@
       "categoryId": "connect",
       "titleZh": "Detached Dispatch 远程派发",
       "titleEn": "Detached Dispatch",
-      "summaryZh": "把可持续运行的任务派发到另一台 OpenBitFun 主机；控制端可以断开，目标主机继续执行并保留记录。",
-      "summaryEn": "Dispatch durable work to another OpenBitFun host; the controller may disconnect while the target continues and keeps the record.",
+      "summaryZh": "把可持续运行的任务派发到另一台 Alex 主机；控制端可以断开，目标主机继续执行并保留记录。",
+      "summaryEn": "Dispatch durable work to another Alex host; the controller may disconnect while the target continues and keeps the record.",
       "keywordsZh": [
         "派发任务",
         "Detached Dispatch",
@@ -24186,13 +24186,13 @@
         },
         {
           "id": "provision",
-          "titleZh": "为目标主机配置运行环境并安装或更新 OpenBitFun CLI",
-          "titleEn": "Provision the target runtime and install or update the OpenBitFun CLI",
+          "titleZh": "为目标主机配置运行环境并安装或更新 Alex CLI",
+          "titleEn": "Provision the target runtime and install or update the Alex CLI",
           "control": {
             "kind": "open",
             "reasonCode": "unstructuredInteraction",
-            "reasonZh": "“为目标主机配置运行环境并安装或更新 OpenBitFun CLI”由多个实时状态相关步骤组成，目前没有一个能确定完成整个流程的单一结构化 Command；智能体会打开精确入口，并把后续交互保留在用户可见界面。",
-            "reasonEn": "“Provision the target runtime and install or update the OpenBitFun CLI” spans multiple live-state-dependent steps and currently has no single structured Command that can deterministically complete the whole workflow; the Agent opens the exact entry and keeps the remaining interaction visible to the user."
+            "reasonZh": "“为目标主机配置运行环境并安装或更新 Alex CLI”由多个实时状态相关步骤组成，目前没有一个能确定完成整个流程的单一结构化 Command；智能体会打开精确入口，并把后续交互保留在用户可见界面。",
+            "reasonEn": "“Provision the target runtime and install or update the Alex CLI” spans multiple live-state-dependent steps and currently has no single structured Command that can deterministically complete the whole workflow; the Agent opens the exact entry and keeps the remaining interaction visible to the user."
           }
         },
         {
@@ -24282,7 +24282,7 @@
       ],
       "destination": {
         "kind": "event",
-        "eventName": "openbitfun:open-remote-connect",
+        "eventName": "alex:open-remote-connect",
         "detail": {
           "group": "account"
         }
@@ -24312,8 +24312,8 @@
         "Reload events and execution history after reconnecting",
         "列出可派发目标并探测版本、连接和运行能力",
         "List dispatch targets and probe their version, connectivity, and runtime capabilities",
-        "为目标主机配置运行环境并安装或更新 OpenBitFun CLI",
-        "Provision the target runtime and install or update the OpenBitFun CLI",
+        "为目标主机配置运行环境并安装或更新 Alex CLI",
+        "Provision the target runtime and install or update the Alex CLI",
         "在提交任务前同步目标所需的模型配置",
         "Synchronize required model configuration before submitting a job",
         "把包含工作区、会话、模型和权限策略的持久任务提交到目标",
@@ -24790,7 +24790,7 @@
           "control": {
             "kind": "delegate",
             "tools": [
-              "OpenBitFunControl"
+              "AlexControl"
             ],
             "workflowZh": [
               "先用 search 搜索“桌面宠物 / Petdex / companion”，再 get `setting.application.pet` 读取当前选项和受支持操作",
@@ -24811,7 +24811,7 @@
           "control": {
             "kind": "delegate",
             "tools": [
-              "OpenBitFunControl"
+              "AlexControl"
             ],
             "workflowZh": [
               "先用 search 搜索“桌面宠物 / Petdex / companion”，再 get `setting.application.pet` 读取当前选项和受支持操作",
@@ -24832,7 +24832,7 @@
           "control": {
             "kind": "delegate",
             "tools": [
-              "OpenBitFunControl"
+              "AlexControl"
             ],
             "workflowZh": [
               "先用 search 搜索“桌面宠物 / Petdex / companion”，再 get `setting.application.pet` 读取当前选项和受支持操作",
@@ -24853,7 +24853,7 @@
           "control": {
             "kind": "delegate",
             "tools": [
-              "OpenBitFunControl"
+              "AlexControl"
             ],
             "workflowZh": [
               "先用 search 搜索“桌面宠物 / Petdex / companion”，再 get `setting.application.pet` 读取当前选项和受支持操作",
@@ -24890,7 +24890,7 @@
         "Choose a preset or import a Petdex pack"
       ],
       "agentControl": {
-        "tool": "OpenBitFunControl",
+        "tool": "AlexControl",
         "workflowZh": [
           "先用 search 搜索“桌面宠物 / Petdex / companion”，再 get `setting.application.pet` 读取当前选项和受支持操作",
           "用 configure 修改 `enabled`；用 execute 的 `list-pets`、`use-pet`、`delete-pet` 查看、导入/选择或删除角色",
@@ -24957,7 +24957,7 @@
         "Search for desktop pet, Petdex, or companion first, then get `setting.application.pet` for current options and supported operations",
         "Use configure for `enabled`, and execute `list-pets`, `use-pet`, or `delete-pet` to inspect, import/select, or remove a character",
         "Read back the real state with get or list-pets; local package paths are unavailable to remote workspaces and failures must be explicit",
-        "OpenBitFunControl"
+        "AlexControl"
       ],
       "docsUrl": "https://playbook.openbitfun.com/capabilities/feature.desktop-pet/"
     },
@@ -25023,8 +25023,8 @@
         },
         {
           "id": "launch-at-login",
-          "titleZh": "控制 OpenBitFun 是否在登录系统后自动启动",
-          "titleEn": "Choose whether OpenBitFun launches automatically after system sign-in",
+          "titleZh": "控制 Alex 是否在登录系统后自动启动",
+          "titleEn": "Choose whether Alex launches automatically after system sign-in",
           "control": {
             "kind": "direct",
             "operations": [],
@@ -25037,8 +25037,8 @@
         },
         {
           "id": "prevent-sleep",
-          "titleZh": "控制 OpenBitFun 运行期间是否阻止电脑自动睡眠",
-          "titleEn": "Choose whether OpenBitFun prevents the computer from sleeping while it runs",
+          "titleZh": "控制 Alex 运行期间是否阻止电脑自动睡眠",
+          "titleEn": "Choose whether Alex prevents the computer from sleeping while it runs",
           "control": {
             "kind": "direct",
             "operations": [],
@@ -25125,8 +25125,8 @@
           "id": "launch-at-login",
           "titleZh": "登录后自动启动",
           "titleEn": "Launch at login",
-          "descriptionZh": "在当前桌面系统登录后自动启动 OpenBitFun。",
-          "descriptionEn": "Launch OpenBitFun automatically after signing in to this desktop system.",
+          "descriptionZh": "在当前桌面系统登录后自动启动 Alex。",
+          "descriptionEn": "Launch Alex automatically after signing in to this desktop system.",
           "valueSchema": {
             "type": "boolean"
           }
@@ -25135,8 +25135,8 @@
           "id": "prevent-sleep",
           "titleZh": "阻止系统睡眠",
           "titleEn": "Prevent system sleep",
-          "descriptionZh": "在 OpenBitFun 运行期间持有本机睡眠抑制器。",
-          "descriptionEn": "Hold a local sleep inhibitor while OpenBitFun is running.",
+          "descriptionZh": "在 Alex 运行期间持有本机睡眠抑制器。",
+          "descriptionEn": "Hold a local sleep inhibitor while Alex is running.",
           "valueSchema": {
             "type": "boolean"
           }
@@ -25224,10 +25224,10 @@
         "Enable or disable automatic update checks",
         "手动检查并后台下载更新，确认后安装并重启，或稍后从关于页面安装",
         "Check and download updates in the background, then confirm installation and restart or install later from About",
-        "控制 OpenBitFun 是否在登录系统后自动启动",
-        "Choose whether OpenBitFun launches automatically after system sign-in",
-        "控制 OpenBitFun 运行期间是否阻止电脑自动睡眠",
-        "Choose whether OpenBitFun prevents the computer from sleeping while it runs",
+        "控制 Alex 是否在登录系统后自动启动",
+        "Choose whether Alex launches automatically after system sign-in",
+        "控制 Alex 运行期间是否阻止电脑自动睡眠",
+        "Choose whether Alex prevents the computer from sleeping while it runs",
         "选择关闭主窗口时退出、最小化到托盘或每次询问",
         "Choose whether closing the main window quits, minimizes to tray, or asks each time",
         "分别控制任务完成、权限请求和启动提示通知",
@@ -25413,8 +25413,8 @@
           "id": "theme",
           "titleZh": "主题",
           "titleEn": "Theme",
-          "descriptionZh": "使用系统、OpenBitFun 深色或 OpenBitFun 浅色外观。",
-          "descriptionEn": "Use the system, OpenBitFun dark, or OpenBitFun light appearance.",
+          "descriptionZh": "使用系统、Alex 深色或 Alex 浅色外观。",
+          "descriptionEn": "Use the system, Alex dark, or Alex light appearance.",
           "valueSchema": {
             "type": "string",
             "enum": [
@@ -25435,8 +25435,8 @@
           "id": "language",
           "titleZh": "界面语言",
           "titleEn": "Interface language",
-          "descriptionZh": "设置 OpenBitFun 的界面语言。",
-          "descriptionEn": "Set the OpenBitFun interface language.",
+          "descriptionZh": "设置 Alex 的界面语言。",
+          "descriptionEn": "Set the Alex interface language.",
           "valueSchema": {
             "type": "string",
             "enum": [
@@ -25600,11 +25600,11 @@
       ],
       "agentExamplesZh": [
         "关闭桌面伙伴",
-        "让 OpenBitFun 使用 /path/to/pet 里的萌宠"
+        "让 Alex 使用 /path/to/pet 里的萌宠"
       ],
       "agentExamplesEn": [
         "Turn off the desktop companion",
-        "Make OpenBitFun use the pet at /path/to/pet"
+        "Make Alex use the pet at /path/to/pet"
       ],
       "destination": {
         "kind": "settings",
@@ -25615,8 +25615,8 @@
           "id": "list-pets",
           "titleZh": "列出可用萌宠",
           "titleEn": "List available pets",
-          "descriptionZh": "读取当前角色以及 OpenBitFun 已导入的 Petdex 角色。",
-          "descriptionEn": "Read the active character and Petdex characters imported into OpenBitFun.",
+          "descriptionZh": "读取当前角色以及 Alex 已导入的 Petdex 角色。",
+          "descriptionEn": "Read the active character and Petdex characters imported into Alex.",
           "risk": "read",
           "inputSchema": {
             "additionalProperties": false,
@@ -25666,8 +25666,8 @@
           "id": "delete-pet",
           "titleZh": "删除已导入萌宠",
           "titleEn": "Delete an imported pet",
-          "descriptionZh": "按角色 ID 或 OpenBitFun 包目录删除已导入角色；若正在使用则安全回退到默认角色。",
-          "descriptionEn": "Delete an imported character by ID or OpenBitFun package path, safely falling back when it is active.",
+          "descriptionZh": "按角色 ID 或 Alex 包目录删除已导入角色；若正在使用则安全回退到默认角色。",
+          "descriptionEn": "Delete an imported character by ID or Alex package path, safely falling back when it is active.",
           "risk": "destructive",
           "inputSchema": {
             "additionalProperties": false,
@@ -25690,7 +25690,7 @@
                 "type": "string"
               },
               "packagePath": {
-                "description": "Imported OpenBitFun pet-package directory.",
+                "description": "Imported Alex pet-package directory.",
                 "minLength": 1,
                 "type": "string"
               }
@@ -25741,9 +25741,9 @@
         "刷新角色列表并删除不再需要的导入包",
         "Refresh the character list and delete imported packages you no longer need",
         "关闭桌面伙伴",
-        "让 OpenBitFun 使用 /path/to/pet 里的萌宠",
+        "让 Alex 使用 /path/to/pet 里的萌宠",
         "Turn off the desktop companion",
-        "Make OpenBitFun use the pet at /path/to/pet"
+        "Make Alex use the pet at /path/to/pet"
       ],
       "docsUrl": "https://playbook.openbitfun.com/capabilities/setting.application.pet/"
     },
@@ -26914,8 +26914,8 @@
       "categoryId": "assistant",
       "titleZh": "记忆设置",
       "titleEn": "Memory settings",
-      "summaryZh": "控制 OpenBitFun 是否从会话中提取和使用长期记忆，以及保留、整理和模型策略。",
-      "summaryEn": "Control whether OpenBitFun extracts and uses long-term memory from sessions, including retention, consolidation, and model policy.",
+      "summaryZh": "控制 Alex 是否从会话中提取和使用长期记忆，以及保留、整理和模型策略。",
+      "summaryEn": "Control whether Alex extracts and uses long-term memory from sessions, including retention, consolidation, and model policy.",
       "keywordsZh": [
         "记忆设置",
         "长期记忆",
@@ -27643,8 +27643,8 @@
           "id": "worktree-root-path",
           "titleZh": "受管 Worktree 根目录",
           "titleEn": "Managed-worktree root",
-          "descriptionZh": "设置 OpenBitFun 创建受管 Worktree 的统一根目录。",
-          "descriptionEn": "Set the common root where OpenBitFun creates managed worktrees.",
+          "descriptionZh": "设置 Alex 创建受管 Worktree 的统一根目录。",
+          "descriptionEn": "Set the common root where Alex creates managed worktrees.",
           "valueSchema": {
             "type": "string",
             "minLength": 1,
@@ -27677,8 +27677,8 @@
           "id": "worktree-auto-delete-enabled",
           "titleZh": "自动清理 Worktree",
           "titleEn": "Automatic worktree cleanup",
-          "descriptionZh": "允许 OpenBitFun 自动清理超过保留上限的受管 Worktree。",
-          "descriptionEn": "Allow OpenBitFun to prune managed worktrees beyond the retention limit.",
+          "descriptionZh": "允许 Alex 自动清理超过保留上限的受管 Worktree。",
+          "descriptionEn": "Allow Alex to prune managed worktrees beyond the retention limit.",
           "valueSchema": {
             "type": "boolean"
           }
@@ -27958,8 +27958,8 @@
         },
         {
           "id": "browser-auto-connect",
-          "titleZh": "控制 OpenBitFun 启动时是否自动连接浏览器",
-          "titleEn": "Choose whether OpenBitFun reconnects browser control at startup",
+          "titleZh": "控制 Alex 启动时是否自动连接浏览器",
+          "titleEn": "Choose whether Alex reconnects browser control at startup",
           "control": {
             "kind": "direct",
             "operations": [],
@@ -28113,8 +28113,8 @@
           "id": "browser-auto-connect",
           "titleZh": "启动时连接浏览器",
           "titleEn": "Connect browser on startup",
-          "descriptionZh": "OpenBitFun 启动后自动尝试连接浏览器控制。",
-          "descriptionEn": "Automatically try to connect browser control after OpenBitFun starts.",
+          "descriptionZh": "Alex 启动后自动尝试连接浏览器控制。",
+          "descriptionEn": "Automatically try to connect browser control after Alex starts.",
           "valueSchema": {
             "type": "boolean"
           }
@@ -28181,8 +28181,8 @@
         "Enable or disable Computer Use after operating-system authorization",
         "查看并请求辅助功能与屏幕录制权限",
         "Inspect and request accessibility and screen-recording permissions",
-        "控制 OpenBitFun 启动时是否自动连接浏览器",
-        "Choose whether OpenBitFun reconnects browser control at startup",
+        "控制 Alex 启动时是否自动连接浏览器",
+        "Choose whether Alex reconnects browser control at startup",
         "发现并选择浏览器、配置默认 CDP 或按需重启",
         "Discover and choose a browser, configure default CDP, or restart it when needed",
         "控制是否在安全边界内修复模型生成的非法工具参数 JSON",
@@ -28847,34 +28847,34 @@
       "highlightsZh": [
         "切换 WebSearch 运行时搜索服务",
         "在执行主机上加密保存设备凭据",
-        "配置和查看 OpenBitFun Search HTTP Protocol v1"
+        "配置和查看 Alex Search HTTP Protocol v1"
       ],
       "highlightsEn": [
         "Switch the WebSearch runtime provider",
         "Store device credentials encrypted on the execution host",
-        "Configure and inspect OpenBitFun Search HTTP Protocol v1"
+        "Configure and inspect Alex Search HTTP Protocol v1"
       ],
       "items": [
         {
           "id": "provider",
-          "titleZh": "在免费 Exa MCP、Exa Search API、Tavily 与 OpenBitFun Search HTTP Protocol 之间选择运行时服务",
-          "titleEn": "Choose free Exa MCP, Exa Search API, Tavily, or OpenBitFun Search HTTP Protocol as the runtime provider",
+          "titleZh": "在免费 Exa MCP、Exa Search API、Tavily 与 Alex Search HTTP Protocol 之间选择运行时服务",
+          "titleEn": "Choose free Exa MCP, Exa Search API, Tavily, or Alex Search HTTP Protocol as the runtime provider",
           "control": {
             "kind": "open",
             "reasonCode": "unstructuredInteraction",
-            "reasonZh": "“在免费 Exa MCP、Exa Search API、Tavily 与 OpenBitFun Search HTTP Protocol 之间选择运行时服务”与各服务的配置状态相关，目前没有一个能安全完成选择、检查和保存整个流程的单一结构化 Command；智能体会打开精确设置入口，由用户确认配置。",
-            "reasonEn": "“Choose free Exa MCP, Exa Search API, Tavily, or OpenBitFun Search HTTP Protocol as the runtime provider” depends on provider-specific configuration state, and no single structured Command can safely complete selection, validation, and saving; the Agent opens the exact settings entry for user confirmation."
+            "reasonZh": "“在免费 Exa MCP、Exa Search API、Tavily 与 Alex Search HTTP Protocol 之间选择运行时服务”与各服务的配置状态相关，目前没有一个能安全完成选择、检查和保存整个流程的单一结构化 Command；智能体会打开精确设置入口，由用户确认配置。",
+            "reasonEn": "“Choose free Exa MCP, Exa Search API, Tavily, or Alex Search HTTP Protocol as the runtime provider” depends on provider-specific configuration state, and no single structured Command can safely complete selection, validation, and saving; the Agent opens the exact settings entry for user confirmation."
           }
         },
         {
           "id": "http-endpoint",
-          "titleZh": "为 OpenBitFun Search HTTP Protocol 配置端点、认证方式和受限凭据 Header",
-          "titleEn": "Configure the endpoint, authentication mode, and restricted credential header for OpenBitFun Search HTTP Protocol",
+          "titleZh": "为 Alex Search HTTP Protocol 配置端点、认证方式和受限凭据 Header",
+          "titleEn": "Configure the endpoint, authentication mode, and restricted credential header for Alex Search HTTP Protocol",
           "control": {
             "kind": "open",
             "reasonCode": "unstructuredInteraction",
-            "reasonZh": "“为 OpenBitFun Search HTTP Protocol 配置端点、认证方式和受限凭据 Header”包含 URL、安全限制和认证方式等关联字段，需要在设置页中一起校验并明确保存；智能体会打开对应入口而不猜测端点配置。",
-            "reasonEn": "“Configure the endpoint, authentication mode, and restricted credential header for OpenBitFun Search HTTP Protocol” combines URL, security restrictions, and authentication fields that must be validated and explicitly saved together in Settings; the Agent opens the corresponding entry instead of guessing endpoint configuration."
+            "reasonZh": "“为 Alex Search HTTP Protocol 配置端点、认证方式和受限凭据 Header”包含 URL、安全限制和认证方式等关联字段，需要在设置页中一起校验并明确保存；智能体会打开对应入口而不猜测端点配置。",
+            "reasonEn": "“Configure the endpoint, authentication mode, and restricted credential header for Alex Search HTTP Protocol” combines URL, security restrictions, and authentication fields that must be validated and explicitly saved together in Settings; the Agent opens the corresponding entry instead of guessing endpoint configuration."
           }
         },
         {
@@ -28890,13 +28890,13 @@
         },
         {
           "id": "http-protocol",
-          "titleZh": "查看并复制 OpenBitFun Search HTTP Protocol v1 的请求、响应和传输限制",
-          "titleEn": "Inspect and copy the request, response, and transport limits for OpenBitFun Search HTTP Protocol v1",
+          "titleZh": "查看并复制 Alex Search HTTP Protocol v1 的请求、响应和传输限制",
+          "titleEn": "Inspect and copy the request, response, and transport limits for Alex Search HTTP Protocol v1",
           "control": {
             "kind": "open",
             "reasonCode": "visualSelection",
-            "reasonZh": "协议说明仅在选中 OpenBitFun Search HTTP Protocol 时显示，并由设置页提供完整可复制内容；智能体会打开精确入口，避免用不完整摘要替代产品内协议。",
-            "reasonEn": "The protocol specification is shown only when OpenBitFun Search HTTP Protocol is selected and the Settings page owns the complete copyable content; the Agent opens the exact entry instead of substituting an incomplete summary."
+            "reasonZh": "协议说明仅在选中 Alex Search HTTP Protocol 时显示，并由设置页提供完整可复制内容；智能体会打开精确入口，避免用不完整摘要替代产品内协议。",
+            "reasonEn": "The protocol specification is shown only when Alex Search HTTP Protocol is selected and the Settings page owns the complete copyable content; the Agent opens the exact entry instead of substituting an incomplete summary."
           }
         }
       ],
@@ -28942,18 +28942,18 @@
         "custom endpoint",
         "切换 WebSearch 运行时搜索服务",
         "在执行主机上加密保存设备凭据",
-        "配置和查看 OpenBitFun Search HTTP Protocol v1",
+        "配置和查看 Alex Search HTTP Protocol v1",
         "Switch the WebSearch runtime provider",
         "Store device credentials encrypted on the execution host",
-        "Configure and inspect OpenBitFun Search HTTP Protocol v1",
-        "在免费 Exa MCP、Exa Search API、Tavily 与 OpenBitFun Search HTTP Protocol 之间选择运行时服务",
-        "Choose free Exa MCP, Exa Search API, Tavily, or OpenBitFun Search HTTP Protocol as the runtime provider",
-        "为 OpenBitFun Search HTTP Protocol 配置端点、认证方式和受限凭据 Header",
-        "Configure the endpoint, authentication mode, and restricted credential header for OpenBitFun Search HTTP Protocol",
+        "Configure and inspect Alex Search HTTP Protocol v1",
+        "在免费 Exa MCP、Exa Search API、Tavily 与 Alex Search HTTP Protocol 之间选择运行时服务",
+        "Choose free Exa MCP, Exa Search API, Tavily, or Alex Search HTTP Protocol as the runtime provider",
+        "为 Alex Search HTTP Protocol 配置端点、认证方式和受限凭据 Header",
+        "Configure the endpoint, authentication mode, and restricted credential header for Alex Search HTTP Protocol",
         "查看当前执行主机的凭据状态，并保存、替换或清除 API Key/Secret",
         "Inspect credential status on the current execution host and save, replace, or clear an API key or secret",
-        "查看并复制 OpenBitFun Search HTTP Protocol v1 的请求、响应和传输限制",
-        "Inspect and copy the request, response, and transport limits for OpenBitFun Search HTTP Protocol v1",
+        "查看并复制 Alex Search HTTP Protocol v1 的请求、响应和传输限制",
+        "Inspect and copy the request, response, and transport limits for Alex Search HTTP Protocol v1",
         "打开网页搜索设置",
         "带我配置 WebSearch 搜索服务",
         "Open Web Search settings",

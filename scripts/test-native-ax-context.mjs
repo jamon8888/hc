@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 
 assert.equal(process.platform, 'darwin', 'native AX fixture requires macOS');
 const root = fileURLToPath(new URL('../', import.meta.url));
-const dir = await mkdtemp(join(tmpdir(), 'openbitfun-ax-context-'));
+const dir = await mkdtemp(join(tmpdir(), 'alex-ax-context-'));
 const run = (cmd, args, env = process.env) => new Promise((resolve, reject) => {
   const child = spawn(cmd, args, { cwd: root, stdio: 'inherit', windowsHide: true, env });
   child.on('error', reject);
@@ -25,8 +25,8 @@ try {
     fixture.stdout.on('data', chunk => { if (String(chunk).includes('READY')) { clearTimeout(timeout); resolve(); } });
   });
   const nativeArgs = ['native_ax_fixture_round_trips_tree_and_cached_targets', '--ignored'];
-  await run(process.env.OPENBITFUN_TEST_BINARY || 'cargo', process.env.OPENBITFUN_TEST_BINARY ? nativeArgs : ['test', '-p', 'openbitfun-desktop', '--lib', nativeArgs[0], '--', ...nativeArgs.slice(1)], {
-    ...process.env, OPENBITFUN_AX_FIXTURE_PID: String(fixture.pid),
+  await run(process.env.ALEX_TEST_BINARY || 'cargo', process.env.ALEX_TEST_BINARY ? nativeArgs : ['test', '-p', 'alex-desktop', '--lib', nativeArgs[0], '--', ...nativeArgs.slice(1)], {
+    ...process.env, ALEX_AX_FIXTURE_PID: String(fixture.pid),
   });
 } finally {
   if (fixture && fixture.exitCode === null) {

@@ -1,5 +1,5 @@
 const SELECTED_COMMAND_SELECTOR =
-  '[data-openbitfun-part="commandItem"][data-openbitfun-state="selected"]';
+  '[data-alex-part="commandItem"][data-alex-state="selected"]';
 
 export function scrollSelectedSlashCommandIntoView(
   picker: HTMLElement | null,

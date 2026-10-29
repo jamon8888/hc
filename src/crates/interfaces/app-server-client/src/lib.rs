@@ -4,31 +4,31 @@ use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
 use agent_client_protocol::{ConnectTo, ConnectionTo, JsonRpcResponse, SentRequest};
-use openbitfun_app_server_protocol::account::*;
-use openbitfun_app_server_protocol::agent::*;
-use openbitfun_app_server_protocol::app::{
+use alex_app_server_protocol::account::*;
+use alex_app_server_protocol::agent::*;
+use alex_app_server_protocol::app::{
     HealthRequest, HealthResponse, InitializeRequest, InitializeResponse,
 };
-use openbitfun_app_server_protocol::config::{
+use alex_app_server_protocol::config::{
     SaveCloudSpeechConfigMessage, SaveCloudSpeechConfigRequest, SaveCloudSpeechConfigResponse,
     SaveCloudSpeechConfigResult, ValidateConfigMessage, ValidateConfigResponse,
 };
-use openbitfun_app_server_protocol::error::{AppServerErrorData, AppServerErrorKind};
-use openbitfun_app_server_protocol::event::{
+use alex_app_server_protocol::error::{AppServerErrorData, AppServerErrorKind};
+use alex_app_server_protocol::event::{
     AgentEventNotification, ConfigEventNotification, EventStreamStateNotification,
     PermissionEventNotification, SyncEventsRequest, SyncEventsResponse,
 };
-use openbitfun_app_server_protocol::external_source::*;
-use openbitfun_app_server_protocol::hook::*;
-use openbitfun_app_server_protocol::mcp::*;
-use openbitfun_app_server_protocol::model::*;
-use openbitfun_app_server_protocol::search::*;
-use openbitfun_app_server_protocol::session::*;
-use openbitfun_app_server_protocol::skill::*;
-use openbitfun_app_server_protocol::subagent::*;
-use openbitfun_app_server_protocol::workspace::*;
-use openbitfun_app_server_protocol::worktree::*;
-use openbitfun_app_server_protocol::{AppClient, AppServer};
+use alex_app_server_protocol::external_source::*;
+use alex_app_server_protocol::hook::*;
+use alex_app_server_protocol::mcp::*;
+use alex_app_server_protocol::model::*;
+use alex_app_server_protocol::search::*;
+use alex_app_server_protocol::session::*;
+use alex_app_server_protocol::skill::*;
+use alex_app_server_protocol::subagent::*;
+use alex_app_server_protocol::workspace::*;
+use alex_app_server_protocol::worktree::*;
+use alex_app_server_protocol::{AppClient, AppServer};
 use tokio::sync::{broadcast, oneshot};
 
 pub use agent_client_protocol::Error as ProtocolError;
@@ -694,7 +694,7 @@ pub async fn connect(
     let connect_task = tokio::spawn(async move {
         let result = AppClient
             .builder()
-            .name("openbitfun-rich-client")
+            .name("alex-rich-client")
             .on_receive_notification(
                 {
                     let event_tx = event_tx_for_task.clone();

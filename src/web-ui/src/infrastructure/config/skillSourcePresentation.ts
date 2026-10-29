@@ -1,7 +1,7 @@
 import type { ModeSkillInfo, SkillInfo } from './types';
 
 const SOURCE_LABEL_BY_ID: Record<string, string> = {
-  openbitfun: 'Alex',
+  'openbitfun': 'Alex',
   'openbitfun-system': 'Alex',
   'claude-code': 'Claude Code',
   claude: 'Claude Code',
@@ -76,7 +76,7 @@ export function getEcosystemSourceLabel(sourceId?: string): string | undefined {
 }
 
 /** Discovery is broader than installation; native management only owns native copies. */
-export function isOpenBitFunManagedSkill(skill: SkillInfo): boolean {
+export function isAlexManagedSkill(skill: SkillInfo): boolean {
   return skill.isBuiltin || getSkillSourceId(skill) === 'openbitfun';
 }
 

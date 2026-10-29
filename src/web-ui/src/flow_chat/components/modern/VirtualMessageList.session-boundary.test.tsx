@@ -543,7 +543,7 @@ describe('VirtualMessageList natural scroll contract', () => {
       act(() => root.render(<VirtualMessageList ref={listRef} />));
       await settleOpenReveal();
       const scroller = container.querySelector<HTMLElement>('[data-flowchat-scroller]')!;
-      scroller.style.setProperty('--openbitfun-space-12', '48px');
+      scroller.style.setProperty('--alex-space-12', '48px');
       scroller.scrollTop = 400;
       mocks.scrollItemIntoView.mockClear();
       mocks.scrollToOffset.mockClear();
@@ -572,7 +572,7 @@ describe('VirtualMessageList natural scroll contract', () => {
       act(() => root.render(<VirtualMessageList ref={listRef} />));
       await settleOpenReveal();
       const scroller = container.querySelector<HTMLElement>('[data-flowchat-scroller]')!;
-      scroller.style.setProperty('--openbitfun-space-12', '48px');
+      scroller.style.setProperty('--alex-space-12', '48px');
       scroller.scrollTop = 400;
       mocks.scrollItemIntoView.mockClear();
       mocks.scrollToOffset.mockClear();

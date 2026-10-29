@@ -18,7 +18,7 @@ const localOnlyPaths = [
 ];
 
 function fixture(t) {
-  const root = mkdtempSync(path.join(tmpdir(), 'openbitfun-repo-hygiene-'));
+  const root = mkdtempSync(path.join(tmpdir(), 'alex-repo-hygiene-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const git = (...args) => execFileSync('git', args, {
     cwd: root, encoding: 'utf8', windowsHide: true,

@@ -5,12 +5,12 @@ use crate::agentic::deep_review_policy::{
     CODE_REVIEW_AGENT_TYPE, DEEP_REVIEW_AGENT_TYPE, REVIEW_FIXER_AGENT_TYPE,
 };
 use log::{debug, warn};
-use openbitfun_agent_runtime::prompt_cache::prompt_cache_scope_key;
-use openbitfun_core_types::{
+use alex_agent_runtime::prompt_cache::prompt_cache_scope_key;
+use alex_core_types::{
     SessionAgentRouteOwner, SessionContinuationPolicy, SessionModelBindingPolicy,
 };
-use openbitfun_product_domains::external_sources::EcosystemId;
-use openbitfun_product_domains::external_subagents::ExternalSubagentMode;
+use alex_product_domains::external_sources::EcosystemId;
+use alex_product_domains::external_subagents::ExternalSubagentMode;
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::sync::{Arc, RwLock, Weak};
 
@@ -810,7 +810,7 @@ fn local_binding(logical_id: &str, runtime_agent_key: &str) -> ExternalSubagentI
 /// Review child sessions are created by the product surfaces with
 /// `agentType=CodeReview` (standard) or `agentType=DeepReview` (strict), and
 /// the remediation phase of either session runs with `agentType=ReviewFixer`.
-/// These and the hidden OpenBitFun control Agent resolve through the primary path for create, turn,
+/// These and the hidden Alex control Agent resolve through the primary path for create, turn,
 /// restore, and compaction. Other subagents (e.g. `ReviewWorker`,
 /// `ReviewJudge`) stay restricted.
 fn is_builtin_session_primary_agent(id: &str) -> bool {

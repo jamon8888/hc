@@ -86,10 +86,10 @@ The service validates Alex access tokens against the fixed GitHub identity
 authority at `https://auth.openbitfun.com/api/v1/me`.
 
 ```bash
-cargo build --release -p openbitfun-relay-server
-RELAY_PORT=9700 RELAY_DB_PATH=/var/lib/openbitfun-relay-v1/relay.db \
-  RELAY_ASSET_DIR=/var/lib/openbitfun-relay-v1/assets \
-  ./target/release/openbitfun-relay-server
+cargo build --release -p alex-relay-server
+RELAY_PORT=9700 RELAY_DB_PATH=/var/lib/alex-relay-v1/relay.db \
+  RELAY_ASSET_DIR=/var/lib/alex-relay-v1/assets \
+  ./target/release/alex-relay-server
 ```
 
 Use the isolated [v1 Compose project](../../../deploy/relay-v1/README.md).
@@ -365,9 +365,9 @@ together and use distinct origins when protected Pages are deployed.
 ## Verification
 
 ```bash
-cargo test -p openbitfun-relay-server --bin openbitfun-relay-server
-cargo test -p openbitfun-relay-service
-cargo check -p openbitfun-relay-server
+cargo test -p alex-relay-server --bin alex-relay-server
+cargo test -p alex-relay-service
+cargo check -p alex-relay-server
 node scripts/check-core-boundaries.mjs
 ```
 

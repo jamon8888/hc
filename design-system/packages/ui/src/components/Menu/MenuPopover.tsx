@@ -51,7 +51,7 @@ export interface MenuPopoverParts {
 }
 
 function ownItems(menu: HTMLElement) {
-  return Array.from(menu.querySelectorAll<HTMLButtonElement>("[data-openbitfun-menu-item]"))
+  return Array.from(menu.querySelectorAll<HTMLButtonElement>("[data-alex-menu-item]"))
     .filter(item => item.closest('[role="menu"]') === menu && !item.disabled && item.getAttribute("aria-disabled") !== "true");
 }
 
@@ -71,7 +71,7 @@ export function MenuPopover({ items, open, onClose, anchorRef, ownerRef, positio
   useDismissibleLayer({
     branchRefs,
     containsTarget: (target) => target instanceof Element
-      && target.closest("[data-openbitfun-menu-tree]")?.getAttribute("data-openbitfun-menu-tree") === treeId,
+      && target.closest("[data-alex-menu-tree]")?.getAttribute("data-alex-menu-tree") === treeId,
     enabled: open,
     layerRef: menuRef,
     onDismiss: closeAndRestoreFocus,
@@ -203,9 +203,9 @@ function MenuLevel({ items, open, phase, treeId, onClose, onBack, anchorRef, pos
 
   return <>
     <MenuSurface {...props} ref={node => { (menuRef as { current: HTMLDivElement | null }).current = node; }} className={classNames(styles.popup, className)} inlineSize={inlineSize} autoFocusFirstItem={open && autoFocusFirstItem && Boolean(layout)} tabIndex={-1}
-      style={{ ...layout?.style, ...style, visibility: layout ? undefined : "hidden" }} data-openbitfun-native-webview-occlusion data-openbitfun-menu-tree={treeId} data-placement={layout?.placement ?? placement} data-state={phase}
+      style={{ ...layout?.style, ...style, visibility: layout ? undefined : "hidden" }} data-alex-native-webview-occlusion data-alex-menu-tree={treeId} data-placement={layout?.placement ?? placement} data-state={phase}
       aria-hidden={!open || undefined} {...(!open ? { inert: "" } : {})} onContextMenu={event => event.preventDefault()}>
-      {items.map(item => item.separator ? <Separator key={item.id} /> : <Item key={item.id} data-menu-id={item.id} leading={item.icon ? <Leading className={styles.icon} data-openbitfun-icon-slot="true">{item.icon}</Leading> : undefined} shortcut={item.shortcut ? <Shortcut>{item.shortcut}</Shortcut> : undefined} tone={item.tone} role={item.role} checked={item.checked}
+      {items.map(item => item.separator ? <Separator key={item.id} /> : <Item key={item.id} data-menu-id={item.id} leading={item.icon ? <Leading className={styles.icon} data-alex-icon-slot="true">{item.icon}</Leading> : undefined} shortcut={item.shortcut ? <Shortcut>{item.shortcut}</Shortcut> : undefined} tone={item.tone} role={item.role} checked={item.checked}
         disabled={item.disabled} aria-disabled={item.disabled || undefined} aria-haspopup={item.submenu?.length ? "menu" : undefined} aria-expanded={item.submenu?.length ? activeEntry?.id === item.id : undefined}
         aria-controls={activeEntry?.id === item.id ? submenuId : undefined} metadata={item.submenu?.length ? <Arrow className={styles.submenuArrow}><Icon name="chevron-right" size="sm" /></Arrow> : undefined}
         onClick={event => { event.stopPropagation(); if (item.submenu?.length) openSubmenu(item, event.currentTarget, true); else activate(item); }}

@@ -92,8 +92,8 @@ describe('AppearanceService', () => {
     configMocks.getConfig.mockReset();
     configMocks.setConfig.mockReset();
     configMocks.setConfig.mockResolvedValue(undefined);
-    delete globalThis.__OPENBITFUN_BOOTSTRAP_APPEARANCE_ID__;
-    delete globalThis.__OPENBITFUN_BOOTSTRAP_APPEARANCE_SELECTION__;
+    delete globalThis.__ALEX_BOOTSTRAP_APPEARANCE_ID__;
+    delete globalThis.__ALEX_BOOTSTRAP_APPEARANCE_SELECTION__;
     vi.stubGlobal('window', {
       matchMedia: vi.fn(() => ({
         matches: false,
@@ -105,13 +105,13 @@ describe('AppearanceService', () => {
 
   afterEach(() => {
     vi.unstubAllGlobals();
-    delete globalThis.__OPENBITFUN_BOOTSTRAP_APPEARANCE_ID__;
-    delete globalThis.__OPENBITFUN_BOOTSTRAP_APPEARANCE_SELECTION__;
+    delete globalThis.__ALEX_BOOTSTRAP_APPEARANCE_ID__;
+    delete globalThis.__ALEX_BOOTSTRAP_APPEARANCE_SELECTION__;
   });
 
   it('uses and consumes the desktop bootstrap selection before reading config', async () => {
-    globalThis.__OPENBITFUN_BOOTSTRAP_APPEARANCE_ID__ = 'openbitfun-dark';
-    globalThis.__OPENBITFUN_BOOTSTRAP_APPEARANCE_SELECTION__ = 'openbitfun-dark';
+    globalThis.__ALEX_BOOTSTRAP_APPEARANCE_ID__ = 'openbitfun-dark';
+    globalThis.__ALEX_BOOTSTRAP_APPEARANCE_SELECTION__ = 'openbitfun-dark';
     const { runtime, service } = createService();
 
     await service.initialize();
@@ -126,8 +126,8 @@ describe('AppearanceService', () => {
       selectedAppearanceId: 'openbitfun-dark',
       resolvedAppearanceId: 'openbitfun-dark',
     });
-    expect(Object.prototype.hasOwnProperty.call(globalThis, '__OPENBITFUN_BOOTSTRAP_APPEARANCE_ID__')).toBe(false);
-    expect(Object.prototype.hasOwnProperty.call(globalThis, '__OPENBITFUN_BOOTSTRAP_APPEARANCE_SELECTION__')).toBe(false);
+    expect(Object.prototype.hasOwnProperty.call(globalThis, '__ALEX_BOOTSTRAP_APPEARANCE_ID__')).toBe(false);
+    expect(Object.prototype.hasOwnProperty.call(globalThis, '__ALEX_BOOTSTRAP_APPEARANCE_SELECTION__')).toBe(false);
   });
 
   it('persists explicit selections through appearance.selection', async () => {
@@ -333,7 +333,7 @@ describe('AppearanceService', () => {
         renderers: {
           'css-tokens': {
             version: 1,
-            settings: { tokens: { '--openbitfun-appearance-token-color-bg-primary': '#101820' } },
+            settings: { tokens: { '--alex-appearance-token-color-bg-primary': '#101820' } },
           },
         },
       },

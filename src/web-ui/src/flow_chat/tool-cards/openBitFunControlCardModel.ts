@@ -1,7 +1,7 @@
 import type { FlowToolItem } from '../types/flow-chat';
 
 type ControlRecord = Record<string, unknown>;
-export type OpenBitFunControlAction = 'list' | 'search' | 'get' | 'open' | 'execute' | 'configure';
+export type AlexControlAction = 'list' | 'search' | 'get' | 'open' | 'execute' | 'configure';
 
 export function controlRecord(value: unknown): ControlRecord {
   if (typeof value === 'string') {
@@ -35,23 +35,23 @@ export function controlDescription(record: ControlRecord, language: string): str
   return text(record[language.startsWith('zh') ? 'summaryZh' : 'summaryEn']);
 }
 
-export function getOpenBitFunControlInput(toolItem: Pick<FlowToolItem, 'toolCall' | 'partialParams' | 'isParamsStreaming'>): ControlRecord {
+export function getAlexControlInput(toolItem: Pick<FlowToolItem, 'toolCall' | 'partialParams' | 'isParamsStreaming'>): ControlRecord {
   const input = controlRecord(toolItem.toolCall?.input);
   const partial = controlRecord(toolItem.partialParams);
   // Deferred calls retain gateway-shaped streaming parameters after identity projection.
-  const params = partial.tool_name === 'OpenBitFunControl' ? controlRecord(partial.args) : partial;
+  const params = partial.tool_name === 'AlexControl' ? controlRecord(partial.args) : partial;
   return toolItem.isParamsStreaming ? { ...input, ...params }
     : Object.keys(input).length > 0 ? input : params;
 }
 
-export function isOpenBitFunControlDiscovery(input: unknown): boolean {
+export function isAlexControlDiscovery(input: unknown): boolean {
   return ['list', 'search', 'get'].includes(String(controlRecord(input).action ?? '').trim());
 }
 
-function actionOf(input: ControlRecord): OpenBitFunControlAction | undefined {
+function actionOf(input: ControlRecord): AlexControlAction | undefined {
   const action = text(input.action);
   return action && ['list', 'search', 'get', 'open', 'execute', 'configure'].includes(action)
-    ? action as OpenBitFunControlAction
+    ? action as AlexControlAction
     : undefined;
 }
 
@@ -64,12 +64,12 @@ function requestedValue(input: ControlRecord): unknown {
 }
 
 /** Read-only projection. The executing host remains the authority for outcomes and availability. */
-export function buildOpenBitFunControlCardModel(
+export function buildAlexControlCardModel(
   toolItem: FlowToolItem,
   language: string,
   localCapability?: unknown,
 ) {
-  const input = getOpenBitFunControlInput(toolItem);
+  const input = getAlexControlInput(toolItem);
   const result = controlRecord(toolItem.toolResult?.result);
   const returnedCapability = controlRecord(result.capability);
   const capabilityId = id(result, 'capability_id', 'capabilityId')
@@ -125,4 +125,4 @@ export function buildOpenBitFunControlCardModel(
   };
 }
 
-export type OpenBitFunControlCardModel = ReturnType<typeof buildOpenBitFunControlCardModel>;
+export type AlexControlCardModel = ReturnType<typeof buildAlexControlCardModel>;

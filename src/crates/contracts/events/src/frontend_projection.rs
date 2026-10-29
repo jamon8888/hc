@@ -526,7 +526,7 @@ mod tests {
         DeepReviewQueueReason, DeepReviewQueueState, DeepReviewQueueStatus,
         ModelRoundAttemptDiagnostic,
     };
-    use openbitfun_core_types::{
+    use alex_core_types::{
         ReasoningContentKind, SessionExecutionTarget, SessionExecutionTargetKind, WorktreeLifecycle,
     };
 

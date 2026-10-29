@@ -113,7 +113,7 @@ describe.each([
     vi.unstubAllGlobals();
   });
 
-  const expandedSurface = '[data-openbitfun-part="surface"][data-openbitfun-state~="expanded"]';
+  const expandedSurface = '[data-alex-part="surface"][data-alex-state~="expanded"]';
 
   it.each(['completed', 'running', 'cancelled'] as const)('copies the complete %s output beyond the terminal viewport', async (status) => {
     const output = `${'long output '.repeat(30)}\nlast line\r\n`;
@@ -125,7 +125,7 @@ describe.each([
     });
     if (!container.querySelector(expandedSurface)) {
       act(() => {
-        container.querySelector<HTMLElement>('[data-openbitfun-part="surface"][data-openbitfun-attention="prominent"]')!.click();
+        container.querySelector<HTMLElement>('[data-alex-part="surface"][data-alex-attention="prominent"]')!.click();
       });
     }
     vi.mocked(copyTextToClipboard).mockClear();
@@ -218,7 +218,7 @@ describe.each([
     act(() => { container.querySelector<HTMLElement>(expandedSurface)!.click(); });
     expect(container.querySelector(expandedSurface)).toBeNull();
     act(() => {
-      container.querySelector<HTMLElement>('[data-openbitfun-part="surface"][data-openbitfun-attention="prominent"]')!.click();
+      container.querySelector<HTMLElement>('[data-alex-part="surface"][data-alex-attention="prominent"]')!.click();
     });
     act(() => { vi.advanceTimersByTime(1000); });
     expect(container.querySelector(expandedSurface)).not.toBeNull();
@@ -282,12 +282,12 @@ describe.each([
 
     act(() => {
       container
-        .querySelector<HTMLElement>('[data-openbitfun-part="surface"][data-openbitfun-attention="prominent"]')
+        .querySelector<HTMLElement>('[data-alex-part="surface"][data-alex-attention="prominent"]')
         ?.click();
     });
 
     const exitCodeItem = Array.from(
-      container.querySelectorAll('[data-openbitfun-part="footer"] > span'),
+      container.querySelectorAll('[data-alex-part="footer"] > span'),
     ).find((item) => item.textContent?.includes('Exit code: 2'));
     expect(exitCodeItem?.getAttribute('data-tone')).toBe('neutral');
     expect(container.querySelector('.duration-text--completed-error')).toBeNull();
@@ -298,13 +298,13 @@ describe.each([
       root.render(<ExecProcessToolCardView toolItem={toolItem('pending_confirmation', true)} model={model} />);
     });
 
-    expect(container.querySelector('[data-openbitfun-part="surface"][data-openbitfun-attention="prominent"]')).not.toBeNull();
-    expect(container.querySelector('[data-openbitfun-part="surface"][data-openbitfun-attention="ambient"]')).toBeNull();
+    expect(container.querySelector('[data-alex-part="surface"][data-alex-attention="prominent"]')).not.toBeNull();
+    expect(container.querySelector('[data-alex-part="surface"][data-alex-attention="ambient"]')).toBeNull();
     expect(container.textContent).toContain('Waiting for confirmation');
     expect(container.textContent).not.toContain('Receiving parameters...');
-    expect(container.querySelector('[data-openbitfun-component="command-tool-card"] [data-openbitfun-part="outputFrame"]')).not.toBeNull();
-    expect(container.querySelector('[data-openbitfun-component="command-tool-card"] [data-openbitfun-part="footer"]')).not.toBeNull();
-    expect(container.querySelector('[data-openbitfun-component="command-tool-card"] [data-openbitfun-part="output"] pre')).toBeNull();
+    expect(container.querySelector('[data-alex-component="command-tool-card"] [data-alex-part="outputFrame"]')).not.toBeNull();
+    expect(container.querySelector('[data-alex-component="command-tool-card"] [data-alex-part="footer"]')).not.toBeNull();
+    expect(container.querySelector('[data-alex-component="command-tool-card"] [data-alex-part="output"] pre')).toBeNull();
   });
 
   it('retains a compact completed result when it stops being the tail', () => {
@@ -324,8 +324,8 @@ describe.each([
       );
     });
 
-    expect(container.querySelector('[data-openbitfun-part="surface"][data-openbitfun-attention="prominent"]')).not.toBeNull();
-    expect(container.querySelector('[data-openbitfun-part="surface"][data-openbitfun-attention="ambient"]')).toBeNull();
+    expect(container.querySelector('[data-alex-part="surface"][data-alex-attention="prominent"]')).not.toBeNull();
+    expect(container.querySelector('[data-alex-part="surface"][data-alex-attention="ambient"]')).toBeNull();
 
     act(() => {
       root.render(
@@ -337,10 +337,10 @@ describe.each([
       );
     });
 
-    expect(container.querySelector('[data-openbitfun-part="surface"][data-openbitfun-attention="prominent"]')).not.toBeNull();
-    expect(container.querySelector('[data-openbitfun-part="surface"][data-openbitfun-attention="ambient"]')).toBeNull();
+    expect(container.querySelector('[data-alex-part="surface"][data-alex-attention="prominent"]')).not.toBeNull();
+    expect(container.querySelector('[data-alex-part="surface"][data-alex-attention="ambient"]')).toBeNull();
     expect(container.textContent).toContain('All tests passed');
-    expect(container.querySelector('[data-openbitfun-part="output"] pre')?.getAttribute('data-max-rows')).toBe('4');
+    expect(container.querySelector('[data-alex-part="output"] pre')?.getAttribute('data-max-rows')).toBe('4');
 
     act(() => {
       root.render(
@@ -355,10 +355,10 @@ describe.each([
     expect(container.querySelector(expandedSurface)).not.toBeNull();
     act(() => { vi.advanceTimersByTime(1000); });
     // Collapsed cards keep the prominent framework shell and animate height closed.
-    expect(container.querySelector('[data-openbitfun-part="surface"][data-openbitfun-attention="prominent"]')).not.toBeNull();
-    expect(container.querySelector('[data-openbitfun-part="surface"][data-openbitfun-attention="prominent"][data-openbitfun-state~="expanded"]')).toBeNull();
-    expect(container.querySelector('[data-openbitfun-part="surface"][data-openbitfun-attention="ambient"]')).toBeNull();
-    expect(container.querySelector('[data-openbitfun-part="output"] pre')?.getAttribute('data-max-rows')).toBe('4');
+    expect(container.querySelector('[data-alex-part="surface"][data-alex-attention="prominent"]')).not.toBeNull();
+    expect(container.querySelector('[data-alex-part="surface"][data-alex-attention="prominent"][data-alex-state~="expanded"]')).toBeNull();
+    expect(container.querySelector('[data-alex-part="surface"][data-alex-attention="ambient"]')).toBeNull();
+    expect(container.querySelector('[data-alex-part="output"] pre')?.getAttribute('data-max-rows')).toBe('4');
   });
 
   it('uses the expanded output preview after a completed card is manually expanded', () => {
@@ -378,13 +378,13 @@ describe.each([
 
     act(() => {
       container
-        .querySelector<HTMLElement>('[data-openbitfun-part="surface"][data-openbitfun-attention="prominent"]')
+        .querySelector<HTMLElement>('[data-alex-part="surface"][data-alex-attention="prominent"]')
         ?.click();
     });
 
-    expect(container.querySelector('[data-openbitfun-part="output"] pre')?.getAttribute('data-max-rows')).toBe('15');
-    expect(container.querySelector('[data-openbitfun-part="outputFrame"]')?.getAttribute('data-density')).toBe('expanded');
-    expect(container.querySelector('[data-openbitfun-part="outputFrame"]')?.getAttribute('data-sizing')).toBe('content');
+    expect(container.querySelector('[data-alex-part="output"] pre')?.getAttribute('data-max-rows')).toBe('15');
+    expect(container.querySelector('[data-alex-part="outputFrame"]')?.getAttribute('data-density')).toBe('expanded');
+    expect(container.querySelector('[data-alex-part="outputFrame"]')?.getAttribute('data-sizing')).toBe('content');
   });
 
   it('content-sizes a manually expanded completed card with no output', () => {
@@ -399,13 +399,13 @@ describe.each([
 
     act(() => {
       container
-        .querySelector<HTMLElement>('[data-openbitfun-part="surface"][data-openbitfun-attention="prominent"]')
+        .querySelector<HTMLElement>('[data-alex-part="surface"][data-alex-attention="prominent"]')
         ?.click();
     });
 
     expect(container.textContent).toContain('No output');
-    expect(container.querySelector('[data-openbitfun-part="outputFrame"]')?.getAttribute('data-density')).toBe('expanded');
-    expect(container.querySelector('[data-openbitfun-part="outputFrame"]')?.getAttribute('data-sizing')).toBe('content');
+    expect(container.querySelector('[data-alex-part="outputFrame"]')?.getAttribute('data-density')).toBe('expanded');
+    expect(container.querySelector('[data-alex-part="outputFrame"]')?.getAttribute('data-sizing')).toBe('content');
   });
 
   it('pushes session and execution metadata to the footer end', () => {
@@ -427,11 +427,11 @@ describe.each([
 
     act(() => {
       container
-        .querySelector<HTMLElement>('[data-openbitfun-part="surface"][data-openbitfun-attention="prominent"]')
+        .querySelector<HTMLElement>('[data-alex-part="surface"][data-alex-attention="prominent"]')
         ?.click();
     });
 
-    const footerItems = Array.from(container.querySelectorAll('[data-openbitfun-part="footer"] > span'));
+    const footerItems = Array.from(container.querySelectorAll('[data-alex-part="footer"] > span'));
     expect(footerItems).toHaveLength(3);
     expect(footerItems[0]?.getAttribute('data-push-to-end')).toBe('true');
     expect(footerItems[0]?.textContent).toContain('#42');
@@ -457,19 +457,19 @@ describe.each([
     act(() => {
       root.render(<ExecProcessToolCardView toolItem={streamingItem} model={model} />);
     });
-    const frameBeforeOutput = container.querySelector('[data-openbitfun-component="command-tool-card"] [data-openbitfun-part="outputFrame"]');
-    const footerBeforeOutput = container.querySelector('[data-openbitfun-component="command-tool-card"] [data-openbitfun-part="footer"]');
+    const frameBeforeOutput = container.querySelector('[data-alex-component="command-tool-card"] [data-alex-part="outputFrame"]');
+    const footerBeforeOutput = container.querySelector('[data-alex-component="command-tool-card"] [data-alex-part="footer"]');
     expect(frameBeforeOutput?.getAttribute('data-density')).toBe('compact');
     expect(frameBeforeOutput?.getAttribute('data-sizing')).toBe('fixed');
     expect(footerBeforeOutput?.textContent).toBe('');
-    expect(container.querySelector('[data-openbitfun-part="output"] pre')).not.toBeNull();
+    expect(container.querySelector('[data-alex-part="output"] pre')).not.toBeNull();
 
     act(() => {
       root.render(<ExecProcessToolCardView toolItem={{ ...streamingItem, _progressLogs: ['more output'] } as FlowToolItem} model={model} />);
     });
-    expect(container.querySelector('[data-openbitfun-component="command-tool-card"] [data-openbitfun-part="outputFrame"]')).toBe(frameBeforeOutput);
-    expect(container.querySelector('[data-openbitfun-component="command-tool-card"] [data-openbitfun-part="footer"]')).toBe(footerBeforeOutput);
-    expect(container.querySelector('[data-openbitfun-part="output"] pre')).not.toBeNull();
+    expect(container.querySelector('[data-alex-component="command-tool-card"] [data-alex-part="outputFrame"]')).toBe(frameBeforeOutput);
+    expect(container.querySelector('[data-alex-component="command-tool-card"] [data-alex-part="footer"]')).toBe(footerBeforeOutput);
+    expect(container.querySelector('[data-alex-part="output"] pre')).not.toBeNull();
 
     act(() => {
       root.render(
@@ -480,10 +480,10 @@ describe.each([
         />,
       );
     });
-    expect(container.querySelector('[data-openbitfun-component="command-tool-card"] [data-openbitfun-part="outputFrame"]')).toBe(frameBeforeOutput);
-    expect(container.querySelector('[data-openbitfun-component="command-tool-card"] [data-openbitfun-part="footer"]')).toBe(footerBeforeOutput);
+    expect(container.querySelector('[data-alex-component="command-tool-card"] [data-alex-part="outputFrame"]')).toBe(frameBeforeOutput);
+    expect(container.querySelector('[data-alex-component="command-tool-card"] [data-alex-part="footer"]')).toBe(footerBeforeOutput);
     expect(footerBeforeOutput?.textContent).toContain('E:/workspace');
-    expect(container.querySelector('[data-openbitfun-component="command-tool-card"] [data-openbitfun-part="outputFrame"]')?.getAttribute('data-density')).toBe('compact');
+    expect(container.querySelector('[data-alex-component="command-tool-card"] [data-alex-part="outputFrame"]')?.getAttribute('data-density')).toBe('compact');
   });
 
   it.each([true, false])('keeps a command expanded for 1000ms from first output (tail=%s)', (isLastItem) => {
@@ -518,22 +518,22 @@ describe.each([
     act(() => {
       vi.advanceTimersByTime(899);
     });
-    expect(container.querySelector('[data-openbitfun-part="surface"][data-openbitfun-attention="prominent"][data-openbitfun-state~="expanded"]')).not.toBeNull();
+    expect(container.querySelector('[data-alex-part="surface"][data-alex-attention="prominent"][data-alex-state~="expanded"]')).not.toBeNull();
 
     act(() => {
       vi.advanceTimersByTime(1);
     });
-    expect(container.querySelector('[data-openbitfun-part="surface"][data-openbitfun-attention="prominent"][data-openbitfun-state~="expanded"]')).toBeNull();
-    expect(container.querySelector('[data-openbitfun-component="command-tool-card"] [data-openbitfun-part="details"]')).not.toBeNull();
+    expect(container.querySelector('[data-alex-part="surface"][data-alex-attention="prominent"][data-alex-state~="expanded"]')).toBeNull();
+    expect(container.querySelector('[data-alex-component="command-tool-card"] [data-alex-part="details"]')).not.toBeNull();
 
     act(() => {
       vi.advanceTimersByTime(299);
     });
-    expect(container.querySelector('[data-openbitfun-component="command-tool-card"] [data-openbitfun-part="details"]')).not.toBeNull();
+    expect(container.querySelector('[data-alex-component="command-tool-card"] [data-alex-part="details"]')).not.toBeNull();
 
     act(() => {
       vi.advanceTimersByTime(1);
     });
-    expect(container.querySelector('[data-openbitfun-component="command-tool-card"] [data-openbitfun-part="details"]')).toBeNull();
+    expect(container.querySelector('[data-alex-component="command-tool-card"] [data-alex-part="details"]')).toBeNull();
   });
 });
