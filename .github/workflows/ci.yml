@@ -704,7 +704,7 @@ jobs:
       github.event_name == 'push' &&
       (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/1.0.0-explore') &&
       needs.build-impact.outputs.rust_required != 'false'
-    runs-on: [self-hosted, linux, x64, large]
+    runs-on: [self-hosted, macOS, x64, large]
     timeout-minutes: 60
     env:
       CARGO_INCREMENTAL: "0"
@@ -783,7 +783,7 @@ jobs:
       github.event_name == 'push' &&
       (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/1.0.0-explore') &&
       needs.build-impact.outputs.frontend_required != 'false'
-    runs-on: [self-hosted, linux, x64, large]
+    runs-on: [self-hosted, macOS, x64, large]
     timeout-minutes: 45
     env:
       NODE_OPTIONS: --max-old-space-size=16384
