@@ -20,7 +20,7 @@ use crate::identity_registry::IdentityRegistry;
 #[cfg(feature = "basemind")]
 use crate::ipc::BasemindClient;
 #[cfg(feature = "basemind")]
-use crate::query_resolution::QueryResolver;
+use crate::query_resolution::{DocumentTokenResolver, QueryResolver};
 #[cfg(feature = "basemind")]
 use crate::session_vault::SessionVault;
 
@@ -98,17 +98,22 @@ impl RagSearchTool {
 /// The host constructs this at the composition root and injects it through
 /// `ToolRuntimeHandles::with_rag_search_port`; `alex-core` only ever sees
 /// the port trait. The mutex serializes access because the pipeline mutates
-/// the identity registry and session vault per search.
+/// the identity registry and session vault per search. DOC-token resolution
+/// uses a shared vault-only handle so Read can proceed while search awaits the
+/// sidecar.
 #[cfg(feature = "basemind")]
 pub struct RagSearchPortAdapter {
     tool: tokio::sync::Mutex<RagSearchTool>,
+    document_tokens: DocumentTokenResolver,
 }
 
 #[cfg(feature = "basemind")]
 impl RagSearchPortAdapter {
     pub fn new(tool: RagSearchTool) -> Self {
+        let document_tokens = tool.resolver.document_token_resolver();
         Self {
             tool: tokio::sync::Mutex::new(tool),
+            document_tokens,
         }
     }
 }
@@ -171,13 +176,7 @@ impl alex_runtime_ports::RagSearchPort for RagSearchPortAdapter {
         session_id: &str,
         _workspace_root: &str,
     ) -> Result<Option<String>, alex_runtime_ports::RagSearchError> {
-        let tool = self.tool.try_lock().map_err(|_| {
-            alex_runtime_ports::RagSearchError::new(
-                alex_runtime_ports::RagSearchErrorKind::SessionUnavailable,
-                "RAG search backend is busy",
-            )
-        })?;
-        tool.resolver
+        self.document_tokens
             .resolve_document_token(token, session_id)
             .map_err(|error| {
                 alex_runtime_ports::RagSearchError::new(

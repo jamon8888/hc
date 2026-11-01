@@ -11,12 +11,26 @@ use serde::{Deserialize, Serialize};
 use std::cmp::Reverse;
 #[cfg(feature = "basemind")]
 use std::collections::BTreeMap;
+#[cfg(feature = "basemind")]
+use std::sync::{Arc, RwLock};
 
 #[cfg(feature = "basemind")]
 pub struct QueryResolver {
     client: crate::ipc::BasemindClient,
     registry: crate::identity_registry::IdentityRegistry,
-    vault: crate::session_vault::SessionVault,
+    vault: Arc<RwLock<crate::session_vault::SessionVault>>,
+}
+
+/// Synchronous, session-vault-only access for DOC references.
+///
+/// RAG searches hold their tool mutex across awaited sidecar calls, but Read
+/// can resolve a DOC token concurrently with that work. This handle shares the
+/// resolver's vault lock without acquiring the search mutex or cloning an
+/// independently synchronized vault.
+#[cfg(feature = "basemind")]
+#[derive(Clone)]
+pub struct DocumentTokenResolver {
+    vault: Arc<RwLock<crate::session_vault::SessionVault>>,
 }
 
 #[cfg(feature = "basemind")]
@@ -29,8 +43,36 @@ impl QueryResolver {
         Self {
             client,
             registry,
-            vault,
+            vault: Arc::new(RwLock::new(vault)),
         }
+    }
+
+    /// Return a synchronized handle that resolves only document references.
+    pub(crate) fn document_token_resolver(&self) -> DocumentTokenResolver {
+        DocumentTokenResolver {
+            vault: Arc::clone(&self.vault),
+        }
+    }
+
+    fn load_session(&self, session_id: &str) -> Result<crate::session_vault::SessionPayload> {
+        let vault = self.vault.read().unwrap_or_else(|error| error.into_inner());
+        vault
+            .load_session(session_id)
+            .map_err(|error| anyhow::anyhow!("session payload unavailable: {error}"))
+    }
+
+    fn store_session(
+        &self,
+        session_id: &str,
+        payload: crate::session_vault::SessionPayload,
+    ) -> Result<()> {
+        let vault = self
+            .vault
+            .write()
+            .unwrap_or_else(|error| error.into_inner());
+        vault
+            .store_session(session_id, payload)
+            .map_err(|error| anyhow::anyhow!("session payload unavailable: {error}"))
     }
 
     /// Rewrite a user's query for the **raw** index (D6 amended).
@@ -46,10 +88,7 @@ impl QueryResolver {
     /// trust boundary as the index itself. A missing or unreadable session
     /// payload hard-fails the call (D7).
     pub fn rewrite_query(&self, raw_query: &str, session_id: &str) -> Result<String> {
-        let session = self
-            .vault
-            .load_session(session_id)
-            .map_err(|e| anyhow::anyhow!("session payload unavailable: {e}"))?;
+        let session = self.load_session(session_id)?;
 
         // Tokens are fixed-shape so none can contain another; longest-first
         // keeps replacement order irrelevant anyway.
@@ -69,16 +108,27 @@ impl QueryResolver {
     /// namespace is accepted here so this seam cannot be used to expose the
     /// session's ordinary PII rehydration map.
     pub fn resolve_document_token(&self, token: &str, session_id: &str) -> Result<Option<String>> {
+        self.document_token_resolver()
+            .resolve_document_token(token, session_id)
+    }
+}
+
+#[cfg(feature = "basemind")]
+impl DocumentTokenResolver {
+    pub fn resolve_document_token(&self, token: &str, session_id: &str) -> Result<Option<String>> {
         if !(token.starts_with("[DOC_") && token.ends_with(']')) {
             return Ok(None);
         }
-        let session = self
-            .vault
+        let vault = self.vault.read().unwrap_or_else(|error| error.into_inner());
+        let session = vault
             .load_session(session_id)
-            .map_err(|e| anyhow::anyhow!("session payload unavailable: {e}"))?;
+            .map_err(|error| anyhow::anyhow!("session payload unavailable: {error}"))?;
         Ok(session.map.get(token).cloned())
     }
+}
 
+#[cfg(feature = "basemind")]
+impl QueryResolver {
     /// Re-tokenize raw RAG hits into session tokens before they can reach the LLM.
     ///
     /// Candidate values per hit are `hit.entities[].text` (scan-time detection)
@@ -105,10 +155,7 @@ impl QueryResolver {
         session_id: &str,
         workspace_root: &str,
     ) -> Result<Vec<RetokenizedHit>> {
-        let mut session = self
-            .vault
-            .load_session(session_id)
-            .map_err(|e| anyhow::anyhow!("session payload unavailable: {e}"))?;
+        let mut session = self.load_session(session_id)?;
         let salt = session.salt.clone();
 
         let mut registry_changed = false;
@@ -202,7 +249,7 @@ impl QueryResolver {
             self.registry.flush()?;
         }
         if vault_changed {
-            self.vault.store_session(session_id, session)?;
+            self.store_session(session_id, session)?;
         }
 
         Ok(retokenized)
