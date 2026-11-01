@@ -287,7 +287,10 @@ impl BasemindClient {
     }
 
     fn cache_redaction(&self, text: &str, root: &str, value: &Value) {
-        if text.len() > MAX_REDACTION_CACHE_TEXT_BYTES {
+        if text.len() > MAX_REDACTION_CACHE_TEXT_BYTES
+            || crate::redaction::ner_coverage_refusal(value).is_some()
+            || value["redacted_text"].as_str().is_none()
+        {
             return;
         }
         let key = self.redaction_cache_key(text, root);
@@ -487,10 +490,8 @@ mod tests {
                 .expect("same workspace/profile should hit"),
             payload
         );
-        assert!(
-            client
-                .cached_redaction("Contact jean@example.test", "/workspace-b")
-                .is_none()
-        );
+        assert!(client
+            .cached_redaction("Contact jean@example.test", "/workspace-b")
+            .is_none());
     }
 }

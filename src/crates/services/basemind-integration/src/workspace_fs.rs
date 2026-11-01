@@ -60,7 +60,7 @@ impl WorkspaceFileSystem for BasemindWorkspaceFs {
     async fn read_file(&self, path: &str) -> anyhow::Result<Vec<u8>> {
         let content = self.inner.read_file(path).await?;
         let text = String::from_utf8(content)
-            .map_err(|_| anyhow::anyhow!("BasemindWorkspaceFs refuses non-UTF-8 file: {path}"))?;
+            .map_err(|_| anyhow::anyhow!("BasemindWorkspaceFs refuses non-UTF-8 file content"))?;
         Ok(self.redact_text(&text).await?.into_bytes())
     }
 
@@ -112,9 +112,9 @@ impl WorkspaceFileSystem for BasemindWorkspaceFs {
         self.inner.join_path(root, components)
     }
 
-    async fn open_read(&self, path: &str) -> anyhow::Result<alex_runtime_ports::WorkspaceReader> {
+    async fn open_read(&self, _path: &str) -> anyhow::Result<alex_runtime_ports::WorkspaceReader> {
         anyhow::bail!(
-            "BasemindWorkspaceFs refuses raw streaming reads for {path}; use read_file or read_file_text so redaction runs first"
+            "BasemindWorkspaceFs refuses raw streaming reads; use read_file or read_file_text so redaction runs first"
         )
     }
 

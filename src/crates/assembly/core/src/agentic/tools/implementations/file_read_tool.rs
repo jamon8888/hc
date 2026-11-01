@@ -164,6 +164,34 @@ impl FileReadTool {
         format!("[FILE_{}]", &digest[..16])
     }
 
+    fn resolve_document_reference(file_path: &str, context: &ToolUseContext) -> AlexResult<String> {
+        #[cfg(feature = "tools-rag")]
+        if file_path.starts_with("[DOC_") && file_path.ends_with(']') {
+            let session_id = context.session_id.as_deref().ok_or_else(|| {
+                AlexError::tool("Document reference resolution requires an active session")
+            })?;
+            let workspace_root = context
+                .workspace_root()
+                .map(|root| root.to_string_lossy().into_owned())
+                .ok_or_else(|| {
+                    AlexError::tool(
+                        "Document reference resolution requires an open workspace".to_string(),
+                    )
+                })?;
+            let port = context.runtime_handles.rag_search_port().ok_or_else(|| {
+                AlexError::tool(
+                    "Document reference resolution is unavailable in this runtime".to_string(),
+                )
+            })?;
+            return port
+                .resolve_document_token(file_path, session_id, &workspace_root)
+                .map_err(|error| AlexError::service(error.to_string()))?
+                .ok_or_else(|| AlexError::tool("Unknown document reference".to_string()));
+        }
+
+        Ok(file_path.to_string())
+    }
+
     fn optional_line_number(input: &Value, key: &str) -> Result<Option<usize>, String> {
         match input.get(key) {
             Some(value) => Self::line_number_from_value(value)
@@ -487,7 +515,8 @@ Usage:
             .get("file_path")
             .and_then(Value::as_str)
             .ok_or_else(|| AlexError::validation("file_path is required".to_string()))?;
-        file_permission_intents("read", [file_path], context)
+        let resolved_file_path = Self::resolve_document_reference(file_path, context)?;
+        file_permission_intents("read", [resolved_file_path.as_str()], context)
     }
 
     async fn validate_input(
@@ -527,7 +556,10 @@ Usage:
             };
         }
 
-        let resolved = match context.map(|ctx| ctx.resolve_tool_path(file_path)) {
+        let resolved = match context.map(|ctx| {
+            Self::resolve_document_reference(file_path, ctx)
+                .and_then(|path| ctx.resolve_tool_path(&path))
+        }) {
             Some(Ok(path)) => path,
             Some(Err(err)) => {
                 return ValidationResult {
@@ -673,6 +705,8 @@ Usage:
             .and_then(|v| v.as_str())
             .ok_or_else(|| AlexError::tool("file_path is required".to_string()))?;
 
+        let file_path = Self::resolve_document_reference(file_path, context)?;
+
         let tail = Self::read_tail_mode(input).map_err(AlexError::tool)?;
         let render_mode = Self::read_render_mode(input).map_err(AlexError::tool)?;
         let start_line = Self::read_window_start_line(input).map_err(AlexError::tool)?;
@@ -682,7 +716,7 @@ Usage:
             .and_then(parse_u64_value)
             .unwrap_or(self.default_max_lines_to_read as u64) as usize;
 
-        let resolved = context.resolve_tool_path(file_path)?;
+        let resolved = context.resolve_tool_path(&file_path)?;
         context.enforce_path_operation(ToolPathOperation::Read, &resolved)?;
         let model_visible_path = Self::model_visible_path(
             &resolved.logical_path,
@@ -696,7 +730,7 @@ Usage:
             let content = virtual_context_file(context, &resolved).ok_or_else(|| {
                 AlexError::tool(format!(
                     "MiniApp context file is unavailable: {}",
-                    resolved.logical_path
+                    model_visible_path
                 ))
             })?;
             let read_file_result = if tail {
@@ -767,7 +801,7 @@ Usage:
             get_review_read_coverage(context, &resolved, revision, start_line, limit)
         }) {
             return Ok(vec![Self::already_served_result(
-                &resolved.logical_path,
+                &model_visible_path,
                 coverage,
             )]);
         }
@@ -777,7 +811,7 @@ Usage:
             Some(
                 self.read_document_window(
                     &resolved.resolved_path,
-                    &resolved.logical_path,
+                    &model_visible_path,
                     start_line,
                     limit,
                     tail,
@@ -803,13 +837,13 @@ Usage:
                 .map_err(|error| {
                     AlexError::tool(format!(
                         "Failed to open file {}: {:#}",
-                        resolved.logical_path, error
+                        model_visible_path, error
                     ))
                 })?;
             let result = if tail {
                 read_file_tail_from_reader(
                     reader,
-                    &resolved.logical_path,
+                    &model_visible_path,
                     limit,
                     self.max_line_chars,
                     self.max_total_chars,
@@ -818,7 +852,7 @@ Usage:
             } else {
                 read_file_from_reader(
                     reader,
-                    &resolved.logical_path,
+                    &model_visible_path,
                     start_line,
                     limit,
                     self.max_line_chars,
@@ -866,8 +900,8 @@ Usage:
                         .await
                         .map_err(|error| {
                             AlexError::tool(format!(
-                            "Failed to redact text file {} before model access: {}",
-                            model_visible_path, error.message
+                                "Failed to redact text file {} before model access: {}",
+                                model_visible_path, error.message
                             ))
                         })?;
                     read_file_result.content = redacted.markdown;
@@ -967,9 +1001,9 @@ mod tests {
     /// Serializes the tests that publish or clear the redaction port.
     ///
     /// The port is process-wide, so leaving it published while another
-    /// document-conversion test runs would replace that test's conversion.
-    /// Every test that converts a document holds this guard, whether or not
-    /// it publishes a port of its own.
+    /// document-conversion or plain-text read test runs would replace that
+    /// test's content. Every test that reads through the shared redaction
+    /// port holds this guard, whether or not it publishes a port of its own.
     #[cfg(feature = "document-read")]
     fn redaction_port_guard() -> std::sync::MutexGuard<'static, ()> {
         static LOCK: std::sync::OnceLock<std::sync::Mutex<()>> = std::sync::OnceLock::new();
@@ -1252,6 +1286,8 @@ mod tests {
 
     #[tokio::test]
     async fn remote_text_read_uses_the_shared_stream_parser_without_shell() {
+        #[cfg(feature = "document-read")]
+        let _guard = redaction_port_guard();
         let bytes = "first\r\n中😀文\r\nlast".as_bytes().to_vec();
         let context = remote_context(bytes, Arc::new(AtomicUsize::new(0)));
         let tool = FileReadTool::new();
@@ -1315,6 +1351,8 @@ mod tests {
 
     #[tokio::test]
     async fn read_tool_enforces_runtime_read_roots() {
+        #[cfg(feature = "document-read")]
+        let _guard = redaction_port_guard();
         let dir = tempfile::tempdir().expect("tempdir");
         let scope = "0123456789abcdef0123456789abcdef";
         let allowed_root = dir.path().join(".miniapp-context").join(scope);

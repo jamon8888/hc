@@ -65,6 +65,20 @@ impl QueryResolver {
         Ok(rewritten)
     }
 
+    /// Resolve a document token for an internal file operation. Only the DOC
+    /// namespace is accepted here so this seam cannot be used to expose the
+    /// session's ordinary PII rehydration map.
+    pub fn resolve_document_token(&self, token: &str, session_id: &str) -> Result<Option<String>> {
+        if !(token.starts_with("[DOC_") && token.ends_with(']')) {
+            return Ok(None);
+        }
+        let session = self
+            .vault
+            .load_session(session_id)
+            .map_err(|e| anyhow::anyhow!("session payload unavailable: {e}"))?;
+        Ok(session.map.get(token).cloned())
+    }
+
     /// Re-tokenize raw RAG hits into session tokens before they can reach the LLM.
     ///
     /// Candidate values per hit are `hit.entities[].text` (scan-time detection)
@@ -165,11 +179,10 @@ impl QueryResolver {
                 "[DOC_UNKNOWN]".to_string()
             } else {
                 let before = self.registry.entry_count();
-                let alias = self
-                    .registry
+                self.registry
                     .get_or_create_alias_for_value(&hit.path, "DOC");
                 registry_changed |= self.registry.entry_count() > before;
-                let token = crate::token::mint_session_token("DOC", &alias, &salt);
+                let token = crate::token::mint_session_token("DOC", &hit.path, &salt);
                 if session.map.get(&token) != Some(&hit.path) {
                     session.map.insert(token.clone(), hit.path.clone());
                     vault_changed = true;
