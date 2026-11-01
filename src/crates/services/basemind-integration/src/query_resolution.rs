@@ -156,9 +156,30 @@ impl QueryResolver {
                 hit_entities.push(RetokenizedEntity { category, token });
             }
 
+            // File paths are also model-visible content. Keep the source
+            // reference useful for correlation within this session, but do
+            // not expose a user's directory or filename to the model. The
+            // original path remains available only through the encrypted
+            // session vault, alongside ordinary PII rehydration values.
+            let source_doc = if hit.path.is_empty() {
+                "[DOC_UNKNOWN]".to_string()
+            } else {
+                let before = self.registry.entry_count();
+                let alias = self
+                    .registry
+                    .get_or_create_alias_for_value(&hit.path, "DOC");
+                registry_changed |= self.registry.entry_count() > before;
+                let token = crate::token::mint_session_token("DOC", &alias, &salt);
+                if session.map.get(&token) != Some(&hit.path) {
+                    session.map.insert(token.clone(), hit.path.clone());
+                    vault_changed = true;
+                }
+                token
+            };
+
             retokenized.push(RetokenizedHit {
                 text: hit_text,
-                source_doc: hit.path,
+                source_doc,
                 score: 1.0 - hit.distance,
                 entities: hit_entities,
             });
@@ -179,6 +200,8 @@ impl QueryResolver {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RetokenizedHit {
     pub text: String, // chunk text with every raw value replaced by a session token
+    /// Session-scoped opaque document token; the raw path stays in the
+    /// encrypted session vault and never reaches the model.
     pub source_doc: String,
     pub score: f32,
     pub entities: Vec<RetokenizedEntity>,

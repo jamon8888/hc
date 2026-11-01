@@ -148,6 +148,22 @@ impl FileReadTool {
             .is_some_and(|extension| extension.eq_ignore_ascii_case("csv"))
     }
 
+    /// Keep filenames useful for correlating tool results without exposing a
+    /// user's directory or basename to the model. The workspace root is part
+    /// of the digest so the same path does not become a cross-workspace id.
+    fn model_visible_path(path: &str, workspace_root: Option<&str>) -> String {
+        use sha2::{Digest, Sha256};
+
+        let mut hasher = Sha256::new();
+        if let Some(root) = workspace_root {
+            hasher.update(root.as_bytes());
+        }
+        hasher.update([0]);
+        hasher.update(path.as_bytes());
+        let digest = hex::encode(hasher.finalize());
+        format!("[FILE_{}]", &digest[..16])
+    }
+
     fn optional_line_number(input: &Value, key: &str) -> Result<Option<usize>, String> {
         match input.get(key) {
             Some(value) => Self::line_number_from_value(value)
@@ -237,10 +253,14 @@ impl FileReadTool {
                         .await
                         .map(|document| (document.markdown, document.source_format))
                         .map_err(|error| DocumentConversionError::new("redaction", error.message)),
-                    // No redaction port, or no workspace to scope it: the
-                    // document is read the plain way, and the read says so
-                    // rather than pretending the text was redacted.
-                    _ => convert_document_to_markdown(bytes, path)
+                    (Some(_), None) => Err(DocumentConversionError::new(
+                        "redaction",
+                        "workspace root is required for the document redaction port",
+                    )),
+                    // Without a published privacy port, retain the existing
+                    // host behavior and make the unredacted conversion path
+                    // explicit in the response metadata.
+                    (None, _) => convert_document_to_markdown(bytes, path)
                         .await
                         .map(|converted| {
                             (
@@ -664,6 +684,13 @@ Usage:
 
         let resolved = context.resolve_tool_path(file_path)?;
         context.enforce_path_operation(ToolPathOperation::Read, &resolved)?;
+        let model_visible_path = Self::model_visible_path(
+            &resolved.logical_path,
+            context
+                .workspace_root()
+                .map(|root| root.to_string_lossy().into_owned())
+                .as_deref(),
+        );
         #[cfg(feature = "tools-miniapp")]
         if is_virtual_context_path(context, &resolved) {
             let content = virtual_context_file(context, &resolved).ok_or_else(|| {
@@ -684,11 +711,10 @@ Usage:
                 )
             }
             .map_err(AlexError::tool)?;
-            let presentation =
-                build_read_file_presentation(&resolved.logical_path, &read_file_result);
+            let presentation = build_read_file_presentation(&model_visible_path, &read_file_result);
             return Ok(vec![ToolResult::Result {
                 data: json!({
-                    "file_path": resolved.logical_path,
+                    "file_path": model_visible_path,
                     "content": read_file_result.content,
                     "total_lines": read_file_result.total_lines,
                     "lines_read": presentation.lines_read,
@@ -707,7 +733,7 @@ Usage:
         if requires_virtual_context_path(context) {
             return Err(AlexError::tool(format!(
                 "MiniApp context file is unavailable: {}",
-                resolved.logical_path
+                model_visible_path
             )));
         }
         crate::agentic::deep_review::scope::ensure_focused_review_resolved_path_allowed(
@@ -728,7 +754,7 @@ Usage:
         if reads_document_representation {
             return Err(AlexError::tool(format!(
                 "Document Markdown conversion is not available in this product build: {}. Use a product that includes document-read, or render=source for text-based formats.",
-                resolved.logical_path
+                model_visible_path
             )));
         }
         let revision_before_read =
@@ -766,7 +792,7 @@ Usage:
         #[cfg(not(feature = "document-read"))]
         let document_read: Option<(ReadFileResult, DocumentReadMetadata)> = None;
 
-        let (read_file_result, document_metadata) = if let Some((result, metadata)) = document_read
+        let (mut read_file_result, document_metadata) = if let Some((result, metadata)) = document_read
         {
             (result, Some(metadata))
         } else {
@@ -815,6 +841,40 @@ Usage:
             (result, None)
         };
 
+        // Source/CSV/code reads used to bypass the document redaction port.
+        // When the host has published a text-capable privacy port, redact the
+        // exact bounded window before constructing any assistant-facing
+        // presentation. A port refusal is fail-closed: returning the original
+        // text would violate the model-boundary guarantee.
+        #[cfg(feature = "tools-rag")]
+        if document_metadata.is_none() {
+            let port = crate::service::rag_search::global_document_redaction_port();
+            let workspace_root = context
+                .workspace_root()
+                .map(|root| root.to_string_lossy().to_string());
+            match (port, workspace_root) {
+                (None, _) => {}
+                (Some(_), None) => {
+                    return Err(AlexError::tool(format!(
+                        "Cannot redact text file {} without a workspace root",
+                        model_visible_path
+                    )));
+                }
+                (Some(port), Some(root)) => {
+                    let redacted = port
+                        .redact_text(&read_file_result.content, &root)
+                        .await
+                        .map_err(|error| {
+                            AlexError::tool(format!(
+                            "Failed to redact text file {} before model access: {}",
+                            model_visible_path, error.message
+                            ))
+                        })?;
+                    read_file_result.content = redacted.markdown;
+                }
+            }
+        }
+
         if let Some(revision_before) = revision_before_read {
             if let Some(revision_after) = file_revision(context, &resolved).await {
                 if revision_before == revision_after {
@@ -828,7 +888,7 @@ Usage:
             }
         }
 
-        let presentation = build_read_file_presentation(&resolved.logical_path, &read_file_result);
+        let presentation = build_read_file_presentation(&model_visible_path, &read_file_result);
         let mut result_for_assistant = presentation.result_for_assistant;
         if let Some(metadata) = document_metadata.as_ref() {
             let extraction_note = if metadata.source_format == "pdf" {
@@ -838,7 +898,7 @@ Usage:
             };
             result_for_assistant = format!(
                 "Converted {} from {} to GitHub-Flavored Markdown with anydoc. offset and limit refer to converted Markdown lines.{}\n\n{}",
-                resolved.logical_path,
+                model_visible_path,
                 metadata.source_format.to_ascii_uppercase(),
                 extraction_note,
                 result_for_assistant
@@ -846,7 +906,7 @@ Usage:
         }
 
         let mut data = json!({
-            "file_path": resolved.logical_path,
+            "file_path": model_visible_path,
             "content": read_file_result.content,
             "total_lines": read_file_result.total_lines,
             "lines_read": presentation.lines_read,
@@ -947,6 +1007,25 @@ mod tests {
                 }],
             })
         }
+
+        async fn redact_text(
+            &self,
+            _text: &str,
+            _workspace_root: &str,
+        ) -> Result<
+            alex_runtime_ports::RedactedDocument,
+            alex_runtime_ports::DocumentRedactionError,
+        > {
+            Ok(alex_runtime_ports::RedactedDocument {
+                markdown: "Contact [EMAIL_1].".to_string(),
+                source_format: "text".to_string(),
+                entities: vec![alex_runtime_ports::RedactedEntity {
+                    entity_id: "ENT_EMAIL_abcdef12".to_string(),
+                    entity_type: "EMAIL".to_string(),
+                    occurrence_count: 1,
+                }],
+            })
+        }
     }
 
     /// The document the agent reads goes through the redaction port, so no
@@ -1007,6 +1086,41 @@ mod tests {
         assert_eq!(metadata.source_format, "pdf");
 
         let _ = fs::remove_dir_all(&root);
+    }
+
+    #[cfg(all(feature = "document-read", feature = "tools-rag"))]
+    #[tokio::test]
+    async fn a_text_read_is_redacted_before_model_presentation() {
+        let _guard = redaction_port_guard();
+        let redactor = Arc::new(StubRedactor {
+            seen: std::sync::Mutex::new(None),
+        });
+        crate::service::rag_search::set_global_document_redaction_port(Some(redactor));
+
+        let root = std::env::temp_dir().join("alex-file-read-inline-redaction-test");
+        let _ = fs::remove_dir_all(&root);
+        fs::create_dir_all(&root).expect("create temp root");
+        fs::write(&root.join("notes.txt"), "Contact jean@example.test").expect("write text");
+        let context = local_context(root.clone());
+
+        let results = FileReadTool::new()
+            .call(&json!({ "file_path": "notes.txt" }), &context)
+            .await
+            .expect("text read should succeed");
+        let ToolResult::Result { data, .. } = &results[0] else {
+            panic!("expected result");
+        };
+        assert_eq!(data["content"], "Contact [EMAIL_1].");
+        assert!(!data["content"]
+            .as_str()
+            .expect("content")
+            .contains("jean@example.test"));
+        let file_path = data["file_path"].as_str().expect("opaque file path");
+        assert!(file_path.starts_with("[FILE_") && file_path.ends_with(']'));
+        assert!(!file_path.contains("notes.txt"));
+
+        crate::service::rag_search::set_global_document_redaction_port(None);
+        let _ = fs::remove_dir_all(root);
     }
 
     fn local_context(root: PathBuf) -> ToolUseContext {
