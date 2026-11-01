@@ -512,7 +512,7 @@ Source viewer (`PdfViewer`) is **visual only** — never used as text source for
 time and verified, rather than committed to the repository:
 
 - `resources/basemind/VERSION.json` pins the release (`jamon8888/basemind`,
-  `v0.34.0`) and, per platform, the SHA-256 and size of both the release
+  `v0.36.0`) and, per platform, the SHA-256 and size of both the release
   archive and the binary inside it.
 - `scripts/prepare-basemind-resource.mjs` downloads the archive for the
   build target, refuses an archive that does not match the pin, extracts the
@@ -1056,22 +1056,21 @@ Fails at **compile time** if upstream signature changes — better than silent p
 
 ## 17. Dependencies on Basemind Fork (jamon8888/basemind)
 
-**Pinned version:** `jamon8888/basemind` **v0.34.0** (2026-10-19), recorded in code as
+**Pinned version:** `jamon8888/basemind` **v0.36.0** (2026-10-31), recorded in code as
 `alex_basemind_integration::BASEMIND_VERSION` and checked against the running
 daemon's published version before the first call. All PII/identity evidence in this spec
 (issues 01–02, ADR 0001) was gathered at v0.33.0.
 
-v0.34.0 is the upstream sync of `Goldziher/basemind` v0.29.3 into the fork (1,202
-commits). The sync keeps the fork's PII, redaction and vault features end to end, so the
-evidence in issues 01–02 still holds; the MCP surface it measured was re-verified against a
-live v0.34.0 daemon, which serves `redact_text`, `memory`, `vault`, `code`, `git`,
-`graph`, `shell`, `web`, `admin`, `agents` and `workspace`. Bundle v0.34.0: it ships the
-`aarch64-unknown-linux-gnu` binary §8.1 requires. The upstream `Goldziher/basemind`
+v0.36.0 keeps the PII, redaction, vault, and document-RAG MCP contracts used here and
+adds versioned `redact_text` NER profiles (`full@1` and `legal-fr@1`), with the resolved
+profile and ordered labels returned for reproducible coverage and latency measurements.
+It also ships the `aarch64-unknown-linux-gnu` binary §8.1 requires. The upstream
+`Goldziher/basemind`
 v0.29.x line is a **diverged numbering stream** (released after our tag, lower
 numbers) and is not the integration target — do not reconcile its changelog entries
 with ours.
 
-**Upgrade note:** v0.34.0 advances the fork's release minor from 33 to 34, and the
+**Upgrade note:** v0.36.0 advances the fork's release minor from 35 to 36, so the
 persisted blob, index and git-cache schema versions derive from it. The first scan after
 upgrading resets each view in place and rebuilds it once. The product's own state — the
 identity registry and the session vault — carries its own schema and is unaffected.
@@ -1099,14 +1098,13 @@ treat the list as the original expectation, not as an open dependency.
 
 ---
 
-## 18. Gateway Wiring Pre-Staged for the Fork's v0.35 (ADR-0015, PR #93)
+## 18. Gateway Wiring for the Fork's v0.36 (ADR-0015, PR #93)
 
-The fork's next release moves the privacy gateway into basemind (ADR-0015): a
+The fork's v0.35 release moved the privacy gateway into basemind (ADR-0015): a
 workspace carrying a `safe/` mirror is **protected** — `redact_text` and `vault`
 are withheld from the agent surface, and re-opened only for a basemind process
 marked with `BASEMIND_GATEWAY_TOKEN`. The product **is** the gateway, so the
-following is pre-staged now, against the v0.34.0 pin, and needs no further code
-when v0.35 lands beyond the pin flip (§12 / `daemon::BASEMIND_VERSION` +
+following is active against the v0.36.0 pin (`daemon::BASEMIND_VERSION` +
 `resources/basemind/VERSION.json`):
 
 - **Gateway capability** (`gateway.rs`): the token constant, a per-launch
@@ -1116,12 +1114,12 @@ when v0.35 lands beyond the pin flip (§12 / `daemon::BASEMIND_VERSION` +
   (`start_bundled_basemind_daemon`) sets the marker on the sidecar command's
   environment only — never process-wide — so an agent sandbox cannot inherit
   it. Residual risk stays where basemind's ADR-0015 records it.
-- **NER coverage contract** (fork v0.34.1, additive): `ner_truncated` on a
+- **NER coverage contract** (fork v0.36.0, additive): `ner_truncated` on a
   `redact_text` answer means PII past the cut was never redacted; per D7 the
   refusal stays loud. `ner_coverage_refusal` is enforced at all three
   consumers: the document redaction port, the RAG safety pass, and
-  `RedactionStore::record` (nothing persists before the check). A v0.34.0
-  sidecar that omits the field is unaffected.
+  `RedactionStore::record` (nothing persists before the check). Older sidecars
+  that omit the field remain compatible.
 - **Pseudonym caveat** (ADR-0015 §3): a dictionary value appears in the
   redacted text as the code name, while the rehydration map still carries the
   token. The store records the entity as revealable with zero occurrences —
@@ -1130,10 +1128,8 @@ when v0.35 lands beyond the pin flip (§12 / `daemon::BASEMIND_VERSION` +
   `category_of_token`; the Web UI tone (`RevealableEntityBadge`) and the
   `entityTypes.TAX_ID` i18n keys already exist in all runtime locales.
 
-Still pending the v0.35 landing:
+Remaining operational notes:
 
-- [ ] Flip the pin: `daemon::BASEMIND_VERSION`, `resources/basemind/VERSION.json`
-      tag + checksums (`scripts/prepare-basemind-resource.mjs`).
 - [ ] Decide whether `redact_text` calls should set `require_ner` (only safe
       once the NER model dir is confirmed present on first-use machines).
 - [ ] Adopt the native `pseudonyms` field in place of the product's own

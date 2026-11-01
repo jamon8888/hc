@@ -171,7 +171,7 @@ impl RedactionStore {
     /// failure.
     pub fn record(&self, payload: &Value, source_format: &str) -> Result<RedactedDocument> {
         // A truncated NER pass must not be recorded as a full redaction: the
-        // fork answers honestly (v0.34.1's coverage contract) and this store
+        // fork answers honestly (v0.36.0's coverage contract) and this store
         // answers loudly (D7). Nothing is persisted before this check runs.
         if let Some(message) = ner_coverage_refusal(payload) {
             anyhow::bail!("{}", message);
@@ -253,14 +253,14 @@ impl RedactionStore {
 
 /// The coverage gap of a `redact_text` payload, if there is one.
 ///
-/// From the fork's v0.34.1, the answer carries `ner_windows`, `ner_window_chars`
+/// From the fork's v0.36.0, the answer carries `ner_windows`, `ner_window_chars`
 /// and `ner_truncated`. `ner_truncated` means the NER pass could not read the
 /// whole text within its budget, so PII past the cut is not in the redacted
 /// answer. Our policy (D7) degrades loudly rather than silently: a caller must
 /// not treat such a payload as a full redaction, so every consumer surfaces
 /// this refusal as an error instead of recording a redaction the user trusts.
 ///
-/// Field omitted (a v0.34.0 sidecar) → `None`: no gap reported. A field that
+/// Field omitted (an older sidecar) → `None`: no gap reported. A field that
 /// is present but not a readable boolean — null or otherwise — is a broken
 /// contract: coverage cannot be verified, so it is refused like a truncation.
 #[cfg(feature = "basemind")]

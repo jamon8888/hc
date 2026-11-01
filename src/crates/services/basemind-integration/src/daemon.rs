@@ -27,12 +27,11 @@ use std::path::{Path, PathBuf};
 /// product code was written against: the MCP tool names, the parameter
 /// names, and the response shape all belong to this version.
 ///
-/// v0.34.0 is the upstream sync of `Goldziher/basemind` v0.29.3 into the
-/// `jamon8888/basemind` fork. The sync keeps the fork's PII, redaction and
-/// vault features end to end, and adds the MCP resources and the
-/// `redact_text` `file_path` extraction this integration uses.
+/// v0.36.0 is the current `jamon8888/basemind` release. It keeps the fork's
+/// PII, redaction, vault, and document-RAG contracts used by this integration,
+/// and adds versioned NER profiles to `redact_text`.
 #[cfg(feature = "basemind")]
-pub const BASEMIND_VERSION: &str = "0.34.0";
+pub const BASEMIND_VERSION: &str = "0.36.0";
 
 /// Environment variable the fork uses to override the comms directory.
 #[cfg(feature = "basemind")]
