@@ -644,6 +644,11 @@ Usage:
         }
 
         if let Some(context) = context {
+            let shown_path = if file_path.starts_with("[DOC_") && file_path.ends_with(']') {
+                file_path.to_string()
+            } else {
+                resolved.logical_path.to_string()
+            };
             let metadata = match context.file_system_for_path(&resolved) {
                 Ok(filesystem) => filesystem.metadata(&resolved.resolved_path, true).await,
                 Err(error) => Err(anyhow::anyhow!(error.to_string())),
@@ -655,7 +660,7 @@ Usage:
                         result: false,
                         message: Some(format!(
                             "Failed to inspect file {}: {:#}",
-                            resolved.logical_path, error
+                            shown_path, error
                         )),
                         error_code: Some(400),
                         meta: None,
@@ -665,7 +670,7 @@ Usage:
             let Some(metadata) = metadata else {
                 return ValidationResult {
                     result: false,
-                    message: Some(format!("File does not exist: {}", resolved.logical_path)),
+                    message: Some(format!("File does not exist: {}", shown_path)),
                     error_code: Some(404),
                     meta: None,
                 };
@@ -673,7 +678,7 @@ Usage:
             if metadata.kind != alex_runtime_ports::WorkspacePathKind::File {
                 return ValidationResult {
                     result: false,
-                    message: Some(format!("Path is not a file: {}", resolved.logical_path)),
+                    message: Some(format!("Path is not a file: {}", shown_path)),
                     error_code: Some(400),
                     meta: None,
                 };
