@@ -11,11 +11,11 @@
 #[cfg(feature = "basemind")]
 use crate::ipc::BasemindClient;
 #[cfg(feature = "basemind")]
-use anyhow::Result;
-#[cfg(feature = "basemind")]
 use alex_runtime_ports::{
     DocumentRedactionError, DocumentRedactionErrorKind, DocumentRedactionPort, RedactedDocument,
 };
+#[cfg(feature = "basemind")]
+use anyhow::Result;
 
 /// The product's document redaction port.
 ///
@@ -33,31 +33,14 @@ impl BasemindDocumentRedactor {
     pub fn new(client: BasemindClient) -> Self {
         Self { client }
     }
-}
 
-#[cfg(feature = "basemind")]
-#[async_trait::async_trait]
-impl DocumentRedactionPort for BasemindDocumentRedactor {
-    async fn redact(
-        &self,
-        path: &str,
-        workspace_root: &str,
+    fn document_from_payload(
+        payload: serde_json::Value,
+        source_format: impl Into<String>,
     ) -> Result<RedactedDocument, DocumentRedactionError> {
-        let payload = self
-            .client
-            .redact_path(path, workspace_root)
-            .await
-            .map_err(|error| {
-                DocumentRedactionError::new(
-                    DocumentRedactionErrorKind::Unavailable,
-                    format!("the basemind sidecar could not redact the document: {error}"),
-                )
-            })?;
-
         // The fork's NER coverage contract: a truncated pass means text past
         // the cut was never redacted. A document shown as fully redacted is
-        // the one state the user must never get silently (D7), so this
-        // refusal keeps the failure loud on the surface the user sees.
+        // the one state the user must never get silently (D7).
         if let Some(message) = crate::redaction::ner_coverage_refusal(&payload) {
             return Err(DocumentRedactionError::new(
                 DocumentRedactionErrorKind::Failed,
@@ -90,11 +73,61 @@ impl DocumentRedactionPort for BasemindDocumentRedactor {
             }
         }
 
+        let markdown = payload["redacted_text"]
+            .as_str()
+            .ok_or_else(|| {
+                DocumentRedactionError::new(
+                    DocumentRedactionErrorKind::InvalidResponse,
+                    "basemind redaction response has no redacted_text",
+                )
+            })?
+            .to_string();
+
         Ok(RedactedDocument {
-            markdown: payload["redacted_text"].as_str().unwrap_or("").to_string(),
-            source_format: source_format_for(path),
+            markdown,
+            source_format: source_format.into(),
             entities,
         })
+    }
+}
+
+#[cfg(feature = "basemind")]
+#[async_trait::async_trait]
+impl DocumentRedactionPort for BasemindDocumentRedactor {
+    async fn redact(
+        &self,
+        path: &str,
+        workspace_root: &str,
+    ) -> Result<RedactedDocument, DocumentRedactionError> {
+        let payload = self
+            .client
+            .redact_path(path, workspace_root)
+            .await
+            .map_err(|error| {
+                DocumentRedactionError::new(
+                    DocumentRedactionErrorKind::Unavailable,
+                    format!("the basemind sidecar could not redact the document: {error}"),
+                )
+            })?;
+        Self::document_from_payload(payload, source_format_for(path))
+    }
+
+    async fn redact_text(
+        &self,
+        text: &str,
+        workspace_root: &str,
+    ) -> Result<RedactedDocument, DocumentRedactionError> {
+        let payload = self
+            .client
+            .redact_text(text, workspace_root)
+            .await
+            .map_err(|error| {
+                DocumentRedactionError::new(
+                    DocumentRedactionErrorKind::Unavailable,
+                    format!("the basemind sidecar could not redact inline text: {error}"),
+                )
+            })?;
+        Self::document_from_payload(payload, "text")
     }
 }
 
