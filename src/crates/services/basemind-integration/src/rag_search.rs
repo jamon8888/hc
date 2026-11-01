@@ -119,8 +119,7 @@ impl alex_runtime_ports::RagSearchPort for RagSearchPortAdapter {
     async fn search(
         &self,
         request: alex_runtime_ports::RagSearchRequest,
-    ) -> Result<alex_runtime_ports::RagSearchResponse, alex_runtime_ports::RagSearchError>
-    {
+    ) -> Result<alex_runtime_ports::RagSearchResponse, alex_runtime_ports::RagSearchError> {
         if request.query.trim().is_empty() {
             return Err(alex_runtime_ports::RagSearchError::new(
                 alex_runtime_ports::RagSearchErrorKind::InvalidRequest,
@@ -164,5 +163,27 @@ impl alex_runtime_ports::RagSearchPort for RagSearchPortAdapter {
                 })
                 .collect(),
         })
+    }
+
+    fn resolve_document_token(
+        &self,
+        token: &str,
+        session_id: &str,
+        _workspace_root: &str,
+    ) -> Result<Option<String>, alex_runtime_ports::RagSearchError> {
+        let tool = self.tool.try_lock().map_err(|_| {
+            alex_runtime_ports::RagSearchError::new(
+                alex_runtime_ports::RagSearchErrorKind::SessionUnavailable,
+                "RAG search backend is busy",
+            )
+        })?;
+        tool.resolver
+            .resolve_document_token(token, session_id)
+            .map_err(|error| {
+                alex_runtime_ports::RagSearchError::new(
+                    alex_runtime_ports::RagSearchErrorKind::SessionUnavailable,
+                    error.to_string(),
+                )
+            })
     }
 }
