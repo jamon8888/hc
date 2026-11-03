@@ -8,7 +8,6 @@ use sha2::{Digest, Sha256};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
 use tokio::fs;
-use tokio::io::AsyncWriteExt;
 
 static BINARY_WRITE_TEMP_COUNTER: AtomicU64 = AtomicU64::new(0);
 
@@ -348,16 +347,11 @@ impl FileOperationService {
         ));
 
         let write_result = async {
-            let mut temp = fs::OpenOptions::new()
-                .write(true)
-                .create_new(true)
-                .open(&temp_path)
-                .await
-                .map_err(|e| {
-                    FileSystemError::service(format!("Failed to create binary temp file: {}", e))
-                })?;
-            temp.write_all(data).await.map_err(|e| {
-                FileSystemError::service(format!("Failed to write binary file: {}", e))
+            fs::write(&temp_path, data).await.map_err(|e| {
+                FileSystemError::service(format!("Failed to write binary temp file: {}", e))
+            })?;
+            let temp = fs::File::open(&temp_path).await.map_err(|e| {
+                FileSystemError::service(format!("Failed to open binary temp file: {}", e))
             })?;
             temp.sync_all().await.map_err(|e| {
                 FileSystemError::service(format!("Failed to sync binary file: {}", e))

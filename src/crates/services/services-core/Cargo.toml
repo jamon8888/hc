@@ -97,7 +97,6 @@ filesystem = [
     "dep:sha2",
     "dep:tokio",
     "tokio/fs",
-    "tokio/io-util",
     "tokio/rt",
 ]
 json-io = [
