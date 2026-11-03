@@ -114,7 +114,7 @@ jobs:
 
           PATH="$test_root/stubs:/usr/bin:/bin" \
             RUNNER_TEMP="$test_root" \
-            OPENBITFUN_SIGNING_KEY="YQ==" \
+            ALEX_SIGNING_KEY="YQ==" \
             bash scripts/sign-release-assets.sh "$test_root/missing-asset"
 
           "$test_root/alex-minisign-0.12/bin/minisign" -v
