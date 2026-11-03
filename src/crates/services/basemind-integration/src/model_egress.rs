@@ -15,12 +15,12 @@ use serde_json::Value;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
+use crate::document_convert::BasemindDocumentRedactor;
 use crate::identity_registry::IdentityRegistry;
 use crate::ipc::{BasemindClient, RedactionPolicy};
 use crate::prompt_pseudonym::{BasemindPromptPseudonymizer, PromptPseudonymizer};
 use crate::rag_search::{RagSearchPortAdapter, RagSearchTool};
 use crate::session_vault::SessionVault;
-use crate::document_convert::BasemindDocumentRedactor;
 
 /// Host-composition bundle shared by Desktop, CLI, server and detached hosts.
 ///
@@ -57,23 +57,27 @@ pub fn build_privacy_bundle(
 
     let client = BasemindClient::lazy(daemon_binary.clone())
         .with_redaction_policy(RedactionPolicy::bundled(ner_model_dir.clone()));
-    let registry = IdentityRegistry::new(registry_dir.clone())?;
-    let vault = SessionVault::new(vault_dir.clone())?;
-    let pseudonymizer = Arc::new(BasemindPromptPseudonymizer::new(
-        PromptPseudonymizer::new(client, registry, vault),
-    ));
+    // Prompt egress and RAG must share the same in-memory stores. Separate
+    // instances would load independent registry snapshots and could overwrite
+    // aliases or session maps after concurrent turns, breaking continuity.
+    let registry = Arc::new(std::sync::Mutex::new(IdentityRegistry::new(registry_dir)?));
+    let vault = Arc::new(std::sync::RwLock::new(SessionVault::new(vault_dir)?));
+    let pseudonymizer = Arc::new(BasemindPromptPseudonymizer::new(PromptPseudonymizer::new(
+        client,
+        registry.clone(),
+        vault.clone(),
+    )));
 
     let search_client = BasemindClient::lazy(daemon_binary.clone())
         .with_redaction_policy(RedactionPolicy::bundled(ner_model_dir.clone()));
-    let search_registry = IdentityRegistry::new(registry_dir)?;
-    let search_vault = SessionVault::new(vault_dir)?;
     let rag_search = Arc::new(RagSearchPortAdapter::new(RagSearchTool::new(
         search_client.clone(),
-        search_registry,
-        search_vault,
+        registry,
+        vault,
     )));
     let document_redaction = Arc::new(BasemindDocumentRedactor::new(
-        BasemindClient::lazy(daemon_binary).with_redaction_policy(RedactionPolicy::bundled(ner_model_dir)),
+        BasemindClient::lazy(daemon_binary)
+            .with_redaction_policy(RedactionPolicy::bundled(ner_model_dir)),
     ));
 
     Ok(BasemindPrivacyBundle {

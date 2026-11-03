@@ -6,6 +6,8 @@
 use anyhow::Result;
 #[cfg(feature = "basemind")]
 use std::collections::BTreeMap;
+#[cfg(feature = "basemind")]
+use std::sync::{Arc, Mutex, RwLock};
 
 #[cfg(feature = "basemind")]
 #[derive(Debug, Clone)]
@@ -18,16 +20,16 @@ pub struct PseudonymizedPrompt {
 #[cfg(feature = "basemind")]
 pub struct PromptPseudonymizer {
     client: crate::ipc::BasemindClient,
-    registry: crate::identity_registry::IdentityRegistry,
-    vault: crate::session_vault::SessionVault,
+    registry: Arc<Mutex<crate::identity_registry::IdentityRegistry>>,
+    vault: Arc<RwLock<crate::session_vault::SessionVault>>,
 }
 
 #[cfg(feature = "basemind")]
 impl PromptPseudonymizer {
     pub fn new(
         client: crate::ipc::BasemindClient,
-        registry: crate::identity_registry::IdentityRegistry,
-        vault: crate::session_vault::SessionVault,
+        registry: Arc<Mutex<crate::identity_registry::IdentityRegistry>>,
+        vault: Arc<RwLock<crate::session_vault::SessionVault>>,
     ) -> Self {
         Self {
             client,
@@ -72,7 +74,12 @@ impl PromptPseudonymizer {
 
         // 2. Load the session payload; on miss, create it with a fresh
         //    >=128-bit CSPRNG salt (never derived from user content, issue 04).
-        let session_payload = match self.vault.load_session(session_id) {
+        let session_payload = match self
+            .vault
+            .read()
+            .unwrap_or_else(|error| error.into_inner())
+            .load_session(session_id)
+        {
             Ok(payload) => payload,
             Err(_) => crate::session_vault::SessionPayload {
                 map: BTreeMap::new(),
@@ -89,6 +96,10 @@ impl PromptPseudonymizer {
         let mut new_entries = BTreeMap::new();
         let mut session_map = session_payload.map.clone();
 
+        let mut registry = self
+            .registry
+            .lock()
+            .unwrap_or_else(|error| error.into_inner());
         for detection in detections {
             let category = detection["category"].as_str().unwrap_or("UNKNOWN");
             let original_value = detection["text"].as_str().unwrap_or("");
@@ -107,9 +118,7 @@ impl PromptPseudonymizer {
             }
 
             // Stable workspace alias (the registry hashes the value internally)
-            let stable_alias = self
-                .registry
-                .get_or_create_alias_for_value(original_value, category);
+            let stable_alias = registry.get_or_create_alias_for_value(original_value, category);
 
             // Mint the opaque session token [CATEGORY_<HMAC16(salt, alias)>] (D3)
             let session_token =
@@ -132,10 +141,13 @@ impl PromptPseudonymizer {
             map: session_map,
             salt: session_salt.clone(),
         };
-        self.vault.store_session(session_id, final_payload)?;
+        self.vault
+            .write()
+            .unwrap_or_else(|error| error.into_inner())
+            .store_session(session_id, final_payload)?;
 
         // 6. Persist registry changes
-        self.registry.flush()?;
+        registry.flush()?;
 
         Ok(PseudonymizedPrompt {
             text: pseudonymized_text,
@@ -148,10 +160,11 @@ impl PromptPseudonymizer {
         // A response with no prior PII-bearing prompt has nothing to restore.
         // Missing session state is therefore an identity result; corrupted
         // encrypted state still fails through the error path below.
-        if !self.vault.session_exists(session_id) {
+        let vault = self.vault.read().unwrap_or_else(|error| error.into_inner());
+        if !vault.session_exists(session_id) {
             return Ok(text.to_string());
         }
-        let payload = self.vault.load_session(session_id)?;
+        let payload = vault.load_session(session_id)?;
         let mut entries = payload.map.into_iter().collect::<Vec<_>>();
         entries.sort_by(|(left, _), (right, _)| right.len().cmp(&left.len()));
         let mut restored = text.to_string();
@@ -195,13 +208,11 @@ impl alex_runtime_ports::PromptPseudonymizationPort for BasemindPromptPseudonymi
         let mut guard = self.inner.lock().await;
         PromptPseudonymizer::pseudonymize(&mut guard, prompt, session_id, workspace_root)
             .await
-            .map(
-                |pseudonymized| alex_runtime_ports::PseudonymizedPrompt {
-                    text: pseudonymized.text,
-                    rehydration_map: pseudonymized.rehydration_map,
-                    session_id: pseudonymized.session_id,
-                },
-            )
+            .map(|pseudonymized| alex_runtime_ports::PseudonymizedPrompt {
+                text: pseudonymized.text,
+                rehydration_map: pseudonymized.rehydration_map,
+                session_id: pseudonymized.session_id,
+            })
             .map_err(|error| {
                 alex_runtime_ports::PromptPseudonymizationError::new(
                     alex_runtime_ports::PromptPseudonymizationErrorKind::Failed,

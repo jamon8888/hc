@@ -12,12 +12,12 @@ use std::cmp::Reverse;
 #[cfg(feature = "basemind")]
 use std::collections::BTreeMap;
 #[cfg(feature = "basemind")]
-use std::sync::{Arc, RwLock};
+use std::sync::{Arc, Mutex, RwLock};
 
 #[cfg(feature = "basemind")]
 pub struct QueryResolver {
     client: crate::ipc::BasemindClient,
-    registry: crate::identity_registry::IdentityRegistry,
+    registry: Arc<Mutex<crate::identity_registry::IdentityRegistry>>,
     vault: Arc<RwLock<crate::session_vault::SessionVault>>,
 }
 
@@ -37,13 +37,13 @@ pub struct DocumentTokenResolver {
 impl QueryResolver {
     pub fn new(
         client: crate::ipc::BasemindClient,
-        registry: crate::identity_registry::IdentityRegistry,
-        vault: crate::session_vault::SessionVault,
+        registry: Arc<Mutex<crate::identity_registry::IdentityRegistry>>,
+        vault: Arc<RwLock<crate::session_vault::SessionVault>>,
     ) -> Self {
         Self {
             client,
             registry,
-            vault: Arc::new(RwLock::new(vault)),
+            vault,
         }
     }
 
@@ -199,11 +199,16 @@ impl QueryResolver {
             let mut hit_entities = Vec::new();
 
             for (value, category) in candidates {
-                let before = self.registry.entry_count();
-                let alias = self
-                    .registry
-                    .get_or_create_alias_for_value(&value, &category);
-                registry_changed |= self.registry.entry_count() > before;
+                let (alias, changed) = {
+                    let mut registry = self
+                        .registry
+                        .lock()
+                        .unwrap_or_else(|error| error.into_inner());
+                    let before = registry.entry_count();
+                    let alias = registry.get_or_create_alias_for_value(&value, &category);
+                    (alias, registry.entry_count() > before)
+                };
+                registry_changed |= changed;
                 let token = crate::token::mint_session_token(&category, &alias, &salt);
 
                 // Replace the raw value inside the chunk (I1 chokepoint)
@@ -225,11 +230,17 @@ impl QueryResolver {
             let source_doc = if hit.path.is_empty() {
                 "[DOC_UNKNOWN]".to_string()
             } else {
-                let before = self.registry.entry_count();
-                self.registry
-                    .get_or_create_alias_for_value(&hit.path, "DOC");
-                registry_changed |= self.registry.entry_count() > before;
-                let token = crate::token::mint_session_token("DOC", &hit.path, &salt);
+                let (alias, changed) = {
+                    let mut registry = self
+                        .registry
+                        .lock()
+                        .unwrap_or_else(|error| error.into_inner());
+                    let before = registry.entry_count();
+                    let alias = registry.get_or_create_alias_for_value(&hit.path, "DOC");
+                    (alias, registry.entry_count() > before)
+                };
+                registry_changed |= changed;
+                let token = crate::token::mint_session_token("DOC", &alias, &salt);
                 if session.map.get(&token) != Some(&hit.path) {
                     session.map.insert(token.clone(), hit.path.clone());
                     vault_changed = true;
@@ -246,7 +257,10 @@ impl QueryResolver {
         }
 
         if registry_changed {
-            self.registry.flush()?;
+            self.registry
+                .lock()
+                .unwrap_or_else(|error| error.into_inner())
+                .flush()?;
         }
         if vault_changed {
             self.store_session(session_id, session)?;

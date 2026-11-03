@@ -14,6 +14,8 @@
 use anyhow::Result;
 #[cfg(feature = "basemind")]
 use serde::{Deserialize, Serialize};
+#[cfg(feature = "basemind")]
+use std::sync::{Arc, Mutex, RwLock};
 
 #[cfg(feature = "basemind")]
 use crate::identity_registry::IdentityRegistry;
@@ -51,7 +53,11 @@ pub struct RagSearchTool {
 
 #[cfg(feature = "basemind")]
 impl RagSearchTool {
-    pub fn new(client: BasemindClient, registry: IdentityRegistry, vault: SessionVault) -> Self {
+    pub fn new(
+        client: BasemindClient,
+        registry: Arc<Mutex<IdentityRegistry>>,
+        vault: Arc<RwLock<SessionVault>>,
+    ) -> Self {
         let resolver = QueryResolver::new(client.clone(), registry, vault);
         Self { client, resolver }
     }
