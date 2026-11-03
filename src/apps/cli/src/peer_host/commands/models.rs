@@ -37,6 +37,7 @@ async fn build_transient_client(
     );
 
     let mut ai_config: alex_core::util::types::AIConfig = model_config
+        .clone()
         .try_into()
         .map_err(|e| format!("Failed to convert configuration: {}", e))?;
     let skip_ssl_verify = ai_config.skip_ssl_verify;

@@ -168,6 +168,7 @@ product-full = [
     "tools-browser-web",
     "tools-computer-use",
     "tools-image-analysis",
+    "tools-rag",
     "tools-miniapp",
     "tools-pages",
     "tools-creation",
