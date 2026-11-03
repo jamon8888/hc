@@ -57,6 +57,34 @@ pub trait AcpPromptInterceptor: Send + Sync {
     ) -> AlexResult<String>;
 }
 
+/// Host-owned fail-closed interceptor for ACP surfaces that have not yet
+/// published a concrete Basemind policy.
+pub struct RefusingAcpPromptInterceptor {
+    message: String,
+}
+
+impl RefusingAcpPromptInterceptor {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+
+#[async_trait::async_trait]
+impl AcpPromptInterceptor for RefusingAcpPromptInterceptor {
+    async fn pseudonymize(
+        &self,
+        _prompt: &str,
+        _workspace_root: &Path,
+        _alex_session_id: &str,
+    ) -> AlexResult<String> {
+        Err(alex_core::util::errors::AlexError::service(
+            self.message.clone(),
+        ))
+    }
+}
+
 static PROMPT_INTERCEPTOR: std::sync::OnceLock<
     std::sync::RwLock<Option<Arc<dyn AcpPromptInterceptor>>>,
 > = std::sync::OnceLock::new();

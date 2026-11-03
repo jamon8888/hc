@@ -8,7 +8,7 @@ categories = ["integration", "security", "privacy"]
 
 [features]
 default = ["basemind"]
-basemind = ["dep:anyhow", "dep:async-trait", "dep:base64", "dep:chrono", "dep:dashmap", "dep:hex", "dep:hmac", "dep:log", "dep:md5", "dep:regex", "dep:serde", "dep:serde_json", "dep:thiserror", "dep:tokio", "dep:tracing", "dep:uuid", "dep:reqwest", "dep:aes-gcm", "dep:scrypt", "dep:rand", "dep:sha2", "dep:url", "dep:alex-runtime-ports", "dep:alex-services-core", "dep:security-framework", "dep:security-framework-sys", "dep:windows", "dep:secret-service", "dep:keyring-core", "dep:windows-native-keyring-store", "dep:zbus-secret-service-keyring-store"]
+basemind = ["dep:anyhow", "dep:async-trait", "dep:base64", "dep:chrono", "dep:dashmap", "dep:hex", "dep:hmac", "dep:log", "dep:md5", "dep:regex", "dep:serde", "dep:serde_json", "dep:thiserror", "dep:tokio", "dep:tracing", "dep:uuid", "dep:reqwest", "dep:aes-gcm", "dep:scrypt", "dep:rand", "dep:sha2", "dep:url", "dep:alex-core-types", "dep:alex-runtime-ports", "dep:alex-services-core", "dep:security-framework", "dep:security-framework-sys", "dep:windows", "dep:secret-service", "dep:keyring-core", "dep:windows-native-keyring-store", "dep:zbus-secret-service-keyring-store"]
 tools-rag = ["basemind"]
 document-read = ["basemind"]
 pseudonymization = ["basemind"]
@@ -34,7 +34,8 @@ url = { workspace = true, optional = true }
 
 # Runtime ports: workspace filesystem port (workspace_fs) + the RagSearchPort
 # seam implemented over RagSearchTool (D11).
-alex-runtime-ports = { path = "../../contracts/runtime-ports", optional = true, features = ["workspace-ports", "rag-search", "document-redaction", "prompt-pseudonymization"] }
+alex-runtime-ports = { path = "../../contracts/runtime-ports", optional = true, features = ["model-egress", "workspace-ports", "rag-search", "document-redaction", "prompt-pseudonymization"] }
+alex-core-types = { path = "../../contracts/core-types", optional = true }
 
 # MCP HTTP client - raw reqwest, no rmcp client dependency.
 # Loopback plain HTTP only; workspace reqwest keeps default features (and TLS) off.

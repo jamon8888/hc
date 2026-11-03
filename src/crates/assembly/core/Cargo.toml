@@ -420,6 +420,7 @@ opencode-plugin-host = [
 ]
 ai-adapter-runtime = [
     "dep:alex-ai-adapters",
+    "alex-runtime-ports/model-egress",
 ]
 product-capabilities = ["dep:alex-product-capabilities"]
 plugin-source = [

@@ -63,10 +63,13 @@ async fn build_transient_client(
     Ok(
         alex_core::infrastructure::ai::client_factory::apply_subscription_request_profile(
             &auth,
-            alex_core::infrastructure::ai::AIClient::new_with_runtime_options(
-                ai_config,
-                proxy_config,
-                stream_options,
+            alex_core::infrastructure::ai::client_factory::apply_model_privacy_route(
+                alex_core::infrastructure::ai::AIClient::new_with_runtime_options(
+                    ai_config,
+                    proxy_config,
+                    stream_options,
+                ),
+                &model_config,
             ),
         ),
     )

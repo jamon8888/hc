@@ -83,3 +83,22 @@ persisted blob, index and git-cache schema versions derive from it. The first sc
 upgrading therefore resets each view in place and rebuilds it once. A workspace indexed by
 v0.35.x re-indexes on the first scan against v0.36.0; no product state is lost, because
 the identity registry and the session vault are product-owned and carry their own schema.
+
+## Amendment (2026-11-03): route-aware model egress
+
+The original guarantee was written before the model transport was classified by
+execution route. The enforceable rule is now: API-backed model calls use the
+Basemind pseudonymization policy; explicitly identified loopback/local model calls
+keep the user's original context; an unknown route is refused. This is a deliberate
+exception for local inference, not a weakening of the API boundary.
+
+All provider serializers pass through the shared `AIClient` egress seam, which is
+installed by the host composition root. Desktop publishes the concrete Basemind
+policy after its privacy service is ready. CLI/server/headless hosts install a
+fail-closed policy until they can publish an equivalent policy. The policy covers
+prompt messages, tool results, reasoning content, and tool-call arguments before
+serialization; unsupported image payloads are refused until OCR protection exists.
+
+This amendment supersedes the older model-agnostic wording in this ADR and in the
+PII flow map. It does not change the product-owned registry, vault, or rehydration
+decision, and it does not permit a silent raw fallback on an API route.

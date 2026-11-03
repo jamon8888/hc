@@ -6,7 +6,7 @@ use alex_core::agentic::{agents, coordination, system, tools};
 use alex_core::infrastructure::ai::AIClientFactory;
 use alex_core::infrastructure::try_get_path_manager_arc;
 use alex_core::product_runtime::{
-    ensure_product_dialog_scheduler, CoreProductEventQueueOwner, CoreRuntimeServicesProvider,
+    CoreProductEventQueueOwner, CoreRuntimeServicesProvider, ensure_product_dialog_scheduler,
 };
 use alex_core::runtime_ownership::CoreRuntimeOwnership;
 use alex_core::service::{config, filesystem, mcp, token_usage, workspace};
@@ -51,11 +51,16 @@ pub(crate) async fn initialize(workspace: Option<String>) -> anyhow::Result<Arc<
     config::initialize_global_config().await?;
     let config_service = config::get_global_config_service().await?;
 
+    // API model egress is fail-closed until this host publishes a concrete
+    // Basemind policy. Local loopback models remain untouched by the policy.
+    alex_core::service::model_egress::install_refusing_model_egress_policy(
+        "model egress refused: this server host has no Basemind privacy policy",
+    );
+
     // Initialize the global I18nService so server-mode bot/remote-connect
     // consumers observe the same runtime locale lifecycle as Desktop.
     if let Err(e) =
-        alex_core::service::i18n::initialize_global_i18n_service(Some(config_service.clone()))
-            .await
+        alex_core::service::i18n::initialize_global_i18n_service(Some(config_service.clone())).await
     {
         log::warn!(
             "Failed to initialize global I18nService in server mode: {}",

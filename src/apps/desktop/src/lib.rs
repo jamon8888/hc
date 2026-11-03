@@ -20,6 +20,7 @@
 //! itself suggests, costs nothing at runtime, and is re-checked whenever this
 //! attribute is touched.
 
+mod alex_control_host;
 pub mod api;
 pub mod appearance;
 mod builtin_browser_host;
@@ -29,7 +30,6 @@ mod embedded_relay_host;
 pub mod frontend_workbench;
 pub mod logging;
 pub mod macos_menubar;
-mod alex_control_host;
 pub mod runtime;
 pub mod sleep_prevention;
 pub mod startup_trace;
@@ -39,23 +39,23 @@ mod window_state_support;
 #[cfg(target_os = "windows")]
 mod window_webview_geometry;
 
-use alex_agent_runtime::sdk::{attach_session_event_cursor, SessionEventJournal};
+use alex_agent_runtime::sdk::{SessionEventJournal, attach_session_event_cursor};
 use alex_core::agentic::tools::computer_use_capability::set_computer_use_desktop_available;
 use alex_core::agentic::tools::computer_use_host::ComputerUseHostRef;
 use alex_core::infrastructure::ai::AIClientFactory;
 use alex_core::infrastructure::{get_path_manager_arc, try_get_path_manager_arc};
 use alex_core::service::search::get_global_workspace_search_service;
 use alex_core::service::session_projection_store::{
-    runtime_event_log_dir, FileSessionProjectionStore,
+    FileSessionProjectionStore, runtime_event_log_dir,
 };
-use alex_core::util::{elapsed_ms, TimingCollector};
+use alex_core::util::{TimingCollector, elapsed_ms};
 use alex_events::AgenticEvent;
 use alex_transport::{TauriTransportAdapter, TransportAdapter};
 use serde::Deserialize;
 use std::path::PathBuf;
 use std::sync::{
-    atomic::{AtomicBool, Ordering},
     Arc, OnceLock,
+    atomic::{AtomicBool, Ordering},
 };
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 use tauri::Emitter;
@@ -131,8 +131,8 @@ const BROWSER_WEBVIEW_PAGE_LOAD_EVENT: &str = "browser-webview-page-load";
 
 #[cfg(target_os = "windows")]
 fn show_fatal_startup_error(message: &str) {
+    use windows::Win32::UI::WindowsAndMessaging::{MB_ICONERROR, MB_OK, MessageBoxW};
     use windows::core::PCWSTR;
-    use windows::Win32::UI::WindowsAndMessaging::{MessageBoxW, MB_ICONERROR, MB_OK};
 
     let title = "Alex startup error"
         .encode_utf16()
@@ -467,8 +467,7 @@ pub async fn run() {
         ));
         return;
     }
-    if let Ok(config_service) = alex_core::service::config::get_global_config_service().await
-    {
+    if let Ok(config_service) = alex_core::service::config::get_global_config_service().await {
         for diagnostic in config_service.load_diagnostics().await {
             log::warn!(
                 "Startup configuration diagnostic: code={}, path={}, recoverability={:?}",
@@ -502,6 +501,11 @@ pub async fn run() {
     }
     startup_timings.record_elapsed("initialize_plugin_host", step_started);
     startup_trace.record_elapsed_step("native_pre_tauri", "initialize_plugin_host", step_started);
+
+    #[cfg(feature = "basemind")]
+    alex_core::service::model_egress::install_refusing_model_egress_policy(
+        "model egress refused: Basemind privacy service is not ready",
+    );
 
     // The three steps below only depend on the global config service (initialized
     // above) and write to disjoint global singletons, so they can run concurrently:
@@ -2054,9 +2058,8 @@ async fn init_agentic_system() -> anyhow::Result<(
 
     let tool_registry = tools::registry::get_global_tool_registry();
     let tool_state_manager = Arc::new(tools::pipeline::ToolStateManager::new(event_queue.clone()));
-    let permission_request_manager =
-        alex_core::product_runtime::core_permission_request_manager()
-            .map_err(anyhow::Error::msg)?;
+    let permission_request_manager = alex_core::product_runtime::core_permission_request_manager()
+        .map_err(anyhow::Error::msg)?;
 
     let computer_use_host: ComputerUseHostRef =
         Arc::new(computer_use::DesktopComputerUseHost::new());
@@ -2118,9 +2121,7 @@ async fn init_agentic_system() -> anyhow::Result<(
             .map_err(|e| anyhow::anyhow!("Failed to initialize token usage service: {}", e))?,
     );
     let token_usage_subscriber = Arc::new(
-        alex_core::service::token_usage::TokenUsageSubscriber::new(
-            token_usage_service.clone(),
-        ),
+        alex_core::service::token_usage::TokenUsageSubscriber::new(token_usage_service.clone()),
     );
     event_router.subscribe_internal("token_usage".to_string(), token_usage_subscriber);
     event_router.subscribe_internal(
@@ -2550,11 +2551,7 @@ impl alex_acp::AcpPromptInterceptor for AcpPromptInterceptorAdapter {
         alex_session_id: &str,
     ) -> alex_core::util::errors::AlexResult<String> {
         self.port
-            .pseudonymize(
-                prompt,
-                alex_session_id,
-                &workspace_root.to_string_lossy(),
-            )
+            .pseudonymize(prompt, alex_session_id, &workspace_root.to_string_lossy())
             .await
             .map(|pseudonymized| pseudonymized.text)
             .map_err(|error| {
@@ -2661,18 +2658,21 @@ fn publish_basemind_search_port(sidecar: &std::path::Path) {
             return;
         }
     };
-    let pseudonymizer = std::sync::Arc::new(
-        alex_basemind_integration::BasemindPromptPseudonymizer::new(
+    let pseudonymizer =
+        std::sync::Arc::new(alex_basemind_integration::BasemindPromptPseudonymizer::new(
             alex_basemind_integration::PromptPseudonymizer::new(
                 client.clone(),
                 registry_for_prompt,
                 vault_for_prompt,
             ),
-        ),
-    );
+        ));
     let port: std::sync::Arc<dyn alex_runtime_ports::PromptPseudonymizationPort> =
         pseudonymizer.clone();
     alex_core::service::rag_search::set_global_prompt_pseudonymization_port(Some(port));
+    let model_egress_policy = std::sync::Arc::new(
+        alex_basemind_integration::BasemindModelEgressPolicy::new(pseudonymizer.clone()),
+    );
+    alex_core::service::model_egress::set_global_model_egress_policy(Some(model_egress_policy));
 
     // ACP clients (OpenCode, Claude Code, Codex, and any bundled interpreter
     // that joins through the same client layer) get the same interception:
@@ -2681,9 +2681,9 @@ fn publish_basemind_search_port(sidecar: &std::path::Path) {
     // sidecar-backed implementation lives here at the composition root.
     let acp_port: std::sync::Arc<dyn alex_runtime_ports::PromptPseudonymizationPort> =
         pseudonymizer.clone();
-    alex_acp::set_prompt_interceptor(Some(std::sync::Arc::new(
-        AcpPromptInterceptorAdapter::new(acp_port),
-    )));
+    alex_acp::set_prompt_interceptor(Some(std::sync::Arc::new(AcpPromptInterceptorAdapter::new(
+        acp_port,
+    ))));
 
     let tool = RagSearchTool::new(client.clone(), registry, vault);
     let port = std::sync::Arc::new(RagSearchPortAdapter::new(tool));
@@ -2691,8 +2691,9 @@ fn publish_basemind_search_port(sidecar: &std::path::Path) {
 
     // The document redaction port is the interception that keeps unredacted
     // document text out of the model context (SPEC §3, I1).
-    let redactor =
-        std::sync::Arc::new(alex_basemind_integration::BasemindDocumentRedactor::new(client));
+    let redactor = std::sync::Arc::new(alex_basemind_integration::BasemindDocumentRedactor::new(
+        client,
+    ));
     alex_core::service::rag_search::set_global_document_redaction_port(Some(redactor));
     log::info!("Basemind search and redaction ports published");
 }
@@ -2724,11 +2725,10 @@ async fn deliver_event_to_webview(
             .and_then(serde_json::Value::as_str),
     ) {
         let name = projected.event_name.as_str();
-        let policy =
-            alex_core::service::remote_connect::session_records::session_event_publication(
-                name,
-                &projected.payload,
-            );
+        let policy = alex_core::service::remote_connect::session_records::session_event_publication(
+            name,
+            &projected.payload,
+        );
         if policy.synchronize_records {
             if let Err(error) = async {
                 if let Some(turn) = projected
@@ -2840,9 +2840,9 @@ async fn event_loop_driver<D, F>(
     F: std::future::Future<Output = ()>,
 {
     use crate::api::event_coalescer::{
-        next_flush_deadline, next_window, TextChunkCoalescer, INITIAL_RATE_EMA_CPS,
+        INITIAL_RATE_EMA_CPS, TextChunkCoalescer, next_flush_deadline, next_window,
     };
-    use tokio::time::{sleep_until, Instant};
+    use tokio::time::{Instant, sleep_until};
 
     let mut coalescer = TextChunkCoalescer::new();
     let mut flush_deadline: Option<Instant> = None;
@@ -3050,7 +3050,7 @@ async fn resolve_runtime_log_level(default_level: log::LevelFilter) -> log::Leve
 }
 
 fn spawn_runtime_log_level_listener(default_level: log::LevelFilter) {
-    use alex_core::service::config::{subscribe_config_updates, ConfigUpdateEvent};
+    use alex_core::service::config::{ConfigUpdateEvent, subscribe_config_updates};
 
     tokio::spawn(async move {
         if let Some(mut receiver) = subscribe_config_updates() {
@@ -3113,7 +3113,7 @@ fn create_event_emitter(
 }
 
 fn spawn_workspace_search_feature_listener(app_handle: tauri::AppHandle) {
-    use alex_core::service::config::{subscribe_config_updates, ConfigUpdateEvent};
+    use alex_core::service::config::{ConfigUpdateEvent, subscribe_config_updates};
 
     let app_state: tauri::State<'_, api::AppState> = app_handle.state();
     let workspace_search_service = app_state.workspace_search_service.clone();
@@ -3152,7 +3152,9 @@ fn spawn_workspace_search_feature_listener(app_handle: tauri::AppHandle) {
                     if !alex_core::service::search::workspace_search_daemon_available() {
                         log::warn!(
                             "Workspace search feature enabled but daemon is unavailable: path={:?}, hint={}",
-                            resolved_path.as_ref().map(|path| path.display().to_string()),
+                            resolved_path
+                                .as_ref()
+                                .map(|path| path.display().to_string()),
                             alex_core::service::search::workspace_search_daemon_missing_hint()
                         );
                         feature_enabled = true;

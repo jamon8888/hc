@@ -8,10 +8,10 @@
 pub mod announcement; // Announcement / feature-demo / tips system
 #[cfg(feature = "workspace-runtime")]
 pub(crate) mod bootstrap; // Workspace persona bootstrap helpers
+pub mod bundled_tools; // Tool packages that ship inside the product bundle
 #[cfg(feature = "canvas-runtime")]
 pub mod canvas; // Canvas service compatibility facade
 pub mod config; // Config management
-pub mod bundled_tools; // Tool packages that ship inside the product bundle
 #[cfg(feature = "agent-runtime")]
 pub(crate) mod coordination_persistence;
 #[cfg(all(feature = "agent-runtime", feature = "scheduled-jobs"))]
@@ -27,6 +27,8 @@ pub mod i18n; // I18n service
 pub(crate) mod instruction_context; // Workspace instruction file prompt helpers
 #[cfg(feature = "mcp-runtime")]
 pub mod mcp; // MCP (Model Context Protocol) system
+#[cfg(feature = "ai-adapter-runtime")]
+pub mod model_egress; // Shared model egress privacy policy
 #[cfg(feature = "tools-rag")]
 pub mod rag_search; // PII-safe workspace search port, published by the host
 #[cfg(feature = "remote-connect")]
@@ -69,6 +71,14 @@ pub mod worktree; // Managed Git worktree lifecycle and session bindings
 pub use terminal_core as terminal;
 
 // Re-export main components.
+#[cfg(feature = "diagnostics")]
+pub use alex_services_core::diagnostics;
+#[cfg(feature = "diff")]
+pub use alex_services_core::diff;
+#[cfg(feature = "process-runtime")]
+pub use alex_services_core::system;
+#[cfg(feature = "file-watch")]
+pub use alex_services_integrations::file_watch;
 #[cfg(feature = "announcement")]
 pub use announcement::{AnnouncementCard, AnnouncementScheduler, AnnouncementSchedulerRef};
 #[cfg(feature = "workspace-runtime")]
@@ -78,8 +88,8 @@ pub use canvas::{CanvasMemoryStore, CanvasService};
 pub use config::{ConfigManager, ConfigProvider, ConfigService};
 #[cfg(all(feature = "agent-runtime", feature = "scheduled-jobs"))]
 pub use cron::{
-    get_global_cron_service, set_global_cron_service, CronEventSubscriber, CronJobsChangedEvent,
-    CronJobsChangedReason, CronService, CRON_JOBS_CHANGED_EVENT,
+    CRON_JOBS_CHANGED_EVENT, CronEventSubscriber, CronJobsChangedEvent, CronJobsChangedReason,
+    CronService, get_global_cron_service, set_global_cron_service,
 };
 #[cfg(feature = "diff")]
 pub use diff::{
@@ -87,27 +97,19 @@ pub use diff::{
 };
 #[cfg(feature = "file-watch")]
 pub use file_watch::{
+    FileWatchEvent, FileWatchEventKind, FileWatchService, FileWatcherConfig,
     get_global_file_watch_service, get_watched_paths, initialize_file_watch_service,
-    start_file_watch, stop_file_watch, FileWatchEvent, FileWatchEventKind, FileWatchService,
-    FileWatcherConfig,
+    start_file_watch, stop_file_watch,
 };
 #[cfg(feature = "filesystem")]
 pub use filesystem::{DirectoryStats, FileSystemService, FileSystemServiceFactory};
 #[cfg(feature = "git")]
 pub use git::GitService;
-#[cfg(feature = "i18n-runtime")]
-pub use i18n::{get_global_i18n_service, I18nService};
 pub use i18n::{I18nConfig, LocaleId, LocaleMetadata};
+#[cfg(feature = "i18n-runtime")]
+pub use i18n::{I18nService, get_global_i18n_service};
 #[cfg(feature = "mcp-runtime")]
 pub use mcp::MCPService;
-#[cfg(feature = "diagnostics")]
-pub use alex_services_core::diagnostics;
-#[cfg(feature = "diff")]
-pub use alex_services_core::diff;
-#[cfg(feature = "process-runtime")]
-pub use alex_services_core::system;
-#[cfg(feature = "file-watch")]
-pub use alex_services_integrations::file_watch;
 #[cfg(feature = "review-platform")]
 pub use review_platform::{
     ReviewAuthSource, ReviewAuthState, ReviewChecks, ReviewDecision, ReviewEvidenceCompleteness,
@@ -123,22 +125,22 @@ pub use review_platform::{
 pub use runtime::{ResolvedCommand, RuntimeCommandCapability, RuntimeManager, RuntimeSource};
 #[cfg(feature = "workspace-search")]
 pub use search::{
-    get_global_workspace_search_service, set_global_workspace_search_service, ContentSearchRequest,
-    ContentSearchResult, GlobSearchRequest, GlobSearchResult, IndexTaskHandle,
-    WorkspaceIndexStatus, WorkspaceSearchAutoIndexDecision, WorkspaceSearchAutoIndexPriority,
-    WorkspaceSearchAutoIndexStatus, WorkspaceSearchBackend, WorkspaceSearchContextLine,
-    WorkspaceSearchDirtyFiles, WorkspaceSearchFileCount, WorkspaceSearchHit, WorkspaceSearchLine,
-    WorkspaceSearchMatch, WorkspaceSearchMatchLocation, WorkspaceSearchOverlayStatus,
-    WorkspaceSearchRepoPhase, WorkspaceSearchRepoStatus, WorkspaceSearchService,
-    WorkspaceSearchTaskKind, WorkspaceSearchTaskPhase, WorkspaceSearchTaskState,
-    WorkspaceSearchTaskStatus,
+    ContentSearchRequest, ContentSearchResult, GlobSearchRequest, GlobSearchResult,
+    IndexTaskHandle, WorkspaceIndexStatus, WorkspaceSearchAutoIndexDecision,
+    WorkspaceSearchAutoIndexPriority, WorkspaceSearchAutoIndexStatus, WorkspaceSearchBackend,
+    WorkspaceSearchContextLine, WorkspaceSearchDirtyFiles, WorkspaceSearchFileCount,
+    WorkspaceSearchHit, WorkspaceSearchLine, WorkspaceSearchMatch, WorkspaceSearchMatchLocation,
+    WorkspaceSearchOverlayStatus, WorkspaceSearchRepoPhase, WorkspaceSearchRepoStatus,
+    WorkspaceSearchService, WorkspaceSearchTaskKind, WorkspaceSearchTaskPhase,
+    WorkspaceSearchTaskState, WorkspaceSearchTaskStatus, get_global_workspace_search_service,
+    set_global_workspace_search_service,
 };
 #[cfg(feature = "agent-runtime")]
 pub use snapshot::SnapshotService;
 #[cfg(feature = "process-runtime")]
 pub use system::{
-    check_command, check_commands, run_command, run_command_simple, CheckCommandResult,
-    CommandOutput, SystemError,
+    CheckCommandResult, CommandOutput, SystemError, check_command, check_commands, run_command,
+    run_command_simple,
 };
 #[cfg(feature = "agent-runtime")]
 pub use token_usage::{
@@ -149,9 +151,9 @@ pub use token_usage::{
 pub use workspace::{WorkspaceManager, WorkspaceProvider, WorkspaceService};
 #[cfg(feature = "workspace-runtime")]
 pub use workspace_runtime::{
-    get_workspace_runtime_service_arc, try_get_workspace_runtime_service_arc,
     WorkspaceRuntimeContext, WorkspaceRuntimeEnsureResult, WorkspaceRuntimeService,
-    WorkspaceRuntimeTarget,
+    WorkspaceRuntimeTarget, get_workspace_runtime_service_arc,
+    try_get_workspace_runtime_service_arc,
 };
 #[cfg(all(feature = "agent-runtime", feature = "git"))]
 pub use worktree::WorktreeService;

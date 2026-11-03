@@ -827,6 +827,17 @@ pub enum ModelCategory {
     SpeechRecognition,
 }
 
+/// Explicit privacy route for model egress. `None` on legacy configurations
+/// keeps the old endpoint-derived compatibility path until the user declares a
+/// route; an explicitly unknown route remains fail-closed at the adapter seam.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum ModelPrivacyRouteConfig {
+    Api,
+    Local,
+    Unknown,
+}
+
 /// Default model configuration.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(default)]
@@ -1643,6 +1654,10 @@ pub struct AIModelConfig {
     pub model_name: String,
     pub base_url: String,
 
+    /// Route capability used by the model egress privacy policy.
+    #[serde(default)]
+    pub privacy_route: Option<ModelPrivacyRouteConfig>,
+
     /// Computed actual request URL (auto-derived from base_url + provider format).
     /// Stored by the frontend when config is saved; falls back to base_url if absent.
     #[serde(default)]
@@ -2089,6 +2104,7 @@ impl Default for AIModelConfig {
             provider: String::new(),
             model_name: String::new(),
             base_url: String::new(),
+            privacy_route: None,
             request_url: None,
             api_key: String::new(),
             context_window: None,

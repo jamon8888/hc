@@ -11,20 +11,23 @@ use crate::infrastructure::ai::reasoning_catalog::{
     load_models_dev_reasoning_catalog, project_model_reasoning_catalog,
     resolve_default_reasoning_preset,
 };
-use crate::infrastructure::ai::{build_stream_options_for_model, AIClient};
+use crate::infrastructure::ai::{AIClient, build_stream_options_for_model};
 #[cfg(feature = "subscription-auth")]
 use crate::infrastructure::subscription_auth::{
     self, SubscriptionHttpOptions, SubscriptionProvider as AdapterProvider,
 };
 #[cfg(feature = "subscription-auth")]
 use crate::service::config::types::SubscriptionProvider;
-use crate::service::config::types::{model_runtime_binding_fingerprint, AuthConfig};
-use crate::service::config::{get_global_config_service, ConfigService};
+use crate::service::config::types::{
+    AuthConfig, ModelPrivacyRouteConfig, model_runtime_binding_fingerprint,
+};
+use crate::service::config::{ConfigService, get_global_config_service};
 use crate::util::errors::{AlexError, AlexResult};
 use crate::util::types::AIConfig;
-use anyhow::{anyhow, Result};
-use log::{debug, info, warn};
 use alex_ai_adapters::resolve_required_model_selector;
+use alex_runtime_ports::ModelPrivacyRoute;
+use anyhow::{Result, anyhow};
+use log::{debug, info, warn};
 use std::collections::HashMap;
 use std::sync::{Arc, OnceLock, RwLock};
 
@@ -33,10 +36,23 @@ pub struct AIClientFactory {
     client_cache: RwLock<HashMap<String, CachedAIClient>>,
 }
 
+pub fn apply_model_privacy_route(
+    client: AIClient,
+    model_config: &crate::service::config::types::AIModelConfig,
+) -> AIClient {
+    let route = model_config.privacy_route.map(|route| match route {
+        ModelPrivacyRouteConfig::Api => ModelPrivacyRoute::Api,
+        ModelPrivacyRouteConfig::Local => ModelPrivacyRoute::Local,
+        ModelPrivacyRouteConfig::Unknown => ModelPrivacyRoute::Unknown,
+    });
+    client.with_declared_model_privacy_route(route)
+}
+
 struct CachedAIClient {
     configuration_fingerprint: String,
     default_reasoning_preset: Option<alex_core_types::ReasoningPresetDescriptor>,
     client: Arc<AIClient>,
+    model_egress_generation: u64,
     /// Unix seconds when the resolved subscription credential expires.
     #[cfg(feature = "subscription-auth")]
     credential_expires_at: Option<i64>,
@@ -302,6 +318,9 @@ impl AIClientFactory {
                     poisoned.into_inner()
                 }
             };
+            let model_egress_policy = crate::service::model_egress::global_model_egress_policy();
+            let model_egress_generation =
+                crate::service::model_egress::global_model_egress_generation();
             if let Some(cached) = cache.get(&normalized_model_id) {
                 #[cfg(feature = "subscription-auth")]
                 let account_unchanged = cached.credential_revision == credential_revision;
@@ -310,6 +329,8 @@ impl AIClientFactory {
                 if account_unchanged
                     && cached.configuration_fingerprint == configuration_fingerprint
                     && cached.default_reasoning_preset == default_reasoning_preset
+                    && cached.client.model_egress_policy_enabled() == model_egress_policy.is_some()
+                    && cached.model_egress_generation == model_egress_generation
                     && !subscription_credential_stale(&model_config.auth, cached)
                 {
                     return Ok(cached.client.clone());
@@ -339,7 +360,13 @@ impl AIClientFactory {
         let client = apply_default_reasoning_preset(
             apply_subscription_request_profile(
                 &model_config.auth,
-                AIClient::new_with_runtime_options(ai_config, proxy_config, stream_options),
+                apply_model_privacy_route(
+                    AIClient::new_with_runtime_options(ai_config, proxy_config, stream_options)
+                        .with_model_egress_policy(
+                            crate::service::model_egress::global_model_egress_policy(),
+                        ),
+                    &model_config,
+                ),
             ),
             &reasoning_projection,
         );
@@ -361,6 +388,8 @@ impl AIClientFactory {
                     configuration_fingerprint,
                     default_reasoning_preset,
                     client: client.clone(),
+                    model_egress_generation:
+                        crate::service::model_egress::global_model_egress_generation(),
                     #[cfg(feature = "subscription-auth")]
                     credential_expires_at,
                     // Capture before resolution: a concurrent mutation or token
@@ -594,17 +623,17 @@ pub async fn list_subscription_accounts() -> Vec<subscription_auth::Subscription
 mod tests {
     use std::sync::Arc;
 
-    use super::{apply_subscription_auth, AIClientFactory};
+    use super::{AIClientFactory, apply_subscription_auth};
     use crate::infrastructure::PathManager;
     #[cfg(not(feature = "subscription-auth"))]
     use crate::service::config::types::SubscriptionProvider;
     use crate::service::config::types::{
-        model_runtime_binding_fingerprint, AIModelConfig, AuthConfig, GlobalConfig,
+        AIModelConfig, AuthConfig, GlobalConfig, model_runtime_binding_fingerprint,
     };
     use crate::service::config::{ConfigManagerSettings, ConfigService};
     use crate::util::types::AIConfig;
     use alex_ai_adapters::{
-        classify_model_selector, resolve_required_model_selector, ModelSelectorKind,
+        ModelSelectorKind, classify_model_selector, resolve_required_model_selector,
     };
 
     fn build_model(id: &str, name: &str, model_name: &str) -> AIModelConfig {
@@ -693,7 +722,7 @@ mod tests {
     #[cfg(feature = "subscription-auth")]
     #[tokio::test]
     async fn subscription_cache_rebuilds_after_account_changes_and_rejects_logout() {
-        use crate::infrastructure::subscription_auth::{self, store, StoredCredential};
+        use crate::infrastructure::subscription_auth::{self, StoredCredential, store};
         let dir = tempfile::tempdir().unwrap();
         subscription_auth::set_store_path_for_test(dir.path().join("subscription.json"));
         let config = Arc::new(
@@ -762,10 +791,12 @@ mod tests {
         subscription_auth::logout(subscription_auth::SubscriptionProvider::Codex)
             .await
             .unwrap();
-        assert!(factory
-            .get_client_by_id("subscription:fixture")
-            .await
-            .is_err());
+        assert!(
+            factory
+                .get_client_by_id("subscription:fixture")
+                .await
+                .is_err()
+        );
     }
 
     #[cfg(feature = "subscription-auth")]
@@ -800,9 +831,11 @@ mod tests {
             .await
             .expect_err("subscription auth must not degrade to an API-key client");
 
-        assert!(error
-            .to_string()
-            .contains("Subscription authentication is not available"));
+        assert!(
+            error
+                .to_string()
+                .contains("Subscription authentication is not available")
+        );
         assert_eq!(config.api_key, "unchanged");
     }
 

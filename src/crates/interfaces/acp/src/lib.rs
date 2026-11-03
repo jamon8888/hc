@@ -18,6 +18,7 @@ pub use agent_client_protocol as protocol;
 #[cfg(feature = "client")]
 pub use client::prompt_redaction::{
     apply_prompt_interceptor, set_prompt_interceptor, AcpPromptInterceptor,
+    RefusingAcpPromptInterceptor,
 };
 #[cfg(feature = "client")]
 pub use client::AcpClientService;
