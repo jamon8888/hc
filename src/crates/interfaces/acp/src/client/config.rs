@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
+use alex_runtime_ports::ModelPrivacyRoute;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
@@ -48,6 +49,12 @@ pub struct AcpClientConfig {
     pub subagent: AcpClientSubagentConfig,
     #[serde(default)]
     pub permission_mode: AcpClientPermissionMode,
+    /// Explicit route of the external ACP client's model.
+    ///
+    /// Missing legacy configuration is intentionally unknown: the host must
+    /// refuse the prompt instead of guessing that an agent is local.
+    #[serde(default)]
+    pub privacy_route: Option<ModelPrivacyRoute>,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Default)]
@@ -70,6 +77,8 @@ pub struct AcpClientInfo {
     pub readonly: bool,
     pub subagent: AcpClientSubagentConfig,
     pub permission_mode: AcpClientPermissionMode,
+    #[serde(default)]
+    pub privacy_route: Option<ModelPrivacyRoute>,
     pub status: AcpClientStatus,
     pub tool_name: String,
     pub session_count: usize,

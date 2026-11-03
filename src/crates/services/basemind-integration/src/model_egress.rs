@@ -9,9 +9,80 @@ use alex_runtime_ports::{
     ModelEgressContext, ModelEgressError, ModelEgressErrorKind, ModelEgressPolicy,
     ModelPrivacyRoute, PromptPseudonymizationPort,
 };
+use anyhow::Result;
 use async_trait::async_trait;
 use serde_json::Value;
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
+
+use crate::identity_registry::IdentityRegistry;
+use crate::ipc::{BasemindClient, RedactionPolicy};
+use crate::prompt_pseudonym::{BasemindPromptPseudonymizer, PromptPseudonymizer};
+use crate::rag_search::{RagSearchPortAdapter, RagSearchTool};
+use crate::session_vault::SessionVault;
+use crate::document_convert::BasemindDocumentRedactor;
+
+/// Host-composition bundle shared by Desktop, CLI, server and detached hosts.
+///
+/// The host still decides where the data lives and which sidecar/model paths
+/// are trusted; this crate only assembles the product-owned registry, vault,
+/// pseudonymizer and model egress policy consistently.
+pub struct BasemindPrivacyBundle {
+    pub pseudonymizer: Arc<BasemindPromptPseudonymizer>,
+    pub model_egress: Arc<BasemindModelEgressPolicy>,
+    pub rag_search: Arc<RagSearchPortAdapter>,
+    pub document_redaction: Arc<BasemindDocumentRedactor>,
+}
+
+/// Derive a stable, non-reversible storage directory for one workspace.
+///
+/// The registry and session vault contain encrypted values, but their scope is
+/// still a security boundary: a session from one open folder must not share
+/// aliases or recovery material with another folder. Hosts that own a
+/// workspace should use this helper before calling [`build_privacy_bundle`].
+pub fn workspace_data_dir(base_dir: PathBuf, workspace_root: &Path) -> PathBuf {
+    let workspace_hash = IdentityRegistry::compute_value_hash(&workspace_root.to_string_lossy());
+    base_dir.join("workspaces").join(workspace_hash)
+}
+
+pub fn build_privacy_bundle(
+    data_dir: PathBuf,
+    daemon_binary: Option<PathBuf>,
+    ner_model_dir: PathBuf,
+) -> Result<BasemindPrivacyBundle> {
+    let registry_dir = data_dir.join("registry");
+    let vault_dir = data_dir.join("vault");
+    std::fs::create_dir_all(&registry_dir)?;
+    std::fs::create_dir_all(&vault_dir)?;
+
+    let client = BasemindClient::lazy(daemon_binary.clone())
+        .with_redaction_policy(RedactionPolicy::bundled(ner_model_dir.clone()));
+    let registry = IdentityRegistry::new(registry_dir.clone())?;
+    let vault = SessionVault::new(vault_dir.clone())?;
+    let pseudonymizer = Arc::new(BasemindPromptPseudonymizer::new(
+        PromptPseudonymizer::new(client, registry, vault),
+    ));
+
+    let search_client = BasemindClient::lazy(daemon_binary.clone())
+        .with_redaction_policy(RedactionPolicy::bundled(ner_model_dir.clone()));
+    let search_registry = IdentityRegistry::new(registry_dir)?;
+    let search_vault = SessionVault::new(vault_dir)?;
+    let rag_search = Arc::new(RagSearchPortAdapter::new(RagSearchTool::new(
+        search_client.clone(),
+        search_registry,
+        search_vault,
+    )));
+    let document_redaction = Arc::new(BasemindDocumentRedactor::new(
+        BasemindClient::lazy(daemon_binary).with_redaction_policy(RedactionPolicy::bundled(ner_model_dir)),
+    ));
+
+    Ok(BasemindPrivacyBundle {
+        model_egress: Arc::new(BasemindModelEgressPolicy::new(pseudonymizer.clone())),
+        pseudonymizer,
+        rag_search,
+        document_redaction,
+    })
+}
 
 pub struct BasemindModelEgressPolicy {
     pseudonymizer: Arc<dyn PromptPseudonymizationPort>,
@@ -141,6 +212,37 @@ impl ModelEgressPolicy for BasemindModelEgressPolicy {
 
         Ok(messages)
     }
+
+    async fn rehydrate_text(
+        &self,
+        text: String,
+        context: ModelEgressContext,
+    ) -> Result<String, ModelEgressError> {
+        if context.route == ModelPrivacyRoute::Local {
+            return Ok(text);
+        }
+        if context.route == ModelPrivacyRoute::Unknown {
+            return Err(ModelEgressError::new(
+                ModelEgressErrorKind::Failed,
+                "model response rehydration refused: model route is unknown",
+            ));
+        }
+        let session_id = context.session_id.as_deref().ok_or_else(|| {
+            ModelEgressError::new(
+                ModelEgressErrorKind::MissingContext,
+                "model response rehydration refused: API model response has no session id",
+            )
+        })?;
+        self.pseudonymizer
+            .rehydrate(&text, session_id)
+            .await
+            .map_err(|error| {
+                ModelEgressError::new(
+                    ModelEgressErrorKind::Failed,
+                    format!("model response rehydration failed: {error}"),
+                )
+            })
+    }
 }
 
 #[cfg(test)]
@@ -233,5 +335,20 @@ mod tests {
             .unwrap_err();
 
         assert_eq!(error.kind, ModelEgressErrorKind::UnsupportedPayload);
+    }
+
+    #[tokio::test]
+    async fn local_image_payloads_are_left_untouched() {
+        let policy = BasemindModelEgressPolicy::new(Arc::new(StubPseudonymizer));
+        let content = r#"[{"type":"image_url","image_url":{"url":"data:image/png;base64,AA=="}}]"#;
+        let result = policy
+            .protect_messages(
+                vec![Message::user(content.into())],
+                context(ModelPrivacyRoute::Local),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(result[0].content.as_deref(), Some(content));
     }
 }

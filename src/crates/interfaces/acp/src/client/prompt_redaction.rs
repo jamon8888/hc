@@ -40,6 +40,7 @@ use std::path::Path;
 use std::sync::Arc;
 
 use alex_core::util::errors::AlexResult;
+use alex_runtime_ports::ModelPrivacyRoute;
 
 /// The seam the composition root fills when it ships PII-safe prompting.
 #[async_trait::async_trait]
@@ -54,13 +55,91 @@ pub trait AcpPromptInterceptor: Send + Sync {
         prompt: &str,
         workspace_root: &Path,
         alex_session_id: &str,
+        route: ModelPrivacyRoute,
     ) -> AlexResult<String>;
+
+    /// Restore session tokens in the external agent's response before it is
+    /// shown to the user. Implementations must fail closed on storage errors.
+    async fn rehydrate(
+        &self,
+        text: &str,
+        _workspace_root: &Path,
+        _alex_session_id: &str,
+        _route: ModelPrivacyRoute,
+    ) -> AlexResult<String> {
+        Ok(text.to_string())
+    }
 }
 
 /// Host-owned fail-closed interceptor for ACP surfaces that have not yet
 /// published a concrete Basemind policy.
 pub struct RefusingAcpPromptInterceptor {
     message: String,
+}
+
+/// ACP adapter for a host-owned Basemind prompt pseudonymizer.
+pub struct PseudonymizingAcpPromptInterceptor {
+    port: Arc<dyn alex_runtime_ports::PromptPseudonymizationPort>,
+}
+
+impl PseudonymizingAcpPromptInterceptor {
+    pub fn new(port: Arc<dyn alex_runtime_ports::PromptPseudonymizationPort>) -> Self {
+        Self { port }
+    }
+}
+
+#[async_trait::async_trait]
+impl AcpPromptInterceptor for PseudonymizingAcpPromptInterceptor {
+    async fn pseudonymize(
+        &self,
+        prompt: &str,
+        workspace_root: &Path,
+        alex_session_id: &str,
+        route: ModelPrivacyRoute,
+    ) -> AlexResult<String> {
+        if route == ModelPrivacyRoute::Local {
+            return Ok(prompt.to_string());
+        }
+        if route == ModelPrivacyRoute::Unknown {
+            return Err(alex_core::util::errors::AlexError::service(
+                "ACP prompt refused: external model route is unknown",
+            ));
+        }
+        self.port
+            .pseudonymize(prompt, alex_session_id, &workspace_root.to_string_lossy())
+            .await
+            .map(|prompt| prompt.text)
+            .map_err(|error| {
+                alex_core::util::errors::AlexError::service(format!(
+                    "PII pseudonymization failed (Basemind required): {error}"
+                ))
+            })
+    }
+
+    async fn rehydrate(
+        &self,
+        text: &str,
+        _workspace_root: &Path,
+        alex_session_id: &str,
+        route: ModelPrivacyRoute,
+    ) -> AlexResult<String> {
+        if route == ModelPrivacyRoute::Local {
+            return Ok(text.to_string());
+        }
+        if route == ModelPrivacyRoute::Unknown {
+            return Err(alex_core::util::errors::AlexError::service(
+                "ACP response rehydration refused: external model route is unknown",
+            ));
+        }
+        self.port
+            .rehydrate(text, alex_session_id)
+            .await
+            .map_err(|error| {
+                alex_core::util::errors::AlexError::service(format!(
+                    "ACP response rehydration failed (Basemind required): {error}"
+                ))
+            })
+    }
 }
 
 impl RefusingAcpPromptInterceptor {
@@ -78,6 +157,7 @@ impl AcpPromptInterceptor for RefusingAcpPromptInterceptor {
         _prompt: &str,
         _workspace_root: &Path,
         _alex_session_id: &str,
+        _route: ModelPrivacyRoute,
     ) -> AlexResult<String> {
         Err(alex_core::util::errors::AlexError::service(
             self.message.clone(),
@@ -117,13 +197,30 @@ pub async fn apply_prompt_interceptor(
     prompt: String,
     workspace_root: &Path,
     alex_session_id: &str,
+    route: ModelPrivacyRoute,
 ) -> AlexResult<String> {
     match prompt_interceptor() {
         Some(interceptor) => {
             interceptor
-                .pseudonymize(&prompt, workspace_root, alex_session_id)
+                .pseudonymize(&prompt, workspace_root, alex_session_id, route)
                 .await
         }
         None => Ok(prompt),
+    }
+}
+
+pub async fn rehydrate_prompt_interceptor(
+    text: String,
+    workspace_root: &Path,
+    alex_session_id: &str,
+    route: ModelPrivacyRoute,
+) -> AlexResult<String> {
+    match prompt_interceptor() {
+        Some(interceptor) => {
+            interceptor
+                .rehydrate(&text, workspace_root, alex_session_id, route)
+                .await
+        }
+        None => Ok(text),
     }
 }

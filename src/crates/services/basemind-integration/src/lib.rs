@@ -54,9 +54,13 @@ pub use self::ipc::{BasemindClient, DocEntity, DocumentSearchHit, RedactionPolic
 #[cfg(feature = "basemind")]
 pub use self::keychain::{KeychainError, get_vault_passphrase, set_vault_passphrase};
 #[cfg(feature = "basemind")]
-pub use self::model_egress::BasemindModelEgressPolicy;
+pub use self::model_egress::{
+    BasemindModelEgressPolicy, BasemindPrivacyBundle, build_privacy_bundle, workspace_data_dir,
+};
 #[cfg(feature = "basemind")]
-pub use self::models::{ExtractResult, ModelConfig, ModelManager, RedactedEntity};
+pub use self::models::{
+    ExtractResult, ModelArchiveFormat, ModelConfig, ModelManager, ModelStatus, RedactedEntity,
+};
 #[cfg(feature = "basemind")]
 pub use self::prompt_pseudonym::{
     BasemindPromptPseudonymizer, PromptPseudonymizer, PseudonymizedPrompt,

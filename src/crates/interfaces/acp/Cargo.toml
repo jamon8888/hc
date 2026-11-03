@@ -47,6 +47,7 @@ alex-agent-runtime = { path = "../../execution/agent-runtime", optional = true }
 alex-agent-tools = { path = "../../execution/tool-contracts", optional = true }
 alex-events = { path = "../../contracts/events" }
 alex-core-types = { path = "../../contracts/core-types", optional = true }
+alex-runtime-ports = { path = "../../contracts/runtime-ports", features = ["model-egress", "prompt-pseudonymization"] }
 
 agent-client-protocol = { workspace = true }
 tokio = { workspace = true, features = ["fs", "io-std", "io-util", "macros", "process", "rt", "sync", "time"] }

@@ -128,28 +128,53 @@ impl AIClient {
         self.model_egress_policy.is_some()
     }
 
-    /// Set the route declared by the persisted model capability. Legacy
-    /// callers may leave this unset and use endpoint compatibility inference.
+    /// Set the route declared by the persisted model capability.
+    ///
+    /// A missing declaration is deliberately `Unknown`; URL shape is not an
+    /// authorization boundary because a public API can be loopback-proxied and
+    /// a private model can be exposed behind a non-loopback endpoint.
     pub fn with_declared_model_privacy_route(mut self, route: Option<ModelPrivacyRoute>) -> Self {
         self.declared_model_privacy_route = route;
         self
     }
 
-    fn model_privacy_route(&self) -> ModelPrivacyRoute {
-        if let Some(route) = self.declared_model_privacy_route {
-            return route;
+    pub fn model_privacy_route(&self) -> ModelPrivacyRoute {
+        self.declared_model_privacy_route
+            .unwrap_or(ModelPrivacyRoute::Unknown)
+    }
+
+    /// Rehydrate provider output before it enters session history or tool
+    /// execution. This is deliberately adjacent to request protection so an
+    /// adapter cannot forget the reversible boundary on the response path.
+    pub async fn rehydrate_model_text(
+        &self,
+        text: String,
+        request_context: Option<ModelRequestContext>,
+    ) -> Result<String> {
+        if self.model_privacy_route() == ModelPrivacyRoute::Local {
+            return Ok(text);
         }
-        let Ok(url) = reqwest::Url::parse(self.config.request_url.trim()) else {
-            return ModelPrivacyRoute::Unknown;
-        };
-        let host = url.host_str().unwrap_or_default().to_ascii_lowercase();
-        if matches!(host.as_str(), "localhost" | "::1") || host.starts_with("127.") {
-            ModelPrivacyRoute::Local
-        } else if matches!(url.scheme(), "http" | "https") {
-            ModelPrivacyRoute::Api
-        } else {
-            ModelPrivacyRoute::Unknown
-        }
+        let policy = self.model_egress_policy.as_ref().ok_or_else(|| {
+            anyhow::anyhow!(
+                "model response rehydration refused: no privacy policy is installed for a non-local model route"
+            )
+        })?;
+        let context = request_context.ok_or_else(|| {
+            anyhow::anyhow!(
+                "model response rehydration refused: request context is required"
+            )
+        })?;
+        policy
+            .rehydrate_text(
+                text,
+                ModelEgressContext {
+                    route: self.model_privacy_route(),
+                    session_id: context.session_id,
+                    workspace_root: context.workspace_root,
+                },
+            )
+            .await
+            .map_err(anyhow::Error::msg)
     }
 
     async fn protect_messages(
@@ -837,20 +862,14 @@ mod tests {
     }
 
     #[test]
-    fn model_privacy_route_distinguishes_loopback_api_and_unknown_urls() {
+    fn model_privacy_route_requires_an_explicit_capability() {
         let mut client = make_test_client("openai", None);
         client.config.request_url = "http://127.0.0.1:11434/v1/chat/completions".into();
-        assert_eq!(client.model_privacy_route(), ModelPrivacyRoute::Local);
-
-        client.config.request_url = "https://api.example.test/v1/chat/completions".into();
-        assert_eq!(client.model_privacy_route(), ModelPrivacyRoute::Api);
-
-        client.config.request_url = "unix:///tmp/model.sock".into();
         assert_eq!(client.model_privacy_route(), ModelPrivacyRoute::Unknown);
     }
 
     #[test]
-    fn declared_model_privacy_route_overrides_compatibility_inference() {
+    fn declared_model_privacy_route_is_used_by_the_egress_boundary() {
         let client = make_test_client("openai", None)
             .with_declared_model_privacy_route(Some(ModelPrivacyRoute::Local));
 

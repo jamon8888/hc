@@ -64,6 +64,7 @@ pub(crate) async fn set_active_workspace(
         .get_current_workspace()
         .await
         .ok_or_else(|| "Active workspace not found after switching".to_string())?;
+    crate::install_cli_privacy_guards(&workspace.root_path);
     Ok(workspace_info_to_json(&workspace))
 }
 

@@ -16,7 +16,6 @@ use crate::api::search_api::{
 };
 use crate::api::workspace_activation::spawn_workspace_background_warmup;
 use crate::startup_trace::DesktopStartupTrace;
-use log::{debug, error, info, warn};
 use alex_core::infrastructure::{
     BatchedFileSearchProgressSink, FileSearchResult, FileSearchResultGroup, FileTreeNode,
     SearchMatchType,
@@ -28,6 +27,8 @@ use alex_core::service::remote_ssh::{
 };
 use alex_core::service::workspace::{ScanOptions, WorkspaceInfo, WorkspaceKind};
 use alex_core_types::product_identity::hidden_data_directory;
+use base64::{engine::general_purpose::STANDARD as BASE64, Engine as _};
+use log::{debug, error, info, warn};
 use serde::{Deserialize, Serialize};
 use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
@@ -1306,6 +1307,8 @@ pub async fn open_workspace(
     };
     match result {
         Ok(workspace_info) => {
+            #[cfg(feature = "basemind")]
+            crate::refresh_basemind_privacy_bundle(&workspace_info.root_path);
             apply_active_workspace_context(&state, &app, &workspace_info, None).await;
 
             if let Err(e) = state
@@ -1476,6 +1479,8 @@ pub async fn open_remote_workspace(
                 warn!("Failed to set remote workspace state: {}", e);
             }
 
+            #[cfg(feature = "basemind")]
+            crate::refresh_basemind_privacy_bundle(&workspace_info.root_path);
             apply_active_workspace_context(&state, &app, &workspace_info, None).await;
 
             info!(
@@ -1505,6 +1510,8 @@ pub async fn create_assistant_workspace(
         .await
     {
         Ok(workspace_info) => {
+            #[cfg(feature = "basemind")]
+            crate::refresh_basemind_privacy_bundle(&workspace_info.root_path);
             apply_active_workspace_context(&state, &app, &workspace_info, None).await;
 
             if let Err(e) = state
@@ -1800,8 +1807,19 @@ pub async fn close_workspace(
             }
 
             if let Some(workspace_info) = state.workspace_service.get_current_workspace().await {
+                #[cfg(feature = "basemind")]
+                crate::refresh_basemind_privacy_bundle(&workspace_info.root_path);
                 apply_active_workspace_context(&state, &app, &workspace_info, None).await;
             } else {
+                #[cfg(feature = "basemind")]
+                alex_core::service::model_egress::install_refusing_model_egress_policy(
+                    "model egress refused: no active workspace privacy scope",
+                );
+                alex_acp::set_prompt_interceptor(Some(std::sync::Arc::new(
+                    alex_acp::RefusingAcpPromptInterceptor::new(
+                        "ACP prompt refused: no active workspace privacy scope",
+                    ),
+                )));
                 clear_active_workspace_context(&state, &app, None).await;
             }
 
@@ -1832,6 +1850,9 @@ pub async fn set_active_workspace(
                 .get_current_workspace()
                 .await
                 .ok_or_else(|| "Active workspace not found after switching".to_string())?;
+
+            #[cfg(feature = "basemind")]
+            crate::refresh_basemind_privacy_bundle(&workspace_info.root_path);
 
             apply_active_workspace_context(&state, &app, &workspace_info, None).await;
 
@@ -2200,9 +2221,7 @@ pub async fn scan_workspace_info(
             .await
             .and_then(|record| {
                 record.ok_or_else(|| {
-                    alex_core::AlexError::service(
-                        "Workspace ID is required for scanning",
-                    )
+                    alex_core::AlexError::service("Workspace ID is required for scanning")
                 })
             })
     }
@@ -2574,8 +2593,7 @@ mod pet_package_tests {
     #[ignore = "Imports installed Codex pets into an isolated temporary directory"]
     fn installed_builtin_pets_can_be_previewed_and_imported() {
         let temp = tempfile::tempdir().unwrap();
-        let sources =
-            alex_core::external_sources::external_builtin_pet_sources("codex", None);
+        let sources = alex_core::external_sources::external_builtin_pet_sources("codex", None);
         assert!(sources.diagnostics.is_empty(), "{:?}", sources.diagnostics);
         assert!(!sources.pets.is_empty());
         for source in sources.pets {
@@ -4884,9 +4902,10 @@ pub async fn search_filenames(
             })
             .await
             .map_err(alex_core::util::errors::AlexError::service),
-            Err(error) => Err(alex_core::util::errors::AlexError::service(
-                format!("Remote file service not available: {}", error),
-            )),
+            Err(error) => Err(alex_core::util::errors::AlexError::service(format!(
+                "Remote file service not available: {}",
+                error
+            ))),
         },
         Ok(DesktopPathTarget::Local { .. }) => {
             state
@@ -4894,9 +4913,7 @@ pub async fn search_filenames(
                 .search_file_names(&request.root_path, &request.pattern, options, cancel_flag)
                 .await
         }
-        Err(error) => Err(alex_core::util::errors::AlexError::service(
-            error,
-        )),
+        Err(error) => Err(alex_core::util::errors::AlexError::service(error)),
     };
     unregister_search(&state, search_id.as_deref());
 
@@ -5387,8 +5404,7 @@ pub async fn get_ai_model_catalog() -> Result<alex_core::AIModelCatalog, String>
 /// Model Settings surface while a peer is selected. Declared controller-local in
 /// the Product Operation Registry, so it never reaches a peer host.
 #[tauri::command]
-pub async fn get_local_models_dev_catalogs(
-) -> Result<alex_core::LocalModelsDevCatalogs, String> {
+pub async fn get_local_models_dev_catalogs() -> Result<alex_core::LocalModelsDevCatalogs, String> {
     alex_core::get_local_models_dev_catalogs().await
 }
 
@@ -5795,8 +5811,7 @@ pub async fn workspace_file_upload(
         .user_id
         .ok_or("Sign in to use workspace transfers")?;
     let status =
-        alex_core::service::filesystem::upload::workspace_file_upload(account, request)
-            .await?;
+        alex_core::service::filesystem::upload::workspace_file_upload(account, request).await?;
     serde_json::to_value(status).map_err(|error| error.to_string())
 }
 

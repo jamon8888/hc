@@ -920,7 +920,7 @@ pub(crate) async fn serve_acp_stdio() -> Result<()> {
         .context("Failed to initialize global config service")?;
     tracing::info!("Global config service initialized");
 
-    crate::install_cli_privacy_guards();
+    crate::install_cli_privacy_guards(&workspace_root);
 
     use alex_core::infrastructure::ai::AIClientFactory;
     AIClientFactory::initialize_global()

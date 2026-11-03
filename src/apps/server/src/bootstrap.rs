@@ -13,6 +13,50 @@ use alex_core::service::{config, filesystem, mcp, token_usage, workspace};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
+fn publish_basemind_model_egress_policy(workspace_root: Option<&std::path::Path>) {
+    let Some(ner_model_dir) = std::env::var_os("BASEMIND_NER_MODEL_DIR") else {
+        log::warn!(
+            "Basemind server policy remains unavailable: BASEMIND_NER_MODEL_DIR is not configured"
+        );
+        return;
+    };
+    let data_dir = match try_get_path_manager_arc() {
+        Ok(manager) => {
+            let base = manager.user_data_dir().join("basemind");
+            workspace_root.map_or(base.clone(), |root| {
+                alex_basemind_integration::workspace_data_dir(base, root)
+            })
+        }
+        Err(error) => {
+            log::warn!("Basemind server policy is unavailable: {error}");
+            return;
+        }
+    };
+    let daemon_binary = std::env::var_os("BASEMIND_SIDECAR_PATH").map(std::path::PathBuf::from);
+    let bundle = match alex_basemind_integration::build_privacy_bundle(
+        data_dir,
+        daemon_binary,
+        std::path::PathBuf::from(ner_model_dir),
+    ) {
+        Ok(bundle) => bundle,
+        Err(error) => {
+            log::warn!("Basemind server policy is unavailable: {error}");
+            return;
+        }
+    };
+    alex_core::service::model_egress::set_global_model_egress_policy(Some(bundle.model_egress));
+    alex_core::service::rag_search::set_global_prompt_pseudonymization_port(Some(
+        bundle.pseudonymizer.clone(),
+    ));
+    alex_core::service::rag_search::set_global_rag_search_port(Some(bundle.rag_search));
+    alex_core::service::rag_search::set_global_document_redaction_port(Some(
+        bundle.document_redaction,
+    ));
+    log::info!(
+        "Basemind model egress, prompt pseudonymization, document redaction and search published for server host"
+    );
+}
+
 /// Shared application state for the server (mirrors Desktop's AppState).
 ///
 /// Several fields are stored to keep the corresponding services alive (they
@@ -159,6 +203,12 @@ pub(crate) async fn initialize(workspace: Option<String>) -> anyhow::Result<Arc<
         // Try to restore last workspace
         workspace_service.get_current_workspace().await
     };
+
+    publish_basemind_model_egress_policy(
+        initial_workspace
+            .as_ref()
+            .map(|workspace| workspace.root_path.as_path()),
+    );
 
     if let Err(error) = alex_core::plugin_host::initialize_configured_plugin_host(
         alex_core::plugin_host::PluginHostLaunchPolicy::Enabled,

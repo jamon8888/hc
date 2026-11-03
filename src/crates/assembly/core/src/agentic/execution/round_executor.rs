@@ -890,6 +890,44 @@ impl RoundExecutor {
             }
         };
 
+        // The provider only ever saw session tokens. Restore them at the
+        // product boundary before history, UI events, or tool execution see
+        // the assistant response. Local model routes are a no-op; API routes
+        // fail closed if their reversible vault is unavailable.
+        let mut stream_result = stream_result;
+        stream_result.full_text = ai_client
+            .rehydrate_model_text(
+                stream_result.full_text.clone(),
+                Some(context.model_request_context.clone()),
+            )
+            .await
+            .map_err(|error| AlexError::AIClient(error.to_string()))?;
+        stream_result.full_thinking = ai_client
+            .rehydrate_model_text(
+                stream_result.full_thinking.clone(),
+                Some(context.model_request_context.clone()),
+            )
+            .await
+            .map_err(|error| AlexError::AIClient(error.to_string()))?;
+        for tool_call in &mut stream_result.tool_calls {
+            let restored_arguments = ai_client
+                .rehydrate_model_text(
+                    tool_call.raw_arguments.clone().unwrap_or_else(|| {
+                        serde_json::to_string(&tool_call.arguments)
+                            .unwrap_or_else(|_| "{}".to_string())
+                    }),
+                    Some(context.model_request_context.clone()),
+                )
+                .await
+                .map_err(|error| AlexError::AIClient(error.to_string()))?;
+            tool_call.arguments = serde_json::from_str(&restored_arguments).map_err(|error| {
+                AlexError::AIClient(format!(
+                    "rehydrated model tool arguments are invalid JSON: {error}"
+                ))
+            })?;
+            tool_call.raw_arguments = Some(restored_arguments);
+        }
+
         Self::complete_model_exchange_trace(
             trace_config.as_ref(),
             final_trace_handle.as_ref(),
@@ -1103,6 +1141,16 @@ impl RoundExecutor {
                     .as_ref()
                     .map(|parent| parent.permission_delegation_context(&context.agent_type))
             });
+            let mut tool_context_vars = context.context_vars.clone();
+            tool_context_vars.insert(
+                "__alex_model_privacy_route".to_string(),
+                match ai_client.model_privacy_route() {
+                    alex_runtime_ports::ModelPrivacyRoute::Api => "api",
+                    alex_runtime_ports::ModelPrivacyRoute::Local => "local",
+                    alex_runtime_ports::ModelPrivacyRoute::Unknown => "unknown",
+                }
+                .to_string(),
+            );
             let tool_context = ToolExecutionContext {
                 session_id: context.session_id.clone(),
                 dialog_turn_id: context.dialog_turn_id.clone(),
@@ -1115,7 +1163,7 @@ impl RoundExecutor {
                 agent_type: context.agent_type.clone(),
                 workspace: context.workspace.clone(),
                 primary_model_facts: context.primary_model_facts.clone(),
-                context_vars: context.context_vars.clone(),
+                context_vars: tool_context_vars,
                 subagent_parent_info,
                 permission_delegation,
                 delegation_policy: context.delegation_policy,

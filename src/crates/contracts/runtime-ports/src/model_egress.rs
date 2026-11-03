@@ -65,6 +65,16 @@ pub trait ModelEgressPolicy: Send + Sync {
         messages: Vec<Message>,
         context: ModelEgressContext,
     ) -> Result<Vec<Message>, ModelEgressError>;
+
+    /// Restore session tokens in a model response at the product boundary.
+    /// The default keeps compatibility with non-reversible policies.
+    async fn rehydrate_text(
+        &self,
+        text: String,
+        _context: ModelEgressContext,
+    ) -> Result<String, ModelEgressError> {
+        Ok(text)
+    }
 }
 
 #[cfg(test)]

@@ -865,17 +865,63 @@ async fn initialize_core_services(
     .await
 }
 
-pub(crate) fn install_cli_privacy_guards() {
+pub(crate) fn install_cli_privacy_guards(workspace_root: &std::path::Path) {
     // API model egress is fail-closed until this host publishes a concrete
     // Basemind policy. Local loopback models remain untouched by the policy.
     alex_core::service::model_egress::install_refusing_model_egress_policy(
         "model egress refused: this CLI host has no Basemind privacy policy",
     );
+    alex_core::service::rag_search::set_global_prompt_pseudonymization_port(None);
+    alex_core::service::rag_search::set_global_rag_search_port(None);
+    alex_core::service::rag_search::set_global_document_redaction_port(None);
     alex_acp::set_prompt_interceptor(Some(std::sync::Arc::new(
         alex_acp::RefusingAcpPromptInterceptor::new(
             "ACP prompt refused: this CLI host has no Basemind privacy policy",
         ),
     )));
+
+    let Some(ner_model_dir) = std::env::var_os("BASEMIND_NER_MODEL_DIR") else {
+        tracing::warn!(
+            "Basemind CLI policy remains unavailable: BASEMIND_NER_MODEL_DIR is not configured"
+        );
+        return;
+    };
+    let data_dir = match alex_core::infrastructure::try_get_path_manager_arc() {
+        Ok(manager) => alex_basemind_integration::workspace_data_dir(
+            manager.user_data_dir().join("basemind"),
+            workspace_root,
+        ),
+        Err(error) => {
+            tracing::warn!("Basemind CLI policy is unavailable: {error}");
+            return;
+        }
+    };
+    let daemon_binary = std::env::var_os("BASEMIND_SIDECAR_PATH").map(std::path::PathBuf::from);
+    let bundle = match alex_basemind_integration::build_privacy_bundle(
+        data_dir,
+        daemon_binary,
+        std::path::PathBuf::from(ner_model_dir),
+    ) {
+        Ok(bundle) => bundle,
+        Err(error) => {
+            tracing::warn!("Basemind CLI policy is unavailable: {error}");
+            return;
+        }
+    };
+    alex_core::service::model_egress::set_global_model_egress_policy(Some(bundle.model_egress));
+    alex_core::service::rag_search::set_global_prompt_pseudonymization_port(Some(
+        bundle.pseudonymizer.clone(),
+    ));
+    alex_core::service::rag_search::set_global_rag_search_port(Some(bundle.rag_search));
+    alex_core::service::rag_search::set_global_document_redaction_port(Some(
+        bundle.document_redaction,
+    ));
+    alex_acp::set_prompt_interceptor(Some(std::sync::Arc::new(
+        alex_acp::PseudonymizingAcpPromptInterceptor::new(bundle.pseudonymizer),
+    )));
+    tracing::info!(
+        "Basemind model egress, prompt pseudonymization, document redaction and search published for CLI host"
+    );
 }
 
 async fn initialize_core_services_for_deployment(
@@ -952,7 +998,7 @@ async fn initialize_core_services_for_deployment(
         .await
         .ok();
 
-    install_cli_privacy_guards();
+    install_cli_privacy_guards(workspace_root);
 
     AIClientFactory::initialize_global()
         .await

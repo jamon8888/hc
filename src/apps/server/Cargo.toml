@@ -11,6 +11,7 @@ path = "src/main.rs"
 
 [dependencies]
 alex-core = { path = "../../crates/assembly/core", features = ["product-full"] }
+alex-basemind-integration = { path = "../../crates/services/basemind-integration", features = ["basemind"] }
 
 # App-server surface: an in-process JSON-RPC server/client pair over an
 # in-memory channel transport. The websocket handler routes agent kernel RPCs

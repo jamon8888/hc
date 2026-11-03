@@ -281,7 +281,7 @@ export interface AIModelConfig {
   base_url: string;
   /** Computed actual request URL, derived from base_url + provider format. Stored on save. */
   request_url?: string;
-  /** Explicit model egress route; omitted legacy configs use endpoint compatibility inference. */
+  /** Explicit model egress route; omitted legacy configs fail closed as unknown. */
   privacy_route?: ModelPrivacyRoute;
   model_name: string;
   context_window?: number;

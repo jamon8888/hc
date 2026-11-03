@@ -828,8 +828,9 @@ pub enum ModelCategory {
 }
 
 /// Explicit privacy route for model egress. `None` on legacy configurations
-/// keeps the old endpoint-derived compatibility path until the user declares a
-/// route; an explicitly unknown route remains fail-closed at the adapter seam.
+/// Missing legacy values deserialize as `None` and are treated as an unknown
+/// route at the adapter seam. A URL is never sufficient evidence of local
+/// privacy because a loopback proxy may still forward data to a remote API.
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum ModelPrivacyRouteConfig {
@@ -2298,6 +2299,7 @@ mod tests {
         AIConfig, AIExperienceConfig, AIModelConfig, AgentModelDefaultsConfig, AgentProfileConfig,
         AgentProfileView, AppConfig, AppLoggingConfig, AuthConfig, ChatInputDefaultModeStrategy,
         EditorConfig, GlobalConfig, MemoryExternalContextPolicy, ModelExchangeTracingMode,
+        ModelPrivacyRouteConfig,
         NotificationConfig, OpenCodePlan, SubagentBatchExecutionPolicy, SubagentModelSelection,
         SubscriptionProvider, UserSkillGroupsConfig, UserToolGroupsConfig, WebSearchConfig,
     };
@@ -3072,6 +3074,41 @@ mod tests {
         .expect("config without inline_think_in_text should deserialize");
 
         assert!(config.inline_think_in_text);
+    }
+
+    #[test]
+    fn legacy_model_config_without_privacy_route_is_unknown() {
+        let config: AIModelConfig = serde_json::from_value(serde_json::json!({
+            "id": "legacy",
+            "name": "Legacy",
+            "provider": "custom",
+            "model_name": "model",
+            "base_url": "http://127.0.0.1:11434/v1",
+            "api_key": "",
+            "enabled": true
+        }))
+        .expect("legacy model config should deserialize");
+
+        assert_eq!(config.privacy_route, None);
+    }
+
+    #[test]
+    fn model_privacy_route_round_trips_explicit_capability() {
+        let config: AIModelConfig = serde_json::from_value(serde_json::json!({
+            "id": "local",
+            "name": "Local",
+            "provider": "ollama",
+            "model_name": "model",
+            "base_url": "http://127.0.0.1:11434/v1",
+            "api_key": "",
+            "enabled": true,
+            "privacy_route": "local"
+        }))
+        .expect("explicit model privacy route should deserialize");
+
+        assert_eq!(config.privacy_route, Some(ModelPrivacyRouteConfig::Local));
+        let value = serde_json::to_value(config).expect("model config should serialize");
+        assert_eq!(value["privacy_route"], "local");
     }
 
     #[test]

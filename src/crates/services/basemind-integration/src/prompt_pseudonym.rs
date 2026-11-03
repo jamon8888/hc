@@ -143,6 +143,23 @@ impl PromptPseudonymizer {
             session_id: session_id.to_string(),
         })
     }
+
+    pub fn rehydrate(&self, text: &str, session_id: &str) -> Result<String> {
+        // A response with no prior PII-bearing prompt has nothing to restore.
+        // Missing session state is therefore an identity result; corrupted
+        // encrypted state still fails through the error path below.
+        if !self.vault.session_exists(session_id) {
+            return Ok(text.to_string());
+        }
+        let payload = self.vault.load_session(session_id)?;
+        let mut entries = payload.map.into_iter().collect::<Vec<_>>();
+        entries.sort_by(|(left, _), (right, _)| right.len().cmp(&left.len()));
+        let mut restored = text.to_string();
+        for (token, value) in entries {
+            restored = restored.replace(&token, &value);
+        }
+        Ok(restored)
+    }
 }
 
 /// The pseudonymizer seen through the port the host publishes.
@@ -191,5 +208,19 @@ impl alex_runtime_ports::PromptPseudonymizationPort for BasemindPromptPseudonymi
                     error.to_string(),
                 )
             })
+    }
+
+    async fn rehydrate(
+        &self,
+        text: &str,
+        session_id: &str,
+    ) -> Result<String, alex_runtime_ports::PromptPseudonymizationError> {
+        let guard = self.inner.lock().await;
+        PromptPseudonymizer::rehydrate(&guard, text, session_id).map_err(|error| {
+            alex_runtime_ports::PromptPseudonymizationError::new(
+                alex_runtime_ports::PromptPseudonymizationErrorKind::Failed,
+                error.to_string(),
+            )
+        })
     }
 }

@@ -43,6 +43,7 @@ pub struct FileReadTool {
 
 /// Default cap on characters returned by a single Read call (excluding wrapper text).
 pub const DEFAULT_READ_MAX_TOTAL_CHARS: usize = 64_000;
+const MODEL_PRIVACY_ROUTE_CONTEXT_KEY: &str = "__alex_model_privacy_route";
 #[cfg(feature = "document-read")]
 // anydoc is synchronous, so this bounds the caller's wait rather than terminating the parser.
 // The worker retains the global conversion permit until it actually exits, keeping failures closed.
@@ -146,6 +147,18 @@ impl FileReadTool {
             .extension()
             .and_then(|extension| extension.to_str())
             .is_some_and(|extension| extension.eq_ignore_ascii_case("csv"))
+    }
+
+    fn model_privacy_route(context: &ToolUseContext) -> &'static str {
+        match context
+            .custom_data
+            .get(MODEL_PRIVACY_ROUTE_CONTEXT_KEY)
+            .and_then(Value::as_str)
+        {
+            Some("api") => "api",
+            Some("local") => "local",
+            _ => "unknown",
+        }
     }
 
     /// Keep filenames useful for correlating tool results without exposing a
@@ -265,8 +278,8 @@ impl FileReadTool {
         );
         // Interception #2 (SPEC §3): when the host published a redaction
         // port, the document is extracted and redacted by the sidecar, so no
-        // unredacted text reaches the model context (I1). The plain
-        // conversion stays as the fallback for a host without the sidecar.
+        // unredacted text reaches an API model context (I1). Local models use
+        // the original conversion; API and unknown routes fail closed.
         #[cfg(feature = "tools-rag")]
         let conversion_call = {
             let port = crate::service::rag_search::global_document_redaction_port();
@@ -275,33 +288,45 @@ impl FileReadTool {
                 .map(|root| root.to_string_lossy().to_string());
             let path = resolved_path.to_string();
             async move {
-                match (port, workspace_root) {
-                    (Some(port), Some(root)) => port
+                match (Self::model_privacy_route(context), port, workspace_root) {
+                    ("local", _, _) => convert_document_to_markdown(bytes, path)
+                        .await
+                        .map(|converted| {
+                            (converted.markdown.to_string(), converted.source_format.to_string())
+                        })
+                        .map_err(|error| error),
+                    ("api", Some(port), Some(root)) => port
                         .redact(&path, &root)
                         .await
                         .map(|document| (document.markdown, document.source_format))
                         .map_err(|error| DocumentConversionError::new("redaction", error.message)),
-                    (Some(_), None) => Err(DocumentConversionError::new(
+                    ("api", Some(_), None) => Err(DocumentConversionError::new(
                         "redaction",
                         "workspace root is required for the document redaction port",
                     )),
-                    // Without a published privacy port, retain the existing
-                    // host behavior and make the unredacted conversion path
-                    // explicit in the response metadata.
-                    (None, _) => convert_document_to_markdown(bytes, path)
-                        .await
-                        .map(|converted| {
-                            (
-                                converted.markdown.to_string(),
-                                converted.source_format.to_string(),
-                            )
-                        })
-                        .map_err(|error| error),
+                    ("api", None, _) => Err(DocumentConversionError::new(
+                        "redaction",
+                        "API model document access requires a Basemind redaction port",
+                    )),
+                    ("unknown", _, _) => Err(DocumentConversionError::new(
+                        "redaction",
+                        "document access refused because the model privacy route is unknown",
+                    )),
+                    _ => Err(DocumentConversionError::new(
+                        "redaction",
+                        "document access refused because the model privacy route is invalid",
+                    )),
                 }
             }
         };
         #[cfg(not(feature = "tools-rag"))]
         let conversion_call = async {
+            if Self::model_privacy_route(context) != "local" {
+                return Err(DocumentConversionError::new(
+                    "redaction",
+                    "document access requires the Basemind redaction capability for a non-local model",
+                ));
+            }
             convert_document_to_markdown(bytes, resolved_path.to_string())
                 .await
                 .map(|converted| {
@@ -891,15 +916,21 @@ Usage:
             let workspace_root = context
                 .workspace_root()
                 .map(|root| root.to_string_lossy().to_string());
-            match (port, workspace_root) {
-                (None, _) => {}
-                (Some(_), None) => {
+            match (Self::model_privacy_route(context), port, workspace_root) {
+                ("local", _, _) => {}
+                ("api", Some(_), None) => {
                     return Err(AlexError::tool(format!(
                         "Cannot redact text file {} without a workspace root",
                         model_visible_path
                     )));
                 }
-                (Some(port), Some(root)) => {
+                ("api", None, _) => {
+                    return Err(AlexError::tool(format!(
+                        "Cannot read text file {} for an API model without a Basemind redaction port",
+                        model_visible_path
+                    )));
+                }
+                ("api", Some(port), Some(root)) => {
                     let redacted = port
                         .redact_text(&read_file_result.content, &root)
                         .await
@@ -911,7 +942,25 @@ Usage:
                         })?;
                     read_file_result.content = redacted.markdown;
                 }
+                ("unknown", _, _) => {
+                    return Err(AlexError::tool(format!(
+                        "Cannot read text file {} because the model privacy route is unknown",
+                        model_visible_path
+                    )));
+                }
+                _ => {
+                    return Err(AlexError::tool(format!(
+                        "Cannot read text file {} because the model privacy route is invalid",
+                        model_visible_path
+                    )));
+                }
             }
+        }
+        #[cfg(not(feature = "tools-rag"))]
+        if document_metadata.is_none() && Self::model_privacy_route(context) != "local" {
+            return Err(AlexError::tool(
+                "Text file access requires the Basemind redaction capability for a non-local model",
+            ));
         }
 
         if let Some(revision_before) = revision_before_read {
@@ -1088,7 +1137,11 @@ mod tests {
         fs::write(&document, b"%PDF-1.7 not really a pdf").expect("write document");
 
         let tool = FileReadTool::new();
-        let context = local_context(root.clone());
+        let mut context = local_context(root.clone());
+        context.custom_data.insert(
+            MODEL_PRIVACY_ROUTE_CONTEXT_KEY.to_string(),
+            Value::String("api".to_string()),
+        );
         let (result, metadata) = tool
             .read_document_window(
                 &document.to_string_lossy(),
@@ -1140,7 +1193,11 @@ mod tests {
         let _ = fs::remove_dir_all(&root);
         fs::create_dir_all(&root).expect("create temp root");
         fs::write(&root.join("notes.txt"), "Contact jean@example.test").expect("write text");
-        let context = local_context(root.clone());
+        let mut context = local_context(root.clone());
+        context.custom_data.insert(
+            MODEL_PRIVACY_ROUTE_CONTEXT_KEY.to_string(),
+            Value::String("api".to_string()),
+        );
 
         let results = FileReadTool::new()
             .call(&json!({ "file_path": "notes.txt" }), &context)

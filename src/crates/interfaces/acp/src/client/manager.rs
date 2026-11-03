@@ -47,6 +47,7 @@ use super::config::{
 };
 use super::dsh_profile::{ensure_bundled_profile, ensure_bundled_profile_remote};
 use super::prompt::AcpPrompt;
+use alex_runtime_ports::ModelPrivacyRoute;
 use super::remote_capability_store::RemoteAcpCapabilityStore;
 use super::remote_session::{preferred_resume_strategies, AcpRemoteSessionStrategy};
 use super::remote_shell::{remote_user_shell_command, render_remote_env_assignments, shell_escape};
@@ -315,6 +316,7 @@ impl AcpClientService {
                 readonly: config.readonly,
                 subagent: config.subagent.clone(),
                 permission_mode: config.permission_mode,
+                privacy_route: config.privacy_route,
                 id,
                 status,
                 session_count,
@@ -1186,11 +1188,28 @@ impl AcpClientService {
         prompt: String,
         workspace_root: &Path,
         alex_session_id: &str,
+        route: ModelPrivacyRoute,
     ) -> AlexResult<String> {
         super::prompt_redaction::apply_prompt_interceptor(
             prompt,
             workspace_root,
             alex_session_id,
+            route,
+        )
+        .await
+    }
+
+    async fn rehydrate_acp_output(
+        text: String,
+        workspace_root: &Path,
+        alex_session_id: &str,
+        route: ModelPrivacyRoute,
+    ) -> AlexResult<String> {
+        super::prompt_redaction::rehydrate_prompt_interceptor(
+            text,
+            workspace_root,
+            alex_session_id,
+            route,
         )
         .await
     }
@@ -1219,8 +1238,16 @@ impl AcpClientService {
             // configured deadline, not extend it. It runs before the session
             // lock so redaction latency cannot serialize other users of the
             // session.
-            let prompt =
-                Self::pseudonymize_acp_prompt(prompt, &resolved.cwd, &alex_session_id)
+            let prompt = Self::pseudonymize_acp_prompt(
+                    prompt,
+                    &resolved.cwd,
+                    &alex_session_id,
+                    resolved
+                        .client
+                        .config
+                        .privacy_route
+                        .unwrap_or(ModelPrivacyRoute::Unknown),
+                )
                     .await?;
 
             let mut session = resolved.session.lock().await;
@@ -1240,7 +1267,18 @@ impl AcpClientService {
                 .as_mut()
                 .ok_or_else(|| AlexError::service("ACP session was not initialized"))?;
             let mut prompt = AcpPrompt::start(active, prompt);
-            read_turn_to_string(&mut session, &mut prompt).await
+            let output = read_turn_to_string(&mut session, &mut prompt).await?;
+            Self::rehydrate_acp_output(
+                output,
+                &resolved.cwd,
+                &alex_session_id,
+                resolved
+                    .client
+                    .config
+                    .privacy_route
+                    .unwrap_or(ModelPrivacyRoute::Unknown),
+            )
+            .await
         };
 
         if let Some(seconds) = timeout_seconds.filter(|seconds| *seconds > 0) {
@@ -1280,8 +1318,16 @@ impl AcpClientService {
             // Interception is inside the timeout-wrapped future, before the
             // session lock: the caller's deadline covers redaction too, and
             // redaction latency cannot serialize the session.
-            let prompt =
-                Self::pseudonymize_acp_prompt(prompt, &resolved.cwd, &alex_session_id)
+            let prompt = Self::pseudonymize_acp_prompt(
+                    prompt,
+                    &resolved.cwd,
+                    &alex_session_id,
+                    resolved
+                        .client
+                        .config
+                        .privacy_route
+                        .unwrap_or(ModelPrivacyRoute::Unknown),
+                )
                     .await?;
 
             let mut session = resolved.session.lock().await;
@@ -1324,6 +1370,39 @@ impl AcpClientService {
                         update_session_from_events(&mut session, &events);
                         for event in events {
                             for event in round_tracker.apply(event) {
+                                let event = match event {
+                                    AcpClientStreamEvent::AgentText(text) => {
+                                        AcpClientStreamEvent::AgentText(
+                                            Self::rehydrate_acp_output(
+                                                text,
+                                                &resolved.cwd,
+                                                &alex_session_id,
+                                                resolved
+                                                    .client
+                                                    .config
+                                                    .privacy_route
+                                                    .unwrap_or(ModelPrivacyRoute::Unknown),
+                                            )
+                                            .await?,
+                                        )
+                                    }
+                                    AcpClientStreamEvent::AgentThought(text) => {
+                                        AcpClientStreamEvent::AgentThought(
+                                            Self::rehydrate_acp_output(
+                                                text,
+                                                &resolved.cwd,
+                                                &alex_session_id,
+                                                resolved
+                                                    .client
+                                                    .config
+                                                    .privacy_route
+                                                    .unwrap_or(ModelPrivacyRoute::Unknown),
+                                            )
+                                            .await?,
+                                        )
+                                    }
+                                    other => other,
+                                };
                                 on_event(event)?;
                             }
                         }
@@ -2906,6 +2985,7 @@ mod tests {
                 readonly: false,
                 subagent: Default::default(),
                 permission_mode: AcpClientPermissionMode::Ask,
+                privacy_route: None,
             },
         ))
     }
@@ -3033,6 +3113,7 @@ mod tests {
             readonly: false,
             subagent: Default::default(),
             permission_mode: AcpClientPermissionMode::Ask,
+            privacy_route: None,
         };
 
         let command = render_remote_client_command(&config, Some("/srv/my repo")).expect("command");
@@ -3060,6 +3141,7 @@ mod tests {
                     readonly: false,
                     subagent: Default::default(),
                     permission_mode: AcpClientPermissionMode::Ask,
+                    privacy_route: None,
                 },
             )]),
         };
@@ -3103,6 +3185,7 @@ mod tests {
             prompt: &str,
             _workspace_root: &Path,
             _alex_session_id: &str,
+            _route: ModelPrivacyRoute,
         ) -> AlexResult<String> {
             Ok(format!("{prompt} [PSEUDONYMIZED]"))
         }
@@ -3119,6 +3202,7 @@ mod tests {
             _prompt: &str,
             _workspace_root: &Path,
             _alex_session_id: &str,
+            _route: ModelPrivacyRoute,
         ) -> AlexResult<String> {
             Err(AlexError::service(
                 "PII pseudonymization is unavailable: the basemind sidecar is not running",
