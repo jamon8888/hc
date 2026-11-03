@@ -182,6 +182,31 @@ describe('WordcraftDocumentHost', () => {
     expect(host.state).toMatchObject({ dirty: false, revision: 5, saving: false });
   });
 
+  it('keeps newer dirty state and saving status while an older save completes', async () => {
+    let resolveFirst!: () => void;
+    let resolveSecond!: () => void;
+    const saveBytes = vi.fn()
+      .mockImplementationOnce(() => new Promise<void>(resolve => { resolveFirst = resolve; }))
+      .mockImplementationOnce(() => new Promise<void>(resolve => { resolveSecond = resolve; }));
+    const acknowledgeSave = vi.fn();
+    const host = new WordcraftDocumentHost({ sessionId, saveBytes, acknowledgeSave });
+
+    host.handleEvent({
+      type: 'save', requestId: 'save-4', sessionId, revision: 4, name: 'draft.docx', bytes: new Uint8Array([4]),
+    });
+    host.handleEvent({
+      type: 'save', requestId: 'save-5', sessionId, revision: 5, name: 'draft.docx', bytes: new Uint8Array([5]),
+    });
+
+    resolveFirst();
+    await vi.waitFor(() => expect(acknowledgeSave).toHaveBeenCalledWith('save-4', 4, true));
+    expect(host.state).toMatchObject({ dirty: true, revision: 5, saving: true });
+
+    resolveSecond();
+    await vi.waitFor(() => expect(acknowledgeSave).toHaveBeenCalledWith('save-5', 5, true));
+    expect(host.state).toMatchObject({ dirty: false, revision: 5, saving: false, error: undefined });
+  });
+
   it('tracks dirty state and ignores stale sessions and events after teardown', () => {
     const onState = vi.fn();
     const host = new WordcraftDocumentHost({ sessionId, saveBytes: vi.fn(), acknowledgeSave: vi.fn(), onState });
