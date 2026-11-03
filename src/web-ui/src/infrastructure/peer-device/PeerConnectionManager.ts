@@ -80,6 +80,7 @@ export interface PeerHostCapabilities {
   /** Scoped MCP choices must be explicitly advertised by the host. */
   readonly chatMcpCatalogV1?: boolean;
   readonly workspaceIdReferencesV1?: boolean;
+  readonly workspaceBinaryFileWritesV1?: boolean;
   /**
    * Host implements `submit_user_answers` for Runtime-owned
    * AskUserQuestion interactions. Older Desktop hosts already implemented the
@@ -183,6 +184,7 @@ const NO_CAPABILITIES: PeerHostCapabilities = {
   toolCatalog: null,
   chatMcpCatalogV1: false,
   workspaceIdReferencesV1: false,
+  workspaceBinaryFileWritesV1: false,
   userQuestionResponse: null,
   // Host kind is unknown until the first `peer_mode_ping` resolves. Consumers
   // treat `null` optimistically. See PR #2428 round 5 #1.
@@ -520,6 +522,7 @@ export class PeerConnectionManager {
       toolCatalog,
       chatMcpCatalogV1: caps?.chat_mcp_catalog_v1 === true,
       workspaceIdReferencesV1: caps?.workspace_id_references_v1 === true,
+      workspaceBinaryFileWritesV1: caps?.workspace_binary_file_writes_v1 === true,
       userQuestionResponse,
       userQuestionInteraction: caps?.user_question_interaction_v1 === true,
       dialogQueueV1: caps?.dialog_queue_v1 === true,
@@ -754,6 +757,7 @@ function capabilitiesEqual(
     a.toolCatalog === b.toolCatalog &&
     a.chatMcpCatalogV1 === b.chatMcpCatalogV1 &&
     a.workspaceIdReferencesV1 === b.workspaceIdReferencesV1 &&
+    a.workspaceBinaryFileWritesV1 === b.workspaceBinaryFileWritesV1 &&
     a.userQuestionResponse === b.userQuestionResponse &&
     a.userQuestionInteraction === b.userQuestionInteraction &&
     a.dialogQueueV1 === b.dialogQueueV1 &&

@@ -56,6 +56,8 @@ pub enum PeerHostCapability {
     ChatMcpCatalogV1,
     /// Workspace references can carry the owning host's persisted ID.
     WorkspaceIdReferencesV1,
+    /// Workspace file writes can carry exact binary bytes as base64.
+    WorkspaceBinaryFileWritesV1,
     /// `submit_user_answers` is implemented for Runtime-owned questions.
     UserQuestionResponse,
     /// First human interaction disables the unattended question timeout.
@@ -82,6 +84,7 @@ impl PeerHostCapability {
         Self::ToolCatalog,
         Self::ChatMcpCatalogV1,
         Self::WorkspaceIdReferencesV1,
+        Self::WorkspaceBinaryFileWritesV1,
         Self::UserQuestionResponse,
         Self::UserQuestionInteractionV1,
     ];
@@ -106,6 +109,7 @@ impl PeerHostCapability {
             Self::ToolCatalog => "tool_catalog",
             Self::ChatMcpCatalogV1 => "chat_mcp_catalog_v1",
             Self::WorkspaceIdReferencesV1 => "workspace_id_references_v1",
+            Self::WorkspaceBinaryFileWritesV1 => "workspace_binary_file_writes_v1",
             Self::UserQuestionResponse => "user_question_response",
             Self::UserQuestionInteractionV1 => "user_question_interaction_v1",
         }
@@ -134,6 +138,7 @@ const CLI_CAPABILITIES: &[PeerHostCapability] = &[
     PeerHostCapability::ToolCatalog,
     PeerHostCapability::ChatMcpCatalogV1,
     PeerHostCapability::WorkspaceIdReferencesV1,
+    PeerHostCapability::WorkspaceBinaryFileWritesV1,
     PeerHostCapability::UserQuestionResponse,
     PeerHostCapability::UserQuestionInteractionV1,
 ];

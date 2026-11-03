@@ -126,13 +126,12 @@ pub async fn dispatch(
                 let bytes = BASE64
                     .decode(content.as_bytes())
                     .map_err(|error| anyhow!("Invalid base64 file content: {error}"))?;
-                state
-                    .filesystem_service
-                    .write_binary_file(
-                        &file_path,
-                        &bytes,
-                        alex_core::infrastructure::FileOperationOptions::default(),
-                    )
+                alex_core::service::filesystem::path_operations::write_local_binary_checked(
+                    &state.filesystem_service,
+                    &file_path,
+                    &bytes,
+                    request.get("expectedHash").and_then(|value| value.as_str()),
+                )
                     .await
                     .map_err(|e| anyhow!("{}", e))?;
             } else if request.get("contentEncoding").is_some() {

@@ -79,14 +79,14 @@ export class WordcraftDocumentHost {
 export function createWordcraftWorkspaceSaver(
   workspaceId: string,
   filePath: string,
-  expectedHash?: string,
+  getExpectedHash?: () => string | undefined,
 ): (bytes: Uint8Array, revision: number) => Promise<void> {
   return (bytes) =>
     workspaceAPI.writeWorkspaceFileBase64(
       workspaceId,
       filePath,
       bytesToBase64(bytes),
-      expectedHash,
+      getExpectedHash?.(),
     );
 }
 
