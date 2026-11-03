@@ -1,6 +1,17 @@
 import { api } from './ApiClient';
 import { createLogger } from '@/shared/utils/logger';
 
+export {
+  validateWordcraftReadyEvent,
+  WORDCRAFT_WEB_REQUIRED_COMMANDS,
+  WORDCRAFT_WEB_PROTOCOL_VERSION,
+} from './WordcraftProtocol';
+export type {
+  WordcraftReadyMessage,
+  WordcraftReadyValidation,
+  WordcraftReadyValidationContext,
+} from './WordcraftProtocol';
+
 const log = createLogger('WordcraftAPI');
 
 /**
@@ -19,6 +30,18 @@ export interface WordcraftResolvedCommandDto {
   source: string | null;
 }
 
+/** Matches desktop `WordcraftWebCapability` (camelCase serde). */
+export interface WordcraftWebCapabilityDto {
+  status: 'available' | 'unsupported' | 'not-installed' | 'error';
+  artifactPath: string | null;
+  version: string | null;
+  protocolVersion: number | null;
+  commandCapabilities: string[];
+  message: string | null;
+  remediation: string | null;
+  checkedAtEpochMs: number;
+}
+
 /** Matches desktop `WordcraftCapability` (camelCase serde). */
 export interface WordcraftCapabilityDto {
   status: 'available' | 'unsupported' | 'not-installed' | 'error';
@@ -28,6 +51,7 @@ export interface WordcraftCapabilityDto {
   message: string | null;
   remediation: string | null;
   checkedAtEpochMs: number;
+  web: WordcraftWebCapabilityDto;
 }
 
 /** Matches desktop `WordcraftOpenDocumentResponse` (camelCase serde). */

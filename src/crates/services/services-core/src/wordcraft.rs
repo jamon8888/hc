@@ -11,7 +11,7 @@
 use crate::managed_runtime::{ManagedRuntimeResolver, ResolvedCommand};
 use crate::process_manager::create_command;
 use serde::{Deserialize, Serialize};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::{Arc, RwLock};
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -21,13 +21,34 @@ pub const WORDCRAFT_CLI_COMMAND: &str = "wordcraft-cli";
 pub const WORDCRAFT_APP_COMMAND: &str = "wordcraft";
 /// Managed runtime component name (resolved as `<runtime_root>/wordcraft/current`).
 pub const MANAGED_WORDCRAFT_COMPONENT: &str = "wordcraft";
+/// The static browser bundle directory inside the managed WordCraft component.
+pub const WORDCRAFT_WEB_BUNDLE_DIR: &str = "web";
+/// The browser bundle entrypoint required for an embedded surface.
+pub const WORDCRAFT_WEB_ENTRYPOINT: &str = "index.html";
+/// The browser bundle manifest used for capability discovery.
+pub const WORDCRAFT_WEB_MANIFEST: &str = "version.json";
+/// Version of Alex's parent/iframe handshake contract.
+pub const WORDCRAFT_WEB_PROTOCOL_VERSION: u32 = 1;
+/// Capabilities required before Alex presents the embedded editor as available.
+pub const WORDCRAFT_WEB_REQUIRED_COMMANDS: &[&str] = &[
+    "list_commands",
+    "execute",
+    "batch",
+    "get_text",
+    "inspect_document",
+    "render_page",
+    "save_document",
+];
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")]
 pub enum WordcraftStatus {
+    #[serde(rename = "available")]
     Available,
+    #[serde(rename = "unsupported")]
     Unsupported,
+    #[serde(rename = "not-installed")]
     NotInstalled,
+    #[serde(rename = "error")]
     Error,
 }
 
@@ -42,6 +63,192 @@ impl std::fmt::Display for WordcraftStatus {
             WordcraftStatus::Error => "error",
         };
         f.write_str(name)
+    }
+}
+
+/// Static metadata shipped with the managed browser artifact. Per-frame
+/// session identity is supplied by the browser `ready` message and validated
+/// by the Web UI protocol adapter.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WordcraftWebManifest {
+    pub version: String,
+    pub protocol_version: u32,
+    #[serde(default)]
+    pub command_capabilities: Vec<String>,
+}
+
+/// The validated web-host handshake. It intentionally has the same shape as
+/// [`WordcraftWebManifest`] so adapters can pass the accepted metadata onward
+/// without inventing a second wire format.
+pub type WordcraftWebHandshake = WordcraftWebManifest;
+
+/// Validate the browser bundle's ready message against Alex's pinned contract.
+pub fn validate_wordcraft_web_manifest(
+    manifest: WordcraftWebManifest,
+) -> Result<WordcraftWebHandshake, String> {
+    if manifest.version != PINNED_WORDCRAFT_VERSION {
+        return Err(format!(
+            "WordCraft web version {} does not match pinned version {}",
+            manifest.version, PINNED_WORDCRAFT_VERSION
+        ));
+    }
+    if manifest.protocol_version != WORDCRAFT_WEB_PROTOCOL_VERSION {
+        return Err(format!(
+            "WordCraft web protocol {} is not supported; expected {}",
+            manifest.protocol_version, WORDCRAFT_WEB_PROTOCOL_VERSION
+        ));
+    }
+    let missing: Vec<&str> = WORDCRAFT_WEB_REQUIRED_COMMANDS
+        .iter()
+        .copied()
+        .filter(|required| {
+            !manifest
+                .command_capabilities
+                .iter()
+                .any(|actual| actual == required)
+        })
+        .collect();
+    if !missing.is_empty() {
+        return Err(format!(
+            "WordCraft web bundle is missing required command capabilities: {}",
+            missing.join(", ")
+        ));
+    }
+    Ok(manifest)
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WordcraftWebCapability {
+    pub status: WordcraftStatus,
+    pub artifact_path: Option<String>,
+    pub version: Option<String>,
+    pub protocol_version: Option<u32>,
+    pub command_capabilities: Vec<String>,
+    pub message: Option<String>,
+    pub remediation: Option<String>,
+    pub checked_at_epoch_ms: u64,
+}
+
+impl Default for WordcraftWebCapability {
+    fn default() -> Self {
+        Self {
+            status: WordcraftStatus::NotInstalled,
+            artifact_path: None,
+            version: None,
+            protocol_version: None,
+            command_capabilities: Vec::new(),
+            message: None,
+            remediation: None,
+            checked_at_epoch_ms: 0,
+        }
+    }
+}
+
+fn probe_web_bundle(runtime_root: &Path, checked_at_epoch_ms: u64) -> WordcraftWebCapability {
+    let artifact = runtime_root
+        .join(MANAGED_WORDCRAFT_COMPONENT)
+        .join("current")
+        .join(WORDCRAFT_WEB_BUNDLE_DIR);
+    let artifact_path = artifact.to_string_lossy().to_string();
+    let remediation = || {
+        Some(
+            "Install the pinned WordCraft web bundle in the managed component, then Recheck."
+                .to_string(),
+        )
+    };
+
+    if !artifact.is_dir() {
+        return WordcraftWebCapability {
+            status: WordcraftStatus::NotInstalled,
+            artifact_path: None,
+            version: None,
+            protocol_version: None,
+            command_capabilities: Vec::new(),
+            message: Some(format!(
+                "WordCraft web bundle not found at {}",
+                artifact.display()
+            )),
+            remediation: remediation(),
+            checked_at_epoch_ms,
+        };
+    }
+
+    if !artifact.join(WORDCRAFT_WEB_ENTRYPOINT).is_file() {
+        return WordcraftWebCapability {
+            status: WordcraftStatus::Error,
+            artifact_path: Some(artifact_path),
+            version: None,
+            protocol_version: None,
+            command_capabilities: Vec::new(),
+            message: Some(format!(
+                "WordCraft web bundle is missing {}",
+                WORDCRAFT_WEB_ENTRYPOINT
+            )),
+            remediation: remediation(),
+            checked_at_epoch_ms,
+        };
+    }
+
+    let manifest_path = artifact.join(WORDCRAFT_WEB_MANIFEST);
+    let manifest_text = match std::fs::read_to_string(&manifest_path) {
+        Ok(text) => text,
+        Err(error) => {
+            return WordcraftWebCapability {
+                status: WordcraftStatus::Error,
+                artifact_path: Some(artifact_path),
+                version: None,
+                protocol_version: None,
+                command_capabilities: Vec::new(),
+                message: Some(format!(
+                    "WordCraft web bundle manifest could not be read: {error}"
+                )),
+                remediation: remediation(),
+                checked_at_epoch_ms,
+            };
+        }
+    };
+    let ready: WordcraftWebManifest = match serde_json::from_str(&manifest_text) {
+        Ok(ready) => ready,
+        Err(error) => {
+            return WordcraftWebCapability {
+                status: WordcraftStatus::Error,
+                artifact_path: Some(artifact_path),
+                version: None,
+                protocol_version: None,
+                command_capabilities: Vec::new(),
+                message: Some(format!("WordCraft web bundle manifest is invalid: {error}")),
+                remediation: remediation(),
+                checked_at_epoch_ms,
+            };
+        }
+    };
+    let version = Some(ready.version.clone());
+    let protocol_version = Some(ready.protocol_version);
+    let command_capabilities = ready.command_capabilities.clone();
+
+    match validate_wordcraft_web_manifest(ready) {
+        Ok(accepted) => WordcraftWebCapability {
+            status: WordcraftStatus::Available,
+            artifact_path: Some(artifact_path),
+            version,
+            protocol_version,
+            command_capabilities: accepted.command_capabilities,
+            message: None,
+            remediation: None,
+            checked_at_epoch_ms,
+        },
+        Err(error) => WordcraftWebCapability {
+            status: WordcraftStatus::Unsupported,
+            artifact_path: Some(artifact_path),
+            version,
+            protocol_version,
+            command_capabilities,
+            message: Some(error),
+            remediation: remediation(),
+            checked_at_epoch_ms,
+        },
     }
 }
 
@@ -60,6 +267,9 @@ pub struct WordcraftCapability {
     /// User-facing remediation guidance (English-only).
     pub remediation: Option<String>,
     pub checked_at_epoch_ms: u64,
+    /// Independent capability for the same-version browser bundle.
+    #[serde(default)]
+    pub web: WordcraftWebCapability,
 }
 
 /// On-demand cached WordCraft capability probe.
@@ -120,6 +330,7 @@ impl WordcraftProbe {
             .duration_since(UNIX_EPOCH)
             .map(|d| d.as_millis() as u64)
             .unwrap_or(0);
+        let web = probe_web_bundle(&self.runtime_root, now_ms);
         let resolver = ManagedRuntimeResolver::new(self.runtime_root.clone());
 
         let cli = resolver
@@ -147,6 +358,7 @@ impl WordcraftProbe {
                     MANAGED_WORDCRAFT_COMPONENT
                 )),
                 checked_at_epoch_ms: now_ms,
+                web,
             };
         };
 
@@ -163,6 +375,7 @@ impl WordcraftProbe {
                 message: None,
                 remediation: None,
                 checked_at_epoch_ms: now_ms,
+                web: web.clone(),
             },
             VersionProbe::UnsupportedBinary { detail } => WordcraftCapability {
                 status: WordcraftStatus::Unsupported,
@@ -175,6 +388,7 @@ impl WordcraftProbe {
                      against the release SHA256SUMS.txt, then Recheck."
                 )),
                 checked_at_epoch_ms: now_ms,
+                web: web.clone(),
             },
             VersionProbe::Failed { detail } => {
                 // With no visible app on this host, headless editing still works.
@@ -191,6 +405,7 @@ impl WordcraftProbe {
                                 .to_string(),
                         ),
                         checked_at_epoch_ms: now_ms,
+                        web: web.clone(),
                     }
                 } else {
                     WordcraftCapability {
@@ -204,6 +419,7 @@ impl WordcraftProbe {
                         )),
                         remediation: None,
                         checked_at_epoch_ms: now_ms,
+                        web: web.clone(),
                     }
                 }
             }
@@ -586,5 +802,191 @@ mod tests {
             assert_eq!(probe.current().status, WordcraftStatus::Available);
         }
         let _ = fs::remove_dir_all(root);
+    }
+
+    fn create_web_bundle(root: &std::path::Path, manifest: &str) {
+        let web = root
+            .join(MANAGED_WORDCRAFT_COMPONENT)
+            .join("current")
+            .join(WORDCRAFT_WEB_BUNDLE_DIR);
+        fs::create_dir_all(&web).unwrap();
+        fs::write(web.join(WORDCRAFT_WEB_ENTRYPOINT), "<!doctype html>").unwrap();
+        fs::write(web.join(WORDCRAFT_WEB_MANIFEST), manifest).unwrap();
+    }
+
+    #[test]
+    fn missing_web_bundle_reports_not_installed_without_hiding_cli_capability() {
+        let root = temp_runtime_root("web-missing");
+        let probe = WordcraftProbe::new(root.clone());
+        let capability = probe.probe();
+
+        assert_eq!(capability.status, WordcraftStatus::NotInstalled);
+        assert_eq!(capability.web.status, WordcraftStatus::NotInstalled);
+        assert!(capability.web.artifact_path.is_none());
+        assert!(capability
+            .web
+            .remediation
+            .as_deref()
+            .unwrap_or_default()
+            .contains("web"));
+
+        let _ = fs::remove_dir_all(root);
+    }
+
+    #[test]
+    fn matching_web_bundle_reports_available_and_declares_required_commands() {
+        let root = temp_runtime_root("web-available");
+        let manifest = format!(
+            "{{\"version\":\"{}\",\"protocolVersion\":{},\"commandCapabilities\":[{}]}}",
+            PINNED_WORDCRAFT_VERSION,
+            WORDCRAFT_WEB_PROTOCOL_VERSION,
+            WORDCRAFT_WEB_REQUIRED_COMMANDS
+                .iter()
+                .map(|command| format!("\"{command}\""))
+                .collect::<Vec<_>>()
+                .join(",")
+        );
+        create_web_bundle(&root, &manifest);
+
+        let capability = WordcraftProbe::new(root.clone()).probe();
+
+        assert_eq!(capability.web.status, WordcraftStatus::Available);
+        assert_eq!(
+            capability.web.version.as_deref(),
+            Some(PINNED_WORDCRAFT_VERSION)
+        );
+        assert_eq!(
+            capability.web.protocol_version,
+            Some(WORDCRAFT_WEB_PROTOCOL_VERSION)
+        );
+        assert_eq!(
+            capability.web.command_capabilities,
+            WORDCRAFT_WEB_REQUIRED_COMMANDS
+                .iter()
+                .map(|command| (*command).to_string())
+                .collect::<Vec<_>>()
+        );
+        assert!(capability.web.artifact_path.is_some());
+        assert!(capability.web.message.is_none());
+
+        let _ = fs::remove_dir_all(root);
+    }
+
+    #[test]
+    fn mismatched_web_protocol_is_unsupported_and_fails_closed() {
+        let root = temp_runtime_root("web-protocol");
+        let manifest = format!(
+            "{{\"version\":\"{}\",\"protocolVersion\":{},\"commandCapabilities\":[{}]}}",
+            PINNED_WORDCRAFT_VERSION,
+            WORDCRAFT_WEB_PROTOCOL_VERSION + 1,
+            WORDCRAFT_WEB_REQUIRED_COMMANDS
+                .iter()
+                .map(|command| format!("\"{command}\""))
+                .collect::<Vec<_>>()
+                .join(",")
+        );
+        create_web_bundle(&root, &manifest);
+
+        let capability = WordcraftProbe::new(root.clone()).probe();
+
+        assert_eq!(capability.web.status, WordcraftStatus::Unsupported);
+        assert!(capability
+            .web
+            .message
+            .as_deref()
+            .unwrap_or_default()
+            .contains("protocol"));
+        assert!(capability
+            .web
+            .remediation
+            .as_deref()
+            .unwrap_or_default()
+            .contains("Recheck"));
+
+        let _ = fs::remove_dir_all(root);
+    }
+
+    #[test]
+    fn web_ready_handshake_requires_the_pinned_version_and_commands() {
+        let ready = WordcraftWebManifest {
+            version: PINNED_WORDCRAFT_VERSION.to_string(),
+            protocol_version: WORDCRAFT_WEB_PROTOCOL_VERSION,
+            command_capabilities: WORDCRAFT_WEB_REQUIRED_COMMANDS
+                .iter()
+                .map(|command| (*command).to_string())
+                .collect(),
+        };
+
+        let handshake = validate_wordcraft_web_manifest(ready).expect("valid web handshake");
+
+        assert_eq!(handshake.version, PINNED_WORDCRAFT_VERSION);
+        assert_eq!(handshake.protocol_version, WORDCRAFT_WEB_PROTOCOL_VERSION);
+        assert_eq!(
+            handshake.command_capabilities,
+            WORDCRAFT_WEB_REQUIRED_COMMANDS
+                .iter()
+                .map(|command| (*command).to_string())
+                .collect::<Vec<_>>()
+        );
+    }
+
+    #[test]
+    fn web_ready_handshake_rejects_version_drift_and_missing_commands() {
+        let version_error = validate_wordcraft_web_manifest(WordcraftWebManifest {
+            version: "0.8.0".to_string(),
+            protocol_version: WORDCRAFT_WEB_PROTOCOL_VERSION,
+            command_capabilities: WORDCRAFT_WEB_REQUIRED_COMMANDS
+                .iter()
+                .map(|command| (*command).to_string())
+                .collect(),
+        })
+        .expect_err("version drift must fail closed");
+        assert!(version_error.contains("version"));
+
+        let command_error = validate_wordcraft_web_manifest(WordcraftWebManifest {
+            version: PINNED_WORDCRAFT_VERSION.to_string(),
+            protocol_version: WORDCRAFT_WEB_PROTOCOL_VERSION,
+            command_capabilities: vec!["execute".to_string()],
+        })
+        .expect_err("missing commands must fail closed");
+        assert!(command_error.contains("missing required command capabilities"));
+    }
+
+    #[test]
+    fn old_capability_records_default_the_new_web_record() {
+        let old = serde_json::json!({
+            "status": "available",
+            "cli": null,
+            "app": null,
+            "version": "0.7.0",
+            "message": null,
+            "remediation": null,
+            "checkedAtEpochMs": 1,
+        });
+
+        let capability: WordcraftCapability = serde_json::from_value(old).expect("legacy record");
+
+        assert_eq!(capability.web.status, WordcraftStatus::NotInstalled);
+        assert!(capability.web.command_capabilities.is_empty());
+    }
+
+    #[test]
+    fn status_wire_names_are_stable_and_hyphenated() {
+        assert_eq!(
+            serde_json::to_string(&WordcraftStatus::Available).unwrap(),
+            "\"available\""
+        );
+        assert_eq!(
+            serde_json::to_string(&WordcraftStatus::Unsupported).unwrap(),
+            "\"unsupported\""
+        );
+        assert_eq!(
+            serde_json::to_string(&WordcraftStatus::NotInstalled).unwrap(),
+            "\"not-installed\""
+        );
+        assert_eq!(
+            serde_json::to_string(&WordcraftStatus::Error).unwrap(),
+            "\"error\""
+        );
     }
 }
