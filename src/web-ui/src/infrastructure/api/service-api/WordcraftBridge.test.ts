@@ -95,11 +95,12 @@ describe('WordcraftBridge', () => {
 
   it('rejects stale sessions and malformed results explicitly', async () => {
     const posted: WordcraftCommandRequest[] = [];
+    const requestIds = ['request-2', 'request-3'];
     const bridge = new WordcraftBridge({
       ...context,
       postMessage: message => posted.push(message as WordcraftCommandRequest),
       timeoutMs: 20,
-      requestIdFactory: () => 'request-2',
+      requestIdFactory: () => requestIds.shift()!,
     });
     bridge.handleMessage(readyEvent());
     const pending = bridge.request('get_text', {}, 3, 'Alex Agent (session-1)');
@@ -112,6 +113,20 @@ describe('WordcraftBridge', () => {
     const secondRequest = posted[1];
     expect(bridge.handleMessage(resultEvent(secondRequest, { revision: 'bad' }))).toBe(true);
     await expect(secondPending).rejects.toThrow('WordCraft result is malformed');
+  });
+
+  it('does not reuse a request ID after a timeout', async () => {
+    let nextId = 0;
+    const bridge = new WordcraftBridge({
+      ...context,
+      postMessage: () => undefined,
+      timeoutMs: 5,
+      requestIdFactory: () => `reused-${nextId++ % 1}`,
+    });
+    bridge.handleMessage(readyEvent());
+
+    await expect(bridge.request('get_text', {}, 0, 'Alex Agent (session-1)')).rejects.toThrow('timed out');
+    await expect(bridge.request('get_text', {}, 0, 'Alex Agent (session-1)')).rejects.toThrow('already used');
   });
 
   it('fails all pending commands when the frame reports a failure', async () => {
