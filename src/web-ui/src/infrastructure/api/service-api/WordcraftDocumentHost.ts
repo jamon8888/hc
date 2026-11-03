@@ -20,6 +20,9 @@ export interface WordcraftDocumentHostOptions {
 
 export class WordcraftDocumentHost {
   private disposed = false;
+  private nextEventToken = 0;
+  private latestEventToken = 0;
+  private readonly pendingSaves = new Map<number, number>();
   private currentState: WordcraftDocumentHostState = {
     dirty: false,
     revision: 0,
@@ -36,6 +39,7 @@ export class WordcraftDocumentHost {
     if (this.disposed) return;
     if (event.type === 'dirty') {
       if (event.sessionId !== this.options.sessionId) return;
+      this.latestEventToken = ++this.nextEventToken;
       this.update({ dirty: event.dirty, revision: event.revision, error: undefined });
       return;
     }
@@ -46,7 +50,11 @@ export class WordcraftDocumentHost {
     }
     if (event.type === 'save') {
       if (event.sessionId !== this.options.sessionId) return;
-      void this.persist(event);
+      const token = ++this.nextEventToken;
+      this.latestEventToken = token;
+      this.pendingSaves.set(token, event.revision);
+      this.update({ dirty: true, revision: event.revision, saving: true, error: undefined });
+      void this.persist(event, token);
     }
   }
 
@@ -55,17 +63,25 @@ export class WordcraftDocumentHost {
     this.update({ saving: false });
   }
 
-  private async persist(event: WordcraftSaveMessage): Promise<void> {
-    this.update({ dirty: true, revision: event.revision, saving: true, error: undefined });
+  private async persist(event: WordcraftSaveMessage, token: number): Promise<void> {
     try {
       await this.options.saveBytes(toUint8Array(event.bytes), event.revision);
       if (this.disposed) return;
-      this.update({ dirty: false, saving: false, error: undefined });
+      this.pendingSaves.delete(token);
+      const isLatest = this.latestEventToken === token;
+      this.update({
+        ...(isLatest ? { dirty: false, revision: event.revision, error: undefined } : {}),
+        saving: this.pendingSaves.size > 0,
+      });
       this.options.acknowledgeSave(event.requestId, event.revision, true);
     } catch (error) {
       if (this.disposed) return;
+      this.pendingSaves.delete(token);
       const message = error instanceof Error ? error.message : String(error);
-      this.update({ dirty: true, saving: false, error: message });
+      this.update({
+        ...(this.latestEventToken === token ? { dirty: true, revision: event.revision, error: message } : {}),
+        saving: this.pendingSaves.size > 0,
+      });
       this.options.acknowledgeSave(event.requestId, event.revision, false, message);
     }
   }

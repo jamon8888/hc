@@ -88,6 +88,7 @@ interface PendingCommand {
 
 export class WordcraftBridge {
   private readonly pending = new Map<string, PendingCommand>();
+  private readonly issuedRequestIds = new Set<string>();
   private readonly timeoutMs: number;
   private readonly requestIdFactory: () => string;
   private disposed = false;
@@ -184,9 +185,10 @@ export class WordcraftBridge {
       return Promise.reject(new Error(`WordCraft command '${method}' parameters are malformed`));
     }
     const requestId = this.requestIdFactory();
-    if (!requestId || this.pending.has(requestId)) {
-      return Promise.reject(new Error('WordCraft bridge request ID is invalid or already pending'));
+    if (!requestId || this.pending.has(requestId) || this.issuedRequestIds.has(requestId)) {
+      return Promise.reject(new Error('WordCraft bridge request ID is invalid or already used'));
     }
+    this.issuedRequestIds.add(requestId);
     const request: WordcraftCommandRequest = {
       type: 'command',
       requestId,

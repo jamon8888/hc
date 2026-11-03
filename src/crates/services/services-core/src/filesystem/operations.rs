@@ -6,7 +6,11 @@ use super::error::{FileSystemError, FileSystemResult};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicU64, Ordering};
 use tokio::fs;
+use tokio::io::AsyncWriteExt;
+
+static BINARY_WRITE_TEMP_COUNTER: AtomicU64 = AtomicU64::new(0);
 
 /// Same rules as web `normalizeTextForDiskSyncComparison` (BOM strip, CRLF/CR to LF).
 pub fn normalize_text_for_editor_disk_sync(text: &str) -> String {
@@ -332,9 +336,42 @@ impl FileOperationService {
             })?;
         }
 
-        fs::write(path, data)
-            .await
-            .map_err(|e| FileSystemError::service(format!("Failed to write binary file: {}", e)))?;
+        let parent = path.parent().unwrap_or_else(|| Path::new("."));
+        let file_name = path
+            .file_name()
+            .and_then(|name| name.to_str())
+            .unwrap_or("file");
+        let temp_path = parent.join(format!(
+            ".{file_name}.alex-write-{}-{}",
+            std::process::id(),
+            BINARY_WRITE_TEMP_COUNTER.fetch_add(1, Ordering::Relaxed),
+        ));
+
+        let write_result = async {
+            let mut temp = fs::OpenOptions::new()
+                .write(true)
+                .create_new(true)
+                .open(&temp_path)
+                .await
+                .map_err(|e| {
+                    FileSystemError::service(format!("Failed to create binary temp file: {}", e))
+                })?;
+            temp.write_all(data).await.map_err(|e| {
+                FileSystemError::service(format!("Failed to write binary file: {}", e))
+            })?;
+            temp.sync_all().await.map_err(|e| {
+                FileSystemError::service(format!("Failed to sync binary file: {}", e))
+            })?;
+            drop(temp);
+            fs::rename(&temp_path, path).await.map_err(|e| {
+                FileSystemError::service(format!("Failed to replace binary file: {}", e))
+            })
+        }
+        .await;
+        if write_result.is_err() {
+            let _ = fs::remove_file(&temp_path).await;
+        }
+        write_result?;
 
         let bytes_written = data.len() as u64;
 
@@ -755,5 +792,37 @@ mod editor_sync_hash_tests {
             .expect("read exact PDF bytes");
 
         assert_eq!(actual, bytes);
+    }
+
+    #[tokio::test]
+    async fn binary_write_replaces_documents_only_after_temp_file_is_synced() {
+        let directory = tempfile::tempdir().expect("create binary write fixture");
+        let path = directory.path().join("draft.docx");
+        let service = FileOperationService::default();
+        let bytes = [0, 255, 80, 75, 3, 4];
+
+        service
+            .write_binary_file(
+                &path.to_string_lossy(),
+                &bytes,
+                FileOperationOptions {
+                    backup_on_overwrite: false,
+                    ..Default::default()
+                },
+            )
+            .await
+            .expect("write binary document");
+
+        assert_eq!(
+            tokio::fs::read(&path).await.expect("read binary document"),
+            bytes
+        );
+        assert_eq!(
+            std::fs::read_dir(directory.path())
+                .expect("list binary fixture")
+                .count(),
+            1,
+            "temporary file must be renamed away after a successful save"
+        );
     }
 }
