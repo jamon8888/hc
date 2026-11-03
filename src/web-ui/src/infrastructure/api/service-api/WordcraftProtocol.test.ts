@@ -71,11 +71,25 @@ describe('validateWordcraftReadyEvent', () => {
 
   it.each([
     ['stale session', { sessionId: 'other-session' }],
+    ['unpinned version', { version: '0.8.0' }],
     ['unsupported protocol', { protocolVersion: WORDCRAFT_WEB_PROTOCOL_VERSION + 1 }],
     ['malformed payload', { type: 'ready', commandCapabilities: 'not-an-array' }],
   ])('fails closed for a %s message', (_label, dataOverrides) => {
     const result = validateWordcraftReadyEvent(readyEvent(dataOverrides), context);
 
     expect(result.ok).toBe(false);
+  });
+
+  it('fails closed when a required command is missing', () => {
+    const [missingCommand, ...presentCommands] = WORDCRAFT_WEB_REQUIRED_COMMANDS;
+    const result = validateWordcraftReadyEvent(
+      readyEvent({ commandCapabilities: presentCommands }),
+      context,
+    );
+
+    expect(result).toEqual({
+      ok: false,
+      reason: `WordCraft ready message is missing command capabilities: ${missingCommand}`,
+    });
   });
 });
