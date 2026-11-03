@@ -186,6 +186,7 @@ export const PEER_HOST_CAPABILITY_IDS = [
   "tool_catalog",
   "chat_mcp_catalog_v1",
   "workspace_id_references_v1",
+  "workspace_binary_file_writes_v1",
   "user_question_response",
   "user_question_interaction_v1",
 ] as const;
@@ -215,6 +216,7 @@ export const PEER_HOST_ADVERTISED_CAPABILITIES: Readonly<
     "tool_catalog",
     "chat_mcp_catalog_v1",
     "workspace_id_references_v1",
+    "workspace_binary_file_writes_v1",
     "user_question_response",
     "user_question_interaction_v1",
   ],
@@ -232,6 +234,7 @@ export const PEER_HOST_ADVERTISED_CAPABILITIES: Readonly<
     "tool_catalog",
     "chat_mcp_catalog_v1",
     "workspace_id_references_v1",
+    "workspace_binary_file_writes_v1",
     "user_question_response",
     "user_question_interaction_v1",
   ],

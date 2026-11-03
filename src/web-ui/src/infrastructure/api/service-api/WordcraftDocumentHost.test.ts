@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-import { WordcraftDocumentHost } from './WordcraftDocumentHost';
+import { workspaceAPI } from './WorkspaceAPI';
+import { createWordcraftWorkspaceSaver, WordcraftDocumentHost } from './WordcraftDocumentHost';
 
 const sessionId = 'wordcraft-session-1';
 
@@ -55,5 +56,18 @@ describe('WordcraftDocumentHost', () => {
     host.handleEvent({ type: 'dirty', sessionId, revision: 3, dirty: false });
     expect(host.state.revision).toBe(2);
     expect(onState).toHaveBeenCalled();
+  });
+
+  it('resolves the current workspace hash for each save', async () => {
+    const write = vi.spyOn(workspaceAPI, 'writeWorkspaceFileBase64').mockResolvedValue(undefined);
+    const getExpectedHash = vi.fn().mockReturnValueOnce('hash-before-first').mockReturnValueOnce('hash-before-second');
+    const save = createWordcraftWorkspaceSaver('workspace-1', '/docs/draft.docx', getExpectedHash);
+
+    await save(new Uint8Array([1, 2, 3]), 1);
+    await save(new Uint8Array([4, 5, 6]), 2);
+
+    expect(write).toHaveBeenNthCalledWith(1, 'workspace-1', '/docs/draft.docx', 'AQID', 'hash-before-first');
+    expect(write).toHaveBeenNthCalledWith(2, 'workspace-1', '/docs/draft.docx', 'BAUG', 'hash-before-second');
+    write.mockRestore();
   });
 });
