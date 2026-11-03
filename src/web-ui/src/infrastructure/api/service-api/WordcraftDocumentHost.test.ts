@@ -1,0 +1,59 @@
+import { describe, expect, it, vi } from 'vitest';
+import { WordcraftDocumentHost } from './WordcraftDocumentHost';
+
+const sessionId = 'wordcraft-session-1';
+
+describe('WordcraftDocumentHost', () => {
+  it('persists returned bytes and acknowledges a successful save', async () => {
+    const saveBytes = vi.fn().mockResolvedValue(undefined);
+    const acknowledgeSave = vi.fn();
+    const host = new WordcraftDocumentHost({ sessionId, saveBytes, acknowledgeSave });
+
+    host.handleEvent({
+      type: 'save',
+      requestId: 'save-1',
+      sessionId,
+      revision: 4,
+      name: 'draft.docx',
+      bytes: new Uint8Array([80, 75, 3, 4]),
+    });
+
+    await vi.waitFor(() => expect(saveBytes).toHaveBeenCalledWith(new Uint8Array([80, 75, 3, 4]), 4));
+    expect(acknowledgeSave).toHaveBeenCalledWith('save-1', 4, true);
+    expect(host.state).toMatchObject({ dirty: false, revision: 4, saving: false, error: undefined });
+  });
+
+  it('surfaces save failures and sends a negative acknowledgement', async () => {
+    const saveBytes = vi.fn().mockRejectedValue(new Error('workspace is offline'));
+    const acknowledgeSave = vi.fn();
+    const host = new WordcraftDocumentHost({ sessionId, saveBytes, acknowledgeSave });
+
+    host.handleEvent({
+      type: 'save',
+      requestId: 'save-2',
+      sessionId,
+      revision: 5,
+      name: 'draft.docx',
+      bytes: new Uint8Array([1, 2, 3]),
+    });
+
+    await vi.waitFor(() => expect(acknowledgeSave).toHaveBeenCalledWith('save-2', 5, false, 'workspace is offline'));
+    expect(host.state).toMatchObject({ dirty: true, revision: 5, saving: false, error: 'workspace is offline' });
+  });
+
+  it('tracks dirty state and ignores stale sessions and events after teardown', () => {
+    const onState = vi.fn();
+    const host = new WordcraftDocumentHost({ sessionId, saveBytes: vi.fn(), acknowledgeSave: vi.fn(), onState });
+
+    host.handleEvent({ type: 'dirty', sessionId, revision: 2, dirty: true });
+    expect(host.state).toMatchObject({ dirty: true, revision: 2 });
+
+    host.handleEvent({ type: 'dirty', sessionId: 'stale-session', revision: 99, dirty: false });
+    expect(host.state.revision).toBe(2);
+
+    host.dispose();
+    host.handleEvent({ type: 'dirty', sessionId, revision: 3, dirty: false });
+    expect(host.state.revision).toBe(2);
+    expect(onState).toHaveBeenCalled();
+  });
+});

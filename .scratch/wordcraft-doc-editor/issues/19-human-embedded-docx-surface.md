@@ -1,7 +1,7 @@
 # 19: Human-editable embedded `.docx` surface
 
 `Type: task`
-`Status: open`
+`Status: claimed`
 Triage label: ready-for-agent
 
 Blocked by: 18 (Embedded document-control contract and artifact handshake)
@@ -27,3 +27,13 @@ The user must be able to edit and save the document before agent control exists.
       remain unchanged.
 - [ ] Focused web tests cover local open, save, dirty state, resize, teardown, and
       explicit text bypass.
+
+## Comments
+
+2026-11-03: Started the integration slice after ticket 18. Added the parent
+`WordcraftDocumentHost` lifecycle seam, save acknowledgements, dirty/failure/
+teardown handling, and workspace-owner base64 byte writes with optimistic hash
+checks across desktop, server, and CLI peer adapters. The dedicated canvas
+presenter and `.docx` routing remain pending because the pinned WordCraft web
+capability currently exposes a filesystem artifact path, not a browser-loadable
+URL or bundled iframe host.

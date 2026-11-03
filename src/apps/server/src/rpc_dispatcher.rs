@@ -118,11 +118,32 @@ pub async fn dispatch(
             let request = extract_request(&params)?;
             let file_path = get_string(&request, "filePath")?;
             let content = get_string(&request, "content")?;
-            state
-                .filesystem_service
-                .write_file(&file_path, &content)
-                .await
-                .map_err(|e| anyhow!("{}", e))?;
+            if request
+                .get("contentEncoding")
+                .and_then(|value| value.as_str())
+                .is_some_and(|value| value.eq_ignore_ascii_case("base64"))
+            {
+                let bytes = BASE64
+                    .decode(content.as_bytes())
+                    .map_err(|error| anyhow!("Invalid base64 file content: {error}"))?;
+                state
+                    .filesystem_service
+                    .write_binary_file(
+                        &file_path,
+                        &bytes,
+                        alex_core::infrastructure::FileOperationOptions::default(),
+                    )
+                    .await
+                    .map_err(|e| anyhow!("{}", e))?;
+            } else if request.get("contentEncoding").is_some() {
+                return Err(anyhow!("Unsupported file content encoding"));
+            } else {
+                state
+                    .filesystem_service
+                    .write_file(&file_path, &content)
+                    .await
+                    .map_err(|e| anyhow!("{}", e))?;
+            }
             Ok(serde_json::Value::Null)
         }
         "check_path_exists" => {

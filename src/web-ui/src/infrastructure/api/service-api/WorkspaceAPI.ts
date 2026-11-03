@@ -239,6 +239,27 @@ export class WorkspaceAPI {
     surface.assertCurrent('write workspace file');
   }
 
+  async writeWorkspaceFileBase64(
+    workspaceId: string,
+    filePath: string,
+    content: string,
+    expectedHash?: string,
+  ): Promise<void> {
+    const surface = getActiveSurfaceScope();
+    const reference = await workspaceIdRequest(workspaceId, 'workspacePath');
+    surface.assertCurrent('write binary workspace file');
+    await api.invoke('write_file_content', {
+      request: {
+        ...reference,
+        filePath,
+        content,
+        contentEncoding: 'base64',
+        ...(expectedHash === undefined ? {} : { expectedHash }),
+      },
+    });
+    surface.assertCurrent('write binary workspace file');
+  }
+
   /**
    * ID-first file mutations. The workspace ID routes the command to the
    * owning host and connection; `path` is the IO operand inside that
