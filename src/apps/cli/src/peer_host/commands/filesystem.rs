@@ -1,5 +1,6 @@
 //! Filesystem HostInvoke handlers.
 
+use base64::{engine::general_purpose::STANDARD as BASE64, Engine as _};
 use serde_json::{json, Value};
 
 use crate::peer_host::args::{get_string, optional_string, request_value};
@@ -153,17 +154,38 @@ pub(crate) async fn write_file_content(
     let path = get_string(request, "filePath")?;
     let content = get_string(request, "content")?;
     let hint = file_connection(state, request).await?;
-    alex_core::service::filesystem::path_operations::write_text_checked(
-        &state.filesystem_service,
-        &path,
-        &content,
-        hint.as_deref(),
-        request
-            .get("expectedHash")
-            .or_else(|| request.get("expected_hash"))
-            .and_then(Value::as_str),
-    )
-    .await?;
+    let expected_hash = request
+        .get("expectedHash")
+        .or_else(|| request.get("expected_hash"))
+        .and_then(Value::as_str);
+    if request
+        .get("contentEncoding")
+        .and_then(Value::as_str)
+        .is_some_and(|value| value.eq_ignore_ascii_case("base64"))
+    {
+        let bytes = BASE64
+            .decode(content.as_bytes())
+            .map_err(|error| format!("Invalid base64 file content: {error}"))?;
+        alex_core::service::filesystem::path_operations::write_binary_checked(
+            &state.filesystem_service,
+            &path,
+            &bytes,
+            hint.as_deref(),
+            expected_hash,
+        )
+        .await?;
+    } else if request.get("contentEncoding").is_some() {
+        return Err("Unsupported file content encoding".to_string());
+    } else {
+        alex_core::service::filesystem::path_operations::write_text_checked(
+            &state.filesystem_service,
+            &path,
+            &content,
+            hint.as_deref(),
+            expected_hash,
+        )
+        .await?;
+    }
     Ok(Value::Null)
 }
 

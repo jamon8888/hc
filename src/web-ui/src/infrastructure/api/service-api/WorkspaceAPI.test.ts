@@ -38,6 +38,20 @@ describe('WorkspaceAPI', () => {
     expect(invokeMock).toHaveBeenCalledWith('get_file_metadata', { request: { workspaceId: 'second-id', path: '/same/file.txt' } });
   });
 
+  it('writes base64 document bytes through the workspace owner', async () => {
+    await workspaceAPI.writeWorkspaceFileBase64('document-workspace', '/docs/draft.docx', 'UEsDBA==', 'sha256');
+
+    expect(invokeMock).toHaveBeenCalledWith('write_file_content', {
+      request: {
+        workspaceId: 'document-workspace',
+        filePath: '/docs/draft.docx',
+        content: 'UEsDBA==',
+        contentEncoding: 'base64',
+        expectedHash: 'sha256',
+      },
+    });
+  });
+
   it('uses workspace IDs for directory trees and paginated children', async () => {
     await workspaceAPI.getFileTree('workspace-id', '/same/folder', 1);
     expect(invokeMock).toHaveBeenCalledWith('get_file_tree', {
