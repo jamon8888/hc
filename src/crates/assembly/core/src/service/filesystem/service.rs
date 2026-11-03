@@ -386,6 +386,19 @@ impl FileSystemService {
             .map_err(map_filesystem_error)
     }
 
+    /// Writes exact bytes with options, preserving binary document content.
+    pub async fn write_binary_file(
+        &self,
+        file_path: &str,
+        content: &[u8],
+        options: FileOperationOptions,
+    ) -> AlexResult<FileWriteResult> {
+        self.inner
+            .write_binary_file(file_path, content, options)
+            .await
+            .map_err(map_filesystem_error)
+    }
+
     /// Copies a file.
     pub async fn copy_file(&self, from: &str, to: &str) -> AlexResult<u64> {
         self.inner
