@@ -16,10 +16,18 @@ export interface WordcraftDocumentHostOptions {
   saveBytes: (bytes: Uint8Array, revision: number) => Promise<void>;
   acknowledgeSave: (requestId: string, revision: number, ok: boolean, error?: string) => void;
   onState?: (state: WordcraftDocumentHostState) => void;
+  durableSaveTimeoutMs?: number;
 }
 
 interface PendingSave {
   event: WordcraftSaveMessage;
+}
+
+interface DurableSaveWaiter {
+  revision: number;
+  resolve: () => void;
+  reject: (error: Error) => void;
+  timer: ReturnType<typeof setTimeout>;
 }
 
 export class WordcraftDocumentHost {
@@ -27,6 +35,8 @@ export class WordcraftDocumentHost {
   private latestAcceptedRevision = 0;
   private saveInFlight = false;
   private readonly saveQueue: PendingSave[] = [];
+  private readonly durableSaveWaiters = new Set<DurableSaveWaiter>();
+  private durableRevision = -1;
   private currentState: WordcraftDocumentHostState = {
     dirty: false,
     revision: 0,
@@ -37,6 +47,28 @@ export class WordcraftDocumentHost {
 
   get state(): WordcraftDocumentHostState {
     return { ...this.currentState };
+  }
+
+  waitForDurableSave(revision: number): Promise<void> {
+    if (!Number.isSafeInteger(revision) || revision < 0) {
+      return Promise.reject(new Error('WordCraft save revision is invalid'));
+    }
+    if (this.durableRevision >= revision) return Promise.resolve();
+    if (this.disposed) return Promise.reject(new Error('WordCraft document host is closed'));
+
+    return new Promise((resolve, reject) => {
+      const timeoutMs = this.options.durableSaveTimeoutMs ?? 10_000;
+      const waiter: DurableSaveWaiter = {
+        revision,
+        resolve,
+        reject,
+        timer: setTimeout(() => {
+          this.durableSaveWaiters.delete(waiter);
+          reject(new Error(`WordCraft durable save timed out at revision ${revision}`));
+        }, timeoutMs),
+      };
+      this.durableSaveWaiters.add(waiter);
+    });
   }
 
   handleEvent(event: WordcraftBridgeEvent): void {
@@ -79,6 +111,11 @@ export class WordcraftDocumentHost {
     this.disposed = true;
     this.saveQueue.length = 0;
     this.update({ saving: false });
+    for (const waiter of this.durableSaveWaiters) {
+      clearTimeout(waiter.timer);
+      waiter.reject(new Error('WordCraft document host is closed'));
+    }
+    this.durableSaveWaiters.clear();
   }
 
   private async drainSaves(): Promise<void> {
@@ -89,6 +126,8 @@ export class WordcraftDocumentHost {
     try {
       await this.options.saveBytes(toUint8Array(event.bytes), event.revision);
       if (this.disposed) return;
+      this.durableRevision = Math.max(this.durableRevision, event.revision);
+      this.resolveDurableSaveWaiters(event.revision);
       this.update({
         ...(event.revision === this.latestAcceptedRevision && this.saveQueue.length === 0
           ? { dirty: false, revision: event.revision, error: undefined }
@@ -99,6 +138,7 @@ export class WordcraftDocumentHost {
     } catch (error) {
       if (this.disposed) return;
       const message = error instanceof Error ? error.message : String(error);
+      this.rejectDurableSaveWaiters(event.revision, message);
       this.update({
         ...(event.revision === this.latestAcceptedRevision
           ? { dirty: true, revision: event.revision, error: message }
@@ -115,6 +155,24 @@ export class WordcraftDocumentHost {
   private update(patch: Partial<WordcraftDocumentHostState>): void {
     this.currentState = { ...this.currentState, ...patch };
     this.options.onState?.(this.state);
+  }
+
+  private resolveDurableSaveWaiters(revision: number): void {
+    for (const waiter of this.durableSaveWaiters) {
+      if (waiter.revision > revision) continue;
+      clearTimeout(waiter.timer);
+      this.durableSaveWaiters.delete(waiter);
+      waiter.resolve();
+    }
+  }
+
+  private rejectDurableSaveWaiters(revision: number, message: string): void {
+    for (const waiter of this.durableSaveWaiters) {
+      if (waiter.revision !== revision) continue;
+      clearTimeout(waiter.timer);
+      this.durableSaveWaiters.delete(waiter);
+      waiter.reject(new Error(message));
+    }
   }
 }
 

@@ -199,6 +199,7 @@ export default function WordcraftDocumentPanel({
       if (!result.ok) {
         throw new Error(result.error || 'WordCraft failed to save the document');
       }
+      await host.waitForDurableSave(result.revision);
     };
     if (documentSession) {
       documentSession.save = saveDocument;

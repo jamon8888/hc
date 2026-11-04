@@ -82,7 +82,7 @@ implementation ([upstream `apps/wordcraft-web/src/host.rs`](https://raw.githubus
 
 ## Clone-based findings: the smallest useful upstream seam
 
-I cloned upstream `main` at commit `ffb155a` (package version `0.15.0`) and traced the implementation rather than relying only on the published web-host documentation. The clone remains outside the Alex repository; no WordCraft source is vendored. A local prototype was applied in `/tmp/wordcraft-upstream.PJcNnc` to validate the seam without pushing to the upstream project.
+I cloned upstream `main` at commit `ffb155a` (package version `0.15.0`) and traced the implementation rather than relying only on the published web-host documentation. The clone remains outside the Alex repository; no WordCraft source is vendored. A local prototype was applied outside the Alex checkout to validate the seam without pushing to the upstream project.
 
 The important result is that WordCraft already has a narrow command seam suitable for a web host extension:
 
