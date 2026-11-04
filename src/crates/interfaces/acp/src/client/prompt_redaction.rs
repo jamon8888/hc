@@ -31,10 +31,10 @@
 //!   grep-verified absence of `set_prompt_interceptor` installations is the
 //!   removal gate.
 //!
-//! Installed or not, the seam never lets a host fail open by accident: when
-//! an installed interceptor errors, the prompt aborts; only a host without
-//! an interceptor passes raw text, and that host never published the PII
-//! guarantee in the first place.
+//! Installed or not, the seam never lets an API route fail open by accident:
+//! when an installed interceptor errors, the prompt aborts; a local route is
+//! explicitly allowed to pass through because its model is not an external
+//! API boundary.
 
 use std::path::Path;
 use std::sync::Arc;
@@ -200,6 +200,9 @@ pub async fn apply_prompt_interceptor(
     alex_session_id: &str,
     route: ModelPrivacyRoute,
 ) -> AlexResult<String> {
+    if route == ModelPrivacyRoute::Local {
+        return Ok(prompt);
+    }
     let interceptor = prompt_interceptor().ok_or_else(|| {
         alex_core::util::errors::AlexError::service(
             "ACP prompt refused: PII pseudonymization is unavailable",

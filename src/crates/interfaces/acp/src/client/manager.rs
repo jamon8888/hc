@@ -3286,6 +3286,25 @@ mod tests {
         assert!(error.to_string().contains("pseudonymization"));
     }
 
+    /// A local model is explicitly exempt from the API pseudonymization seam,
+    /// so it must remain usable even when this host has no Basemind interceptor.
+    #[tokio::test]
+    async fn acp_local_prompt_passes_without_an_installed_interceptor() {
+        let _guard = prompt_interceptor_guard();
+        set_prompt_interceptor(None);
+
+        let text = AcpClientService::pseudonymize_acp_prompt(
+            "plain local prompt".to_string(),
+            Path::new("/workspace/project"),
+            "session-1",
+            ModelPrivacyRoute::Local,
+        )
+        .await
+        .expect("local ACP prompts do not require Basemind");
+
+        assert_eq!(text, "plain local prompt");
+    }
+
     #[test]
     fn checks_presence_on_the_remote_host_only_for_self_managed_agents() {
         // Alex cannot install these, so the remote host has to have them

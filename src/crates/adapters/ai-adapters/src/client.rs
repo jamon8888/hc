@@ -143,9 +143,9 @@ impl AIClient {
             .unwrap_or(ModelPrivacyRoute::Unknown)
     }
 
-    /// Rehydrate provider output before it enters session history or tool
-    /// execution. This is deliberately adjacent to request protection so an
-    /// adapter cannot forget the reversible boundary on the response path.
+    /// Rehydrate provider output for an explicitly authorized human-rendering
+    /// adapter. Runtime transcript, trace, and tool paths must keep provider
+    /// tokens and must not call this helper.
     pub async fn rehydrate_model_text(
         &self,
         text: String,

@@ -890,43 +890,12 @@ impl RoundExecutor {
             }
         };
 
-        // The provider only ever saw session tokens. Restore them at the
-        // product boundary before history, UI events, or tool execution see
-        // the assistant response. Local model routes are a no-op; API routes
-        // fail closed if their reversible vault is unavailable.
-        let mut stream_result = stream_result;
-        stream_result.full_text = ai_client
-            .rehydrate_model_text(
-                stream_result.full_text.clone(),
-                Some(context.model_request_context.clone()),
-            )
-            .await
-            .map_err(|error| AlexError::AIClient(error.to_string()))?;
-        stream_result.full_thinking = ai_client
-            .rehydrate_model_text(
-                stream_result.full_thinking.clone(),
-                Some(context.model_request_context.clone()),
-            )
-            .await
-            .map_err(|error| AlexError::AIClient(error.to_string()))?;
-        for tool_call in &mut stream_result.tool_calls {
-            let restored_arguments = ai_client
-                .rehydrate_model_text(
-                    tool_call.raw_arguments.clone().unwrap_or_else(|| {
-                        serde_json::to_string(&tool_call.arguments)
-                            .unwrap_or_else(|_| "{}".to_string())
-                    }),
-                    Some(context.model_request_context.clone()),
-                )
-                .await
-                .map_err(|error| AlexError::AIClient(error.to_string()))?;
-            tool_call.arguments = serde_json::from_str(&restored_arguments).map_err(|error| {
-                AlexError::AIClient(format!(
-                    "rehydrated model tool arguments are invalid JSON: {error}"
-                ))
-            })?;
-            tool_call.raw_arguments = Some(restored_arguments);
-        }
+        // Keep the provider response tokenized at every runtime boundary:
+        // traces, transcript persistence, event delivery, and tool dispatch.
+        // Rehydration is an explicitly authorized human-rendering operation;
+        // doing it here would put the vault values back into model/runtime
+        // state and make them available to tools or remote controllers.
+        let stream_result = stream_result;
 
         Self::complete_model_exchange_trace(
             trace_config.as_ref(),

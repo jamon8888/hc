@@ -66,8 +66,10 @@ pub trait ModelEgressPolicy: Send + Sync {
         context: ModelEgressContext,
     ) -> Result<Vec<Message>, ModelEgressError>;
 
-    /// Restore session tokens in a model response at the product boundary.
-    /// The default keeps compatibility with non-reversible policies.
+    /// Restore session tokens only for an explicitly authorized human-rendering
+    /// adapter. Runtime transcript, traces, tool calls, and model context must
+    /// retain tokens. The default keeps compatibility with non-reversible
+    /// policies.
     async fn rehydrate_text(
         &self,
         text: String,

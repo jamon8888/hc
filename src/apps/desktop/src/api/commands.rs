@@ -1308,7 +1308,10 @@ pub async fn open_workspace(
     match result {
         Ok(workspace_info) => {
             #[cfg(feature = "basemind")]
-            crate::refresh_basemind_privacy_bundle(&workspace_info.root_path);
+            crate::refresh_basemind_privacy_bundle(
+                &workspace_info.root_path,
+                workspace_info.workspace_kind.clone(),
+            );
             apply_active_workspace_context(&state, &app, &workspace_info, None).await;
 
             if let Err(e) = state
@@ -1480,7 +1483,10 @@ pub async fn open_remote_workspace(
             }
 
             #[cfg(feature = "basemind")]
-            crate::refresh_basemind_privacy_bundle(&workspace_info.root_path);
+            crate::refresh_basemind_privacy_bundle(
+                &workspace_info.root_path,
+                workspace_info.workspace_kind.clone(),
+            );
             apply_active_workspace_context(&state, &app, &workspace_info, None).await;
 
             info!(
@@ -1511,7 +1517,10 @@ pub async fn create_assistant_workspace(
     {
         Ok(workspace_info) => {
             #[cfg(feature = "basemind")]
-            crate::refresh_basemind_privacy_bundle(&workspace_info.root_path);
+            crate::refresh_basemind_privacy_bundle(
+                &workspace_info.root_path,
+                workspace_info.workspace_kind.clone(),
+            );
             apply_active_workspace_context(&state, &app, &workspace_info, None).await;
 
             if let Err(e) = state
@@ -1808,7 +1817,10 @@ pub async fn close_workspace(
 
             if let Some(workspace_info) = state.workspace_service.get_current_workspace().await {
                 #[cfg(feature = "basemind")]
-                crate::refresh_basemind_privacy_bundle(&workspace_info.root_path);
+                crate::refresh_basemind_privacy_bundle(
+                    &workspace_info.root_path,
+                    workspace_info.workspace_kind.clone(),
+                );
                 apply_active_workspace_context(&state, &app, &workspace_info, None).await;
             } else {
                 #[cfg(feature = "basemind")]
@@ -1852,7 +1864,10 @@ pub async fn set_active_workspace(
                 .ok_or_else(|| "Active workspace not found after switching".to_string())?;
 
             #[cfg(feature = "basemind")]
-            crate::refresh_basemind_privacy_bundle(&workspace_info.root_path);
+            crate::refresh_basemind_privacy_bundle(
+                &workspace_info.root_path,
+                workspace_info.workspace_kind.clone(),
+            );
 
             apply_active_workspace_context(&state, &app, &workspace_info, None).await;
 

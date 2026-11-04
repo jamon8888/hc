@@ -2535,9 +2535,19 @@ pub(crate) fn publish_basemind_search_port(
     sidecar: &std::path::Path,
     workspace_root: Option<&std::path::Path>,
 ) {
-    // The ACP refusing seat was installed BEFORE the sidecar resolve, so the
-    // host's PII promise holds even if later startup steps fail. The real
-    // interceptor below replaces it on success (SPEC §11.4, I9).
+    // Invalidate every workspace-scoped privacy capability before resolving
+    // the replacement bundle. If construction fails, no caller may continue
+    // using the previous workspace's vault, registry, or ACP interceptor.
+    alex_core::service::model_egress::install_refusing_model_egress_policy(
+        "model egress refused: Basemind privacy bundle is unavailable",
+    );
+    alex_core::service::rag_search::set_global_prompt_pseudonymization_port(None);
+    alex_core::service::rag_search::set_global_rag_search_port(None);
+    alex_core::service::rag_search::set_global_document_redaction_port(None);
+    alex_acp::set_prompt_interceptor(Some(std::sync::Arc::new(
+        AcpRefusingPromptInterceptor,
+    )));
+
     let data_dir = match alex_core::infrastructure::app_paths::try_get_path_manager_arc() {
         Ok(manager) => {
             let base = manager.user_data_dir().join("basemind");
@@ -2612,10 +2622,25 @@ pub(crate) fn publish_basemind_search_port(
 /// process-global: keeping the previous workspace's registry would make
 /// reversible identities cross the folder boundary.
 #[cfg(feature = "basemind")]
-pub(crate) fn refresh_basemind_privacy_bundle(workspace_root: &std::path::Path) {
+pub(crate) fn refresh_basemind_privacy_bundle(
+    workspace_root: &std::path::Path,
+    workspace_kind: alex_core::service::workspace::WorkspaceKind,
+) {
     alex_core::service::rag_search::set_global_prompt_pseudonymization_port(None);
     alex_core::service::rag_search::set_global_rag_search_port(None);
     alex_core::service::rag_search::set_global_document_redaction_port(None);
+    if workspace_kind == alex_core::service::workspace::WorkspaceKind::Remote {
+        alex_core::service::model_egress::install_refusing_model_egress_policy(
+            "model egress refused: remote workspace requires a host-owned Basemind capability",
+        );
+        alex_acp::set_prompt_interceptor(Some(std::sync::Arc::new(
+            AcpRefusingPromptInterceptor,
+        )));
+        log::warn!(
+            "Basemind privacy is unsupported for the remote workspace until the remote host advertises its capability"
+        );
+        return;
+    }
     if let Some(sidecar) = basemind_sidecar_binary() {
         publish_basemind_search_port(sidecar, Some(workspace_root));
     } else {
