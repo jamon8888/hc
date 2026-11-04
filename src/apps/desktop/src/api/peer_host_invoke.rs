@@ -15,8 +15,8 @@ use std::time::Duration;
 
 use alex_product_domains::remote_surface::{
     capability_map_with_basemind, digest as remote_surface_digest, peer_host_verdict, peer_stance,
-    BasemindCapabilityAdvertisement, BasemindPrivacyCapabilities, BasemindUnavailableReason,
-    PeerHostKind, PeerHostVerdict, PeerStance,
+    retired_reason, BasemindCapabilityAdvertisement, BasemindPrivacyCapabilities,
+    BasemindUnavailableReason, PeerHostKind, PeerHostVerdict, PeerStance,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
