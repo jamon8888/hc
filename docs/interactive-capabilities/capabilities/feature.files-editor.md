@@ -29,6 +29,8 @@ Browse, search, and edit project files while inspecting diffs, language-aware ed
   - Build or rebuild the UI search index
 - **由专用智能体工具控制 / Delegated Agent tool** · `Read` / `Write` / `Edit` · 读取、编辑、保存文件并同步编辑器状态
   - Read, edit, and save files while synchronizing editor state
+- **由专用智能体工具控制 / Delegated Agent tool** · `Wordcraft` · 在 Alex 主窗口中打开 Word 文档，并让智能体通过左侧 Composer 直接编辑当前文档
+  - Open Word documents in Alex and let the Agent edit the active document directly from the left Composer
 - **由专用智能体工具控制 / Delegated Agent tool** · `GetFileDiff` · 查看修改文件、会话、轮次和单次操作的差异与统计
   - Inspect diffs and statistics by file, session, turn, or operation
 - **智能体可定位入口，需交互完成 / Agent opens; interaction required** · 按文件、操作或整个会话接受或拒绝智能体改动
