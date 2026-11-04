@@ -114,6 +114,77 @@ impl BasemindDocumentRedactor {
             entities,
         })
     }
+
+    /// OCR and redact an image attachment in a temporary file owned by the
+    /// workspace host. Only session-bound text leaves this method.
+    pub async fn redact_image_attachment_for_session(
+        &self,
+        mime_type: &str,
+        data_base64: &str,
+        workspace_root: &str,
+        session_id: &str,
+    ) -> Result<RedactedDocument, DocumentRedactionError> {
+        self.ensure_workspace_scope(workspace_root)?;
+        let suffix = match mime_type {
+            "image/png" => ".png",
+            "image/jpeg" => ".jpg",
+            "image/webp" => ".webp",
+            "image/gif" => ".gif",
+            _ => {
+                return Err(DocumentRedactionError::new(
+                    DocumentRedactionErrorKind::InvalidRequest,
+                    format!("unsupported image attachment type: {mime_type}"),
+                ));
+            }
+        };
+        let encoded = data_base64
+            .split_once(',')
+            .map_or(data_base64, |(_, payload)| payload);
+        let bytes = base64::Engine::decode(&base64::engine::general_purpose::STANDARD, encoded)
+            .map_err(|error| {
+                DocumentRedactionError::new(
+                    DocumentRedactionErrorKind::InvalidRequest,
+                    format!("invalid image attachment encoding: {error}"),
+                )
+            })?;
+        let temporary_path = std::path::Path::new(workspace_root).join(format!(
+            ".alex-basemind-attachment-{}{}",
+            uuid::Uuid::new_v4(),
+            suffix
+        ));
+        let mut temporary = std::fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(&temporary_path)
+            .map_err(|error| {
+                DocumentRedactionError::new(
+                    DocumentRedactionErrorKind::Unavailable,
+                    format!("could not create temporary image attachment: {error}"),
+                )
+            })?;
+        use std::io::Write as _;
+        if let Err(error) = temporary
+            .write_all(&bytes)
+            .and_then(|()| temporary.sync_all())
+        {
+            let _ = std::fs::remove_file(&temporary_path);
+            return Err(DocumentRedactionError::new(
+                DocumentRedactionErrorKind::Unavailable,
+                format!("could not stage temporary image attachment: {error}"),
+            ));
+        }
+        drop(temporary);
+
+        let result = self
+            .redact_for_session(
+                &temporary_path.to_string_lossy(),
+                workspace_root,
+                session_id,
+            )
+            .await;
+        let _ = std::fs::remove_file(&temporary_path);
+        result
+    }
 }
 
 #[cfg(feature = "basemind")]

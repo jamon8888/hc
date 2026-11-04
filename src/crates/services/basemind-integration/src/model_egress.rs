@@ -22,6 +22,38 @@ use crate::prompt_pseudonym::{BasemindPromptPseudonymizer, PromptPseudonymizer};
 use crate::rag_search::{RagSearchPortAdapter, RagSearchTool};
 use crate::session_vault::SessionVault;
 
+#[async_trait]
+trait ImageAttachmentRedactor: Send + Sync {
+    async fn redact_image_attachment(
+        &self,
+        mime_type: &str,
+        data_base64: &str,
+        workspace_root: &str,
+        session_id: &str,
+    ) -> Result<String, ModelEgressError>;
+}
+
+#[async_trait]
+impl ImageAttachmentRedactor for BasemindDocumentRedactor {
+    async fn redact_image_attachment(
+        &self,
+        mime_type: &str,
+        data_base64: &str,
+        workspace_root: &str,
+        session_id: &str,
+    ) -> Result<String, ModelEgressError> {
+        self.redact_image_attachment_for_session(mime_type, data_base64, workspace_root, session_id)
+            .await
+            .map(|document| document.markdown)
+            .map_err(|error| {
+                ModelEgressError::new(
+                    ModelEgressErrorKind::UnsupportedPayload,
+                    format!("model egress refused: image OCR/redaction failed: {error}"),
+                )
+            })
+    }
+}
+
 /// Host-composition bundle shared by Desktop, CLI, server and detached hosts.
 ///
 /// The host still decides where the data lives and which sidecar/model paths
@@ -85,9 +117,10 @@ pub fn build_privacy_bundle(
     ));
 
     Ok(BasemindPrivacyBundle {
-        model_egress: Arc::new(BasemindModelEgressPolicy::scoped(
+        model_egress: Arc::new(BasemindModelEgressPolicy::scoped_with_attachment_redactor(
             pseudonymizer.clone(),
             Some(workspace_root),
+            Some(document_redaction.clone()),
         )),
         pseudonymizer,
         rag_search,
@@ -98,6 +131,7 @@ pub fn build_privacy_bundle(
 pub struct BasemindModelEgressPolicy {
     pseudonymizer: Arc<dyn PromptPseudonymizationPort>,
     workspace_root: Option<String>,
+    attachment_redactor: Option<Arc<dyn ImageAttachmentRedactor>>,
 }
 
 impl BasemindModelEgressPolicy {
@@ -105,6 +139,7 @@ impl BasemindModelEgressPolicy {
         Self {
             pseudonymizer,
             workspace_root: None,
+            attachment_redactor: None,
         }
     }
 
@@ -112,9 +147,18 @@ impl BasemindModelEgressPolicy {
         pseudonymizer: Arc<dyn PromptPseudonymizationPort>,
         workspace_root: Option<&Path>,
     ) -> Self {
+        Self::scoped_with_attachment_redactor(pseudonymizer, workspace_root, None)
+    }
+
+    fn scoped_with_attachment_redactor(
+        pseudonymizer: Arc<dyn PromptPseudonymizationPort>,
+        workspace_root: Option<&Path>,
+        attachment_redactor: Option<Arc<dyn ImageAttachmentRedactor>>,
+    ) -> Self {
         Self {
             pseudonymizer,
             workspace_root: workspace_root.map(|path| path.to_string_lossy().into_owned()),
+            attachment_redactor,
         }
     }
 
@@ -219,15 +263,51 @@ impl ModelEgressPolicy for BasemindModelEgressPolicy {
         self.ensure_workspace_scope(&context)?;
 
         for message in &mut messages {
-            if message
+            if let Some(attachments) = message
                 .tool_image_attachments
-                .as_ref()
-                .is_some_and(|attachments| !attachments.is_empty())
+                .take()
+                .filter(|attachments| !attachments.is_empty())
             {
-                return Err(ModelEgressError::new(
-                    ModelEgressErrorKind::UnsupportedPayload,
-                    "model egress refused: image attachments require OCR before an API model call",
-                ));
+                let redactor = self.attachment_redactor.as_ref().ok_or_else(|| {
+                    ModelEgressError::new(
+                        ModelEgressErrorKind::UnsupportedPayload,
+                        "model egress refused: image attachments require OCR before an API model call",
+                    )
+                })?;
+                let workspace_root = context.workspace_root.as_deref().ok_or_else(|| {
+                    ModelEgressError::new(
+                        ModelEgressErrorKind::MissingContext,
+                        "model egress refused: image attachment has no workspace root",
+                    )
+                })?;
+                let session_id = context.session_id.as_deref().ok_or_else(|| {
+                    ModelEgressError::new(
+                        ModelEgressErrorKind::MissingContext,
+                        "model egress refused: image attachment has no session id",
+                    )
+                })?;
+                let mut ocr_text = String::new();
+                for attachment in attachments {
+                    let markdown = redactor
+                        .redact_image_attachment(
+                            &attachment.mime_type,
+                            &attachment.data_base64,
+                            workspace_root,
+                            session_id,
+                        )
+                        .await?;
+                    if !ocr_text.is_empty() {
+                        ocr_text.push_str("\n\n");
+                    }
+                    ocr_text.push_str("[OCR attachment]\n");
+                    ocr_text.push_str(&markdown);
+                }
+                message.content = Some(match message.content.take() {
+                    Some(content) if !content.is_empty() => {
+                        format!("{content}\n\n{ocr_text}")
+                    }
+                    _ => ocr_text,
+                });
             }
             if let Some(content) = message.content.take() {
                 if Self::contains_image_payload(&content) {
@@ -310,6 +390,21 @@ mod tests {
         }
     }
 
+    struct StubImageRedactor;
+
+    #[async_trait]
+    impl ImageAttachmentRedactor for StubImageRedactor {
+        async fn redact_image_attachment(
+            &self,
+            _mime_type: &str,
+            _data_base64: &str,
+            _workspace_root: &str,
+            _session_id: &str,
+        ) -> Result<String, ModelEgressError> {
+            Ok("OCR [PERSON_test]".to_string())
+        }
+    }
+
     fn context(route: ModelPrivacyRoute) -> ModelEgressContext {
         ModelEgressContext {
             route,
@@ -375,6 +470,30 @@ mod tests {
             .unwrap_err();
 
         assert_eq!(error.kind, ModelEgressErrorKind::UnsupportedPayload);
+    }
+
+    #[tokio::test]
+    async fn api_image_attachments_are_replaced_by_redacted_ocr() {
+        let policy = BasemindModelEgressPolicy::scoped_with_attachment_redactor(
+            Arc::new(StubPseudonymizer),
+            Some(Path::new("/workspace")),
+            Some(Arc::new(StubImageRedactor)),
+        );
+        let mut message = Message::user("describe this".into());
+        message.tool_image_attachments = Some(vec![alex_core_types::ToolImageAttachment {
+            mime_type: "image/png".into(),
+            data_base64: "AA==".into(),
+        }]);
+        let result = policy
+            .protect_messages(vec![message], context(ModelPrivacyRoute::Api))
+            .await
+            .unwrap();
+
+        assert!(result[0].tool_image_attachments.is_none());
+        assert_eq!(
+            result[0].content.as_deref(),
+            Some("describe this\n\n[OCR attachment]\nOCR [PERSON_test]")
+        );
     }
 
     #[tokio::test]
