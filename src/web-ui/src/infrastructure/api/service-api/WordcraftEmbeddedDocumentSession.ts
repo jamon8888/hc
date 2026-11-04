@@ -24,7 +24,7 @@ export interface WordcraftEmbeddedDocumentSessionOptions {
  */
 export class WordcraftEmbeddedDocumentSession {
   private disposed = false;
-  private opened = false;
+  private openedGeneration = 0;
 
   constructor(private readonly options: WordcraftEmbeddedDocumentSessionOptions) {}
 
@@ -36,14 +36,16 @@ export class WordcraftEmbeddedDocumentSession {
     if (this.disposed) return;
 
     if (event.type === 'failed') {
-      this.opened = false;
+      this.openedGeneration = 0;
       this.options.onError?.(event.error);
     }
 
     this.options.host.handleEvent(event);
     this.options.onState?.(this.options.host.state);
 
-    if (event.type !== 'ready' || this.opened) return;
+    if (event.type !== 'ready') return;
+    const generation = event.generation ?? 1;
+    if (generation <= this.openedGeneration) return;
 
     try {
       this.options.bridge.openDocument(
@@ -51,7 +53,7 @@ export class WordcraftEmbeddedDocumentSession {
         this.options.bytes,
         this.options.baseRevision ?? 0,
       );
-      this.opened = true;
+      this.openedGeneration = generation;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.options.onError?.(message);

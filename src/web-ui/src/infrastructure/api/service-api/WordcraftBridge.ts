@@ -64,6 +64,8 @@ export type WordcraftBridgeOutboundMessage =
 export interface WordcraftBridgeReadyEvent {
   type: 'ready';
   ready: WordcraftReadyMessage;
+  /** Increments when the frame performs a new ready handshake (including reload). */
+  generation?: number;
 }
 
 export interface WordcraftBridgeDirtyEvent {
@@ -108,6 +110,7 @@ export class WordcraftBridge {
   private disposed = false;
   private failed = false;
   private ready = false;
+  private readyGeneration = 0;
   private counter = 0;
 
   constructor(private readonly options: WordcraftBridgeOptions) {
@@ -135,7 +138,12 @@ export class WordcraftBridge {
       }
       this.failed = false;
       this.ready = true;
-      this.options.onEvent?.({ type: 'ready', ready: validation.ready });
+      this.readyGeneration += 1;
+      this.options.onEvent?.({
+        type: 'ready',
+        ready: validation.ready,
+        generation: this.readyGeneration,
+      });
       return true;
     }
 
