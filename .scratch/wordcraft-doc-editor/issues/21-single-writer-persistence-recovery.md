@@ -26,3 +26,14 @@ save completion durable, revision-aware, and recoverable.
       and never fabricate a clean or saved document.
 - [ ] Tests cover save acknowledgement, stale revisions, concurrent requests,
       failure recovery, and writer ownership.
+
+## Implementation continuation (2026-11-04)
+
+- The embedded host serializes returned save bytes, acknowledges only after the
+  workspace write completes, keeps failed saves dirty, and exposes durable-save
+  waiters to the command bridge.
+- The session now assigns a generation to every `ready` handshake and reopens the
+  active document after an iframe reload even when no explicit failure event was
+  delivered. Focused bridge/session tests cover this recovery path.
+- Remaining acceptance work is the packaged WebView/device crash validation and
+  broader concurrency/writer-ownership coverage.
