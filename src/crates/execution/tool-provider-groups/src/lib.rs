@@ -12,6 +12,7 @@ pub enum ToolPackFeatureGroup {
     Basic,
     Git,
     Mcp,
+    Wordcraft,
     BrowserWeb,
     ComputerUse,
     ImageAnalysis,
@@ -34,6 +35,7 @@ impl ToolPackFeatureGroup {
             Self::Basic => "basic",
             Self::Git => "git",
             Self::Mcp => "mcp",
+            Self::Wordcraft => "wordcraft",
             Self::BrowserWeb => "browser-web",
             Self::ComputerUse => "computer-use",
             Self::ImageAnalysis => "image-analysis",
@@ -51,6 +53,7 @@ pub const ALL_FEATURE_GROUPS: &[ToolPackFeatureGroup] = &[
     ToolPackFeatureGroup::Basic,
     ToolPackFeatureGroup::Git,
     ToolPackFeatureGroup::Mcp,
+    ToolPackFeatureGroup::Wordcraft,
     ToolPackFeatureGroup::BrowserWeb,
     ToolPackFeatureGroup::ComputerUse,
     ToolPackFeatureGroup::ImageAnalysis,
@@ -70,6 +73,7 @@ pub fn enabled_feature_groups() -> Vec<ToolPackFeatureGroup> {
         (cfg!(feature = "basic"), ToolPackFeatureGroup::Basic),
         (cfg!(feature = "git"), ToolPackFeatureGroup::Git),
         (cfg!(feature = "mcp"), ToolPackFeatureGroup::Mcp),
+        (cfg!(feature = "wordcraft"), ToolPackFeatureGroup::Wordcraft),
         (
             cfg!(feature = "browser-web"),
             ToolPackFeatureGroup::BrowserWeb,
@@ -109,6 +113,7 @@ pub fn tool_feature_group(tool_name: &str) -> Option<ToolPackFeatureGroup> {
         "ListMCPResources" | "ReadMCPResource" | "ListMCPPrompts" | "GetMCPPrompt" => {
             Some(ToolPackFeatureGroup::Mcp)
         }
+        "Wordcraft" => Some(ToolPackFeatureGroup::Wordcraft),
         "WebSearch" | "WebFetch" | "ControlHub" => Some(ToolPackFeatureGroup::BrowserWeb),
         "ComputerUse" => Some(ToolPackFeatureGroup::ComputerUse),
         "rag_search" => Some(ToolPackFeatureGroup::Basemind),
@@ -192,6 +197,7 @@ const CORE_SESSION_FEATURE_GROUPS: &[ToolPackFeatureGroup] = &[ToolPackFeatureGr
 const CORE_GIT_FEATURE_GROUPS: &[ToolPackFeatureGroup] = &[ToolPackFeatureGroup::Git];
 const CORE_WEB_FEATURE_GROUPS: &[ToolPackFeatureGroup] = &[ToolPackFeatureGroup::BrowserWeb];
 const CORE_MCP_FEATURE_GROUPS: &[ToolPackFeatureGroup] = &[ToolPackFeatureGroup::Mcp];
+const CORE_WORDCRAFT_FEATURE_GROUPS: &[ToolPackFeatureGroup] = &[ToolPackFeatureGroup::Wordcraft];
 const CORE_COMPUTER_USE_FEATURE_GROUPS: &[ToolPackFeatureGroup] =
     &[ToolPackFeatureGroup::ComputerUse];
 const CORE_MINIAPP_FEATURE_GROUPS: &[ToolPackFeatureGroup] = &[ToolPackFeatureGroup::MiniApp];
@@ -276,6 +282,11 @@ const PRODUCT_TOOL_PROVIDER_GROUP_PLAN: &[ToolProviderGroupPlan] = &[
             "ListMCPPrompts",
             "GetMCPPrompt",
         ],
+    },
+    ToolProviderGroupPlan {
+        provider_id: "core.wordcraft",
+        feature_groups: CORE_WORDCRAFT_FEATURE_GROUPS,
+        tool_names: &["Wordcraft"],
     },
     ToolProviderGroupPlan {
         provider_id: "core.computer-use",
@@ -385,6 +396,7 @@ mod tests {
                 "basic",
                 "git",
                 "mcp",
+                "wordcraft",
                 "browser-web",
                 "computer-use",
                 "image-analysis",
@@ -412,6 +424,10 @@ mod tests {
         assert_eq!(
             groups.contains(&ToolPackFeatureGroup::Mcp),
             cfg!(feature = "mcp")
+        );
+        assert_eq!(
+            groups.contains(&ToolPackFeatureGroup::Wordcraft),
+            cfg!(feature = "wordcraft")
         );
         assert_eq!(
             groups.contains(&ToolPackFeatureGroup::BrowserWeb),
@@ -507,6 +523,7 @@ mod tests {
         assert_eq!(ToolPackFeatureGroup::Basic.id(), "basic");
         assert_eq!(ToolPackFeatureGroup::Git.id(), "git");
         assert_eq!(ToolPackFeatureGroup::Mcp.id(), "mcp");
+        assert_eq!(ToolPackFeatureGroup::Wordcraft.id(), "wordcraft");
         assert_eq!(ToolPackFeatureGroup::BrowserWeb.id(), "browser-web");
         assert_eq!(ToolPackFeatureGroup::ComputerUse.id(), "computer-use");
         assert_eq!(ToolPackFeatureGroup::ImageAnalysis.id(), "image-analysis");
@@ -533,6 +550,7 @@ mod tests {
                 "core.git",
                 "core.web",
                 "core.mcp",
+                "core.wordcraft",
                 "core.computer-use",
                 "core.review",
                 "core.miniapp",
@@ -599,6 +617,7 @@ mod tests {
                 "ReadMCPResource",
                 "ListMCPPrompts",
                 "GetMCPPrompt",
+                "Wordcraft",
                 "ComputerUse",
                 "LaunchReviewAgent",
                 "submit_code_review",
@@ -645,6 +664,7 @@ mod tests {
                 ("core.git", vec!["git"]),
                 ("core.web", vec!["browser-web"]),
                 ("core.mcp", vec!["mcp"]),
+                ("core.wordcraft", vec!["wordcraft"]),
                 ("core.computer-use", vec!["computer-use"]),
                 ("core.review", vec!["agent-control"]),
                 ("core.miniapp", vec!["miniapp"]),

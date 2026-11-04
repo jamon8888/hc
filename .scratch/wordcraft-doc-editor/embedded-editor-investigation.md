@@ -221,6 +221,15 @@ The desktop URL issuer also needed the upstream `host=parent` query flag; that i
 covered by a focused regression test. A GPU-backed browser probe and a managed,
 checksum-verified artifact are still release gates.
 
+The Alex side now carries the active embedded document as structured composer
+metadata and exposes a context-aware `Wordcraft` tool. Core emits a correlated command
+request to the exact active document surface; the Web UI routes it to the visible
+iframe bridge and completes it through the desktop adapter. Closed, inactive,
+stale, unavailable, remote, and capability-mismatched surfaces fail explicitly;
+there is no headless fallback in this path. This seam is implemented, but it is
+not release evidence until the patched WordCraft artifact and GPU-backed mutation
+probe pass.
+
 ## Recommended phased design and verification plan
 
 ### Phase 0 — prove the current upstream host contract

@@ -2,12 +2,19 @@ import { useEffect, useRef, useState } from 'react';
 
 import { workspaceAPI } from '@/infrastructure/api/service-api/WorkspaceAPI';
 import { wordcraftAPI, type WordcraftWebHostResponseDto } from '@/infrastructure/api/service-api/WordcraftAPI';
-import { WordcraftBridge } from '@/infrastructure/api/service-api/WordcraftBridge';
+import { WordcraftBridge, type WordcraftBridgeCommand } from '@/infrastructure/api/service-api/WordcraftBridge';
 import { WordcraftDocumentHost } from '@/infrastructure/api/service-api/WordcraftDocumentHost';
 import { WordcraftEmbeddedDocumentSession } from '@/infrastructure/api/service-api/WordcraftEmbeddedDocumentSession';
 import { useI18n } from '@/infrastructure/i18n';
 import { isLocalSurface } from '@/infrastructure/peer-device/deviceSurface';
 import { useEditorDocument } from '@/tools/editor/services/EditorDocument';
+import {
+  registerDocumentAgentContext,
+  setDocumentAgentContextActive,
+  unregisterDocumentAgentContext,
+  updateDocumentAgentContext,
+  type DocumentAgentCommandRequest,
+} from '@/tools/editor/services/DocumentAgentContext';
 
 interface WordcraftDocumentPanelProps {
   filePath: string;
@@ -37,6 +44,11 @@ export default function WordcraftDocumentPanel({
   useEffect(() => {
     dirtyStateChangeRef.current = onDirtyStateChange;
   }, [onDirtyStateChange]);
+
+  useEffect(() => {
+    if (!documentSession) return;
+    setDocumentAgentContextActive(`wordcraft:${documentSession.id}`, isActive);
+  }, [documentSession, isActive]);
 
   useEffect(() => {
     let active = true;
@@ -92,7 +104,11 @@ export default function WordcraftDocumentPanel({
     }
 
     const bridgeRef: { current: WordcraftBridge | null } = { current: null };
-    let session: WordcraftEmbeddedDocumentSession;
+    const sessionRef: { current: WordcraftEmbeddedDocumentSession | null } = { current: null };
+    const agentContextKey = `wordcraft:${documentSession?.id ?? filePath}`;
+    const updateAgentContext = (patch: Parameters<typeof updateDocumentAgentContext>[1]) => {
+      updateDocumentAgentContext(agentContextKey, patch);
+    };
     const host = new WordcraftDocumentHost({
       sessionId: surface.sessionId,
       saveBytes: nextBytes => workspaceAPI.writeWorkspaceFileBase64(
@@ -111,17 +127,71 @@ export default function WordcraftDocumentPanel({
       expectedSessionId: surface.sessionId,
       pinnedVersion: surface.version,
       postMessage: message => source.postMessage(message, surface.origin),
-      onEvent: event => session.handleBridgeEvent(event),
+      onEvent: event => {
+        if (event.type === 'ready') {
+          updateAgentContext({
+            status: 'ready',
+            revision: sessionRef.current?.state.revision ?? 0,
+            capabilities: event.ready.commandCapabilities,
+          });
+        } else if (event.type === 'failed') {
+          updateAgentContext({ status: 'failed' });
+        } else if (event.type === 'dirty') {
+          updateAgentContext({ revision: event.revision });
+        }
+        sessionRef.current?.handleBridgeEvent(event);
+      },
     });
     bridgeRef.current = bridge;
-    session = new WordcraftEmbeddedDocumentSession({
+    const session = new WordcraftEmbeddedDocumentSession({
       bridge,
       host,
       name: fileName,
       bytes,
-      onState: state => dirtyStateChangeRef.current?.(state.dirty),
+      onState: state => {
+        updateAgentContext({ revision: state.revision });
+        dirtyStateChangeRef.current?.(state.dirty);
+      },
       onError: setError,
     });
+    sessionRef.current = session;
+    if (documentSession) {
+      registerDocumentAgentContext(
+        agentContextKey,
+        {
+          kind: 'document',
+          surface: 'wordcraft-embedded',
+          documentId: documentSession.id,
+          sessionId: surface.sessionId,
+          surfaceId,
+          workspaceId: workspaceId!,
+          filePath,
+          revision: session.state.revision,
+          status: 'loading',
+          capabilities: surface.commandCapabilities,
+        },
+        isActive,
+        async (request: DocumentAgentCommandRequest) => {
+          if (!surface.commandCapabilities.includes(request.operation)) {
+            throw new Error(`WordCraft operation '${request.operation}' is unavailable`);
+          }
+          const result = await bridge.request(
+            request.operation as WordcraftBridgeCommand,
+            request.params,
+            request.expectedRevision,
+            request.author,
+          );
+          if (!result.ok) {
+            throw new Error(result.error || `WordCraft operation '${request.operation}' failed`);
+          }
+          return {
+            value: result.value ?? null,
+            revision: result.revision,
+            dirty: result.dirty,
+          };
+        },
+      );
+    }
     const saveDocument = async () => {
       const result = await bridge.request('save_document', {}, session.state.revision, 'alex');
       if (!result.ok) {
@@ -139,10 +209,13 @@ export default function WordcraftDocumentPanel({
       if (documentSession?.save === saveDocument) {
         documentSession.save = undefined;
       }
+      updateAgentContext({ status: 'closed' });
+      unregisterDocumentAgentContext(agentContextKey);
+      sessionRef.current = null;
       session.dispose();
       bridgeRef.current = null;
     };
-  }, [bytes, documentSession, fileName, filePath, surface, t, workspaceId]);
+  }, [bytes, documentSession, fileName, filePath, surface, surfaceId, t, workspaceId]);
 
   if (error) {
     return (

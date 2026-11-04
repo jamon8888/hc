@@ -42,7 +42,9 @@ still required before this surface can be enabled in production.
     Alex; app teardown must not kill the user's editor.
   - CLI-only installations refuse the window with "agent editing still works" — the visible
     editor needs the `wordcraft` app binary, not just `wordcraft-cli`.
-- Registry stances (`remote_surface/table.rs`): both commands `LocalOnly`, `ControllerLocal`;
+- Registry stances (`remote_surface/table.rs`): WordCraft desktop/web commands are
+  `LocalOnly`, `ControllerLocal`; the embedded-command completion adapter follows the
+  same controller-local refusal policy and never proxies iframe control to a peer.
   the open command is `REFUSED` on the CLI peer, status is `CLI_NOT_IMPLEMENTED`.
 - Web UI: `Open in WordCraft` on `.docx` context menus, `New WordCraft document` (delegates
   creation to WordCraft's own start screen/templates), and **`.docx` default-open routes to
@@ -65,6 +67,12 @@ rule:
   (loopback only; key read from the session profile). If the doc is open but the bridge is
   gone, the router **refuses loudly** rather than racing another writer.
 - `document_open_in_visible_app` is the desktop adapter's opinion driving the route.
+- **Embedded live surface**: the active `.docx` iframe publishes a generic document-session
+  context with revision/capabilities into the existing composer turn. The context-aware `Wordcraft`
+  tool sends correlated UI-aware requests to that exact visible surface; the desktop adapter
+  returns the iframe result to Core, and `save_document` completes only after the durable host
+  has acknowledged the persisted bytes. Inactive/closed/remote/unavailable surfaces fail
+  explicitly and do not switch to a headless writer.
 
 ### Tool guidance for the agent (upstream MCP contract facts)
 
