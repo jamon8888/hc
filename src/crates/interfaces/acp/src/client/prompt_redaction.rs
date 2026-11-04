@@ -173,7 +173,7 @@ static PROMPT_INTERCEPTOR: std::sync::OnceLock<
 ///
 /// The host calls this at startup, the same place it publishes its other
 /// PII-safe ports. Passing `None` removes an installed interceptor, which is
-/// how a host without the sidecar passes prompts through.
+/// how a host without the sidecar disables the ACP privacy capability.
 pub fn set_prompt_interceptor(interceptor: Option<Arc<dyn AcpPromptInterceptor>>) {
     let mut slot = PROMPT_INTERCEPTOR
         .get_or_init(|| std::sync::RwLock::new(None))
@@ -222,6 +222,9 @@ pub async fn rehydrate_prompt_interceptor(
                 .rehydrate(&text, workspace_root, alex_session_id, route)
                 .await
         }
-        None => Ok(text),
+        None if route == ModelPrivacyRoute::Local => Ok(text),
+        None => Err(alex_core::util::errors::AlexError::service(
+            "ACP response rehydration refused: PII pseudonymization is unavailable",
+        )),
     }
 }
