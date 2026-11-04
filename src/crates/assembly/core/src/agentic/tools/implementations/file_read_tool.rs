@@ -195,12 +195,13 @@ impl FileReadTool {
                     model_visible_path
                 ))
             })?;
-        let port = crate::service::rag_search::global_document_redaction_port().ok_or_else(|| {
-            AlexError::tool(format!(
-                "Cannot read text file {} for an API model without a Basemind redaction port",
-                model_visible_path
-            ))
-        })?;
+        let port =
+            crate::service::rag_search::global_document_redaction_port().ok_or_else(|| {
+                AlexError::tool(format!(
+                    "Cannot read text file {} for an API model without a Basemind redaction port",
+                    model_visible_path
+                ))
+            })?;
         if Self::model_privacy_route(context) != "api" {
             return Err(AlexError::tool(format!(
                 "Cannot read text file {} because the model privacy route is unknown",
@@ -334,7 +335,10 @@ impl FileReadTool {
                     ("local", _, _) => convert_document_to_markdown(bytes, path)
                         .await
                         .map(|converted| {
-                            (converted.markdown.to_string(), converted.source_format.to_string())
+                            (
+                                converted.markdown.to_string(),
+                                converted.source_format.to_string(),
+                            )
                         })
                         .map_err(|error| error),
                     ("api", Some(port), Some(root)) => port
@@ -640,9 +644,7 @@ Usage:
                 if is_alex_tool_uri(file_path) {
                     return ValidationResult {
                         result: false,
-                        message: Some(
-                            "Tool context is required to resolve Alex URIs".to_string(),
-                        ),
+                        message: Some("Tool context is required to resolve Alex URIs".to_string()),
                         error_code: Some(400),
                         meta: None,
                     };
@@ -830,6 +832,12 @@ Usage:
                 )
                 .await?;
             }
+            #[cfg(not(feature = "tools-rag"))]
+            if Self::model_privacy_route(context) != "local" {
+                return Err(AlexError::tool(
+                    "MiniApp context access requires the Basemind redaction capability for a non-local model",
+                ));
+            }
             let presentation = build_read_file_presentation(&model_visible_path, &read_file_result);
             return Ok(vec![ToolResult::Result {
                 data: json!({
@@ -911,7 +919,8 @@ Usage:
         #[cfg(not(feature = "document-read"))]
         let document_read: Option<(ReadFileResult, DocumentReadMetadata)> = None;
 
-        let (mut read_file_result, document_metadata) = if let Some((result, metadata)) = document_read
+        let (mut read_file_result, document_metadata) = if let Some((result, metadata)) =
+            document_read
         {
             (result, Some(metadata))
         } else {
@@ -1057,12 +1066,12 @@ mod tests {
     use crate::miniapp::agent_context::{
         publish_agent_context_snapshot, remove_agent_context_snapshot, MiniAppAgentContextInput,
     };
-    use async_trait::async_trait;
     use alex_runtime_ports::ToolRuntimeHandles;
     use alex_runtime_ports::{
         WorkspaceCommandOptions, WorkspaceCommandResult, WorkspaceDirEntry, WorkspaceFileSystem,
         WorkspaceServices, WorkspaceShell,
     };
+    use async_trait::async_trait;
     use serde_json::{json, Value};
     use std::collections::HashMap;
     use std::fs;
@@ -1098,10 +1107,8 @@ mod tests {
             &self,
             path: &str,
             workspace_root: &str,
-        ) -> Result<
-            alex_runtime_ports::RedactedDocument,
-            alex_runtime_ports::DocumentRedactionError,
-        > {
+        ) -> Result<alex_runtime_ports::RedactedDocument, alex_runtime_ports::DocumentRedactionError>
+        {
             *self.seen.lock().unwrap() = Some((path.to_string(), workspace_root.to_string()));
             Ok(alex_runtime_ports::RedactedDocument {
                 markdown: "Contact [EMAIL_1].".to_string(),
@@ -1118,10 +1125,8 @@ mod tests {
             &self,
             _text: &str,
             _workspace_root: &str,
-        ) -> Result<
-            alex_runtime_ports::RedactedDocument,
-            alex_runtime_ports::DocumentRedactionError,
-        > {
+        ) -> Result<alex_runtime_ports::RedactedDocument, alex_runtime_ports::DocumentRedactionError>
+        {
             Ok(alex_runtime_ports::RedactedDocument {
                 markdown: "Contact [EMAIL_1].".to_string(),
                 source_format: "text".to_string(),
