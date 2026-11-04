@@ -769,6 +769,8 @@ pub(super) const OPERATIONS: &[OperationDefinition] = &[
     op("webdriver_bridge_result",                                    Unaudited,   Proxied,          CLI_NOT_IMPLEMENTED),
     op("wordcraft_open_document_command",                            LocalOnly, ControllerLocal,  REFUSED),
     op("wordcraft_status_command",                                   LocalOnly, ControllerLocal,  REFUSED),
+    op("wordcraft_web_host_command",                                 LocalOnly, ControllerLocal,  REFUSED),
+    op("wordcraft_web_release_command",                              LocalOnly, ControllerLocal,  REFUSED),
     op("workspace_file_upload",                                     Routed,    Proxied,          HANDLED),
     op("worktree_bind_session",                                      Unsupported, Proxied,          CLI_NOT_IMPLEMENTED),
     op("worktree_create",                                            Unsupported, Proxied,          CLI_NOT_IMPLEMENTED),

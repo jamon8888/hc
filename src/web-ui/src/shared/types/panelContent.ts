@@ -31,6 +31,7 @@ export type PanelContentType =
   | 'openbitfun-canvas'
   | 'browser'
   | 'html-preview'
+  | 'wordcraft-document'
   | 'redacted-document-viewer';
 
 export interface PanelContent {
