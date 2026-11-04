@@ -42,3 +42,11 @@ document surface.
   verification, and production message-listener wiring are downstream consumers
   in tickets 19 and 20. This contract is resolved independently; those tickets
   may proceed against its versioned handshake without claiming this ticket.
+
+2026-11-04 continuation:
+
+- The managed web probe now requires and verifies `SHA256SUMS.txt` before it can
+  report `available`; missing sidecars, unlisted files, mismatches, and tampering
+  return an explicit error and leave `checksumVerified` false. Legacy capability
+  records default that field safely. The real pinned artifact and GPU-backed
+  browser probe remain release gates.

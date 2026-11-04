@@ -28,6 +28,8 @@ pub const WORDCRAFT_WEB_BUNDLE_DIR: &str = "web";
 pub const WORDCRAFT_WEB_ENTRYPOINT: &str = "index.html";
 /// The browser bundle manifest used for capability discovery.
 pub const WORDCRAFT_WEB_MANIFEST: &str = "version.json";
+/// The checksum sidecar required for a managed browser bundle.
+pub const WORDCRAFT_WEB_CHECKSUMS: &str = "SHA256SUMS.txt";
 /// Version of Alex's parent/iframe handshake contract.
 pub const WORDCRAFT_WEB_PROTOCOL_VERSION: u32 = 1;
 /// Capabilities required before Alex presents the embedded editor as available.
@@ -124,6 +126,8 @@ pub fn validate_wordcraft_web_manifest(
 pub struct WordcraftWebCapability {
     pub status: WordcraftStatus,
     pub artifact_path: Option<String>,
+    #[serde(default)]
+    pub checksum_verified: bool,
     pub version: Option<String>,
     pub protocol_version: Option<u32>,
     pub command_capabilities: Vec<String>,
@@ -137,6 +141,7 @@ impl Default for WordcraftWebCapability {
         Self {
             status: WordcraftStatus::NotInstalled,
             artifact_path: None,
+            checksum_verified: false,
             version: None,
             protocol_version: None,
             command_capabilities: Vec::new(),
@@ -164,6 +169,7 @@ fn probe_web_bundle(runtime_root: &Path, checked_at_epoch_ms: u64) -> WordcraftW
         return WordcraftWebCapability {
             status: WordcraftStatus::NotInstalled,
             artifact_path: None,
+            checksum_verified: false,
             version: None,
             protocol_version: None,
             command_capabilities: Vec::new(),
@@ -180,12 +186,48 @@ fn probe_web_bundle(runtime_root: &Path, checked_at_epoch_ms: u64) -> WordcraftW
         return WordcraftWebCapability {
             status: WordcraftStatus::Error,
             artifact_path: Some(artifact_path),
+            checksum_verified: false,
             version: None,
             protocol_version: None,
             command_capabilities: Vec::new(),
             message: Some(format!(
                 "WordCraft web bundle is missing {}",
                 WORDCRAFT_WEB_ENTRYPOINT
+            )),
+            remediation: remediation(),
+            checked_at_epoch_ms,
+        };
+    }
+
+    let checksums_path = artifact.join(WORDCRAFT_WEB_CHECKSUMS);
+    let checksums_text = match std::fs::read_to_string(&checksums_path) {
+        Ok(text) => text,
+        Err(error) => {
+            return WordcraftWebCapability {
+                status: WordcraftStatus::Error,
+                artifact_path: Some(artifact_path),
+                checksum_verified: false,
+                version: None,
+                protocol_version: None,
+                command_capabilities: Vec::new(),
+                message: Some(format!(
+                    "WordCraft web bundle checksum sidecar could not be read: {error}"
+                )),
+                remediation: remediation(),
+                checked_at_epoch_ms,
+            };
+        }
+    };
+    if let Err(error) = checksum::verify_directory_against_sha256sums(&artifact, &checksums_text) {
+        return WordcraftWebCapability {
+            status: WordcraftStatus::Error,
+            artifact_path: Some(artifact_path),
+            checksum_verified: false,
+            version: None,
+            protocol_version: None,
+            command_capabilities: Vec::new(),
+            message: Some(format!(
+                "WordCraft web bundle checksum verification failed: {error}"
             )),
             remediation: remediation(),
             checked_at_epoch_ms,
@@ -199,6 +241,7 @@ fn probe_web_bundle(runtime_root: &Path, checked_at_epoch_ms: u64) -> WordcraftW
             return WordcraftWebCapability {
                 status: WordcraftStatus::Error,
                 artifact_path: Some(artifact_path),
+                checksum_verified: true,
                 version: None,
                 protocol_version: None,
                 command_capabilities: Vec::new(),
@@ -216,6 +259,7 @@ fn probe_web_bundle(runtime_root: &Path, checked_at_epoch_ms: u64) -> WordcraftW
             return WordcraftWebCapability {
                 status: WordcraftStatus::Error,
                 artifact_path: Some(artifact_path),
+                checksum_verified: true,
                 version: None,
                 protocol_version: None,
                 command_capabilities: Vec::new(),
@@ -233,6 +277,7 @@ fn probe_web_bundle(runtime_root: &Path, checked_at_epoch_ms: u64) -> WordcraftW
         Ok(accepted) => WordcraftWebCapability {
             status: WordcraftStatus::Available,
             artifact_path: Some(artifact_path),
+            checksum_verified: true,
             version,
             protocol_version,
             command_capabilities: accepted.command_capabilities,
@@ -243,6 +288,7 @@ fn probe_web_bundle(runtime_root: &Path, checked_at_epoch_ms: u64) -> WordcraftW
         Err(error) => WordcraftWebCapability {
             status: WordcraftStatus::Unsupported,
             artifact_path: Some(artifact_path),
+            checksum_verified: true,
             version,
             protocol_version,
             command_capabilities,
@@ -889,6 +935,21 @@ mod tests {
         fs::create_dir_all(&web).unwrap();
         fs::write(web.join(WORDCRAFT_WEB_ENTRYPOINT), "<!doctype html>").unwrap();
         fs::write(web.join(WORDCRAFT_WEB_MANIFEST), manifest).unwrap();
+        let sums = [WORDCRAFT_WEB_ENTRYPOINT, WORDCRAFT_WEB_MANIFEST]
+            .iter()
+            .map(|name| format!("{}  {name}", sha256_file(&web.join(name))))
+            .collect::<Vec<_>>()
+            .join("\n");
+        fs::write(web.join(WORDCRAFT_WEB_CHECKSUMS), format!("{sums}\n")).unwrap();
+    }
+
+    fn sha256_file(path: &std::path::Path) -> String {
+        use sha2::{Digest, Sha256};
+
+        Sha256::digest(fs::read(path).unwrap())
+            .iter()
+            .map(|byte| format!("{byte:02x}"))
+            .collect()
     }
 
     #[test]
@@ -928,6 +989,7 @@ mod tests {
         let capability = WordcraftProbe::new(root.clone()).probe();
 
         assert_eq!(capability.web.status, WordcraftStatus::Available);
+        assert!(capability.web.checksum_verified);
         assert_eq!(
             capability.web.version.as_deref(),
             Some(PINNED_WORDCRAFT_VERSION)
@@ -945,6 +1007,40 @@ mod tests {
         );
         assert!(capability.web.artifact_path.is_some());
         assert!(capability.web.message.is_none());
+
+        let _ = fs::remove_dir_all(root);
+    }
+
+    #[test]
+    fn tampered_web_bundle_fails_checksum_gate() {
+        let root = temp_runtime_root("web-checksum");
+        let manifest = format!(
+            "{{\"version\":\"{}\",\"protocolVersion\":{},\"commandCapabilities\":[{}]}}",
+            PINNED_WORDCRAFT_VERSION,
+            WORDCRAFT_WEB_PROTOCOL_VERSION,
+            WORDCRAFT_WEB_REQUIRED_COMMANDS
+                .iter()
+                .map(|command| format!("\"{command}\""))
+                .collect::<Vec<_>>()
+                .join(",")
+        );
+        create_web_bundle(&root, &manifest);
+        let web = root
+            .join(MANAGED_WORDCRAFT_COMPONENT)
+            .join("current")
+            .join(WORDCRAFT_WEB_BUNDLE_DIR);
+        fs::write(web.join(WORDCRAFT_WEB_ENTRYPOINT), "tampered").unwrap();
+
+        let capability = WordcraftProbe::new(root.clone()).probe();
+
+        assert_eq!(capability.web.status, WordcraftStatus::Error);
+        assert!(!capability.web.checksum_verified);
+        assert!(capability
+            .web
+            .message
+            .as_deref()
+            .unwrap_or_default()
+            .contains("checksum verification failed"));
 
         let _ = fs::remove_dir_all(root);
     }
@@ -1045,6 +1141,7 @@ mod tests {
 
         assert_eq!(capability.web.status, WordcraftStatus::NotInstalled);
         assert!(capability.web.command_capabilities.is_empty());
+        assert!(!capability.web.checksum_verified);
     }
 
     #[test]
