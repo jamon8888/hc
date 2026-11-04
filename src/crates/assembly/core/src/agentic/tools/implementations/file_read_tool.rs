@@ -354,7 +354,7 @@ impl FileReadTool {
                         })
                         .map_err(|error| error),
                     ("api", Some(port), Some(root), Some(session_id)) => port
-                        .redact_for_session(&path, &root, session_id)
+                        .redact_for_session(&path, &root, &session_id)
                         .await
                         .map(|document| (document.markdown, document.source_format))
                         .map_err(|error| DocumentConversionError::new("redaction", error.message)),
