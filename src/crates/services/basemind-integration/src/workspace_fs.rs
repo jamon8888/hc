@@ -69,6 +69,44 @@ impl WorkspaceFileSystem for BasemindWorkspaceFs {
         self.redact_text(&content).await
     }
 
+    async fn read_file_bounded(
+        &self,
+        path: &str,
+        max_bytes: usize,
+    ) -> anyhow::Result<Option<Vec<u8>>> {
+        if self
+            .inner
+            .metadata(path, false)
+            .await?
+            .and_then(|metadata| metadata.size)
+            .is_some_and(|size| size > max_bytes as u64)
+        {
+            return Ok(None);
+        }
+        let Some(content) = self.inner.read_file_bounded(path, max_bytes).await? else {
+            return Ok(None);
+        };
+        if content.len() > max_bytes {
+            return Ok(None);
+        }
+        let text = String::from_utf8(content)
+            .map_err(|_| anyhow::anyhow!("BasemindWorkspaceFs refuses non-UTF-8 file content"))?;
+        Ok(Some(self.redact_text(&text).await?.into_bytes()))
+    }
+
+    async fn read_file_text_bounded(
+        &self,
+        path: &str,
+        max_bytes: usize,
+    ) -> anyhow::Result<Option<String>> {
+        let Some(content) = self.read_file_bounded(path, max_bytes).await? else {
+            return Ok(None);
+        };
+        String::from_utf8(content)
+            .map(Some)
+            .map_err(|_| anyhow::anyhow!("BasemindWorkspaceFs refuses non-UTF-8 file content"))
+    }
+
     async fn write_file(&self, path: &str, contents: &[u8]) -> anyhow::Result<()> {
         self.inner.write_file(path, contents).await
     }

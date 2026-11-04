@@ -9,13 +9,7 @@ use serde::{Deserialize, Serialize};
 #[cfg(feature = "basemind")]
 use serde_json::Value;
 #[cfg(feature = "basemind")]
-use sha2::{Digest, Sha256};
-#[cfg(feature = "basemind")]
-use std::{
-    collections::{HashMap, VecDeque},
-    sync::{Arc, Mutex},
-    time::Duration,
-};
+use std::time::Duration;
 
 /// Percent-encode a value for use in a query string.
 ///
@@ -108,26 +102,7 @@ pub struct BasemindClient {
     living: EndpointSource,
     /// The fail-closed redaction policy every sidecar redaction call obeys.
     redaction: RedactionPolicy,
-    /// Bounded process-local cache for deterministic inline redactions. This
-    /// avoids paying NER again when the same RAG chunk is returned by several
-    /// searches, without persisting raw PII or changing the fail-closed path.
-    /// The workspace root is part of the key so per-workspace sidecar policy
-    /// cannot cross a tenant boundary.
-    redaction_cache: Arc<Mutex<RedactionCache>>,
     next_id: std::sync::Arc<std::sync::atomic::AtomicU64>,
-}
-
-#[cfg(feature = "basemind")]
-const MAX_REDACTION_CACHE_ENTRIES: usize = 128;
-
-#[cfg(feature = "basemind")]
-const MAX_REDACTION_CACHE_TEXT_BYTES: usize = 32 * 1024;
-
-#[cfg(feature = "basemind")]
-#[derive(Default)]
-struct RedactionCache {
-    entries: HashMap<String, Value>,
-    order: VecDeque<String>,
 }
 
 #[cfg(feature = "basemind")]
@@ -210,7 +185,6 @@ impl BasemindClient {
             auth_token,
             living: EndpointSource::Snapshot,
             redaction: RedactionPolicy::default(),
-            redaction_cache: Arc::new(Mutex::new(RedactionCache::default())),
             next_id: std::sync::Arc::new(std::sync::atomic::AtomicU64::new(1)),
         }
     }
@@ -251,59 +225,6 @@ impl BasemindClient {
         }
         if let Some(ner_profile) = &self.redaction.ner_profile {
             arguments["ner_profile"] = Value::String(ner_profile.clone());
-        }
-    }
-
-    fn redaction_cache_key(&self, text: &str, root: &str) -> String {
-        let mut hasher = Sha256::new();
-        hasher.update(text.as_bytes());
-        hasher.update([0]);
-        hasher.update(root.as_bytes());
-        hasher.update([0]);
-        hasher.update(crate::daemon::BASEMIND_VERSION.as_bytes());
-        hasher.update([0]);
-        hasher.update(self.redaction.require_ner.to_string().as_bytes());
-        hasher.update([0]);
-        if let Some(model_dir) = &self.redaction.ner_model_dir {
-            hasher.update(model_dir.as_bytes());
-        }
-        hasher.update([0]);
-        if let Some(profile) = &self.redaction.ner_profile {
-            hasher.update(profile.as_bytes());
-        }
-        hex::encode(hasher.finalize())
-    }
-
-    fn cached_redaction(&self, text: &str, root: &str) -> Option<Value> {
-        if text.len() > MAX_REDACTION_CACHE_TEXT_BYTES {
-            return None;
-        }
-        let key = self.redaction_cache_key(text, root);
-        let mut cache = self.redaction_cache.lock().ok()?;
-        let value = cache.entries.get(&key)?.clone();
-        cache.order.retain(|entry| entry != &key);
-        cache.order.push_back(key);
-        Some(value)
-    }
-
-    fn cache_redaction(&self, text: &str, root: &str, value: &Value) {
-        if text.len() > MAX_REDACTION_CACHE_TEXT_BYTES
-            || crate::redaction::ner_coverage_refusal(value).is_some()
-            || value["redacted_text"].as_str().is_none()
-        {
-            return;
-        }
-        let key = self.redaction_cache_key(text, root);
-        let Ok(mut cache) = self.redaction_cache.lock() else {
-            return;
-        };
-        cache.entries.insert(key.clone(), value.clone());
-        cache.order.retain(|entry| entry != &key);
-        cache.order.push_back(key);
-        while cache.order.len() > MAX_REDACTION_CACHE_ENTRIES {
-            if let Some(evicted) = cache.order.pop_front() {
-                cache.entries.remove(&evicted);
-            }
         }
     }
 
@@ -367,16 +288,12 @@ impl BasemindClient {
 
     /// Convenience: redact_text tool
     pub async fn redact_text(&self, text: &str, root: &str) -> Result<Value> {
-        if let Some(cached) = self.cached_redaction(text, root) {
-            return Ok(cached);
-        }
         let mut arguments = serde_json::json!({
             "text": text,
             "strategy": "token-replace"
         });
         self.apply_redaction_policy(&mut arguments);
         let result = self.call_tool("redact_text", arguments, root).await?;
-        self.cache_redaction(text, root, &result);
         Ok(result)
     }
 
@@ -470,28 +387,4 @@ impl BasemindClient {
 #[cfg(all(test, feature = "basemind"))]
 mod tests {
     use super::*;
-
-    #[test]
-    fn inline_redaction_cache_is_workspace_and_policy_scoped() {
-        let client = BasemindClient::new("http://127.0.0.1:1".to_string(), "token".to_string())
-            .with_redaction_policy(RedactionPolicy::bundled_with_profile(
-                std::path::PathBuf::from("/models/gliner"),
-                "legal-fr@1",
-            ));
-        let payload = serde_json::json!({
-            "redacted_text": "Contact [EMAIL_1]",
-            "detections": []
-        });
-
-        client.cache_redaction("Contact jean@example.test", "/workspace-a", &payload);
-        assert_eq!(
-            client
-                .cached_redaction("Contact jean@example.test", "/workspace-a")
-                .expect("same workspace/profile should hit"),
-            payload
-        );
-        assert!(client
-            .cached_redaction("Contact jean@example.test", "/workspace-b")
-            .is_none());
-    }
 }
