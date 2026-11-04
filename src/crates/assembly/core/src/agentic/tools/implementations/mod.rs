@@ -79,6 +79,8 @@ pub mod view_image_tool;
 #[cfg(feature = "tools-browser-web")]
 pub mod web;
 pub mod worktree_tool;
+#[cfg(feature = "tools-wordcraft")]
+pub mod wordcraft_tool;
 
 #[deprecated(note = "GetToolSpecTool is owned by the product tool runtime boundary")]
 pub use crate::agentic::tools::product_runtime::GetToolSpecTool;
@@ -152,3 +154,5 @@ pub use view_image_tool::ViewImageTool;
 #[cfg(feature = "tools-browser-web")]
 pub use web::{WebFetchTool, WebSearchTool};
 pub use worktree_tool::WorktreeTool;
+#[cfg(feature = "tools-wordcraft")]
+pub use wordcraft_tool::WordcraftTool;

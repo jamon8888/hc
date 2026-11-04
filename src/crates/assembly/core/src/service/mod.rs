@@ -24,6 +24,8 @@ pub mod filesystem; // FileSystem management
 pub mod git; // Git service
 pub mod i18n; // I18n service
 #[cfg(feature = "agent-runtime")]
+pub mod wordcraft_bridge; // Embedded WordCraft command request/response bridge
+#[cfg(feature = "agent-runtime")]
 pub(crate) mod instruction_context; // Workspace instruction file prompt helpers
 #[cfg(feature = "mcp-runtime")]
 pub mod mcp; // MCP (Model Context Protocol) system

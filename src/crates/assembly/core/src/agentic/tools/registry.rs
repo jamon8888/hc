@@ -607,6 +607,7 @@ mod tests {
             "ReadMCPResource",
             "ListMCPPrompts",
             "GetMCPPrompt",
+            "Wordcraft",
             "GenerativeUI",
             "Worktree",
             "ReviewPlatform",

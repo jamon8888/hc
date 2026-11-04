@@ -35,4 +35,22 @@ describe('WordcraftAPI', () => {
       request: { sessionId: 'web-session-1' },
     });
   });
+
+  it('completes a correlated embedded command through the desktop adapter', async () => {
+    vi.mocked(api.invoke).mockResolvedValueOnce(undefined);
+
+    await new WordcraftAPI().completeEmbeddedCommand({
+      requestId: 'request-1',
+      ok: true,
+      result: { revision: 3 },
+    });
+
+    expect(api.invoke).toHaveBeenCalledWith('wordcraft_complete_embedded_command', {
+      request: {
+        requestId: 'request-1',
+        ok: true,
+        result: { revision: 3 },
+      },
+    });
+  });
 });

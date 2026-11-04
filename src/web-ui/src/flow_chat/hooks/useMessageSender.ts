@@ -21,6 +21,7 @@ import { createLogger } from '@/shared/utils/logger';
 import { formatContextForPrompt } from '@/shared/utils/contextPrompt';
 import { isConversationExcerpt, withConversationExcerptFallback } from '@/shared/utils/conversationExcerpt';
 import { getActiveSurfaceScope } from '@/infrastructure/peer-device/deviceSurface';
+import { getActiveDocumentAgentContext } from '@/tools/editor/services/DocumentAgentContext';
 import { usePeerDeviceModeOptional } from '@/infrastructure/peer-device/peerDeviceContextState';
 import { isBtwSessionDraft } from '../utils/modelSelectionTarget';
 import { sendMessageToBtwSession } from '../services/BtwThreadService';
@@ -192,8 +193,9 @@ export function useMessageSender(props: UseMessageSenderProps): UseMessageSender
           remoteConnectionId: context.remoteConnectionId,
           remoteSshHost: context.remoteSshHost,
         }));
+      const documentAgentContext = getActiveDocumentAgentContext();
       const userMessageMetadata =
-        presentation || sessionReferences.length > 0 || turnPermissionMode
+        presentation || sessionReferences.length > 0 || turnPermissionMode || documentAgentContext
           ? {
               ...(presentation
                 ? { composerPresentation: presentation }
@@ -202,6 +204,7 @@ export function useMessageSender(props: UseMessageSenderProps): UseMessageSender
               // Read by the coordinator as the turn layer of
               // `turn -> session -> global default`.
               ...(turnPermissionMode ? { permission_mode: turnPermissionMode } : {}),
+              ...(documentAgentContext ? { documentAgentContext } : {}),
             }
           : undefined;
       let imagePayload: Awaited<ReturnType<typeof buildImagePayload>>;

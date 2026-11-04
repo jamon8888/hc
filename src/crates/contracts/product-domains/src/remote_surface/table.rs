@@ -767,6 +767,7 @@ pub(super) const OPERATIONS: &[OperationDefinition] = &[
     op("validate_skill_path",                                        Unaudited,   Proxied,          CLI_NOT_IMPLEMENTED),
     op("validate_tool_input",                                        Routed,      Proxied,          CLI_NOT_IMPLEMENTED),
     op("webdriver_bridge_result",                                    Unaudited,   Proxied,          CLI_NOT_IMPLEMENTED),
+    op("wordcraft_complete_embedded_command",                        LocalOnly, ControllerLocal,  REFUSED),
     op("wordcraft_open_document_command",                            LocalOnly, ControllerLocal,  REFUSED),
     op("wordcraft_status_command",                                   LocalOnly, ControllerLocal,  REFUSED),
     op("wordcraft_web_host_command",                                 LocalOnly, ControllerLocal,  REFUSED),

@@ -70,6 +70,8 @@ use tool_runtime::context::{
     PrimaryModelFacts, ToolRuntimeContextFactsInput, ToolRuntimeCustomDataInput,
 };
 
+const WORDCRAFT_DOCUMENT_CONTEXT_KEY: &str = "wordcraft_document_context";
+
 /// Core-owned tool use context.
 #[derive(Debug, Clone)]
 pub struct ToolUseContext {
@@ -419,6 +421,14 @@ fn build_tool_context_custom_data(context: &ToolExecutionContext) -> HashMap<Str
             PERMISSION_MODE_CONTEXT_KEY.to_string(),
             Value::String(mode.as_str().to_string()),
         );
+    }
+    if let Some(document_context) = context
+        .context_vars
+        .get(WORDCRAFT_DOCUMENT_CONTEXT_KEY)
+        .and_then(|value| serde_json::from_str::<Value>(value).ok())
+        .filter(Value::is_object)
+    {
+        extension_custom_data.insert(WORDCRAFT_DOCUMENT_CONTEXT_KEY.to_string(), document_context);
     }
     for key in [
         USER_INPUT_AVAILABLE_CONTEXT_KEY,

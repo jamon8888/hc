@@ -156,6 +156,7 @@ product-full = [
     "i18n-runtime",
     "model-catalog",
     "mcp-runtime",
+    "tools-wordcraft",
     "remote-connect",
     "workspace-search",
     "browser-control",
@@ -356,6 +357,9 @@ tools-git = [
 tools-mcp = [
     "alex-tool-packs/mcp",
     "mcp-runtime",
+]
+tools-wordcraft = [
+    "alex-tool-packs/wordcraft",
 ]
 # RAG search: the tool wrapper (ticket 06, rag_search_tool.rs) delegates through
 # the injected `RagSearchPort` (D11); the concrete PII-safe pipeline stays in

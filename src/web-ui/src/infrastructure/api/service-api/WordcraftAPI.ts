@@ -79,6 +79,13 @@ export interface WordcraftOpenDocumentRequestDto {
   workspaceId?: string | null;
 }
 
+export interface WordcraftEmbeddedCommandCompletionDto {
+  requestId: string;
+  ok: boolean;
+  result?: unknown;
+  error?: string;
+}
+
 export class WordcraftAPI {
   async status(recheck = false): Promise<WordcraftCapabilityDto> {
     return api.invoke<WordcraftCapabilityDto>('wordcraft_status_command', { recheck });
@@ -103,6 +110,12 @@ export class WordcraftAPI {
     return api.invoke<void>('wordcraft_web_release_command', {
       request: { sessionId },
     });
+  }
+
+  async completeEmbeddedCommand(
+    request: WordcraftEmbeddedCommandCompletionDto,
+  ): Promise<void> {
+    return api.invoke<void>('wordcraft_complete_embedded_command', { request });
   }
 
   /** Best-effort status read for entry-point availability; failures stay quiet here. */
