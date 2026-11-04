@@ -7,9 +7,9 @@ use crate::agentic::tools::framework::{
     PermissionIntent, Tool, ToolRenderOptions, ToolResult, ToolUseContext, ValidationResult,
 };
 use crate::util::errors::{AlexError, AlexResult};
+use alex_services_core::markdown::expand_prompt_template_arguments_with_names;
 use async_trait::async_trait;
 use log::debug;
-use alex_services_core::markdown::expand_prompt_template_arguments_with_names;
 use serde_json::{json, Value};
 
 // Use skills module
@@ -464,8 +464,7 @@ Use the remote project skill.
                 );
             }
             if self.imported
-                && path
-                    == "/remote/project/.openbitfun/skills/remote-review/.alex-import.json"
+                && path == "/remote/project/.openbitfun/skills/remote-review/.alex-import.json"
             {
                 return Ok(json!({ "schemaVersion": 1, "importId": "remote-import", "sourceKey": "project::claude::remote-review", "sourcePath": "/remote/project/.claude/skills/remote-review", "sourceId": "claude-code", "sourceLabel": "Claude Code", "sourceSlot": "claude", "fingerprint": "fixture" }).to_string());
             }
@@ -779,8 +778,8 @@ Use the remote project skill.
         };
         assert_eq!(data["skill_name"], "deep-research");
         assert!(data.get("skill_display_name").is_none());
-        assert_eq!(data["source_slot"], "alex");
-        assert_eq!(data["source_id"], "alex");
+        assert_eq!(data["source_slot"], "openbitfun");
+        assert_eq!(data["source_id"], "openbitfun");
         assert_eq!(data["source_label"], "Alex");
     }
 
@@ -848,7 +847,7 @@ Use the remote project skill.
             .await;
         assert!(visible
             .iter()
-            .any(|skill| { skill.name == "deploy-service" && skill.source_slot == "alex" }));
+            .any(|skill| { skill.name == "deploy-service" && skill.source_slot == "openbitfun" }));
 
         let results = SkillTool::new()
             .call_impl(
@@ -944,7 +943,7 @@ Use the remote project skill.
             .await;
         assert!(visible
             .iter()
-            .any(|skill| { skill.name == "remote-review" && skill.source_slot == "alex" }));
+            .any(|skill| { skill.name == "remote-review" && skill.source_slot == "openbitfun" }));
 
         let loaded = registry
             .find_and_load_skill_for_remote_workspace(
@@ -956,7 +955,7 @@ Use the remote project skill.
             .await
             .expect("remote Claude skill should load with the discovery dialect");
         assert_eq!(loaded.name, "remote-review");
-        assert_eq!(loaded.source_id, "alex");
+        assert_eq!(loaded.source_id, "openbitfun");
         assert_eq!(loaded.source_label, "Alex");
         assert_eq!(loaded.argument_names, ["target", "focus"]);
         assert_eq!(loaded.compatibility_warnings.len(), 2);
@@ -1166,7 +1165,7 @@ Use the remote project skill.
         assert_eq!(data["skill_name"], "ppt-design");
         assert_eq!(data["skill_key"], "user::openbitfun-system::ppt-design");
         assert_eq!(data["source_slot"], "openbitfun-system");
-        assert_eq!(data["source_id"], "alex");
+        assert_eq!(data["source_id"], "openbitfun");
         assert_eq!(data["source_label"], "Alex");
         assert!(data["content"]
             .as_str()
