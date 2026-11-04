@@ -76,7 +76,7 @@ impl WorkspaceFileSystem for BasemindWorkspaceFs {
         path: &str,
         max_bytes: usize,
     ) -> anyhow::Result<Option<Vec<u8>>> {
-        let mut reader = self.inner.open_read(path).await?;
+        let reader = self.inner.open_read(path).await?;
         let mut content = Vec::with_capacity(max_bytes.min(64 * 1024));
         reader
             .take(max_bytes.saturating_add(1) as u64)
