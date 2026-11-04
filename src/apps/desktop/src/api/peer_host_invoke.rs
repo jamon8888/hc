@@ -303,6 +303,19 @@ fn basemind_capability_advertisement() -> BasemindCapabilityAdvertisement {
             BasemindUnavailableReason::SidecarUnavailable,
         );
     }
+    if !crate::basemind_privacy_bundle_ready() {
+        return BasemindCapabilityAdvertisement::unavailable(
+            BasemindUnavailableReason::PrivacyPipelineUnavailable,
+        );
+    }
+    let workspace_owner = alex_core::service::workspace::get_global_workspace_service()
+        .and_then(|service| service.try_get_current_workspace_path())
+        .is_some();
+    if !workspace_owner {
+        return BasemindCapabilityAdvertisement::unavailable(
+            BasemindUnavailableReason::WorkspaceOwnerUnknown,
+        );
+    }
     let sidecar_version = alex_basemind_integration::daemon_version()
         .or_else(|| Some(alex_basemind_integration::BASEMIND_VERSION.to_string()));
     let ner_model_version = std::env::var("BASEMIND_NER_MODEL_VERSION")
@@ -315,7 +328,7 @@ fn basemind_capability_advertisement() -> BasemindCapabilityAdvertisement {
         true,
         ner_model_version,
         BasemindPrivacyCapabilities::required(),
-        true,
+        workspace_owner,
     )
 }
 

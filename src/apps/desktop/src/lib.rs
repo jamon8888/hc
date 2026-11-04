@@ -2409,6 +2409,10 @@ static BASEMIND_SIDECAR_BINARY: std::sync::OnceLock<std::path::PathBuf> =
     std::sync::OnceLock::new();
 
 #[cfg(feature = "basemind")]
+static BASEMIND_PRIVACY_BUNDLE_READY: std::sync::atomic::AtomicBool =
+    std::sync::atomic::AtomicBool::new(false);
+
+#[cfg(feature = "basemind")]
 pub(crate) fn record_basemind_sidecar_binary(path: std::path::PathBuf) {
     let _ = BASEMIND_SIDECAR_BINARY.set(path);
 }
@@ -2418,6 +2422,11 @@ pub(crate) fn basemind_sidecar_binary() -> Option<&'static std::path::Path> {
     BASEMIND_SIDECAR_BINARY
         .get()
         .map(std::path::PathBuf::as_path)
+}
+
+#[cfg(feature = "basemind")]
+pub(crate) fn basemind_privacy_bundle_ready() -> bool {
+    BASEMIND_PRIVACY_BUNDLE_READY.load(std::sync::atomic::Ordering::Acquire)
 }
 
 /// The bundled GLiNER2 NER model directory, beside the sidecar binary.
@@ -2537,6 +2546,7 @@ pub(crate) fn publish_basemind_search_port(
     sidecar: &std::path::Path,
     workspace_root: Option<&std::path::Path>,
 ) {
+    BASEMIND_PRIVACY_BUNDLE_READY.store(false, std::sync::atomic::Ordering::Release);
     // Invalidate every workspace-scoped privacy capability before resolving
     // the replacement bundle. If construction fails, no caller may continue
     // using the previous workspace's vault, registry, or ACP interceptor.
@@ -2618,6 +2628,7 @@ pub(crate) fn publish_basemind_search_port(
             &effective_workspace_root,
         ),
     )));
+    BASEMIND_PRIVACY_BUNDLE_READY.store(true, std::sync::atomic::Ordering::Release);
     log::info!("Basemind search and redaction ports published");
 }
 
@@ -2630,6 +2641,7 @@ pub(crate) fn refresh_basemind_privacy_bundle(
     workspace_root: &std::path::Path,
     workspace_kind: alex_core::service::workspace::WorkspaceKind,
 ) {
+    BASEMIND_PRIVACY_BUNDLE_READY.store(false, std::sync::atomic::Ordering::Release);
     alex_core::service::rag_search::set_global_prompt_pseudonymization_port(None);
     alex_core::service::rag_search::set_global_rag_search_port(None);
     alex_core::service::rag_search::set_global_document_redaction_port(None);
