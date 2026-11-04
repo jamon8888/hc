@@ -5,6 +5,8 @@
 use alex_runtime_ports::WorkspaceFileSystem;
 #[cfg(feature = "basemind")]
 use async_trait::async_trait;
+#[cfg(feature = "basemind")]
+use tokio::io::AsyncReadExt;
 
 #[cfg(feature = "basemind")]
 pub struct BasemindWorkspaceFs {
@@ -74,24 +76,22 @@ impl WorkspaceFileSystem for BasemindWorkspaceFs {
         path: &str,
         max_bytes: usize,
     ) -> anyhow::Result<Option<Vec<u8>>> {
-        if self
-            .inner
-            .metadata(path, false)
-            .await?
-            .and_then(|metadata| metadata.size)
-            .is_some_and(|size| size > max_bytes as u64)
-        {
-            return Ok(None);
-        }
-        let Some(content) = self.inner.read_file_bounded(path, max_bytes).await? else {
-            return Ok(None);
-        };
+        let mut reader = self.inner.open_read(path).await?;
+        let mut content = Vec::with_capacity(max_bytes.min(64 * 1024));
+        reader
+            .take(max_bytes.saturating_add(1) as u64)
+            .read_to_end(&mut content)
+            .await?;
         if content.len() > max_bytes {
             return Ok(None);
         }
         let text = String::from_utf8(content)
             .map_err(|_| anyhow::anyhow!("BasemindWorkspaceFs refuses non-UTF-8 file content"))?;
-        Ok(Some(self.redact_text(&text).await?.into_bytes()))
+        let redacted = self.redact_text(&text).await?;
+        if redacted.len() > max_bytes {
+            return Ok(None);
+        }
+        Ok(Some(redacted.into_bytes()))
     }
 
     async fn read_file_text_bounded(
