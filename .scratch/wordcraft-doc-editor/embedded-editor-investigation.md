@@ -226,9 +226,11 @@ metadata and exposes a context-aware `Wordcraft` tool. Core emits a correlated c
 request to the exact active document surface; the Web UI routes it to the visible
 iframe bridge and completes it through the desktop adapter. Closed, inactive,
 stale, unavailable, remote, and capability-mismatched surfaces fail explicitly;
-there is no headless fallback in this path. This seam is implemented, but it is
-not release evidence until the patched WordCraft artifact and GPU-backed mutation
-probe pass.
+there is no headless fallback in this path. A software-WebGL2 same-origin probe against
+the exact patched `0.7.0` bundle now proves the browser mutation/save contract,
+including tracked-change authorship in returned OOXML. The managed Alex bundle is not
+yet provisioned, and the packaged Alex WebView plus hardware-backed native control path
+remain release gates.
 
 ## Recommended phased design and verification plan
 

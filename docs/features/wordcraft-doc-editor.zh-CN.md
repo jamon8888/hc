@@ -94,9 +94,13 @@ manifest 与浏览器握手同时匹配固定版本、协议和命令能力时�
   `node tests/e2e/scripts/wordcraft-doc-roundtrip.mjs [--cli <path>] [--strict]` ——
   headless 全环：initialize → 经 `execute`/`batch` 的修订编辑 → 保存 → OOXML 断言
   （`w:ins` 署名 + 粗体 run）→ 独立 `text` 回读 → 写根外保存拒绝。二进制不可解析时响亮拒绝运行。
-- 欠硬件验证（当前机器不具备）：真实 GPU 表面下的可见应用控制通道（`wordcraft --control`、
-  密钥认证、`engine.execute`、`screenshot`）以及 wordcraft-web 同源嵌入 live probe，
-  需在 macOS/Windows 实机完成后再声称可见链路已验证。
+- 2026-11-04 的软件 WebGL2 嵌入探针已针对精确的修补版 `0.7.0` bundle 通过：同源
+  parent/iframe 握手报告了固定版本、协议和命令能力；`list_commands`、`get_text`、
+  启用修订、`text.insert`、文本回读、`save_document` 及保存确认均以相关联的 revision
+  完成。捕获的保存归档通过 `unzip -t`，并包含署名为 `Alex Agent (probe)` 的 `w:ins`。
+- 仍欠支持设备硬件/发布打包验证：真实 GPU 表面的可见应用控制通道（`wordcraft --control`、
+  key-file 认证、`engine.execute`、`screenshot`）、打包后的 Alex WebView，以及将修补版
+  web bundle 配置进 managed runtime。上述门禁通过前不得声称生产可见链路已验证。
 
 ## 范围之外
 
