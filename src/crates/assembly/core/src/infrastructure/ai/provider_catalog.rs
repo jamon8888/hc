@@ -622,17 +622,17 @@ mod tests {
             .providers
             .iter()
             .any(|provider| provider.id == "opencode-zen" || provider.id == "opencode"));
-        let alex = overlay
+        let openbitfun = overlay
             .providers
             .iter()
-            .find(|provider| provider.id == "alex")
-            .expect("alex");
+            .find(|provider| provider.id == "openbitfun")
+            .expect("openbitfun");
         assert_eq!(
-            alex.model_policy.curated_models,
+            openbitfun.model_policy.curated_models,
             ["glm-5.2", "deepseek-v4-flash", "deepseek-v4-pro"]
         );
         assert_eq!(
-            alex
+            openbitfun
                 .endpoints
                 .iter()
                 .map(|endpoint| (
