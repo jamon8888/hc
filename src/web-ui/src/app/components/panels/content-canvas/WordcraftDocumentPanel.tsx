@@ -47,15 +47,11 @@ export default function WordcraftDocumentPanel({
 
     async function loadDocument() {
       if (!isLocalSurface(surfaceId)) {
-        setError(t('flexiblePanel.wordcraft.localOnly', {
-          defaultValue: 'Embedded WordCraft documents are only supported on the local desktop surface.',
-        }));
+        setError(t('flexiblePanel.wordcraft.localOnly'));
         return;
       }
       if (!workspaceId) {
-        setError(t('flexiblePanel.wordcraft.workspaceRequired', {
-          defaultValue: 'WordCraft requires a workspace identity to open this document.',
-        }));
+        setError(t('flexiblePanel.wordcraft.workspaceRequired'));
         return;
       }
 
@@ -91,9 +87,7 @@ export default function WordcraftDocumentPanel({
     if (!surface || !bytes) return;
     const source = iframeRef.current?.contentWindow;
     if (!source) {
-      setError(t('flexiblePanel.wordcraft.frameUnavailable', {
-        defaultValue: 'WordCraft web surface did not create a browser frame.',
-      }));
+      setError(t('flexiblePanel.wordcraft.frameUnavailable'));
       return;
     }
 
@@ -160,7 +154,7 @@ export default function WordcraftDocumentPanel({
   if (!surface || !bytes) {
     return (
       <div className="alex-flexible-panel__loading">
-        {t('flexiblePanel.loading.wordcraft', { defaultValue: 'Loading WordCraft…' })}
+        {t('flexiblePanel.loading.wordcraft')}
       </div>
     );
   }

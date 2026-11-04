@@ -611,7 +611,13 @@
       "taskDetail": "載入任務詳情...",
       "dependencyGraph": "載入依賴關係圖...",
       "planViewer": "載入計劃...",
-      "terminal": "載入終端..."
+      "terminal": "載入終端...",
+      "wordcraft": "正在載入 WordCraft..."
+    },
+    "wordcraft": {
+      "localOnly": "嵌入式 WordCraft 文件僅支援本機桌面介面。",
+      "workspaceRequired": "WordCraft 需要工作區識別才能開啟此文件。",
+      "frameUnavailable": "WordCraft 網頁介面未建立瀏覽器框架。"
     },
     "aiSession": {
       "title": "AI會話: {{sessionId}}",
