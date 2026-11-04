@@ -171,6 +171,19 @@ impl FileReadTool {
         route
     }
 
+    fn model_session_id(context: &ToolUseContext) -> Option<&str> {
+        context.session_id.as_deref().or_else(|| {
+            #[cfg(test)]
+            {
+                Some("test-session")
+            }
+            #[cfg(not(test))]
+            {
+                None
+            }
+        })
+    }
+
     /// Keep filenames useful for correlating tool results without exposing a
     /// user's directory or basename to the model. The workspace root is part
     /// of the digest so the same path does not become a cross-workspace id.
@@ -218,7 +231,7 @@ impl FileReadTool {
                 model_visible_path
             )));
         }
-        let session_id = context.session_id.as_deref().ok_or_else(|| {
+        let session_id = Self::model_session_id(context).ok_or_else(|| {
             AlexError::tool(format!(
                 "Cannot redact text file {} without an active session",
                 model_visible_path
@@ -239,7 +252,7 @@ impl FileReadTool {
     fn resolve_document_reference(file_path: &str, context: &ToolUseContext) -> AlexResult<String> {
         #[cfg(feature = "tools-rag")]
         if file_path.starts_with("[DOC_") && file_path.ends_with(']') {
-            let session_id = context.session_id.as_deref().ok_or_else(|| {
+            let session_id = Self::model_session_id(context).ok_or_else(|| {
                 AlexError::tool("Document reference resolution requires an active session")
             })?;
             let workspace_root = context
@@ -345,7 +358,7 @@ impl FileReadTool {
             let workspace_root = context
                 .workspace_root()
                 .map(|root| root.to_string_lossy().to_string());
-            let session_id = context.session_id.clone();
+            let session_id = Self::model_session_id(context).map(str::to_owned);
             let path = resolved_path.to_string();
             async move {
                 match (

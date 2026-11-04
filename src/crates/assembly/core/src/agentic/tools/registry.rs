@@ -671,6 +671,7 @@ mod tests {
         assert_eq!(
             provider_ids,
             vec![
+                "core.basemind",
                 "core.basic",
                 "core.agent",
                 "core.session",
