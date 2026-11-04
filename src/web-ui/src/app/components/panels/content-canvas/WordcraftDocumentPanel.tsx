@@ -36,6 +36,7 @@ export default function WordcraftDocumentPanel({
   const { t } = useI18n('components');
   const documentSession = useEditorDocument();
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const isActiveRef = useRef(isActive);
   const dirtyStateChangeRef = useRef(onDirtyStateChange);
   const [surface, setSurface] = useState<WordcraftWebHostResponseDto | null>(null);
   const [bytes, setBytes] = useState<Uint8Array | null>(null);
@@ -46,6 +47,7 @@ export default function WordcraftDocumentPanel({
   }, [onDirtyStateChange]);
 
   useEffect(() => {
+    isActiveRef.current = isActive;
     if (!documentSession) return;
     setDocumentAgentContextActive(`wordcraft:${documentSession.id}`, isActive);
   }, [documentSession, isActive]);
@@ -170,7 +172,7 @@ export default function WordcraftDocumentPanel({
           status: 'loading',
           capabilities: surface.commandCapabilities,
         },
-        isActive,
+        isActiveRef.current,
         async (request: DocumentAgentCommandRequest) => {
           if (!surface.commandCapabilities.includes(request.operation)) {
             throw new Error(`WordCraft operation '${request.operation}' is unavailable`);
