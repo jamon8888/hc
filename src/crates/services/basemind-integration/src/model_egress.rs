@@ -241,6 +241,172 @@ impl BasemindModelEgressPolicy {
             .map(|value| visit(&value))
             .unwrap_or(false)
     }
+
+    async fn redact_embedded_image_payload(
+        &self,
+        content: String,
+        context: &ModelEgressContext,
+    ) -> Result<String, ModelEgressError> {
+        let Ok(mut value) = serde_json::from_str::<Value>(&content) else {
+            return Err(ModelEgressError::new(
+                ModelEgressErrorKind::UnsupportedPayload,
+                "model egress refused: embedded image content is not a supported JSON payload",
+            ));
+        };
+        let mut targets = Vec::new();
+        collect_embedded_image_targets(&value, &mut Vec::new(), &mut targets);
+        if targets.is_empty() {
+            return Err(ModelEgressError::new(
+                ModelEgressErrorKind::UnsupportedPayload,
+                "model egress refused: embedded image content has no OCR-safe representation",
+            ));
+        }
+        let redactor = self.attachment_redactor.as_ref().ok_or_else(|| {
+            ModelEgressError::new(
+                ModelEgressErrorKind::UnsupportedPayload,
+                "model egress refused: embedded image content requires OCR before an API model call",
+            )
+        })?;
+        let workspace_root = context.workspace_root.as_deref().ok_or_else(|| {
+            ModelEgressError::new(
+                ModelEgressErrorKind::MissingContext,
+                "model egress refused: embedded image has no workspace root",
+            )
+        })?;
+        let session_id = context.session_id.as_deref().ok_or_else(|| {
+            ModelEgressError::new(
+                ModelEgressErrorKind::MissingContext,
+                "model egress refused: embedded image has no session id",
+            )
+        })?;
+        for target in targets {
+            let markdown = redactor
+                .redact_image_attachment(
+                    &target.mime_type,
+                    &target.data_base64,
+                    workspace_root,
+                    session_id,
+                )
+                .await?;
+            let replacement = if target.replace_object {
+                serde_json::json!({
+                    "type": "text",
+                    "text": format!("[OCR attachment]\n{markdown}"),
+                })
+            } else {
+                Value::String(format!("[OCR attachment]\n{markdown}"))
+            };
+            let slot = value.pointer_mut(&target.pointer).ok_or_else(|| {
+                ModelEgressError::new(
+                    ModelEgressErrorKind::Failed,
+                    "model egress failed to locate embedded image payload",
+                )
+            })?;
+            *slot = replacement;
+        }
+        serde_json::to_string(&value).map_err(|error| {
+            ModelEgressError::new(
+                ModelEgressErrorKind::Failed,
+                format!("model egress failed to serialize OCR content: {error}"),
+            )
+        })
+    }
+}
+
+struct EmbeddedImageTarget {
+    pointer: String,
+    mime_type: String,
+    data_base64: String,
+    replace_object: bool,
+}
+
+fn data_url_parts(value: &str) -> Option<(String, String)> {
+    let (metadata, data) = value.strip_prefix("data:")?.split_once(',')?;
+    let mime_type = metadata.split(';').next()?.trim();
+    mime_type
+        .starts_with("image/")
+        .then(|| (mime_type.to_string(), data.to_string()))
+}
+
+fn pointer_segment(segment: &str) -> String {
+    segment.replace('~', "~0").replace('/', "~1")
+}
+
+fn pointer_for(path: &[String]) -> String {
+    path.iter()
+        .map(|segment| format!("/{}", pointer_segment(segment)))
+        .collect()
+}
+
+fn collect_embedded_image_targets(
+    value: &Value,
+    path: &mut Vec<String>,
+    targets: &mut Vec<EmbeddedImageTarget>,
+) {
+    match value {
+        Value::String(value) => {
+            if let Some((mime_type, data_base64)) = data_url_parts(value) {
+                targets.push(EmbeddedImageTarget {
+                    pointer: pointer_for(path),
+                    mime_type,
+                    data_base64,
+                    replace_object: false,
+                });
+            }
+        }
+        Value::Array(values) => {
+            for (index, value) in values.iter().enumerate() {
+                path.push(index.to_string());
+                collect_embedded_image_targets(value, path, targets);
+                path.pop();
+            }
+        }
+        Value::Object(fields) => {
+            if let Some(url) = fields
+                .get("image_url")
+                .and_then(Value::as_object)
+                .and_then(|image| image.get("url"))
+                .and_then(Value::as_str)
+                .and_then(data_url_parts)
+            {
+                targets.push(EmbeddedImageTarget {
+                    pointer: pointer_for(path),
+                    mime_type: url.0,
+                    data_base64: url.1,
+                    replace_object: true,
+                });
+                return;
+            }
+            if let Some((mime_type, data_base64)) = fields
+                .get("inline_data")
+                .and_then(Value::as_object)
+                .and_then(|inline| {
+                    let mime_type = inline
+                        .get("mime_type")
+                        .or_else(|| inline.get("mimeType"))
+                        .and_then(Value::as_str)?;
+                    let data_base64 = inline.get("data").and_then(Value::as_str)?;
+                    mime_type
+                        .starts_with("image/")
+                        .then(|| (mime_type.to_string(), data_base64.to_string()))
+                })
+            {
+                targets.push(EmbeddedImageTarget {
+                    pointer: pointer_for(path),
+                    mime_type,
+                    data_base64,
+                    replace_object: true,
+                });
+                return;
+            }
+            for (key, value) in fields {
+                path.push(key.clone());
+                collect_embedded_image_targets(value, path, targets);
+                path.pop();
+            }
+        }
+        _ => {}
+    }
 }
 
 #[async_trait]
@@ -310,12 +476,12 @@ impl ModelEgressPolicy for BasemindModelEgressPolicy {
                 });
             }
             if let Some(content) = message.content.take() {
-                if Self::contains_image_payload(&content) {
-                    return Err(ModelEgressError::new(
-                        ModelEgressErrorKind::UnsupportedPayload,
-                        "model egress refused: image content requires OCR before an API model call",
-                    ));
-                }
+                let content = if Self::contains_image_payload(&content) {
+                    self.redact_embedded_image_payload(content, &context)
+                        .await?
+                } else {
+                    content
+                };
                 message.content = Some(self.pseudonymize_text(content, &context).await?);
             }
             if let Some(reasoning) = message.reasoning_content.take() {
@@ -470,6 +636,29 @@ mod tests {
             .unwrap_err();
 
         assert_eq!(error.kind, ModelEgressErrorKind::UnsupportedPayload);
+    }
+
+    #[tokio::test]
+    async fn api_embedded_data_urls_are_replaced_by_redacted_ocr() {
+        let policy = BasemindModelEgressPolicy::scoped_with_attachment_redactor(
+            Arc::new(StubPseudonymizer),
+            Some(Path::new("/workspace")),
+            Some(Arc::new(StubImageRedactor)),
+        );
+        let result = policy
+            .protect_messages(
+                vec![Message::user(
+                    r#"[{"type":"image_url","image_url":{"url":"data:image/png;base64,AA=="}}]"#
+                        .into(),
+                )],
+                context(ModelPrivacyRoute::Api),
+            )
+            .await
+            .unwrap();
+
+        let content = result[0].content.as_deref().unwrap();
+        assert!(content.contains("OCR [PERSON_test]"));
+        assert!(!content.contains("data:image/"));
     }
 
     #[tokio::test]
