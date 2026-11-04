@@ -3325,7 +3325,7 @@
       "visibility": "implementation",
       "rustPath": "get_local_models_dev_catalogs",
       "sourceFile": "src/apps/desktop/src/api/commands.rs",
-      "signature": "fn get_local_models_dev_catalogs( ) -> Result<alex_core::LocalModelsDevCatalogs, String>",
+      "signature": "fn get_local_models_dev_catalogs() -> Result<alex_core::LocalModelsDevCatalogs, String>",
       "remoteWorkspacePolicy": "LocalOnly"
     },
     {
