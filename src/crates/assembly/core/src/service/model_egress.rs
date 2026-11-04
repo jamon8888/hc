@@ -43,6 +43,11 @@ impl ModelEgressPolicy for RefusingModelEgressPolicy {
 struct TestModelEgressPolicy;
 
 #[cfg(test)]
+pub(crate) fn test_passthrough_model_egress_policy() -> Arc<dyn ModelEgressPolicy> {
+    Arc::new(TestModelEgressPolicy)
+}
+
+#[cfg(test)]
 #[async_trait]
 impl ModelEgressPolicy for TestModelEgressPolicy {
     async fn protect_messages(

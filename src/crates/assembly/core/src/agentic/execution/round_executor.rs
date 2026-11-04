@@ -1857,8 +1857,8 @@ pub(super) mod tests {
         pub(in crate::agentic::execution) fn client(
             &self,
         ) -> Arc<crate::infrastructure::ai::AIClient> {
-            Arc::new(crate::infrastructure::ai::AIClient::new(
-                alex_core_types::AIConfig {
+            Arc::new(
+                crate::infrastructure::ai::AIClient::new(alex_core_types::AIConfig {
                     name: "retry-test".to_string(),
                     base_url: self.url.clone(),
                     request_url: self.url.clone(),
@@ -1875,8 +1875,14 @@ pub(super) mod tests {
                     skip_ssl_verify: false,
                     custom_request_body: None,
                     custom_request_body_mode: None,
-                },
-            ))
+                })
+                .with_model_egress_policy(Some(
+                    crate::service::model_egress::test_passthrough_model_egress_policy(),
+                ))
+                .with_declared_model_privacy_route(Some(
+                    alex_runtime_ports::ModelPrivacyRoute::Api,
+                )),
+            )
         }
     }
 
