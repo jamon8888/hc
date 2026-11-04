@@ -27,3 +27,13 @@ embedded WordCraft document, with reviewable tracked changes and verification.
       capabilities return explicit errors and do not silently switch writers.
 - [ ] Composer, session-routing, tracked-author, batch, save, and verification
       tests cover the complete prompt-to-document loop.
+
+## Implementation continuation (2026-11-04)
+
+- `execute` and `batch` now automatically issue `save_document` through the same
+  embedded bridge and return success only after the durable host acknowledges the
+  save. Read-only operations remain read-only.
+- The focused core WordCraft tool tests pass, and the browser probe verified the
+  tracked-change mutation, text read-back, save acknowledgement, and returned
+  OOXML authorship. Full prompt-to-document integration coverage and packaged
+  WebView validation remain open.
