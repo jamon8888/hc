@@ -42,3 +42,11 @@ document surface.
   verification, and production message-listener wiring remain with the blocked
   human surface and command-bridge work in tickets 19 and 20; this ticket stays
   claimed until those integration seams consume the contract.
+
+2026-11-04 continuation:
+
+- The managed web probe now requires and verifies `SHA256SUMS.txt` before it can
+  report `available`; missing sidecars, unlisted files, mismatches, and tampering
+  return an explicit error and leave `checksumVerified` false. Legacy capability
+  records default that field safely. The real pinned artifact and GPU-backed
+  browser probe remain release gates.

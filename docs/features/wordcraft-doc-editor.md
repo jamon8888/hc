@@ -18,7 +18,9 @@ this record**; no surface re-derives status, and availability is never fabricate
 
 Distribution is the pinned upstream release archive verified against upstream `SHA256SUMS.txt`
 (never vendored crates, never unverified binaries). The `wordcraft-web` static bundle is a
-same-origin iframe surface behind a versioned `ready` handshake and parent control bridge.
+same-origin iframe surface behind a versioned `ready` handshake and parent control bridge;
+the managed bundle must also ship a `SHA256SUMS.txt` sidecar covering every static file before
+Alex reports the web capability as available.
 Alex only presents it when the managed artifact's manifest and browser handshake agree on the
 pinned version, protocol, and command capabilities; otherwise the capability record remains
 unavailable and the native/headless paths retain their existing behavior. The current upstream
