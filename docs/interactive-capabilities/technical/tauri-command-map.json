@@ -1,13 +1,13 @@
 {
   "schemaVersion": 2,
   "generatedFrom": "src/shared/interactive-capabilities/catalog.json",
-  "catalogDigest": "4b613f29dcf8427a5fd9c414f0601804afaa47e9787cfb2254bf1b59a750b537",
-  "commandCount": 673,
+  "catalogDigest": "6a7d299be0e64441d1fe6cdc6a4cf02c2af8bef3975f4c086c13d1bdc57d50e2",
+  "commandCount": 674,
   "coverage": {
-    "commandCount": 673,
+    "commandCount": 674,
     "documentedCommandCount": 620,
-    "implementationCommandCount": 53,
-    "implementationDigest": "e082ea5966904ff796853a8c217679279aa4aa1842617850fe0ef6d0c2196c5e"
+    "implementationCommandCount": 54,
+    "implementationDigest": "774c812b40a5704be09bfd84e6489e208dc8f9175bdb5ef1f1d3bfa29afdafb9"
   },
   "commands": [
     {
@@ -10595,6 +10595,30 @@
       "rustPath": "api::wordcraft_api::wordcraft_status_command",
       "sourceFile": "src/apps/desktop/src/api/wordcraft_api.rs",
       "signature": "fn wordcraft_status_command(recheck: bool) -> Result<WordcraftCapability, String>",
+      "remoteWorkspacePolicy": "LocalOnly"
+    },
+    {
+      "id": "wordcraft_web_host_command",
+      "moduleId": "wordcraft",
+      "capabilityId": null,
+      "capabilityIds": [],
+      "documentedItemIds": [],
+      "visibility": "internal",
+      "rustPath": "api::wordcraft_api::wordcraft_web_host_command",
+      "sourceFile": "src/apps/desktop/src/api/wordcraft_api.rs",
+      "signature": "fn wordcraft_web_host_command() -> Result<WordcraftWebHostResponse, String>",
+      "remoteWorkspacePolicy": "LocalOnly"
+    },
+    {
+      "id": "wordcraft_web_release_command",
+      "moduleId": "wordcraft",
+      "capabilityId": null,
+      "capabilityIds": [],
+      "documentedItemIds": [],
+      "visibility": "internal",
+      "rustPath": "api::wordcraft_api::wordcraft_web_release_command",
+      "sourceFile": "src/apps/desktop/src/api/wordcraft_api.rs",
+      "signature": "fn wordcraft_web_release_command( request: WordcraftWebReleaseRequest, ) -> Result<(), String>",
       "remoteWorkspacePolicy": "LocalOnly"
     },
     {
