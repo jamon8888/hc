@@ -123,7 +123,7 @@ export const optionalDependencyFeatureOwnerRules = [
       'runtime-ports optional capabilities must stay behind their exact contract slice',
     dependencies: [
       { depName: 'anyhow', ownerFeatures: ['workspace-ports'] },
-      { depName: 'alex-core-types', ownerFeatures: ['agent-api', 'ts'] },
+      { depName: 'alex-core-types', ownerFeatures: ['agent-api', 'model-egress', 'ts'] },
       { depName: 'alex-product-domains', ownerFeatures: ['permission', 'product-search', 'ts'] },
       { depName: 'tokio', ownerFeatures: ['remote-exec-port', 'terminal-port', 'workspace-ports'] },
       { depName: 'tokio-util', ownerFeatures: ['workspace-ports'] },
@@ -409,6 +409,7 @@ export const capabilityContractDependencyRules = [
       'document-redaction': [],
       'prompt-pseudonymization': [],
       'rag-search': [],
+      'model-egress': ['dep:alex-core-types'],
       'remote-exec-port': ['dep:tokio'],
       'remote-workspace-ports': [],
       'runtime-event-port': [],
@@ -464,6 +465,7 @@ export const capabilityContractDependencyRules = [
               'rag-search',
               'document-redaction',
               'prompt-pseudonymization',
+              'model-egress',
             ],
             { optional: true },
           ),
@@ -472,6 +474,12 @@ export const capabilityContractDependencyRules = [
         ['basemind'],
         ['default', 'tools-rag', 'document-read', 'pseudonymization'],
       )],
+      ['alex-acp', capabilityConsumer([
+        capabilityEdge(['model-egress', 'prompt-pseudonymization']),
+      ])],
+      ['alex-ai-adapters', capabilityConsumer([
+        capabilityEdge(['model-egress']),
+      ])],
       ['alex-cli', capabilityConsumer([
         capabilityEdge(['agent-api', 'git-port', 'permission', 'plugin-runtime', 'workspace-ports']),
       ])],
@@ -493,11 +501,12 @@ export const capabilityContractDependencyRules = [
           capabilityForwarder('tools-rag', 'document-redaction'),
           capabilityForwarder('tools-rag', 'prompt-pseudonymization'),
           capabilityForwarder('tools-rag', 'rag-search'),
+          capabilityForwarder('ai-adapter-runtime', 'model-egress'),
           capabilityForwarder('ts', 'ts'),
           capabilityForwarder('web-tools', 'web-search-port'),
         ],
         [],
-        ['external-sources', 'mcp-runtime', 'opencode-plugin-host', 'product-full', 'remote-connect', 'tools-browser-web', 'tools-mcp'],
+        ['external-sources', 'function-agents', 'mcp-runtime', 'model-catalog', 'opencode-plugin-host', 'product-full', 'remote-connect', 'tools-browser-web', 'tools-mcp'],
       )],
       ['alex-desktop', capabilityConsumer([
         capabilityEdge(['agent-api', 'permission', 'workspace-ports']),
@@ -758,6 +767,7 @@ export const coreProductFullFeatureAssemblyRule = {
     'tools-creation',
     'tools-git',
     'tools-image-analysis',
+    'tools-rag',
     'tools-mcp',
     'tools-miniapp',
     'tools-pages',
@@ -1279,7 +1289,7 @@ export const coreClosedFeatureProfileRules = [
   {
     manifestPath: 'src/crates/assembly/core/Cargo.toml',
     featureName: 'ai-adapter-runtime',
-    requiredFeatureRefs: ['dep:alex-ai-adapters'],
+    requiredFeatureRefs: ['dep:alex-ai-adapters', 'alex-runtime-ports/model-egress'],
     exact: true,
     reason:
       'ai-adapter-runtime must own provider protocol clients without implicitly enabling local subscription credentials',
