@@ -17,6 +17,7 @@
 //! It does not execute anything and must not depend on any runtime crate.
 
 mod baseline;
+mod basemind;
 mod capabilities;
 mod table;
 
@@ -24,7 +25,15 @@ use std::collections::BTreeSet;
 
 use serde::{Deserialize, Serialize};
 
-pub use capabilities::{advertised_by, advertises, capability_map, PeerHostCapability};
+pub use basemind::{
+    negotiate_basemind, BasemindCapabilityAdvertisement, BasemindCapabilityRequirement,
+    BasemindCapabilityState, BasemindNegotiatedCapability, BasemindNegotiationError,
+    BasemindPrivacyCapabilities, BasemindUnavailableReason, BASEMIND_CAPABILITY_ID,
+    BASEMIND_CAPABILITY_PROTOCOL_VERSION, BASEMIND_MIN_SIDECAR_VERSION,
+};
+pub use capabilities::{
+    advertised_by, advertises, capability_map, capability_map_with_basemind, PeerHostCapability,
+};
 
 /// Wire schema version of the exported registry artifact.
 pub const REMOTE_SURFACE_SCHEMA_VERSION: u32 = 1;

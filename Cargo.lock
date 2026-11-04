@@ -330,6 +330,7 @@ name = "alex-basemind-integration"
 version = "0.1.0"
 dependencies = [
  "aes-gcm",
+ "alex-config-contracts",
  "alex-core-types",
  "alex-runtime-ports",
  "alex-services-core",
@@ -357,6 +358,7 @@ dependencies = [
  "thiserror 2.0.19",
  "tokio",
  "tokio-test",
+ "tool-runtime",
  "tracing",
  "url",
  "uuid",

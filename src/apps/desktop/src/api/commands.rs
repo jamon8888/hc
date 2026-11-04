@@ -1129,10 +1129,12 @@ async fn create_transient_ai_client_for_config(
             stream_options,
         ),
     );
-    Ok(alex_core::infrastructure::ai::client_factory::apply_model_privacy_route(
-        client,
-        &privacy_model_config,
-    ))
+    Ok(
+        alex_core::infrastructure::ai::client_factory::apply_model_privacy_route(
+            client,
+            &privacy_model_config,
+        ),
+    )
 }
 
 #[tauri::command]
@@ -5860,6 +5862,14 @@ pub mod basemind_commands {
         pub source_format: String,
     }
 
+    #[derive(Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct RehydrateModelTextRequest {
+        pub workspace_id: Option<String>,
+        pub session_id: String,
+        pub text: String,
+    }
+
     #[tauri::command]
     pub async fn basemind_reveal_entity(
         state: State<'_, AppState>,
@@ -5903,6 +5913,35 @@ pub mod basemind_commands {
             entities: document.entities,
             source_format: document.source_format,
         })
+    }
+
+    /// Rehydrate model tokens only at the authorized human-rendering boundary.
+    /// The runtime keeps transcript, trace and tool values tokenized.
+    #[tauri::command]
+    pub async fn basemind_rehydrate_model_text(
+        state: State<'_, AppState>,
+        request: RehydrateModelTextRequest,
+    ) -> Result<String, String> {
+        if request.session_id.trim().is_empty() {
+            return Err("model text rehydration requires a session id".to_string());
+        }
+        let (_, root) = state
+            .basemind_workspace(request.workspace_id.as_deref())
+            .await?;
+        let policy = alex_core::service::model_egress::global_model_egress_policy()
+            .ok_or_else(|| "model text rehydration is unavailable".to_string())?;
+        use alex_runtime_ports::ModelEgressPolicy;
+        policy
+            .rehydrate_text(
+                request.text,
+                alex_runtime_ports::ModelEgressContext {
+                    route: alex_runtime_ports::ModelPrivacyRoute::Api,
+                    session_id: Some(request.session_id),
+                    workspace_root: Some(root.to_string_lossy().to_string()),
+                },
+            )
+            .await
+            .map_err(|error| error.to_string())
     }
 
     /// Resolve a document path against the workspace it must live in.
@@ -5958,5 +5997,34 @@ mod file_workspace_id_contract_tests {
         assert!(legacy.workspace_id.is_none());
         assert_eq!(legacy.workspace_path, "/legacy/project");
         assert_eq!(legacy.remote_connection_id.as_deref(), Some("ssh-old"));
+    }
+}
+
+#[cfg(feature = "basemind")]
+#[cfg(test)]
+mod basemind_upgrade_compat_tests {
+    use super::basemind_commands::RevealEntityRequest;
+
+    #[test]
+    fn legacy_reveal_entity_payload_without_workspace_id_still_deserializes() {
+        let request: RevealEntityRequest = serde_json::from_value(serde_json::json!({
+            "entityId": "ENT_PERSON_abcdef12"
+        }))
+        .expect("legacy reveal payload");
+
+        assert_eq!(request.entity_id, "ENT_PERSON_abcdef12");
+        assert_eq!(request.workspace_id, None);
+    }
+
+    #[test]
+    fn current_reveal_entity_payload_keeps_workspace_scope() {
+        let request: RevealEntityRequest = serde_json::from_value(serde_json::json!({
+            "workspaceId": "workspace-1",
+            "entityId": "ENT_PERSON_abcdef12"
+        }))
+        .expect("current reveal payload");
+
+        assert_eq!(request.workspace_id.as_deref(), Some("workspace-1"));
+        assert_eq!(request.entity_id, "ENT_PERSON_abcdef12");
     }
 }

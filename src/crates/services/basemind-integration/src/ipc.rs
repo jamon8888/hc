@@ -162,6 +162,35 @@ impl RedactionPolicy {
             ner_profile: Some(ner_profile.into()),
         }
     }
+
+    /// Validate the local NER prerequisite before an API redaction request.
+    ///
+    /// The sidecar can legally fall back to pattern detectors when NER is not
+    /// available. That fallback is not sufficient for the product privacy
+    /// contract, so a required policy refuses before any request crosses the
+    /// sidecar boundary.
+    pub fn validate(&self) -> Result<()> {
+        if !self.require_ner {
+            return Ok(());
+        }
+        let Some(model_dir) = self.ner_model_dir.as_deref() else {
+            anyhow::bail!("required Basemind NER model is unavailable; API redaction is refused");
+        };
+        let model_dir = std::path::Path::new(model_dir);
+        if !model_dir.is_dir() {
+            anyhow::bail!(
+                "required Basemind NER model directory {} is missing; API redaction is refused",
+                model_dir.display()
+            );
+        }
+        if !model_dir.join("model.safetensors").is_file() {
+            anyhow::bail!(
+                "required Basemind NER model file {} is missing; API redaction is refused",
+                model_dir.join("model.safetensors").display()
+            );
+        }
+        Ok(())
+    }
 }
 
 #[cfg(feature = "basemind")]
@@ -216,7 +245,8 @@ impl BasemindClient {
     ///
     /// Only sidecar redaction tools accept these arguments; other tools are
     /// not called with them.
-    fn apply_redaction_policy(&self, arguments: &mut Value) {
+    fn apply_redaction_policy(&self, arguments: &mut Value) -> Result<()> {
+        self.redaction.validate()?;
         if self.redaction.require_ner {
             arguments["require_ner"] = Value::Bool(true);
         }
@@ -226,6 +256,7 @@ impl BasemindClient {
         if let Some(ner_profile) = &self.redaction.ner_profile {
             arguments["ner_profile"] = Value::String(ner_profile.clone());
         }
+        Ok(())
     }
 
     /// The endpoint to use for this call, ensured to be alive.
@@ -292,7 +323,7 @@ impl BasemindClient {
             "text": text,
             "strategy": "token-replace"
         });
-        self.apply_redaction_policy(&mut arguments);
+        self.apply_redaction_policy(&mut arguments)?;
         let result = self.call_tool("redact_text", arguments, root).await?;
         Ok(result)
     }
@@ -313,7 +344,7 @@ impl BasemindClient {
             "file_path": path,
             "strategy": "token-replace",
         });
-        self.apply_redaction_policy(&mut arguments);
+        self.apply_redaction_policy(&mut arguments)?;
         self.call_tool("redact_text", arguments, root).await
     }
 

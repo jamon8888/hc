@@ -16,12 +16,15 @@
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 
-use super::PeerHostKind;
+use super::{BasemindCapabilityAdvertisement, PeerHostKind};
 
 /// A capability a peer host may advertise in `peer_mode_ping`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum PeerHostCapability {
+    /// Host-owned Basemind privacy pipeline; advertised only after negotiation
+    /// facts prove the sidecar, NER model, vault and fail-closed policy exist.
+    BasemindPrivacyV1,
     DialogQueueV1,
     /// `start_dialog_turn` / `start_acp_dialog_turn` may be retried with the
     /// same `(sessionId, turnId)`; the host coalesces duplicate attempts.
@@ -65,6 +68,7 @@ pub enum PeerHostCapability {
 impl PeerHostCapability {
     /// Every capability id, in wire order.
     pub const ALL: &'static [PeerHostCapability] = &[
+        Self::BasemindPrivacyV1,
         Self::DialogQueueV1,
         Self::IdempotentDialogSubmit,
         Self::InlineImageAttachmentsV1,
@@ -89,6 +93,7 @@ impl PeerHostCapability {
     /// The key used in the `peer_mode_ping` `capabilities` object.
     pub const fn key(self) -> &'static str {
         match self {
+            Self::BasemindPrivacyV1 => super::BASEMIND_CAPABILITY_ID,
             Self::DialogQueueV1 => "dialog_queue_v1",
             Self::IdempotentDialogSubmit => "idempotent_dialog_submit",
             Self::InlineImageAttachmentsV1 => "inline_image_attachments_v1",
@@ -122,6 +127,7 @@ const DESKTOP_CAPABILITIES: &[PeerHostCapability] = PeerHostCapability::ALL;
 /// The CLI peer host has no MiniApp runtime, WSL connection setup, host-native
 /// ProductControl providers, or presentation surface.
 const CLI_CAPABILITIES: &[PeerHostCapability] = &[
+    PeerHostCapability::BasemindPrivacyV1,
     PeerHostCapability::DialogQueueV1,
     PeerHostCapability::ControlConversationV1,
     PeerHostCapability::ControlConversationResetV1,
@@ -157,6 +163,20 @@ pub fn capability_map(host: PeerHostKind) -> Map<String, Value> {
         .iter()
         .map(|capability| (capability.key().to_string(), Value::Bool(true)))
         .collect()
+}
+
+/// Project the host's dynamic Basemind facts onto the static peer capability
+/// map. An unavailable or stale host omits the positive key; it never emits a
+/// `false` capability that an older controller could misread as support.
+pub fn capability_map_with_basemind(
+    host: PeerHostKind,
+    basemind: &BasemindCapabilityAdvertisement,
+) -> Map<String, Value> {
+    let mut map = capability_map(host);
+    if !basemind.is_usable() {
+        map.remove(PeerHostCapability::BasemindPrivacyV1.key());
+    }
+    map
 }
 
 #[cfg(test)]
@@ -217,5 +237,26 @@ mod tests {
         assert!(!cli.contains_key("miniapp_agent_context_files_v1"));
         assert!(!cli.contains_key("product_control_native_v1"));
         assert!(!cli.contains_key("product_control_presentation_v1"));
+    }
+
+    #[test]
+    fn basemind_capability_is_omitted_until_the_host_is_ready() {
+        let unavailable = BasemindCapabilityAdvertisement::default();
+        let map = capability_map_with_basemind(PeerHostKind::Cli, &unavailable);
+        assert!(!map.contains_key(PeerHostCapability::BasemindPrivacyV1.key()));
+
+        let ready = BasemindCapabilityAdvertisement::from_host_facts(
+            true,
+            Some("0.36.0".to_string()),
+            true,
+            Some("gliner2-bundled".to_string()),
+            super::super::BasemindPrivacyCapabilities::required(),
+            true,
+        );
+        let map = capability_map_with_basemind(PeerHostKind::Cli, &ready);
+        assert_eq!(
+            map.get(PeerHostCapability::BasemindPrivacyV1.key()),
+            Some(&Value::Bool(true))
+        );
     }
 }

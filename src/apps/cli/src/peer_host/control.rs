@@ -1,6 +1,7 @@
 //! Peer Mode control-plane subscribers (attach / detach / ping).
 
 use std::collections::HashSet;
+use std::path::Path;
 use std::sync::{Mutex, OnceLock};
 
 use serde_json::{json, Value};
@@ -8,7 +9,8 @@ use tokio::sync::{RwLock, RwLockReadGuard};
 
 use alex_core::service::remote_connect::DeviceIdentity;
 use alex_product_domains::remote_surface::{
-    capability_map, digest as remote_surface_digest, PeerHostKind,
+    capability_map_with_basemind, digest as remote_surface_digest, BasemindCapabilityAdvertisement,
+    BasemindPrivacyCapabilities, BasemindUnavailableReason, PeerHostKind,
 };
 
 #[derive(Default)]
@@ -97,7 +99,45 @@ pub(crate) fn attached_controllers() -> Vec<String> {
     controllers
 }
 
+fn basemind_capability_advertisement() -> BasemindCapabilityAdvertisement {
+    let Some(ner_model_dir) = std::env::var_os("BASEMIND_NER_MODEL_DIR") else {
+        return BasemindCapabilityAdvertisement::unavailable(
+            BasemindUnavailableReason::NotConfigured,
+        );
+    };
+    let ner_model_dir = Path::new(&ner_model_dir);
+    if !ner_model_dir.join("model.safetensors").is_file() {
+        return BasemindCapabilityAdvertisement::unavailable(
+            BasemindUnavailableReason::NerModelMissing,
+        );
+    }
+    let daemon_available = alex_basemind_integration::daemon::discover().is_ok();
+    if !daemon_available {
+        return BasemindCapabilityAdvertisement::unavailable(
+            BasemindUnavailableReason::SidecarUnavailable,
+        );
+    }
+    let sidecar_binary =
+        std::env::var_os("BASEMIND_SIDECAR_PATH").is_some_and(|path| Path::new(&path).is_file());
+    let sidecar_binary = sidecar_binary || daemon_available;
+    let sidecar_version = alex_basemind_integration::daemon_version()
+        .or_else(|| Some(alex_basemind_integration::BASEMIND_VERSION.to_string()));
+    let ner_model_version = std::env::var("BASEMIND_NER_MODEL_VERSION")
+        .ok()
+        .filter(|version| !version.trim().is_empty())
+        .or_else(|| Some("bundled".to_string()));
+    BasemindCapabilityAdvertisement::from_host_facts(
+        sidecar_binary,
+        sidecar_version,
+        true,
+        ner_model_version,
+        BasemindPrivacyCapabilities::required(),
+        true,
+    )
+}
+
 pub(crate) fn peer_mode_ping_value() -> Value {
+    let basemind = basemind_capability_advertisement();
     let device_id = DeviceIdentity::from_current_machine()
         .map(|d| d.device_id)
         .unwrap_or_else(|_| "unknown".to_string());
@@ -114,7 +154,11 @@ pub(crate) fn peer_mode_ping_value() -> Value {
         // Only advertised keys, all `true`, taken from the Product Operation
         // Registry so the desktop host, this host and the generated frontend
         // artifact publish and consume one capability list.
-        "capabilities": Value::Object(capability_map(PeerHostKind::Cli)),
+        "capabilities": Value::Object(capability_map_with_basemind(PeerHostKind::Cli, &basemind)),
+        // The boolean capability above is deliberately omitted when any
+        // prerequisite is missing. This detail explains a refusal without
+        // exposing paths or raw workspace data and is additive for old peers.
+        "basemind": serde_json::to_value(basemind).expect("Basemind capability serializes"),
         // Additive: lets a controller detect that this host and its own
         // generated tables were built from different registries.
         "surface_registry_digest": remote_surface_digest(),

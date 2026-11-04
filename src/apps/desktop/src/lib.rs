@@ -39,23 +39,23 @@ mod window_state_support;
 #[cfg(target_os = "windows")]
 mod window_webview_geometry;
 
-use alex_agent_runtime::sdk::{SessionEventJournal, attach_session_event_cursor};
+use alex_agent_runtime::sdk::{attach_session_event_cursor, SessionEventJournal};
 use alex_core::agentic::tools::computer_use_capability::set_computer_use_desktop_available;
 use alex_core::agentic::tools::computer_use_host::ComputerUseHostRef;
 use alex_core::infrastructure::ai::AIClientFactory;
 use alex_core::infrastructure::{get_path_manager_arc, try_get_path_manager_arc};
 use alex_core::service::search::get_global_workspace_search_service;
 use alex_core::service::session_projection_store::{
-    FileSessionProjectionStore, runtime_event_log_dir,
+    runtime_event_log_dir, FileSessionProjectionStore,
 };
-use alex_core::util::{TimingCollector, elapsed_ms};
+use alex_core::util::{elapsed_ms, TimingCollector};
 use alex_events::AgenticEvent;
 use alex_transport::{TauriTransportAdapter, TransportAdapter};
 use serde::Deserialize;
 use std::path::PathBuf;
 use std::sync::{
-    Arc, OnceLock,
     atomic::{AtomicBool, Ordering},
+    Arc, OnceLock,
 };
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 use tauri::Emitter;
@@ -131,8 +131,8 @@ const BROWSER_WEBVIEW_PAGE_LOAD_EVENT: &str = "browser-webview-page-load";
 
 #[cfg(target_os = "windows")]
 fn show_fatal_startup_error(message: &str) {
-    use windows::Win32::UI::WindowsAndMessaging::{MB_ICONERROR, MB_OK, MessageBoxW};
     use windows::core::PCWSTR;
+    use windows::Win32::UI::WindowsAndMessaging::{MessageBoxW, MB_ICONERROR, MB_OK};
 
     let title = "Alex startup error"
         .encode_utf16()
@@ -1993,6 +1993,8 @@ pub async fn run() {
             basemind_commands::basemind_reveal_entity,
             #[cfg(feature = "basemind")]
             basemind_commands::basemind_read_redacted_document,
+            #[cfg(feature = "basemind")]
+            basemind_commands::basemind_rehydrate_model_text,
         ])
         .build(tauri::generate_context!());
 
@@ -2544,9 +2546,7 @@ pub(crate) fn publish_basemind_search_port(
     alex_core::service::rag_search::set_global_prompt_pseudonymization_port(None);
     alex_core::service::rag_search::set_global_rag_search_port(None);
     alex_core::service::rag_search::set_global_document_redaction_port(None);
-    alex_acp::set_prompt_interceptor(Some(std::sync::Arc::new(
-        AcpRefusingPromptInterceptor,
-    )));
+    alex_acp::set_prompt_interceptor(Some(std::sync::Arc::new(AcpRefusingPromptInterceptor)));
 
     let effective_workspace_root = workspace_root
         .map(std::path::Path::to_path_buf)
@@ -2637,9 +2637,7 @@ pub(crate) fn refresh_basemind_privacy_bundle(
         alex_core::service::model_egress::install_refusing_model_egress_policy(
             "model egress refused: remote workspace requires a host-owned Basemind capability",
         );
-        alex_acp::set_prompt_interceptor(Some(std::sync::Arc::new(
-            AcpRefusingPromptInterceptor,
-        )));
+        alex_acp::set_prompt_interceptor(Some(std::sync::Arc::new(AcpRefusingPromptInterceptor)));
         log::warn!(
             "Basemind privacy is unsupported for the remote workspace until the remote host advertises its capability"
         );
@@ -2801,9 +2799,9 @@ async fn event_loop_driver<D, F>(
     F: std::future::Future<Output = ()>,
 {
     use crate::api::event_coalescer::{
-        INITIAL_RATE_EMA_CPS, TextChunkCoalescer, next_flush_deadline, next_window,
+        next_flush_deadline, next_window, TextChunkCoalescer, INITIAL_RATE_EMA_CPS,
     };
-    use tokio::time::{Instant, sleep_until};
+    use tokio::time::{sleep_until, Instant};
 
     let mut coalescer = TextChunkCoalescer::new();
     let mut flush_deadline: Option<Instant> = None;
@@ -3011,7 +3009,7 @@ async fn resolve_runtime_log_level(default_level: log::LevelFilter) -> log::Leve
 }
 
 fn spawn_runtime_log_level_listener(default_level: log::LevelFilter) {
-    use alex_core::service::config::{ConfigUpdateEvent, subscribe_config_updates};
+    use alex_core::service::config::{subscribe_config_updates, ConfigUpdateEvent};
 
     tokio::spawn(async move {
         if let Some(mut receiver) = subscribe_config_updates() {
@@ -3074,7 +3072,7 @@ fn create_event_emitter(
 }
 
 fn spawn_workspace_search_feature_listener(app_handle: tauri::AppHandle) {
-    use alex_core::service::config::{ConfigUpdateEvent, subscribe_config_updates};
+    use alex_core::service::config::{subscribe_config_updates, ConfigUpdateEvent};
 
     let app_state: tauri::State<'_, api::AppState> = app_handle.state();
     let workspace_search_service = app_state.workspace_search_service.clone();

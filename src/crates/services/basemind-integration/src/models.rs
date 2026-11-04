@@ -1,17 +1,23 @@
 //! Model management — lazy download, verification, cache for Basemind sidecar models.
 
 #[cfg(feature = "basemind")]
+use alex_config_contracts::BasemindConfig;
+#[cfg(feature = "basemind")]
 use anyhow::Result;
 #[cfg(feature = "basemind")]
 use serde::{Deserialize, Serialize};
 #[cfg(feature = "basemind")]
 use sha2::{Digest, Sha256};
 #[cfg(feature = "basemind")]
+use std::collections::BTreeSet;
+#[cfg(feature = "basemind")]
 use std::fs;
 #[cfg(feature = "basemind")]
 use std::io::{Read, Write};
 #[cfg(feature = "basemind")]
 use std::path::{Component, Path, PathBuf};
+#[cfg(feature = "basemind")]
+use std::sync::{Arc, Mutex};
 
 #[cfg(feature = "basemind")]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -27,11 +33,16 @@ pub struct ModelConfig {
     pub size_bytes: Option<u64>,
     #[serde(default)]
     pub archive_format: ModelArchiveFormat,
+    /// Optional explicit installed model directory. This is a user-selected
+    /// path and is therefore kept separate from the cache path derivation.
+    #[serde(default)]
+    pub local_path: Option<PathBuf>,
 }
 
 #[cfg(feature = "basemind")]
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub enum ModelType {
+    #[default]
     NerGliner2,
     Embedding,
     Reranker,
@@ -47,11 +58,13 @@ pub enum ModelArchiveFormat {
 }
 
 #[cfg(feature = "basemind")]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
 pub enum ModelStatus {
     Missing,
     Invalid,
     Ready,
+    Downloading,
 }
 
 #[cfg(feature = "basemind")]
@@ -65,9 +78,18 @@ struct ModelManifest {
 }
 
 #[cfg(feature = "basemind")]
+#[derive(Clone)]
 pub struct ModelManager {
     cache_dir: PathBuf,
     client: reqwest::Client,
+    download_lock: Arc<tokio::sync::Mutex<()>>,
+    active_downloads: Arc<Mutex<BTreeSet<String>>>,
+}
+
+#[cfg(feature = "basemind")]
+/// Atomic persistence for the standalone Basemind settings document.
+pub struct BasemindSettingsStore {
+    path: PathBuf,
 }
 
 #[cfg(feature = "basemind")]
@@ -86,46 +108,128 @@ impl ModelManager {
             .timeout(std::time::Duration::from_secs(300))
             .build()
             .expect("reqwest client");
-        Self { cache_dir, client }
+        Self {
+            cache_dir,
+            client,
+            download_lock: Arc::new(tokio::sync::Mutex::new(())),
+            active_downloads: Arc::new(Mutex::new(BTreeSet::new())),
+        }
+    }
+
+    /// Construct a manager from persisted settings while keeping a stable
+    /// caller-provided fallback for older installations without a directory.
+    pub fn from_config(config: &BasemindConfig, fallback_cache_dir: PathBuf) -> Self {
+        Self::new(config.model_directory.clone().unwrap_or(fallback_cache_dir))
+    }
+
+    pub fn cache_dir(&self) -> &Path {
+        &self.cache_dir
+    }
+
+    /// Prepare a model for a privacy-sensitive call.
+    ///
+    /// A disabled auto-download setting is never treated as permission to
+    /// continue without the model. Missing and invalid required models return
+    /// an error, which lets the API redaction path fail closed.
+    pub async fn ensure_required_model(
+        &self,
+        config: &ModelConfig,
+        settings: &BasemindConfig,
+    ) -> Result<PathBuf> {
+        if let Some(override_config) = settings.models.get(&config.name) {
+            if config.required && !override_config.enabled {
+                anyhow::bail!(
+                    "required Basemind model {} is disabled; API redaction is refused",
+                    config.name
+                );
+            }
+            if let Some(version) = &override_config.version {
+                if version != &config.version {
+                    anyhow::bail!(
+                        "Basemind model {} is configured for version {}, but the pinned manifest is {}; API redaction is refused until the manifest is updated",
+                        config.name,
+                        version,
+                        config.version
+                    );
+                }
+            }
+        }
+
+        if self.status(config) == ModelStatus::Ready {
+            return self.model_path(config);
+        }
+        if !settings.auto_download_models {
+            anyhow::bail!(
+                "required Basemind model {} is unavailable ({:?}); automatic downloads are disabled, so API redaction is refused",
+                config.name,
+                self.status(config)
+            );
+        }
+        self.ensure_model(config).await
     }
 
     pub async fn ensure_model(&self, config: &ModelConfig) -> Result<PathBuf> {
         let model_path = self.model_path(config)?;
-        if self.status(config) == ModelStatus::Ready {
+        if self.disk_status(config) == ModelStatus::Ready {
             return Ok(model_path);
         }
 
-        let model_parent = self.cache_dir.join(&config.name);
+        let _download_lock = self.download_lock.lock().await;
+        if self.disk_status(config) == ModelStatus::Ready {
+            return Ok(model_path);
+        }
+
+        let model_parent = model_path
+            .parent()
+            .ok_or_else(|| anyhow::anyhow!("model path has no parent directory"))?
+            .to_path_buf();
         fs::create_dir_all(&model_parent)?;
+        remove_interrupted_downloads(&model_parent, &config.version)?;
         let partial_path = model_parent.join(format!(
             ".{}.partial-{}",
             config.version,
             uuid::Uuid::new_v4()
         ));
         fs::create_dir_all(&partial_path)?;
+        let download_key = self.download_key(config)?;
+        self.active_downloads
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .insert(download_key.clone());
 
         let result = self.download_and_install(config, &partial_path).await;
-        match result {
+        let result = match result {
             Ok(()) => {
-                if model_path.exists() {
-                    let quarantine = model_parent.join(format!(
-                        ".{}.invalid-{}",
-                        config.version,
-                        uuid::Uuid::new_v4()
-                    ));
-                    fs::rename(&model_path, quarantine)?;
-                }
-                fs::rename(&partial_path, &model_path)?;
-                Ok(model_path)
+                install_downloaded_model(&partial_path, &model_path, &model_parent, &config.version)
             }
             Err(error) => {
                 let _ = fs::remove_dir_all(&partial_path);
                 Err(error)
             }
-        }
+        };
+        self.active_downloads
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .remove(&download_key);
+        result
     }
 
     pub fn status(&self, config: &ModelConfig) -> ModelStatus {
+        let Ok(download_key) = self.download_key(config) else {
+            return ModelStatus::Invalid;
+        };
+        if self
+            .active_downloads
+            .lock()
+            .unwrap_or_else(|error| error.into_inner())
+            .contains(&download_key)
+        {
+            return ModelStatus::Downloading;
+        }
+        self.disk_status(config)
+    }
+
+    fn disk_status(&self, config: &ModelConfig) -> ModelStatus {
         let Ok(model_path) = self.model_path(config) else {
             return ModelStatus::Invalid;
         };
@@ -159,9 +263,19 @@ impl ModelManager {
     }
 
     fn model_path(&self, config: &ModelConfig) -> Result<PathBuf> {
+        if let Some(local_path) = &config.local_path {
+            if local_path.as_os_str().is_empty() {
+                anyhow::bail!("invalid local model path: path is empty");
+            }
+            return Ok(local_path.clone());
+        }
         validate_cache_component("model name", &config.name)?;
         validate_cache_component("model version", &config.version)?;
         Ok(self.cache_dir.join(&config.name).join(&config.version))
+    }
+
+    fn download_key(&self, config: &ModelConfig) -> Result<String> {
+        Ok(self.model_path(config)?.to_string_lossy().into_owned())
     }
 
     async fn download_and_install(&self, config: &ModelConfig, destination: &Path) -> Result<()> {
@@ -249,6 +363,95 @@ impl ModelManager {
 }
 
 #[cfg(feature = "basemind")]
+impl BasemindSettingsStore {
+    pub fn new(path: PathBuf) -> Self {
+        Self { path }
+    }
+
+    pub fn path(&self) -> &Path {
+        &self.path
+    }
+
+    /// Load settings, treating a missing document as the current defaults.
+    /// Existing documents are never overwritten merely because a new field
+    /// was added; serde supplies defaults in memory and the next explicit save
+    /// upgrades the shape.
+    pub fn load(&self) -> Result<BasemindConfig> {
+        if !self.path.exists() {
+            return Ok(BasemindConfig::default());
+        }
+        let bytes = fs::read(&self.path)?;
+        Ok(serde_json::from_slice(&bytes)?)
+    }
+
+    /// Persist settings through a same-directory replace so a terminated
+    /// write leaves either the previous document or a complete new document.
+    pub fn save(&self, config: &BasemindConfig) -> Result<()> {
+        if let Some(parent) = self.path.parent() {
+            fs::create_dir_all(parent)?;
+        }
+        let temporary = self
+            .path
+            .with_extension(format!("tmp-{}", uuid::Uuid::new_v4()));
+        let bytes = serde_json::to_vec_pretty(config)?;
+        if let Err(error) = fs::write(&temporary, bytes) {
+            let _ = fs::remove_file(&temporary);
+            return Err(error.into());
+        }
+        if let Err(error) = fs::rename(&temporary, &self.path) {
+            let _ = fs::remove_file(&temporary);
+            return Err(error.into());
+        }
+        Ok(())
+    }
+}
+
+#[cfg(feature = "basemind")]
+fn install_downloaded_model(
+    partial_path: &Path,
+    model_path: &Path,
+    model_parent: &Path,
+    version: &str,
+) -> Result<PathBuf> {
+    let quarantine = model_parent.join(format!(".{}.invalid-{}", version, uuid::Uuid::new_v4()));
+    let had_existing = model_path.exists();
+    if had_existing {
+        fs::rename(model_path, &quarantine)?;
+    }
+    if let Err(error) = fs::rename(partial_path, model_path) {
+        if had_existing {
+            let _ = fs::rename(&quarantine, model_path);
+        }
+        return Err(error.into());
+    }
+    if had_existing {
+        let _ = fs::remove_dir_all(quarantine);
+    }
+    Ok(model_path.to_path_buf())
+}
+
+#[cfg(feature = "basemind")]
+fn remove_interrupted_downloads(parent: &Path, version: &str) -> Result<()> {
+    let prefix = format!(".{version}.partial-");
+    if !parent.is_dir() {
+        return Ok(());
+    }
+    for entry in fs::read_dir(parent)? {
+        let entry = entry?;
+        let name = entry.file_name();
+        if name.to_string_lossy().starts_with(&prefix) {
+            let path = entry.path();
+            if path.is_dir() {
+                fs::remove_dir_all(path)?;
+            } else {
+                fs::remove_file(path)?;
+            }
+        }
+    }
+    Ok(())
+}
+
+#[cfg(feature = "basemind")]
 fn validate_cache_component(label: &str, value: &str) -> Result<()> {
     let mut components = Path::new(value).components();
     if value.is_empty()
@@ -261,7 +464,7 @@ fn validate_cache_component(label: &str, value: &str) -> Result<()> {
     Ok(())
 }
 
-#[cfg(feature = "basemind")]
+#[cfg(all(feature = "basemind", test))]
 fn sha256_bytes(bytes: &[u8]) -> String {
     let mut hasher = Sha256::new();
     hasher.update(bytes);
@@ -343,12 +546,139 @@ mod tests {
             required: true,
             size_bytes: None,
             archive_format: ModelArchiveFormat::Zip,
+            local_path: None,
         };
         assert_eq!(manager.status(&config), ModelStatus::Missing);
         let path = directory.path().join("ner").join("1");
         fs::create_dir_all(&path).unwrap();
         fs::write(path.join("manifest.json"), "{}").unwrap();
         assert_eq!(manager.status(&config), ModelStatus::Invalid);
+    }
+
+    #[test]
+    fn a_verified_cache_is_ready() {
+        let directory = tempfile::tempdir().unwrap();
+        let manager = ModelManager::new(directory.path().to_path_buf());
+        let payload = b"verified model";
+        let config = ModelConfig {
+            name: "ner".into(),
+            version: "1".into(),
+            download_url: "https://example.invalid/ner.bin".into(),
+            sha256: sha256_bytes(payload),
+            model_type: ModelType::NerGliner2,
+            required: true,
+            size_bytes: Some(payload.len() as u64),
+            archive_format: ModelArchiveFormat::None,
+            local_path: None,
+        };
+        let path = directory.path().join("ner").join("1");
+        fs::create_dir_all(&path).unwrap();
+        fs::write(path.join("source.bin"), payload).unwrap();
+        fs::write(
+            path.join("manifest.json"),
+            serde_json::to_vec(&ModelManifest {
+                name: config.name.clone(),
+                version: config.version.clone(),
+                sha256: config.sha256.clone(),
+                size_bytes: payload.len() as u64,
+                archive_format: ModelArchiveFormat::None,
+            })
+            .unwrap(),
+        )
+        .unwrap();
+        assert_eq!(manager.status(&config), ModelStatus::Ready);
+    }
+
+    #[tokio::test]
+    async fn interrupted_partial_download_is_ignored_and_recovered() {
+        use tokio::io::{AsyncReadExt, AsyncWriteExt};
+        use tokio::net::TcpListener;
+
+        let directory = tempfile::tempdir().unwrap();
+        let payload = b"downloaded after interruption".to_vec();
+        let digest = sha256_bytes(&payload);
+        let listener = TcpListener::bind((std::net::Ipv4Addr::LOCALHOST, 0))
+            .await
+            .unwrap();
+        let address = listener.local_addr().unwrap();
+        let response_payload = payload.clone();
+        tokio::spawn(async move {
+            let (mut stream, _) = listener.accept().await.unwrap();
+            let mut request = [0_u8; 1024];
+            let _ = stream.read(&mut request).await;
+            let header = format!(
+                "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
+                response_payload.len()
+            );
+            stream.write_all(header.as_bytes()).await.unwrap();
+            stream.write_all(&response_payload).await.unwrap();
+        });
+
+        let manager = ModelManager::new(directory.path().to_path_buf());
+        let config = ModelConfig {
+            name: "ner".into(),
+            version: "1".into(),
+            download_url: format!("http://{address}/ner.bin"),
+            sha256: digest,
+            model_type: ModelType::NerGliner2,
+            required: true,
+            size_bytes: Some(payload.len() as u64),
+            archive_format: ModelArchiveFormat::None,
+            local_path: None,
+        };
+        let stale = directory.path().join("ner").join(".1.partial-crashed");
+        fs::create_dir_all(&stale).unwrap();
+        fs::write(stale.join("source.bin"), b"truncated").unwrap();
+        assert_eq!(manager.status(&config), ModelStatus::Missing);
+
+        let installed = manager.ensure_model(&config).await.unwrap();
+        assert_eq!(installed, directory.path().join("ner").join("1"));
+        assert_eq!(manager.status(&config), ModelStatus::Ready);
+        assert!(!stale.exists());
+    }
+
+    #[test]
+    fn persisted_settings_use_legacy_defaults_and_round_trip() {
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("basemind.json");
+        fs::write(&path, r#"{"enabled":true,"auto_download_models":false}"#).unwrap();
+        let store = BasemindSettingsStore::new(path.clone());
+        let loaded = store.load().unwrap();
+        assert!(loaded.enabled);
+        assert!(!loaded.auto_download_models);
+        assert!(loaded.pseudonymize_prompts);
+        assert!(!loaded.pseudonymize_local_models);
+        assert!(loaded.models.is_empty());
+
+        store.save(&loaded).unwrap();
+        assert_eq!(BasemindSettingsStore::new(path).load().unwrap(), loaded);
+    }
+
+    #[tokio::test]
+    async fn disabled_auto_download_refuses_required_model() {
+        let directory = tempfile::tempdir().unwrap();
+        let manager = ModelManager::new(directory.path().to_path_buf());
+        let config = ModelConfig {
+            name: "ner".into(),
+            version: "1".into(),
+            download_url: "https://example.invalid/ner.bin".into(),
+            sha256: "00".repeat(32),
+            model_type: ModelType::NerGliner2,
+            required: true,
+            size_bytes: None,
+            archive_format: ModelArchiveFormat::None,
+            local_path: None,
+        };
+        let settings = BasemindConfig {
+            auto_download_models: false,
+            ..BasemindConfig::default()
+        };
+        let error = manager
+            .ensure_required_model(&config, &settings)
+            .await
+            .unwrap_err()
+            .to_string();
+        assert!(error.contains("API redaction is refused"));
     }
 
     #[test]
