@@ -15,6 +15,8 @@ use anyhow::Result;
 #[cfg(feature = "basemind")]
 use serde::{Deserialize, Serialize};
 #[cfg(feature = "basemind")]
+use std::path::Path;
+#[cfg(feature = "basemind")]
 use std::sync::{Arc, Mutex, RwLock};
 
 #[cfg(feature = "basemind")]
@@ -111,16 +113,31 @@ impl RagSearchTool {
 pub struct RagSearchPortAdapter {
     tool: tokio::sync::Mutex<RagSearchTool>,
     document_tokens: DocumentTokenResolver,
+    workspace_root: String,
 }
 
 #[cfg(feature = "basemind")]
 impl RagSearchPortAdapter {
-    pub fn new(tool: RagSearchTool) -> Self {
+    pub fn new(tool: RagSearchTool, workspace_root: &Path) -> Self {
         let document_tokens = tool.resolver.document_token_resolver();
         Self {
             tool: tokio::sync::Mutex::new(tool),
             document_tokens,
+            workspace_root: workspace_root.to_string_lossy().into_owned(),
         }
+    }
+
+    fn ensure_workspace_scope(
+        &self,
+        workspace_root: &str,
+    ) -> Result<(), alex_runtime_ports::RagSearchError> {
+        if self.workspace_root != workspace_root {
+            return Err(alex_runtime_ports::RagSearchError::new(
+                alex_runtime_ports::RagSearchErrorKind::InvalidRequest,
+                "RAG search refused: request workspace does not match the host privacy scope",
+            ));
+        }
+        Ok(())
     }
 }
 
@@ -137,6 +154,7 @@ impl alex_runtime_ports::RagSearchPort for RagSearchPortAdapter {
                 "query must not be empty",
             ));
         }
+        self.ensure_workspace_scope(&request.workspace_root)?;
         let mut tool = self.tool.lock().await;
         let output = tool
             .search(
@@ -180,8 +198,9 @@ impl alex_runtime_ports::RagSearchPort for RagSearchPortAdapter {
         &self,
         token: &str,
         session_id: &str,
-        _workspace_root: &str,
+        workspace_root: &str,
     ) -> Result<Option<String>, alex_runtime_ports::RagSearchError> {
+        self.ensure_workspace_scope(workspace_root)?;
         self.document_tokens
             .resolve_document_token(token, session_id)
             .map_err(|error| {

@@ -918,7 +918,10 @@ pub(crate) fn install_cli_privacy_guards(workspace_root: &std::path::Path) {
         bundle.document_redaction,
     ));
     alex_acp::set_prompt_interceptor(Some(std::sync::Arc::new(
-        alex_acp::PseudonymizingAcpPromptInterceptor::new(bundle.pseudonymizer),
+        alex_acp::PseudonymizingAcpPromptInterceptor::new(
+            bundle.pseudonymizer,
+            workspace_root,
+        ),
     )));
     tracing::info!(
         "Basemind model egress, prompt pseudonymization, document redaction and search published for CLI host"

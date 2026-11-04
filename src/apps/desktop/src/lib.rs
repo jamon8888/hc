@@ -2548,19 +2548,20 @@ pub(crate) fn publish_basemind_search_port(
         AcpRefusingPromptInterceptor,
     )));
 
+    let effective_workspace_root = workspace_root
+        .map(std::path::Path::to_path_buf)
+        .or_else(|| {
+            alex_core::service::workspace::get_global_workspace_service()
+                .and_then(|service| service.try_get_current_workspace_path())
+        });
+    let Some(effective_workspace_root) = effective_workspace_root else {
+        log::warn!("Basemind privacy bundle is unavailable: no active workspace");
+        return;
+    };
     let data_dir = match alex_core::infrastructure::app_paths::try_get_path_manager_arc() {
         Ok(manager) => {
             let base = manager.user_data_dir().join("basemind");
-            workspace_root
-                .map(std::path::Path::to_path_buf)
-                .or_else(|| {
-                    alex_core::service::workspace::get_global_workspace_service()
-                        .and_then(|service| service.try_get_current_workspace_path())
-                })
-                .map(|workspace| {
-                    alex_basemind_integration::workspace_data_dir(base.clone(), &workspace)
-                })
-                .unwrap_or(base)
+            alex_basemind_integration::workspace_data_dir(base, &effective_workspace_root)
         }
         Err(error) => {
             log::warn!("Basemind search port is not available: {}", error);
@@ -2595,7 +2596,7 @@ pub(crate) fn publish_basemind_search_port(
         data_dir,
         Some(sidecar.to_path_buf()),
         ner_model_dir,
-        workspace_root,
+        Some(&effective_workspace_root),
     ) {
         Ok(bundle) => bundle,
         Err(error) => {
@@ -2612,7 +2613,10 @@ pub(crate) fn publish_basemind_search_port(
         bundle.document_redaction,
     ));
     alex_acp::set_prompt_interceptor(Some(std::sync::Arc::new(
-        alex_acp::PseudonymizingAcpPromptInterceptor::new(bundle.pseudonymizer),
+        alex_acp::PseudonymizingAcpPromptInterceptor::new(
+            bundle.pseudonymizer,
+            &effective_workspace_root,
+        ),
     )));
     log::info!("Basemind search and redaction ports published");
 }

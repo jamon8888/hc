@@ -3269,7 +3269,7 @@ mod tests {
     /// No interceptor installed: the host never published the PII guarantee,
     /// so the prompt is refused rather than sent raw.
     #[tokio::test]
-    async fn acp_prompt_interception_passes_through_without_an_installed_interceptor() {
+    async fn acp_prompt_interception_refuses_without_an_installed_interceptor() {
         let _guard = prompt_interceptor_guard();
         set_prompt_interceptor(None);
 

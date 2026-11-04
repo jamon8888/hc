@@ -32,15 +32,31 @@ use crate::prompt_pseudonym::BasemindPromptPseudonymizer;
 pub struct BasemindDocumentRedactor {
     client: BasemindClient,
     pseudonymizer: Arc<BasemindPromptPseudonymizer>,
+    workspace_root: String,
 }
 
 #[cfg(feature = "basemind")]
 impl BasemindDocumentRedactor {
-    pub fn new(client: BasemindClient, pseudonymizer: Arc<BasemindPromptPseudonymizer>) -> Self {
+    pub fn new(
+        client: BasemindClient,
+        pseudonymizer: Arc<BasemindPromptPseudonymizer>,
+        workspace_root: &std::path::Path,
+    ) -> Self {
         Self {
             client,
             pseudonymizer,
+            workspace_root: workspace_root.to_string_lossy().into_owned(),
         }
+    }
+
+    fn ensure_workspace_scope(&self, workspace_root: &str) -> Result<(), DocumentRedactionError> {
+        if self.workspace_root != workspace_root {
+            return Err(DocumentRedactionError::new(
+                DocumentRedactionErrorKind::InvalidRequest,
+                "document redaction refused: request workspace does not match the host privacy scope",
+            ));
+        }
+        Ok(())
     }
 
     fn document_from_payload(
@@ -108,6 +124,7 @@ impl DocumentRedactionPort for BasemindDocumentRedactor {
         path: &str,
         workspace_root: &str,
     ) -> Result<RedactedDocument, DocumentRedactionError> {
+        self.ensure_workspace_scope(workspace_root)?;
         let payload = self
             .client
             .redact_path(path, workspace_root)
@@ -127,6 +144,7 @@ impl DocumentRedactionPort for BasemindDocumentRedactor {
         workspace_root: &str,
         session_id: &str,
     ) -> Result<RedactedDocument, DocumentRedactionError> {
+        self.ensure_workspace_scope(workspace_root)?;
         let payload = self
             .client
             .redact_path(path, workspace_root)
@@ -153,6 +171,7 @@ impl DocumentRedactionPort for BasemindDocumentRedactor {
         text: &str,
         workspace_root: &str,
     ) -> Result<RedactedDocument, DocumentRedactionError> {
+        self.ensure_workspace_scope(workspace_root)?;
         let payload = self
             .client
             .redact_text(text, workspace_root)
@@ -172,6 +191,7 @@ impl DocumentRedactionPort for BasemindDocumentRedactor {
         workspace_root: &str,
         session_id: &str,
     ) -> Result<RedactedDocument, DocumentRedactionError> {
+        self.ensure_workspace_scope(workspace_root)?;
         let payload = self
             .client
             .redact_text(text, workspace_root)

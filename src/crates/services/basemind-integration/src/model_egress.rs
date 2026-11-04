@@ -51,6 +51,8 @@ pub fn build_privacy_bundle(
     ner_model_dir: PathBuf,
     workspace_root: Option<&Path>,
 ) -> Result<BasemindPrivacyBundle> {
+    let workspace_root = workspace_root
+        .ok_or_else(|| anyhow::anyhow!("Basemind privacy bundle requires an active workspace"))?;
     let registry_dir = data_dir.join("registry");
     let vault_dir = data_dir.join("vault");
     std::fs::create_dir_all(&registry_dir)?;
@@ -71,21 +73,21 @@ pub fn build_privacy_bundle(
 
     let search_client = BasemindClient::lazy(daemon_binary.clone())
         .with_redaction_policy(RedactionPolicy::bundled(ner_model_dir.clone()));
-    let rag_search = Arc::new(RagSearchPortAdapter::new(RagSearchTool::new(
-        search_client.clone(),
-        registry,
-        vault,
-    )));
+    let rag_search = Arc::new(RagSearchPortAdapter::new(
+        RagSearchTool::new(search_client.clone(), registry, vault),
+        workspace_root,
+    ));
     let document_redaction = Arc::new(BasemindDocumentRedactor::new(
         BasemindClient::lazy(daemon_binary)
             .with_redaction_policy(RedactionPolicy::bundled(ner_model_dir)),
         pseudonymizer.clone(),
+        workspace_root,
     ));
 
     Ok(BasemindPrivacyBundle {
         model_egress: Arc::new(BasemindModelEgressPolicy::scoped(
             pseudonymizer.clone(),
-            workspace_root,
+            Some(workspace_root),
         )),
         pseudonymizer,
         rag_search,

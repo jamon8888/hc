@@ -79,11 +79,27 @@ pub struct RefusingAcpPromptInterceptor {
 /// ACP adapter for a host-owned Basemind prompt pseudonymizer.
 pub struct PseudonymizingAcpPromptInterceptor {
     port: Arc<dyn alex_runtime_ports::PromptPseudonymizationPort>,
+    workspace_root: String,
 }
 
 impl PseudonymizingAcpPromptInterceptor {
-    pub fn new(port: Arc<dyn alex_runtime_ports::PromptPseudonymizationPort>) -> Self {
-        Self { port }
+    pub fn new(
+        port: Arc<dyn alex_runtime_ports::PromptPseudonymizationPort>,
+        workspace_root: &Path,
+    ) -> Self {
+        Self {
+            port,
+            workspace_root: workspace_root.to_string_lossy().into_owned(),
+        }
+    }
+
+    fn ensure_workspace_scope(&self, workspace_root: &Path) -> AlexResult<()> {
+        if self.workspace_root != workspace_root.to_string_lossy() {
+            return Err(alex_core::util::errors::AlexError::service(
+                "ACP prompt refused: request workspace does not match the host privacy scope",
+            ));
+        }
+        Ok(())
     }
 }
 
@@ -104,6 +120,7 @@ impl AcpPromptInterceptor for PseudonymizingAcpPromptInterceptor {
                 "ACP prompt refused: external model route is unknown",
             ));
         }
+        self.ensure_workspace_scope(workspace_root)?;
         self.port
             .pseudonymize(prompt, alex_session_id, &workspace_root.to_string_lossy())
             .await
@@ -118,7 +135,7 @@ impl AcpPromptInterceptor for PseudonymizingAcpPromptInterceptor {
     async fn rehydrate(
         &self,
         text: &str,
-        _workspace_root: &Path,
+        workspace_root: &Path,
         alex_session_id: &str,
         route: ModelPrivacyRoute,
     ) -> AlexResult<String> {
@@ -130,6 +147,7 @@ impl AcpPromptInterceptor for PseudonymizingAcpPromptInterceptor {
                 "ACP response rehydration refused: external model route is unknown",
             ));
         }
+        self.ensure_workspace_scope(workspace_root)?;
         self.port
             .rehydrate(text, alex_session_id)
             .await

@@ -11,7 +11,7 @@ use std::fs;
 #[cfg(feature = "basemind")]
 use std::io::{Read, Write};
 #[cfg(feature = "basemind")]
-use std::path::{Path, PathBuf};
+use std::path::{Component, Path, PathBuf};
 
 #[cfg(feature = "basemind")]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -90,7 +90,7 @@ impl ModelManager {
     }
 
     pub async fn ensure_model(&self, config: &ModelConfig) -> Result<PathBuf> {
-        let model_path = self.cache_dir.join(&config.name).join(&config.version);
+        let model_path = self.model_path(config)?;
         if self.status(config) == ModelStatus::Ready {
             return Ok(model_path);
         }
@@ -126,7 +126,9 @@ impl ModelManager {
     }
 
     pub fn status(&self, config: &ModelConfig) -> ModelStatus {
-        let model_path = self.cache_dir.join(&config.name).join(&config.version);
+        let Ok(model_path) = self.model_path(config) else {
+            return ModelStatus::Invalid;
+        };
         let manifest_path = model_path.join("manifest.json");
         let source_path = model_path.join("source.bin");
         let Ok(manifest_text) = fs::read_to_string(manifest_path) else {
@@ -154,6 +156,12 @@ impl ModelManager {
             Ok(digest) if digest.eq_ignore_ascii_case(&config.sha256) => ModelStatus::Ready,
             _ => ModelStatus::Invalid,
         }
+    }
+
+    fn model_path(&self, config: &ModelConfig) -> Result<PathBuf> {
+        validate_cache_component("model name", &config.name)?;
+        validate_cache_component("model version", &config.version)?;
+        Ok(self.cache_dir.join(&config.name).join(&config.version))
     }
 
     async fn download_and_install(&self, config: &ModelConfig, destination: &Path) -> Result<()> {
@@ -238,6 +246,19 @@ impl ModelManager {
         )?;
         Ok(())
     }
+}
+
+#[cfg(feature = "basemind")]
+fn validate_cache_component(label: &str, value: &str) -> Result<()> {
+    let mut components = Path::new(value).components();
+    if value.is_empty()
+        || value.contains(['/', '\\'])
+        || !matches!(components.next(), Some(Component::Normal(_)))
+        || components.next().is_some()
+    {
+        anyhow::bail!("invalid {label}: must be one normal path component")
+    }
+    Ok(())
 }
 
 #[cfg(feature = "basemind")]
@@ -335,6 +356,17 @@ mod tests {
         let mut hasher = Sha256::new();
         hasher.update(b"model");
         assert_eq!(sha256_bytes(b"model"), hex::encode(hasher.finalize()));
+    }
+
+    #[test]
+    fn cache_components_cannot_escape_the_model_cache() {
+        for value in ["", ".", "..", "../outside", "/tmp/model", "model/version"] {
+            assert!(
+                validate_cache_component("model name", value).is_err(),
+                "{value}"
+            );
+        }
+        assert!(validate_cache_component("model name", "ner-gliner2").is_ok());
     }
 }
 
