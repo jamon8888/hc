@@ -15,7 +15,10 @@ WordCraft（上游 [storytold/wordcraft](https://github.com/storytold/wordcraft)
 不在各自表面重新推导，也绝不伪造可用性。
 
 分发采用上游固定版本的发布包，并以 `SHA256SUMS.txt` 校验（不 vendor 源码，不接受未校验二进制）。
-`wordcraft-web` 静态包（COOP/COEP，无控制通道）保留给后续同源嵌入升级；接入前需完成 live probe。
+`wordcraft-web` 静态包是带版本化 `ready` 握手和父窗口控制桥的同源 iframe 表面。只有托管包的
+manifest 与浏览器握手同时匹配固定版本、协议和命令能力时，Alex 才会展示它；否则能力记录保持
+不可用，原有原生/无头路径继续生效。当前上游发布包还不包含 Alex 控制桥，因此生产启用前仍需
+提供带桥接代码、通过校验和验证的发布包。
 
 ## 编辑器表面（桌面）
 
