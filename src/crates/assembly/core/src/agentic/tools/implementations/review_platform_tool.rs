@@ -1208,12 +1208,7 @@ When returning pull request results to the user, include the provider web URL so
                     "status": "ok",
                 })
             }
-            _ => {
-                return Err(AlexError::tool(format!(
-                    "Unsupported action: {}",
-                    action
-                )))
-            }
+            _ => return Err(AlexError::tool(format!("Unsupported action: {}", action))),
         };
 
         let result_for_assistant = self.render_result_for_assistant(&data);
@@ -1350,7 +1345,7 @@ mod tests {
     fn canonical_remotes_collapse_origin_and_upstream_aliases_for_the_same_repository() {
         let remotes = vec![
             github_remote("upstream-id", "upstream", "GCWing/OpenBitFun"),
-            github_remote("origin-id", "origin", "GCWing/OpenBitFun"),
+            github_remote("origin-id", "origin", "gcwing/openbitfun"),
         ];
 
         let supported = canonical_supported_remotes(&remotes);

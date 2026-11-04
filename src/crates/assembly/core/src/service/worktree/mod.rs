@@ -2163,7 +2163,7 @@ mod tests {
 
     #[test]
     fn managed_directory_name_includes_project_name_and_short_worktree_id() {
-        let project = Path::new("projects").join("OpenBitFun");
+        let project = Path::new("projects").join("Alex");
 
         assert_eq!(
             managed_worktree_directory_name(&project, "48e8b457e87649aebf801b408698f46c"),
@@ -2173,7 +2173,7 @@ mod tests {
 
     #[test]
     fn managed_directory_names_are_distinct_for_different_worktrees() {
-        let project = Path::new("projects").join("OpenBitFun");
+        let project = Path::new("projects").join("Alex");
 
         assert_ne!(
             managed_worktree_directory_name(&project, "48e8b457e87649aebf801b408698f46c"),
@@ -2185,7 +2185,7 @@ mod tests {
     async fn managed_target_path_uses_readable_leaf_and_rejects_collisions() {
         let root = tempfile::tempdir().expect("temp root");
         let worktree_root = root.path().join("managed-worktrees");
-        let project = root.path().join("projects").join("OpenBitFun");
+        let project = root.path().join("projects").join("Alex");
         let settings = WorktreeSettings {
             root_path: worktree_root.to_string_lossy().to_string(),
             ..WorktreeSettings::default()
