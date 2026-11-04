@@ -1049,7 +1049,7 @@ Usage:
 mod tests {
     #[cfg(feature = "document-read")]
     use super::MAX_DOCUMENT_INPUT_BYTES;
-    use super::{FileReadTool, ReadRenderMode};
+    use super::{FileReadTool, ReadRenderMode, MODEL_PRIVACY_ROUTE_CONTEXT_KEY};
     use crate::agentic::tools::framework::{Tool, ToolResult, ToolUseContext};
     use crate::agentic::tools::{ToolPathPolicy, ToolRuntimeRestrictions};
     use crate::agentic::WorkspaceBinding;
