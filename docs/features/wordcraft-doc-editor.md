@@ -17,9 +17,13 @@ Every surface — Tauri command, Web UI adapter, agent tool guidance — answers
 this record**; no surface re-derives status, and availability is never fabricated.
 
 Distribution is the pinned upstream release archive verified against upstream `SHA256SUMS.txt`
-(never vendored crates, never unverified binaries). The `wordcraft-web` static bundle
-(COOP/COEP headers, no control channel) is reserved for a later same-origin embed upgrade; live
-probe owed before that path commits.
+(never vendored crates, never unverified binaries). The `wordcraft-web` static bundle is a
+same-origin iframe surface behind a versioned `ready` handshake and parent control bridge.
+Alex only presents it when the managed artifact's manifest and browser handshake agree on the
+pinned version, protocol, and command capabilities; otherwise the capability record remains
+unavailable and the native/headless paths retain their existing behavior. The current upstream
+release artifact does not yet contain Alex's bridge, so a patched, checksum-verified release is
+still required before this surface can be enabled in production.
 
 ## Editor surface (desktop)
 
@@ -112,8 +116,8 @@ Choose at the owner, never a mono-suite:
   outside-write-root refusal. Loudly refuses to run without a resolvable binary.
 - Owed to hardware (current machine cannot): visible-app control-channel validation on a
   real GPU surface — `wordcraft --control <port>` + key file auth, `engine.execute`,
-  `screenshot` — and the optional wordcraft-web same-origin embed live probe. Run the checks
-  above on macOS/Windows device hardware before claiming the visible leg validated.
+  `screenshot` — and the wordcraft-web same-origin embed live probe. Run the checks above on
+  macOS/Windows device hardware before claiming the visible leg validated.
 
 ## Out of scope
 
