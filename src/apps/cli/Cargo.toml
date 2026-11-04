@@ -49,6 +49,7 @@ alex-core = { path = "../../crates/assembly/core", features = [
     "tools-image-analysis",
     "tools-rag",
     "tools-agent-control",
+    "tools-wordcraft",
 ] }
 alex-basemind-integration = { path = "../../crates/services/basemind-integration", features = ["basemind"] }
 alex-events = { path = "../../crates/contracts/events" }
