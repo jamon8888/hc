@@ -647,7 +647,6 @@ mod tests {
         assert!(loaded.enabled);
         assert!(!loaded.auto_download_models);
         assert!(loaded.pseudonymize_prompts);
-        assert!(!loaded.pseudonymize_local_models);
         assert!(loaded.models.is_empty());
 
         store.save(&loaded).unwrap();

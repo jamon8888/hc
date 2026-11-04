@@ -133,8 +133,12 @@ impl RedactionStore {
         let payload = match self.vault.load_session(&self.scope) {
             Ok(payload) => payload,
             // A workspace that has never redacted a document has no vault
-            // entry yet; that is not an error.
-            Err(_) => return Ok(()),
+            // entry yet; that is not an error. Corruption and decryption
+            // failures are returned so the old map cannot be replaced.
+            Err(error) if crate::session_vault::SessionVault::is_missing_session_error(&error) => {
+                return Ok(())
+            }
+            Err(error) => return Err(error),
         };
         let mut by_entity = self.by_entity.lock().unwrap_or_else(|e| e.into_inner());
         by_entity.extend(payload.map);

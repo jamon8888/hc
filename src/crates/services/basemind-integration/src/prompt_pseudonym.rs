@@ -81,10 +81,13 @@ impl PromptPseudonymizer {
             .load_session(session_id)
         {
             Ok(payload) => payload,
-            Err(_) => crate::session_vault::SessionPayload {
-                map: BTreeMap::new(),
-                salt: crate::session_vault::SessionVault::generate_salt(),
-            },
+            Err(error) if crate::session_vault::SessionVault::is_missing_session_error(&error) => {
+                crate::session_vault::SessionPayload {
+                    map: BTreeMap::new(),
+                    salt: crate::session_vault::SessionVault::generate_salt(),
+                }
+            }
+            Err(error) => return Err(error),
         };
 
         let session_salt = &session_payload.salt;
@@ -231,10 +234,13 @@ impl PromptPseudonymizer {
             .load_session(session_id)
         {
             Ok(payload) => payload,
-            Err(_) => crate::session_vault::SessionPayload {
-                map: BTreeMap::new(),
-                salt: crate::session_vault::SessionVault::generate_salt(),
-            },
+            Err(error) if crate::session_vault::SessionVault::is_missing_session_error(&error) => {
+                crate::session_vault::SessionPayload {
+                    map: BTreeMap::new(),
+                    salt: crate::session_vault::SessionVault::generate_salt(),
+                }
+            }
+            Err(error) => return Err(error),
         };
         let session_salt = &session_payload.salt;
         let mut session_map = session_payload.map.clone();

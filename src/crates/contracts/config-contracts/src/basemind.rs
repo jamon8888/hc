@@ -37,7 +37,6 @@ pub struct BasemindConfig {
     pub sidecar_path: Option<PathBuf>,
     #[serde(default = "default_pseudonymize_prompts")]
     pub pseudonymize_prompts: bool,
-    pub pseudonymize_local_models: bool,
 }
 
 impl Default for BasemindConfig {
@@ -50,7 +49,6 @@ impl Default for BasemindConfig {
             models: BTreeMap::new(),
             sidecar_path: None,
             pseudonymize_prompts: default_pseudonymize_prompts(),
-            pseudonymize_local_models: false,
         }
     }
 }
