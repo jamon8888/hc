@@ -230,7 +230,9 @@ pub async fn wordcraft_web_host_command() -> Result<WordcraftWebHostResponse, St
 
     let origin = format!("http://127.0.0.1:{port}");
     Ok(WordcraftWebHostResponse {
-        url: format!("{origin}/index.html?wordcraftToken={token}"),
+        // The session identity is part of the browser handshake, not a secret;
+        // the token remains the only authorization credential in the URL.
+        url: format!("{origin}/index.html?wordcraftToken={token}&sessionId={session_id}"),
         origin,
         session_id,
         version: capability
