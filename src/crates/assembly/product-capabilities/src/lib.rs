@@ -1046,6 +1046,20 @@ const CODE_AGENT_TOOL_GROUPS: &[&str] = &[
     #[cfg(feature = "basemind")]
     "core.basemind",
 ];
+// CLI, ACP, and SDK currently expose the portable code-agent surface. The
+// embedded WordCraft host is a Desktop/ProductFull adapter and must not widen
+// the explicit core feature closure of these delivery profiles.
+const PORTABLE_CODE_AGENT_TOOL_GROUPS: &[&str] = &[
+    "core.basic",
+    "core.agent",
+    "core.session",
+    "core.git",
+    "core.web",
+    "core.mcp",
+    "core.computer-use",
+    #[cfg(feature = "basemind")]
+    "core.basemind",
+];
 const DEEP_REVIEW_TOOL_GROUPS: &[&str] = &["core.review"];
 const DEEP_RESEARCH_TOOL_GROUPS: &[&str] = &["core.web", "core.mcp"];
 const MINIAPP_TOOL_GROUPS: &[&str] = &["core.miniapp"];
@@ -1083,6 +1097,12 @@ const CODE_AGENT_CAPABILITY_PACK: ProductCapabilityPack = ProductCapabilityPack:
     ProductCapabilityId::CodeAgent,
     CODE_AGENT_SERVICES,
     CODE_AGENT_TOOL_GROUPS,
+    CODE_AGENT_IDS,
+);
+const PORTABLE_CODE_AGENT_CAPABILITY_PACK: ProductCapabilityPack = ProductCapabilityPack::new(
+    ProductCapabilityId::CodeAgent,
+    CODE_AGENT_SERVICES,
+    PORTABLE_CODE_AGENT_TOOL_GROUPS,
     CODE_AGENT_IDS,
 );
 const DEEP_REVIEW_CAPABILITY_PACK: ProductCapabilityPack = ProductCapabilityPack::new(
@@ -1170,11 +1190,12 @@ fn product_capability_registry_for_profile(profile: DeliveryProfile) -> ProductC
         DeliveryProfile::ProductFull | DeliveryProfile::Desktop => {
             default_product_capability_registry()
         }
-        DeliveryProfile::Cli => {
-            ProductCapabilityRegistry::new(&[CODE_AGENT_CAPABILITY_PACK, PAGES_CAPABILITY_PACK])
-        }
+        DeliveryProfile::Cli => ProductCapabilityRegistry::new(&[
+            PORTABLE_CODE_AGENT_CAPABILITY_PACK,
+            PAGES_CAPABILITY_PACK,
+        ]),
         DeliveryProfile::Acp | DeliveryProfile::Sdk => {
-            ProductCapabilityRegistry::new(&[CODE_AGENT_CAPABILITY_PACK])
+            ProductCapabilityRegistry::new(&[PORTABLE_CODE_AGENT_CAPABILITY_PACK])
         }
         DeliveryProfile::Server
         | DeliveryProfile::Remote
