@@ -263,7 +263,9 @@
     ],
     "wordcraftEditorSurfaces": [
       "wordcraft_open_document_command",
-      "wordcraft_status_command"
+      "wordcraft_status_command",
+      "wordcraft_web_host_command",
+      "wordcraft_web_release_command"
     ]
   },
   "capabilities": [

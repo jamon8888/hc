@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "digest": "fnv1a64:295cda20dc348a6d",
+  "digest": "fnv1a64:902e175fb85a35c2",
   "retiredCommandPrefixes": [
     {
       "prefix": "lsp_",
@@ -8106,6 +8106,30 @@
     },
     {
       "id": "wordcraft_status_command",
+      "surface": "tauri_command",
+      "remoteWorkspace": "LocalOnly",
+      "peer": {
+        "kind": "controller_local"
+      },
+      "cliPeer": {
+        "kind": "unsupported",
+        "reason": "the controller keeps this command; peer hosts refuse it before dispatch"
+      }
+    },
+    {
+      "id": "wordcraft_web_host_command",
+      "surface": "tauri_command",
+      "remoteWorkspace": "LocalOnly",
+      "peer": {
+        "kind": "controller_local"
+      },
+      "cliPeer": {
+        "kind": "unsupported",
+        "reason": "the controller keeps this command; peer hosts refuse it before dispatch"
+      }
+    },
+    {
+      "id": "wordcraft_web_release_command",
       "surface": "tauri_command",
       "remoteWorkspace": "LocalOnly",
       "peer": {

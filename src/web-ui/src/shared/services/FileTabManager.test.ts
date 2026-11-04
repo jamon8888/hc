@@ -88,6 +88,39 @@ describe('FileTabManager docx routing (tickets 13/17)', () => {
     expect(mocks.openContentInBestTarget).not.toHaveBeenCalled();
   });
 
+  it('routes an available local web capability to the embedded WordCraft panel', async () => {
+    mocks.invoke.mockResolvedValue({
+      status: 'available',
+      cli: null,
+      app: { command: 'wordcraft', resolvedPath: '/app', source: 'managed' },
+      version: '0.7.0',
+      message: null,
+      remediation: null,
+      checkedAtEpochMs: 1,
+      web: {
+        status: 'available',
+        artifactPath: '/app/web',
+        version: '0.7.0',
+        protocolVersion: 1,
+        commandCapabilities: ['list_commands'],
+        message: null,
+        remediation: null,
+        checkedAtEpochMs: 1,
+      },
+    });
+
+    manager.openFile({ filePath: '/tmp/workspace/report.docx' });
+
+    await vi.waitFor(() => {
+      expect(mocks.openContentInBestTarget).toHaveBeenCalled();
+    });
+    const content = mocks.openContentInBestTarget.mock.calls[0][0];
+    expect(content.type).toBe('wordcraft-document');
+    expect(content.data.filePath).toBe('/tmp/workspace/report.docx');
+    expect(mocks.invoke).toHaveBeenCalledWith('wordcraft_status_command', { recheck: false });
+    expect(mocks.invoke).not.toHaveBeenCalledWith('wordcraft_open_document_command', expect.anything());
+  });
+
   it('refuses a not-installed capability loudly without a code-editor dump', async () => {
     mocks.invoke.mockResolvedValue({
       status: 'not-installed',

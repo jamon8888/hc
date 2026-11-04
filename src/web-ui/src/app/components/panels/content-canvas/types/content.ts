@@ -31,6 +31,7 @@ export const FILE_VIEWER_TYPES: PanelContentType[] = [
   'image-viewer',
   'pdf-viewer',
   'html-preview',
+  'wordcraft-document',
   'diff-code-editor',
   'plan-viewer',
   'redacted-document-viewer',

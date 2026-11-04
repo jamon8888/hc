@@ -12,6 +12,8 @@ import { wordcraftAPI } from '@/infrastructure/api/service-api/WordcraftAPI';
 import { notificationService } from '@/shared/notification-system/services/NotificationService';
 import { createLogger } from '@/shared/utils/logger';
 import { isWordcraftDocumentPath } from '@/shared/context-menu-system/commands/builtin/file/WordcraftDocumentCommands';
+import { isLocalSurface } from '@/infrastructure/peer-device/deviceSurface';
+import type { PanelContentType } from '@/shared/types/panelContent';
 import { type LineRange } from '@/shared/editor/LineRange';
 import { captureContentScope, openContentInBestTarget } from './workbenchContentService';
 import type { ContentResourceScope } from '../types/contentResource';
@@ -165,7 +167,7 @@ class FileTabManager {
     scope: ContentResourceScope,
     filePath: string,
     fileName: string,
-    editorType: ReturnType<typeof getEditorType>,
+    editorType: PanelContentType,
   ): void {
     const {
       jumpToLine,
@@ -209,8 +211,10 @@ class FileTabManager {
 
   /**
    * Capability-aware routing for default `.docx` opens (tickets 13/17):
-   * capability `available` launches the WordCraft editor window (the same
-   * action as the context entry, failures loud with the record's remediation);
+   * capability `available` opens the embedded WordCraft surface on the local
+   * desktop; when only the native app is available, the existing editor-window
+   * action remains the fallback. Failures are loud with the record's
+   * remediation;
    * any other record state is a loud toast, never a code-editor binary dump.
    * Where the probe is unavailable (server/web surfaces with no desktop host
    * adapter) the previous tab behavior is kept — the loud path is also
@@ -231,6 +235,11 @@ class FileTabManager {
     }
 
     const t = i18nService.getT();
+    if (isLocalSurface(scope.surfaceId) && capability.web?.status === 'available') {
+      this.openEditorTab(options, scope, filePath, fileName, 'wordcraft-document');
+      return;
+    }
+
     if (capability.status !== 'available' || !capability.app) {
       const detail = capability.remediation || capability.message || t('errors:file.wordcraftOpenFailed');
       notificationService.error(detail, { title: t('errors:file.wordcraftOpenFailed') });

@@ -115,6 +115,14 @@ export const PANEL_CONTENT_CONFIGS: Record<PanelContentType, PanelContentConfig>
     supportsDownload: false,
     showHeader: false
   },
+  'wordcraft-document': {
+    type: 'wordcraft-document',
+    displayName: 'WordCraft Document',
+    icon: { glyph: FileText },
+    supportsCopy: false,
+    supportsDownload: false,
+    showHeader: false
+  },
   'diff-code-editor': {
     type: 'diff-code-editor',
     displayName: 'Diff Editor',

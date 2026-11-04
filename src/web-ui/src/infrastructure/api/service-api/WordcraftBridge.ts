@@ -81,6 +81,7 @@ export interface WordcraftBridgeOptions extends WordcraftReadyValidationContext 
 
 interface PendingCommand {
   method: WordcraftBridgeCommand;
+  expectedRevision: number;
   timer: ReturnType<typeof setTimeout>;
   resolve: (result: WordcraftCommandResult) => void;
   reject: (error: Error) => void;
@@ -203,7 +204,7 @@ export class WordcraftBridge {
         this.pending.delete(requestId);
         reject(new Error(`WordCraft command '${method}' timed out`));
       }, this.timeoutMs);
-      this.pending.set(requestId, { method, timer, resolve, reject });
+      this.pending.set(requestId, { method, expectedRevision, timer, resolve, reject });
       try {
         this.options.postMessage(request);
       } catch (error) {
@@ -255,6 +256,10 @@ export class WordcraftBridge {
     if (!isSessionRevision(data, this.options.expectedSessionId) ||
         typeof data.ok !== 'boolean' || typeof data.dirty !== 'boolean') {
       this.rejectPending(data.requestId, 'WordCraft result is malformed');
+      return true;
+    }
+    if (data.revision < pending.expectedRevision) {
+      this.rejectPending(data.requestId, 'WordCraft result revision is stale');
       return true;
     }
     this.pending.delete(data.requestId);

@@ -12,15 +12,24 @@ use crate::api::app_state::AppState;
 use crate::api::path_target::{resolve_desktop_path_target, DesktopPathTarget};
 use alex_core::infrastructure::get_path_manager_arc;
 use alex_core::util::process_manager;
-use alex_services_core::wordcraft::{
-    WordcraftCapability, WordcraftProbe, WordcraftStatus, WordcraftWebCapability,
-};
+use alex_services_core::wordcraft::{WordcraftCapability, WordcraftProbe, WordcraftStatus};
+use axum::extract::State as AxumState;
+use axum::http::{header, HeaderMap, HeaderValue, StatusCode, Uri};
+use axum::middleware::Next;
+use axum::response::{IntoResponse, Response};
+use axum::Router;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::net::TcpListener;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::Mutex;
 use std::sync::OnceLock;
 use tauri::State;
+use tokio::net::TcpListener as TokioTcpListener;
+use tokio::sync::oneshot;
+use tower_http::services::ServeDir;
+use uuid::Uuid;
 
 const WORDCRAFT_DOC_EXTENSIONS: &[&str] = &["docx"];
 
@@ -74,6 +83,181 @@ pub struct WordcraftOpenDocumentResponse {
     /// `control-key.local-<port>` (read only by Alex's desktop adapter,
     /// never logged, never exposed to the agent).
     pub profile_dir: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WordcraftWebHostResponse {
+    pub url: String,
+    pub origin: String,
+    pub session_id: String,
+    pub version: String,
+    pub protocol_version: u32,
+    pub command_capabilities: Vec<String>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WordcraftWebReleaseRequest {
+    pub session_id: String,
+}
+
+struct WordcraftWebSession {
+    shutdown: Option<oneshot::Sender<()>>,
+}
+
+#[derive(Clone)]
+struct WordcraftWebAuth {
+    token: String,
+}
+
+static WORDCRAFT_WEB_SESSIONS: OnceLock<Mutex<HashMap<String, WordcraftWebSession>>> =
+    OnceLock::new();
+
+fn wordcraft_web_sessions() -> &'static Mutex<HashMap<String, WordcraftWebSession>> {
+    WORDCRAFT_WEB_SESSIONS.get_or_init(|| Mutex::new(HashMap::new()))
+}
+
+fn wordcraft_web_token(uri: &Uri) -> Option<&str> {
+    uri.query()?.split('&').find_map(|pair| {
+        let (key, value) = pair.split_once('=')?;
+        (key == "wordcraftToken").then_some(value)
+    })
+}
+
+fn wordcraft_web_cookie(headers: &HeaderMap) -> Option<&str> {
+    headers
+        .get(header::COOKIE)?
+        .to_str()
+        .ok()?
+        .split(';')
+        .find_map(|cookie| cookie.trim().strip_prefix("alex_wordcraft_web="))
+}
+
+async fn authorize_wordcraft_web(
+    AxumState(auth): AxumState<WordcraftWebAuth>,
+    request: axum::extract::Request,
+    next: Next,
+) -> Response {
+    let query_token = wordcraft_web_token(request.uri());
+    let cookie_token = wordcraft_web_cookie(request.headers());
+    let authorized =
+        query_token == Some(auth.token.as_str()) || cookie_token == Some(auth.token.as_str());
+    if !authorized {
+        return (
+            StatusCode::UNAUTHORIZED,
+            "WordCraft web session is unauthorized",
+        )
+            .into_response();
+    }
+
+    let bootstrap = query_token == Some(auth.token.as_str());
+    let mut response = next.run(request).await;
+    if bootstrap {
+        if let Ok(value) = HeaderValue::from_str(&format!(
+            "alex_wordcraft_web={}; Path=/; HttpOnly; SameSite=Strict",
+            auth.token
+        )) {
+            response.headers_mut().insert(header::SET_COOKIE, value);
+        }
+    }
+    response
+}
+
+#[tauri::command]
+pub async fn wordcraft_web_host_command() -> Result<WordcraftWebHostResponse, String> {
+    let capability = wordcraft_probe()?.recheck();
+    if capability.web.status != WordcraftStatus::Available {
+        let message = capability.web.message.clone().unwrap_or_default();
+        let remediation = capability.web.remediation.clone().unwrap_or_default();
+        return Err(format!(
+            "WordCraft embedded editor is not available ({}). {} {}",
+            capability.web.status, message, remediation
+        )
+        .trim()
+        .to_string());
+    }
+
+    let artifact_path = capability
+        .web
+        .artifact_path
+        .clone()
+        .ok_or_else(|| "WordCraft web capability has no artifact path".to_string())?;
+    let artifact = PathBuf::from(&artifact_path);
+    if !artifact
+        .join(alex_services_core::wordcraft::WORDCRAFT_WEB_ENTRYPOINT)
+        .is_file()
+    {
+        return Err("WordCraft web bundle entrypoint is unavailable".to_string());
+    }
+
+    let listener = TokioTcpListener::bind(("127.0.0.1", 0))
+        .await
+        .map_err(|error| format!("Failed to bind WordCraft web host: {error}"))?;
+    let port = listener
+        .local_addr()
+        .map_err(|error| format!("Failed to read WordCraft web host address: {error}"))?
+        .port();
+    let token = Uuid::new_v4().simple().to_string();
+    let session_id = Uuid::new_v4().simple().to_string();
+    let (shutdown, shutdown_rx) = oneshot::channel();
+    let auth = WordcraftWebAuth {
+        token: token.clone(),
+    };
+    let router = Router::new()
+        .fallback_service(ServeDir::new(artifact).append_index_html_on_directories(true))
+        .layer(axum::middleware::from_fn_with_state(
+            auth,
+            authorize_wordcraft_web,
+        ));
+
+    tokio::spawn(async move {
+        let _ = axum::serve(listener, router)
+            .with_graceful_shutdown(async {
+                let _ = shutdown_rx.await;
+            })
+            .await;
+    });
+    wordcraft_web_sessions()
+        .lock()
+        .map_err(|_| "WordCraft web session registry is poisoned".to_string())?
+        .insert(
+            session_id.clone(),
+            WordcraftWebSession {
+                shutdown: Some(shutdown),
+            },
+        );
+
+    let origin = format!("http://127.0.0.1:{port}");
+    Ok(WordcraftWebHostResponse {
+        url: format!("{origin}/index.html?wordcraftToken={token}"),
+        origin,
+        session_id,
+        version: capability
+            .web
+            .version
+            .ok_or_else(|| "WordCraft web capability has no validated version".to_string())?,
+        protocol_version: capability.web.protocol_version.ok_or_else(|| {
+            "WordCraft web capability has no validated protocol version".to_string()
+        })?,
+        command_capabilities: capability.web.command_capabilities,
+    })
+}
+
+#[tauri::command]
+pub async fn wordcraft_web_release_command(
+    request: WordcraftWebReleaseRequest,
+) -> Result<(), String> {
+    if let Some(mut session) = wordcraft_web_sessions()
+        .lock()
+        .map_err(|_| "WordCraft web session registry is poisoned".to_string())?
+        .remove(&request.session_id)
+    {
+        if let Some(shutdown) = session.shutdown.take() {
+            let _ = shutdown.send(());
+        }
+    }
+    Ok(())
 }
 
 fn reject_raw_document_input(raw: &str) -> Result<(), String> {
