@@ -97,6 +97,13 @@ The web bridge should not call `Session::run` directly from JavaScript. That wou
 
 The clone also makes the concurrency rule concrete: the embedded bridge and Alex's agent must share one `WordApp` owner. The existing native control channel queues requests onto the UI thread and serializes them per frame; an embedded bridge should reuse that shape rather than starting a second headless session. The current host bridge has no command authentication beyond same-origin/source checks, so Alex should add a per-embed capability/session nonce and expected document revision before exposing mutating commands.
 
+Follow-up verification on 2026-11-04: the local upstream prototype's focused
+`wordcraft-ui-egui` control tests passed 22/22, and both native and
+`wasm32-unknown-unknown` `cargo check -p wordcraft-web` passed. This validates
+the UI-aware dispatch seam and its target builds, but it is still not a real
+browser mutation/save probe and the patched web artifact is not yet packaged
+into Alex's managed runtime. Those two facts remain explicit release gates.
+
 Relevant upstream implementation points are [`Services`](https://github.com/storytold/wordcraft/blob/ffb155a/crates/ui-egui/src/services.rs), [`WordApp::execute`](https://github.com/storytold/wordcraft/blob/ffb155a/crates/ui-egui/src/app/commands.rs), [`WordApp::with_control`](https://github.com/storytold/wordcraft/blob/ffb155a/crates/ui-egui/src/app.rs), the [`control` request handler](https://github.com/storytold/wordcraft/blob/ffb155a/crates/ui-egui/src/control/handler.rs), and the [`wordcraft-mcp` backend](https://github.com/storytold/wordcraft/blob/ffb155a/crates/mcp/src/lib.rs).
 
 Generic iframe hosting is otherwise straightforward: the release bundle is a static
