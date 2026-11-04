@@ -209,6 +209,18 @@ as equivalent.
   WebGPU, WebGL2 fallback, resize, keyboard focus, paste, save cancellation, frame
   reload, and large `.docx` byte transfers on each supported desktop OS.
 
+### Latest probe result (2026-11-04)
+
+The local patched WordCraft web shell compiled successfully for native and
+`wasm32-unknown-unknown`, and a same-origin harness was prepared with a real minimal
+`.docx` and the intended `ready → open → list_commands → execute → save → save-ack`
+sequence. The Codex in-app browser could not create either a WebGPU or WebGL2 canvas
+(`canvas.getContext()` returned `null`), so the mutation/save leg remains unproven on
+this machine; the failure was surfaced through the bridge's explicit `failed` event.
+The desktop URL issuer also needed the upstream `host=parent` query flag; that is now
+covered by a focused regression test. A GPU-backed browser probe and a managed,
+checksum-verified artifact are still release gates.
+
 ## Recommended phased design and verification plan
 
 ### Phase 0 — prove the current upstream host contract

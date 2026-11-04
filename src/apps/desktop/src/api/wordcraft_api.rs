@@ -9,22 +9,24 @@
 //! with remediation the user can act on — never a silent local fallback.
 
 use crate::api::app_state::AppState;
-use crate::api::path_target::{resolve_desktop_path_target, DesktopPathTarget};
+use crate::api::path_target::{DesktopPathTarget, resolve_desktop_path_target};
 use alex_core::infrastructure::get_path_manager_arc;
 use alex_core::util::process_manager;
-use alex_services_core::wordcraft::{WordcraftCapability, WordcraftProbe, WordcraftStatus, WordcraftWebCapability};
+use alex_services_core::wordcraft::{
+    WordcraftCapability, WordcraftProbe, WordcraftStatus, WordcraftWebCapability,
+};
+use axum::Router;
 use axum::extract::State as AxumState;
-use axum::http::{header, HeaderMap, HeaderValue, StatusCode, Uri};
+use axum::http::{HeaderMap, HeaderValue, StatusCode, Uri, header};
 use axum::middleware::Next;
 use axum::response::{IntoResponse, Response};
-use axum::Router;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::net::TcpListener;
 use std::path::{Path, PathBuf};
-use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Mutex;
 use std::sync::OnceLock;
+use std::sync::atomic::{AtomicU64, Ordering};
 use tauri::State;
 use tokio::net::TcpListener as TokioTcpListener;
 use tokio::sync::oneshot;
@@ -134,6 +136,10 @@ fn wordcraft_web_cookie(headers: &HeaderMap) -> Option<&str> {
         .find_map(|cookie| cookie.trim().strip_prefix("alex_wordcraft_web="))
 }
 
+fn wordcraft_web_url(origin: &str, token: &str, session_id: &str) -> String {
+    format!("{origin}/index.html?wordcraftToken={token}&sessionId={session_id}&host=parent")
+}
+
 async fn authorize_wordcraft_web(
     AxumState(auth): AxumState<WordcraftWebAuth>,
     request: axum::extract::Request,
@@ -232,7 +238,10 @@ pub async fn wordcraft_web_host_command() -> Result<WordcraftWebHostResponse, St
     Ok(WordcraftWebHostResponse {
         // The session identity is part of the browser handshake, not a secret;
         // the token remains the only authorization credential in the URL.
-        url: format!("{origin}/index.html?wordcraftToken={token}&sessionId={session_id}"),
+        // The upstream web shell only installs the parent bridge when this
+        // explicit mode flag is present. Keep it in the desktop-issued URL so
+        // the iframe cannot silently render an unhosted, download-only copy.
+        url: wordcraft_web_url(&origin, &token, &session_id),
         origin,
         session_id,
         version: capability
@@ -608,5 +617,14 @@ mod tests {
         assert_ne!(a, b, "start-screen sessions must not collide");
         let base_exists = a.parent().unwrap().exists();
         assert!(base_exists);
+    }
+
+    #[test]
+    fn hosted_web_url_enables_the_upstream_parent_bridge() {
+        let url = wordcraft_web_url("http://127.0.0.1:41000", "token", "session-1");
+        assert_eq!(
+            url,
+            "http://127.0.0.1:41000/index.html?wordcraftToken=token&sessionId=session-1&host=parent"
+        );
     }
 }
