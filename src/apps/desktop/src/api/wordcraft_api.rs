@@ -9,27 +9,27 @@
 //! with remediation the user can act on — never a silent local fallback.
 
 use crate::api::app_state::AppState;
-use crate::api::path_target::{DesktopPathTarget, resolve_desktop_path_target};
+use crate::api::path_target::{resolve_desktop_path_target, DesktopPathTarget};
 use alex_core::infrastructure::get_path_manager_arc;
 use alex_core::service::wordcraft_bridge::{
-    WordcraftEmbeddedCommandResponse, get_global_wordcraft_bridge,
+    get_global_wordcraft_bridge, WordcraftEmbeddedCommandResponse,
 };
 use alex_core::util::process_manager;
 use alex_services_core::wordcraft::{
     WordcraftCapability, WordcraftProbe, WordcraftStatus, WordcraftWebCapability,
 };
-use axum::Router;
 use axum::extract::State as AxumState;
-use axum::http::{HeaderMap, HeaderValue, StatusCode, Uri, header};
+use axum::http::{header, HeaderMap, HeaderValue, StatusCode, Uri};
 use axum::middleware::Next;
 use axum::response::{IntoResponse, Response};
+use axum::Router;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::net::TcpListener;
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Mutex;
 use std::sync::OnceLock;
-use std::sync::atomic::{AtomicU64, Ordering};
 use tauri::State;
 use tokio::net::TcpListener as TokioTcpListener;
 use tokio::sync::oneshot;
@@ -135,6 +135,9 @@ pub struct WordcraftWebReleaseRequest {
     pub session_id: String,
 }
 
+#[derive(Debug, Clone, Deserialize)]
+pub struct WordcraftWebHostRequest {}
+
 struct WordcraftWebSession {
     shutdown: Option<oneshot::Sender<()>>,
 }
@@ -202,7 +205,9 @@ async fn authorize_wordcraft_web(
 }
 
 #[tauri::command]
-pub async fn wordcraft_web_host_command() -> Result<WordcraftWebHostResponse, String> {
+pub async fn wordcraft_web_host_command(
+    _request: WordcraftWebHostRequest,
+) -> Result<WordcraftWebHostResponse, String> {
     let capability = wordcraft_probe()?.recheck();
     if capability.web.status != WordcraftStatus::Available {
         let message = capability.web.message.clone().unwrap_or_default();
