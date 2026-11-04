@@ -12,7 +12,7 @@ use crate::api::app_state::AppState;
 use crate::api::path_target::{resolve_desktop_path_target, DesktopPathTarget};
 use alex_core::infrastructure::get_path_manager_arc;
 use alex_core::util::process_manager;
-use alex_services_core::wordcraft::{WordcraftCapability, WordcraftProbe, WordcraftStatus};
+use alex_services_core::wordcraft::{WordcraftCapability, WordcraftProbe, WordcraftStatus, WordcraftWebCapability};
 use axum::extract::State as AxumState;
 use axum::http::{header, HeaderMap, HeaderValue, StatusCode, Uri};
 use axum::middleware::Next;
