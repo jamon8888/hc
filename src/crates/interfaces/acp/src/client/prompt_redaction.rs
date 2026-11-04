@@ -9,10 +9,9 @@
 //! The concrete pseudonymizer belongs to the composition root that also owns
 //! the basemind sidecar, so the seam is a small local trait instead of a
 //! port dependency: a host that ships PII-safe prompting installs an
-//! interceptor at startup through
-//! [`set_prompt_interceptor`], and products that do not ship the guarantee
-//! stay on the pass-through path — the same semantics the native loop has
-//! behind its build-time `basemind` feature.
+//! interceptor at startup through [`set_prompt_interceptor`]. Local-model
+//! routes may pass through without one; API and unknown routes refuse the
+//! prompt when the host has not published the guarantee.
 //!
 //! # Public contract note
 //!

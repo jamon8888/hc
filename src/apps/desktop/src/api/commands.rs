@@ -1085,6 +1085,7 @@ async fn create_transient_ai_client_for_config(
     model_config: alex_core::service::config::types::AIModelConfig,
 ) -> Result<alex_core::infrastructure::ai::AIClient, String> {
     let auth = model_config.auth.clone();
+    let privacy_model_config = model_config.clone();
 
     let global_config: alex_core::service::config::GlobalConfig = state
         .config_service
@@ -1120,16 +1121,18 @@ async fn create_transient_ai_client_for_config(
     .await
     .map_err(|e| format!("Failed to resolve subscription auth: {}", e))?;
 
-    Ok(
-        alex_core::infrastructure::ai::client_factory::apply_subscription_request_profile(
-            &auth,
-            alex_core::infrastructure::ai::AIClient::new_with_runtime_options(
-                ai_config,
-                proxy_config,
-                stream_options,
-            ),
+    let client = alex_core::infrastructure::ai::client_factory::apply_subscription_request_profile(
+        &auth,
+        alex_core::infrastructure::ai::AIClient::new_with_runtime_options(
+            ai_config,
+            proxy_config,
+            stream_options,
         ),
-    )
+    );
+    Ok(alex_core::infrastructure::ai::client_factory::apply_model_privacy_route(
+        client,
+        &privacy_model_config,
+    ))
 }
 
 #[tauri::command]

@@ -1179,11 +1179,10 @@ impl AcpClientService {
     /// external agent (SPEC §11.4, invariant I9, extended to ACP clients).
     ///
     /// The prompt the external agent receives carries session tokens, never
-    /// the personal values. The seam keeps the concrete pseudonymizer in the
-    /// composition root that also owns the basemind sidecar and its ports:
-    /// `prompt_redaction::apply_prompt_interceptor` runs the installed
-    /// interceptor when a host shipped PII-safe prompting and passes the
-    /// prompt through when that host did not publish the guarantee at all.
+    /// the personal values. Local-model routes may pass through without an
+    /// interceptor; API and unknown routes refuse when the host has not
+    /// published the guarantee. The seam keeps the concrete pseudonymizer in
+    /// the composition root that owns the Basemind sidecar and its ports.
     async fn pseudonymize_acp_prompt(
         prompt: String,
         workspace_root: &Path,

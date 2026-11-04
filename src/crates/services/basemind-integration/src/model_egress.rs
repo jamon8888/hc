@@ -79,6 +79,7 @@ pub fn build_privacy_bundle(
     let document_redaction = Arc::new(BasemindDocumentRedactor::new(
         BasemindClient::lazy(daemon_binary)
             .with_redaction_policy(RedactionPolicy::bundled(ner_model_dir)),
+        pseudonymizer.clone(),
     ));
 
     Ok(BasemindPrivacyBundle {

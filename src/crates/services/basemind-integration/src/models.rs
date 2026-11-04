@@ -9,7 +9,7 @@ use sha2::{Digest, Sha256};
 #[cfg(feature = "basemind")]
 use std::fs;
 #[cfg(feature = "basemind")]
-use std::io::{Cursor, Read};
+use std::io::{Read, Write};
 #[cfg(feature = "basemind")]
 use std::path::{Path, PathBuf};
 
@@ -69,6 +69,15 @@ pub struct ModelManager {
     cache_dir: PathBuf,
     client: reqwest::Client,
 }
+
+#[cfg(feature = "basemind")]
+const MAX_MODEL_DOWNLOAD_BYTES: u64 = 8 * 1024 * 1024 * 1024;
+
+#[cfg(feature = "basemind")]
+const MAX_ARCHIVE_ENTRIES: usize = 4096;
+
+#[cfg(feature = "basemind")]
+const MAX_ARCHIVE_UNCOMPRESSED_BYTES: u64 = 16 * 1024 * 1024 * 1024;
 
 #[cfg(feature = "basemind")]
 impl ModelManager {
@@ -147,29 +156,60 @@ impl ModelManager {
         }
     }
 
-    async fn download_and_install(
-        &self,
-        config: &ModelConfig,
-        destination: &Path,
-    ) -> Result<()> {
+    async fn download_and_install(&self, config: &ModelConfig, destination: &Path) -> Result<()> {
         let response = self
             .client
             .get(&config.download_url)
             .send()
             .await?
             .error_for_status()?;
-        let bytes = response.bytes().await?;
+        let max_size = config
+            .size_bytes
+            .unwrap_or(MAX_MODEL_DOWNLOAD_BYTES)
+            .min(MAX_MODEL_DOWNLOAD_BYTES);
+        if response
+            .content_length()
+            .is_some_and(|size| size > max_size)
+        {
+            anyhow::bail!(
+                "model {} exceeds the maximum permitted download size of {} bytes",
+                config.name,
+                max_size
+            );
+        }
+        let source_path = destination.join("source.bin");
+        let mut source = fs::File::create(&source_path)?;
+        let mut hasher = Sha256::new();
+        let mut downloaded = 0_u64;
+        let mut response = response;
+        while let Some(chunk) = response.chunk().await? {
+            let chunk_size = u64::try_from(chunk.len())?;
+            downloaded = downloaded
+                .checked_add(chunk_size)
+                .ok_or_else(|| anyhow::anyhow!("model download size overflow"))?;
+            if downloaded > max_size {
+                anyhow::bail!(
+                    "model {} exceeds the maximum permitted download size of {} bytes",
+                    config.name,
+                    max_size
+                );
+            }
+            source.write_all(&chunk)?;
+            hasher.update(&chunk);
+        }
+        source.flush()?;
+        drop(source);
         if let Some(expected_size) = config.size_bytes {
-            if bytes.len() as u64 != expected_size {
+            if downloaded != expected_size {
                 anyhow::bail!(
                     "model {} has size {}, expected {}",
                     config.name,
-                    bytes.len(),
+                    downloaded,
                     expected_size
                 );
             }
         }
-        let digest = sha256_bytes(&bytes);
+        let digest = hex::encode(hasher.finalize());
         if !digest.eq_ignore_ascii_case(&config.sha256) {
             anyhow::bail!(
                 "model {} sha256 mismatch: got {}, expected {}",
@@ -179,18 +219,17 @@ impl ModelManager {
             );
         }
 
-        fs::write(destination.join("source.bin"), &bytes)?;
         match config.archive_format {
             ModelArchiveFormat::None => {
-                fs::write(destination.join("model.bin"), &bytes)?;
+                fs::copy(&source_path, destination.join("model.bin"))?;
             }
-            ModelArchiveFormat::Zip => extract_zip(&bytes, destination)?,
+            ModelArchiveFormat::Zip => extract_zip(&source_path, destination)?,
         }
         let manifest = ModelManifest {
             name: config.name.clone(),
             version: config.version.clone(),
             sha256: digest,
-            size_bytes: bytes.len() as u64,
+            size_bytes: downloaded,
             archive_format: config.archive_format.clone(),
         };
         fs::write(
@@ -210,12 +249,31 @@ fn sha256_bytes(bytes: &[u8]) -> String {
 
 #[cfg(feature = "basemind")]
 fn sha256_file(path: &Path) -> Result<String> {
-    Ok(sha256_bytes(&fs::read(path)?))
+    let mut file = fs::File::open(path)?;
+    let mut hasher = Sha256::new();
+    let mut buffer = [0_u8; 64 * 1024];
+    loop {
+        let read = file.read(&mut buffer)?;
+        if read == 0 {
+            break;
+        }
+        hasher.update(&buffer[..read]);
+    }
+    Ok(hex::encode(hasher.finalize()))
 }
 
 #[cfg(feature = "basemind")]
-fn extract_zip(bytes: &[u8], destination: &Path) -> Result<()> {
-    let mut archive = zip::ZipArchive::new(Cursor::new(bytes))?;
+fn extract_zip(source_path: &Path, destination: &Path) -> Result<()> {
+    let source = fs::File::open(source_path)?;
+    let mut archive = zip::ZipArchive::new(source)?;
+    if archive.len() > MAX_ARCHIVE_ENTRIES {
+        anyhow::bail!(
+            "model archive contains {} entries, exceeding the limit of {}",
+            archive.len(),
+            MAX_ARCHIVE_ENTRIES
+        );
+    }
+    let mut uncompressed_bytes = 0_u64;
     for index in 0..archive.len() {
         let mut entry = archive.by_index(index)?;
         let relative = entry
@@ -230,9 +288,18 @@ fn extract_zip(bytes: &[u8], destination: &Path) -> Result<()> {
         if let Some(parent) = output.parent() {
             fs::create_dir_all(parent)?;
         }
-        let mut contents = Vec::new();
-        entry.read_to_end(&mut contents)?;
-        fs::write(output, contents)?;
+        let entry_size = entry.size();
+        uncompressed_bytes = uncompressed_bytes
+            .checked_add(entry_size)
+            .ok_or_else(|| anyhow::anyhow!("model archive size overflow"))?;
+        if uncompressed_bytes > MAX_ARCHIVE_UNCOMPRESSED_BYTES {
+            anyhow::bail!(
+                "model archive exceeds the maximum uncompressed size of {} bytes",
+                MAX_ARCHIVE_UNCOMPRESSED_BYTES
+            );
+        }
+        let mut output_file = fs::File::create(output)?;
+        std::io::copy(&mut entry, &mut output_file)?;
     }
     Ok(())
 }

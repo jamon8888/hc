@@ -16,6 +16,11 @@ use alex_runtime_ports::{
 };
 #[cfg(feature = "basemind")]
 use anyhow::Result;
+#[cfg(feature = "basemind")]
+use std::sync::Arc;
+
+#[cfg(feature = "basemind")]
+use crate::prompt_pseudonym::BasemindPromptPseudonymizer;
 
 /// The product's document redaction port.
 ///
@@ -26,12 +31,16 @@ use anyhow::Result;
 #[cfg(feature = "basemind")]
 pub struct BasemindDocumentRedactor {
     client: BasemindClient,
+    pseudonymizer: Arc<BasemindPromptPseudonymizer>,
 }
 
 #[cfg(feature = "basemind")]
 impl BasemindDocumentRedactor {
-    pub fn new(client: BasemindClient) -> Self {
-        Self { client }
+    pub fn new(client: BasemindClient, pseudonymizer: Arc<BasemindPromptPseudonymizer>) -> Self {
+        Self {
+            client,
+            pseudonymizer,
+        }
     }
 
     fn document_from_payload(
@@ -112,6 +121,33 @@ impl DocumentRedactionPort for BasemindDocumentRedactor {
         Self::document_from_payload(payload, source_format_for(path))
     }
 
+    async fn redact_for_session(
+        &self,
+        path: &str,
+        workspace_root: &str,
+        session_id: &str,
+    ) -> Result<RedactedDocument, DocumentRedactionError> {
+        let payload = self
+            .client
+            .redact_path(path, workspace_root)
+            .await
+            .map_err(|error| {
+                DocumentRedactionError::new(
+                    DocumentRedactionErrorKind::Unavailable,
+                    format!("the basemind sidecar could not redact the document: {error}"),
+                )
+            })?;
+        self.pseudonymizer
+            .retokenize_document(payload, session_id, source_format_for(path))
+            .await
+            .map_err(|error| {
+                DocumentRedactionError::new(
+                    DocumentRedactionErrorKind::Failed,
+                    format!("the basemind document tokenization failed: {error}"),
+                )
+            })
+    }
+
     async fn redact_text(
         &self,
         text: &str,
@@ -128,6 +164,33 @@ impl DocumentRedactionPort for BasemindDocumentRedactor {
                 )
             })?;
         Self::document_from_payload(payload, "text")
+    }
+
+    async fn redact_text_for_session(
+        &self,
+        text: &str,
+        workspace_root: &str,
+        session_id: &str,
+    ) -> Result<RedactedDocument, DocumentRedactionError> {
+        let payload = self
+            .client
+            .redact_text(text, workspace_root)
+            .await
+            .map_err(|error| {
+                DocumentRedactionError::new(
+                    DocumentRedactionErrorKind::Unavailable,
+                    format!("the basemind sidecar could not redact inline text: {error}"),
+                )
+            })?;
+        self.pseudonymizer
+            .retokenize_document(payload, session_id, "text")
+            .await
+            .map_err(|error| {
+                DocumentRedactionError::new(
+                    DocumentRedactionErrorKind::Failed,
+                    format!("the basemind document tokenization failed: {error}"),
+                )
+            })
     }
 }
 

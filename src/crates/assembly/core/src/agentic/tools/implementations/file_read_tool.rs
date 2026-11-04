@@ -208,8 +208,14 @@ impl FileReadTool {
                 model_visible_path
             )));
         }
+        let session_id = context.session_id.as_deref().ok_or_else(|| {
+            AlexError::tool(format!(
+                "Cannot redact text file {} without an active session",
+                model_visible_path
+            ))
+        })?;
         let redacted = port
-            .redact_text(&content, &workspace_root)
+            .redact_text_for_session(&content, &workspace_root, session_id)
             .await
             .map_err(|error| {
                 AlexError::tool(format!(
@@ -329,10 +335,16 @@ impl FileReadTool {
             let workspace_root = context
                 .workspace_root()
                 .map(|root| root.to_string_lossy().to_string());
+            let session_id = context.session_id.clone();
             let path = resolved_path.to_string();
             async move {
-                match (Self::model_privacy_route(context), port, workspace_root) {
-                    ("local", _, _) => convert_document_to_markdown(bytes, path)
+                match (
+                    Self::model_privacy_route(context),
+                    port,
+                    workspace_root,
+                    session_id,
+                ) {
+                    ("local", _, _, _) => convert_document_to_markdown(bytes, path)
                         .await
                         .map(|converted| {
                             (
@@ -341,20 +353,24 @@ impl FileReadTool {
                             )
                         })
                         .map_err(|error| error),
-                    ("api", Some(port), Some(root)) => port
-                        .redact(&path, &root)
+                    ("api", Some(port), Some(root), Some(session_id)) => port
+                        .redact_for_session(&path, &root, session_id)
                         .await
                         .map(|document| (document.markdown, document.source_format))
                         .map_err(|error| DocumentConversionError::new("redaction", error.message)),
-                    ("api", Some(_), None) => Err(DocumentConversionError::new(
+                    ("api", Some(_), None, _) => Err(DocumentConversionError::new(
                         "redaction",
                         "workspace root is required for the document redaction port",
                     )),
-                    ("api", None, _) => Err(DocumentConversionError::new(
+                    ("api", None, _, _) => Err(DocumentConversionError::new(
                         "redaction",
                         "API model document access requires a Basemind redaction port",
                     )),
-                    ("unknown", _, _) => Err(DocumentConversionError::new(
+                    ("api", Some(_), Some(_), None) => Err(DocumentConversionError::new(
+                        "redaction",
+                        "document access requires an active session for token continuity",
+                    )),
+                    ("unknown", _, _, _) => Err(DocumentConversionError::new(
                         "redaction",
                         "document access refused because the model privacy route is unknown",
                     )),

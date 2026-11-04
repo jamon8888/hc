@@ -191,6 +191,118 @@ impl BasemindPromptPseudonymizer {
             inner: tokio::sync::Mutex::new(pseudonymizer),
         }
     }
+
+    /// Convert the sidecar's positional document tokens into the same
+    /// workspace registry and session vault tokens used for prompts.
+    pub async fn retokenize_document(
+        &self,
+        payload: serde_json::Value,
+        session_id: &str,
+        source_format: impl Into<String>,
+    ) -> Result<alex_runtime_ports::RedactedDocument> {
+        let mut guard = self.inner.lock().await;
+        guard.retokenize_document(payload, session_id, source_format)
+    }
+}
+
+#[cfg(feature = "basemind")]
+impl PromptPseudonymizer {
+    fn retokenize_document(
+        &mut self,
+        payload: serde_json::Value,
+        session_id: &str,
+        source_format: impl Into<String>,
+    ) -> Result<alex_runtime_ports::RedactedDocument> {
+        let redacted_text = payload["redacted_text"]
+            .as_str()
+            .ok_or_else(|| anyhow::anyhow!("missing redacted_text"))?
+            .to_string();
+        let positional_map = payload["rehydration_map"]
+            .as_object()
+            .ok_or_else(|| anyhow::anyhow!("missing rehydration_map"))?;
+        let detections = payload["detections"]
+            .as_array()
+            .ok_or_else(|| anyhow::anyhow!("missing detections"))?;
+
+        let session_payload = match self
+            .vault
+            .read()
+            .unwrap_or_else(|error| error.into_inner())
+            .load_session(session_id)
+        {
+            Ok(payload) => payload,
+            Err(_) => crate::session_vault::SessionPayload {
+                map: BTreeMap::new(),
+                salt: crate::session_vault::SessionVault::generate_salt(),
+            },
+        };
+        let session_salt = &session_payload.salt;
+        let mut session_map = session_payload.map.clone();
+        let mut positional_to_token = BTreeMap::new();
+        let mut entities: Vec<alex_runtime_ports::RedactedEntity> = Vec::new();
+        let mut registry = self
+            .registry
+            .lock()
+            .unwrap_or_else(|error| error.into_inner());
+
+        for detection in detections {
+            let category = detection["category"].as_str().unwrap_or("UNKNOWN");
+            let original_value = detection["text"].as_str().unwrap_or("");
+            let positional_token = detection["token"]
+                .as_str()
+                .or_else(|| {
+                    positional_map
+                        .keys()
+                        .find(|key| positional_map[*key].as_str() == Some(original_value))
+                        .map(|key| key.as_str())
+                })
+                .unwrap_or("");
+            if positional_token.is_empty() || original_value.is_empty() {
+                continue;
+            }
+
+            let entity_id = registry.get_or_create_alias_for_value(original_value, category);
+            if let Some(entity) = entities
+                .iter_mut()
+                .find(|entity| entity.entity_id == entity_id)
+            {
+                entity.occurrence_count += 1;
+            } else {
+                entities.push(alex_runtime_ports::RedactedEntity {
+                    entity_id: entity_id.clone(),
+                    entity_type: category.to_uppercase(),
+                    occurrence_count: 1,
+                });
+            }
+
+            let session_token =
+                crate::token::mint_session_token(category, &entity_id, session_salt);
+            positional_to_token.insert(positional_token.to_string(), session_token.clone());
+            session_map.insert(session_token, original_value.to_string());
+        }
+
+        let mut session_text = redacted_text;
+        for (positional_token, session_token) in positional_to_token {
+            session_text = session_text.replace(&positional_token, &session_token);
+        }
+        self.vault
+            .write()
+            .unwrap_or_else(|error| error.into_inner())
+            .store_session(
+                session_id,
+                crate::session_vault::SessionPayload {
+                    map: session_map,
+                    salt: session_salt.clone(),
+                },
+            )?;
+        registry.flush()?;
+
+        Ok(alex_runtime_ports::RedactedDocument {
+            markdown: session_text,
+            source_format: source_format.into(),
+            entities,
+        })
+    }
 }
 
 #[cfg(feature = "basemind")]
