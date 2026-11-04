@@ -440,6 +440,7 @@ test('portable contract crates expose only capability-local feature slices', asy
       'product-search',
       'prompt-pseudonymization',
       'rag-search',
+      'model-egress',
       'remote-exec-port',
       'remote-workspace-ports',
       'runtime-event-port',
@@ -674,6 +675,7 @@ const RUNTIME_PORT_FEATURE_PROFILES = {
   'product-search': ['dep:alex-product-domains'],
   'prompt-pseudonymization': [],
   'rag-search': [],
+  'model-egress': ['dep:alex-core-types'],
   'remote-exec-port': ['dep:tokio'],
   'remote-workspace-ports': [],
   'runtime-event-port': [],
@@ -1354,6 +1356,7 @@ test('Core optional document and subscription capabilities have independent modi
   ]);
   assert.deepEqual(ruleByFeature.get('ai-adapter-runtime')?.requiredFeatureRefs, [
     'dep:alex-ai-adapters',
+    'alex-runtime-ports/model-egress',
   ]);
   assert.ok(
     !ruleByFeature.get('tools-basic')?.requiredFeatureRefs.includes('tool-runtime/document-read'),
@@ -1764,6 +1767,7 @@ const ACP_REVIEWED_CORE_FEATURES = [
 
 const CLI_REVIEWED_CORE_FEATURES = [
   'tools-pages',
+  'tools-rag',
   ...ACP_REVIEWED_CORE_FEATURES,
   'product-search',
   'remote-connect',

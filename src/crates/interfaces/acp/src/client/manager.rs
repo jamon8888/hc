@@ -3232,6 +3232,7 @@ mod tests {
             "my name is Jean Dupont".to_string(),
             Path::new("/workspace/project"),
             "session-1",
+            ModelPrivacyRoute::Api,
         )
         .await
         .expect("an installed interceptor pseudonymizes the prompt");
@@ -3252,6 +3253,7 @@ mod tests {
             "my name is Jean Dupont".to_string(),
             Path::new("/workspace/project"),
             "session-1",
+            ModelPrivacyRoute::Api,
         )
         .await
         .expect_err("a prompt the interceptor refuses must not cross");
@@ -3276,6 +3278,7 @@ mod tests {
             "plain prompt".to_string(),
             Path::new("/workspace/project"),
             "session-1",
+            ModelPrivacyRoute::Api,
         )
         .await
         .expect_err("a host without an interceptor must refuse raw prompts");
