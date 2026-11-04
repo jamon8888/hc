@@ -5,8 +5,8 @@ use alex_runtime_ports::{
 };
 use async_trait::async_trait;
 use std::sync::{
-    Arc, OnceLock, RwLock,
     atomic::{AtomicU64, Ordering},
+    Arc, OnceLock, RwLock,
 };
 
 static GLOBAL_MODEL_EGRESS_POLICY: OnceLock<RwLock<Option<Arc<dyn ModelEgressPolicy>>>> =
@@ -39,6 +39,21 @@ impl ModelEgressPolicy for RefusingModelEgressPolicy {
     }
 }
 
+#[cfg(test)]
+struct TestModelEgressPolicy;
+
+#[cfg(test)]
+#[async_trait]
+impl ModelEgressPolicy for TestModelEgressPolicy {
+    async fn protect_messages(
+        &self,
+        messages: Vec<alex_core_types::Message>,
+        _context: ModelEgressContext,
+    ) -> Result<Vec<alex_core_types::Message>, ModelEgressError> {
+        Ok(messages)
+    }
+}
+
 pub fn set_global_model_egress_policy(policy: Option<Arc<dyn ModelEgressPolicy>>) {
     let mut slot = GLOBAL_MODEL_EGRESS_POLICY
         .get_or_init(|| RwLock::new(None))
@@ -53,11 +68,28 @@ pub fn install_refusing_model_egress_policy(message: impl Into<String>) {
 }
 
 pub fn global_model_egress_policy() -> Option<Arc<dyn ModelEgressPolicy>> {
-    GLOBAL_MODEL_EGRESS_POLICY
+    let policy = GLOBAL_MODEL_EGRESS_POLICY
         .get_or_init(|| RwLock::new(None))
         .read()
         .unwrap_or_else(|error| error.into_inner())
-        .clone()
+        .clone();
+
+    if policy.is_some() {
+        return policy;
+    }
+
+    // Core unit tests construct clients directly, without a product host
+    // composition root. Keep those tests focused on their own behavior while
+    // production remains fail-closed until a host publishes a real policy.
+    #[cfg(test)]
+    {
+        return Some(Arc::new(TestModelEgressPolicy));
+    }
+
+    #[cfg(not(test))]
+    {
+        None
+    }
 }
 
 pub fn global_model_egress_generation() -> u64 {
