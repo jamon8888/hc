@@ -19,6 +19,14 @@ export interface WordcraftCommandRequest {
   params: Record<string, unknown>;
 }
 
+export interface WordcraftOpenMessage {
+  type: 'open';
+  sessionId: string;
+  baseRevision: number;
+  name: string;
+  bytes: Uint8Array;
+}
+
 export interface WordcraftCommandResult {
   type: 'result';
   requestId: string;
@@ -48,6 +56,11 @@ export interface WordcraftSaveAck {
   error?: string;
 }
 
+export type WordcraftBridgeOutboundMessage =
+  | WordcraftCommandRequest
+  | WordcraftOpenMessage
+  | WordcraftSaveAck;
+
 export interface WordcraftBridgeReadyEvent {
   type: 'ready';
   ready: WordcraftReadyMessage;
@@ -74,7 +87,7 @@ export type WordcraftBridgeEvent =
 
 export interface WordcraftBridgeOptions extends WordcraftReadyValidationContext {
   timeoutMs?: number;
-  postMessage: (message: WordcraftCommandRequest | WordcraftSaveAck) => void;
+  postMessage: (message: WordcraftBridgeOutboundMessage) => void;
   onEvent?: (event: WordcraftBridgeEvent) => void;
   requestIdFactory?: () => string;
 }
@@ -212,6 +225,25 @@ export class WordcraftBridge {
         this.pending.delete(requestId);
         reject(error instanceof Error ? error : new Error(String(error)));
       }
+    });
+  }
+
+  openDocument(name: string, bytes: Uint8Array, baseRevision = 0): void {
+    if (!this.isReady) {
+      throw new Error('WordCraft bridge is unavailable');
+    }
+    if (!name.trim()) {
+      throw new Error('WordCraft document name is empty');
+    }
+    if (!Number.isSafeInteger(baseRevision) || baseRevision < 0) {
+      throw new Error('WordCraft document revision is invalid');
+    }
+    this.options.postMessage({
+      type: 'open',
+      sessionId: this.options.expectedSessionId,
+      baseRevision,
+      name,
+      bytes,
     });
   }
 
