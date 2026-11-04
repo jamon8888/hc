@@ -49,6 +49,7 @@ pub fn build_privacy_bundle(
     data_dir: PathBuf,
     daemon_binary: Option<PathBuf>,
     ner_model_dir: PathBuf,
+    workspace_root: Option<&Path>,
 ) -> Result<BasemindPrivacyBundle> {
     let registry_dir = data_dir.join("registry");
     let vault_dir = data_dir.join("vault");
@@ -81,7 +82,10 @@ pub fn build_privacy_bundle(
     ));
 
     Ok(BasemindPrivacyBundle {
-        model_egress: Arc::new(BasemindModelEgressPolicy::new(pseudonymizer.clone())),
+        model_egress: Arc::new(BasemindModelEgressPolicy::scoped(
+            pseudonymizer.clone(),
+            workspace_root,
+        )),
         pseudonymizer,
         rag_search,
         document_redaction,
@@ -90,11 +94,38 @@ pub fn build_privacy_bundle(
 
 pub struct BasemindModelEgressPolicy {
     pseudonymizer: Arc<dyn PromptPseudonymizationPort>,
+    workspace_root: Option<String>,
 }
 
 impl BasemindModelEgressPolicy {
     pub fn new(pseudonymizer: Arc<dyn PromptPseudonymizationPort>) -> Self {
-        Self { pseudonymizer }
+        Self {
+            pseudonymizer,
+            workspace_root: None,
+        }
+    }
+
+    pub fn scoped(
+        pseudonymizer: Arc<dyn PromptPseudonymizationPort>,
+        workspace_root: Option<&Path>,
+    ) -> Self {
+        Self {
+            pseudonymizer,
+            workspace_root: workspace_root.map(|path| path.to_string_lossy().into_owned()),
+        }
+    }
+
+    fn ensure_workspace_scope(&self, context: &ModelEgressContext) -> Result<(), ModelEgressError> {
+        let Some(expected_root) = self.workspace_root.as_deref() else {
+            return Ok(());
+        };
+        if context.workspace_root.as_deref() == Some(expected_root) {
+            return Ok(());
+        }
+        Err(ModelEgressError::new(
+            ModelEgressErrorKind::MissingContext,
+            "model egress refused: request workspace does not match the host privacy scope",
+        ))
     }
 
     async fn pseudonymize_text(
@@ -182,6 +213,7 @@ impl ModelEgressPolicy for BasemindModelEgressPolicy {
             }
             ModelPrivacyRoute::Api => {}
         }
+        self.ensure_workspace_scope(&context)?;
 
         for message in &mut messages {
             if message
@@ -231,6 +263,7 @@ impl ModelEgressPolicy for BasemindModelEgressPolicy {
                 "model response rehydration refused: model route is unknown",
             ));
         }
+        self.ensure_workspace_scope(&context)?;
         let session_id = context.session_id.as_deref().ok_or_else(|| {
             ModelEgressError::new(
                 ModelEgressErrorKind::MissingContext,

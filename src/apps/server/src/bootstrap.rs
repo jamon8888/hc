@@ -37,6 +37,7 @@ fn publish_basemind_model_egress_policy(workspace_root: Option<&std::path::Path>
         data_dir,
         daemon_binary,
         std::path::PathBuf::from(ner_model_dir),
+        workspace_root,
     ) {
         Ok(bundle) => bundle,
         Err(error) => {

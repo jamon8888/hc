@@ -177,6 +177,48 @@ impl FileReadTool {
         format!("[FILE_{}]", &digest[..16])
     }
 
+    #[cfg(feature = "tools-rag")]
+    async fn redact_model_visible_text(
+        content: String,
+        context: &ToolUseContext,
+        model_visible_path: &str,
+    ) -> AlexResult<String> {
+        if Self::model_privacy_route(context) == "local" {
+            return Ok(content);
+        }
+        let workspace_root = context
+            .workspace_root()
+            .map(|root| root.to_string_lossy().into_owned())
+            .ok_or_else(|| {
+                AlexError::tool(format!(
+                    "Cannot redact text file {} without a workspace root",
+                    model_visible_path
+                ))
+            })?;
+        let port = crate::service::rag_search::global_document_redaction_port().ok_or_else(|| {
+            AlexError::tool(format!(
+                "Cannot read text file {} for an API model without a Basemind redaction port",
+                model_visible_path
+            ))
+        })?;
+        if Self::model_privacy_route(context) != "api" {
+            return Err(AlexError::tool(format!(
+                "Cannot read text file {} because the model privacy route is unknown",
+                model_visible_path
+            )));
+        }
+        let redacted = port
+            .redact_text(&content, &workspace_root)
+            .await
+            .map_err(|error| {
+                AlexError::tool(format!(
+                    "Failed to redact text file {} before model access: {}",
+                    model_visible_path, error.message
+                ))
+            })?;
+        Ok(redacted.markdown)
+    }
+
     fn resolve_document_reference(file_path: &str, context: &ToolUseContext) -> AlexResult<String> {
         #[cfg(feature = "tools-rag")]
         if file_path.starts_with("[DOC_") && file_path.ends_with(']') {
@@ -748,13 +790,17 @@ Usage:
 
         let resolved = context.resolve_tool_path(&file_path)?;
         context.enforce_path_operation(ToolPathOperation::Read, &resolved)?;
-        let model_visible_path = Self::model_visible_path(
-            &resolved.logical_path,
-            context
-                .workspace_root()
-                .map(|root| root.to_string_lossy().into_owned())
-                .as_deref(),
-        );
+        let model_visible_path = if Self::model_privacy_route(context) == "local" {
+            resolved.logical_path.clone()
+        } else {
+            Self::model_visible_path(
+                &resolved.logical_path,
+                context
+                    .workspace_root()
+                    .map(|root| root.to_string_lossy().into_owned())
+                    .as_deref(),
+            )
+        };
         #[cfg(feature = "tools-miniapp")]
         if is_virtual_context_path(context, &resolved) {
             let content = virtual_context_file(context, &resolved).ok_or_else(|| {
@@ -763,7 +809,7 @@ Usage:
                     model_visible_path
                 ))
             })?;
-            let read_file_result = if tail {
+            let mut read_file_result = if tail {
                 read_text_tail(&content, limit, self.max_line_chars, self.max_total_chars)
             } else {
                 read_text(
@@ -775,6 +821,15 @@ Usage:
                 )
             }
             .map_err(AlexError::tool)?;
+            #[cfg(feature = "tools-rag")]
+            {
+                read_file_result.content = Self::redact_model_visible_text(
+                    read_file_result.content,
+                    context,
+                    &model_visible_path,
+                )
+                .await?;
+            }
             let presentation = build_read_file_presentation(&model_visible_path, &read_file_result);
             return Ok(vec![ToolResult::Result {
                 data: json!({
@@ -912,49 +967,12 @@ Usage:
         // text would violate the model-boundary guarantee.
         #[cfg(feature = "tools-rag")]
         if document_metadata.is_none() {
-            let port = crate::service::rag_search::global_document_redaction_port();
-            let workspace_root = context
-                .workspace_root()
-                .map(|root| root.to_string_lossy().to_string());
-            match (Self::model_privacy_route(context), port, workspace_root) {
-                ("local", _, _) => {}
-                ("api", Some(_), None) => {
-                    return Err(AlexError::tool(format!(
-                        "Cannot redact text file {} without a workspace root",
-                        model_visible_path
-                    )));
-                }
-                ("api", None, _) => {
-                    return Err(AlexError::tool(format!(
-                        "Cannot read text file {} for an API model without a Basemind redaction port",
-                        model_visible_path
-                    )));
-                }
-                ("api", Some(port), Some(root)) => {
-                    let redacted = port
-                        .redact_text(&read_file_result.content, &root)
-                        .await
-                        .map_err(|error| {
-                            AlexError::tool(format!(
-                                "Failed to redact text file {} before model access: {}",
-                                model_visible_path, error.message
-                            ))
-                        })?;
-                    read_file_result.content = redacted.markdown;
-                }
-                ("unknown", _, _) => {
-                    return Err(AlexError::tool(format!(
-                        "Cannot read text file {} because the model privacy route is unknown",
-                        model_visible_path
-                    )));
-                }
-                _ => {
-                    return Err(AlexError::tool(format!(
-                        "Cannot read text file {} because the model privacy route is invalid",
-                        model_visible_path
-                    )));
-                }
-            }
+            read_file_result.content = Self::redact_model_visible_text(
+                read_file_result.content,
+                context,
+                &model_visible_path,
+            )
+            .await?;
         }
         #[cfg(not(feature = "tools-rag"))]
         if document_metadata.is_none() && Self::model_privacy_route(context) != "local" {

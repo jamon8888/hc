@@ -2587,6 +2587,7 @@ pub(crate) fn publish_basemind_search_port(
         data_dir,
         Some(sidecar.to_path_buf()),
         ner_model_dir,
+        Some(workspace_root),
     ) {
         Ok(bundle) => bundle,
         Err(error) => {

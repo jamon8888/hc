@@ -901,6 +901,7 @@ pub(crate) fn install_cli_privacy_guards(workspace_root: &std::path::Path) {
         data_dir,
         daemon_binary,
         std::path::PathBuf::from(ner_model_dir),
+        Some(workspace_root),
     ) {
         Ok(bundle) => bundle,
         Err(error) => {

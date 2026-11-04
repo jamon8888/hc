@@ -3266,21 +3266,21 @@ mod tests {
     }
 
     /// No interceptor installed: the host never published the PII guarantee,
-    /// so the prompt passes through unchanged.
+    /// so the prompt is refused rather than sent raw.
     #[tokio::test]
     async fn acp_prompt_interception_passes_through_without_an_installed_interceptor() {
         let _guard = prompt_interceptor_guard();
         set_prompt_interceptor(None);
 
-        let text = AcpClientService::pseudonymize_acp_prompt(
+        let error = AcpClientService::pseudonymize_acp_prompt(
             "plain prompt".to_string(),
             Path::new("/workspace/project"),
             "session-1",
         )
         .await
-        .expect("a host without an interceptor passes prompts through");
+        .expect_err("a host without an interceptor must refuse raw prompts");
 
-        assert_eq!(text, "plain prompt");
+        assert!(error.to_string().contains("pseudonymization"));
     }
 
     #[test]

@@ -192,21 +192,22 @@ fn prompt_interceptor() -> Option<Arc<dyn AcpPromptInterceptor>> {
 }
 
 /// Run the installed interceptor over a prompt about to cross to an external
-/// agent, or return the prompt unchanged when no host published one.
+/// agent. External routes must fail closed when no host published the privacy
+/// guarantee; raw prompts must never silently cross this boundary.
 pub async fn apply_prompt_interceptor(
     prompt: String,
     workspace_root: &Path,
     alex_session_id: &str,
     route: ModelPrivacyRoute,
 ) -> AlexResult<String> {
-    match prompt_interceptor() {
-        Some(interceptor) => {
-            interceptor
-                .pseudonymize(&prompt, workspace_root, alex_session_id, route)
-                .await
-        }
-        None => Ok(prompt),
-    }
+    let interceptor = prompt_interceptor().ok_or_else(|| {
+        alex_core::util::errors::AlexError::service(
+            "ACP prompt refused: PII pseudonymization is unavailable",
+        )
+    })?;
+    interceptor
+        .pseudonymize(&prompt, workspace_root, alex_session_id, route)
+        .await
 }
 
 pub async fn rehydrate_prompt_interceptor(
