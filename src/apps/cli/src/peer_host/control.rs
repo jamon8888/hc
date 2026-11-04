@@ -117,6 +117,11 @@ fn basemind_capability_advertisement() -> BasemindCapabilityAdvertisement {
             BasemindUnavailableReason::SidecarUnavailable,
         );
     }
+    if !crate::basemind_privacy_bundle_ready() {
+        return BasemindCapabilityAdvertisement::unavailable(
+            BasemindUnavailableReason::PrivacyPipelineUnavailable,
+        );
+    }
     let sidecar_binary =
         std::env::var_os("BASEMIND_SIDECAR_PATH").is_some_and(|path| Path::new(&path).is_file());
     let sidecar_binary = sidecar_binary || daemon_available;

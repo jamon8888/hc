@@ -59,6 +59,16 @@ pub(crate) const PLUGIN_HOST_LAUNCH_POLICY: alex_core::plugin_host::PluginHostLa
 
 static MCP_SERVICE: OnceLock<std::sync::Arc<alex_core::service::mcp::MCPService>> = OnceLock::new();
 
+/// True only after this CLI host has installed a complete workspace-scoped
+/// Basemind bundle. Peer capability advertisements must not infer readiness
+/// from environment variables or a discoverable daemon alone.
+static CLI_BASEMIND_PRIVACY_BUNDLE_READY: std::sync::atomic::AtomicBool =
+    std::sync::atomic::AtomicBool::new(false);
+
+pub(crate) fn basemind_privacy_bundle_ready() -> bool {
+    CLI_BASEMIND_PRIVACY_BUNDLE_READY.load(std::sync::atomic::Ordering::Acquire)
+}
+
 /// MCP initialization status: 0=not started, 1=in progress, 2=completed, 3=failed
 static MCP_INIT_STATUS: OnceLock<AtomicU8> = OnceLock::new();
 
@@ -866,6 +876,7 @@ async fn initialize_core_services(
 }
 
 pub(crate) fn install_cli_privacy_guards(workspace_root: &std::path::Path) {
+    CLI_BASEMIND_PRIVACY_BUNDLE_READY.store(false, std::sync::atomic::Ordering::Release);
     // API model egress is fail-closed until this host publishes a concrete
     // Basemind policy. Local loopback models remain untouched by the policy.
     alex_core::service::model_egress::install_refusing_model_egress_policy(
@@ -923,6 +934,7 @@ pub(crate) fn install_cli_privacy_guards(workspace_root: &std::path::Path) {
             workspace_root,
         ),
     )));
+    CLI_BASEMIND_PRIVACY_BUNDLE_READY.store(true, std::sync::atomic::Ordering::Release);
     tracing::info!(
         "Basemind model egress, prompt pseudonymization, document redaction and search published for CLI host"
     );
