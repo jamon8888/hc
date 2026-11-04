@@ -24,6 +24,7 @@ export interface WordcraftEmbeddedDocumentSessionOptions {
  */
 export class WordcraftEmbeddedDocumentSession {
   private disposed = false;
+  private openedGeneration = 0;
 
   constructor(private readonly options: WordcraftEmbeddedDocumentSessionOptions) {}
 
@@ -35,6 +36,7 @@ export class WordcraftEmbeddedDocumentSession {
     if (this.disposed) return;
 
     if (event.type === 'failed') {
+      this.openedGeneration = 0;
       this.options.onError?.(event.error);
     }
 
@@ -42,6 +44,8 @@ export class WordcraftEmbeddedDocumentSession {
     this.options.onState?.(this.options.host.state);
 
     if (event.type !== 'ready') return;
+    const generation = event.generation ?? 1;
+    if (generation <= this.openedGeneration) return;
 
     try {
       // A validated ready event after the iframe reloads is a recovery
@@ -52,6 +56,7 @@ export class WordcraftEmbeddedDocumentSession {
         this.options.bytes,
         this.options.baseRevision ?? 0,
       );
+      this.openedGeneration = generation;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.options.onError?.(message);

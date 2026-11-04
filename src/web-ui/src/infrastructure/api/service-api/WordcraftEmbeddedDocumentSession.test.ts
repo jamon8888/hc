@@ -122,6 +122,40 @@ describe('WordcraftEmbeddedDocumentSession', () => {
     expect(onError).toHaveBeenCalledWith('frame reloaded');
   });
 
+  it('reopens when the iframe reloads and handshakes without a failure event', () => {
+    const posted: WordcraftBridgeOutboundMessage[] = [];
+    const bridge = new WordcraftBridge({ ...context, postMessage: message => posted.push(message) });
+    const host = new WordcraftDocumentHost({
+      sessionId: context.expectedSessionId,
+      saveBytes: vi.fn(),
+      acknowledgeSave: vi.fn(),
+    });
+    const session = new WordcraftEmbeddedDocumentSession({
+      bridge,
+      host,
+      name: 'draft.docx',
+      bytes: new Uint8Array([1]),
+    });
+    const ready = (generation: number) => ({
+      type: 'ready' as const,
+      generation,
+      ready: {
+        type: 'ready' as const,
+        sessionId: context.expectedSessionId,
+        version: context.pinnedVersion,
+        protocolVersion: WORDCRAFT_WEB_PROTOCOL_VERSION,
+        commandCapabilities: [...WORDCRAFT_WEB_REQUIRED_COMMANDS],
+      },
+    });
+
+    bridge.handleMessage(readyEvent());
+    session.handleBridgeEvent(ready(1));
+    bridge.handleMessage(readyEvent());
+    session.handleBridgeEvent(ready(2));
+
+    expect(posted.filter(message => message.type === 'open')).toHaveLength(2);
+  });
+
   it('disposes both bridge and host and ignores later events', () => {
     const bridge = new WordcraftBridge({ ...context, postMessage: vi.fn() });
     const host = new WordcraftDocumentHost({
