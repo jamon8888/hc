@@ -53,7 +53,9 @@ use crate::service::workspace::{get_global_workspace_service, WorkspaceInfo};
 use crate::util::errors::{AlexError, AlexResult};
 use crate::util::sanitize_plain_model_output;
 use crate::util::timing::elapsed_ms_u64;
-use alex_core_types::{ModelRequestContext, SessionExecutionTarget};
+use dashmap::{mapref::entry::Entry, DashMap};
+use log::{debug, error, info, warn};
+use alex_core_types::SessionExecutionTarget;
 pub use alex_runtime_ports::SessionViewRestoreTiming;
 use alex_runtime_ports::{
     AgentTurnSettlementResult, PermissionMode, SessionStoragePathRequest, SessionStorePort,
@@ -64,8 +66,6 @@ use alex_services_core::session::{
     set_deep_review_run_manifest, set_review_target_evidence, set_session_relationship,
     SessionStorageLayout, SessionWriteLock,
 };
-use dashmap::{mapref::entry::Entry, DashMap};
-use log::{debug, error, info, warn};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::collections::{HashSet, VecDeque};
@@ -462,7 +462,8 @@ impl SessionManager {
         &self,
         session_id: &str,
     ) -> AlexResult<KeyedAsyncLockGuard> {
-        alex_core_types::validate_session_id(session_id).map_err(AlexError::Validation)?;
+        alex_core_types::validate_session_id(session_id)
+            .map_err(AlexError::Validation)?;
         Ok(self.lock_session_mutation(session_id).await)
     }
 
@@ -539,7 +540,8 @@ impl SessionManager {
         requested_path: &Path,
         allow_existing_same_path: bool,
     ) -> AlexResult<bool> {
-        alex_core_types::validate_session_id(session_id).map_err(AlexError::Validation)?;
+        alex_core_types::validate_session_id(session_id)
+            .map_err(AlexError::Validation)?;
         let requested_path = Self::normalize_session_storage_path(requested_path);
         match self
             .session_storage_path_index
@@ -658,7 +660,8 @@ impl SessionManager {
         session_id: &str,
         requested_path: &Path,
     ) -> AlexResult<()> {
-        alex_core_types::validate_session_id(session_id).map_err(AlexError::Validation)?;
+        alex_core_types::validate_session_id(session_id)
+            .map_err(AlexError::Validation)?;
         let requested_path = Self::normalize_session_storage_path(requested_path);
         let Some(binding) = self.session_storage_path_index.get(session_id) else {
             return Ok(());
@@ -680,7 +683,8 @@ impl SessionManager {
         storage_path: &Path,
         session_id: &str,
     ) -> AlexResult<bool> {
-        alex_core_types::validate_session_id(session_id).map_err(AlexError::Validation)?;
+        alex_core_types::validate_session_id(session_id)
+            .map_err(AlexError::Validation)?;
         if !self.sessions.contains_key(session_id) {
             return Ok(false);
         }
@@ -1315,7 +1319,8 @@ impl SessionManager {
         reference: &SessionReferenceLocator,
         reference_artifact_stem: &str,
     ) -> AlexResult<MaterializedSessionReference> {
-        alex_core_types::validate_session_id(source_session_id).map_err(AlexError::Validation)?;
+        alex_core_types::validate_session_id(source_session_id)
+            .map_err(AlexError::Validation)?;
         alex_core_types::validate_session_id(&reference.session_id)
             .map_err(AlexError::Validation)?;
         alex_core_types::validate_session_id(reference_artifact_stem)
@@ -3805,7 +3810,11 @@ impl SessionManager {
     }
 
     /// Update session title (in-memory + persistence)
-    pub async fn update_session_title(&self, session_id: &str, title: &str) -> AlexResult<()> {
+    pub async fn update_session_title(
+        &self,
+        session_id: &str,
+        title: &str,
+    ) -> AlexResult<()> {
         let normalized_title = Self::normalize_session_title_input(title)?;
         let _mutation_guard = self.acquire_session_mutation(session_id).await?;
         self.update_session_title_locked(session_id, normalized_title)
@@ -3909,7 +3918,9 @@ impl SessionManager {
             .sessions
             .get(session_id)
             .map(|session| session.clone())
-            .ok_or_else(|| AlexError::NotFound(format!("Session not found: {}", session_id)))?;
+            .ok_or_else(|| {
+                AlexError::NotFound(format!("Session not found: {}", session_id))
+            })?;
 
         if session.agent_type == agent_type {
             return Ok(());
@@ -4231,7 +4242,9 @@ impl SessionManager {
             .sessions
             .get(session_id)
             .map(|session| session.clone())
-            .ok_or_else(|| AlexError::NotFound(format!("Session not found: {}", session_id)))?;
+            .ok_or_else(|| {
+                AlexError::NotFound(format!("Session not found: {}", session_id))
+            })?;
         let mut updated_session = original_session.clone();
         updated_session.config.model_id = Some(model_id.to_string());
         updated_session.config.reasoning_preset = reasoning_preset
@@ -4353,7 +4366,9 @@ impl SessionManager {
             .sessions
             .get(session_id)
             .map(|session| session.clone())
-            .ok_or_else(|| AlexError::NotFound(format!("Session not found: {}", session_id)))?;
+            .ok_or_else(|| {
+                AlexError::NotFound(format!("Session not found: {}", session_id))
+            })?;
         if original_session.config.permission_mode == permission_mode {
             return Ok(());
         }
@@ -4638,8 +4653,13 @@ impl SessionManager {
     }
 
     /// Delete session (cascade delete all resources)
-    pub async fn delete_session(&self, workspace_path: &Path, session_id: &str) -> AlexResult<()> {
-        alex_core_types::validate_session_id(session_id).map_err(AlexError::Validation)?;
+    pub async fn delete_session(
+        &self,
+        workspace_path: &Path,
+        session_id: &str,
+    ) -> AlexResult<()> {
+        alex_core_types::validate_session_id(session_id)
+            .map_err(AlexError::Validation)?;
         let _mutation_guard = self.lock_session_mutation(session_id).await;
         self.delete_session_locked(workspace_path, session_id).await
     }
@@ -4669,7 +4689,8 @@ impl SessionManager {
     }
 
     pub(crate) async fn delete_session_by_id(&self, session_id: &str) -> AlexResult<()> {
-        alex_core_types::validate_session_id(session_id).map_err(AlexError::Validation)?;
+        alex_core_types::validate_session_id(session_id)
+            .map_err(AlexError::Validation)?;
         let _mutation_guard = self.lock_session_mutation(session_id).await;
         let session = self
             .sessions
@@ -4719,7 +4740,8 @@ impl SessionManager {
         remote_ssh_host: Option<&str>,
         session_id: &str,
     ) -> AlexResult<bool> {
-        alex_core_types::validate_session_id(session_id).map_err(AlexError::Validation)?;
+        alex_core_types::validate_session_id(session_id)
+            .map_err(AlexError::Validation)?;
         let Some(root) = self.get_session(session_id) else {
             return Ok(false);
         };
@@ -4767,7 +4789,8 @@ impl SessionManager {
         remote_ssh_host: Option<&str>,
         session_id: &str,
     ) -> AlexResult<Vec<String>> {
-        alex_core_types::validate_session_id(session_id).map_err(AlexError::Validation)?;
+        alex_core_types::validate_session_id(session_id)
+            .map_err(AlexError::Validation)?;
         let Some(root) = self.get_session(session_id) else {
             return Ok(Vec::new());
         };
@@ -4909,8 +4932,12 @@ impl SessionManager {
     ///
     /// Callers must quiesce scheduler execution before unloading. A processing
     /// session is rejected so close/failure compensation cannot detach live work.
-    pub(crate) async fn unload_session_from_memory(&self, session_id: &str) -> AlexResult<bool> {
-        alex_core_types::validate_session_id(session_id).map_err(AlexError::Validation)?;
+    pub(crate) async fn unload_session_from_memory(
+        &self,
+        session_id: &str,
+    ) -> AlexResult<bool> {
+        alex_core_types::validate_session_id(session_id)
+            .map_err(AlexError::Validation)?;
         let _mutation_guard = self.lock_session_mutation(session_id).await;
         let Some(session) = self.get_session(session_id) else {
             return Ok(false);
@@ -5481,7 +5508,8 @@ impl SessionManager {
         usize,
         SessionViewRestoreTiming,
     )> {
-        alex_core_types::validate_session_id(session_id).map_err(AlexError::Validation)?;
+        alex_core_types::validate_session_id(session_id)
+            .map_err(AlexError::Validation)?;
         let restore_started_at = Instant::now();
         let resolve_storage_path_duration_ms = 0;
         debug!(
@@ -6612,7 +6640,10 @@ impl SessionManager {
     }
 
     /// List all sessions
-    pub async fn list_sessions(&self, workspace_path: &Path) -> AlexResult<Vec<SessionSummary>> {
+    pub async fn list_sessions(
+        &self,
+        workspace_path: &Path,
+    ) -> AlexResult<Vec<SessionSummary>> {
         if self.config.enable_persistence {
             self.persistence_manager.list_sessions(workspace_path).await
         } else {
@@ -6738,7 +6769,10 @@ impl SessionManager {
         Ok(())
     }
 
-    async fn metadata_workspace_path_for_update(&self, session_id: &str) -> AlexResult<PathBuf> {
+    async fn metadata_workspace_path_for_update(
+        &self,
+        session_id: &str,
+    ) -> AlexResult<PathBuf> {
         if !self.should_persist_session_id(session_id) {
             return Err(AlexError::Validation(format!(
                 "Session persistence is disabled: {}",
@@ -6749,7 +6783,10 @@ impl SessionManager {
         self.effective_session_storage_path(session_id)
             .await
             .ok_or_else(|| {
-                AlexError::Validation(format!("Session workspace_path is missing: {}", session_id))
+                AlexError::Validation(format!(
+                    "Session workspace_path is missing: {}",
+                    session_id
+                ))
             })
     }
 
@@ -6771,7 +6808,9 @@ impl SessionManager {
             .sessions
             .get(session_id)
             .map(|value| value.clone())
-            .ok_or_else(|| AlexError::NotFound(format!("Session not found: {}", session_id)))?;
+            .ok_or_else(|| {
+                AlexError::NotFound(format!("Session not found: {}", session_id))
+            })?;
         self.persistence_manager
             .save_session(workspace_path, &session)
             .await
@@ -6967,9 +7006,9 @@ impl SessionManager {
     ) -> AlexResult<String> {
         self.ensure_persisted_turn_append_allowed(session_id)
             .await?;
-        let session = self
-            .get_session(session_id)
-            .ok_or_else(|| AlexError::NotFound(format!("Session not found: {}", session_id)))?;
+        let session = self.get_session(session_id).ok_or_else(|| {
+            AlexError::NotFound(format!("Session not found: {}", session_id))
+        })?;
         match &session.state {
             SessionState::Idle => {}
             SessionState::Processing {
@@ -6993,7 +7032,10 @@ impl SessionManager {
             .effective_storage_path_for_config(&session.config)
             .await
             .ok_or_else(|| {
-                AlexError::Validation(format!("Session workspace_path is missing: {}", session_id))
+                AlexError::Validation(format!(
+                    "Session workspace_path is missing: {}",
+                    session_id
+                ))
             })?;
 
         let turn_index = session.dialog_turn_ids.len();
@@ -7436,14 +7478,17 @@ impl SessionManager {
     ) -> AlexResult<DialogTurnData> {
         self.ensure_persisted_turn_append_allowed(session_id)
             .await?;
-        let session = self
-            .get_session(session_id)
-            .ok_or_else(|| AlexError::NotFound(format!("Session not found: {}", session_id)))?;
+        let session = self.get_session(session_id).ok_or_else(|| {
+            AlexError::NotFound(format!("Session not found: {}", session_id))
+        })?;
         let workspace_path = self
             .effective_storage_path_for_config(&session.config)
             .await
             .ok_or_else(|| {
-                AlexError::Validation(format!("Session workspace_path is missing: {}", session_id))
+                AlexError::Validation(format!(
+                    "Session workspace_path is missing: {}",
+                    session_id
+                ))
             })?;
 
         let turn_id = new_turn_id(turn_id);
@@ -7767,13 +7812,18 @@ impl SessionManager {
             .effective_session_storage_path(session_id)
             .await
             .ok_or_else(|| {
-                AlexError::Validation(format!("Session workspace_path is missing: {}", session_id))
+                AlexError::Validation(format!(
+                    "Session workspace_path is missing: {}",
+                    session_id
+                ))
             })?;
         let turn_index = self
             .sessions
             .get(session_id)
             .and_then(|session| session.dialog_turn_ids.iter().position(|id| id == turn_id))
-            .ok_or_else(|| AlexError::NotFound(format!("Dialog turn not found: {}", turn_id)))?;
+            .ok_or_else(|| {
+                AlexError::NotFound(format!("Dialog turn not found: {}", turn_id))
+            })?;
 
         // The context snapshot is a session-level artifact built from the
         // in-memory context store; it does not participate in the projected
@@ -7800,7 +7850,9 @@ impl SessionManager {
             .persistence_manager
             .load_dialog_turn(&workspace_path, session_id, turn_index)
             .await?
-            .ok_or_else(|| AlexError::NotFound(format!("Dialog turn not found: {}", turn_id)))?;
+            .ok_or_else(|| {
+                AlexError::NotFound(format!("Dialog turn not found: {}", turn_id))
+            })?;
 
         // Update state
         let completion_timestamp = SystemTime::now()
@@ -8065,18 +8117,24 @@ impl SessionManager {
             .effective_session_storage_path(session_id)
             .await
             .ok_or_else(|| {
-                AlexError::Validation(format!("Session workspace_path is missing: {session_id}"))
+                AlexError::Validation(format!(
+                    "Session workspace_path is missing: {session_id}"
+                ))
             })?;
         let turn_index = self
             .sessions
             .get(session_id)
             .and_then(|session| session.dialog_turn_ids.iter().position(|id| id == turn_id))
-            .ok_or_else(|| AlexError::NotFound(format!("Dialog turn not found: {turn_id}")))?;
+            .ok_or_else(|| {
+                AlexError::NotFound(format!("Dialog turn not found: {turn_id}"))
+            })?;
         let mut turn = self
             .persistence_manager
             .load_dialog_turn(&workspace_path, session_id, turn_index)
             .await?
-            .ok_or_else(|| AlexError::NotFound(format!("Dialog turn not found: {turn_id}")))?;
+            .ok_or_else(|| {
+                AlexError::NotFound(format!("Dialog turn not found: {turn_id}"))
+            })?;
 
         if turn.status == TurnStatus::Completed && turn.recovery.is_none() {
             return Ok(());
@@ -8198,18 +8256,25 @@ impl SessionManager {
             .effective_session_storage_path(session_id)
             .await
             .ok_or_else(|| {
-                AlexError::Validation(format!("Session workspace_path is missing: {}", session_id))
+                AlexError::Validation(format!(
+                    "Session workspace_path is missing: {}",
+                    session_id
+                ))
             })?;
         let turn_index = self
             .sessions
             .get(session_id)
             .and_then(|session| session.dialog_turn_ids.iter().position(|id| id == turn_id))
-            .ok_or_else(|| AlexError::NotFound(format!("Dialog turn not found: {}", turn_id)))?;
+            .ok_or_else(|| {
+                AlexError::NotFound(format!("Dialog turn not found: {}", turn_id))
+            })?;
         let mut turn = self
             .persistence_manager
             .load_dialog_turn(&workspace_path, session_id, turn_index)
             .await?
-            .ok_or_else(|| AlexError::NotFound(format!("Dialog turn not found: {}", turn_id)))?;
+            .ok_or_else(|| {
+                AlexError::NotFound(format!("Dialog turn not found: {}", turn_id))
+            })?;
         let recovered_generation = turn.recovery.is_some();
         let now = SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
@@ -8259,7 +8324,11 @@ impl SessionManager {
     /// frontend / persistence layer can distinguish a user-cancelled turn
     /// from a fully-completed one. Any partial assistant content that was
     /// already streamed is preserved in `model_rounds`.
-    pub async fn cancel_dialog_turn(&self, session_id: &str, turn_id: &str) -> AlexResult<()> {
+    pub async fn cancel_dialog_turn(
+        &self,
+        session_id: &str,
+        turn_id: &str,
+    ) -> AlexResult<()> {
         self.cancel_dialog_turn_with_messages(session_id, turn_id, &[])
             .await
     }
@@ -8283,18 +8352,25 @@ impl SessionManager {
             .effective_session_storage_path(session_id)
             .await
             .ok_or_else(|| {
-                AlexError::Validation(format!("Session workspace_path is missing: {}", session_id))
+                AlexError::Validation(format!(
+                    "Session workspace_path is missing: {}",
+                    session_id
+                ))
             })?;
         let turn_index = self
             .sessions
             .get(session_id)
             .and_then(|session| session.dialog_turn_ids.iter().position(|id| id == turn_id))
-            .ok_or_else(|| AlexError::NotFound(format!("Dialog turn not found: {}", turn_id)))?;
+            .ok_or_else(|| {
+                AlexError::NotFound(format!("Dialog turn not found: {}", turn_id))
+            })?;
         let mut turn = self
             .persistence_manager
             .load_dialog_turn(&workspace_path, session_id, turn_index)
             .await?
-            .ok_or_else(|| AlexError::NotFound(format!("Dialog turn not found: {}", turn_id)))?;
+            .ok_or_else(|| {
+                AlexError::NotFound(format!("Dialog turn not found: {}", turn_id))
+            })?;
         let recovered_generation = turn.recovery.is_some();
         let now = SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
@@ -8377,13 +8453,17 @@ impl SessionManager {
             .effective_storage_path_for_config(&session.config)
             .await
             .ok_or_else(|| {
-                AlexError::Validation(format!("Session workspace_path is missing: {session_id}"))
+                AlexError::Validation(format!(
+                    "Session workspace_path is missing: {session_id}"
+                ))
             })?;
         let mut turn = self
             .persistence_manager
             .load_dialog_turn(&workspace_path, session_id, turn_index)
             .await?
-            .ok_or_else(|| AlexError::NotFound(format!("Dialog turn not found: {turn_id}")))?;
+            .ok_or_else(|| {
+                AlexError::NotFound(format!("Dialog turn not found: {turn_id}"))
+            })?;
         if turn.kind != DialogTurnKind::UserDialog {
             return Err(AlexError::Validation(
                 "Only a user dialog turn can be interrupted".to_string(),
@@ -8486,13 +8566,17 @@ impl SessionManager {
             .effective_storage_path_for_config(&session.config)
             .await
             .ok_or_else(|| {
-                AlexError::Validation(format!("Session workspace_path is missing: {session_id}"))
+                AlexError::Validation(format!(
+                    "Session workspace_path is missing: {session_id}"
+                ))
             })?;
         let mut turn = self
             .persistence_manager
             .load_dialog_turn(&workspace_path, session_id, turn_index)
             .await?
-            .ok_or_else(|| AlexError::NotFound(format!("Dialog turn not found: {turn_id}")))?;
+            .ok_or_else(|| {
+                AlexError::NotFound(format!("Dialog turn not found: {turn_id}"))
+            })?;
         let original_turn = turn.clone();
         let recovery = turn.recovery.as_ref().ok_or_else(|| {
             AlexError::Validation(format!("Dialog turn has no recovery metadata: {turn_id}"))
@@ -8594,7 +8678,9 @@ impl SessionManager {
             .clone()
             .filter(|value| !value.trim().is_empty())
             .ok_or_else(|| {
-                AlexError::Validation(format!("Interrupted turn has no agent type: {turn_id}"))
+                AlexError::Validation(format!(
+                    "Interrupted turn has no agent type: {turn_id}"
+                ))
             })?;
         let user_message_metadata = turn.user_message.metadata.clone();
         let resolved_permission_mode = user_message_metadata
@@ -8949,18 +9035,25 @@ impl SessionManager {
             .effective_session_storage_path(session_id)
             .await
             .ok_or_else(|| {
-                AlexError::Validation(format!("Session workspace_path is missing: {}", session_id))
+                AlexError::Validation(format!(
+                    "Session workspace_path is missing: {}",
+                    session_id
+                ))
             })?;
         let turn_index = self
             .sessions
             .get(session_id)
             .and_then(|session| session.dialog_turn_ids.iter().position(|id| id == turn_id))
-            .ok_or_else(|| AlexError::NotFound(format!("Dialog turn not found: {}", turn_id)))?;
+            .ok_or_else(|| {
+                AlexError::NotFound(format!("Dialog turn not found: {}", turn_id))
+            })?;
         let mut turn = self
             .persistence_manager
             .load_dialog_turn(&workspace_path, session_id, turn_index)
             .await?
-            .ok_or_else(|| AlexError::NotFound(format!("Dialog turn not found: {}", turn_id)))?;
+            .ok_or_else(|| {
+                AlexError::NotFound(format!("Dialog turn not found: {}", turn_id))
+            })?;
 
         let completion_timestamp = SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
@@ -9045,18 +9138,25 @@ impl SessionManager {
             .effective_session_storage_path(session_id)
             .await
             .ok_or_else(|| {
-                AlexError::Validation(format!("Session workspace_path is missing: {}", session_id))
+                AlexError::Validation(format!(
+                    "Session workspace_path is missing: {}",
+                    session_id
+                ))
             })?;
         let turn_index = self
             .sessions
             .get(session_id)
             .and_then(|session| session.dialog_turn_ids.iter().position(|id| id == turn_id))
-            .ok_or_else(|| AlexError::NotFound(format!("Dialog turn not found: {}", turn_id)))?;
+            .ok_or_else(|| {
+                AlexError::NotFound(format!("Dialog turn not found: {}", turn_id))
+            })?;
         let mut turn = self
             .persistence_manager
             .load_dialog_turn(&workspace_path, session_id, turn_index)
             .await?
-            .ok_or_else(|| AlexError::NotFound(format!("Dialog turn not found: {}", turn_id)))?;
+            .ok_or_else(|| {
+                AlexError::NotFound(format!("Dialog turn not found: {}", turn_id))
+            })?;
 
         let completion_timestamp = SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
@@ -9193,7 +9293,11 @@ impl SessionManager {
     /// Append a complete model round atomically from the context store's point
     /// of view.  In particular, an assistant tool-call message and its tool
     /// results must not be observable by fork/snapshot readers separately.
-    pub async fn add_messages(&self, session_id: &str, messages: Vec<Message>) -> AlexResult<()> {
+    pub async fn add_messages(
+        &self,
+        session_id: &str,
+        messages: Vec<Message>,
+    ) -> AlexResult<()> {
         if messages.is_empty() {
             return Ok(());
         }
@@ -9364,10 +9468,6 @@ impl SessionManager {
     ) -> AlexResult<Option<String>> {
         use crate::util::types::Message;
 
-        let session = self
-            .get_session(session_id)
-            .ok_or_else(|| AlexError::NotFound(format!("Session not found: {session_id}")))?;
-
         // Match agent `LANGUAGE_PREFERENCE`: use `app.language`, not I18nService (see `app_language` module).
         let lang_code = get_app_language_code().await;
         let language_instruction = short_model_user_language_instruction(lang_code.as_str());
@@ -9420,17 +9520,22 @@ impl SessionManager {
 
         // Resolve the task model. Inherit uses the session's resolved model
         // identity but deliberately does not carry its reasoning preset.
-        let ai_client_factory = get_global_ai_client_factory()
-            .await
-            .map_err(|e| AlexError::AIClient(format!("Failed to get AI client factory: {}", e)))?;
+        let ai_client_factory = get_global_ai_client_factory().await.map_err(|e| {
+            AlexError::AIClient(format!("Failed to get AI client factory: {}", e))
+        })?;
         let ai_config = Self::load_ai_config_for_model_resolution()
             .await
-            .ok_or_else(|| AlexError::AIClient("Failed to load AI configuration".to_string()))?;
+            .ok_or_else(|| {
+                AlexError::AIClient("Failed to load AI configuration".to_string())
+            })?;
         let ai_client = match &ai_config.task_models.session_title {
             crate::service::config::types::TaskModelSelection::Fixed { model_id } => {
                 ai_client_factory.get_client_resolved(model_id).await
             }
             crate::service::config::types::TaskModelSelection::Inherit => {
+                let session = self.get_session(session_id).ok_or_else(|| {
+                    AlexError::NotFound(format!("Session not found: {session_id}"))
+                })?;
                 let explicit_model_id = session
                     .config
                     .model_id
@@ -9486,14 +9591,8 @@ impl SessionManager {
         }
         .map_err(|e| AlexError::AIClient(format!("Failed to get AI client: {}", e)))?;
 
-        let request_context = Some(ModelRequestContext {
-            prompt_cache_route_key: None,
-            output_schema: None,
-            session_id: Some(session_id.to_string()),
-            workspace_root: session.config.workspace_path.clone(),
-        });
         let response = ai_client
-            .send_message_with_trace_and_request_context(messages, None, request_context, None)
+            .send_message(messages, None)
             .await
             .map_err(|e| AlexError::ai(format!("AI call failed: {}", e)))?;
 
@@ -9780,6 +9879,7 @@ mod tests {
         TurnStatus, UserMessageData,
     };
     use crate::util::errors::AlexError;
+    use dashmap::{try_result::TryResult, DashMap};
     use alex_core_types::{
         ReasoningCatalogBinding, ReasoningConfig, ReasoningPreset, ReasoningPresetAction,
         SessionExecutionTarget,
@@ -9788,7 +9888,6 @@ mod tests {
         AgentTurnSettlementResult, AgentTurnSettlementStatus, SessionStoragePathRequest,
     };
     use alex_services_core::session::SessionBranchBoundary;
-    use dashmap::{try_result::TryResult, DashMap};
     use serde_json::json;
     use std::collections::HashSet;
     use std::path::{Path, PathBuf};
@@ -9880,8 +9979,10 @@ mod tests {
         /// The path is canonical so IO projections written back from the
         /// record compare equal on hosts with symlinked temp roots.
         fn new() -> Self {
-            let path =
-                std::env::temp_dir().join(format!("alex-session-restore-test-{}", Uuid::new_v4()));
+            let path = std::env::temp_dir().join(format!(
+                "alex-session-restore-test-{}",
+                Uuid::new_v4()
+            ));
             std::fs::create_dir_all(&path).expect("test workspace should be created");
             let path = dunce::canonicalize(&path).expect("test workspace should canonicalize");
             let record =
@@ -10097,7 +10198,10 @@ mod tests {
         assert_eq!(rounds.len(), 1);
         assert_eq!(rounds[0].tool_items.len(), 1);
         let tool = &rounds[0].tool_items[0];
-        assert_eq!(tool.tool_name, alex_agent_tools::CALL_DEFERRED_TOOL_NAME);
+        assert_eq!(
+            tool.tool_name,
+            alex_agent_tools::CALL_DEFERRED_TOOL_NAME
+        );
         assert_eq!(
             tool.tool_call.input,
             json!({
@@ -10335,8 +10439,10 @@ mod tests {
     }
 
     fn test_path_manager() -> Arc<PathManager> {
-        let root =
-            std::env::temp_dir().join(format!("alex-session-manager-test-{}", Uuid::new_v4()));
+        let root = std::env::temp_dir().join(format!(
+            "alex-session-manager-test-{}",
+            Uuid::new_v4()
+        ));
         Arc::new(PathManager::with_user_root_for_tests(
             root.join("user-root"),
         ))
@@ -12331,7 +12437,10 @@ mod tests {
             .update_session_permission_mode("missing-session", Some(PermissionMode::AutoApprove))
             .await
             .expect_err("unknown session must not silently succeed");
-        assert!(matches!(error, crate::util::errors::AlexError::NotFound(_)));
+        assert!(matches!(
+            error,
+            crate::util::errors::AlexError::NotFound(_)
+        ));
     }
 
     #[tokio::test]
@@ -14664,7 +14773,9 @@ mod tests {
 
     #[tokio::test]
     async fn core_session_store_port_resolves_local_storage_to_sessions_dir() {
-        use alex_runtime_ports::{SessionStorageKind, SessionStoragePathRequest, SessionStorePort};
+        use alex_runtime_ports::{
+            SessionStorageKind, SessionStoragePathRequest, SessionStorePort,
+        };
 
         let workspace = TestWorkspace::new();
         let path_manager = workspace.path_manager();
@@ -14757,7 +14868,9 @@ mod tests {
     #[tokio::test]
     async fn core_session_store_port_resolved_remote_sessions_dir_passes_through_only_sessions_root(
     ) {
-        use alex_runtime_ports::{SessionStorageKind, SessionStoragePathRequest, SessionStorePort};
+        use alex_runtime_ports::{
+            SessionStorageKind, SessionStoragePathRequest, SessionStorePort,
+        };
 
         let workspace = TestWorkspace::new();
         let path_manager = workspace.path_manager();
@@ -14780,11 +14893,12 @@ mod tests {
         assert_eq!(resolved.storage_kind, SessionStorageKind::Remote);
         assert_eq!(resolved.effective_storage_path, sessions_dir);
 
-        let runtime_root = alex_services_integrations::remote_ssh::remote_workspace_runtime_root(
-            path_manager.remote_ssh_mirror_root_dir(),
-            "example-host",
-            "/root/repo",
-        );
+        let runtime_root =
+            alex_services_integrations::remote_ssh::remote_workspace_runtime_root(
+                path_manager.remote_ssh_mirror_root_dir(),
+                "example-host",
+                "/root/repo",
+            );
         let runtime_root_resolution = port
             .resolve_session_storage_path(SessionStoragePathRequest {
                 workspace_path: runtime_root.clone(),
