@@ -4,7 +4,7 @@
   "title": "Alex Playbook",
   "origin": "https://playbook.openbitfun.com",
   "source": "src/shared/interactive-capabilities/catalog.json",
-  "digest": "4b613f29dcf8427a5fd9c414f0601804afaa47e9787cfb2254bf1b59a750b537",
+  "digest": "1972efdf8867b4103e7b0d64834f26306c569de2b24bffa37178adedf3d50c38",
   "ownerDigest": "97fdf1ccd6b569a515ddc78ad654ec364337c1a897b2fbdd9ce64e0aa95024e1",
   "searchAcceptance": [
     {
@@ -138,10 +138,10 @@
     "features": 22,
     "settings": 21,
     "userFacing": 43,
-    "documentedItems": 323,
+    "documentedItems": 324,
     "controlCoverage": {
       "direct": 48,
-      "delegated": 63,
+      "delegated": 64,
       "interactive": 212,
       "unsupported": 0
     }
@@ -2360,6 +2360,7 @@
         "semantic-search",
         "search-index-management",
         "edit-save",
+        "wordcraft-document-editor",
         "diffs",
         "accept-reject",
         "snapshots-rollback",
@@ -2680,6 +2681,51 @@
         "Read",
         "Write",
         "Edit"
+      ],
+      "presentationTarget": {
+        "kind": "action",
+        "actionId": "surface.files.open"
+      }
+    },
+    {
+      "id": "feature.files-editor:delegate:wordcraft-document-editor",
+      "capabilityId": "feature.files-editor",
+      "itemIds": [
+        "wordcraft-document-editor"
+      ],
+      "kind": "delegate",
+      "risk": "execute",
+      "executionHost": "workspaceHost",
+      "availability": {
+        "desktop": {
+          "available": true
+        },
+        "cli": {
+          "available": true
+        },
+        "peer": {
+          "available": true,
+          "requiredCapabilities": [
+            "product_control_v1"
+          ]
+        },
+        "remoteControl": {
+          "available": true
+        },
+        "detachedDispatch": {
+          "available": true
+        }
+      },
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": true
+      },
+      "outputSchema": {
+        "type": "object",
+        "additionalProperties": true
+      },
+      "delegateTools": [
+        "Wordcraft"
       ],
       "presentationTarget": {
         "kind": "action",
@@ -20455,6 +20501,27 @@
           }
         },
         {
+          "id": "wordcraft-document-editor",
+          "titleZh": "在 Alex 主窗口中打开 Word 文档，并让智能体通过左侧 Composer 直接编辑当前文档",
+          "titleEn": "Open Word documents in Alex and let the Agent edit the active document directly from the left Composer",
+          "control": {
+            "kind": "delegate",
+            "tools": [
+              "Wordcraft"
+            ],
+            "workflowZh": [
+              "打开 .docx 后确认嵌入的 WordCraft 页面已就绪，并将当前文档作为本次 Composer 轮次的精确上下文",
+              "使用 Wordcraft 在当前文档表面读取、检查、渲染或执行编辑操作；每次操作都绑定文档、会话、工作区和修订版本",
+              "写入后等待 Alex 收到 WordCraft 的持久化确认；嵌入页面关闭、失效、远程工作区或能力不匹配时必须明确失败，不得回退到隐藏的本地文件操作"
+            ],
+            "workflowEn": [
+              "After opening a .docx, confirm that the embedded WordCraft surface is ready and attach the exact document to the current Composer turn",
+              "Use Wordcraft to read, inspect, render, or execute edits on that live document surface; every command is bound to the document, session, workspace, and revision",
+              "For writes, wait for Alex to receive WordCraft's durable-save acknowledgement; if the surface is closed, stale, remote, or missing capabilities, fail explicitly instead of falling back to hidden local file operations"
+            ]
+          }
+        },
+        {
           "id": "diffs",
           "titleZh": "查看修改文件、会话、轮次和单次操作的差异与统计",
           "titleEn": "Inspect diffs and statistics by file, session, turn, or operation",
@@ -20602,6 +20669,8 @@
         "Build or rebuild the UI search index",
         "读取、编辑、保存文件并同步编辑器状态",
         "Read, edit, and save files while synchronizing editor state",
+        "在 Alex 主窗口中打开 Word 文档，并让智能体通过左侧 Composer 直接编辑当前文档",
+        "Open Word documents in Alex and let the Agent edit the active document directly from the left Composer",
         "查看修改文件、会话、轮次和单次操作的差异与统计",
         "Inspect diffs and statistics by file, session, turn, or operation",
         "按文件、操作或整个会话接受或拒绝智能体改动",
@@ -20643,6 +20712,13 @@
         "文件工具沿用 Alex 的工作区、权限与变更快照语义；写入后重新读取或查看差异确认结果",
         "Read the current content first, then use Edit for exact replacements or Write for creation/full rewrites",
         "The file tools preserve Alex workspace, permission, and change-snapshot semantics; read back or inspect the diff after writing",
+        "Wordcraft",
+        "打开 .docx 后确认嵌入的 WordCraft 页面已就绪，并将当前文档作为本次 Composer 轮次的精确上下文",
+        "使用 Wordcraft 在当前文档表面读取、检查、渲染或执行编辑操作；每次操作都绑定文档、会话、工作区和修订版本",
+        "写入后等待 Alex 收到 WordCraft 的持久化确认；嵌入页面关闭、失效、远程工作区或能力不匹配时必须明确失败，不得回退到隐藏的本地文件操作",
+        "After opening a .docx, confirm that the embedded WordCraft surface is ready and attach the exact document to the current Composer turn",
+        "Use Wordcraft to read, inspect, render, or execute edits on that live document surface; every command is bound to the document, session, workspace, and revision",
+        "For writes, wait for Alex to receive WordCraft's durable-save acknowledgement; if the surface is closed, stale, remote, or missing capabilities, fail explicitly instead of falling back to hidden local file operations",
         "GetFileDiff",
         "若 GetFileDiff 是延迟工具，先用 GetToolSpec 加载它的当前契约",
         "按工作区、会话或目标文件读取差异，并在页面或快照变化后重新获取最新结果",

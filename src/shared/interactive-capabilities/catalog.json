@@ -262,7 +262,6 @@
       "basemind_reveal_entity"
     ],
     "wordcraftEditorSurfaces": [
-      "wordcraft_open_document_command",
       "wordcraft_status_command",
       "wordcraft_web_host_command",
       "wordcraft_web_release_command"
@@ -1479,6 +1478,34 @@
             "command:get_file_editor_sync_hash",
             "command:apply_patch",
             "command:save_merged_diff_content"
+          ]
+        },
+        {
+          "id": "wordcraft-document-editor",
+          "titleZh": "在 Alex 主窗口中打开 Word 文档，并让智能体通过左侧 Composer 直接编辑当前文档",
+          "titleEn": "Open Word documents in Alex and let the Agent edit the active document directly from the left Composer",
+          "control": {
+            "kind": "delegate",
+            "tools": [
+              "Wordcraft"
+            ],
+            "workflowZh": [
+              "打开 .docx 后确认嵌入的 WordCraft 页面已就绪，并将当前文档作为本次 Composer 轮次的精确上下文",
+              "使用 Wordcraft 在当前文档表面读取、检查、渲染或执行编辑操作；每次操作都绑定文档、会话、工作区和修订版本",
+              "写入后等待 Alex 收到 WordCraft 的持久化确认；嵌入页面关闭、失效、远程工作区或能力不匹配时必须明确失败，不得回退到隐藏的本地文件操作"
+            ],
+            "workflowEn": [
+              "After opening a .docx, confirm that the embedded WordCraft surface is ready and attach the exact document to the current Composer turn",
+              "Use Wordcraft to read, inspect, render, or execute edits on that live document surface; every command is bound to the document, session, workspace, and revision",
+              "For writes, wait for Alex to receive WordCraft's durable-save acknowledgement; if the surface is closed, stale, remote, or missing capabilities, fail explicitly instead of falling back to hidden local file operations"
+            ]
+          },
+          "evidence": [
+            "source:src/crates/assembly/core/src/agentic/tools/implementations/wordcraft_tool.rs#WordcraftTool",
+            "source:src/web-ui/src/app/components/panels/content-canvas/WordcraftDocumentPanel.tsx#WordcraftDocumentPanel",
+            "source:src/web-ui/src/tools/editor/services/DocumentAgentContext.ts#executeDocumentAgentCommand",
+            "command:wordcraft_open_document_command",
+            "command:wordcraft_complete_embedded_command"
           ]
         },
         {

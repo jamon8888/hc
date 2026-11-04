@@ -1,13 +1,13 @@
 {
   "schemaVersion": 2,
   "generatedFrom": "src/shared/interactive-capabilities/catalog.json",
-  "catalogDigest": "6a7d299be0e64441d1fe6cdc6a4cf02c2af8bef3975f4c086c13d1bdc57d50e2",
-  "commandCount": 674,
+  "catalogDigest": "1972efdf8867b4103e7b0d64834f26306c569de2b24bffa37178adedf3d50c38",
+  "commandCount": 675,
   "coverage": {
-    "commandCount": 674,
-    "documentedCommandCount": 620,
-    "implementationCommandCount": 54,
-    "implementationDigest": "774c812b40a5704be09bfd84e6489e208dc8f9175bdb5ef1f1d3bfa29afdafb9"
+    "commandCount": 675,
+    "documentedCommandCount": 622,
+    "implementationCommandCount": 53,
+    "implementationDigest": "56e9ffc1c958abb57f1c4146c1c3e25fccf0c442289985c3d5d3f3680b81c71d"
   },
   "commands": [
     {
@@ -10574,12 +10574,32 @@
       "remoteWorkspacePolicy": "LegacyUnaudited"
     },
     {
+      "id": "wordcraft_complete_embedded_command",
+      "moduleId": "wordcraft",
+      "capabilityId": "feature.files-editor",
+      "capabilityIds": [
+        "feature.files-editor"
+      ],
+      "documentedItemIds": [
+        "feature.files-editor:wordcraft-document-editor"
+      ],
+      "visibility": "documented",
+      "rustPath": "api::wordcraft_api::wordcraft_complete_embedded_command",
+      "sourceFile": "src/apps/desktop/src/api/wordcraft_api.rs",
+      "signature": "fn wordcraft_complete_embedded_command( request: WordcraftEmbeddedCommandResponseRequest, ) -> Result<(), String>",
+      "remoteWorkspacePolicy": "LocalOnly"
+    },
+    {
       "id": "wordcraft_open_document_command",
       "moduleId": "wordcraft",
-      "capabilityId": null,
-      "capabilityIds": [],
-      "documentedItemIds": [],
-      "visibility": "internal",
+      "capabilityId": "feature.files-editor",
+      "capabilityIds": [
+        "feature.files-editor"
+      ],
+      "documentedItemIds": [
+        "feature.files-editor:wordcraft-document-editor"
+      ],
+      "visibility": "documented",
       "rustPath": "api::wordcraft_api::wordcraft_open_document_command",
       "sourceFile": "src/apps/desktop/src/api/wordcraft_api.rs",
       "signature": "fn wordcraft_open_document_command( state: State<'_, AppState>, request: WordcraftOpenDocumentRequest, ) -> Result<WordcraftOpenDocumentResponse, String>",
