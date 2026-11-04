@@ -1480,6 +1480,7 @@ pub async fn run() {
             api::wordcraft_api::wordcraft_open_document_command,
             api::wordcraft_api::wordcraft_web_host_command,
             api::wordcraft_api::wordcraft_web_release_command,
+            api::wordcraft_api::wordcraft_complete_embedded_command,
             list_directory_files,
             start_file_watch,
             stop_file_watch,

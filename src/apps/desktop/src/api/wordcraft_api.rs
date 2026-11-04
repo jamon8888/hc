@@ -11,6 +11,9 @@
 use crate::api::app_state::AppState;
 use crate::api::path_target::{DesktopPathTarget, resolve_desktop_path_target};
 use alex_core::infrastructure::get_path_manager_arc;
+use alex_core::service::wordcraft_bridge::{
+    WordcraftEmbeddedCommandResponse, get_global_wordcraft_bridge,
+};
 use alex_core::util::process_manager;
 use alex_services_core::wordcraft::{
     WordcraftCapability, WordcraftProbe, WordcraftStatus, WordcraftWebCapability,
@@ -96,6 +99,34 @@ pub struct WordcraftWebHostResponse {
     pub version: String,
     pub protocol_version: u32,
     pub command_capabilities: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WordcraftEmbeddedCommandResponseRequest {
+    pub request_id: String,
+    pub ok: bool,
+    #[serde(default)]
+    pub result: Option<serde_json::Value>,
+    #[serde(default)]
+    pub error: Option<String>,
+}
+
+/// Completes an Agent request that was delivered to the visible embedded
+/// WordCraft iframe. The desktop adapter never executes the operation itself;
+/// it only returns the iframe's correlated result to Core.
+#[tauri::command]
+pub async fn wordcraft_complete_embedded_command(
+    request: WordcraftEmbeddedCommandResponseRequest,
+) -> Result<(), String> {
+    get_global_wordcraft_bridge()
+        .complete(WordcraftEmbeddedCommandResponse {
+            request_id: request.request_id,
+            ok: request.ok,
+            result: request.result,
+            error: request.error,
+        })
+        .await
 }
 
 #[derive(Debug, Clone, Deserialize)]
