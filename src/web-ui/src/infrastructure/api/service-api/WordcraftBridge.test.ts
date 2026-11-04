@@ -115,6 +115,21 @@ describe('WordcraftBridge', () => {
     await expect(secondPending).rejects.toThrow('WordCraft result is malformed');
   });
 
+  it('rejects a result older than the requested document revision', async () => {
+    const posted: WordcraftCommandRequest[] = [];
+    const bridge = new WordcraftBridge({
+      ...context,
+      postMessage: message => posted.push(message as WordcraftCommandRequest),
+    });
+    bridge.handleMessage(readyEvent());
+
+    const pending = bridge.request('get_text', {}, 8, 'Alex Agent (session-1)');
+    const request = posted[0];
+    expect(bridge.handleMessage(resultEvent(request, { revision: 7 }))).toBe(true);
+
+    await expect(pending).rejects.toThrow('WordCraft result revision is stale');
+  });
+
   it('does not reuse a request ID after a timeout', async () => {
     let nextId = 0;
     const bridge = new WordcraftBridge({

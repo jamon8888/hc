@@ -121,6 +121,10 @@ const HtmlPreviewPanel = React.lazy(() =>
   import('@/app/scenes/browser/HtmlPreviewPanel')
 );
 
+const WordcraftDocumentPanel = React.lazy(() =>
+  import('@/app/components/panels/content-canvas/WordcraftDocumentPanel')
+);
+
 const GenerativeWidgetPanel = React.lazy(() =>
   import('@/tools/generative-widget/GenerativeWidgetPanel')
 );
@@ -938,6 +942,20 @@ const FlexiblePanel: React.FC<ExtendedFlexiblePanelProps> = memo(({
               isActive={isActive}
               filePath={content.data?.filePath || ''}
               workspaceId={content.data?.workspaceId ?? content.metadata?.resourceScope?.workspaceId ?? ''}
+            />
+          </React.Suspense>
+        );
+
+      case 'wordcraft-document':
+        return (
+          <React.Suspense fallback={renderEditorLoading()}>
+            <WordcraftDocumentPanel
+              filePath={content.data?.filePath || ''}
+              fileName={content.data?.fileName || content.title}
+              workspaceId={content.data?.workspaceId ?? content.metadata?.resourceScope?.workspaceId}
+              surfaceId={content.data?.surfaceId ?? content.metadata?.resourceScope?.surfaceId}
+              isActive={isActive}
+              onDirtyStateChange={onDirtyStateChange}
             />
           </React.Suspense>
         );

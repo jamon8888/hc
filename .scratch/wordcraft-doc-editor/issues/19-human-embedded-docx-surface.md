@@ -37,3 +37,13 @@ checks across desktop, server, and CLI peer adapters. The dedicated canvas
 presenter and `.docx` routing remain pending because the pinned WordCraft web
 capability currently exposes a filesystem artifact path, not a browser-loadable
 URL or bundled iframe host.
+
+2026-11-03: Added the parent `open` message and a
+`WordcraftEmbeddedDocumentSession` coordinator. The coordinator opens bytes
+after a validated ready handshake, reopens after frame failure/reload, forwards
+dirty/save lifecycle events to `WordcraftDocumentHost`, and disposes both
+bridge and host together. The local desktop now hosts the validated web bundle
+behind a per-session loopback token, and `.docx` routing opens the dedicated
+canvas panel when the web capability is available. A real pinned WordCraft web
+artifact and browser probe are still required before this can be marked
+resolved.

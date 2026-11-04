@@ -58,13 +58,39 @@ describe('WordcraftDocumentHost', () => {
       type: 'save', requestId: 'save-5', sessionId, revision: 5, name: 'draft.docx', bytes: new Uint8Array([5]),
     });
 
+    expect(saveBytes).toHaveBeenCalledTimes(1);
     resolveFirst();
     await vi.waitFor(() => expect(acknowledgeSave).toHaveBeenCalledWith('save-4', 4, true));
+    await vi.waitFor(() => expect(saveBytes).toHaveBeenCalledTimes(2));
     expect(host.state).toMatchObject({ dirty: true, revision: 5, saving: true });
 
     resolveSecond();
     await vi.waitFor(() => expect(acknowledgeSave).toHaveBeenCalledWith('save-5', 5, true));
     expect(host.state).toMatchObject({ dirty: false, revision: 5, saving: false, error: undefined });
+  });
+
+  it('rejects a save event older than the latest accepted revision', async () => {
+    const saveBytes = vi.fn().mockResolvedValue(undefined);
+    const acknowledgeSave = vi.fn();
+    const host = new WordcraftDocumentHost({ sessionId, saveBytes, acknowledgeSave });
+
+    host.handleEvent({
+      type: 'save', requestId: 'save-5', sessionId, revision: 5, name: 'draft.docx', bytes: new Uint8Array([5]),
+    });
+    await vi.waitFor(() => expect(acknowledgeSave).toHaveBeenCalledWith('save-5', 5, true));
+
+    host.handleEvent({
+      type: 'save', requestId: 'save-4', sessionId, revision: 4, name: 'draft.docx', bytes: new Uint8Array([4]),
+    });
+
+    expect(acknowledgeSave).toHaveBeenCalledWith(
+      'save-4',
+      4,
+      false,
+      'WordCraft save revision is stale',
+    );
+    expect(saveBytes).toHaveBeenCalledTimes(1);
+    expect(host.state).toMatchObject({ dirty: false, revision: 5, saving: false });
   });
 
   it('tracks dirty state and ignores stale sessions and events after teardown', () => {
