@@ -203,6 +203,11 @@ impl CliTestEnvironment {
             "base_url": base_url,
             "request_url": request_url,
             "api_key": "cli-e2e-key",
+            // These tests exercise CLI/ACP lifecycle behavior with a loopback
+            // fixture. Mark the fixture explicitly local so the host does not
+            // require a Basemind sidecar for tests that are not testing API
+            // model egress protection.
+            "privacy_route": "local",
             "enabled": true,
             "category": "general_chat",
             "capabilities": capabilities
