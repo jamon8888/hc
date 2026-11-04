@@ -611,7 +611,13 @@
       "taskDetail": "加载任务详情...",
       "dependencyGraph": "加载依赖关系图...",
       "planViewer": "加载计划...",
-      "terminal": "加载终端..."
+      "terminal": "加载终端...",
+      "wordcraft": "正在加载 WordCraft..."
+    },
+    "wordcraft": {
+      "localOnly": "嵌入式 WordCraft 文档仅支持本地桌面界面。",
+      "workspaceRequired": "WordCraft 需要工作区标识才能打开此文档。",
+      "frameUnavailable": "WordCraft 网页界面未创建浏览器框架。"
     },
     "aiSession": {
       "title": "AI会话: {{sessionId}}",
