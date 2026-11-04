@@ -678,6 +678,7 @@ mod tests {
                 "core.git",
                 "core.web",
                 "core.mcp",
+                "core.wordcraft",
                 "core.computer-use",
                 "core.review",
                 "core.miniapp",
