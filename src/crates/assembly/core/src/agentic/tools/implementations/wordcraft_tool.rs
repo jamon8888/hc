@@ -378,15 +378,42 @@ impl Tool for WordcraftTool {
             .await
             .map_err(tool_error)?;
 
+        let save_result = if matches!(operation, "execute" | "batch") {
+            let save_revision = result
+                .get("revision")
+                .and_then(Value::as_u64)
+                .unwrap_or(expected_revision);
+            Some(
+                bridge
+                    .request(WordcraftEmbeddedCommandRequest {
+                        request_id: Uuid::new_v4().to_string(),
+                        document_id: document.document_id.clone(),
+                        session_id: document.session_id.clone(),
+                        surface_id: document.surface_id.clone(),
+                        workspace_id: document.workspace_id.clone(),
+                        file_path: document.file_path.clone(),
+                        expected_revision: save_revision,
+                        operation: "save_document".to_string(),
+                        params: json!({}),
+                        author: format!("Alex Agent ({agent_session})"),
+                    })
+                    .await
+                    .map_err(tool_error)?,
+            )
+        } else {
+            None
+        };
+
         Ok(vec![ToolResult::ok(
             json!({
                 "operation": operation,
                 "documentId": document.document_id,
                 "sessionId": document.session_id,
                 "result": result,
+                "durableSave": save_result,
             }),
             Some(format!(
-                "WordCraft operation '{operation}' completed on the visible document."
+                "WordCraft operation '{operation}' completed and was durably saved on the visible document."
             )),
         )])
     }
