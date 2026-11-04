@@ -7,9 +7,9 @@ use crate::agentic::tools::framework::{
     PermissionIntent, Tool, ToolRenderOptions, ToolResult, ToolUseContext, ValidationResult,
 };
 use crate::util::errors::{AlexError, AlexResult};
+use alex_services_core::markdown::expand_prompt_template_arguments_with_names;
 use async_trait::async_trait;
 use log::debug;
-use alex_services_core::markdown::expand_prompt_template_arguments_with_names;
 use serde_json::{json, Value};
 
 // Use skills module
@@ -464,8 +464,7 @@ Use the remote project skill.
                 );
             }
             if self.imported
-                && path
-                    == "/remote/project/.openbitfun/skills/remote-review/.alex-import.json"
+                && path == "/remote/project/.openbitfun/skills/remote-review/.alex-import.json"
             {
                 return Ok(json!({ "schemaVersion": 1, "importId": "remote-import", "sourceKey": "project::claude::remote-review", "sourcePath": "/remote/project/.claude/skills/remote-review", "sourceId": "claude-code", "sourceLabel": "Claude Code", "sourceSlot": "claude", "fingerprint": "fixture" }).to_string());
             }
