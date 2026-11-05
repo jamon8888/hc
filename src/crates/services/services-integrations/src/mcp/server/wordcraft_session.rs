@@ -1,10 +1,10 @@
 //! WordCraft headless editing sessions served over the MCP stdio registry.
 //!
 //! One `wordcraft-cli mcp` server per workspace session with a document open
-//! (map decision, ticket 05): the spawn is the MCP runtime's local-server
-//! lifecycle; this module owns only the session *definition* — the resolved
-//! concurrency-free argv/env/working-directory surfaced to the registry — plus
-//! the shared idle-reap decision. Spawning is done exclusively through the
+//! (map decision, ticket 05): local routing owns only the session definition —
+//! the resolved concurrency-free argv/env/working-directory — while the
+//! remote path also owns the workspace stdio transport and its retained MCP
+//! session registry. Spawning is done exclusively through the
 //! `process_runtime`/`process_manager` path inside `MCPConnection`
 //! (`CREATE_NO_WINDOW` policy lives there, never re-implemented here).
 
@@ -16,8 +16,12 @@ use crate::remote_ssh::{SSHConnectionManager, WorkspaceStdio, shell_quote_posix}
 #[cfg(feature = "remote-ssh-concrete")]
 use serde_json::Value;
 #[cfg(feature = "remote-ssh-concrete")]
+use std::collections::HashMap;
+#[cfg(feature = "remote-ssh-concrete")]
 use std::sync::Arc;
 use std::time::Duration;
+#[cfg(feature = "remote-ssh-concrete")]
+use tokio::sync::{Mutex, RwLock};
 
 /// The headless CLI command resolved by the managed-runtime order
 /// (explicit path → system PATH → managed component, see services-core
@@ -102,6 +106,79 @@ impl WordcraftRemoteRuntime {
     }
 }
 
+/// Stable identity used when attaching to a retained remote WordCraft owner.
+/// Every field is revalidated before an existing session is reused.
+#[cfg(feature = "remote-ssh-concrete")]
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct WordcraftRemoteSessionIdentity {
+    connection_id: String,
+    session_id: String,
+    workspace_root: String,
+    profile_dir: String,
+    runtime_command: String,
+    runtime_version: String,
+}
+
+#[cfg(feature = "remote-ssh-concrete")]
+impl WordcraftRemoteSessionIdentity {
+    fn from_spec(
+        connection_id: &str,
+        spec: &WordcraftSessionSpec,
+        runtime: &WordcraftRemoteRuntime,
+    ) -> Self {
+        Self {
+            connection_id: connection_id.to_string(),
+            session_id: spec.session_id.clone(),
+            workspace_root: spec.workspace_root.clone(),
+            profile_dir: spec.profile_dir.clone(),
+            runtime_command: runtime.command.clone(),
+            runtime_version: runtime.version.clone(),
+        }
+    }
+
+    pub fn connection_id(&self) -> &str {
+        &self.connection_id
+    }
+
+    pub fn session_id(&self) -> &str {
+        &self.session_id
+    }
+
+    pub fn workspace_root(&self) -> &str {
+        &self.workspace_root
+    }
+
+    fn key(&self) -> WordcraftRemoteSessionKey {
+        WordcraftRemoteSessionKey {
+            connection_id: self.connection_id.clone(),
+            workspace_root: self.workspace_root.clone(),
+            session_id: self.session_id.clone(),
+        }
+    }
+}
+
+/// Key for the one owner process retained per remote connection/workspace/
+/// document session. The registry deliberately has no idle reaper: ownership
+/// ends only through an explicit stop or process failure.
+#[cfg(feature = "remote-ssh-concrete")]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct WordcraftRemoteSessionKey {
+    connection_id: String,
+    workspace_root: String,
+    session_id: String,
+}
+
+#[cfg(feature = "remote-ssh-concrete")]
+impl WordcraftRemoteSessionKey {
+    pub fn new(connection_id: &str, spec: &WordcraftSessionSpec) -> Self {
+        Self {
+            connection_id: connection_id.to_string(),
+            workspace_root: spec.workspace_root.clone(),
+            session_id: spec.session_id.clone(),
+        }
+    }
+}
+
 /// One validated WordCraft MCP session definition (headless or live bridge),
 /// consumable by the MCP registry as a local stdio server definition.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -126,6 +203,7 @@ pub type WordcraftHeadlessSession = WordcraftMcpSession;
 pub struct WordcraftRemoteMcpSession {
     process: MCPServerProcess,
     connection: Arc<MCPConnection>,
+    identity: WordcraftRemoteSessionIdentity,
 }
 
 #[cfg(feature = "remote-ssh-concrete")]
@@ -140,6 +218,16 @@ impl WordcraftRemoteMcpSession {
         let transport = spec
             .open_remote_headless_stdio(ssh_manager, connection_id, runtime)
             .await?;
+        Self::from_workspace_stdio(connection_id, spec, runtime, transport, timeouts).await
+    }
+
+    async fn from_workspace_stdio(
+        connection_id: &str,
+        spec: &WordcraftSessionSpec,
+        runtime: &WordcraftRemoteRuntime,
+        transport: WorkspaceStdio,
+        timeouts: MCPServerTimeouts,
+    ) -> MCPRuntimeResult<Self> {
         let mut process = MCPServerProcess::new(
             spec.server_id(),
             format!("WordCraft ({})", spec.session_id()),
@@ -152,11 +240,16 @@ impl WordcraftRemoteMcpSession {
         Ok(Self {
             process,
             connection,
+            identity: WordcraftRemoteSessionIdentity::from_spec(connection_id, spec, runtime),
         })
     }
 
     pub fn connection(&self) -> &Arc<MCPConnection> {
         &self.connection
+    }
+
+    pub fn identity(&self) -> &WordcraftRemoteSessionIdentity {
+        &self.identity
     }
 
     pub async fn call_tool(
@@ -169,6 +262,94 @@ impl WordcraftRemoteMcpSession {
 
     pub async fn stop(&mut self) -> MCPRuntimeResult<()> {
         self.process.stop().await
+    }
+}
+
+/// Retains remote WordCraft owners for the lifetime of the owning Alex host.
+/// This is the in-process seam for the planned host-managed daemon: callers
+/// must supply a freshly negotiated runtime fact, and a mismatched identity is
+/// never silently attached to an existing process.
+#[cfg(feature = "remote-ssh-concrete")]
+#[derive(Clone, Default)]
+pub struct WordcraftRemoteSessionRegistry {
+    sessions:
+        Arc<RwLock<HashMap<WordcraftRemoteSessionKey, Arc<Mutex<WordcraftRemoteMcpSession>>>>>,
+}
+
+#[cfg(feature = "remote-ssh-concrete")]
+impl WordcraftRemoteSessionRegistry {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Attach to an existing owner only when its full identity still matches;
+    /// otherwise stop the old owner before starting a replacement.
+    pub async fn connect_or_attach(
+        &self,
+        ssh_manager: &SSHConnectionManager,
+        connection_id: &str,
+        spec: &WordcraftSessionSpec,
+        runtime: &WordcraftRemoteRuntime,
+        timeouts: MCPServerTimeouts,
+    ) -> MCPRuntimeResult<Arc<Mutex<WordcraftRemoteMcpSession>>> {
+        let key = WordcraftRemoteSessionKey::new(connection_id, spec);
+        let identity = WordcraftRemoteSessionIdentity::from_spec(connection_id, spec, runtime);
+        if let Some(existing) = self.sessions.read().await.get(&key).cloned() {
+            if existing.lock().await.identity() == &identity {
+                return Ok(existing);
+            }
+            self.sessions.write().await.remove(&key);
+            existing.lock().await.stop().await?;
+        }
+
+        let session =
+            WordcraftRemoteMcpSession::connect(ssh_manager, connection_id, spec, runtime, timeouts)
+                .await?;
+        self.register(key, session).await
+    }
+
+    /// Register an already-connected owner, such as one restored by a future
+    /// host-managed daemon attach. The key and full identity must agree.
+    pub async fn register(
+        &self,
+        key: WordcraftRemoteSessionKey,
+        session: WordcraftRemoteMcpSession,
+    ) -> MCPRuntimeResult<Arc<Mutex<WordcraftRemoteMcpSession>>> {
+        let identity = session.identity().clone();
+        if identity.key() != key {
+            return Err(MCPRuntimeError::configuration(
+                "Remote WordCraft session key does not match its owner identity",
+            ));
+        }
+        let session = Arc::new(Mutex::new(session));
+        let mut sessions = self.sessions.write().await;
+        if let Some(existing) = sessions.get(&key).cloned() {
+            if existing.lock().await.identity() == &identity {
+                drop(sessions);
+                session.lock().await.stop().await?;
+                return Ok(existing);
+            }
+            return Err(MCPRuntimeError::configuration(
+                "Remote WordCraft session identity changed while attaching",
+            ));
+        }
+        sessions.insert(key, session.clone());
+        Ok(session)
+    }
+
+    pub async fn attached(
+        &self,
+        key: &WordcraftRemoteSessionKey,
+    ) -> Option<Arc<Mutex<WordcraftRemoteMcpSession>>> {
+        self.sessions.read().await.get(key).cloned()
+    }
+
+    pub async fn stop(&self, key: &WordcraftRemoteSessionKey) -> MCPRuntimeResult<()> {
+        let session = self.sessions.write().await.remove(key);
+        if let Some(session) = session {
+            session.lock().await.stop().await?;
+        }
+        Ok(())
     }
 }
 
@@ -665,6 +846,79 @@ mod tests {
         )
         .expect_err("MCP capability must be advertised by the owner");
         assert!(unsupported.to_string().contains("does not advertise MCP"));
+    }
+
+    #[cfg(all(unix, feature = "remote-ssh-concrete"))]
+    #[tokio::test]
+    async fn remote_registry_requires_matching_owner_identity() {
+        let spec = WordcraftSessionSpec::new(
+            "remote-1",
+            "/srv/work/project",
+            "/var/lib/alex/wordcraft/remote-1",
+        )
+        .unwrap();
+        let runtime = WordcraftRemoteRuntime::new(
+            "/opt/alex/wordcraft/current/bin/wordcraft-cli",
+            "1.0.0",
+            true,
+        )
+        .unwrap();
+        let script = r#"
+            while IFS= read -r line; do
+                id=$(printf '%s' "$line" | sed -n 's/.*"id":\([0-9][0-9]*\).*/\1/p')
+                printf '{"jsonrpc":"2.0","id":%s,"result":{"protocolVersion":"2025-06-18","capabilities":{"tools":{}},"serverInfo":{"name":"workspace-fixture","version":"1"}}}\n' "$id"
+            done
+        "#;
+        let transport =
+            WorkspaceStdio::spawn_local_process("sh", &["-c".to_string(), script.to_string()])
+                .expect("spawn workspace-owner fixture");
+        let session = WordcraftRemoteMcpSession::from_workspace_stdio(
+            "connection-1",
+            &spec,
+            &runtime,
+            transport,
+            MCPServerTimeouts::default(),
+        )
+        .await
+        .expect("owner handshake should succeed");
+        let registry = WordcraftRemoteSessionRegistry::new();
+        let key = WordcraftRemoteSessionKey::new("connection-1", &spec);
+        let attached = registry
+            .register(key.clone(), session)
+            .await
+            .expect("matching owner should register");
+        assert!(registry.attached(&key).await.is_some());
+        assert_eq!(
+            attached.lock().await.identity().workspace_root(),
+            "/srv/work/project"
+        );
+
+        let wrong_key = key.clone();
+        let identity = attached.lock().await.identity().clone();
+        let mismatch = WordcraftRemoteSessionIdentity {
+            connection_id: "connection-2".to_string(),
+            ..identity
+        };
+        let mismatch_session = WordcraftRemoteMcpSession {
+            process: MCPServerProcess::new(
+                "wordcraft-remote-1".to_string(),
+                "WordCraft remote-1".to_string(),
+                MCPServerType::Remote,
+            ),
+            connection: attached.lock().await.connection().clone(),
+            identity: mismatch,
+        };
+        let error = match registry.register(wrong_key, mismatch_session).await {
+            Ok(_) => panic!("wrong owner identity must be refused"),
+            Err(error) => error,
+        };
+        assert!(error.to_string().contains("key does not match"));
+
+        registry
+            .stop(&key)
+            .await
+            .expect("explicit stop should release owner");
+        assert!(registry.attached(&key).await.is_none());
     }
 
     #[test]

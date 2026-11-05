@@ -34,7 +34,10 @@ pub use runtime_state::{
     MCPProcessStartContext, MCPProcessStartOutcome, MCPServerRuntimeState, MCPServerStartFailure,
 };
 #[cfg(feature = "remote-ssh-concrete")]
-pub use wordcraft_session::{WordcraftRemoteMcpSession, WordcraftRemoteRuntime};
+pub use wordcraft_session::{
+    WordcraftRemoteMcpSession, WordcraftRemoteRuntime, WordcraftRemoteSessionIdentity,
+    WordcraftRemoteSessionKey, WordcraftRemoteSessionRegistry,
+};
 pub use wordcraft_session::{
     wordcraft_route_session, wordcraft_session_idle_reap_due, WordcraftLiveBridgeSpec,
     WordcraftMcpSession, WordcraftSessionRoute, WordcraftSessionSpec, WORDCRAFT_AUTHOR_PREFIX,
