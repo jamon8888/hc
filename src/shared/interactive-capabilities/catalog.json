@@ -258,6 +258,7 @@
     ],
     "basemindRedaction": [
       "basemind_read_redacted_document",
+      "basemind_rehydrate_model_text",
       "basemind_reveal_entity"
     ],
     "wordcraftEditorSurfaces": [

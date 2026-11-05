@@ -2,12 +2,12 @@
   "schemaVersion": 2,
   "generatedFrom": "src/shared/interactive-capabilities/catalog.json",
   "catalogDigest": "6a7d299be0e64441d1fe6cdc6a4cf02c2af8bef3975f4c086c13d1bdc57d50e2",
-  "commandCount": 672,
+  "commandCount": 673,
   "coverage": {
-    "commandCount": 672,
+    "commandCount": 673,
     "documentedCommandCount": 620,
-    "implementationCommandCount": 52,
-    "implementationDigest": "e5a8aadf588dacbe606957605d1674b953ce5421129556cb062d605af7f10fc0"
+    "implementationCommandCount": 53,
+    "implementationDigest": "e082ea5966904ff796853a8c217679279aa4aa1842617850fe0ef6d0c2196c5e"
   },
   "commands": [
     {
@@ -676,6 +676,20 @@
       "rustPath": "basemind_commands::basemind_read_redacted_document",
       "sourceFile": "src/apps/desktop/src/api/commands.rs",
       "signature": "fn basemind_read_redacted_document( state: State<'_, AppState>, request: ReadRedactedDocumentRequest, ) -> Result<RedactedDocumentResponse, String>",
+      "remoteWorkspacePolicy": "LocalOnly"
+    },
+    {
+      "id": "basemind_rehydrate_model_text",
+      "moduleId": "commands",
+      "capabilityId": "feature.projects",
+      "capabilityIds": [
+        "feature.projects"
+      ],
+      "documentedItemIds": [],
+      "visibility": "implementation",
+      "rustPath": "basemind_commands::basemind_rehydrate_model_text",
+      "sourceFile": "src/apps/desktop/src/api/commands.rs",
+      "signature": "fn basemind_rehydrate_model_text( state: State<'_, AppState>, request: RehydrateModelTextRequest, ) -> Result<String, String>",
       "remoteWorkspacePolicy": "LocalOnly"
     },
     {
@@ -3325,7 +3339,7 @@
       "visibility": "implementation",
       "rustPath": "get_local_models_dev_catalogs",
       "sourceFile": "src/apps/desktop/src/api/commands.rs",
-      "signature": "fn get_local_models_dev_catalogs( ) -> Result<alex_core::LocalModelsDevCatalogs, String>",
+      "signature": "fn get_local_models_dev_catalogs() -> Result<alex_core::LocalModelsDevCatalogs, String>",
       "remoteWorkspacePolicy": "LocalOnly"
     },
     {
