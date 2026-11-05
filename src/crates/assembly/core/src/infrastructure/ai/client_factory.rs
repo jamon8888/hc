@@ -385,9 +385,10 @@ impl AIClientFactory {
                 crate::service::model_egress::global_model_egress_snapshot();
             if current_model_egress_generation != model_egress_generation {
                 drop(cache);
-                return self
-                    .get_or_create_client(model_id, expected_configuration_fingerprint)
-                    .await;
+                return Box::pin(
+                    self.get_or_create_client(model_id, expected_configuration_fingerprint),
+                )
+                .await;
             }
             cache.insert(
                 model_config.id.clone(),
