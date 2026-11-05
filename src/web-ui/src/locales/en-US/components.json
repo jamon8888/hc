@@ -617,7 +617,11 @@
     "wordcraft": {
       "localOnly": "Embedded WordCraft documents are only supported on the local desktop surface.",
       "workspaceRequired": "WordCraft requires a workspace identity to open this document.",
-      "frameUnavailable": "WordCraft web surface did not create a browser frame."
+      "frameUnavailable": "WordCraft web surface did not create a browser frame.",
+      "nativeUnavailable": "The native WordCraft window is unavailable. Check the capability details and remediation.",
+      "openNative": "Open in native WordCraft window",
+      "openingNative": "Opening native WordCraft window...",
+      "nativeOpened": "The document was opened in the native WordCraft window."
     },
     "aiSession": {
       "title": "AI Session: {{sessionId}}",

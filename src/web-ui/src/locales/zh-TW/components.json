@@ -617,7 +617,11 @@
     "wordcraft": {
       "localOnly": "嵌入式 WordCraft 文件僅支援本機桌面介面。",
       "workspaceRequired": "WordCraft 需要工作區識別才能開啟此文件。",
-      "frameUnavailable": "WordCraft 網頁介面未建立瀏覽器框架。"
+      "frameUnavailable": "WordCraft 網頁介面未建立瀏覽器框架。",
+      "nativeUnavailable": "原生 WordCraft 視窗無法使用。請查看能力詳細資料與修復建議。",
+      "openNative": "在原生 WordCraft 視窗中開啟",
+      "openingNative": "正在開啟原生 WordCraft 視窗……",
+      "nativeOpened": "文件已在原生 WordCraft 視窗中開啟。"
     },
     "aiSession": {
       "title": "AI會話: {{sessionId}}",
