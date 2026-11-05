@@ -347,6 +347,7 @@ jobs:
             $testLog -match 'process .*exit successfully:.*(?:alex|openbitfun)_desktop_lib-' -and
             $testLog -match 'exit code: 0xc0000139' -and
             $testLog -match 'STATUS_ENTRYPOINT_NOT_FOUND' -and
+            $testLog -notmatch '(?m)^running \d+ tests?\b' -and
             $testLog -notmatch 'test result: FAILED'
           )
           if ($knownTauriLoaderFailure) {

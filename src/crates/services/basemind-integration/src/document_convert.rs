@@ -226,6 +226,12 @@ impl DocumentRedactionPort for BasemindDocumentRedactor {
                     format!("the basemind sidecar could not redact the document: {error}"),
                 )
             })?;
+        if let Some(message) = crate::redaction::ner_coverage_refusal(&payload) {
+            return Err(DocumentRedactionError::new(
+                DocumentRedactionErrorKind::Failed,
+                message,
+            ));
+        }
         self.pseudonymizer
             .retokenize_document(payload, session_id, source_format_for(path))
             .await
@@ -273,6 +279,12 @@ impl DocumentRedactionPort for BasemindDocumentRedactor {
                     format!("the basemind sidecar could not redact inline text: {error}"),
                 )
             })?;
+        if let Some(message) = crate::redaction::ner_coverage_refusal(&payload) {
+            return Err(DocumentRedactionError::new(
+                DocumentRedactionErrorKind::Failed,
+                message,
+            ));
+        }
         self.pseudonymizer
             .retokenize_document(payload, session_id, "text")
             .await

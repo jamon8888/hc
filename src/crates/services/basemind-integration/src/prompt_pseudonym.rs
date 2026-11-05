@@ -164,10 +164,13 @@ impl PromptPseudonymizer {
         // Missing session state is therefore an identity result; corrupted
         // encrypted state still fails through the error path below.
         let vault = self.vault.read().unwrap_or_else(|error| error.into_inner());
-        if !vault.session_exists(session_id) {
-            return Ok(text.to_string());
-        }
-        let payload = vault.load_session(session_id)?;
+        let payload = match vault.load_session(session_id) {
+            Ok(payload) => payload,
+            Err(error) if crate::session_vault::SessionVault::is_missing_session_error(&error) => {
+                return Ok(text.to_string());
+            }
+            Err(error) => return Err(error),
+        };
         let mut entries = payload.map.into_iter().collect::<Vec<_>>();
         entries.sort_by(|(left, _), (right, _)| right.len().cmp(&left.len()));
         let mut restored = text.to_string();
@@ -290,6 +293,12 @@ impl PromptPseudonymizer {
         let mut session_text = redacted_text;
         for (positional_token, session_token) in positional_to_token {
             session_text = session_text.replace(&positional_token, &session_token);
+        }
+        if positional_map
+            .keys()
+            .any(|positional_token| session_text.contains(positional_token))
+        {
+            anyhow::bail!("redaction left an unresolved positional token in the session text");
         }
         self.vault
             .write()

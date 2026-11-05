@@ -19,7 +19,9 @@ use async_trait::async_trait;
 use log::{debug, warn};
 use serde_json::{json, Value};
 use std::convert::TryFrom;
-use std::path::Path;
+use std::path::{Path, PathBuf};
+#[cfg(feature = "document-read")]
+use std::io::Write;
 #[cfg(feature = "document-read")]
 use std::time::Duration;
 use std::time::Instant;
@@ -57,6 +59,36 @@ struct DocumentReadMetadata {
     /// built-in conversion's compile-time formats.
     source_format: String,
     source_size_bytes: usize,
+}
+
+#[cfg(feature = "document-read")]
+struct StagedDocument {
+    path: PathBuf,
+}
+
+#[cfg(feature = "document-read")]
+impl Drop for StagedDocument {
+    fn drop(&mut self) {
+        let _ = std::fs::remove_file(&self.path);
+    }
+}
+
+#[cfg(feature = "document-read")]
+fn stage_document_for_redaction(bytes: &[u8], source_path: &str) -> std::io::Result<StagedDocument> {
+    let extension = Path::new(source_path)
+        .extension()
+        .and_then(|extension| extension.to_str())
+        .filter(|extension| !extension.is_empty())
+        .map(|extension| format!(".{extension}"))
+        .unwrap_or_default();
+    let path = std::env::temp_dir().join(format!("alex-document-{}{}", uuid::Uuid::new_v4(), extension));
+    let mut file = std::fs::OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(&path)?;
+    file.write_all(bytes)?;
+    file.flush()?;
+    Ok(StagedDocument { path })
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -376,11 +408,22 @@ impl FileReadTool {
                             )
                         })
                         .map_err(|error| error),
-                    ("api", Some(port), Some(root), Some(session_id)) => port
-                        .redact_for_session(&path, &root, &session_id)
+                    ("api", Some(port), Some(root), Some(session_id)) => {
+                        let staged = stage_document_for_redaction(&bytes, &path).map_err(|error| {
+                            DocumentConversionError::new(
+                                "redaction",
+                                format!("failed to stage document for the local redaction sidecar: {error}"),
+                            )
+                        })?;
+                        port.redact_for_session(
+                            &staged.path.to_string_lossy(),
+                            &root,
+                            &session_id,
+                        )
                         .await
                         .map(|document| (document.markdown, document.source_format))
-                        .map_err(|error| DocumentConversionError::new("redaction", error.message)),
+                        .map_err(|error| DocumentConversionError::new("redaction", error.message))
+                    }
                     ("api", Some(_), None, _) => Err(DocumentConversionError::new(
                         "redaction",
                         "workspace root is required for the document redaction port",
@@ -1225,7 +1268,12 @@ mod tests {
             .unwrap()
             .clone()
             .expect("the port was called");
-        assert!(path.ends_with("contract.pdf"), "the port saw {path}");
+        assert!(path.ends_with(".pdf"), "the port saw {path}");
+        assert_ne!(path, document.to_string_lossy());
+        assert!(
+            !std::path::Path::new(&path).exists(),
+            "staged document leaked at {path}"
+        );
         assert!(
             workspace_root.contains("alex-file-read-redaction-test"),
             "the port saw the workspace root {workspace_root}"

@@ -125,8 +125,7 @@ fn basemind_capability_advertisement() -> BasemindCapabilityAdvertisement {
     let sidecar_binary =
         std::env::var_os("BASEMIND_SIDECAR_PATH").is_some_and(|path| Path::new(&path).is_file());
     let sidecar_binary = sidecar_binary || daemon_available;
-    let sidecar_version = alex_basemind_integration::daemon_version()
-        .or_else(|| Some(alex_basemind_integration::BASEMIND_VERSION.to_string()));
+    let sidecar_version = alex_basemind_integration::daemon_version();
     let ner_model_version = std::env::var("BASEMIND_NER_MODEL_VERSION")
         .ok()
         .filter(|version| !version.trim().is_empty())

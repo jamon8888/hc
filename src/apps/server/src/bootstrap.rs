@@ -13,7 +13,7 @@ use alex_core::service::{config, filesystem, mcp, token_usage, workspace};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
-fn publish_basemind_model_egress_policy(workspace_root: Option<&std::path::Path>) {
+pub(crate) fn publish_basemind_model_egress_policy(workspace_root: Option<&std::path::Path>) {
     let Some(ner_model_dir) = std::env::var_os("BASEMIND_NER_MODEL_DIR") else {
         log::warn!(
             "Basemind server policy remains unavailable: BASEMIND_NER_MODEL_DIR is not configured"

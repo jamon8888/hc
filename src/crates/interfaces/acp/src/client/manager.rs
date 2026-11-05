@@ -274,13 +274,21 @@ impl AcpClientService {
         let running_connections = self
             .clients
             .iter()
-            .map(|entry| (entry.key().clone(), entry.value().client_id.clone()))
+            .map(|entry| {
+                (
+                    entry.key().clone(),
+                    entry.value().client_id.clone(),
+                    entry.value().config.privacy_route,
+                )
+            })
             .collect::<Vec<_>>();
-        for (connection_id, client_id) in running_connections {
+        for (connection_id, client_id, running_privacy_route) in running_connections {
             let should_stop = !configured_ids.contains(&client_id)
                 || configs
                     .get(&client_id)
-                    .map(|config| !config.enabled)
+                    .map(|config| {
+                        !config.enabled || config.privacy_route != running_privacy_route
+                    })
                     .unwrap_or(true);
             if should_stop {
                 let _ = self.stop_connection(&connection_id).await;
@@ -1411,6 +1419,13 @@ impl AcpClientService {
                             &mut session,
                             &mut tool_call_tracker,
                             &mut round_tracker,
+                            &resolved.cwd,
+                            &alex_session_id,
+                            resolved
+                                .client
+                                .config
+                                .privacy_route
+                                .unwrap_or(ModelPrivacyRoute::Unknown),
                             &mut on_event,
                         )
                         .await?;
@@ -2511,6 +2526,9 @@ async fn drain_pending_turn_updates<F>(
     session: &mut AcpRemoteSession,
     tool_call_tracker: &mut AcpToolCallTracker,
     round_tracker: &mut AcpStreamRoundTracker,
+    workspace_root: &Path,
+    alex_session_id: &str,
+    route: ModelPrivacyRoute,
     on_event: &mut F,
 ) -> AlexResult<()>
 where
@@ -2533,6 +2551,31 @@ where
                 update_session_from_events(session, &events);
                 for event in events {
                     for event in round_tracker.apply(event) {
+                        let event = match event {
+                            AcpClientStreamEvent::AgentText(text) => {
+                                AcpClientStreamEvent::AgentText(
+                                    AcpClientService::rehydrate_acp_output(
+                                        text,
+                                        workspace_root,
+                                        alex_session_id,
+                                        route,
+                                    )
+                                    .await?,
+                                )
+                            }
+                            AcpClientStreamEvent::AgentThought(text) => {
+                                AcpClientStreamEvent::AgentThought(
+                                    AcpClientService::rehydrate_acp_output(
+                                        text,
+                                        workspace_root,
+                                        alex_session_id,
+                                        route,
+                                    )
+                                    .await?,
+                                )
+                            }
+                            other => other,
+                        };
                         on_event(event)?;
                     }
                 }

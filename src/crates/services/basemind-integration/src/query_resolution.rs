@@ -263,6 +263,15 @@ impl QueryResolver {
                 .flush()?;
         }
         if vault_changed {
+            // redact_text above is asynchronous. Another turn may have added
+            // entries to this session while it was in flight; merge the
+            // latest vault snapshot before writing so this turn cannot erase
+            // those mappings.
+            let latest = self.load_session(session_id)?;
+            if latest.salt != session.salt {
+                anyhow::bail!("session salt changed while RAG hits were being redacted");
+            }
+            session.map.extend(latest.map);
             self.store_session(session_id, session)?;
         }
 

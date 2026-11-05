@@ -316,8 +316,7 @@ fn basemind_capability_advertisement() -> BasemindCapabilityAdvertisement {
             BasemindUnavailableReason::WorkspaceOwnerUnknown,
         );
     }
-    let sidecar_version = alex_basemind_integration::daemon_version()
-        .or_else(|| Some(alex_basemind_integration::BASEMIND_VERSION.to_string()));
+    let sidecar_version = alex_basemind_integration::daemon_version();
     let ner_model_version = std::env::var("BASEMIND_NER_MODEL_VERSION")
         .ok()
         .filter(|version| !version.trim().is_empty())

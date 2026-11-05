@@ -180,12 +180,16 @@ pub fn verify_version() -> Result<()> {
         // mismatch, so it must not fail the call.
         return Ok(());
     };
-    if version == BASEMIND_VERSION {
+    let running = semver::Version::parse(&version)
+        .map_err(|error| anyhow::anyhow!("invalid basemind daemon version {version}: {error}"))?;
+    let minimum = semver::Version::parse(BASEMIND_VERSION)
+        .expect("BASEMIND_VERSION must be valid semver");
+    if running >= minimum {
         return Ok(());
     }
     anyhow::bail!(
-        "basemind daemon runs {version}, but this build targets {BASEMIND_VERSION}. \
-         Restart the daemon with the pinned version: `basemind comms stop && basemind comms start`."
+        "basemind daemon runs {version}, but this build requires at least {BASEMIND_VERSION}. \
+         Restart the daemon with a compatible version: `basemind comms stop && basemind comms start`."
     )
 }
 

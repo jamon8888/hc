@@ -1832,6 +1832,9 @@ pub async fn close_workspace(
                 alex_core::service::model_egress::install_refusing_model_egress_policy(
                     "model egress refused: no active workspace privacy scope",
                 );
+                alex_core::service::rag_search::set_global_prompt_pseudonymization_port(None);
+                alex_core::service::rag_search::set_global_rag_search_port(None);
+                alex_core::service::rag_search::set_global_document_redaction_port(None);
                 alex_acp::set_prompt_interceptor(Some(std::sync::Arc::new(
                     alex_acp::RefusingAcpPromptInterceptor::new(
                         "ACP prompt refused: no active workspace privacy scope",
@@ -5928,9 +5931,28 @@ pub mod basemind_commands {
         let (_, root) = state
             .basemind_workspace(request.workspace_id.as_deref())
             .await?;
-        let policy = alex_core::service::model_egress::global_model_egress_policy()
-            .ok_or_else(|| "model text rehydration is unavailable".to_string())?;
         use alex_runtime_ports::ModelEgressPolicy;
+        let policy: Arc<dyn ModelEgressPolicy> = if request.workspace_id.is_some() {
+            let manager = alex_core::infrastructure::try_get_path_manager_arc()
+                .map_err(|error| error.to_string())?;
+            let data_dir = alex_basemind_integration::workspace_data_dir(
+                manager.user_data_dir().join("basemind"),
+                &root,
+            );
+            let ner_model_dir = crate::basemind_ner_model_dir()
+                .unwrap_or_else(|| PathBuf::from("ner-model"));
+            let bundle = alex_basemind_integration::build_privacy_bundle(
+                data_dir,
+                crate::basemind_sidecar_binary().map(Path::to_path_buf),
+                ner_model_dir,
+                Some(&root),
+            )
+            .map_err(|error| error.to_string())?;
+            bundle.model_egress
+        } else {
+            alex_core::service::model_egress::global_model_egress_policy()
+                .ok_or_else(|| "model text rehydration is unavailable".to_string())?
+        };
         policy
             .rehydrate_text(
                 request.text,

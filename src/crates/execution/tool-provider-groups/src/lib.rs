@@ -181,6 +181,9 @@ impl ToolProviderGroupPlan {
     }
 }
 
+#[cfg(feature = "basemind")]
+const CORE_BASIC_FEATURE_GROUPS: &[ToolPackFeatureGroup] = &[ToolPackFeatureGroup::Basic];
+#[cfg(not(feature = "basemind"))]
 const CORE_BASIC_FEATURE_GROUPS: &[ToolPackFeatureGroup] = &[
     ToolPackFeatureGroup::Basic,
     ToolPackFeatureGroup::ImageAnalysis,
@@ -641,7 +644,14 @@ mod tests {
             feature_groups,
             vec![
                 ("core.basemind", vec!["basemind"]),
-                ("core.basic", vec!["basic", "image-analysis"]),
+                (
+                    "core.basic",
+                    if cfg!(feature = "basemind") {
+                        vec!["basic"]
+                    } else {
+                        vec!["basic", "image-analysis"]
+                    },
+                ),
                 ("core.agent", vec!["agent-control"]),
                 ("core.session", vec!["agent-control"]),
                 ("core.git", vec!["git"]),

@@ -8,7 +8,7 @@ categories = ["integration", "security", "privacy"]
 
 [features]
 default = ["basemind"]
-basemind = ["dep:anyhow", "dep:async-trait", "dep:base64", "dep:chrono", "dep:dashmap", "dep:hex", "dep:hmac", "dep:log", "dep:md5", "dep:regex", "dep:serde", "dep:serde_json", "dep:thiserror", "dep:tokio", "dep:tracing", "dep:uuid", "dep:reqwest", "dep:aes-gcm", "dep:scrypt", "dep:rand", "dep:sha2", "dep:url", "dep:zip", "dep:alex-core-types", "dep:alex-config-contracts", "dep:alex-runtime-ports", "dep:alex-services-core", "dep:security-framework", "dep:security-framework-sys", "dep:windows", "dep:secret-service", "dep:keyring-core", "dep:windows-native-keyring-store", "dep:zbus-secret-service-keyring-store"]
+basemind = ["dep:anyhow", "dep:async-trait", "dep:base64", "dep:chrono", "dep:dashmap", "dep:hex", "dep:hmac", "dep:log", "dep:md5", "dep:regex", "dep:serde", "dep:serde_json", "dep:semver", "dep:thiserror", "dep:tokio", "dep:tracing", "dep:uuid", "dep:reqwest", "dep:aes-gcm", "dep:scrypt", "dep:rand", "dep:sha2", "dep:url", "dep:zip", "dep:alex-core-types", "dep:alex-config-contracts", "dep:alex-runtime-ports", "dep:alex-services-core", "dep:security-framework", "dep:security-framework-sys", "dep:windows", "dep:secret-service", "dep:keyring-core", "dep:windows-native-keyring-store", "dep:zbus-secret-service-keyring-store"]
 tools-rag = ["basemind"]
 document-read = ["basemind"]
 pseudonymization = ["basemind"]
@@ -26,6 +26,7 @@ md5 = { workspace = true, optional = true }
 regex = { workspace = true, optional = true }
 serde = { workspace = true, optional = true }
 serde_json = { workspace = true, optional = true }
+semver = { workspace = true, optional = true }
 thiserror = { workspace = true, optional = true }
 tokio = { workspace = true, optional = true, features = ["sync", "time"] }
 tracing = { workspace = true, optional = true }

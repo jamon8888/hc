@@ -67,6 +67,7 @@ pub async fn dispatch(
                 .await
                 .map_err(|e| anyhow!("{}", e))?;
             *state.workspace_path.write().await = Some(info.root_path.clone());
+            crate::bootstrap::publish_basemind_model_egress_policy(Some(&info.root_path));
             Ok(serde_json::to_value(&info).unwrap_or_default())
         }
         "get_current_workspace" => {

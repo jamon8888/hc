@@ -836,6 +836,7 @@ pub enum ModelCategory {
 pub enum ModelPrivacyRouteConfig {
     Api,
     Local,
+    #[serde(other)]
     Unknown,
 }
 

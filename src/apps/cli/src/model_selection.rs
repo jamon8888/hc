@@ -87,7 +87,11 @@ pub(crate) fn model_from_mutation(
         provider: mutation.provider,
         model_name: mutation.model_name,
         base_url: mutation.base_url,
-        privacy_route: current.privacy_route,
+        privacy_route: current
+            .privacy_route
+            .or(Some(
+                alex_core::service::config::types::ModelPrivacyRouteConfig::Api,
+            )),
         request_url: current.request_url,
         api_key,
         context_window: mutation.context_window,

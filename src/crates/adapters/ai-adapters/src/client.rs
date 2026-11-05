@@ -678,11 +678,23 @@ impl AIClient {
         max_attempts: usize,
     ) -> Result<GeminiResponse> {
         let custom_body = self.config.custom_request_body.clone();
+        let workspace_root = match alex_core::service::workspace::get_global_workspace_service() {
+            Some(service) => service
+                .get_current_workspace()
+                .await
+                .map(|workspace| workspace.root_path.to_string_lossy().to_string()),
+            None => None,
+        };
+        let request_context = Some(ModelRequestContext {
+            session_id: Some(format!("connection-test:{}", self.config.model)),
+            workspace_root,
+            ..ModelRequestContext::default()
+        });
         self.send_message_with_extra_body_trace_and_max_attempts(
             messages,
             tools,
             custom_body,
-            None,
+            request_context,
             None,
             max_attempts,
         )
