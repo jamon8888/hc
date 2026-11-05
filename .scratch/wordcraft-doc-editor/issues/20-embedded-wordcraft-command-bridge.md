@@ -38,8 +38,12 @@ correlated parent/iframe protocol.
   race. Queued requests are rejected together with the active request on frame
   failure or teardown, and request timeouts advance the queue safely.
 - Added ordering and queued-failure regression tests. The focused WordCraft Web
-  UI set passes 44/44 tests across the bridge, host persistence, session recovery,
-  protocol, API, and routing suites.
+  UI set passes 51/51 tests across the bridge, host persistence, session recovery,
+  protocol, API, FileTab, and WordCraft command suites.
+- Completion payloads now echo document identity, session identity, and the
+  resulting revision. Core rejects stale identity/revision responses without
+  consuming the live request, while optional response fields preserve older
+  host compatibility during upgrades.
 - The ticket remains claimed until the packaged patched web artifact and the
   real-device visible command probe are release-validated; those gates are
   recorded in tickets 18, 19, and 25.

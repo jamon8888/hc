@@ -988,14 +988,26 @@ async function handleWordcraftCommandRequest(rawEvent: unknown): Promise<void> {
       expectedRevision: event.expectedRevision,
       author: event.author,
     });
+    const resultRevision =
+      typeof result === 'object' &&
+      result !== null &&
+      typeof (result as Record<string, unknown>).revision === 'number'
+        ? (result as Record<string, unknown>).revision as number
+        : event.expectedRevision;
     await wordcraftAPI.completeEmbeddedCommand({
       requestId: event.requestId,
+      documentId: event.documentId,
+      sessionId: event.sessionId,
+      revision: resultRevision,
       ok: true,
       result,
     });
   } catch (error) {
     await wordcraftAPI.completeEmbeddedCommand({
       requestId: event.requestId,
+      documentId: event.documentId,
+      sessionId: event.sessionId,
+      revision: event.expectedRevision,
       ok: false,
       error: error instanceof Error ? error.message : String(error),
     }).catch(completionError => {

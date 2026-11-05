@@ -107,6 +107,12 @@ pub struct WordcraftEmbeddedCommandResponseRequest {
     pub request_id: String,
     pub ok: bool,
     #[serde(default)]
+    pub document_id: Option<String>,
+    #[serde(default)]
+    pub session_id: Option<String>,
+    #[serde(default)]
+    pub revision: Option<u64>,
+    #[serde(default)]
     pub result: Option<serde_json::Value>,
     #[serde(default)]
     pub error: Option<String>,
@@ -123,6 +129,9 @@ pub async fn wordcraft_complete_embedded_command(
         .complete(WordcraftEmbeddedCommandResponse {
             request_id: request.request_id,
             ok: request.ok,
+            document_id: request.document_id,
+            session_id: request.session_id,
+            revision: request.revision,
             result: request.result,
             error: request.error,
         })

@@ -38,13 +38,28 @@ pub struct WordcraftEmbeddedCommandRequest {
 pub struct WordcraftEmbeddedCommandResponse {
     pub request_id: String,
     pub ok: bool,
+    /// Optional for upgrade compatibility with older Web UI hosts. New hosts
+    /// echo the request identity so Core can reject stale cross-document
+    /// completions before consuming the pending request.
+    #[serde(default)]
+    pub document_id: Option<String>,
+    #[serde(default)]
+    pub session_id: Option<String>,
+    #[serde(default)]
+    pub revision: Option<u64>,
     #[serde(default)]
     pub result: Option<Value>,
     #[serde(default)]
     pub error: Option<String>,
 }
 
-type PendingResult = oneshot::Sender<Result<Value, String>>;
+#[derive(Debug)]
+struct PendingResult {
+    document_id: String,
+    session_id: String,
+    expected_revision: u64,
+    sender: oneshot::Sender<Result<Value, String>>,
+}
 
 #[derive(Debug, Default)]
 pub struct WordcraftBridge {
@@ -59,7 +74,18 @@ impl WordcraftBridge {
 
         {
             let mut pending = self.pending.lock().await;
-            if pending.insert(request_id.clone(), sender).is_some() {
+            if pending
+                .insert(
+                    request_id.clone(),
+                    PendingResult {
+                        document_id: request.document_id.clone(),
+                        session_id: request.session_id.clone(),
+                        expected_revision: request.expected_revision,
+                        sender,
+                    },
+                )
+                .is_some()
+            {
                 return Err(format!(
                     "WordCraft request ID is already pending: {request_id}"
                 ));
@@ -91,17 +117,41 @@ impl WordcraftBridge {
     }
 
     pub async fn complete(&self, response: WordcraftEmbeddedCommandResponse) -> Result<(), String> {
-        let sender = self
-            .pending
-            .lock()
-            .await
-            .remove(&response.request_id)
-            .ok_or_else(|| {
-                format!(
-                    "WordCraft request is not pending or has already timed out: {}",
-                    response.request_id
-                )
-            })?;
+        let mut pending = self.pending.lock().await;
+        let expected = pending.get(&response.request_id).ok_or_else(|| {
+            format!(
+                "WordCraft request is not pending or has already timed out: {}",
+                response.request_id
+            )
+        })?;
+
+        if response
+            .document_id
+            .as_deref()
+            .is_some_and(|document_id| document_id != expected.document_id)
+        {
+            return Err("WordCraft response document identity is stale".to_string());
+        }
+        if response
+            .session_id
+            .as_deref()
+            .is_some_and(|session_id| session_id != expected.session_id)
+        {
+            return Err("WordCraft response session identity is stale".to_string());
+        }
+        if response
+            .revision
+            .is_some_and(|revision| revision < expected.expected_revision)
+        {
+            return Err("WordCraft response revision is stale".to_string());
+        }
+
+        let pending = pending.remove(&response.request_id).ok_or_else(|| {
+            format!(
+                "WordCraft request is not pending or has already timed out: {}",
+                response.request_id
+            )
+        })?;
 
         let result = if response.ok {
             Ok(response.result.unwrap_or(Value::Null))
@@ -110,7 +160,8 @@ impl WordcraftBridge {
                 .error
                 .unwrap_or_else(|| "WordCraft command failed without an error".to_string()))
         };
-        sender
+        pending
+            .sender
             .send(result)
             .map_err(|_| "WordCraft command caller was dropped".to_string())
     }
@@ -178,6 +229,9 @@ mod tests {
             .complete(WordcraftEmbeddedCommandResponse {
                 request_id: "request-1".to_string(),
                 ok: true,
+                document_id: Some("document-1".to_string()),
+                session_id: Some("surface-1".to_string()),
+                revision: Some(2),
                 result: Some(json!({"text": "hello"})),
                 error: None,
             })
@@ -199,11 +253,56 @@ mod tests {
             .complete(WordcraftEmbeddedCommandResponse {
                 request_id: "missing".to_string(),
                 ok: false,
+                document_id: None,
+                session_id: None,
+                revision: None,
                 result: None,
                 error: Some("closed".to_string()),
             })
             .await
             .expect_err("unknown requests must fail closed");
         assert!(error.contains("not pending"));
+    }
+
+    #[tokio::test]
+    async fn stale_completion_does_not_consume_the_pending_request() {
+        let bridge = std::sync::Arc::new(WordcraftBridge::default());
+        let task_bridge = bridge.clone();
+        let task = tokio::spawn(async move { task_bridge.request(request("request-2")).await });
+        tokio::task::yield_now().await;
+
+        let error = bridge
+            .complete(WordcraftEmbeddedCommandResponse {
+                request_id: "request-2".to_string(),
+                ok: true,
+                document_id: Some("other-document".to_string()),
+                session_id: Some("surface-1".to_string()),
+                revision: Some(2),
+                result: Some(json!({"text": "stale"})),
+                error: None,
+            })
+            .await
+            .expect_err("stale completion must be rejected");
+        assert!(error.contains("document identity"));
+
+        bridge
+            .complete(WordcraftEmbeddedCommandResponse {
+                request_id: "request-2".to_string(),
+                ok: true,
+                document_id: Some("document-1".to_string()),
+                session_id: Some("surface-1".to_string()),
+                revision: Some(2),
+                result: Some(json!({"text": "current"})),
+                error: None,
+            })
+            .await
+            .expect("current completion should still be accepted");
+
+        let result = timeout(Duration::from_secs(1), task)
+            .await
+            .expect("request should complete")
+            .expect("request task should not panic")
+            .expect("request should succeed");
+        assert_eq!(result, json!({"text": "current"}));
     }
 }

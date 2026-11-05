@@ -41,6 +41,9 @@ describe('WordcraftAPI', () => {
 
     await new WordcraftAPI().completeEmbeddedCommand({
       requestId: 'request-1',
+      documentId: 'document-1',
+      sessionId: 'surface-1',
+      revision: 3,
       ok: true,
       result: { revision: 3 },
     });
@@ -48,6 +51,9 @@ describe('WordcraftAPI', () => {
     expect(api.invoke).toHaveBeenCalledWith('wordcraft_complete_embedded_command', {
       request: {
         requestId: 'request-1',
+        documentId: 'document-1',
+        sessionId: 'surface-1',
+        revision: 3,
         ok: true,
         result: { revision: 3 },
       },
