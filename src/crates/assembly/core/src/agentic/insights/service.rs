@@ -36,11 +36,20 @@ const MAX_CONCURRENT_FACET_EXTRACTIONS: usize = 5;
 struct TrackedAIClient {
     client: Arc<AIClient>,
     usage: GenerationUsageTracker,
+    request_context: Option<alex_core_types::ModelRequestContext>,
 }
 
 impl TrackedAIClient {
-    fn new(client: Arc<AIClient>, usage: GenerationUsageTracker) -> Self {
-        Self { client, usage }
+    fn new(
+        client: Arc<AIClient>,
+        usage: GenerationUsageTracker,
+        request_context: Option<alex_core_types::ModelRequestContext>,
+    ) -> Self {
+        Self {
+            client,
+            usage,
+            request_context,
+        }
     }
 
     async fn send_message(
@@ -49,7 +58,15 @@ impl TrackedAIClient {
         tools: Option<Vec<ToolDefinition>>,
     ) -> anyhow::Result<GeminiResponse> {
         self.usage.record_model_call();
-        let response = self.client.send_message(messages, tools).await?;
+        let response = self
+            .client
+            .send_message_with_trace_and_request_context(
+                messages,
+                tools,
+                self.request_context.clone(),
+                None,
+            )
+            .await?;
         self.usage.record_reported_usage(response.usage.as_ref());
         Ok(response)
     }
@@ -232,7 +249,16 @@ impl InsightsService {
         let generation_models = vec![ai_client.config.model.clone()];
 
         let usage_tracker = GenerationUsageTracker::default();
-        let ai_client = TrackedAIClient::new(ai_client, usage_tracker.clone());
+        let request_context = transcripts.first().and_then(|transcript| {
+            transcript.workspace_path.clone().map(|workspace_root| {
+                alex_core_types::ModelRequestContext {
+                    session_id: Some(format!("insights-{}", transcript.session_id)),
+                    workspace_root: Some(workspace_root),
+                    ..Default::default()
+                }
+            })
+        });
+        let ai_client = TrackedAIClient::new(ai_client, usage_tracker.clone(), request_context);
 
         let facets =
             Self::extract_facets_adaptive(&ai_client, &transcripts, &lang_instruction, token)
@@ -466,7 +492,10 @@ impl InsightsService {
         let messages = vec![Message::user(prompt)];
 
         let response = ai_client
-            .send_message(messages, None)
+            .send_message(
+                messages,
+                None,
+            )
             .await
             .map_err(|e| AlexError::service(format!("AI call failed: {}", e)))?;
 

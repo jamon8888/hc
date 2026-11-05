@@ -398,11 +398,38 @@ impl BasemindSettingsStore {
             let _ = fs::remove_file(&temporary);
             return Err(error.into());
         }
-        if let Err(error) = fs::rename(&temporary, &self.path) {
-            let _ = fs::remove_file(&temporary);
-            return Err(error.into());
-        }
+        replace_persisted_file(&temporary, &self.path)?;
         Ok(())
+    }
+}
+
+#[cfg(all(feature = "basemind", not(target_os = "windows")))]
+fn replace_persisted_file(temporary: &Path, destination: &Path) -> Result<()> {
+    fs::rename(temporary, destination)?;
+    Ok(())
+}
+
+#[cfg(all(feature = "basemind", target_os = "windows"))]
+fn replace_persisted_file(temporary: &Path, destination: &Path) -> Result<()> {
+    let backup = destination.with_extension(format!("bak-{}", uuid::Uuid::new_v4()));
+    let had_existing = destination.exists();
+    if had_existing {
+        fs::rename(destination, &backup)?;
+    }
+    match fs::rename(temporary, destination) {
+        Ok(()) => {
+            if had_existing {
+                let _ = fs::remove_file(backup);
+            }
+            Ok(())
+        }
+        Err(error) => {
+            let _ = fs::remove_file(temporary);
+            if had_existing {
+                let _ = fs::rename(backup, destination);
+            }
+            Err(error.into())
+        }
     }
 }
 

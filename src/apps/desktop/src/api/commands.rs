@@ -1127,6 +1127,9 @@ async fn create_transient_ai_client_for_config(
             ai_config,
             proxy_config,
             stream_options,
+        )
+        .with_model_egress_policy(
+            alex_core::service::model_egress::global_model_egress_policy(),
         ),
     );
     Ok(

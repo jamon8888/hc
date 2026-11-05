@@ -67,7 +67,7 @@ fn legacy_session_payload_roundtrips_through_a_reopened_vault() {
 }
 
 #[test]
-fn legacy_vault_blob_is_readable_after_restart() {
+fn current_vault_blob_is_readable_after_restart() {
     let payload = SessionPayload {
         map: BTreeMap::from([("[PERSON_1]".to_string(), "Jean Dupont".to_string())]),
         salt: "00112233445566778899aabbccddeeff".to_string(),
@@ -76,8 +76,8 @@ fn legacy_vault_blob_is_readable_after_restart() {
     let session_id = "session:legacy:vault";
     let vault_path = temp.path().join(format!("{session_id}.vault"));
 
-    // Write the old on-disk payload through the stable XPII wire format, then
-    // open it through the current SessionVault implementation.
+    // The legacy-salt fallback is covered by the unit fixture in vault.rs;
+    // this test keeps the persisted payload/restart contract explicit.
     let encrypted = vault_encrypt(&payload, TEST_PASSPHRASE).expect("encrypt legacy vault");
     std::fs::write(&vault_path, encrypted).expect("write legacy vault");
 

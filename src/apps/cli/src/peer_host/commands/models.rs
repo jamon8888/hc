@@ -69,6 +69,9 @@ async fn build_transient_client(
                     ai_config,
                     proxy_config,
                     stream_options,
+                )
+                .with_model_egress_policy(
+                    alex_core::service::model_egress::global_model_egress_policy(),
                 ),
                 &model_config,
             ),
