@@ -295,7 +295,7 @@ export default function WordcraftDocumentPanel({
             type="button"
             onClick={() => void openNativeFallback()}
             disabled={fallbackState === 'opening'}
-            data-alex-component="wordcraft-fallback"
+            data-testid="wordcraft-fallback"
             data-alex-state={fallbackState}
           >
             {fallbackState === 'opening'
