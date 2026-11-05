@@ -33,7 +33,7 @@ export default function WordcraftDocumentPanel({
   filePath,
   fileName,
   workspaceId,
-  surfaceId = 'local',
+  surfaceId,
   isActive = true,
   onDirtyStateChange,
 }: WordcraftDocumentPanelProps) {
@@ -78,6 +78,10 @@ export default function WordcraftDocumentPanel({
     setFallbackError(null);
 
     async function loadDocument() {
+      if (!surfaceId) {
+        setError(t('flexiblePanel.wordcraft.surfaceRequired'));
+        return;
+      }
       if (!isLocalSurface(surfaceId)) {
         setError(translateRef.current('flexiblePanel.wordcraft.localOnly'));
         return;

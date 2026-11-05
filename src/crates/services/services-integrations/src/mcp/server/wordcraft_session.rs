@@ -47,6 +47,61 @@ pub struct WordcraftSessionSpec {
     profile_dir: String,
 }
 
+/// A capability fact obtained from the workspace owner before starting a
+/// remote WordCraft session. The owner must resolve and advertise the pinned
+/// executable; the controller never guesses by searching the owner's PATH.
+#[cfg(feature = "remote-ssh-concrete")]
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct WordcraftRemoteRuntime {
+    command: String,
+    version: String,
+    mcp_supported: bool,
+}
+
+#[cfg(feature = "remote-ssh-concrete")]
+impl WordcraftRemoteRuntime {
+    pub fn new(
+        command: impl Into<String>,
+        version: impl Into<String>,
+        mcp_supported: bool,
+    ) -> MCPRuntimeResult<Self> {
+        let command = command.into();
+        let version = version.into();
+        if !command.starts_with('/') || command.contains('\\') {
+            return Err(MCPRuntimeError::configuration(
+                "Remote WordCraft runtime command must be an absolute POSIX path",
+            ));
+        }
+        if version.trim().is_empty() {
+            return Err(MCPRuntimeError::configuration(
+                "Remote WordCraft runtime version must not be empty",
+            ));
+        }
+        if !mcp_supported {
+            return Err(MCPRuntimeError::not_implemented(
+                "Remote WordCraft runtime does not advertise MCP headless editing",
+            ));
+        }
+        Ok(Self {
+            command,
+            version,
+            mcp_supported,
+        })
+    }
+
+    pub fn command(&self) -> &str {
+        &self.command
+    }
+
+    pub fn version(&self) -> &str {
+        &self.version
+    }
+
+    pub fn mcp_supported(&self) -> bool {
+        self.mcp_supported
+    }
+}
+
 /// One validated WordCraft MCP session definition (headless or live bridge),
 /// consumable by the MCP registry as a local stdio server definition.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -79,10 +134,11 @@ impl WordcraftRemoteMcpSession {
         ssh_manager: &SSHConnectionManager,
         connection_id: &str,
         spec: &WordcraftSessionSpec,
+        runtime: &WordcraftRemoteRuntime,
         timeouts: MCPServerTimeouts,
     ) -> MCPRuntimeResult<Self> {
         let transport = spec
-            .open_remote_headless_stdio(ssh_manager, connection_id)
+            .open_remote_headless_stdio(ssh_manager, connection_id, runtime)
             .await?;
         let mut process = MCPServerProcess::new(
             spec.server_id(),
@@ -231,7 +287,10 @@ impl WordcraftSessionSpec {
     /// they are quoted for the target shell and are never interpreted through
     /// the controller's filesystem APIs.
     #[cfg(feature = "remote-ssh-concrete")]
-    pub fn build_remote_headless_command(&self) -> MCPRuntimeResult<String> {
+    pub fn build_remote_headless_command(
+        &self,
+        runtime: &WordcraftRemoteRuntime,
+    ) -> MCPRuntimeResult<String> {
         Self::validate_remote_path(&self.workspace_root, "workspace root")?;
         Self::validate_remote_path(&self.profile_dir, "profile dir")?;
         let author = shell_quote_posix(&self.author());
@@ -239,7 +298,7 @@ impl WordcraftSessionSpec {
         let profile_dir = shell_quote_posix(&self.profile_dir);
         Ok(format!(
             "cd {workspace_root} && WORDCRAFT_PROFILE_DIR={profile_dir} {command} mcp --author {author} --automation-read-root {workspace_root} --automation-write-root {workspace_root}",
-            command = shell_quote_posix(WORDCRAFT_CLI_COMMAND),
+            command = shell_quote_posix(runtime.command()),
         ))
     }
 
@@ -261,8 +320,9 @@ impl WordcraftSessionSpec {
         &self,
         ssh_manager: &SSHConnectionManager,
         connection_id: &str,
+        runtime: &WordcraftRemoteRuntime,
     ) -> MCPRuntimeResult<WorkspaceStdio> {
-        let command = self.build_remote_headless_command()?;
+        let command = self.build_remote_headless_command(runtime)?;
         ssh_manager
             .open_workspace_stdio(connection_id, &command)
             .await
@@ -554,7 +614,13 @@ mod tests {
         )
         .unwrap();
 
-        let command = spec.build_remote_headless_command().unwrap();
+        let runtime = WordcraftRemoteRuntime::new(
+            "/opt/alex/wordcraft/current/bin/wordcraft-cli",
+            "1.0.0",
+            true,
+        )
+        .unwrap();
+        let command = spec.build_remote_headless_command(&runtime).unwrap();
         assert!(command.starts_with(
             "cd '/srv/work space/project' && WORDCRAFT_PROFILE_DIR=/var/lib/alex/wordcraft/profiles/remote-1"
         ));
@@ -566,17 +632,39 @@ mod tests {
     #[cfg(feature = "remote-ssh-concrete")]
     #[test]
     fn remote_headless_command_rejects_non_posix_roots() {
+        let runtime = WordcraftRemoteRuntime::new(
+            "/opt/alex/wordcraft/current/bin/wordcraft-cli",
+            "1.0.0",
+            true,
+        )
+        .unwrap();
         let relative = WordcraftSessionSpec::new("remote-1", "workspace", "/var/lib/alex")
             .unwrap()
-            .build_remote_headless_command()
+            .build_remote_headless_command(&runtime)
             .expect_err("relative workspace root must be rejected");
         assert!(relative.to_string().contains("absolute POSIX"));
 
         let windows = WordcraftSessionSpec::new("remote-1", "C:\\workspace", "/var/lib/alex")
             .unwrap()
-            .build_remote_headless_command()
+            .build_remote_headless_command(&runtime)
             .expect_err("Windows workspace root must be rejected");
         assert!(windows.to_string().contains("absolute POSIX"));
+    }
+
+    #[cfg(feature = "remote-ssh-concrete")]
+    #[test]
+    fn remote_runtime_requires_verified_owner_capability() {
+        let path = WordcraftRemoteRuntime::new("wordcraft-cli", "1.0.0", true)
+            .expect_err("PATH lookup must not be implicit on the owner");
+        assert!(path.to_string().contains("absolute POSIX"));
+
+        let unsupported = WordcraftRemoteRuntime::new(
+            "/opt/alex/wordcraft/current/bin/wordcraft-cli",
+            "1.0.0",
+            false,
+        )
+        .expect_err("MCP capability must be advertised by the owner");
+        assert!(unsupported.to_string().contains("does not advertise MCP"));
     }
 
     #[test]

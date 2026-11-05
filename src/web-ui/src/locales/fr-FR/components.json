@@ -616,6 +616,7 @@
     },
     "wordcraft": {
       "localOnly": "Les documents WordCraft intégrés sont pris en charge uniquement sur la surface de bureau locale.",
+      "surfaceRequired": "WordCraft ne peut pas ouvrir ce document, car sa surface d’appareil est inconnue.",
       "workspaceRequired": "WordCraft nécessite une identité d’espace de travail pour ouvrir ce document.",
       "frameUnavailable": "La surface Web WordCraft n’a pas créé de cadre de navigateur.",
       "nativeUnavailable": "La fenêtre native WordCraft est indisponible. Consultez les détails de capacité et la remédiation.",

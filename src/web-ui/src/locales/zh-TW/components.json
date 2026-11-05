@@ -616,6 +616,7 @@
     },
     "wordcraft": {
       "localOnly": "嵌入式 WordCraft 文件僅支援本機桌面介面。",
+      "surfaceRequired": "WordCraft 無法開啟此文件，因為裝置介面未知。",
       "workspaceRequired": "WordCraft 需要工作區識別才能開啟此文件。",
       "frameUnavailable": "WordCraft 網頁介面未建立瀏覽器框架。",
       "nativeUnavailable": "原生 WordCraft 視窗無法使用。請查看能力詳細資料與修復建議。",

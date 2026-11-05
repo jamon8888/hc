@@ -71,20 +71,21 @@ describe('WordcraftDocumentPanel fallback routing', () => {
     container.remove();
   });
 
-  function render() {
+  function render(surfaceId?: string) {
     act(() => {
       root.render(
         <WordcraftDocumentPanel
           filePath="/workspace/report.docx"
           fileName="report.docx"
           workspaceId="workspace-1"
+          surfaceId={surfaceId}
         />,
       );
     });
   }
 
   it('offers native WordCraft when the embedded host cannot start', async () => {
-    render();
+    render('local');
     await act(async () => {});
 
     const fallback = await vi.waitFor(() =>
@@ -102,6 +103,17 @@ describe('WordcraftDocumentPanel fallback routing', () => {
     expect(container.textContent).toContain('flexiblePanel.wordcraft.nativeOpened');
   });
 
+  it('refuses to default a missing surface identity to the local desktop', async () => {
+    render();
+    await act(async () => {});
+
+    await vi.waitFor(() => {
+      expect(container.textContent).toContain('flexiblePanel.wordcraft.surfaceRequired');
+    });
+    expect(mocks.hostWebSurface).not.toHaveBeenCalled();
+    expect(mocks.readWorkspaceFile).not.toHaveBeenCalled();
+  });
+
   it('shows remediation without opening a binary or code fallback', async () => {
     mocks.statusQuiet.mockResolvedValue({
       status: 'not-installed',
@@ -109,7 +121,7 @@ describe('WordcraftDocumentPanel fallback routing', () => {
       remediation: 'Install WordCraft to open .docx documents.',
       message: 'WordCraft is not installed.',
     });
-    render();
+    render('local');
     await act(async () => {});
 
     await vi.waitFor(() => {
