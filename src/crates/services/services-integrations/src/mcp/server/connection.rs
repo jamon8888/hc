@@ -5,14 +5,16 @@
 use super::MCPServerTimeouts;
 use crate::mcp::adapter::MCPToolCatalogClient;
 use crate::mcp::protocol::{
-    create_initialize_request, create_ping_request, create_prompts_get_request,
-    create_prompts_list_request, create_resources_list_request, create_resources_read_request,
-    create_tools_call_request, create_tools_list_request, parse_response_result, InitializeResult,
-    MCPError, MCPMessage, MCPResponse, MCPToolResult, MCPTransport, PromptsGetResult,
-    PromptsListResult, RemoteMCPTransport, ResourcesListResult, ResourcesReadResult,
-    ToolsListResult,
+    InitializeResult, MCPError, MCPMessage, MCPResponse, MCPToolResult, MCPTransport,
+    PromptsGetResult, PromptsListResult, RemoteMCPTransport, ResourcesListResult,
+    ResourcesReadResult, ToolsListResult, create_initialize_request, create_ping_request,
+    create_prompts_get_request, create_prompts_list_request, create_resources_list_request,
+    create_resources_read_request, create_tools_call_request, create_tools_list_request,
+    parse_response_result,
 };
 use crate::mcp::{MCPRuntimeError, MCPRuntimeResult};
+#[cfg(feature = "remote-ssh-concrete")]
+use crate::remote_ssh::{WorkspaceProcessCompletion, WorkspaceProcessControl, WorkspaceStdio};
 use log::{debug, warn};
 use serde_json::Value;
 use std::collections::HashMap;
@@ -21,7 +23,7 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::process::ChildStdin;
-use tokio::sync::{broadcast, mpsc, oneshot, RwLock};
+use tokio::sync::{RwLock, broadcast, mpsc, oneshot};
 
 /// Request/response waiter.
 type ResponseWaiter = oneshot::Sender<MCPResponse>;
@@ -93,6 +95,51 @@ impl MCPConnection {
             execution_timeout: timeout_duration(timeouts.execution_ms),
             event_tx,
         }
+    }
+
+    /// Creates an MCP connection over a workspace-owner stdio process.
+    ///
+    /// The returned control and completion handles are retained by the
+    /// process owner. Keeping stderr drained is part of the transport
+    /// contract: a remote WordCraft process must not deadlock because its
+    /// diagnostics pipe filled while the controller is waiting for MCP
+    /// responses.
+    #[cfg(feature = "remote-ssh-concrete")]
+    pub(crate) fn new_workspace_stdio(
+        transport: WorkspaceStdio,
+        timeouts: MCPServerTimeouts,
+    ) -> (Self, WorkspaceProcessControl, WorkspaceProcessCompletion) {
+        let (stdin, stdout, mut stderr, control, completion) = transport.into_parts();
+        tokio::spawn(async move {
+            let mut sink = tokio::io::sink();
+            let _ = tokio::io::copy(&mut stderr, &mut sink).await;
+        });
+
+        let (tx, rx) = mpsc::unbounded_channel();
+        let transport = Arc::new(MCPTransport::from_writer(stdin));
+        let pending_requests = Arc::new(RwLock::new(HashMap::new()));
+        let (event_tx, _) = broadcast::channel(64);
+
+        let pending = pending_requests.clone();
+        let event_tx_clone = event_tx.clone();
+        tokio::spawn(async move {
+            Self::handle_messages(rx, pending, event_tx_clone).await;
+        });
+        MCPTransport::start_receive_loop_boxed(stdout, tx);
+
+        (
+            Self {
+                transport: TransportType::Local(transport),
+                pending_requests,
+                initialize_timeout: timeout_duration(timeouts.startup_ms)
+                    .or(Some(LOCAL_INITIALIZE_TIMEOUT)),
+                catalog_timeout: timeout_duration(timeouts.catalog_ms),
+                execution_timeout: timeout_duration(timeouts.execution_ms),
+                event_tx,
+            },
+            control,
+            completion,
+        )
     }
 
     #[cfg(all(test, unix))]
@@ -704,6 +751,44 @@ mod tests {
         assert!(connection.pending_requests.read().await.is_empty());
 
         let _ = child.kill().await;
+    }
+
+    #[cfg(all(unix, feature = "remote-ssh-concrete"))]
+    #[tokio::test]
+    async fn workspace_owner_stdio_uses_the_same_mcp_request_loop() {
+        let script = r#"
+            while IFS= read -r line; do
+                id=$(printf '%s' "$line" | sed -n 's/.*"id":\([0-9][0-9]*\).*/\1/p')
+                printf '{"jsonrpc":"2.0","id":%s,"result":{"content":[{"type":"text","text":"workspace-owner"}]}}\n' "$id"
+            done
+        "#;
+        let transport = crate::remote_ssh::WorkspaceStdio::spawn_local_process(
+            "sh",
+            &["-c".to_string(), script.to_string()],
+        )
+        .expect("spawn workspace-owner stdio fixture");
+        let (connection, control, completion) =
+            MCPConnection::new_workspace_stdio(transport, MCPServerTimeouts::default());
+
+        let result = connection
+            .call_tool("workspace_owner_tool", None)
+            .await
+            .expect("workspace-owner MCP request should complete");
+        assert_eq!(
+            result
+                .content
+                .as_ref()
+                .and_then(|content| content.first())
+                .and_then(|content| match content {
+                    MCPToolResultContent::Text { text } => Some(text.as_str()),
+                    _ => None,
+                }),
+            Some("workspace-owner")
+        );
+
+        control.kill().await.expect("stop workspace-owner fixture");
+        drop(connection);
+        let _ = completion.wait().await;
     }
 }
 

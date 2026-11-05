@@ -4,19 +4,26 @@ use super::{MCPError, MCPMessage, MCPNotification, MCPRequest, MCPResponse};
 use crate::mcp::{MCPRuntimeError, MCPRuntimeResult};
 use log::{debug, error, info, warn};
 use serde_json::Value;
+use std::pin::Pin;
 use std::sync::Arc;
-use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
+use tokio::io::{AsyncBufReadExt, AsyncRead, AsyncWrite, AsyncWriteExt, BufReader};
 use tokio::process::{ChildStdin, ChildStdout};
-use tokio::sync::mpsc;
 use tokio::sync::Mutex;
+use tokio::sync::mpsc;
+
+type MCPWriter = Pin<Box<dyn AsyncWrite + Send>>;
 
 pub struct MCPTransport {
-    stdin: Arc<Mutex<ChildStdin>>,
+    stdin: Arc<Mutex<MCPWriter>>,
     request_id: Arc<Mutex<u64>>,
 }
 
 impl MCPTransport {
     pub fn new(stdin: ChildStdin) -> Self {
+        Self::from_writer(Box::pin(stdin))
+    }
+
+    pub(crate) fn from_writer(stdin: MCPWriter) -> Self {
         Self {
             stdin: Arc::new(Mutex::new(stdin)),
             request_id: Arc::new(Mutex::new(0)),
@@ -95,6 +102,13 @@ impl MCPTransport {
     }
 
     pub fn start_receive_loop(stdout: ChildStdout, tx: mpsc::UnboundedSender<MCPMessage>) {
+        Self::start_receive_loop_boxed(Box::pin(stdout), tx);
+    }
+
+    pub(crate) fn start_receive_loop_boxed(
+        stdout: Pin<Box<dyn AsyncRead + Send>>,
+        tx: mpsc::UnboundedSender<MCPMessage>,
+    ) {
         tokio::spawn(async move {
             let mut reader = BufReader::new(stdout);
             let mut line = String::new();

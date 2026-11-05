@@ -99,7 +99,10 @@ rule:
   `WordcraftCapability` vocabulary. Provisioning fires at session/task start (visible, loud).
   Process model (amended): a **persistent per-user-per-workspace host daemon** shared by
   sessions — attach/detach with identity re-validation (pinned version, roots, author),
-  survives disconnects and app restarts, no remote idle reap. Until the remote host bits land,
+  survives disconnects and app restarts, no remote idle reap. The first owner-side transport
+  slice now carries MCP over the existing workspace stdio channel and keeps the process and
+  connection lifecycle together; host-managed pinned-artifact provisioning, persistent daemon
+  attach/reconnect, and capability negotiation remain release gates. Until those host bits land,
   the desktop command refuses remote paths loudly; it never falls back to local editing of
   remote content.
 - **Remote control** (mobile/bot): headless edits ride the host path; the visible window is
