@@ -1350,7 +1350,7 @@ mod tests {
     fn canonical_remotes_collapse_origin_and_upstream_aliases_for_the_same_repository() {
         let remotes = vec![
             github_remote("upstream-id", "upstream", "GCWing/OpenBitFun"),
-            github_remote("origin-id", "origin", "gcwing/alex"),
+            github_remote("origin-id", "origin", "GCWing/OpenBitFun"),
         ];
 
         let supported = canonical_supported_remotes(&remotes);
