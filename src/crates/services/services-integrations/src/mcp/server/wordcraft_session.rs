@@ -8,7 +8,15 @@
 //! `process_runtime`/`process_manager` path inside `MCPConnection`
 //! (`CREATE_NO_WINDOW` policy lives there, never re-implemented here).
 
+#[cfg(feature = "remote-ssh-concrete")]
+use super::{MCPConnection, MCPServerProcess, MCPServerTimeouts, MCPServerType};
 use crate::mcp::{MCPRuntimeError, MCPRuntimeResult};
+#[cfg(feature = "remote-ssh-concrete")]
+use crate::remote_ssh::{SSHConnectionManager, WorkspaceStdio, shell_quote_posix};
+#[cfg(feature = "remote-ssh-concrete")]
+use serde_json::Value;
+#[cfg(feature = "remote-ssh-concrete")]
+use std::sync::Arc;
 use std::time::Duration;
 
 /// The headless CLI command resolved by the managed-runtime order
@@ -52,6 +60,61 @@ pub struct WordcraftMcpSession {
 
 /// Alias kept for readability of the headless definition shape.
 pub type WordcraftHeadlessSession = WordcraftMcpSession;
+
+/// A live headless MCP owner for a remote workspace.
+///
+/// This type deliberately keeps the transport and the MCP process together:
+/// stopping the session tears down the process on the workspace host, while
+/// the controller retains only the protocol connection and never a local copy
+/// of the document.
+#[cfg(feature = "remote-ssh-concrete")]
+pub struct WordcraftRemoteMcpSession {
+    process: MCPServerProcess,
+    connection: Arc<MCPConnection>,
+}
+
+#[cfg(feature = "remote-ssh-concrete")]
+impl WordcraftRemoteMcpSession {
+    pub async fn connect(
+        ssh_manager: &SSHConnectionManager,
+        connection_id: &str,
+        spec: &WordcraftSessionSpec,
+        timeouts: MCPServerTimeouts,
+    ) -> MCPRuntimeResult<Self> {
+        let transport = spec
+            .open_remote_headless_stdio(ssh_manager, connection_id)
+            .await?;
+        let mut process = MCPServerProcess::new(
+            spec.server_id(),
+            format!("WordCraft ({})", spec.session_id()),
+            MCPServerType::Remote,
+        );
+        process.start_workspace_stdio(transport, timeouts).await?;
+        let connection = process.connection().ok_or_else(|| {
+            MCPRuntimeError::mcp("Remote WordCraft started without an MCP connection")
+        })?;
+        Ok(Self {
+            process,
+            connection,
+        })
+    }
+
+    pub fn connection(&self) -> &Arc<MCPConnection> {
+        &self.connection
+    }
+
+    pub async fn call_tool(
+        &self,
+        operation: &str,
+        params: Option<Value>,
+    ) -> MCPRuntimeResult<crate::mcp::protocol::MCPToolResult> {
+        self.connection.call_tool(operation, params).await
+    }
+
+    pub async fn stop(&mut self) -> MCPRuntimeResult<()> {
+        self.process.stop().await
+    }
+}
 
 impl WordcraftSessionSpec {
     /// Builds a spec with the read and write automation roots both mapped to
@@ -161,6 +224,53 @@ impl WordcraftSessionSpec {
             // The server resolves relative paths against this directory.
             working_directory: Some(self.workspace_root.clone()),
         }
+    }
+
+    /// Builds the command executed by the workspace owner for a remote
+    /// headless session. The workspace root and profile remain POSIX strings;
+    /// they are quoted for the target shell and are never interpreted through
+    /// the controller's filesystem APIs.
+    #[cfg(feature = "remote-ssh-concrete")]
+    pub fn build_remote_headless_command(&self) -> MCPRuntimeResult<String> {
+        Self::validate_remote_path(&self.workspace_root, "workspace root")?;
+        Self::validate_remote_path(&self.profile_dir, "profile dir")?;
+        let author = shell_quote_posix(&self.author());
+        let workspace_root = shell_quote_posix(&self.workspace_root);
+        let profile_dir = shell_quote_posix(&self.profile_dir);
+        Ok(format!(
+            "cd {workspace_root} && WORDCRAFT_PROFILE_DIR={profile_dir} {command} mcp --author {author} --automation-read-root {workspace_root} --automation-write-root {workspace_root}",
+            command = shell_quote_posix(WORDCRAFT_CLI_COMMAND),
+        ))
+    }
+
+    #[cfg(feature = "remote-ssh-concrete")]
+    fn validate_remote_path(value: &str, label: &str) -> MCPRuntimeResult<()> {
+        if !value.starts_with('/') || value.contains('\\') {
+            return Err(MCPRuntimeError::configuration(format!(
+                "Remote WordCraft {label} must be an absolute POSIX path"
+            )));
+        }
+        Ok(())
+    }
+
+    /// Opens the headless WordCraft process on the workspace owner. The
+    /// returned transport must be kept by the session owner for the lifetime
+    /// of the MCP connection; dropping it tears down the owner-side process.
+    #[cfg(feature = "remote-ssh-concrete")]
+    pub async fn open_remote_headless_stdio(
+        &self,
+        ssh_manager: &SSHConnectionManager,
+        connection_id: &str,
+    ) -> MCPRuntimeResult<WorkspaceStdio> {
+        let command = self.build_remote_headless_command()?;
+        ssh_manager
+            .open_workspace_stdio(connection_id, &command)
+            .await
+            .map_err(|error| {
+                MCPRuntimeError::process(format!(
+                    "Failed to start WordCraft on the remote workspace owner: {error}"
+                ))
+            })
     }
 }
 
@@ -432,6 +542,41 @@ mod tests {
         let bad_id = WordcraftLiveBridgeSpec::new("bad id", 7981, "key")
             .expect_err("bad id must be refused");
         assert!(bad_id.to_string().contains("session id"));
+    }
+
+    #[cfg(feature = "remote-ssh-concrete")]
+    #[test]
+    fn remote_headless_command_keeps_target_paths_and_quotes_shell_values() {
+        let spec = WordcraftSessionSpec::new(
+            "remote-1",
+            "/srv/work space/project",
+            "/var/lib/alex/wordcraft/profiles/remote-1",
+        )
+        .unwrap();
+
+        let command = spec.build_remote_headless_command().unwrap();
+        assert!(command.starts_with(
+            "cd '/srv/work space/project' && WORDCRAFT_PROFILE_DIR=/var/lib/alex/wordcraft/profiles/remote-1"
+        ));
+        assert!(command.contains("--automation-read-root '/srv/work space/project'"));
+        assert!(command.contains("--automation-write-root '/srv/work space/project'"));
+        assert!(!command.contains("/Users/") && !command.contains("\\\\"));
+    }
+
+    #[cfg(feature = "remote-ssh-concrete")]
+    #[test]
+    fn remote_headless_command_rejects_non_posix_roots() {
+        let relative = WordcraftSessionSpec::new("remote-1", "workspace", "/var/lib/alex")
+            .unwrap()
+            .build_remote_headless_command()
+            .expect_err("relative workspace root must be rejected");
+        assert!(relative.to_string().contains("absolute POSIX"));
+
+        let windows = WordcraftSessionSpec::new("remote-1", "C:\\workspace", "/var/lib/alex")
+            .unwrap()
+            .build_remote_headless_command()
+            .expect_err("Windows workspace root must be rejected");
+        assert!(windows.to_string().contains("absolute POSIX"));
     }
 
     #[test]

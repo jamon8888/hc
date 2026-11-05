@@ -7,6 +7,8 @@ use crate::infrastructure::try_get_path_manager_arc;
 use crate::service::mcp::protocol::MCPServerInfo;
 use crate::service::mcp::server::{MCPConnection, MCPServerConfig, MCPServerStatus, MCPServerType};
 use crate::util::errors::AlexResult;
+#[cfg(feature = "ssh-remote")]
+use alex_services_integrations::remote_ssh::WorkspaceStdio;
 
 pub struct MCPServerProcess {
     inner: alex_services_integrations::mcp::server::MCPServerProcess,
@@ -69,6 +71,21 @@ impl MCPServerProcess {
     pub async fn start_remote(&mut self, config: &MCPServerConfig) -> AlexResult<()> {
         let data_dir = try_get_path_manager_arc()?.user_data_dir();
         self.inner.start_remote(data_dir, config).await?;
+        Ok(())
+    }
+
+    /// Starts an MCP server whose process and document I/O are owned by the
+    /// selected remote workspace transport. No controller-local child process
+    /// or document-byte fallback is involved.
+    #[cfg(feature = "ssh-remote")]
+    pub async fn start_workspace_stdio(
+        &mut self,
+        transport: WorkspaceStdio,
+        timeouts: crate::service::mcp::server::MCPServerTimeouts,
+    ) -> AlexResult<()> {
+        self.inner
+            .start_workspace_stdio(transport, timeouts)
+            .await?;
         Ok(())
     }
 
