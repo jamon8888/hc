@@ -93,6 +93,32 @@ describe('WordcraftBridge', () => {
     await expect(pending).resolves.toMatchObject({ requestId: 'request-1', revision: 2 });
   });
 
+  it('serializes commands and posts the next request after the prior result', async () => {
+    const posted: Array<WordcraftCommandRequest | Record<string, unknown>> = [];
+    let nextRequestId = 0;
+    const bridge = new WordcraftBridge({
+      ...context,
+      postMessage: message => posted.push(message),
+      requestIdFactory: () => `ordered-${++nextRequestId}`,
+    });
+    bridge.handleMessage(readyEvent());
+
+    const firstPending = bridge.request('execute', { command: 'text.insert' }, 1, 'Alex Agent (session-1)');
+    const secondPending = bridge.request('get_text', {}, 2, 'Alex Agent (session-1)');
+
+    expect(posted).toHaveLength(1);
+    const firstRequest = posted[0] as WordcraftCommandRequest;
+    bridge.handleMessage(resultEvent(firstRequest, { revision: 2 }));
+
+    await vi.waitFor(() => expect(posted).toHaveLength(2));
+    const secondRequest = posted[1] as WordcraftCommandRequest;
+    expect(secondRequest).toMatchObject({ requestId: 'ordered-2', method: 'get_text' });
+    bridge.handleMessage(resultEvent(secondRequest, { revision: 3 }));
+
+    await expect(firstPending).resolves.toMatchObject({ requestId: 'ordered-1', revision: 2 });
+    await expect(secondPending).resolves.toMatchObject({ requestId: 'ordered-2', revision: 3 });
+  });
+
   it('rejects stale sessions and malformed results explicitly', async () => {
     const posted: WordcraftCommandRequest[] = [];
     const requestIds = ['request-2', 'request-3'];
@@ -164,6 +190,22 @@ describe('WordcraftBridge', () => {
     await expect(pending).rejects.toThrow('WebGPU unavailable');
     expect(reject).toHaveBeenCalledWith('WebGPU unavailable');
     expect(bridge.isReady).toBe(false);
+  });
+
+  it('fails queued commands when the frame reports a failure', async () => {
+    const bridge = new WordcraftBridge({ ...context, postMessage: vi.fn() });
+    bridge.handleMessage(readyEvent());
+    const firstPending = bridge.request('get_text', {}, 0, 'Alex Agent (session-1)');
+    const secondPending = bridge.request('inspect_document', {}, 0, 'Alex Agent (session-1)');
+
+    bridge.handleMessage({
+      origin: context.expectedOrigin,
+      source,
+      data: { type: 'failed', sessionId: context.expectedSessionId, error: 'frame closed' },
+    } as MessageEvent<unknown>);
+
+    await expect(firstPending).rejects.toThrow('frame closed');
+    await expect(secondPending).rejects.toThrow('frame closed');
   });
 
   it('recovers after a failed frame sends a new valid ready message', () => {
