@@ -664,32 +664,45 @@ impl AIClient {
     }
 
     pub async fn test_connection(&self) -> Result<ConnectionTestResult> {
-        healthcheck::test_connection(self, TEST_CONNECTION_STREAM_ATTEMPTS).await
+        healthcheck::test_connection(self, None, TEST_CONNECTION_STREAM_ATTEMPTS).await
+    }
+
+    pub async fn test_connection_with_request_context(
+        &self,
+        request_context: ModelRequestContext,
+    ) -> Result<ConnectionTestResult> {
+        healthcheck::test_connection(
+            self,
+            Some(request_context),
+            TEST_CONNECTION_STREAM_ATTEMPTS,
+        )
+        .await
     }
 
     pub async fn test_image_input_connection(&self) -> Result<ConnectionTestResult> {
-        healthcheck::test_image_input_connection(self, TEST_CONNECTION_STREAM_ATTEMPTS).await
+        healthcheck::test_image_input_connection(self, None, TEST_CONNECTION_STREAM_ATTEMPTS).await
+    }
+
+    pub async fn test_image_input_connection_with_request_context(
+        &self,
+        request_context: ModelRequestContext,
+    ) -> Result<ConnectionTestResult> {
+        healthcheck::test_image_input_connection(
+            self,
+            Some(request_context),
+            TEST_CONNECTION_STREAM_ATTEMPTS,
+        )
+        .await
     }
 
     pub(crate) async fn send_test_message(
         &self,
         messages: Vec<Message>,
         tools: Option<Vec<ToolDefinition>>,
+        request_context: Option<ModelRequestContext>,
         max_attempts: usize,
     ) -> Result<GeminiResponse> {
         let custom_body = self.config.custom_request_body.clone();
-        let workspace_root = match alex_core::service::workspace::get_global_workspace_service() {
-            Some(service) => service
-                .get_current_workspace()
-                .await
-                .map(|workspace| workspace.root_path.to_string_lossy().to_string()),
-            None => None,
-        };
-        let request_context = Some(ModelRequestContext {
-            session_id: Some(format!("connection-test:{}", self.config.model)),
-            workspace_root,
-            ..ModelRequestContext::default()
-        });
         self.send_message_with_extra_body_trace_and_max_attempts(
             messages,
             tools,
@@ -2738,7 +2751,7 @@ mod tests {
         let mut client = make_test_client("openai", None);
         client.config.request_url = format!("http://{address}/chat/completions");
 
-        let result = client.send_test_message(Vec::new(), None, 2).await;
+        let result = client.send_test_message(Vec::new(), None, None, 2).await;
 
         server_task.abort();
         let response = result.expect("the second stream attempt should succeed");

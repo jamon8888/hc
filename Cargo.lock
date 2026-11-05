@@ -353,6 +353,7 @@ dependencies = [
  "security-framework-sys",
  "serde",
  "serde_json",
+ "semver",
  "sha2 0.10.9",
  "tempfile",
  "thiserror 2.0.19",

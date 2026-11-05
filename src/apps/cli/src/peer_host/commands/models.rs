@@ -125,14 +125,26 @@ pub(crate) async fn test_ai_config_connection(args: &Value) -> Result<Value, Str
         .iter()
         .any(|cap| matches!(cap, ModelCapability::ImageUnderstanding))
         || matches!(config.category, ModelCategory::Multimodal);
+    let workspace_root = match alex_core::service::workspace::get_global_workspace_service() {
+        Some(service) => service
+            .get_current_workspace()
+            .await
+            .map(|workspace| workspace.root_path.to_string_lossy().to_string()),
+        None => None,
+    };
+    let request_context = alex_core_types::ModelRequestContext {
+        session_id: Some(format!("connection-test:{}", config.id)),
+        workspace_root,
+        ..Default::default()
+    };
     let client = create_transient_ai_client_for_config(config).await?;
     let mut result = client
-        .test_connection()
+        .test_connection_with_request_context(request_context.clone())
         .await
         .map_err(|error| error.to_string())?;
     if result.success && image_input {
         let image = client
-            .test_image_input_connection()
+            .test_image_input_connection_with_request_context(request_context)
             .await
             .map_err(|error| error.to_string())?;
         result.response_time_ms += image.response_time_ms;

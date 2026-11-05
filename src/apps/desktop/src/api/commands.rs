@@ -1156,6 +1156,15 @@ pub async fn test_ai_config_connection(
         alex_core::service::config::types::ModelCategory::Multimodal
     );
 
+    let request_context = alex_core_types::ModelRequestContext {
+        session_id: Some(format!("connection-test:{}", request.config.id)),
+        workspace_root: state
+            .workspace_service
+            .get_current_workspace()
+            .await
+            .map(|workspace| workspace.root_path.to_string_lossy().to_string()),
+        ..Default::default()
+    };
     let ai_client = create_transient_ai_client_for_config(&state, request.config)
         .await
         .map_err(|e| {
@@ -1163,7 +1172,10 @@ pub async fn test_ai_config_connection(
             e
         })?;
 
-    match ai_client.test_connection().await {
+    match ai_client
+        .test_connection_with_request_context(request_context.clone())
+        .await
+    {
         Ok(result) => {
             if !result.success {
                 info!(
@@ -1174,7 +1186,10 @@ pub async fn test_ai_config_connection(
             }
 
             if supports_image_input {
-                match ai_client.test_image_input_connection().await {
+                match ai_client
+                    .test_image_input_connection_with_request_context(request_context)
+                    .await
+                {
                     Ok(image_result) => {
                         let response_time_ms =
                             result.response_time_ms + image_result.response_time_ms;

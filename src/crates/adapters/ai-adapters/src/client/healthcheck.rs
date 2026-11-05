@@ -1,6 +1,8 @@
 use crate::client::utils::elapsed_ms_u64;
 use crate::client::AIClient;
-use crate::types::{ConnectionTestMessageCode, ConnectionTestResult, Message, ToolDefinition};
+use crate::types::{
+    ConnectionTestMessageCode, ConnectionTestResult, Message, ModelRequestContext, ToolDefinition,
+};
 use anyhow::Result;
 use log::debug;
 
@@ -112,6 +114,7 @@ fn connection_error_message_code(error_msg: &str) -> Option<ConnectionTestMessag
 
 pub(crate) async fn test_connection(
     client: &AIClient,
+    request_context: Option<ModelRequestContext>,
     max_attempts: usize,
 ) -> Result<ConnectionTestResult> {
     let start_time = std::time::Instant::now();
@@ -133,7 +136,7 @@ pub(crate) async fn test_connection(
     }]);
 
     match client
-        .send_test_message(test_messages, tools, max_attempts)
+        .send_test_message(test_messages, tools, request_context, max_attempts)
         .await
     {
         Ok(response) => {
@@ -173,6 +176,7 @@ pub(crate) async fn test_connection(
 
 pub(crate) async fn test_image_input_connection(
     client: &AIClient,
+    request_context: Option<ModelRequestContext>,
     max_attempts: usize,
 ) -> Result<ConnectionTestResult> {
     let start_time = std::time::Instant::now();
@@ -223,7 +227,7 @@ pub(crate) async fn test_image_input_connection(
     }];
 
     match client
-        .send_test_message(test_messages, None, max_attempts)
+        .send_test_message(test_messages, None, request_context, max_attempts)
         .await
     {
         Ok(response) => {
