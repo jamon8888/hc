@@ -89,7 +89,7 @@ describe('WordcraftDocumentPanel fallback routing', () => {
     await act(async () => {});
 
     const fallback = await vi.waitFor(() =>
-      container.querySelector<HTMLButtonElement>('[data-alex-component="wordcraft-fallback"]'),
+      container.querySelector<HTMLButtonElement>('[data-testid="wordcraft-fallback"]'),
     );
     expect(fallback?.textContent).toContain('flexiblePanel.wordcraft.openNative');
 
@@ -127,7 +127,7 @@ describe('WordcraftDocumentPanel fallback routing', () => {
     await vi.waitFor(() => {
       expect(container.textContent).toContain('Install WordCraft to open .docx documents.');
     });
-    expect(container.querySelector('[data-alex-component="wordcraft-fallback"]')).toBeNull();
+    expect(container.querySelector('[data-testid="wordcraft-fallback"]')).toBeNull();
     expect(mocks.openDocument).not.toHaveBeenCalled();
   });
 });
