@@ -97,6 +97,19 @@ pub fn global_model_egress_policy() -> Option<Arc<dyn ModelEgressPolicy>> {
     }
 }
 
+/// Read the policy and its generation while holding the policy read lock.
+/// Publication updates both under the matching write lock, so callers never
+/// pair a policy from one workspace with the generation of another.
+pub fn global_model_egress_snapshot() -> (Option<Arc<dyn ModelEgressPolicy>>, u64) {
+    let policy = GLOBAL_MODEL_EGRESS_POLICY
+        .get_or_init(|| RwLock::new(None))
+        .read()
+        .unwrap_or_else(|error| error.into_inner())
+        .clone();
+    let generation = GLOBAL_MODEL_EGRESS_GENERATION.load(Ordering::Relaxed);
+    (policy, generation)
+}
+
 pub fn global_model_egress_generation() -> u64 {
     GLOBAL_MODEL_EGRESS_GENERATION.load(Ordering::Relaxed)
 }

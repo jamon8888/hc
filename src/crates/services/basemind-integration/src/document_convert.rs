@@ -36,6 +36,18 @@ pub struct BasemindDocumentRedactor {
 }
 
 #[cfg(feature = "basemind")]
+struct StagedAttachment {
+    path: std::path::PathBuf,
+}
+
+#[cfg(feature = "basemind")]
+impl Drop for StagedAttachment {
+    fn drop(&mut self) {
+        let _ = std::fs::remove_file(&self.path);
+    }
+}
+
+#[cfg(feature = "basemind")]
 impl BasemindDocumentRedactor {
     pub fn new(
         client: BasemindClient,
@@ -162,12 +174,15 @@ impl BasemindDocumentRedactor {
                     format!("could not create temporary image attachment: {error}"),
                 )
             })?;
+        let staged = StagedAttachment {
+            path: temporary_path,
+        };
         use std::io::Write as _;
         if let Err(error) = temporary
             .write_all(&bytes)
             .and_then(|()| temporary.sync_all())
         {
-            let _ = std::fs::remove_file(&temporary_path);
+            drop(temporary);
             return Err(DocumentRedactionError::new(
                 DocumentRedactionErrorKind::Unavailable,
                 format!("could not stage temporary image attachment: {error}"),
@@ -177,12 +192,11 @@ impl BasemindDocumentRedactor {
 
         let result = self
             .redact_for_session(
-                &temporary_path.to_string_lossy(),
+                &staged.path.to_string_lossy(),
                 workspace_root,
                 session_id,
             )
             .await;
-        let _ = std::fs::remove_file(&temporary_path);
         result
     }
 }

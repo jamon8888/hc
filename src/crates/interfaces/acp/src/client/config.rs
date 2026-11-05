@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 use alex_runtime_ports::ModelPrivacyRoute;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
@@ -54,7 +54,23 @@ pub struct AcpClientConfig {
     /// Missing legacy configuration is intentionally unknown: the host must
     /// refuse the prompt instead of guessing that an agent is local.
     #[serde(default)]
+    #[serde(deserialize_with = "deserialize_privacy_route")]
     pub privacy_route: Option<ModelPrivacyRoute>,
+}
+
+fn deserialize_privacy_route<'de, D>(
+    deserializer: D,
+) -> Result<Option<ModelPrivacyRoute>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let value = Option::<serde_json::Value>::deserialize(deserializer)?;
+    Ok(match value.and_then(|value| value.as_str().map(str::to_owned)) {
+        None => None,
+        Some(route) if route == "api" => Some(ModelPrivacyRoute::Api),
+        Some(route) if route == "local" => Some(ModelPrivacyRoute::Local),
+        Some(_) => Some(ModelPrivacyRoute::Unknown),
+    })
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Default)]

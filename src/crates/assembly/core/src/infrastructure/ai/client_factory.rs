@@ -318,9 +318,8 @@ impl AIClientFactory {
                     poisoned.into_inner()
                 }
             };
-            let model_egress_policy = crate::service::model_egress::global_model_egress_policy();
-            let model_egress_generation =
-                crate::service::model_egress::global_model_egress_generation();
+            let (model_egress_policy, model_egress_generation) =
+                crate::service::model_egress::global_model_egress_snapshot();
             if let Some(cached) = cache.get(&normalized_model_id) {
                 #[cfg(feature = "subscription-auth")]
                 let account_unchanged = cached.credential_revision == credential_revision;
@@ -357,14 +356,14 @@ impl AIClientFactory {
         let _ = credential_expires_at;
 
         let stream_options = build_stream_options_for_model(&global_config.ai, Some(&model_config));
+        let (model_egress_policy, model_egress_generation) =
+            crate::service::model_egress::global_model_egress_snapshot();
         let client = apply_default_reasoning_preset(
             apply_subscription_request_profile(
                 &model_config.auth,
                 apply_model_privacy_route(
                     AIClient::new_with_runtime_options(ai_config, proxy_config, stream_options)
-                        .with_model_egress_policy(
-                            crate::service::model_egress::global_model_egress_policy(),
-                        ),
+                        .with_model_egress_policy(model_egress_policy),
                     &model_config,
                 ),
             ),
@@ -382,14 +381,21 @@ impl AIClientFactory {
                     poisoned.into_inner()
                 }
             };
+            let (_, current_model_egress_generation) =
+                crate::service::model_egress::global_model_egress_snapshot();
+            if current_model_egress_generation != model_egress_generation {
+                drop(cache);
+                return self
+                    .get_or_create_client(model_id, expected_configuration_fingerprint)
+                    .await;
+            }
             cache.insert(
                 model_config.id.clone(),
                 CachedAIClient {
                     configuration_fingerprint,
                     default_reasoning_preset,
                     client: client.clone(),
-                    model_egress_generation:
-                        crate::service::model_egress::global_model_egress_generation(),
+                    model_egress_generation,
                     #[cfg(feature = "subscription-auth")]
                     credential_expires_at,
                     // Capture before resolution: a concurrent mutation or token
