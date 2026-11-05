@@ -62,6 +62,9 @@ pub enum PeerHostCapability {
     UserQuestionResponse,
     /// First human interaction disables the unattended question timeout.
     UserQuestionInteractionV1,
+    /// The host exposes the visible embedded WordCraft surface and its
+    /// controller-local Tauri operation contract.
+    WordcraftEmbeddedSurfaceV1,
 }
 
 impl PeerHostCapability {
@@ -87,6 +90,7 @@ impl PeerHostCapability {
         Self::WorkspaceBinaryFileWritesV1,
         Self::UserQuestionResponse,
         Self::UserQuestionInteractionV1,
+        Self::WordcraftEmbeddedSurfaceV1,
     ];
 
     /// The key used in the `peer_mode_ping` `capabilities` object.
@@ -112,6 +116,7 @@ impl PeerHostCapability {
             Self::WorkspaceBinaryFileWritesV1 => "workspace_binary_file_writes_v1",
             Self::UserQuestionResponse => "user_question_response",
             Self::UserQuestionInteractionV1 => "user_question_interaction_v1",
+            Self::WordcraftEmbeddedSurfaceV1 => "wordcraft_embedded_surface_v1",
         }
     }
 
@@ -206,6 +211,14 @@ mod tests {
             PeerHostKind::Cli,
             PeerHostCapability::BtwInitialModelSelectionV1
         ));
+        assert!(advertises(
+            PeerHostKind::Desktop,
+            PeerHostCapability::WordcraftEmbeddedSurfaceV1
+        ));
+        assert!(!advertises(
+            PeerHostKind::Cli,
+            PeerHostCapability::WordcraftEmbeddedSurfaceV1
+        ));
     }
 
     #[test]
@@ -222,5 +235,6 @@ mod tests {
         assert!(!cli.contains_key("miniapp_agent_context_files_v1"));
         assert!(!cli.contains_key("product_control_native_v1"));
         assert!(!cli.contains_key("product_control_presentation_v1"));
+        assert!(!cli.contains_key("wordcraft_embedded_surface_v1"));
     }
 }

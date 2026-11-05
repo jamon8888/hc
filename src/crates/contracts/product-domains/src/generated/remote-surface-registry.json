@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "digest": "fnv1a64:176912944130994f",
+  "digest": "fnv1a64:d203b4cd5d52df61",
   "retiredCommandPrefixes": [
     {
       "prefix": "lsp_",
@@ -28,7 +28,8 @@
       "workspace_id_references_v1",
       "workspace_binary_file_writes_v1",
       "user_question_response",
-      "user_question_interaction_v1"
+      "user_question_interaction_v1",
+      "wordcraft_embedded_surface_v1"
     ],
     "desktop": [
       "dialog_queue_v1",
@@ -50,7 +51,8 @@
       "workspace_id_references_v1",
       "workspace_binary_file_writes_v1",
       "user_question_response",
-      "user_question_interaction_v1"
+      "user_question_interaction_v1",
+      "wordcraft_embedded_surface_v1"
     ],
     "cli": [
       "dialog_queue_v1",
