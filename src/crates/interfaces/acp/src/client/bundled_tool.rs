@@ -56,6 +56,7 @@ mod tests {
             readonly: false,
             subagent: Default::default(),
             permission_mode: Default::default(),
+            privacy_route: None,
         }
     }
 

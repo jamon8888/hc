@@ -47,6 +47,7 @@ use super::config::{
 };
 use super::dsh_profile::{ensure_bundled_profile, ensure_bundled_profile_remote};
 use super::prompt::AcpPrompt;
+use alex_runtime_ports::ModelPrivacyRoute;
 use super::remote_capability_store::RemoteAcpCapabilityStore;
 use super::remote_session::{preferred_resume_strategies, AcpRemoteSessionStrategy};
 use super::remote_shell::{remote_user_shell_command, render_remote_env_assignments, shell_escape};
@@ -315,6 +316,7 @@ impl AcpClientService {
                 readonly: config.readonly,
                 subagent: config.subagent.clone(),
                 permission_mode: config.permission_mode,
+                privacy_route: config.privacy_route,
                 id,
                 status,
                 session_count,
@@ -1177,20 +1179,36 @@ impl AcpClientService {
     /// external agent (SPEC §11.4, invariant I9, extended to ACP clients).
     ///
     /// The prompt the external agent receives carries session tokens, never
-    /// the personal values. The seam keeps the concrete pseudonymizer in the
-    /// composition root that also owns the basemind sidecar and its ports:
-    /// `prompt_redaction::apply_prompt_interceptor` runs the installed
-    /// interceptor when a host shipped PII-safe prompting and passes the
-    /// prompt through when that host did not publish the guarantee at all.
+    /// the personal values. Local-model routes may pass through without an
+    /// interceptor; API and unknown routes refuse when the host has not
+    /// published the guarantee. The seam keeps the concrete pseudonymizer in
+    /// the composition root that owns the Basemind sidecar and its ports.
     async fn pseudonymize_acp_prompt(
         prompt: String,
         workspace_root: &Path,
         alex_session_id: &str,
+        route: ModelPrivacyRoute,
     ) -> AlexResult<String> {
         super::prompt_redaction::apply_prompt_interceptor(
             prompt,
             workspace_root,
             alex_session_id,
+            route,
+        )
+        .await
+    }
+
+    async fn rehydrate_acp_output(
+        text: String,
+        workspace_root: &Path,
+        alex_session_id: &str,
+        route: ModelPrivacyRoute,
+    ) -> AlexResult<String> {
+        super::prompt_redaction::rehydrate_prompt_interceptor(
+            text,
+            workspace_root,
+            alex_session_id,
+            route,
         )
         .await
     }
@@ -1219,8 +1237,16 @@ impl AcpClientService {
             // configured deadline, not extend it. It runs before the session
             // lock so redaction latency cannot serialize other users of the
             // session.
-            let prompt =
-                Self::pseudonymize_acp_prompt(prompt, &resolved.cwd, &alex_session_id)
+            let prompt = Self::pseudonymize_acp_prompt(
+                    prompt,
+                    &resolved.cwd,
+                    &alex_session_id,
+                    resolved
+                        .client
+                        .config
+                        .privacy_route
+                        .unwrap_or(ModelPrivacyRoute::Unknown),
+                )
                     .await?;
 
             let mut session = resolved.session.lock().await;
@@ -1240,7 +1266,18 @@ impl AcpClientService {
                 .as_mut()
                 .ok_or_else(|| AlexError::service("ACP session was not initialized"))?;
             let mut prompt = AcpPrompt::start(active, prompt);
-            read_turn_to_string(&mut session, &mut prompt).await
+            let output = read_turn_to_string(&mut session, &mut prompt).await?;
+            Self::rehydrate_acp_output(
+                output,
+                &resolved.cwd,
+                &alex_session_id,
+                resolved
+                    .client
+                    .config
+                    .privacy_route
+                    .unwrap_or(ModelPrivacyRoute::Unknown),
+            )
+            .await
         };
 
         if let Some(seconds) = timeout_seconds.filter(|seconds| *seconds > 0) {
@@ -1280,8 +1317,16 @@ impl AcpClientService {
             // Interception is inside the timeout-wrapped future, before the
             // session lock: the caller's deadline covers redaction too, and
             // redaction latency cannot serialize the session.
-            let prompt =
-                Self::pseudonymize_acp_prompt(prompt, &resolved.cwd, &alex_session_id)
+            let prompt = Self::pseudonymize_acp_prompt(
+                    prompt,
+                    &resolved.cwd,
+                    &alex_session_id,
+                    resolved
+                        .client
+                        .config
+                        .privacy_route
+                        .unwrap_or(ModelPrivacyRoute::Unknown),
+                )
                     .await?;
 
             let mut session = resolved.session.lock().await;
@@ -1324,6 +1369,39 @@ impl AcpClientService {
                         update_session_from_events(&mut session, &events);
                         for event in events {
                             for event in round_tracker.apply(event) {
+                                let event = match event {
+                                    AcpClientStreamEvent::AgentText(text) => {
+                                        AcpClientStreamEvent::AgentText(
+                                            Self::rehydrate_acp_output(
+                                                text,
+                                                &resolved.cwd,
+                                                &alex_session_id,
+                                                resolved
+                                                    .client
+                                                    .config
+                                                    .privacy_route
+                                                    .unwrap_or(ModelPrivacyRoute::Unknown),
+                                            )
+                                            .await?,
+                                        )
+                                    }
+                                    AcpClientStreamEvent::AgentThought(text) => {
+                                        AcpClientStreamEvent::AgentThought(
+                                            Self::rehydrate_acp_output(
+                                                text,
+                                                &resolved.cwd,
+                                                &alex_session_id,
+                                                resolved
+                                                    .client
+                                                    .config
+                                                    .privacy_route
+                                                    .unwrap_or(ModelPrivacyRoute::Unknown),
+                                            )
+                                            .await?,
+                                        )
+                                    }
+                                    other => other,
+                                };
                                 on_event(event)?;
                             }
                         }
@@ -2906,6 +2984,7 @@ mod tests {
                 readonly: false,
                 subagent: Default::default(),
                 permission_mode: AcpClientPermissionMode::Ask,
+                privacy_route: None,
             },
         ))
     }
@@ -3033,6 +3112,7 @@ mod tests {
             readonly: false,
             subagent: Default::default(),
             permission_mode: AcpClientPermissionMode::Ask,
+            privacy_route: None,
         };
 
         let command = render_remote_client_command(&config, Some("/srv/my repo")).expect("command");
@@ -3060,6 +3140,7 @@ mod tests {
                     readonly: false,
                     subagent: Default::default(),
                     permission_mode: AcpClientPermissionMode::Ask,
+                    privacy_route: None,
                 },
             )]),
         };
@@ -3103,6 +3184,7 @@ mod tests {
             prompt: &str,
             _workspace_root: &Path,
             _alex_session_id: &str,
+            _route: ModelPrivacyRoute,
         ) -> AlexResult<String> {
             Ok(format!("{prompt} [PSEUDONYMIZED]"))
         }
@@ -3119,6 +3201,7 @@ mod tests {
             _prompt: &str,
             _workspace_root: &Path,
             _alex_session_id: &str,
+            _route: ModelPrivacyRoute,
         ) -> AlexResult<String> {
             Err(AlexError::service(
                 "PII pseudonymization is unavailable: the basemind sidecar is not running",
@@ -3148,6 +3231,7 @@ mod tests {
             "my name is Jean Dupont".to_string(),
             Path::new("/workspace/project"),
             "session-1",
+            ModelPrivacyRoute::Api,
         )
         .await
         .expect("an installed interceptor pseudonymizes the prompt");
@@ -3168,6 +3252,7 @@ mod tests {
             "my name is Jean Dupont".to_string(),
             Path::new("/workspace/project"),
             "session-1",
+            ModelPrivacyRoute::Api,
         )
         .await
         .expect_err("a prompt the interceptor refuses must not cross");
@@ -3182,21 +3267,41 @@ mod tests {
     }
 
     /// No interceptor installed: the host never published the PII guarantee,
-    /// so the prompt passes through unchanged.
+    /// so the prompt is refused rather than sent raw.
     #[tokio::test]
-    async fn acp_prompt_interception_passes_through_without_an_installed_interceptor() {
+    async fn acp_prompt_interception_refuses_without_an_installed_interceptor() {
+        let _guard = prompt_interceptor_guard();
+        set_prompt_interceptor(None);
+
+        let error = AcpClientService::pseudonymize_acp_prompt(
+            "plain prompt".to_string(),
+            Path::new("/workspace/project"),
+            "session-1",
+            ModelPrivacyRoute::Api,
+        )
+        .await
+        .expect_err("a host without an interceptor must refuse raw prompts");
+
+        assert!(error.to_string().contains("pseudonymization"));
+    }
+
+    /// A local model is explicitly exempt from the API pseudonymization seam,
+    /// so it must remain usable even when this host has no Basemind interceptor.
+    #[tokio::test]
+    async fn acp_local_prompt_passes_without_an_installed_interceptor() {
         let _guard = prompt_interceptor_guard();
         set_prompt_interceptor(None);
 
         let text = AcpClientService::pseudonymize_acp_prompt(
-            "plain prompt".to_string(),
+            "plain local prompt".to_string(),
             Path::new("/workspace/project"),
             "session-1",
+            ModelPrivacyRoute::Local,
         )
         .await
-        .expect("a host without an interceptor passes prompts through");
+        .expect("local ACP prompts do not require Basemind");
 
-        assert_eq!(text, "plain prompt");
+        assert_eq!(text, "plain local prompt");
     }
 
     #[test]

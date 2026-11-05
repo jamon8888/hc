@@ -68,6 +68,7 @@ impl ExternalAcpClient {
             readonly: false,
             subagent: Default::default(),
             permission_mode: AcpClientPermissionMode::Ask,
+            privacy_route: Some(alex_runtime_ports::ModelPrivacyRoute::Api),
         }
     }
 }
@@ -99,6 +100,7 @@ pub(crate) fn print_status(command: &str) -> Result<()> {
     println!("- Prompts: text, images, embedded context");
     println!("- MCP: HTTP-capable remote server declarations");
     println!("- Session controls: mode, model, config options");
+    println!("- Privacy route: explicit API/local declaration; unknown routes are refused");
     println!();
     println!("Run `{} acp doctor` to check local readiness.", command);
     Ok(())

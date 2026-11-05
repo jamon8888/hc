@@ -16,7 +16,6 @@ use crate::api::search_api::{
 };
 use crate::api::workspace_activation::spawn_workspace_background_warmup;
 use crate::startup_trace::DesktopStartupTrace;
-use log::{debug, error, info, warn};
 use alex_core::infrastructure::{
     BatchedFileSearchProgressSink, FileSearchResult, FileSearchResultGroup, FileTreeNode,
     SearchMatchType,
@@ -28,6 +27,8 @@ use alex_core::service::remote_ssh::{
 };
 use alex_core::service::workspace::{ScanOptions, WorkspaceInfo, WorkspaceKind};
 use alex_core_types::product_identity::hidden_data_directory;
+use base64::{engine::general_purpose::STANDARD as BASE64, Engine as _};
+use log::{debug, error, info, warn};
 use serde::{Deserialize, Serialize};
 use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
@@ -1084,6 +1085,7 @@ async fn create_transient_ai_client_for_config(
     model_config: alex_core::service::config::types::AIModelConfig,
 ) -> Result<alex_core::infrastructure::ai::AIClient, String> {
     let auth = model_config.auth.clone();
+    let privacy_model_config = model_config.clone();
 
     let global_config: alex_core::service::config::GlobalConfig = state
         .config_service
@@ -1119,14 +1121,18 @@ async fn create_transient_ai_client_for_config(
     .await
     .map_err(|e| format!("Failed to resolve subscription auth: {}", e))?;
 
+    let client = alex_core::infrastructure::ai::client_factory::apply_subscription_request_profile(
+        &auth,
+        alex_core::infrastructure::ai::AIClient::new_with_runtime_options(
+            ai_config,
+            proxy_config,
+            stream_options,
+        ),
+    );
     Ok(
-        alex_core::infrastructure::ai::client_factory::apply_subscription_request_profile(
-            &auth,
-            alex_core::infrastructure::ai::AIClient::new_with_runtime_options(
-                ai_config,
-                proxy_config,
-                stream_options,
-            ),
+        alex_core::infrastructure::ai::client_factory::apply_model_privacy_route(
+            client,
+            &privacy_model_config,
         ),
     )
 }
@@ -1306,6 +1312,11 @@ pub async fn open_workspace(
     };
     match result {
         Ok(workspace_info) => {
+            #[cfg(feature = "basemind")]
+            crate::refresh_basemind_privacy_bundle(
+                &workspace_info.root_path,
+                workspace_info.workspace_kind.clone(),
+            );
             apply_active_workspace_context(&state, &app, &workspace_info, None).await;
 
             if let Err(e) = state
@@ -1476,6 +1487,11 @@ pub async fn open_remote_workspace(
                 warn!("Failed to set remote workspace state: {}", e);
             }
 
+            #[cfg(feature = "basemind")]
+            crate::refresh_basemind_privacy_bundle(
+                &workspace_info.root_path,
+                workspace_info.workspace_kind.clone(),
+            );
             apply_active_workspace_context(&state, &app, &workspace_info, None).await;
 
             info!(
@@ -1505,6 +1521,11 @@ pub async fn create_assistant_workspace(
         .await
     {
         Ok(workspace_info) => {
+            #[cfg(feature = "basemind")]
+            crate::refresh_basemind_privacy_bundle(
+                &workspace_info.root_path,
+                workspace_info.workspace_kind.clone(),
+            );
             apply_active_workspace_context(&state, &app, &workspace_info, None).await;
 
             if let Err(e) = state
@@ -1800,8 +1821,22 @@ pub async fn close_workspace(
             }
 
             if let Some(workspace_info) = state.workspace_service.get_current_workspace().await {
+                #[cfg(feature = "basemind")]
+                crate::refresh_basemind_privacy_bundle(
+                    &workspace_info.root_path,
+                    workspace_info.workspace_kind.clone(),
+                );
                 apply_active_workspace_context(&state, &app, &workspace_info, None).await;
             } else {
+                #[cfg(feature = "basemind")]
+                alex_core::service::model_egress::install_refusing_model_egress_policy(
+                    "model egress refused: no active workspace privacy scope",
+                );
+                alex_acp::set_prompt_interceptor(Some(std::sync::Arc::new(
+                    alex_acp::RefusingAcpPromptInterceptor::new(
+                        "ACP prompt refused: no active workspace privacy scope",
+                    ),
+                )));
                 clear_active_workspace_context(&state, &app, None).await;
             }
 
@@ -1832,6 +1867,12 @@ pub async fn set_active_workspace(
                 .get_current_workspace()
                 .await
                 .ok_or_else(|| "Active workspace not found after switching".to_string())?;
+
+            #[cfg(feature = "basemind")]
+            crate::refresh_basemind_privacy_bundle(
+                &workspace_info.root_path,
+                workspace_info.workspace_kind.clone(),
+            );
 
             apply_active_workspace_context(&state, &app, &workspace_info, None).await;
 
@@ -2200,9 +2241,7 @@ pub async fn scan_workspace_info(
             .await
             .and_then(|record| {
                 record.ok_or_else(|| {
-                    alex_core::AlexError::service(
-                        "Workspace ID is required for scanning",
-                    )
+                    alex_core::AlexError::service("Workspace ID is required for scanning")
                 })
             })
     }
@@ -2574,8 +2613,7 @@ mod pet_package_tests {
     #[ignore = "Imports installed Codex pets into an isolated temporary directory"]
     fn installed_builtin_pets_can_be_previewed_and_imported() {
         let temp = tempfile::tempdir().unwrap();
-        let sources =
-            alex_core::external_sources::external_builtin_pet_sources("codex", None);
+        let sources = alex_core::external_sources::external_builtin_pet_sources("codex", None);
         assert!(sources.diagnostics.is_empty(), "{:?}", sources.diagnostics);
         assert!(!sources.pets.is_empty());
         for source in sources.pets {
@@ -4884,9 +4922,10 @@ pub async fn search_filenames(
             })
             .await
             .map_err(alex_core::util::errors::AlexError::service),
-            Err(error) => Err(alex_core::util::errors::AlexError::service(
-                format!("Remote file service not available: {}", error),
-            )),
+            Err(error) => Err(alex_core::util::errors::AlexError::service(format!(
+                "Remote file service not available: {}",
+                error
+            ))),
         },
         Ok(DesktopPathTarget::Local { .. }) => {
             state
@@ -4894,9 +4933,7 @@ pub async fn search_filenames(
                 .search_file_names(&request.root_path, &request.pattern, options, cancel_flag)
                 .await
         }
-        Err(error) => Err(alex_core::util::errors::AlexError::service(
-            error,
-        )),
+        Err(error) => Err(alex_core::util::errors::AlexError::service(error)),
     };
     unregister_search(&state, search_id.as_deref());
 
@@ -5387,8 +5424,7 @@ pub async fn get_ai_model_catalog() -> Result<alex_core::AIModelCatalog, String>
 /// Model Settings surface while a peer is selected. Declared controller-local in
 /// the Product Operation Registry, so it never reaches a peer host.
 #[tauri::command]
-pub async fn get_local_models_dev_catalogs(
-) -> Result<alex_core::LocalModelsDevCatalogs, String> {
+pub async fn get_local_models_dev_catalogs() -> Result<alex_core::LocalModelsDevCatalogs, String> {
     alex_core::get_local_models_dev_catalogs().await
 }
 
@@ -5795,8 +5831,7 @@ pub async fn workspace_file_upload(
         .user_id
         .ok_or("Sign in to use workspace transfers")?;
     let status =
-        alex_core::service::filesystem::upload::workspace_file_upload(account, request)
-            .await?;
+        alex_core::service::filesystem::upload::workspace_file_upload(account, request).await?;
     serde_json::to_value(status).map_err(|error| error.to_string())
 }
 
@@ -5825,6 +5860,14 @@ pub mod basemind_commands {
         pub markdown: String,
         pub entities: Vec<RedactedEntity>,
         pub source_format: String,
+    }
+
+    #[derive(Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct RehydrateModelTextRequest {
+        pub workspace_id: Option<String>,
+        pub session_id: String,
+        pub text: String,
     }
 
     #[tauri::command]
@@ -5870,6 +5913,35 @@ pub mod basemind_commands {
             entities: document.entities,
             source_format: document.source_format,
         })
+    }
+
+    /// Rehydrate model tokens only at the authorized human-rendering boundary.
+    /// The runtime keeps transcript, trace and tool values tokenized.
+    #[tauri::command]
+    pub async fn basemind_rehydrate_model_text(
+        state: State<'_, AppState>,
+        request: RehydrateModelTextRequest,
+    ) -> Result<String, String> {
+        if request.session_id.trim().is_empty() {
+            return Err("model text rehydration requires a session id".to_string());
+        }
+        let (_, root) = state
+            .basemind_workspace(request.workspace_id.as_deref())
+            .await?;
+        let policy = alex_core::service::model_egress::global_model_egress_policy()
+            .ok_or_else(|| "model text rehydration is unavailable".to_string())?;
+        use alex_runtime_ports::ModelEgressPolicy;
+        policy
+            .rehydrate_text(
+                request.text,
+                alex_runtime_ports::ModelEgressContext {
+                    route: alex_runtime_ports::ModelPrivacyRoute::Api,
+                    session_id: Some(request.session_id),
+                    workspace_root: Some(root.to_string_lossy().to_string()),
+                },
+            )
+            .await
+            .map_err(|error| error.to_string())
     }
 
     /// Resolve a document path against the workspace it must live in.
@@ -5925,5 +5997,34 @@ mod file_workspace_id_contract_tests {
         assert!(legacy.workspace_id.is_none());
         assert_eq!(legacy.workspace_path, "/legacy/project");
         assert_eq!(legacy.remote_connection_id.as_deref(), Some("ssh-old"));
+    }
+}
+
+#[cfg(feature = "basemind")]
+#[cfg(test)]
+mod basemind_upgrade_compat_tests {
+    use super::basemind_commands::RevealEntityRequest;
+
+    #[test]
+    fn legacy_reveal_entity_payload_without_workspace_id_still_deserializes() {
+        let request: RevealEntityRequest = serde_json::from_value(serde_json::json!({
+            "entityId": "ENT_PERSON_abcdef12"
+        }))
+        .expect("legacy reveal payload");
+
+        assert_eq!(request.entity_id, "ENT_PERSON_abcdef12");
+        assert_eq!(request.workspace_id, None);
+    }
+
+    #[test]
+    fn current_reveal_entity_payload_keeps_workspace_scope() {
+        let request: RevealEntityRequest = serde_json::from_value(serde_json::json!({
+            "workspaceId": "workspace-1",
+            "entityId": "ENT_PERSON_abcdef12"
+        }))
+        .expect("current reveal payload");
+
+        assert_eq!(request.workspace_id.as_deref(), Some("workspace-1"));
+        assert_eq!(request.entity_id, "ENT_PERSON_abcdef12");
     }
 }

@@ -19,6 +19,8 @@ pub mod ipc;
 #[cfg(feature = "basemind")]
 pub mod keychain;
 #[cfg(feature = "basemind")]
+pub mod model_egress;
+#[cfg(feature = "basemind")]
 pub mod models;
 #[cfg(feature = "basemind")]
 pub mod prompt_pseudonym;
@@ -52,7 +54,14 @@ pub use self::ipc::{BasemindClient, DocEntity, DocumentSearchHit, RedactionPolic
 #[cfg(feature = "basemind")]
 pub use self::keychain::{get_vault_passphrase, set_vault_passphrase, KeychainError};
 #[cfg(feature = "basemind")]
-pub use self::models::{ExtractResult, ModelConfig, ModelManager, RedactedEntity};
+pub use self::model_egress::{
+    build_privacy_bundle, workspace_data_dir, BasemindModelEgressPolicy, BasemindPrivacyBundle,
+};
+#[cfg(feature = "basemind")]
+pub use self::models::{
+    BasemindSettingsStore, ExtractResult, ModelArchiveFormat, ModelConfig, ModelManager,
+    ModelStatus, RedactedEntity,
+};
 #[cfg(feature = "basemind")]
 pub use self::prompt_pseudonym::{
     BasemindPromptPseudonymizer, PromptPseudonymizer, PseudonymizedPrompt,
@@ -72,3 +81,5 @@ pub use self::vault::{vault_decrypt, vault_encrypt, VaultError};
 /// Re-exports for consumers when the `basemind` feature is enabled.
 #[cfg(feature = "basemind")]
 pub use self::workspace_fs::BasemindWorkspaceFs;
+#[cfg(feature = "basemind")]
+pub use alex_config_contracts::{BasemindConfig, BasemindModelConfig};

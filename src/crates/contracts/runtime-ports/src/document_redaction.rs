@@ -90,4 +90,43 @@ pub trait DocumentRedactionPort: Send + Sync {
         path: &str,
         workspace_root: &str,
     ) -> Result<RedactedDocument, DocumentRedactionError>;
+
+    /// Redact a document while binding positional detector tokens to the
+    /// caller's session identity map. Implementations that do not need a
+    /// session-aware token format retain the legacy behavior by default.
+    async fn redact_for_session(
+        &self,
+        path: &str,
+        workspace_root: &str,
+        _session_id: &str,
+    ) -> Result<RedactedDocument, DocumentRedactionError> {
+        self.redact(path, workspace_root).await
+    }
+
+    /// Redact already-extracted text before it is returned to a model.
+    ///
+    /// Implementations that only support document paths may keep the default
+    /// refusal. The default is deliberately fail-closed: callers must not
+    /// silently fall back to returning the original text when a privacy port
+    /// is present but cannot handle this representation.
+    async fn redact_text(
+        &self,
+        _text: &str,
+        _workspace_root: &str,
+    ) -> Result<RedactedDocument, DocumentRedactionError> {
+        Err(DocumentRedactionError::new(
+            DocumentRedactionErrorKind::InvalidRequest,
+            "the document redaction port does not support inline text",
+        ))
+    }
+
+    /// Session-aware variant of [`Self::redact_text`].
+    async fn redact_text_for_session(
+        &self,
+        text: &str,
+        workspace_root: &str,
+        _session_id: &str,
+    ) -> Result<RedactedDocument, DocumentRedactionError> {
+        self.redact_text(text, workspace_root).await
+    }
 }

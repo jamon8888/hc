@@ -155,6 +155,7 @@ pub(crate) fn default_config_for_builtin_client(client_id: &str) -> Option<AcpCl
         readonly: false,
         subagent: Default::default(),
         permission_mode: AcpClientPermissionMode::Ask,
+        privacy_route: Some(alex_runtime_ports::ModelPrivacyRoute::Api),
     })
 }
 
@@ -275,6 +276,7 @@ mod tests {
                         readonly: false,
                         subagent: Default::default(),
                         permission_mode: AcpClientPermissionMode::Ask,
+                        privacy_route: None,
                     },
                 ),
                 (
@@ -291,6 +293,7 @@ mod tests {
                         readonly: false,
                         subagent: Default::default(),
                         permission_mode: AcpClientPermissionMode::Ask,
+                        privacy_route: None,
                     },
                 ),
                 (
@@ -307,6 +310,7 @@ mod tests {
                         readonly: false,
                         subagent: Default::default(),
                         permission_mode: AcpClientPermissionMode::Ask,
+                        privacy_route: None,
                     },
                 ),
             ]),

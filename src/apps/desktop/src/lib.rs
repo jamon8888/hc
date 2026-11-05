@@ -20,6 +20,7 @@
 //! itself suggests, costs nothing at runtime, and is re-checked whenever this
 //! attribute is touched.
 
+mod alex_control_host;
 pub mod api;
 pub mod appearance;
 mod builtin_browser_host;
@@ -29,7 +30,6 @@ mod embedded_relay_host;
 pub mod frontend_workbench;
 pub mod logging;
 pub mod macos_menubar;
-mod alex_control_host;
 pub mod runtime;
 pub mod sleep_prevention;
 pub mod startup_trace;
@@ -467,8 +467,7 @@ pub async fn run() {
         ));
         return;
     }
-    if let Ok(config_service) = alex_core::service::config::get_global_config_service().await
-    {
+    if let Ok(config_service) = alex_core::service::config::get_global_config_service().await {
         for diagnostic in config_service.load_diagnostics().await {
             log::warn!(
                 "Startup configuration diagnostic: code={}, path={}, recoverability={:?}",
@@ -502,6 +501,11 @@ pub async fn run() {
     }
     startup_timings.record_elapsed("initialize_plugin_host", step_started);
     startup_trace.record_elapsed_step("native_pre_tauri", "initialize_plugin_host", step_started);
+
+    #[cfg(feature = "basemind")]
+    alex_core::service::model_egress::install_refusing_model_egress_policy(
+        "model egress refused: Basemind privacy service is not ready",
+    );
 
     // The three steps below only depend on the global config service (initialized
     // above) and write to disjoint global singletons, so they can run concurrently:
@@ -952,7 +956,7 @@ pub async fn run() {
                         );
                         record_basemind_sidecar_binary(path.clone());
                         start_bundled_basemind_daemon(&path);
-                        publish_basemind_search_port(&path);
+                        publish_basemind_search_port(&path, None);
                     }
                     None => {
                         log::warn!(
@@ -1474,6 +1478,8 @@ pub async fn run() {
             decompress_path,
             api::wordcraft_api::wordcraft_status_command,
             api::wordcraft_api::wordcraft_open_document_command,
+            api::wordcraft_api::wordcraft_web_host_command,
+            api::wordcraft_api::wordcraft_web_release_command,
             list_directory_files,
             start_file_watch,
             stop_file_watch,
@@ -1989,6 +1995,8 @@ pub async fn run() {
             basemind_commands::basemind_reveal_entity,
             #[cfg(feature = "basemind")]
             basemind_commands::basemind_read_redacted_document,
+            #[cfg(feature = "basemind")]
+            basemind_commands::basemind_rehydrate_model_text,
         ])
         .build(tauri::generate_context!());
 
@@ -2054,9 +2062,8 @@ async fn init_agentic_system() -> anyhow::Result<(
 
     let tool_registry = tools::registry::get_global_tool_registry();
     let tool_state_manager = Arc::new(tools::pipeline::ToolStateManager::new(event_queue.clone()));
-    let permission_request_manager =
-        alex_core::product_runtime::core_permission_request_manager()
-            .map_err(anyhow::Error::msg)?;
+    let permission_request_manager = alex_core::product_runtime::core_permission_request_manager()
+        .map_err(anyhow::Error::msg)?;
 
     let computer_use_host: ComputerUseHostRef =
         Arc::new(computer_use::DesktopComputerUseHost::new());
@@ -2118,9 +2125,7 @@ async fn init_agentic_system() -> anyhow::Result<(
             .map_err(|e| anyhow::anyhow!("Failed to initialize token usage service: {}", e))?,
     );
     let token_usage_subscriber = Arc::new(
-        alex_core::service::token_usage::TokenUsageSubscriber::new(
-            token_usage_service.clone(),
-        ),
+        alex_core::service::token_usage::TokenUsageSubscriber::new(token_usage_service.clone()),
     );
     event_router.subscribe_internal("token_usage".to_string(), token_usage_subscriber);
     event_router.subscribe_internal(
@@ -2406,6 +2411,10 @@ static BASEMIND_SIDECAR_BINARY: std::sync::OnceLock<std::path::PathBuf> =
     std::sync::OnceLock::new();
 
 #[cfg(feature = "basemind")]
+static BASEMIND_PRIVACY_BUNDLE_READY: std::sync::atomic::AtomicBool =
+    std::sync::atomic::AtomicBool::new(false);
+
+#[cfg(feature = "basemind")]
 pub(crate) fn record_basemind_sidecar_binary(path: std::path::PathBuf) {
     let _ = BASEMIND_SIDECAR_BINARY.set(path);
 }
@@ -2415,6 +2424,11 @@ pub(crate) fn basemind_sidecar_binary() -> Option<&'static std::path::Path> {
     BASEMIND_SIDECAR_BINARY
         .get()
         .map(std::path::PathBuf::as_path)
+}
+
+#[cfg(feature = "basemind")]
+pub(crate) fn basemind_privacy_bundle_ready() -> bool {
+    BASEMIND_PRIVACY_BUNDLE_READY.load(std::sync::atomic::Ordering::Acquire)
 }
 
 /// The bundled GLiNER2 NER model directory, beside the sidecar binary.
@@ -2516,52 +2530,11 @@ impl alex_acp::AcpPromptInterceptor for AcpRefusingPromptInterceptor {
         _prompt: &str,
         _workspace_root: &std::path::Path,
         _alex_session_id: &str,
+        _route: alex_runtime_ports::ModelPrivacyRoute,
     ) -> alex_core::util::errors::AlexResult<String> {
         Err(alex_core::util::errors::AlexError::service(
             "PII pseudonymization is unavailable: the basemind sidecar is not running",
         ))
-    }
-}
-
-/// The ACP prompt interceptor backed by the basemind pseudonymization port.
-///
-/// The ACP client seam expects the Alex error type, so this adapter
-/// translates the port's failure into the fail-closed answer the ACP prompt
-/// path must give.
-#[cfg(feature = "basemind")]
-struct AcpPromptInterceptorAdapter {
-    port: std::sync::Arc<dyn alex_runtime_ports::PromptPseudonymizationPort>,
-}
-
-#[cfg(feature = "basemind")]
-impl AcpPromptInterceptorAdapter {
-    fn new(port: std::sync::Arc<dyn alex_runtime_ports::PromptPseudonymizationPort>) -> Self {
-        Self { port }
-    }
-}
-
-#[cfg(feature = "basemind")]
-#[async_trait::async_trait]
-impl alex_acp::AcpPromptInterceptor for AcpPromptInterceptorAdapter {
-    async fn pseudonymize(
-        &self,
-        prompt: &str,
-        workspace_root: &std::path::Path,
-        alex_session_id: &str,
-    ) -> alex_core::util::errors::AlexResult<String> {
-        self.port
-            .pseudonymize(
-                prompt,
-                alex_session_id,
-                &workspace_root.to_string_lossy(),
-            )
-            .await
-            .map(|pseudonymized| pseudonymized.text)
-            .map_err(|error| {
-                alex_core::util::errors::AlexError::service(format!(
-                    "PII pseudonymization failed (basemind required): {error}"
-                ))
-            })
     }
 }
 
@@ -2571,30 +2544,42 @@ impl alex_acp::AcpPromptInterceptor for AcpPromptInterceptorAdapter {
 /// registry and the session vault, and hands the pipeline to the runtime as
 /// a port. `alex-core` only ever sees the port trait (D11).
 #[cfg(feature = "basemind")]
-fn publish_basemind_search_port(sidecar: &std::path::Path) {
-    use alex_basemind_integration::{
-        BasemindClient, IdentityRegistry, RagSearchPortAdapter, RagSearchTool, SessionVault,
-    };
+pub(crate) fn publish_basemind_search_port(
+    sidecar: &std::path::Path,
+    workspace_root: Option<&std::path::Path>,
+) {
+    BASEMIND_PRIVACY_BUNDLE_READY.store(false, std::sync::atomic::Ordering::Release);
+    // Invalidate every workspace-scoped privacy capability before resolving
+    // the replacement bundle. If construction fails, no caller may continue
+    // using the previous workspace's vault, registry, or ACP interceptor.
+    alex_core::service::model_egress::install_refusing_model_egress_policy(
+        "model egress refused: Basemind privacy bundle is unavailable",
+    );
+    alex_core::service::rag_search::set_global_prompt_pseudonymization_port(None);
+    alex_core::service::rag_search::set_global_rag_search_port(None);
+    alex_core::service::rag_search::set_global_document_redaction_port(None);
+    alex_acp::set_prompt_interceptor(Some(std::sync::Arc::new(AcpRefusingPromptInterceptor)));
 
-    // The ACP refusing seat was installed BEFORE the sidecar resolve, so the
-    // host's PII promise holds even if later startup steps fail. The real
-    // interceptor below replaces it on success (SPEC §11.4, I9).
+    let effective_workspace_root = workspace_root
+        .map(std::path::Path::to_path_buf)
+        .or_else(|| {
+            alex_core::service::workspace::get_global_workspace_service()
+                .and_then(|service| service.try_get_current_workspace_path())
+        });
+    let Some(effective_workspace_root) = effective_workspace_root else {
+        log::warn!("Basemind privacy bundle is unavailable: no active workspace");
+        return;
+    };
     let data_dir = match alex_core::infrastructure::app_paths::try_get_path_manager_arc() {
-        Ok(manager) => manager.user_data_dir().join("basemind"),
+        Ok(manager) => {
+            let base = manager.user_data_dir().join("basemind");
+            alex_basemind_integration::workspace_data_dir(base, &effective_workspace_root)
+        }
         Err(error) => {
             log::warn!("Basemind search port is not available: {}", error);
             return;
         }
     };
-    let registry_dir = data_dir.join("registry");
-    let vault_dir = data_dir.join("vault");
-    for directory in [&registry_dir, &vault_dir] {
-        if let Err(error) = std::fs::create_dir_all(directory) {
-            log::warn!("Basemind search port is not available: {}", error);
-            return;
-        }
-    }
-
     // Warm the daemon up now, but do not hold the ports hostage to it: the
     // client re-ensures the daemon on every call, so a daemon that is slow
     // or that dies immediately still comes back at the first use.
@@ -2619,82 +2604,71 @@ fn publish_basemind_search_port(sidecar: &std::path::Path) {
             ner_model_dir.display()
         );
     }
-    let client = BasemindClient::lazy(Some(sidecar.to_path_buf())).with_redaction_policy(
-        alex_basemind_integration::RedactionPolicy::bundled(ner_model_dir),
-    );
-    let registry = match IdentityRegistry::new(registry_dir.clone()) {
-        Ok(registry) => registry,
+    let bundle = match alex_basemind_integration::build_privacy_bundle(
+        data_dir,
+        Some(sidecar.to_path_buf()),
+        ner_model_dir,
+        Some(&effective_workspace_root),
+    ) {
+        Ok(bundle) => bundle,
         Err(error) => {
-            log::warn!("Basemind search port is not available: {}", error);
+            log::warn!("Basemind privacy bundle is not available: {}", error);
             return;
         }
     };
-    let vault = match SessionVault::new(vault_dir.clone()) {
-        Ok(vault) => vault,
-        Err(error) => {
-            log::warn!("Basemind search port is not available: {}", error);
-            return;
-        }
-    };
-
-    // The prompt pseudonymizer is the interception that keeps personal
-    // values out of the prompt the model sees (SPEC §11.4, I9). It shares
-    // the registry and the vault with the search pipeline: both mint the
-    // same aliases and read the same session payload.
-    let vault_for_prompt = match SessionVault::new(vault_dir.clone()) {
-        Ok(vault) => vault,
-        Err(error) => {
-            log::warn!(
-                "Basemind prompt pseudonymization is not available: {}",
-                error
-            );
-            return;
-        }
-    };
-    let registry_for_prompt = match IdentityRegistry::new(registry_dir.clone()) {
-        Ok(registry) => registry,
-        Err(error) => {
-            log::warn!(
-                "Basemind prompt pseudonymization is not available: {}",
-                error
-            );
-            return;
-        }
-    };
-    let pseudonymizer = std::sync::Arc::new(
-        alex_basemind_integration::BasemindPromptPseudonymizer::new(
-            alex_basemind_integration::PromptPseudonymizer::new(
-                client.clone(),
-                registry_for_prompt,
-                vault_for_prompt,
-            ),
-        ),
-    );
-    let port: std::sync::Arc<dyn alex_runtime_ports::PromptPseudonymizationPort> =
-        pseudonymizer.clone();
-    alex_core::service::rag_search::set_global_prompt_pseudonymization_port(Some(port));
-
-    // ACP clients (OpenCode, Claude Code, Codex, and any bundled interpreter
-    // that joins through the same client layer) get the same interception:
-    // the prompt one of them receives carries session tokens, never the
-    // personal values (SPEC §11.4, I9). The seam lives in the ACP client; the
-    // sidecar-backed implementation lives here at the composition root.
-    let acp_port: std::sync::Arc<dyn alex_runtime_ports::PromptPseudonymizationPort> =
-        pseudonymizer.clone();
+    alex_core::service::model_egress::set_global_model_egress_policy(Some(bundle.model_egress));
+    alex_core::service::rag_search::set_global_prompt_pseudonymization_port(Some(
+        bundle.pseudonymizer.clone(),
+    ));
+    alex_core::service::rag_search::set_global_rag_search_port(Some(bundle.rag_search));
+    alex_core::service::rag_search::set_global_document_redaction_port(Some(
+        bundle.document_redaction,
+    ));
     alex_acp::set_prompt_interceptor(Some(std::sync::Arc::new(
-        AcpPromptInterceptorAdapter::new(acp_port),
+        alex_acp::PseudonymizingAcpPromptInterceptor::new(
+            bundle.pseudonymizer,
+            &effective_workspace_root,
+        ),
     )));
-
-    let tool = RagSearchTool::new(client.clone(), registry, vault);
-    let port = std::sync::Arc::new(RagSearchPortAdapter::new(tool));
-    alex_core::service::rag_search::set_global_rag_search_port(Some(port));
-
-    // The document redaction port is the interception that keeps unredacted
-    // document text out of the model context (SPEC §3, I1).
-    let redactor =
-        std::sync::Arc::new(alex_basemind_integration::BasemindDocumentRedactor::new(client));
-    alex_core::service::rag_search::set_global_document_redaction_port(Some(redactor));
+    BASEMIND_PRIVACY_BUNDLE_READY.store(true, std::sync::atomic::Ordering::Release);
     log::info!("Basemind search and redaction ports published");
+}
+
+/// Rebind all workspace-scoped privacy stores after the active workspace
+/// changes. The sidecar is host-owned, but aliases and vault files are not
+/// process-global: keeping the previous workspace's registry would make
+/// reversible identities cross the folder boundary.
+#[cfg(feature = "basemind")]
+pub(crate) fn refresh_basemind_privacy_bundle(
+    workspace_root: &std::path::Path,
+    workspace_kind: alex_core::service::workspace::WorkspaceKind,
+) {
+    BASEMIND_PRIVACY_BUNDLE_READY.store(false, std::sync::atomic::Ordering::Release);
+    alex_core::service::rag_search::set_global_prompt_pseudonymization_port(None);
+    alex_core::service::rag_search::set_global_rag_search_port(None);
+    alex_core::service::rag_search::set_global_document_redaction_port(None);
+    if workspace_kind == alex_core::service::workspace::WorkspaceKind::Remote {
+        alex_core::service::model_egress::install_refusing_model_egress_policy(
+            "model egress refused: remote workspace requires a host-owned Basemind capability",
+        );
+        alex_acp::set_prompt_interceptor(Some(std::sync::Arc::new(AcpRefusingPromptInterceptor)));
+        log::warn!(
+            "Basemind privacy is unsupported for the remote workspace until the remote host advertises its capability"
+        );
+        return;
+    }
+    if let Some(sidecar) = basemind_sidecar_binary() {
+        publish_basemind_search_port(sidecar, Some(workspace_root));
+    } else {
+        alex_core::service::model_egress::install_refusing_model_egress_policy(
+            "model egress refused: Basemind sidecar is unavailable after workspace switch",
+        );
+        alex_acp::set_prompt_interceptor(Some(std::sync::Arc::new(
+            alex_acp::RefusingAcpPromptInterceptor::new(
+                "ACP prompt refused: Basemind sidecar is unavailable after workspace switch",
+            ),
+        )));
+    }
 }
 
 /// Deliver one event to the WebView and, when peer controllers are attached,
@@ -2724,11 +2698,10 @@ async fn deliver_event_to_webview(
             .and_then(serde_json::Value::as_str),
     ) {
         let name = projected.event_name.as_str();
-        let policy =
-            alex_core::service::remote_connect::session_records::session_event_publication(
-                name,
-                &projected.payload,
-            );
+        let policy = alex_core::service::remote_connect::session_records::session_event_publication(
+            name,
+            &projected.payload,
+        );
         if policy.synchronize_records {
             if let Err(error) = async {
                 if let Some(turn) = projected
@@ -3152,7 +3125,9 @@ fn spawn_workspace_search_feature_listener(app_handle: tauri::AppHandle) {
                     if !alex_core::service::search::workspace_search_daemon_available() {
                         log::warn!(
                             "Workspace search feature enabled but daemon is unavailable: path={:?}, hint={}",
-                            resolved_path.as_ref().map(|path| path.display().to_string()),
+                            resolved_path
+                                .as_ref()
+                                .map(|path| path.display().to_string()),
                             alex_core::service::search::workspace_search_daemon_missing_hint()
                         );
                         feature_enabled = true;

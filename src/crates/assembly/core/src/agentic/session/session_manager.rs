@@ -55,7 +55,7 @@ use crate::util::sanitize_plain_model_output;
 use crate::util::timing::elapsed_ms_u64;
 use dashmap::{mapref::entry::Entry, DashMap};
 use log::{debug, error, info, warn};
-use alex_core_types::SessionExecutionTarget;
+use alex_core_types::{ModelRequestContext, SessionExecutionTarget};
 pub use alex_runtime_ports::SessionViewRestoreTiming;
 use alex_runtime_ports::{
     AgentTurnSettlementResult, PermissionMode, SessionStoragePathRequest, SessionStorePort,
@@ -9468,6 +9468,10 @@ impl SessionManager {
     ) -> AlexResult<Option<String>> {
         use crate::util::types::Message;
 
+        let session = self.get_session(session_id).ok_or_else(|| {
+            AlexError::NotFound(format!("Session not found: {session_id}"))
+        })?;
+
         // Match agent `LANGUAGE_PREFERENCE`: use `app.language`, not I18nService (see `app_language` module).
         let lang_code = get_app_language_code().await;
         let language_instruction = short_model_user_language_instruction(lang_code.as_str());
@@ -9533,9 +9537,6 @@ impl SessionManager {
                 ai_client_factory.get_client_resolved(model_id).await
             }
             crate::service::config::types::TaskModelSelection::Inherit => {
-                let session = self.get_session(session_id).ok_or_else(|| {
-                    AlexError::NotFound(format!("Session not found: {session_id}"))
-                })?;
                 let explicit_model_id = session
                     .config
                     .model_id
@@ -9591,8 +9592,14 @@ impl SessionManager {
         }
         .map_err(|e| AlexError::AIClient(format!("Failed to get AI client: {}", e)))?;
 
+        let request_context = Some(ModelRequestContext {
+            prompt_cache_route_key: None,
+            output_schema: None,
+            session_id: Some(session_id.to_string()),
+            workspace_root: session.config.workspace_path.clone(),
+        });
         let response = ai_client
-            .send_message(messages, None)
+            .send_message_with_trace_and_request_context(messages, None, request_context, None)
             .await
             .map_err(|e| AlexError::ai(format!("AI call failed: {}", e)))?;
 

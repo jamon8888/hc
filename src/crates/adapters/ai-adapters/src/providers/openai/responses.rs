@@ -1,4 +1,4 @@
-use super::{common, OpenAIMessageConverter};
+use super::{OpenAIMessageConverter, common};
 use crate::client::sse::execute_sse_request;
 use crate::client::{AIClient, StreamResponse};
 use crate::providers::shared;
@@ -7,7 +7,7 @@ use crate::trace::ModelExchangeTraceConfig;
 use crate::types::{
     Message, ModelRequestContext, ReasoningPresetAction, ReasoningPresetDescriptor, ToolDefinition,
 };
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow};
 use log::debug;
 use sha2::{Digest, Sha256};
 
@@ -512,6 +512,8 @@ mod tests {
         let request_context = ModelRequestContext {
             prompt_cache_route_key: Some("lineage-1".to_string()),
             output_schema: None,
+            session_id: None,
+            workspace_root: None,
         };
         let request_body = build_request_body_with_context(
             &client,
@@ -534,6 +536,8 @@ mod tests {
         let request_context = ModelRequestContext {
             prompt_cache_route_key: None,
             output_schema: Some(schema.clone()),
+            session_id: None,
+            workspace_root: None,
         };
         let request_body = build_request_body_with_context(
             &test_client(),

@@ -210,7 +210,9 @@ const PRODUCT_TOOL_PROVIDER_GROUP_PLAN: &[ToolProviderGroupPlan] = &[
         tool_names: &[
             "LS",
             "Read",
+            #[cfg(not(feature = "basemind"))]
             "view_image",
+            #[cfg(not(feature = "basemind"))]
             "analyze_image",
             "Glob",
             "Grep",

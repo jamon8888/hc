@@ -39,9 +39,9 @@ mod shared_runtime;
 mod terminal_attention;
 mod ui;
 
-use anyhow::{anyhow, Result};
-use clap::{CommandFactory, FromArgMatches, Parser, Subcommand, ValueEnum};
 use alex_core::service::remote_connect::DeviceIdentity;
+use anyhow::{Result, anyhow};
+use clap::{CommandFactory, FromArgMatches, Parser, Subcommand, ValueEnum};
 use std::sync::atomic::{AtomicU8, Ordering};
 use std::sync::{Arc, OnceLock};
 
@@ -57,8 +57,17 @@ pub(crate) const PLUGIN_HOST_LAUNCH_POLICY: alex_core::plugin_host::PluginHostLa
 
 // ======================== Global MCP Service ========================
 
-static MCP_SERVICE: OnceLock<std::sync::Arc<alex_core::service::mcp::MCPService>> =
-    OnceLock::new();
+static MCP_SERVICE: OnceLock<std::sync::Arc<alex_core::service::mcp::MCPService>> = OnceLock::new();
+
+/// True only after this CLI host has installed a complete workspace-scoped
+/// Basemind bundle. Peer capability advertisements must not infer readiness
+/// from environment variables or a discoverable daemon alone.
+static CLI_BASEMIND_PRIVACY_BUNDLE_READY: std::sync::atomic::AtomicBool =
+    std::sync::atomic::AtomicBool::new(false);
+
+pub(crate) fn basemind_privacy_bundle_ready() -> bool {
+    CLI_BASEMIND_PRIVACY_BUNDLE_READY.load(std::sync::atomic::Ordering::Acquire)
+}
 
 /// MCP initialization status: 0=not started, 1=in progress, 2=completed, 3=failed
 static MCP_INIT_STATUS: OnceLock<AtomicU8> = OnceLock::new();
@@ -88,8 +97,7 @@ fn final_change_verification_enabled(
 }
 
 /// Get the global MCP service instance (if initialized)
-pub fn get_mcp_service(
-) -> Option<&'static std::sync::Arc<alex_core::service::mcp::MCPService>> {
+pub fn get_mcp_service() -> Option<&'static std::sync::Arc<alex_core::service::mcp::MCPService>> {
     MCP_SERVICE.get()
 }
 
@@ -867,6 +875,71 @@ async fn initialize_core_services(
     .await
 }
 
+pub(crate) fn install_cli_privacy_guards(workspace_root: &std::path::Path) {
+    CLI_BASEMIND_PRIVACY_BUNDLE_READY.store(false, std::sync::atomic::Ordering::Release);
+    // API model egress is fail-closed until this host publishes a concrete
+    // Basemind policy. Local loopback models remain untouched by the policy.
+    alex_core::service::model_egress::install_refusing_model_egress_policy(
+        "model egress refused: this CLI host has no Basemind privacy policy",
+    );
+    alex_core::service::rag_search::set_global_prompt_pseudonymization_port(None);
+    alex_core::service::rag_search::set_global_rag_search_port(None);
+    alex_core::service::rag_search::set_global_document_redaction_port(None);
+    alex_acp::set_prompt_interceptor(Some(std::sync::Arc::new(
+        alex_acp::RefusingAcpPromptInterceptor::new(
+            "ACP prompt refused: this CLI host has no Basemind privacy policy",
+        ),
+    )));
+
+    let Some(ner_model_dir) = std::env::var_os("BASEMIND_NER_MODEL_DIR") else {
+        tracing::warn!(
+            "Basemind CLI policy remains unavailable: BASEMIND_NER_MODEL_DIR is not configured"
+        );
+        return;
+    };
+    let data_dir = match alex_core::infrastructure::try_get_path_manager_arc() {
+        Ok(manager) => alex_basemind_integration::workspace_data_dir(
+            manager.user_data_dir().join("basemind"),
+            workspace_root,
+        ),
+        Err(error) => {
+            tracing::warn!("Basemind CLI policy is unavailable: {error}");
+            return;
+        }
+    };
+    let daemon_binary = std::env::var_os("BASEMIND_SIDECAR_PATH").map(std::path::PathBuf::from);
+    let bundle = match alex_basemind_integration::build_privacy_bundle(
+        data_dir,
+        daemon_binary,
+        std::path::PathBuf::from(ner_model_dir),
+        Some(workspace_root),
+    ) {
+        Ok(bundle) => bundle,
+        Err(error) => {
+            tracing::warn!("Basemind CLI policy is unavailable: {error}");
+            return;
+        }
+    };
+    alex_core::service::model_egress::set_global_model_egress_policy(Some(bundle.model_egress));
+    alex_core::service::rag_search::set_global_prompt_pseudonymization_port(Some(
+        bundle.pseudonymizer.clone(),
+    ));
+    alex_core::service::rag_search::set_global_rag_search_port(Some(bundle.rag_search));
+    alex_core::service::rag_search::set_global_document_redaction_port(Some(
+        bundle.document_redaction,
+    ));
+    alex_acp::set_prompt_interceptor(Some(std::sync::Arc::new(
+        alex_acp::PseudonymizingAcpPromptInterceptor::new(
+            bundle.pseudonymizer,
+            workspace_root,
+        ),
+    )));
+    CLI_BASEMIND_PRIVACY_BUNDLE_READY.store(true, std::sync::atomic::Ordering::Release);
+    tracing::info!(
+        "Basemind model egress, prompt pseudonymization, document redaction and search published for CLI host"
+    );
+}
+
 async fn initialize_core_services_for_deployment(
     workspace_root: &std::path::Path,
     approval_policy: runtime::approval::CliApprovalPolicy,
@@ -923,26 +996,25 @@ async fn initialize_core_services_for_deployment(
             alex_services_core::runtime_ownership::RuntimeDeployment::Embedded,
             BootstrapProfile::Interactive,
         ) => "cli-interactive",
-        (alex_services_core::runtime_ownership::RuntimeDeployment::Embedded, _) => {
-            "cli-headless"
-        }
+        (alex_services_core::runtime_ownership::RuntimeDeployment::Embedded, _) => "cli-headless",
         (alex_services_core::runtime_ownership::RuntimeDeployment::Shared, _) => {
             "shared-tui-runtime"
         }
     };
-    let runtime_ownership =
-        alex_core::runtime_ownership::CoreRuntimeOwnership::fixed_workspace(
-            path_manager.as_ref(),
-            entrypoint,
-            workspace_root,
-            deployment,
-        )
-        .map_err(|error| anyhow!(error.startup_message(deployment, entrypoint)))?;
+    let runtime_ownership = alex_core::runtime_ownership::CoreRuntimeOwnership::fixed_workspace(
+        path_manager.as_ref(),
+        entrypoint,
+        workspace_root,
+        deployment,
+    )
+    .map_err(|error| anyhow!(error.startup_message(deployment, entrypoint)))?;
     let runtime_ownership = std::sync::Arc::new(runtime_ownership);
 
     let config_service = alex_core::service::config::get_global_config_service()
         .await
         .ok();
+
+    install_cli_privacy_guards(workspace_root);
 
     AIClientFactory::initialize_global()
         .await
@@ -967,15 +1039,17 @@ async fn initialize_core_services_for_deployment(
     )?);
     // Restore on the executing host for TUI, exec, Shared and detached jobs alike.
     runtime.account_runtime().try_restore_session().await;
-    debug_assert!(runtime
-        .product()
-        .service_availability()
-        .iter()
-        .all(|entry| {
-            runtime
-                .services()
-                .has_capability(entry.requirement().service_capability())
-        }));
+    debug_assert!(
+        runtime
+            .product()
+            .service_availability()
+            .iter()
+            .all(|entry| {
+                runtime
+                    .services()
+                    .has_capability(entry.requirement().service_capability())
+            })
+    );
     tracing::info!(
         "CLI product runtime assembled: profile={}, services={}, plugin_runtime={:?}",
         runtime.product().plan().profile().id(),
@@ -1248,8 +1322,7 @@ fn is_dispatch_command(command: &Option<Commands>) -> bool {
 async fn run_cli() -> Result<()> {
     let raw_args = std::env::args_os().collect::<Vec<_>>();
     let product_binary_name = option_env!("ALEX_PRODUCT_BINARY_NAME").unwrap_or("alex");
-    let product_display_name =
-        option_env!("ALEX_PRODUCT_DISPLAY_NAME").unwrap_or("Alex CLI");
+    let product_display_name = option_env!("ALEX_PRODUCT_DISPLAY_NAME").unwrap_or("Alex CLI");
     let parsed = Cli::command()
         .name(product_binary_name)
         .bin_name(product_binary_name)
@@ -1778,9 +1851,8 @@ mod plugin_command_tests {
             Some(Commands::Plugins { action: None })
         ));
 
-        let approval =
-            Cli::try_parse_from(["alex", "plugins", "approve-source", "acme.demo"])
-                .expect("parse plugin source approval");
+        let approval = Cli::try_parse_from(["alex", "plugins", "approve-source", "acme.demo"])
+            .expect("parse plugin source approval");
         assert!(matches!(
             approval.command,
             Some(Commands::Plugins {
@@ -1954,7 +2026,7 @@ mod external_config_command_tests {
 
 #[cfg(test)]
 mod bootstrap_profile_tests {
-    use super::{exec_requests_json_output, BootstrapProfile, SessionAction};
+    use super::{BootstrapProfile, SessionAction, exec_requests_json_output};
 
     #[test]
     fn profiles_start_only_their_requested_background_services() {
@@ -2028,7 +2100,7 @@ mod bootstrap_profile_tests {
 
 #[cfg(test)]
 mod final_change_verification_cli_tests {
-    use super::{final_change_verification_enabled, Cli, Commands};
+    use super::{Cli, Commands, final_change_verification_enabled};
     use clap::Parser;
 
     fn parse_flags(args: &[&str]) -> (bool, bool) {
@@ -2049,8 +2121,7 @@ mod final_change_verification_cli_tests {
         let (verify, disable) = parse_flags(&["alex", "exec", "task"]);
         assert!(final_change_verification_enabled(verify, disable));
 
-        let (verify, disable) =
-            parse_flags(&["alex", "exec", "--no-verify-final-changes", "task"]);
+        let (verify, disable) = parse_flags(&["alex", "exec", "--no-verify-final-changes", "task"]);
         assert!(!final_change_verification_enabled(verify, disable));
     }
 }
@@ -2135,18 +2206,17 @@ mod sdk_host_command_tests {
 
 #[cfg(test)]
 mod shared_tui_command_tests {
-    use super::{shared_tui_requested, BootstrapProfile, Cli, Commands};
-    use clap::{CommandFactory, Parser, Subcommand};
+    use super::{BootstrapProfile, Cli, Commands, shared_tui_requested};
     use alex_services_core::runtime_ownership::RuntimeDeployment;
+    use clap::{CommandFactory, Parser, Subcommand};
 
     #[test]
     fn shared_is_an_opt_in_interactive_tui_flag() {
-        let default_tui =
-            Cli::try_parse_from(["alex", "--shared"]).expect("parse default TUI");
+        let default_tui = Cli::try_parse_from(["alex", "--shared"]).expect("parse default TUI");
         assert!(default_tui.shared);
 
-        let chat = Cli::try_parse_from(["alex", "chat", "--shared"])
-            .expect("parse explicit chat TUI");
+        let chat =
+            Cli::try_parse_from(["alex", "chat", "--shared"]).expect("parse explicit chat TUI");
         assert!(matches!(
             chat.command,
             Some(Commands::Chat { shared: true, .. })
@@ -2191,13 +2261,13 @@ mod shared_tui_command_tests {
 
 #[cfg(test)]
 mod dispatch_command_tests {
-    use super::{is_dispatch_command, Cli, Commands, DispatchAction};
+    use super::{Cli, Commands, DispatchAction, is_dispatch_command};
     use clap::{CommandFactory, Parser};
 
     #[test]
     fn dispatch_commands_parse_and_internal_worker_is_hidden() {
-        let status = Cli::try_parse_from(["alex", "dispatch", "status"])
-            .expect("parse dispatch status");
+        let status =
+            Cli::try_parse_from(["alex", "dispatch", "status"]).expect("parse dispatch status");
         assert!(matches!(
             status.command,
             Some(Commands::Dispatch {
@@ -2224,8 +2294,7 @@ mod dispatch_command_tests {
             })
         ));
         assert!(is_dispatch_command(&provision.command));
-        let unrelated =
-            Cli::try_parse_from(["alex", "config", "show"]).expect("parse config");
+        let unrelated = Cli::try_parse_from(["alex", "config", "show"]).expect("parse config");
         assert!(!is_dispatch_command(&unrelated.command));
 
         let help = Cli::command().render_long_help().to_string();
@@ -2241,7 +2310,7 @@ mod dispatch_command_tests {
 
 #[cfg(test)]
 mod harness_profile_compatibility_tests {
-    use super::{agent_type_with_harness_profile, resolved_command_harness_profile, Cli, Commands};
+    use super::{Cli, Commands, agent_type_with_harness_profile, resolved_command_harness_profile};
     use clap::{CommandFactory, Parser};
 
     #[test]
@@ -2250,8 +2319,7 @@ mod harness_profile_compatibility_tests {
         assert!(help.contains("Minimal, Standard, Ultimate, Creative"));
         assert!(!help.contains("balanced"));
         for id in alex_core_types::agent_identity::HarnessId::ALL {
-            let cli =
-                Cli::try_parse_from(["alex", "--harness-profile", id.as_str()]).unwrap();
+            let cli = Cli::try_parse_from(["alex", "--harness-profile", id.as_str()]).unwrap();
             assert_eq!(
                 agent_type_with_harness_profile("Cowork".into(), cli.harness_profile.as_deref()),
                 id.as_str()
@@ -2365,7 +2433,7 @@ async fn create_cli_local_workspace(
     path: &std::path::Path,
 ) -> Result<alex_core::service::workspace::WorkspaceInfo> {
     use alex_core::service::workspace::{
-        get_global_workspace_service, set_global_workspace_service, WorkspaceService,
+        WorkspaceService, get_global_workspace_service, set_global_workspace_service,
     };
     let service = if let Some(service) = get_global_workspace_service() {
         service

@@ -43,6 +43,7 @@ pub struct FileReadTool {
 
 /// Default cap on characters returned by a single Read call (excluding wrapper text).
 pub const DEFAULT_READ_MAX_TOTAL_CHARS: usize = 64_000;
+const MODEL_PRIVACY_ROUTE_CONTEXT_KEY: &str = "__alex_model_privacy_route";
 #[cfg(feature = "document-read")]
 // anydoc is synchronous, so this bounds the caller's wait rather than terminating the parser.
 // The worker retains the global conversion permit until it actually exits, keeping failures closed.
@@ -148,6 +149,134 @@ impl FileReadTool {
             .is_some_and(|extension| extension.eq_ignore_ascii_case("csv"))
     }
 
+    fn model_privacy_route(context: &ToolUseContext) -> &'static str {
+        let route = match context
+            .custom_data
+            .get(MODEL_PRIVACY_ROUTE_CONTEXT_KEY)
+            .and_then(Value::as_str)
+        {
+            Some("api") => "api",
+            Some("local") => "local",
+            _ => "unknown",
+        };
+
+        // Unit tests construct tool contexts directly and predate the route
+        // field. Keep their legacy local-only behavior while production stays
+        // fail-closed for an omitted route.
+        #[cfg(test)]
+        if route == "unknown" {
+            return "local";
+        }
+
+        route
+    }
+
+    fn model_session_id(context: &ToolUseContext) -> Option<&str> {
+        context.session_id.as_deref().or_else(|| {
+            #[cfg(test)]
+            {
+                Some("test-session")
+            }
+            #[cfg(not(test))]
+            {
+                None
+            }
+        })
+    }
+
+    /// Keep filenames useful for correlating tool results without exposing a
+    /// user's directory or basename to the model. The workspace root is part
+    /// of the digest so the same path does not become a cross-workspace id.
+    fn model_visible_path(path: &str, workspace_root: Option<&str>) -> String {
+        use sha2::{Digest, Sha256};
+
+        let mut hasher = Sha256::new();
+        if let Some(root) = workspace_root {
+            hasher.update(root.as_bytes());
+        }
+        hasher.update([0]);
+        hasher.update(path.as_bytes());
+        let digest = hex::encode(hasher.finalize());
+        format!("[FILE_{}]", &digest[..16])
+    }
+
+    #[cfg(feature = "tools-rag")]
+    async fn redact_model_visible_text(
+        content: String,
+        context: &ToolUseContext,
+        model_visible_path: &str,
+    ) -> AlexResult<String> {
+        if Self::model_privacy_route(context) == "local" {
+            return Ok(content);
+        }
+        let workspace_root = context
+            .workspace_root()
+            .map(|root| root.to_string_lossy().into_owned())
+            .ok_or_else(|| {
+                AlexError::tool(format!(
+                    "Cannot redact text file {} without a workspace root",
+                    model_visible_path
+                ))
+            })?;
+        let port =
+            crate::service::rag_search::global_document_redaction_port().ok_or_else(|| {
+                AlexError::tool(format!(
+                    "Cannot read text file {} for an API model without a Basemind redaction port",
+                    model_visible_path
+                ))
+            })?;
+        if Self::model_privacy_route(context) != "api" {
+            return Err(AlexError::tool(format!(
+                "Cannot read text file {} because the model privacy route is unknown",
+                model_visible_path
+            )));
+        }
+        let session_id = Self::model_session_id(context).ok_or_else(|| {
+            AlexError::tool(format!(
+                "Cannot redact text file {} without an active session",
+                model_visible_path
+            ))
+        })?;
+        let redacted = port
+            .redact_text_for_session(&content, &workspace_root, session_id)
+            .await
+            .map_err(|error| {
+                AlexError::tool(format!(
+                    "Failed to redact text file {} before model access: {}",
+                    model_visible_path, error.message
+                ))
+            })?;
+        Ok(redacted.markdown)
+    }
+
+    fn resolve_document_reference(file_path: &str, context: &ToolUseContext) -> AlexResult<String> {
+        #[cfg(feature = "tools-rag")]
+        if file_path.starts_with("[DOC_") && file_path.ends_with(']') {
+            let session_id = Self::model_session_id(context).ok_or_else(|| {
+                AlexError::tool("Document reference resolution requires an active session")
+            })?;
+            let workspace_root = context
+                .workspace_root()
+                .map(|root| root.to_string_lossy().into_owned())
+                .ok_or_else(|| {
+                    AlexError::tool(
+                        "Document reference resolution requires an open workspace".to_string(),
+                    )
+                })?;
+            let port = context.runtime_handles.rag_search_port().ok_or_else(|| {
+                AlexError::tool(
+                    "Document reference resolution is unavailable in this runtime".to_string(),
+                )
+            })?;
+            return port
+                .resolve_document_token(file_path, session_id, &workspace_root)
+                .map_err(|error| AlexError::service(error.to_string()))?
+                .ok_or_else(|| AlexError::tool("Unknown document reference".to_string()));
+        }
+
+        Ok(file_path.to_string())
+    }
+
     fn optional_line_number(input: &Value, key: &str) -> Result<Option<usize>, String> {
         match input.get(key) {
             Some(value) => Self::line_number_from_value(value)
@@ -221,26 +350,24 @@ impl FileReadTool {
         );
         // Interception #2 (SPEC §3): when the host published a redaction
         // port, the document is extracted and redacted by the sidecar, so no
-        // unredacted text reaches the model context (I1). The plain
-        // conversion stays as the fallback for a host without the sidecar.
+        // unredacted text reaches an API model context (I1). Local models use
+        // the original conversion; API and unknown routes fail closed.
         #[cfg(feature = "tools-rag")]
         let conversion_call = {
             let port = crate::service::rag_search::global_document_redaction_port();
             let workspace_root = context
                 .workspace_root()
                 .map(|root| root.to_string_lossy().to_string());
+            let session_id = Self::model_session_id(context).map(str::to_owned);
             let path = resolved_path.to_string();
             async move {
-                match (port, workspace_root) {
-                    (Some(port), Some(root)) => port
-                        .redact(&path, &root)
-                        .await
-                        .map(|document| (document.markdown, document.source_format))
-                        .map_err(|error| DocumentConversionError::new("redaction", error.message)),
-                    // No redaction port, or no workspace to scope it: the
-                    // document is read the plain way, and the read says so
-                    // rather than pretending the text was redacted.
-                    _ => convert_document_to_markdown(bytes, path)
+                match (
+                    Self::model_privacy_route(context),
+                    port,
+                    workspace_root,
+                    session_id,
+                ) {
+                    ("local", _, _, _) => convert_document_to_markdown(bytes, path)
                         .await
                         .map(|converted| {
                             (
@@ -249,11 +376,42 @@ impl FileReadTool {
                             )
                         })
                         .map_err(|error| error),
+                    ("api", Some(port), Some(root), Some(session_id)) => port
+                        .redact_for_session(&path, &root, &session_id)
+                        .await
+                        .map(|document| (document.markdown, document.source_format))
+                        .map_err(|error| DocumentConversionError::new("redaction", error.message)),
+                    ("api", Some(_), None, _) => Err(DocumentConversionError::new(
+                        "redaction",
+                        "workspace root is required for the document redaction port",
+                    )),
+                    ("api", None, _, _) => Err(DocumentConversionError::new(
+                        "redaction",
+                        "API model document access requires a Basemind redaction port",
+                    )),
+                    ("api", Some(_), Some(_), None) => Err(DocumentConversionError::new(
+                        "redaction",
+                        "document access requires an active session for token continuity",
+                    )),
+                    ("unknown", _, _, _) => Err(DocumentConversionError::new(
+                        "redaction",
+                        "document access refused because the model privacy route is unknown",
+                    )),
+                    _ => Err(DocumentConversionError::new(
+                        "redaction",
+                        "document access refused because the model privacy route is invalid",
+                    )),
                 }
             }
         };
         #[cfg(not(feature = "tools-rag"))]
         let conversion_call = async {
+            if Self::model_privacy_route(context) != "local" {
+                return Err(DocumentConversionError::new(
+                    "redaction",
+                    "document access requires the Basemind redaction capability for a non-local model",
+                ));
+            }
             convert_document_to_markdown(bytes, resolved_path.to_string())
                 .await
                 .map(|converted| {
@@ -467,7 +625,8 @@ Usage:
             .get("file_path")
             .and_then(Value::as_str)
             .ok_or_else(|| AlexError::validation("file_path is required".to_string()))?;
-        file_permission_intents("read", [file_path], context)
+        let resolved_file_path = Self::resolve_document_reference(file_path, context)?;
+        file_permission_intents("read", [resolved_file_path.as_str()], context)
     }
 
     async fn validate_input(
@@ -507,7 +666,10 @@ Usage:
             };
         }
 
-        let resolved = match context.map(|ctx| ctx.resolve_tool_path(file_path)) {
+        let resolved = match context.map(|ctx| {
+            Self::resolve_document_reference(file_path, ctx)
+                .and_then(|path| ctx.resolve_tool_path(&path))
+        }) {
             Some(Ok(path)) => path,
             Some(Err(err)) => {
                 return ValidationResult {
@@ -521,9 +683,7 @@ Usage:
                 if is_alex_tool_uri(file_path) {
                     return ValidationResult {
                         result: false,
-                        message: Some(
-                            "Tool context is required to resolve Alex URIs".to_string(),
-                        ),
+                        message: Some("Tool context is required to resolve Alex URIs".to_string()),
                         error_code: Some(400),
                         meta: None,
                     };
@@ -592,6 +752,11 @@ Usage:
         }
 
         if let Some(context) = context {
+            let shown_path = if file_path.starts_with("[DOC_") && file_path.ends_with(']') {
+                file_path.to_string()
+            } else {
+                resolved.logical_path.to_string()
+            };
             let metadata = match context.file_system_for_path(&resolved) {
                 Ok(filesystem) => filesystem.metadata(&resolved.resolved_path, true).await,
                 Err(error) => Err(anyhow::anyhow!(error.to_string())),
@@ -603,7 +768,7 @@ Usage:
                         result: false,
                         message: Some(format!(
                             "Failed to inspect file {}: {:#}",
-                            resolved.logical_path, error
+                            shown_path, error
                         )),
                         error_code: Some(400),
                         meta: None,
@@ -613,7 +778,7 @@ Usage:
             let Some(metadata) = metadata else {
                 return ValidationResult {
                     result: false,
-                    message: Some(format!("File does not exist: {}", resolved.logical_path)),
+                    message: Some(format!("File does not exist: {}", shown_path)),
                     error_code: Some(404),
                     meta: None,
                 };
@@ -621,7 +786,7 @@ Usage:
             if metadata.kind != alex_runtime_ports::WorkspacePathKind::File {
                 return ValidationResult {
                     result: false,
-                    message: Some(format!("Path is not a file: {}", resolved.logical_path)),
+                    message: Some(format!("Path is not a file: {}", shown_path)),
                     error_code: Some(400),
                     meta: None,
                 };
@@ -653,6 +818,8 @@ Usage:
             .and_then(|v| v.as_str())
             .ok_or_else(|| AlexError::tool("file_path is required".to_string()))?;
 
+        let file_path = Self::resolve_document_reference(file_path, context)?;
+
         let tail = Self::read_tail_mode(input).map_err(AlexError::tool)?;
         let render_mode = Self::read_render_mode(input).map_err(AlexError::tool)?;
         let start_line = Self::read_window_start_line(input).map_err(AlexError::tool)?;
@@ -662,17 +829,28 @@ Usage:
             .and_then(parse_u64_value)
             .unwrap_or(self.default_max_lines_to_read as u64) as usize;
 
-        let resolved = context.resolve_tool_path(file_path)?;
+        let resolved = context.resolve_tool_path(&file_path)?;
         context.enforce_path_operation(ToolPathOperation::Read, &resolved)?;
+        let model_visible_path = if Self::model_privacy_route(context) == "local" {
+            resolved.logical_path.clone()
+        } else {
+            Self::model_visible_path(
+                &resolved.logical_path,
+                context
+                    .workspace_root()
+                    .map(|root| root.to_string_lossy().into_owned())
+                    .as_deref(),
+            )
+        };
         #[cfg(feature = "tools-miniapp")]
         if is_virtual_context_path(context, &resolved) {
             let content = virtual_context_file(context, &resolved).ok_or_else(|| {
                 AlexError::tool(format!(
                     "MiniApp context file is unavailable: {}",
-                    resolved.logical_path
+                    model_visible_path
                 ))
             })?;
-            let read_file_result = if tail {
+            let mut read_file_result = if tail {
                 read_text_tail(&content, limit, self.max_line_chars, self.max_total_chars)
             } else {
                 read_text(
@@ -684,11 +862,25 @@ Usage:
                 )
             }
             .map_err(AlexError::tool)?;
-            let presentation =
-                build_read_file_presentation(&resolved.logical_path, &read_file_result);
+            #[cfg(feature = "tools-rag")]
+            {
+                read_file_result.content = Self::redact_model_visible_text(
+                    read_file_result.content,
+                    context,
+                    &model_visible_path,
+                )
+                .await?;
+            }
+            #[cfg(not(feature = "tools-rag"))]
+            if Self::model_privacy_route(context) != "local" {
+                return Err(AlexError::tool(
+                    "MiniApp context access requires the Basemind redaction capability for a non-local model",
+                ));
+            }
+            let presentation = build_read_file_presentation(&model_visible_path, &read_file_result);
             return Ok(vec![ToolResult::Result {
                 data: json!({
-                    "file_path": resolved.logical_path,
+                    "file_path": model_visible_path,
                     "content": read_file_result.content,
                     "total_lines": read_file_result.total_lines,
                     "lines_read": presentation.lines_read,
@@ -707,7 +899,7 @@ Usage:
         if requires_virtual_context_path(context) {
             return Err(AlexError::tool(format!(
                 "MiniApp context file is unavailable: {}",
-                resolved.logical_path
+                model_visible_path
             )));
         }
         crate::agentic::deep_review::scope::ensure_focused_review_resolved_path_allowed(
@@ -728,7 +920,7 @@ Usage:
         if reads_document_representation {
             return Err(AlexError::tool(format!(
                 "Document Markdown conversion is not available in this product build: {}. Use a product that includes document-read, or render=source for text-based formats.",
-                resolved.logical_path
+                model_visible_path
             )));
         }
         let revision_before_read =
@@ -741,7 +933,7 @@ Usage:
             get_review_read_coverage(context, &resolved, revision, start_line, limit)
         }) {
             return Ok(vec![Self::already_served_result(
-                &resolved.logical_path,
+                &model_visible_path,
                 coverage,
             )]);
         }
@@ -751,7 +943,7 @@ Usage:
             Some(
                 self.read_document_window(
                     &resolved.resolved_path,
-                    &resolved.logical_path,
+                    &model_visible_path,
                     start_line,
                     limit,
                     tail,
@@ -766,7 +958,8 @@ Usage:
         #[cfg(not(feature = "document-read"))]
         let document_read: Option<(ReadFileResult, DocumentReadMetadata)> = None;
 
-        let (read_file_result, document_metadata) = if let Some((result, metadata)) = document_read
+        let (mut read_file_result, document_metadata) = if let Some((result, metadata)) =
+            document_read
         {
             (result, Some(metadata))
         } else {
@@ -777,13 +970,13 @@ Usage:
                 .map_err(|error| {
                     AlexError::tool(format!(
                         "Failed to open file {}: {:#}",
-                        resolved.logical_path, error
+                        model_visible_path, error
                     ))
                 })?;
             let result = if tail {
                 read_file_tail_from_reader(
                     reader,
-                    &resolved.logical_path,
+                    &model_visible_path,
                     limit,
                     self.max_line_chars,
                     self.max_total_chars,
@@ -792,7 +985,7 @@ Usage:
             } else {
                 read_file_from_reader(
                     reader,
-                    &resolved.logical_path,
+                    &model_visible_path,
                     start_line,
                     limit,
                     self.max_line_chars,
@@ -815,6 +1008,27 @@ Usage:
             (result, None)
         };
 
+        // Source/CSV/code reads used to bypass the document redaction port.
+        // When the host has published a text-capable privacy port, redact the
+        // exact bounded window before constructing any assistant-facing
+        // presentation. A port refusal is fail-closed: returning the original
+        // text would violate the model-boundary guarantee.
+        #[cfg(feature = "tools-rag")]
+        if document_metadata.is_none() {
+            read_file_result.content = Self::redact_model_visible_text(
+                read_file_result.content,
+                context,
+                &model_visible_path,
+            )
+            .await?;
+        }
+        #[cfg(not(feature = "tools-rag"))]
+        if document_metadata.is_none() && Self::model_privacy_route(context) != "local" {
+            return Err(AlexError::tool(
+                "Text file access requires the Basemind redaction capability for a non-local model",
+            ));
+        }
+
         if let Some(revision_before) = revision_before_read {
             if let Some(revision_after) = file_revision(context, &resolved).await {
                 if revision_before == revision_after {
@@ -828,7 +1042,7 @@ Usage:
             }
         }
 
-        let presentation = build_read_file_presentation(&resolved.logical_path, &read_file_result);
+        let presentation = build_read_file_presentation(&model_visible_path, &read_file_result);
         let mut result_for_assistant = presentation.result_for_assistant;
         if let Some(metadata) = document_metadata.as_ref() {
             let extraction_note = if metadata.source_format == "pdf" {
@@ -838,7 +1052,7 @@ Usage:
             };
             result_for_assistant = format!(
                 "Converted {} from {} to GitHub-Flavored Markdown with anydoc. offset and limit refer to converted Markdown lines.{}\n\n{}",
-                resolved.logical_path,
+                model_visible_path,
                 metadata.source_format.to_ascii_uppercase(),
                 extraction_note,
                 result_for_assistant
@@ -846,7 +1060,7 @@ Usage:
         }
 
         let mut data = json!({
-            "file_path": resolved.logical_path,
+            "file_path": model_visible_path,
             "content": read_file_result.content,
             "total_lines": read_file_result.total_lines,
             "lines_read": presentation.lines_read,
@@ -883,7 +1097,7 @@ Usage:
 mod tests {
     #[cfg(feature = "document-read")]
     use super::MAX_DOCUMENT_INPUT_BYTES;
-    use super::{FileReadTool, ReadRenderMode};
+    use super::{FileReadTool, ReadRenderMode, MODEL_PRIVACY_ROUTE_CONTEXT_KEY};
     use crate::agentic::tools::framework::{Tool, ToolResult, ToolUseContext};
     use crate::agentic::tools::{ToolPathPolicy, ToolRuntimeRestrictions};
     use crate::agentic::WorkspaceBinding;
@@ -891,12 +1105,12 @@ mod tests {
     use crate::miniapp::agent_context::{
         publish_agent_context_snapshot, remove_agent_context_snapshot, MiniAppAgentContextInput,
     };
-    use async_trait::async_trait;
     use alex_runtime_ports::ToolRuntimeHandles;
     use alex_runtime_ports::{
         WorkspaceCommandOptions, WorkspaceCommandResult, WorkspaceDirEntry, WorkspaceFileSystem,
         WorkspaceServices, WorkspaceShell,
     };
+    use async_trait::async_trait;
     use serde_json::{json, Value};
     use std::collections::HashMap;
     use std::fs;
@@ -907,9 +1121,9 @@ mod tests {
     /// Serializes the tests that publish or clear the redaction port.
     ///
     /// The port is process-wide, so leaving it published while another
-    /// document-conversion test runs would replace that test's conversion.
-    /// Every test that converts a document holds this guard, whether or not
-    /// it publishes a port of its own.
+    /// document-conversion or plain-text read test runs would replace that
+    /// test's content. Every test that reads through the shared redaction
+    /// port holds this guard, whether or not it publishes a port of its own.
     #[cfg(feature = "document-read")]
     fn redaction_port_guard() -> std::sync::MutexGuard<'static, ()> {
         static LOCK: std::sync::OnceLock<std::sync::Mutex<()>> = std::sync::OnceLock::new();
@@ -932,14 +1146,29 @@ mod tests {
             &self,
             path: &str,
             workspace_root: &str,
-        ) -> Result<
-            alex_runtime_ports::RedactedDocument,
-            alex_runtime_ports::DocumentRedactionError,
-        > {
+        ) -> Result<alex_runtime_ports::RedactedDocument, alex_runtime_ports::DocumentRedactionError>
+        {
             *self.seen.lock().unwrap() = Some((path.to_string(), workspace_root.to_string()));
             Ok(alex_runtime_ports::RedactedDocument {
                 markdown: "Contact [EMAIL_1].".to_string(),
                 source_format: "pdf".to_string(),
+                entities: vec![alex_runtime_ports::RedactedEntity {
+                    entity_id: "ENT_EMAIL_abcdef12".to_string(),
+                    entity_type: "EMAIL".to_string(),
+                    occurrence_count: 1,
+                }],
+            })
+        }
+
+        async fn redact_text(
+            &self,
+            _text: &str,
+            _workspace_root: &str,
+        ) -> Result<alex_runtime_ports::RedactedDocument, alex_runtime_ports::DocumentRedactionError>
+        {
+            Ok(alex_runtime_ports::RedactedDocument {
+                markdown: "Contact [EMAIL_1].".to_string(),
+                source_format: "text".to_string(),
                 entities: vec![alex_runtime_ports::RedactedEntity {
                     entity_id: "ENT_EMAIL_abcdef12".to_string(),
                     entity_type: "EMAIL".to_string(),
@@ -970,7 +1199,11 @@ mod tests {
         fs::write(&document, b"%PDF-1.7 not really a pdf").expect("write document");
 
         let tool = FileReadTool::new();
-        let context = local_context(root.clone());
+        let mut context = local_context(root.clone());
+        context.custom_data.insert(
+            MODEL_PRIVACY_ROUTE_CONTEXT_KEY.to_string(),
+            Value::String("api".to_string()),
+        );
         let (result, metadata) = tool
             .read_document_window(
                 &document.to_string_lossy(),
@@ -1007,6 +1240,45 @@ mod tests {
         assert_eq!(metadata.source_format, "pdf");
 
         let _ = fs::remove_dir_all(&root);
+    }
+
+    #[cfg(all(feature = "document-read", feature = "tools-rag"))]
+    #[tokio::test]
+    async fn a_text_read_is_redacted_before_model_presentation() {
+        let _guard = redaction_port_guard();
+        let redactor = Arc::new(StubRedactor {
+            seen: std::sync::Mutex::new(None),
+        });
+        crate::service::rag_search::set_global_document_redaction_port(Some(redactor));
+
+        let root = std::env::temp_dir().join("alex-file-read-inline-redaction-test");
+        let _ = fs::remove_dir_all(&root);
+        fs::create_dir_all(&root).expect("create temp root");
+        fs::write(&root.join("notes.txt"), "Contact jean@example.test").expect("write text");
+        let mut context = local_context(root.clone());
+        context.custom_data.insert(
+            MODEL_PRIVACY_ROUTE_CONTEXT_KEY.to_string(),
+            Value::String("api".to_string()),
+        );
+
+        let results = FileReadTool::new()
+            .call(&json!({ "file_path": "notes.txt" }), &context)
+            .await
+            .expect("text read should succeed");
+        let ToolResult::Result { data, .. } = &results[0] else {
+            panic!("expected result");
+        };
+        assert_eq!(data["content"], "Contact [EMAIL_1].");
+        assert!(!data["content"]
+            .as_str()
+            .expect("content")
+            .contains("jean@example.test"));
+        let file_path = data["file_path"].as_str().expect("opaque file path");
+        assert!(file_path.starts_with("[FILE_") && file_path.ends_with(']'));
+        assert!(!file_path.contains("notes.txt"));
+
+        crate::service::rag_search::set_global_document_redaction_port(None);
+        let _ = fs::remove_dir_all(root);
     }
 
     fn local_context(root: PathBuf) -> ToolUseContext {
@@ -1138,6 +1410,8 @@ mod tests {
 
     #[tokio::test]
     async fn remote_text_read_uses_the_shared_stream_parser_without_shell() {
+        #[cfg(feature = "document-read")]
+        let _guard = redaction_port_guard();
         let bytes = "first\r\n中😀文\r\nlast".as_bytes().to_vec();
         let context = remote_context(bytes, Arc::new(AtomicUsize::new(0)));
         let tool = FileReadTool::new();
@@ -1201,6 +1475,8 @@ mod tests {
 
     #[tokio::test]
     async fn read_tool_enforces_runtime_read_roots() {
+        #[cfg(feature = "document-read")]
+        let _guard = redaction_port_guard();
         let dir = tempfile::tempdir().expect("tempdir");
         let scope = "0123456789abcdef0123456789abcdef";
         let allowed_root = dir.path().join(".miniapp-context").join(scope);

@@ -14,8 +14,9 @@ use std::sync::{Mutex, OnceLock};
 use std::time::Duration;
 
 use alex_product_domains::remote_surface::{
-    capability_map, digest as remote_surface_digest, peer_host_verdict, peer_stance,
-    retired_reason, PeerHostKind, PeerHostVerdict, PeerStance,
+    capability_map_with_basemind, digest as remote_surface_digest, peer_host_verdict, peer_stance,
+    retired_reason, BasemindCapabilityAdvertisement, BasemindPrivacyCapabilities,
+    BasemindUnavailableReason, PeerHostKind, PeerHostVerdict, PeerStance,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -150,9 +151,7 @@ pub fn disconnect_controllers() -> Vec<String> {
     state.permission_request_ids.drain().collect()
 }
 
-pub fn track_permission_event(
-    event: &alex_agent_runtime::sdk::PermissionRequestEvent,
-) -> bool {
+pub fn track_permission_event(event: &alex_agent_runtime::sdk::PermissionRequestEvent) -> bool {
     let Ok(mut state) = peer_control_state().lock() else {
         return false;
     };
@@ -253,6 +252,7 @@ pub async fn peer_control_detach(controller_device_id: String) -> Result<(), Str
 
 #[tauri::command]
 pub async fn peer_mode_ping() -> Result<Value, String> {
+    let basemind = basemind_capability_advertisement();
     Ok(serde_json::json!({
         "ok": true,
         "peer": true,
@@ -271,11 +271,70 @@ pub async fn peer_mode_ping() -> Result<Value, String> {
         // which the controller resolves through `host_type`. The list is the
         // registry's, shared with the CLI host and the generated frontend
         // artifact, so a controller cannot probe a key no host will send.
-        "capabilities": Value::Object(capability_map(PeerHostKind::Desktop)),
+        "capabilities": Value::Object(capability_map_with_basemind(PeerHostKind::Desktop, &basemind)),
+        // The positive capability is omitted unless the host can prove the
+        // sidecar, NER model and fail-closed privacy pipeline are usable.
+        "basemind": serde_json::to_value(basemind).expect("Basemind capability serializes"),
         // Additive: lets a controller detect that this host and its own
         // generated tables were built from different registries.
         "surface_registry_digest": remote_surface_digest(),
     }))
+}
+
+#[cfg(feature = "basemind")]
+fn basemind_capability_advertisement() -> BasemindCapabilityAdvertisement {
+    let Some(_sidecar) = crate::basemind_sidecar_binary() else {
+        return BasemindCapabilityAdvertisement::unavailable(
+            BasemindUnavailableReason::SidecarBinaryMissing,
+        );
+    };
+    let Some(ner_model_dir) = crate::basemind_ner_model_dir() else {
+        return BasemindCapabilityAdvertisement::unavailable(
+            BasemindUnavailableReason::NerModelMissing,
+        );
+    };
+    if !ner_model_dir.join("model.safetensors").is_file() {
+        return BasemindCapabilityAdvertisement::unavailable(
+            BasemindUnavailableReason::NerModelMissing,
+        );
+    }
+    if alex_basemind_integration::daemon::discover().is_err() {
+        return BasemindCapabilityAdvertisement::unavailable(
+            BasemindUnavailableReason::SidecarUnavailable,
+        );
+    }
+    if !crate::basemind_privacy_bundle_ready() {
+        return BasemindCapabilityAdvertisement::unavailable(
+            BasemindUnavailableReason::PrivacyPipelineUnavailable,
+        );
+    }
+    let workspace_owner = alex_core::service::workspace::get_global_workspace_service()
+        .and_then(|service| service.try_get_current_workspace_path())
+        .is_some();
+    if !workspace_owner {
+        return BasemindCapabilityAdvertisement::unavailable(
+            BasemindUnavailableReason::WorkspaceOwnerUnknown,
+        );
+    }
+    let sidecar_version = alex_basemind_integration::daemon_version()
+        .or_else(|| Some(alex_basemind_integration::BASEMIND_VERSION.to_string()));
+    let ner_model_version = std::env::var("BASEMIND_NER_MODEL_VERSION")
+        .ok()
+        .filter(|version| !version.trim().is_empty())
+        .or_else(|| Some("bundled".to_string()));
+    BasemindCapabilityAdvertisement::from_host_facts(
+        true,
+        sidecar_version,
+        true,
+        ner_model_version,
+        BasemindPrivacyCapabilities::required(),
+        workspace_owner,
+    )
+}
+
+#[cfg(not(feature = "basemind"))]
+fn basemind_capability_advertisement() -> BasemindCapabilityAdvertisement {
+    BasemindCapabilityAdvertisement::unavailable(BasemindUnavailableReason::NotConfigured)
 }
 
 /// Mark this process as a Peer Mode controller so cloud pull does not rewrite local settings.
@@ -333,7 +392,7 @@ pub async fn dispatch(command: &str, args: Value) -> HostInvokeBridgeResult {
                     ok: false,
                     value: None,
                     error: Some(error),
-                }
+                };
             }
         };
     let response_scope =
@@ -483,6 +542,12 @@ mod tests {
         assert_eq!(
             capabilities.len(),
             alex_product_domains::remote_surface::advertised_by(PeerHostKind::Desktop).len()
+                - usize::from(
+                    !value
+                        .pointer("/capabilities/basemind_privacy_v1")
+                        .and_then(Value::as_bool)
+                        .unwrap_or(false),
+                )
         );
         assert!(value
             .get("surface_registry_digest")

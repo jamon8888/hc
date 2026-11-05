@@ -37,6 +37,7 @@ async fn build_transient_client(
     );
 
     let mut ai_config: alex_core::util::types::AIConfig = model_config
+        .clone()
         .try_into()
         .map_err(|e| format!("Failed to convert configuration: {}", e))?;
     let skip_ssl_verify = ai_config.skip_ssl_verify;
@@ -63,10 +64,13 @@ async fn build_transient_client(
     Ok(
         alex_core::infrastructure::ai::client_factory::apply_subscription_request_profile(
             &auth,
-            alex_core::infrastructure::ai::AIClient::new_with_runtime_options(
-                ai_config,
-                proxy_config,
-                stream_options,
+            alex_core::infrastructure::ai::client_factory::apply_model_privacy_route(
+                alex_core::infrastructure::ai::AIClient::new_with_runtime_options(
+                    ai_config,
+                    proxy_config,
+                    stream_options,
+                ),
+                &model_config,
             ),
         ),
     )

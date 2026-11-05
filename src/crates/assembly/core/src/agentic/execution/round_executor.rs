@@ -890,6 +890,13 @@ impl RoundExecutor {
             }
         };
 
+        // Keep the provider response tokenized at every runtime boundary:
+        // traces, transcript persistence, event delivery, and tool dispatch.
+        // Rehydration is an explicitly authorized human-rendering operation;
+        // doing it here would put the vault values back into model/runtime
+        // state and make them available to tools or remote controllers.
+        let stream_result = stream_result;
+
         Self::complete_model_exchange_trace(
             trace_config.as_ref(),
             final_trace_handle.as_ref(),
@@ -1103,6 +1110,16 @@ impl RoundExecutor {
                     .as_ref()
                     .map(|parent| parent.permission_delegation_context(&context.agent_type))
             });
+            let mut tool_context_vars = context.context_vars.clone();
+            tool_context_vars.insert(
+                "__alex_model_privacy_route".to_string(),
+                match ai_client.model_privacy_route() {
+                    alex_runtime_ports::ModelPrivacyRoute::Api => "api",
+                    alex_runtime_ports::ModelPrivacyRoute::Local => "local",
+                    alex_runtime_ports::ModelPrivacyRoute::Unknown => "unknown",
+                }
+                .to_string(),
+            );
             let tool_context = ToolExecutionContext {
                 session_id: context.session_id.clone(),
                 dialog_turn_id: context.dialog_turn_id.clone(),
@@ -1115,7 +1132,7 @@ impl RoundExecutor {
                 agent_type: context.agent_type.clone(),
                 workspace: context.workspace.clone(),
                 primary_model_facts: context.primary_model_facts.clone(),
-                context_vars: context.context_vars.clone(),
+                context_vars: tool_context_vars,
                 subagent_parent_info,
                 permission_delegation,
                 delegation_policy: context.delegation_policy,
@@ -1840,8 +1857,8 @@ pub(super) mod tests {
         pub(in crate::agentic::execution) fn client(
             &self,
         ) -> Arc<crate::infrastructure::ai::AIClient> {
-            Arc::new(crate::infrastructure::ai::AIClient::new(
-                alex_core_types::AIConfig {
+            Arc::new(
+                crate::infrastructure::ai::AIClient::new(alex_core_types::AIConfig {
                     name: "retry-test".to_string(),
                     base_url: self.url.clone(),
                     request_url: self.url.clone(),
@@ -1858,8 +1875,14 @@ pub(super) mod tests {
                     skip_ssl_verify: false,
                     custom_request_body: None,
                     custom_request_body_mode: None,
-                },
-            ))
+                })
+                .with_model_egress_policy(Some(
+                    crate::service::model_egress::test_passthrough_model_egress_policy(),
+                ))
+                .with_declared_model_privacy_route(Some(
+                    alex_runtime_ports::ModelPrivacyRoute::Api,
+                )),
+            )
         }
     }
 

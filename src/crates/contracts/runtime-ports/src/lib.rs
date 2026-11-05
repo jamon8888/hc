@@ -19,6 +19,8 @@ mod document_redaction;
 mod hook_function;
 #[cfg(feature = "workspace-ports")]
 mod local_workspace_snapshot;
+#[cfg(feature = "model-egress")]
+mod model_egress;
 #[cfg(feature = "permission")]
 mod permission;
 #[cfg(feature = "plugin-runtime")]
@@ -31,6 +33,23 @@ mod rag_search;
 mod script_tool;
 #[cfg(feature = "web-search-port")]
 mod web_search;
+#[cfg(feature = "product-search")]
+pub use alex_product_domains::product_search::{
+    SessionContentSearchRequest, SessionContentSearchResponse,
+};
+#[cfg(feature = "permission")]
+pub use alex_product_domains::tool_permissions::{
+    ChildPermissionPolicyLayers, PermissionAuditEvent, PermissionAuditRecord,
+    PermissionConstraintLayer, PermissionDelegationContext, PermissionEffect, PermissionEvaluator,
+    PermissionGrant, PermissionGrantKey, PermissionInteractionConfig, PermissionMode,
+    PermissionModeLayers, PermissionModeSource, PermissionPolicyConfig, PermissionPolicyLayers,
+    PermissionPolicyPreset, PermissionReply, PermissionReplySource, PermissionRequest,
+    PermissionRequestEvent, PermissionRequestSource, PermissionRequestSourceKind,
+    PermissionResourceCaseSensitivity, PermissionRule, PermissionRuleset, PermissionRuntimeCeiling,
+    PermissionRuntimeCeilingValidationError, ResolvedPermissionMode, ResolvedPermissionPolicy,
+    ToolPermissionConfig, deserialize_optional_permission_mode, resolve_child_permission_policy,
+    resolve_permission_mode, resolve_permission_policy, wildcard_matches,
+};
 #[cfg(feature = "rag-search")]
 pub use document_redaction::*;
 #[cfg(feature = "hook-function-runtime")]
@@ -40,30 +59,14 @@ pub use local_workspace_snapshot::{
     LocalWorkspaceSnapshotPort, LocalWorkspaceSnapshotSessionRequest, LocalWorkspaceSnapshotStats,
     LocalWorkspaceSnapshotTurnRequest,
 };
-#[cfg(feature = "product-search")]
-pub use alex_product_domains::product_search::{
-    SessionContentSearchRequest, SessionContentSearchResponse,
-};
-#[cfg(feature = "permission")]
-pub use alex_product_domains::tool_permissions::{
-    deserialize_optional_permission_mode, resolve_child_permission_policy, resolve_permission_mode,
-    resolve_permission_policy, wildcard_matches, ChildPermissionPolicyLayers, PermissionAuditEvent,
-    PermissionAuditRecord, PermissionConstraintLayer, PermissionDelegationContext,
-    PermissionEffect, PermissionEvaluator, PermissionGrant, PermissionGrantKey,
-    PermissionInteractionConfig, PermissionMode, PermissionModeLayers, PermissionModeSource,
-    PermissionPolicyConfig, PermissionPolicyLayers, PermissionPolicyPreset, PermissionReply,
-    PermissionReplySource, PermissionRequest, PermissionRequestEvent, PermissionRequestSource,
-    PermissionRequestSourceKind, PermissionResourceCaseSensitivity, PermissionRule,
-    PermissionRuleset, PermissionRuntimeCeiling, PermissionRuntimeCeilingValidationError,
-    ResolvedPermissionMode, ResolvedPermissionPolicy, ToolPermissionConfig,
-};
+#[cfg(feature = "model-egress")]
+pub use model_egress::*;
 #[cfg(feature = "permission")]
 pub use permission::{
     PermissionAuditStorePort, PermissionGrantStorePort, PermissionReplyStorePort,
 };
 #[cfg(feature = "plugin-runtime")]
 pub use plugin::{
-    validate_plugin_dispatch_response, validate_plugin_runtime_read_response,
     DisabledPluginRuntimeClient, ExtensionCapabilityAvailability, PermissionPromptDenyState,
     PermissionPromptDescriptor, PermissionPromptEffectKind, PluginArtifactRef, PluginAuditRef,
     PluginCapabilityRef, PluginConfigValidationIssue, PluginConfigValidationState,
@@ -77,6 +80,7 @@ pub use plugin::{
     PluginRuntimeClient, PluginRuntimeEpochs, PluginRuntimeReadRequest, PluginRuntimeReadResponse,
     PluginRuntimeUnavailableReason, PluginSourceKind, PluginSourceRef, PluginStatusKind,
     PluginStatusSnapshot, PluginTargetRef, PluginTrustLevel, ProjectionOnlyPluginRuntimeClient,
+    validate_plugin_dispatch_response, validate_plugin_runtime_read_response,
 };
 #[cfg(feature = "product-search")]
 pub use product_search::ProductSearchPort;

@@ -24,6 +24,7 @@ async-trait = { workspace = true }
 base64 = { workspace = true, optional = true }
 alex-agent-stream = { path = "../../execution/agent-stream" }
 alex-core-types = { path = "../../contracts/core-types" }
+alex-runtime-ports = { path = "../../contracts/runtime-ports", features = ["model-egress"] }
 alex-services-core = { path = "../../services/services-core", features = ["tls-provider"] }
 chrono = { workspace = true }
 dirs = { workspace = true, optional = true }

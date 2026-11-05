@@ -63,6 +63,18 @@ impl SessionVault {
         crate::vault::vault_decrypt(&encrypted, &self.passphrase).map_err(anyhow::Error::new)
     }
 
+    /// Only a genuinely absent session may be treated as first use. Corrupt,
+    /// unreadable, or undecryptable vault state must remain an error.
+    pub fn is_missing_session_error(error: &anyhow::Error) -> bool {
+        error
+            .downcast_ref::<std::io::Error>()
+            .is_some_and(|error| error.kind() == std::io::ErrorKind::NotFound)
+    }
+
+    pub fn session_exists(&self, session_id: &str) -> bool {
+        self.vault_dir.join(format!("{session_id}.vault")).is_file()
+    }
+
     /// Delete a session's vault file on expiry.
     pub fn delete_session(&self, session_id: &str) -> Result<()> {
         let path = self.vault_dir.join(format!("{session_id}.vault"));

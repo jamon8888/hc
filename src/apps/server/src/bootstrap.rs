@@ -6,12 +6,57 @@ use alex_core::agentic::{agents, coordination, system, tools};
 use alex_core::infrastructure::ai::AIClientFactory;
 use alex_core::infrastructure::try_get_path_manager_arc;
 use alex_core::product_runtime::{
-    ensure_product_dialog_scheduler, CoreProductEventQueueOwner, CoreRuntimeServicesProvider,
+    CoreProductEventQueueOwner, CoreRuntimeServicesProvider, ensure_product_dialog_scheduler,
 };
 use alex_core::runtime_ownership::CoreRuntimeOwnership;
 use alex_core::service::{config, filesystem, mcp, token_usage, workspace};
 use std::sync::Arc;
 use tokio::sync::RwLock;
+
+fn publish_basemind_model_egress_policy(workspace_root: Option<&std::path::Path>) {
+    let Some(ner_model_dir) = std::env::var_os("BASEMIND_NER_MODEL_DIR") else {
+        log::warn!(
+            "Basemind server policy remains unavailable: BASEMIND_NER_MODEL_DIR is not configured"
+        );
+        return;
+    };
+    let data_dir = match try_get_path_manager_arc() {
+        Ok(manager) => {
+            let base = manager.user_data_dir().join("basemind");
+            workspace_root.map_or(base.clone(), |root| {
+                alex_basemind_integration::workspace_data_dir(base, root)
+            })
+        }
+        Err(error) => {
+            log::warn!("Basemind server policy is unavailable: {error}");
+            return;
+        }
+    };
+    let daemon_binary = std::env::var_os("BASEMIND_SIDECAR_PATH").map(std::path::PathBuf::from);
+    let bundle = match alex_basemind_integration::build_privacy_bundle(
+        data_dir,
+        daemon_binary,
+        std::path::PathBuf::from(ner_model_dir),
+        workspace_root,
+    ) {
+        Ok(bundle) => bundle,
+        Err(error) => {
+            log::warn!("Basemind server policy is unavailable: {error}");
+            return;
+        }
+    };
+    alex_core::service::model_egress::set_global_model_egress_policy(Some(bundle.model_egress));
+    alex_core::service::rag_search::set_global_prompt_pseudonymization_port(Some(
+        bundle.pseudonymizer.clone(),
+    ));
+    alex_core::service::rag_search::set_global_rag_search_port(Some(bundle.rag_search));
+    alex_core::service::rag_search::set_global_document_redaction_port(Some(
+        bundle.document_redaction,
+    ));
+    log::info!(
+        "Basemind model egress, prompt pseudonymization, document redaction and search published for server host"
+    );
+}
 
 /// Shared application state for the server (mirrors Desktop's AppState).
 ///
@@ -51,11 +96,16 @@ pub(crate) async fn initialize(workspace: Option<String>) -> anyhow::Result<Arc<
     config::initialize_global_config().await?;
     let config_service = config::get_global_config_service().await?;
 
+    // API model egress is fail-closed until this host publishes a concrete
+    // Basemind policy. Local loopback models remain untouched by the policy.
+    alex_core::service::model_egress::install_refusing_model_egress_policy(
+        "model egress refused: this server host has no Basemind privacy policy",
+    );
+
     // Initialize the global I18nService so server-mode bot/remote-connect
     // consumers observe the same runtime locale lifecycle as Desktop.
     if let Err(e) =
-        alex_core::service::i18n::initialize_global_i18n_service(Some(config_service.clone()))
-            .await
+        alex_core::service::i18n::initialize_global_i18n_service(Some(config_service.clone())).await
     {
         log::warn!(
             "Failed to initialize global I18nService in server mode: {}",
@@ -154,6 +204,12 @@ pub(crate) async fn initialize(workspace: Option<String>) -> anyhow::Result<Arc<
         // Try to restore last workspace
         workspace_service.get_current_workspace().await
     };
+
+    publish_basemind_model_egress_policy(
+        initial_workspace
+            .as_ref()
+            .map(|workspace| workspace.root_path.as_path()),
+    );
 
     if let Err(error) = alex_core::plugin_host::initialize_configured_plugin_host(
         alex_core::plugin_host::PluginHostLaunchPolicy::Enabled,
