@@ -75,6 +75,8 @@ pub use self::redaction::{RedactedDocument, RedactionStore};
 #[cfg(feature = "basemind")]
 pub use self::session_vault::SessionVault;
 #[cfg(feature = "basemind")]
+pub use self::session_vault::connection_test_session_id;
+#[cfg(feature = "basemind")]
 pub use self::token::mint_session_token;
 #[cfg(feature = "basemind")]
 pub use self::vault::{vault_decrypt, vault_encrypt, VaultError};

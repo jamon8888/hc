@@ -22,6 +22,8 @@ use std::convert::TryFrom;
 use std::path::{Path, PathBuf};
 #[cfg(feature = "document-read")]
 use std::io::Write;
+#[cfg(all(feature = "document-read", unix))]
+use std::os::unix::fs::OpenOptionsExt;
 #[cfg(feature = "document-read")]
 use std::time::Duration;
 use std::time::Instant;
@@ -82,13 +84,15 @@ fn stage_document_for_redaction(bytes: &[u8], source_path: &str) -> std::io::Res
         .map(|extension| format!(".{extension}"))
         .unwrap_or_default();
     let path = std::env::temp_dir().join(format!("alex-document-{}{}", uuid::Uuid::new_v4(), extension));
-    let mut file = std::fs::OpenOptions::new()
-        .write(true)
-        .create_new(true)
-        .open(&path)?;
+    let mut options = std::fs::OpenOptions::new();
+    options.write(true).create_new(true);
+    #[cfg(unix)]
+    options.mode(0o600);
+    let mut file = options.open(&path)?;
+    let staged = StagedDocument { path };
     file.write_all(bytes)?;
     file.flush()?;
-    Ok(StagedDocument { path })
+    Ok(staged)
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

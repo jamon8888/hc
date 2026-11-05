@@ -76,7 +76,9 @@ pub(crate) fn model_from_mutation(
     mutation: ModelMutation,
     existing: Option<alex_core::service::config::AIModelConfig>,
 ) -> Result<alex_core::service::config::AIModelConfig> {
+    let is_new = existing.is_none();
     let current = existing.unwrap_or_default();
+    let base_url_changed = !is_new && mutation.base_url != current.base_url;
     let api_key = secret_update_value(mutation.api_key, Some(current.api_key));
     let custom_headers = headers_update(mutation.custom_headers, current.custom_headers)?;
     let custom_request_body =
@@ -87,11 +89,11 @@ pub(crate) fn model_from_mutation(
         provider: mutation.provider,
         model_name: mutation.model_name,
         base_url: mutation.base_url,
-        privacy_route: current
-            .privacy_route
-            .or(Some(
-                alex_core::service::config::types::ModelPrivacyRouteConfig::Api,
-            )),
+        privacy_route: if is_new || base_url_changed {
+            Some(alex_core::service::config::types::ModelPrivacyRouteConfig::Api)
+        } else {
+            current.privacy_route
+        },
         request_url: current.request_url,
         api_key,
         context_window: mutation.context_window,

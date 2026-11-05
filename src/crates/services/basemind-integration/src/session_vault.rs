@@ -9,11 +9,21 @@ use anyhow::Result;
 #[cfg(feature = "basemind")]
 use serde::{Deserialize, Serialize};
 #[cfg(feature = "basemind")]
+use sha2::{Digest, Sha256};
+#[cfg(feature = "basemind")]
 use std::collections::BTreeMap;
 #[cfg(feature = "basemind")]
 use std::fs;
 #[cfg(feature = "basemind")]
 use std::path::PathBuf;
+
+#[cfg(feature = "basemind")]
+/// Build the file-safe, stable session key used by connection tests.
+pub fn connection_test_session_id(model_id: &str) -> String {
+    let mut hasher = Sha256::new();
+    hasher.update(model_id.as_bytes());
+    format!("connection-test-{}", hex::encode(hasher.finalize()))
+}
 
 #[cfg(feature = "basemind")]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -87,5 +97,23 @@ impl SessionVault {
         let mut bytes = [0u8; 16]; // 128-bit
         rand::RngCore::fill_bytes(&mut rand::rngs::OsRng, &mut bytes);
         hex::encode(bytes)
+    }
+}
+
+#[cfg(all(test, feature = "basemind"))]
+mod tests {
+    use super::connection_test_session_id;
+
+    #[test]
+    fn connection_test_session_id_is_stable_and_file_safe() {
+        let first = connection_test_session_id(r"provider/model:with\separators");
+        assert_eq!(
+            first,
+            connection_test_session_id(r"provider/model:with\separators")
+        );
+        assert!(first.starts_with("connection-test-"));
+        assert!(first
+            .chars()
+            .all(|character| character.is_ascii_alphanumeric() || character == '-'));
     }
 }

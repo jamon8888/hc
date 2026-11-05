@@ -133,7 +133,9 @@ pub(crate) async fn test_ai_config_connection(args: &Value) -> Result<Value, Str
         None => None,
     };
     let request_context = alex_core_types::ModelRequestContext {
-        session_id: Some(format!("connection-test:{}", config.id)),
+        session_id: Some(alex_basemind_integration::connection_test_session_id(
+            &config.id,
+        )),
         workspace_root,
         ..Default::default()
     };

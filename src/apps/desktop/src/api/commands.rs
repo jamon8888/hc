@@ -1157,7 +1157,9 @@ pub async fn test_ai_config_connection(
     );
 
     let request_context = alex_core_types::ModelRequestContext {
-        session_id: Some(format!("connection-test:{}", request.config.id)),
+        session_id: Some(alex_basemind_integration::connection_test_session_id(
+            &request.config.id,
+        )),
         workspace_root: state
             .workspace_service
             .get_current_workspace()
