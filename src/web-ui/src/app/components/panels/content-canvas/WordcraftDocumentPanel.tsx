@@ -40,6 +40,8 @@ export default function WordcraftDocumentPanel({
   const { t } = useI18n('components');
   const documentSession = useEditorDocument();
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const disposeEmbeddedRef = useRef<(() => void) | null>(null);
+  const releasedSurfaceRef = useRef<string | null>(null);
   const isActiveRef = useRef(isActive);
   const dirtyStateChangeRef = useRef(onDirtyStateChange);
   const [surface, setSurface] = useState<WordcraftWebHostResponseDto | null>(null);
@@ -62,6 +64,7 @@ export default function WordcraftDocumentPanel({
   useEffect(() => {
     let active = true;
     let hostedSurface: WordcraftWebHostResponseDto | null = null;
+    releasedSurfaceRef.current = null;
     setSurface(null);
     setBytes(null);
     setError(null);
@@ -101,7 +104,7 @@ export default function WordcraftDocumentPanel({
     void loadDocument();
     return () => {
       active = false;
-      if (hostedSurface) {
+      if (hostedSurface && releasedSurfaceRef.current !== hostedSurface.sessionId) {
         void wordcraftAPI.releaseWebSurface(hostedSurface.sessionId).catch(() => undefined);
       }
     };
@@ -228,7 +231,10 @@ export default function WordcraftDocumentPanel({
     const onMessage = (event: MessageEvent<unknown>) => bridge.handleMessage(event);
     window.addEventListener('message', onMessage);
 
-    return () => {
+    let embeddedDisposed = false;
+    const disposeEmbedded = () => {
+      if (embeddedDisposed) return;
+      embeddedDisposed = true;
       window.removeEventListener('message', onMessage);
       if (documentSession?.save === saveDocument) {
         documentSession.save = undefined;
@@ -238,6 +244,14 @@ export default function WordcraftDocumentPanel({
       sessionRef.current = null;
       session.dispose();
       bridgeRef.current = null;
+    };
+    disposeEmbeddedRef.current = disposeEmbedded;
+
+    return () => {
+      if (disposeEmbeddedRef.current === disposeEmbedded) {
+        disposeEmbeddedRef.current = null;
+      }
+      disposeEmbedded();
     };
   }, [bytes, documentSession, fileName, filePath, surface, surfaceId, t, workspaceId]);
 
@@ -253,6 +267,12 @@ export default function WordcraftDocumentPanel({
       setFallbackState('opening');
       setFallbackError(null);
       try {
+        disposeEmbeddedRef.current?.();
+        setSurface(null);
+        if (surface) {
+          releasedSurfaceRef.current = surface.sessionId;
+          await wordcraftAPI.releaseWebSurface(surface.sessionId);
+        }
         await wordcraftAPI.openDocument({ path: filePath, workspaceId });
         setFallbackState('opened');
       } catch (fallbackOpenError) {
