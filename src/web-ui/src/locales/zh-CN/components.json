@@ -616,6 +616,7 @@
     },
     "wordcraft": {
       "localOnly": "嵌入式 WordCraft 文档仅支持本地桌面界面。",
+      "surfaceRequired": "WordCraft 无法打开此文档，因为设备界面未知。",
       "workspaceRequired": "WordCraft 需要工作区标识才能打开此文档。",
       "frameUnavailable": "WordCraft 网页界面未创建浏览器框架。",
       "nativeUnavailable": "原生 WordCraft 窗口不可用。请查看能力详情和修复建议。",

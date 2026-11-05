@@ -42,3 +42,11 @@ with `agent-runtime,git,mcp-runtime,ssh-remote,tools-wordcraft` — passed.
 The host-managed pinned-artifact provisioning, persistent per-user/per-workspace
 daemon attach/reconnect, peer/mobile/detached capability negotiation, and real
 remote-host evidence remain required before this issue can be resolved.
+
+2026-11-05: Review follow-up now fails closed when a persisted document tab has
+no surface identity; it does not default to the local embedded editor. The
+remote owner seam also requires an owner-advertised absolute POSIX executable,
+version, and MCP capability before constructing a command. Focused verification:
+34 MCP/server tests passed and the WordCraft panel test passed (3 tests). This
+is still a guard and transport seam, not completion of provisioning, daemon
+reconnect, or the peer/mobile/detached capability paths.
