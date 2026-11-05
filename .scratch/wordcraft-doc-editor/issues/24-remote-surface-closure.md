@@ -47,6 +47,11 @@ remote-host evidence remain required before this issue can be resolved.
 no surface identity; it does not default to the local embedded editor. The
 remote owner seam also requires an owner-advertised absolute POSIX executable,
 version, and MCP capability before constructing a command. Focused verification:
-34 MCP/server tests passed and the WordCraft panel test passed (3 tests). This
-is still a guard and transport seam, not completion of provisioning, daemon
-reconnect, or the peer/mobile/detached capability paths.
+35 MCP/server tests passed and the WordCraft panel test passed (3 tests).
+
+2026-11-05: Added `WordcraftRemoteSessionRegistry`, which retains one
+connection/workspace/session owner, revalidates executable/version/root identity
+before attach, refuses mismatched keys, and has no idle reaper. The registry is
+the in-process owner seam; host-managed pinned-artifact provisioning, a
+cross-restart daemon, peer/mobile/detached capability negotiation, and real
+remote-host evidence remain required before this issue can be resolved.
