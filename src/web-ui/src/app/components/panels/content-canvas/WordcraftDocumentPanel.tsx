@@ -1,7 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { workspaceAPI } from '@/infrastructure/api/service-api/WorkspaceAPI';
-import { wordcraftAPI, type WordcraftWebHostResponseDto } from '@/infrastructure/api/service-api/WordcraftAPI';
+import {
+  wordcraftAPI,
+  type WordcraftCapabilityDto,
+  type WordcraftWebHostResponseDto,
+} from '@/infrastructure/api/service-api/WordcraftAPI';
 import { WordcraftBridge, type WordcraftBridgeCommand } from '@/infrastructure/api/service-api/WordcraftBridge';
 import { WordcraftDocumentHost } from '@/infrastructure/api/service-api/WordcraftDocumentHost';
 import { WordcraftEmbeddedDocumentSession } from '@/infrastructure/api/service-api/WordcraftEmbeddedDocumentSession';
@@ -41,6 +45,9 @@ export default function WordcraftDocumentPanel({
   const [surface, setSurface] = useState<WordcraftWebHostResponseDto | null>(null);
   const [bytes, setBytes] = useState<Uint8Array | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [fallbackCapability, setFallbackCapability] = useState<WordcraftCapabilityDto | null>(null);
+  const [fallbackState, setFallbackState] = useState<'idle' | 'opening' | 'opened' | 'failed'>('idle');
+  const [fallbackError, setFallbackError] = useState<string | null>(null);
 
   useEffect(() => {
     dirtyStateChangeRef.current = onDirtyStateChange;
@@ -58,6 +65,9 @@ export default function WordcraftDocumentPanel({
     setSurface(null);
     setBytes(null);
     setError(null);
+    setFallbackCapability(null);
+    setFallbackState('idle');
+    setFallbackError(null);
 
     async function loadDocument() {
       if (!isLocalSurface(surfaceId)) {
@@ -96,6 +106,17 @@ export default function WordcraftDocumentPanel({
       }
     };
   }, [filePath, surfaceId, t, workspaceId]);
+
+  useEffect(() => {
+    if (!error || !workspaceId || !isLocalSurface(surfaceId)) return;
+    let active = true;
+    void wordcraftAPI.statusQuiet().then(capability => {
+      if (active) setFallbackCapability(capability);
+    });
+    return () => {
+      active = false;
+    };
+  }, [error, surfaceId, workspaceId]);
 
   useEffect(() => {
     if (!surface || !bytes) return;
@@ -221,9 +242,46 @@ export default function WordcraftDocumentPanel({
   }, [bytes, documentSession, fileName, filePath, surface, surfaceId, t, workspaceId]);
 
   if (error) {
+    const nativeFallbackAvailable =
+      fallbackCapability?.status === 'available' && Boolean(fallbackCapability.app);
+    const fallbackDetail =
+      fallbackError ||
+      fallbackCapability?.remediation ||
+      fallbackCapability?.message ||
+      (!nativeFallbackAvailable ? t('flexiblePanel.wordcraft.nativeUnavailable') : null);
+    const openNativeFallback = async () => {
+      setFallbackState('opening');
+      setFallbackError(null);
+      try {
+        await wordcraftAPI.openDocument({ path: filePath, workspaceId });
+        setFallbackState('opened');
+      } catch (fallbackOpenError) {
+        setFallbackState('failed');
+        setFallbackError(
+          fallbackOpenError instanceof Error ? fallbackOpenError.message : String(fallbackOpenError),
+        );
+      }
+    };
     return (
       <div className="alex-flexible-panel__loading" role="alert">
-        {error}
+        <div>{error}</div>
+        {fallbackDetail && <div role="status">{fallbackDetail}</div>}
+        {nativeFallbackAvailable && fallbackState !== 'opened' && (
+          <button
+            type="button"
+            onClick={() => void openNativeFallback()}
+            disabled={fallbackState === 'opening'}
+            data-alex-component="wordcraft-fallback"
+            data-alex-state={fallbackState}
+          >
+            {fallbackState === 'opening'
+              ? t('flexiblePanel.wordcraft.openingNative')
+              : t('flexiblePanel.wordcraft.openNative')}
+          </button>
+        )}
+        {fallbackState === 'opened' && (
+          <div role="status">{t('flexiblePanel.wordcraft.nativeOpened')}</div>
+        )}
       </div>
     );
   }

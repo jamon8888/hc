@@ -1,7 +1,7 @@
 # 23: Fallback and format-safe routing
 
 `Type: task`
-`Status: open`
+`Status: claimed`
 Triage label: ready-for-agent
 
 Blocked by: 19 (Human-editable embedded `.docx` surface), 21 (Single-writer persistence and recovery)
@@ -26,3 +26,16 @@ options and preserving ownership of every other document format.
       incompatible protocol leaves the record intact with an actionable state.
 - [ ] Routing tests cover available, unavailable, incompatible, explicit-bypass,
       non-`.docx`, and upgrade cases.
+
+## Comments
+
+2026-11-05 implementation continuation:
+
+- `WordcraftDocumentPanel` now probes the shared capability record after an
+  embedded host or protocol failure. When the local native app is available it
+  presents an explicit native-window action and reports success; when it is
+  unavailable it shows the capability remediation and never renders the `.docx`
+  as code or binary text.
+- Added browser-panel regression coverage for both native recovery and the
+  unavailable/remediation path. The real packaged WebView and device rollout
+  gates remain tracked by tickets 18, 19, and 25.
