@@ -8,7 +8,7 @@ The **irreversible** removal of a PII value from text so the original cannot be 
 
 ## Pseudonymization
 
-The **reversible** substitution of a PII value with a stand-in token. Applied to everything crossing toward a model: user prompts first of all, and RAG hits on their way out. Unlike Redaction, the original value is retained in a protected store so the token can later be resolved back. The stand-in derives from Entity identity — an HMAC of the workspace Alias under a per-session secret — so the same entity is the same token within a session, a different token in every other session, and neither the Alias nor the session secret can be read off the token.
+The **reversible** substitution of a PII value with a stand-in token. Applied to everything crossing toward an API-backed model: user prompts first of all, RAG hits on their way out, tool results, reasoning content, and tool-call arguments. Explicitly identified loopback/local models receive the original context; an unknown route is refused. Unlike Redaction, the original value is retained in a protected store so the token can later be resolved back. The stand-in derives from Entity identity — an HMAC of the workspace Alias under a per-session secret — so the same entity is the same token within a session, a different token in every other session, and neither the Alias nor the session secret can be read off the token.
 
 ## Rehydration
 

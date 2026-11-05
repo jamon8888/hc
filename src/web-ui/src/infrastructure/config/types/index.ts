@@ -271,6 +271,7 @@ export const CATEGORY_ICONS: Record<ModelCategory, string> = {
 
 export type CustomHeadersMode = 'replace' | 'merge';
 export type CustomRequestBodyMode = 'merge' | 'trim';
+export type ModelPrivacyRoute = 'api' | 'local' | 'unknown';
 
 export interface AIModelConfig {
   id?: string;
@@ -280,6 +281,8 @@ export interface AIModelConfig {
   base_url: string;
   /** Computed actual request URL, derived from base_url + provider format. Stored on save. */
   request_url?: string;
+  /** Explicit model egress route; omitted legacy configs fail closed as unknown. */
+  privacy_route?: ModelPrivacyRoute;
   model_name: string;
   context_window?: number;
   max_tokens?: number;

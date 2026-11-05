@@ -291,6 +291,13 @@
     "modelSelection": "Sélectionner les Modèles",
     "modelNameHint": "GLM-ASR utilise glm-asr, les autres modèles vocaux utilisent leurs noms de modèles correspondants",
     "baseUrl": "URL de l'API",
+    "privacyRoute": "Route de confidentialité",
+    "privacyRouteHint": "Choisissez explicitement. Les routes inconnues sont refusées ; les modèles locaux reçoivent le contexte original et les API sont pseudonymisées.",
+    "privacyRouteOptions": {
+      "api": "API distante (pseudonymiser)",
+      "local": "Modèle local (contexte original)",
+      "unknown": "Inconnue (refuser les requêtes)"
+    },
     "resolvedUrlLabel": "URL de requête : ",
     "forceUrlHint": "Ajoutez # pour forcer l'utilisation de l'URL exacte que vous avez entrée",
     "apiKey": "Clé API",

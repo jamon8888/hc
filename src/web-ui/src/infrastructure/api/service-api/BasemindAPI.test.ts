@@ -82,4 +82,15 @@ describe('BasemindAPI', () => {
       request: { workspaceId: 'workspace-1', entityId: 'p1' },
     });
   });
+
+  it('rehydrates model text through the UI-only host command', async () => {
+    invokeMock.mockResolvedValue('Jean Dupont a signé');
+
+    await expect(basemindAPI.rehydrateModelText('[PERSON_abc] a signé', 'session-1', 'workspace-1'))
+      .resolves.toBe('Jean Dupont a signé');
+    expect(invokeMock).toHaveBeenCalledWith('basemind_rehydrate_model_text', {
+      request: { workspaceId: 'workspace-1', sessionId: 'session-1', text: '[PERSON_abc] a signé' },
+    });
+  });
+
 });
