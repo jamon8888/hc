@@ -192,6 +192,7 @@ export const PEER_HOST_CAPABILITY_IDS = [
   "workspace_binary_file_writes_v1",
   "user_question_response",
   "user_question_interaction_v1",
+  "wordcraft_embedded_surface_v1",
 ] as const;
 
 export type PeerHostCapabilityId = (typeof PEER_HOST_CAPABILITY_IDS)[number];
@@ -222,6 +223,7 @@ export const PEER_HOST_ADVERTISED_CAPABILITIES: Readonly<
     "workspace_binary_file_writes_v1",
     "user_question_response",
     "user_question_interaction_v1",
+    "wordcraft_embedded_surface_v1",
   ],
   cli: [
     "basemind_privacy_v1",

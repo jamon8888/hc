@@ -55,3 +55,10 @@ before attach, refuses mismatched keys, and has no idle reaper. The registry is
 the in-process owner seam; host-managed pinned-artifact provisioning, a
 cross-restart daemon, peer/mobile/detached capability negotiation, and real
 remote-host evidence remain required before this issue can be resolved.
+
+2026-11-05: Added the typed `wordcraft_embedded_surface_v1` peer capability to
+the Product Operation Registry. Desktop peers advertise it; CLI peers do not,
+so a controller can distinguish a visible embedded host from a headless host
+before forwarding controller-local WordCraft operations. The generated Rust
+and Web UI projections were refreshed, and the product-domain capability suite
+passes (19 tests).
