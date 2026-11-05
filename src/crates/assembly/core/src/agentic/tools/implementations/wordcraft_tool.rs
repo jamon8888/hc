@@ -24,8 +24,8 @@ const OPERATIONS: &[&str] = &[
     "save_document",
 ];
 
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, Default, Deserialize)]
+#[serde(rename_all = "camelCase", default)]
 struct DocumentAgentContext {
     kind: String,
     surface: String,
@@ -428,7 +428,7 @@ impl Tool for WordcraftTool {
 
 #[cfg(test)]
 mod tests {
-    use super::{prepare_batch_params, validate_tracking_execute};
+    use super::{prepare_batch_params, validate_tracking_execute, DocumentAgentContext};
     use serde_json::json;
 
     #[test]
@@ -473,5 +473,19 @@ mod tests {
         }))
         .expect_err("tracking must be explicitly enabled");
         assert!(error.to_string().contains("cannot disable tracked changes"));
+    }
+    #[test]
+    fn legacy_partial_context_defaults_to_an_explicitly_unavailable_context() {
+        let context: DocumentAgentContext = serde_json::from_value(json!({
+            "kind": "document",
+            "surface": "wordcraft-embedded",
+            "status": "ready",
+        }))
+        .expect("partial legacy context should remain readable");
+
+        assert!(context.document_id.is_empty());
+        assert!(context.session_id.is_empty());
+        assert_eq!(context.revision, 0);
+        assert!(context.capabilities.is_empty());
     }
 }
