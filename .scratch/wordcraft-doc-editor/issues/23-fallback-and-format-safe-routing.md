@@ -38,6 +38,9 @@ ownership of every other document format.
   presents an explicit native-window action and reports success; when it is
   unavailable it shows the capability remediation and never renders the `.docx`
   as code or binary text.
+- Native recovery first disposes the embedded bridge/session and releases its
+  hosted surface, preventing a second writer from opening alongside a failed
+  embedded session.
 - Added browser-panel regression coverage for both native recovery and the
   unavailable/remediation path. The real packaged WebView and device rollout
   gates remain tracked by tickets 18, 19, and 25.

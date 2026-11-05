@@ -1,7 +1,7 @@
 # 21: Single-writer persistence and recovery
 
 `Type: task`
-`Status: open`
+`Status: claimed`
 Triage label: ready-for-agent
 
 Blocked by: 19 (Human-editable embedded `.docx` surface), 20 (Embedded WordCraft command bridge)
@@ -37,3 +37,14 @@ save completion durable, revision-aware, and recoverable.
   delivered. Focused bridge/session tests cover this recovery path.
 - Remaining acceptance work is the packaged WebView/device crash validation and
   broader concurrency/writer-ownership coverage.
+
+## Comments
+
+2026-11-05 implementation continuation:
+
+- Native recovery now explicitly disposes the embedded bridge/session and
+  releases the hosted surface before launching the native WordCraft window.
+  This prevents a late iframe/protocol failure from leaving two writers alive
+  for the same document.
+- Added panel regressions for native recovery and unavailable remediation. The
+  packaged WebView/device crash and cross-process ownership gates remain open.
