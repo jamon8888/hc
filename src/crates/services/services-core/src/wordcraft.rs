@@ -646,7 +646,7 @@ pub mod checksum {
     //! Release-archive verification against upstream `SHA256SUMS.txt`.
 
     use sha2::{Digest, Sha256};
-    use std::path::Path;
+    use std::path::{Component, Path, PathBuf};
 
     #[derive(Debug)]
     pub enum ChecksumError {
@@ -693,7 +693,7 @@ pub mod checksum {
         dir: &Path,
         sums_text: &str,
     ) -> Result<(), ChecksumError> {
-        let mut listed: Vec<(String, String)> = Vec::new();
+        let mut listed: Vec<(String, String, PathBuf)> = Vec::new();
         for line in sums_text.lines() {
             let line = line.trim();
             if line.is_empty() || line.starts_with('#') {
@@ -702,11 +702,13 @@ pub mod checksum {
             let Some((hash, rest)) = line.split_once(' ') else {
                 continue;
             };
-            let name = rest.trim_start().trim_start_matches('*').to_string();
+            let name = rest.trim_start().trim_start_matches('*');
             if name.is_empty() || hash.len() != 64 || !hash.chars().all(|c| c.is_ascii_hexdigit()) {
                 continue;
             }
-            listed.push((hash.to_ascii_lowercase(), name));
+            let relative_path = normalize_relative_path(name)?;
+            let normalized_name = relative_path.to_string_lossy().replace('\\', "/");
+            listed.push((hash.to_ascii_lowercase(), normalized_name, relative_path));
         }
         if listed.is_empty() {
             return Err(ChecksumError::Missing {
@@ -715,8 +717,8 @@ pub mod checksum {
         }
 
         let mut seen: Vec<String> = Vec::new();
-        for (hash, name) in &listed {
-            let path = dir.join(name);
+        for (hash, name, relative_path) in &listed {
+            let path = dir.join(relative_path);
             let bytes = std::fs::read(&path).map_err(ChecksumError::Io)?;
             let actual = hex(Sha256::digest(&bytes).as_slice());
             if &actual != hash {
@@ -729,17 +731,65 @@ pub mod checksum {
             seen.push(name.clone());
         }
 
-        for entry in dir.read_dir().map_err(ChecksumError::Io)? {
-            let entry = entry.map_err(ChecksumError::Io)?;
-            let name = entry.file_name().to_string_lossy().to_string();
-            if name == "SHA256SUMS.txt" || name == "SHA256SUMS" {
-                continue;
-            }
-            if !entry.path().is_file() {
-                continue;
-            }
+        let mut actual_files = Vec::new();
+        collect_files(dir, dir, &mut actual_files)?;
+        for name in actual_files {
             if !seen.contains(&name) {
                 return Err(ChecksumError::Unlisted { file: name });
+            }
+        }
+        Ok(())
+    }
+
+    fn normalize_relative_path(name: &str) -> Result<PathBuf, ChecksumError> {
+        let mut path = PathBuf::new();
+        for component in Path::new(name).components() {
+            match component {
+                Component::Normal(part) => path.push(part),
+                Component::CurDir => {}
+                Component::Prefix(_) | Component::RootDir | Component::ParentDir => {
+                    return Err(ChecksumError::Unlisted {
+                        file: name.to_string(),
+                    });
+                }
+            }
+        }
+        if path.as_os_str().is_empty() {
+            return Err(ChecksumError::Unlisted {
+                file: name.to_string(),
+            });
+        }
+        Ok(path)
+    }
+
+    fn collect_files(
+        root: &Path,
+        directory: &Path,
+        files: &mut Vec<String>,
+    ) -> Result<(), ChecksumError> {
+        for entry in directory.read_dir().map_err(ChecksumError::Io)? {
+            let entry = entry.map_err(ChecksumError::Io)?;
+            let file_type = entry.file_type().map_err(ChecksumError::Io)?;
+            let path = entry.path();
+            if file_type.is_dir() {
+                collect_files(root, &path, files)?;
+            } else if file_type.is_file() {
+                let relative = path
+                    .strip_prefix(root)
+                    .expect("walked path must be under checksum root")
+                    .to_string_lossy()
+                    .replace('\\', "/");
+                if relative != "SHA256SUMS.txt" && relative != "SHA256SUMS" {
+                    files.push(relative);
+                }
+            } else {
+                return Err(ChecksumError::Unlisted {
+                    file: path
+                        .strip_prefix(root)
+                        .unwrap_or(&path)
+                        .to_string_lossy()
+                        .replace('\\', "/"),
+                });
             }
         }
         Ok(())
@@ -804,6 +854,28 @@ pub mod checksum {
             );
             let err = verify_directory_against_sha256sums(&dir, &sums).unwrap_err();
             assert!(matches!(err, ChecksumError::Unlisted { file } if file == "extra.txt"));
+            let _ = fs::remove_dir_all(dir);
+        }
+
+        #[test]
+        fn verify_directory_against_sha256sums_covers_nested_files() {
+            let dir = temp_dir("nested");
+            let nested = dir.join("assets").join("chunks");
+            fs::create_dir_all(&nested).unwrap();
+            fs::write(dir.join("index.html"), b"index").unwrap();
+            fs::write(nested.join("main.js"), b"nested").unwrap();
+            let sums = format!(
+                "{}  index.html\n{}  assets/chunks/main.js\n",
+                sha256_file(&dir.join("index.html")),
+                sha256_file(&nested.join("main.js")),
+            );
+            assert!(verify_directory_against_sha256sums(&dir, &sums).is_ok());
+
+            fs::write(nested.join("tampered.js"), b"unlisted").unwrap();
+            let err = verify_directory_against_sha256sums(&dir, &sums).unwrap_err();
+            assert!(
+                matches!(err, ChecksumError::Unlisted { file } if file == "assets/chunks/tampered.js")
+            );
             let _ = fs::remove_dir_all(dir);
         }
 

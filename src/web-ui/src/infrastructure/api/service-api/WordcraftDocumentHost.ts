@@ -41,16 +41,24 @@ export class WordcraftDocumentHost {
   private readonly saveQueue: PendingSave[] = [];
   private readonly durableSaveWaiters = new Set<DurableSaveWaiter>();
   private durableRevision = -1;
+  private latestBytes: Uint8Array;
   private currentState: WordcraftDocumentHostState = {
     dirty: false,
     revision: 0,
     saving: false,
   };
 
-  constructor(private readonly options: WordcraftDocumentHostOptions) {}
+  constructor(private readonly options: WordcraftDocumentHostOptions, initialBytes?: Uint8Array) {
+    this.latestBytes = initialBytes ? new Uint8Array(initialBytes) : new Uint8Array();
+  }
 
   get state(): WordcraftDocumentHostState {
     return { ...this.currentState };
+  }
+
+  getLatestBytes(fallback?: Uint8Array): Uint8Array {
+    const bytes = this.latestBytes.length > 0 ? this.latestBytes : fallback ?? this.latestBytes;
+    return new Uint8Array(bytes);
   }
 
   waitForDurableSave(revision: number): Promise<void> {
@@ -123,7 +131,9 @@ export class WordcraftDocumentHost {
     let errorMessage: string | undefined;
     try {
       try {
-        await this.options.saveBytes(toUint8Array(event.bytes), event.revision);
+        const bytes = toUint8Array(event.bytes);
+        this.latestBytes = bytes.slice();
+        await this.options.saveBytes(bytes, event.revision);
         if (this.disposed) return;
         this.durableRevision = Math.max(this.durableRevision, event.revision);
         this.resolveDurableSaveWaiters(event.revision);

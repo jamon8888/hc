@@ -127,7 +127,7 @@ export default function WordcraftDocumentPanel({
         bridgeRef.current?.acknowledgeSave(requestId, revision, ok, saveError);
       },
       onState: state => dirtyStateChangeRef.current?.(state.dirty),
-    });
+    }, bytes);
     const bridge = new WordcraftBridge({
       expectedOrigin: surface.origin,
       expectedSource: source,
@@ -190,6 +190,13 @@ export default function WordcraftDocumentPanel({
           );
           if (!result.ok) {
             throw new Error(result.error || `WordCraft operation '${request.operation}' failed`);
+          }
+          if (request.operation === 'save_document') {
+            await host.waitForDurableSave(result.revision);
+            const persisted = await workspaceAPI.readWorkspaceFile(workspaceId!, filePath, 'base64');
+            if (typeof persisted !== 'string' || persisted.length === 0) {
+              throw new Error('WordCraft durable save read-back was empty');
+            }
           }
           return {
             value: result.value ?? null,

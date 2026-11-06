@@ -410,6 +410,14 @@ impl Tool for WordcraftTool {
             None
         };
 
+        let message = if save_result.is_some() {
+            format!(
+                "WordCraft operation '{operation}' completed and was durably saved on the visible document."
+            )
+        } else {
+            format!("WordCraft operation '{operation}' completed on the visible document.")
+        };
+
         Ok(vec![ToolResult::ok(
             json!({
                 "operation": operation,
@@ -418,9 +426,7 @@ impl Tool for WordcraftTool {
                 "result": result,
                 "durableSave": save_result,
             }),
-            Some(format!(
-                "WordCraft operation '{operation}' completed and was durably saved on the visible document."
-            )),
+            Some(message),
         )])
     }
 }
