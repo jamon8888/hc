@@ -32,6 +32,7 @@ import {
   AIModelConfig as AIModelConfigType, 
   ProxyConfig, 
   ModelCategory,
+  ModelPrivacyRoute,
   ReasoningCatalogBinding,
   ReasoningCatalogProjection,
   ReasoningConfig,
@@ -1772,6 +1773,7 @@ const ModelSettingsPage: React.FC = () => {
             format,
             draft.modelName
           ),
+          privacy_route: editingConfig.privacy_route || 'unknown',
           api_key: editingConfig.api_key || '',
           model_name: draft.modelName,
           provider: format,
@@ -2804,6 +2806,32 @@ const ModelSettingsPage: React.FC = () => {
       </ConfigPageRow>
     );
 
+    const privacyRouteOptions: ComboboxOption[] = [
+      { value: 'api', label: t('form.privacyRouteOptions.api') },
+      { value: 'local', label: t('form.privacyRouteOptions.local') },
+      { value: 'unknown', label: t('form.privacyRouteOptions.unknown') },
+    ];
+
+    const renderPrivacyRouteRow = () => (
+      <ConfigPageRow label={t('form.privacyRoute')} align="center" wide>
+        <div className="alex-model-settings__control-stack">
+          <Select
+            data-testid="settings-model-privacy-route-select"
+            value={editingConfig.privacy_route || 'unknown'}
+            onValueChange={(value) => {
+              setEditingConfig(prev => ({
+                ...prev,
+                privacy_route: value as ModelPrivacyRoute,
+              }));
+            }}
+            options={privacyRouteOptions}
+            size="sm"
+          />
+          <small className="resolved-url__hint">{t('form.privacyRouteHint')}</small>
+        </div>
+      </ConfigPageRow>
+    );
+
     const renderApiKeyRow = (label: string) => (
       <ConfigPageRow label={label} required align="center" wide>
         <Input
@@ -2922,6 +2950,7 @@ const ModelSettingsPage: React.FC = () => {
                     )}
                   </>
                 )}
+                {renderPrivacyRouteRow()}
                 <ConfigPageRow label={t('form.modelSelection')} required multiline className="alex-model-settings__model-selection-row">
                   <div className="alex-model-settings__control-stack">
                     <div className="alex-model-settings__model-picker-row">
@@ -3044,6 +3073,7 @@ const ModelSettingsPage: React.FC = () => {
                     )}
                   </>
                 )}
+                {renderPrivacyRouteRow()}
               </>
             )}
 

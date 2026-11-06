@@ -291,6 +291,13 @@
     "modelSelection": "Select Models",
     "modelNameHint": "GLM-ASR uses glm-asr, other speech models use their corresponding model names",
     "baseUrl": "API URL",
+    "privacyRoute": "Privacy route",
+    "privacyRouteHint": "Choose explicitly. Unknown routes are refused; local models receive the original context and API models are pseudonymized.",
+    "privacyRouteOptions": {
+      "api": "Remote API (pseudonymize)",
+      "local": "Local model (original context)",
+      "unknown": "Unknown (refuse requests)"
+    },
     "resolvedUrlLabel": "Request URL: ",
     "forceUrlHint": "Append # to force use the exact URL you entered",
     "apiKey": "API Key",

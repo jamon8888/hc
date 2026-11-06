@@ -16,6 +16,7 @@ import { DeepResearchProtocolGroup } from '../deep-research/DeepResearchProtocol
 import { parseDeepResearchContent } from '../deep-research/deepResearchProtocol';
 import { hasSessionFileProvider, readImageThroughSession, downloadFileThroughSession } from '../session-drivers/sessionFileNavigation';
 import { resolveSessionDriverId } from '../session-drivers/resolve';
+import { basemindAPI } from '@/infrastructure/api/service-api/BasemindAPI';
 import './FlowTextBlock.scss';
 
 // Idle timeout (ms) after content stops growing.
@@ -89,7 +90,32 @@ export const FlowTextBlock = React.memo<FlowTextBlockProps>(({
 
   const isStreaming = textItem.isStreaming &&
     (textItem.status === 'streaming' || textItem.status === 'running');
-  const { displayText: displayContent, isRevealing } = useTypewriter(content, isStreaming, {
+
+  // Provider-bound API responses keep opaque tokens in the runtime and
+  // transcript. Rehydrate only this human-rendering component, after the
+  // stream settles, through the workspace/session-scoped host command.
+  const [humanText, setHumanText] = useState<string | null>(null);
+  const hasOpaqueEntityToken = /\[(?:PERSON|ORG|ADDRESS|EMAIL|PHONE|IBAN|CARD|ID|SECRET|UNKNOWN)_[^\]]+\]/.test(content);
+  useEffect(() => {
+    setHumanText(null);
+    if (isStreaming || !sessionId || !hasOpaqueEntityToken) return;
+    let cancelled = false;
+    void basemindAPI
+      .rehydrateModelText(content, sessionId, markdownWorkspaceId)
+      .then((rehydrated) => {
+        if (!cancelled) setHumanText(rehydrated);
+      })
+      .catch(() => {
+        // Opaque tokens are the safe fallback when the host is unavailable or
+        // the workspace/session scope no longer matches.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [content, hasOpaqueEntityToken, isStreaming, markdownWorkspaceId, sessionId]);
+
+  const renderContent = humanText ?? content;
+  const { displayText: displayContent, isRevealing } = useTypewriter(renderContent, isStreaming, {
     replayOnMount: replayStreamingOnMount,
   });
   useReportTypewriterReveal(textItem.id, isRevealing);

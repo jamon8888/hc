@@ -24,8 +24,15 @@ export interface RedactedDocumentResponse {
   sourceFormat: string;
 }
 
+export interface RehydrateModelTextRequest {
+  workspaceId?: string;
+  sessionId: string;
+  text: string;
+}
+
 const REVEAL_COMMAND = 'basemind_reveal_entity';
 const READ_COMMAND = 'basemind_read_redacted_document';
+const REHYDRATE_COMMAND = 'basemind_rehydrate_model_text';
 
 class BasemindAPI {
   /**
@@ -41,6 +48,11 @@ class BasemindAPI {
    */
   async readRedactedDocument(filePath: string, workspaceId?: string): Promise<RedactedDocumentResponse> {
     return this.invoke<RedactedDocumentResponse>(READ_COMMAND, { workspaceId, filePath });
+  }
+
+  /** Rehydrate provider tokens for human rendering only. */
+  async rehydrateModelText(text: string, sessionId: string, workspaceId?: string): Promise<string> {
+    return this.invoke<string>(REHYDRATE_COMMAND, { workspaceId, sessionId, text });
   }
 
   /**

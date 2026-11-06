@@ -83,6 +83,7 @@ interface AcpClientConfig {
   readonly: boolean;
   subagent: AcpClientSubagentConfig;
   permissionMode: AcpClientPermissionMode;
+  privacyRoute?: 'api' | 'local' | 'unknown';
 }
 
 interface AcpClientConfigFile {
@@ -240,6 +241,7 @@ function defaultConfigForPreset(preset: AcpClientPreset): AcpClientConfig {
     readonly: false,
     subagent: { enabled: true },
     permissionMode: 'ask',
+    privacyRoute: 'api',
   };
 }
 
@@ -277,6 +279,9 @@ function normalizeConfigValue(value: unknown): {
       readonly: item.readonly === true,
       subagent: normalizeSubagentConfig(item.subagent),
       permissionMode: normalizePermissionMode(item.permissionMode),
+      privacyRoute: item.privacyRoute === 'local' || item.privacyRoute === 'api' || item.privacyRoute === 'unknown'
+        ? item.privacyRoute
+        : undefined,
     };
   }
 

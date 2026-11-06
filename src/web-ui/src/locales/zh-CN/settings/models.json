@@ -291,6 +291,13 @@
     "modelSelection": "选择模型",
     "modelNameHint": "智谱 GLM-ASR 使用 glm-asr，其他语音模型填写对应的模型名称",
     "baseUrl": "API地址",
+    "privacyRoute": "隐私路由",
+    "privacyRouteHint": "请明确选择。未知路由会被拒绝；本地模型接收原始上下文，API 模型会进行假名化。",
+    "privacyRouteOptions": {
+      "api": "远程 API（假名化）",
+      "local": "本地模型（原始上下文）",
+      "unknown": "未知（拒绝请求）"
+    },
     "resolvedUrlLabel": "实际请求地址：",
     "forceUrlHint": "以 # 结尾可强制使用输入地址",
     "apiKey": "API密钥",
