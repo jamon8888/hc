@@ -24,7 +24,6 @@ export interface WordcraftEmbeddedDocumentSessionOptions {
  */
 export class WordcraftEmbeddedDocumentSession {
   private disposed = false;
-  private opened = false;
 
   constructor(private readonly options: WordcraftEmbeddedDocumentSessionOptions) {}
 
@@ -36,7 +35,6 @@ export class WordcraftEmbeddedDocumentSession {
     if (this.disposed) return;
 
     if (event.type === 'failed') {
-      this.opened = false;
       this.options.onError?.(event.error);
     }
 
@@ -49,13 +47,11 @@ export class WordcraftEmbeddedDocumentSession {
       // A validated ready event after the iframe reloads is a recovery
       // handshake, not a duplicate. Re-open the document so the embedded
       // runtime cannot remain ready while showing an empty or stale surface.
-      this.opened = false;
       this.options.bridge.openDocument(
         this.options.name,
         this.options.bytes,
         this.options.baseRevision ?? 0,
       );
-      this.opened = true;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.options.onError?.(message);
