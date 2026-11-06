@@ -209,17 +209,16 @@ describe('FileTabManager docx routing (tickets 13/17)', () => {
     expect(mocks.openContentInBestTarget).not.toHaveBeenCalled();
   });
 
-  it('keeps the regular tab behavior where no capability probe exists', async () => {
+  it('refuses loudly when no capability probe exists', async () => {
     mocks.invoke.mockRejectedValue(new Error('wordcraft_status_command is unavailable here'));
     manager.openFile({ filePath: '/tmp/workspace/report.docx' });
 
     await vi.waitFor(() => {
-      expect(mocks.openContentInBestTarget).toHaveBeenCalled();
+      expect(mocks.notifyError).toHaveBeenCalledWith('errors:file.wordcraftOpenFailed', {
+        title: 'errors:file.wordcraftOpenFailed',
+      });
     });
-    const content = mocks.openContentInBestTarget.mock.calls[0][0];
-    expect(content.type).toBe('code-editor');
-    expect(content.data.filePath).toBe('/tmp/workspace/report.docx');
-    expect(mocks.notifyError).not.toHaveBeenCalled();
+    expect(mocks.openContentInBestTarget).not.toHaveBeenCalled();
   });
 
   it('an explicit editor surface choice bypasses the WordCraft route entirely', async () => {

@@ -127,8 +127,9 @@ export class WordcraftAPI {
     try {
       return await this.status(false);
     } catch (error) {
+      const cause = error instanceof Error ? error : new Error(String(error));
       log.warn('WordCraft status probe is unavailable on this surface', {
-        error: error instanceof Error ? error.message : String(error),
+        error: cause,
       });
       return null;
     }
