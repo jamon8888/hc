@@ -10626,7 +10626,7 @@
       "visibility": "internal",
       "rustPath": "api::wordcraft_api::wordcraft_web_host_command",
       "sourceFile": "src/apps/desktop/src/api/wordcraft_api.rs",
-      "signature": "fn wordcraft_web_host_command( app: AppHandle, ) -> Result<WordcraftWebHostResponse, String>",
+      "signature": "fn wordcraft_web_host_command( app: AppHandle, _request: WordcraftWebHostRequest, ) -> Result<WordcraftWebHostResponse, String>",
       "remoteWorkspacePolicy": "LocalOnly"
     },
     {
