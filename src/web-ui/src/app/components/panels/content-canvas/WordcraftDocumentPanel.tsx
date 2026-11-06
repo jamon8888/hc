@@ -25,6 +25,7 @@ interface WordcraftDocumentPanelProps {
   fileName: string;
   workspaceId?: string;
   surfaceId?: string;
+  remoteConnectionId?: string;
   isActive?: boolean;
   onDirtyStateChange?: (isDirty: boolean) => void;
 }
@@ -34,6 +35,7 @@ export default function WordcraftDocumentPanel({
   fileName,
   workspaceId,
   surfaceId,
+  remoteConnectionId,
   isActive = true,
   onDirtyStateChange,
 }: WordcraftDocumentPanelProps) {
@@ -77,6 +79,10 @@ export default function WordcraftDocumentPanel({
         setError(t('flexiblePanel.wordcraft.surfaceRequired'));
         return;
       }
+      if (remoteConnectionId) {
+        setError(t('flexiblePanel.wordcraft.localOnly'));
+        return;
+      }
       if (!isLocalSurface(surfaceId)) {
         setError(t('flexiblePanel.wordcraft.localOnly'));
         return;
@@ -112,11 +118,11 @@ export default function WordcraftDocumentPanel({
         void wordcraftAPI.releaseWebSurface(hostedSurface.sessionId).catch(() => undefined);
       }
     };
-  }, [filePath, surfaceId, t, workspaceId]);
+  }, [filePath, remoteConnectionId, surfaceId, t, workspaceId]);
 
   useEffect(() => {
     const embeddedSurfaceId = surfaceId;
-    if (!error || !workspaceId || !embeddedSurfaceId || !isLocalSurface(embeddedSurfaceId)) return;
+    if (remoteConnectionId || !error || !workspaceId || !embeddedSurfaceId || !isLocalSurface(embeddedSurfaceId)) return;
     let active = true;
     void wordcraftAPI.statusQuiet().then(capability => {
       if (active) setFallbackCapability(capability);
@@ -124,7 +130,7 @@ export default function WordcraftDocumentPanel({
     return () => {
       active = false;
     };
-  }, [error, surfaceId, workspaceId]);
+  }, [error, remoteConnectionId, surfaceId, workspaceId]);
 
   useEffect(() => {
     const embeddedSurfaceId = surfaceId;
@@ -308,7 +314,7 @@ export default function WordcraftDocumentPanel({
       <div className="alex-flexible-panel__loading" role="alert">
         <div>{error}</div>
         {fallbackDetail && <div role="status">{fallbackDetail}</div>}
-        {nativeFallbackAvailable && fallbackState !== 'opened' && (
+        {!remoteConnectionId && nativeFallbackAvailable && fallbackState !== 'opened' && (
           <button
             type="button"
             onClick={() => void openNativeFallback()}
