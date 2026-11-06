@@ -181,7 +181,7 @@ impl FileOperationService {
                     })
                 }
             }
-        }
+        };
     }
 
     /// Reads the exact file bytes without text or binary-content inference.
@@ -286,7 +286,7 @@ impl FileOperationService {
 
         self.validate_file_access(path, true).await?;
 
-        match fs::symlink_metadata(path).await {
+        let existing_permissions = match fs::symlink_metadata(path).await {
             Ok(metadata) => {
                 if metadata.file_type().is_symlink() {
                     return Err(FileSystemError::service(
@@ -299,14 +299,15 @@ impl FileOperationService {
                         "Binary document saves do not replace hard-linked files",
                     ));
                 }
+                Some(metadata.permissions())
             }
-            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => None,
             Err(error) => {
                 return Err(FileSystemError::service(format!(
                     "Failed to inspect binary document target: {error}"
                 )));
             }
-        }
+        };
 
         let mut backup_created = false;
         let mut backup_path = None;
@@ -387,6 +388,16 @@ impl FileOperationService {
                 FileSystemError::service(format!("Failed to sync binary file: {}", e))
             })?;
             drop(temp);
+            if let Some(permissions) = existing_permissions.clone() {
+                fs::set_permissions(&temp_path, permissions)
+                    .await
+                    .map_err(|e| {
+                        FileSystemError::service(format!(
+                            "Failed to preserve binary file permissions: {}",
+                            e
+                        ))
+                    })?;
+            }
             fs::rename(&temp_path, path).await.map_err(|e| {
                 FileSystemError::service(format!("Failed to replace binary file: {}", e))
             })
