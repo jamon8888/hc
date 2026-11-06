@@ -18,23 +18,14 @@ use alex_core::util::process_manager;
 use alex_services_core::wordcraft::{
     WordcraftCapability, WordcraftProbe, WordcraftStatus, WordcraftWebCapability,
 };
-use axum::extract::State as AxumState;
-use axum::http::{header, HeaderMap, HeaderValue, StatusCode, Uri};
-use axum::middleware::Next;
-use axum::response::{IntoResponse, Response};
-use axum::Router;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::net::TcpListener;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
-use std::sync::Mutex;
-use std::sync::OnceLock;
+use std::sync::{Arc, Mutex, OnceLock};
 use std::time::{Duration, Instant};
-use tauri::State;
-use tokio::net::TcpListener as TokioTcpListener;
-use tokio::sync::oneshot;
-use tower_http::services::ServeDir;
+use tauri::{AppHandle, Manager, State};
 use uuid::Uuid;
 
 const WORDCRAFT_DOC_EXTENSIONS: &[&str] = &["docx"];
@@ -142,13 +133,8 @@ pub struct WordcraftWebReleaseRequest {
 }
 
 struct WordcraftWebSession {
-    shutdown: Option<oneshot::Sender<()>>,
     last_activity: Instant,
-}
-
-#[derive(Clone)]
-struct WordcraftWebAuth {
-    token: String,
+    frontend_workbench: Arc<crate::frontend_workbench::FrontendWorkbenchManager>,
 }
 
 static WORDCRAFT_WEB_SESSIONS: OnceLock<Mutex<HashMap<String, WordcraftWebSession>>> =
@@ -179,86 +165,41 @@ fn start_wordcraft_web_session_reaper() {
         let mut interval = tokio::time::interval(WORDCRAFT_WEB_SESSION_REAP_INTERVAL);
         loop {
             interval.tick().await;
-            let expired = match wordcraft_web_sessions().lock() {
-                Ok(mut sessions) => sessions
-                    .iter()
-                    .filter(|(_, session)| {
-                        session.last_activity.elapsed() >= WORDCRAFT_WEB_SESSION_IDLE_TIMEOUT
-                    })
-                    .map(|(session_id, _)| session_id.clone())
-                    .collect::<Vec<_>>()
-                    .into_iter()
-                    .filter_map(|session_id| {
-                        sessions
-                            .remove(&session_id)
-                            .and_then(|mut session| session.shutdown.take())
-                    })
-                    .collect::<Vec<_>>(),
+            match wordcraft_web_sessions().lock() {
+                Ok(mut sessions) => {
+                    let expired = sessions
+                        .iter()
+                        .filter(|(_, session)| {
+                            session.last_activity.elapsed() >= WORDCRAFT_WEB_SESSION_IDLE_TIMEOUT
+                        })
+                        .map(|(session_id, _)| session_id.clone())
+                        .collect::<Vec<_>>();
+                    for session_id in expired {
+                        if let Some(session) = sessions.remove(&session_id) {
+                            session
+                                .frontend_workbench
+                                .unregister_wordcraft_surface(&session_id);
+                        }
+                    }
+                }
                 Err(_) => {
                     log::warn!("WordCraft web session registry is poisoned; skipping session reap");
-                    Vec::new()
                 }
-            };
-
-            for shutdown in expired {
-                let _ = shutdown.send(());
             }
         }
     });
 }
 
-fn wordcraft_web_token(uri: &Uri) -> Option<&str> {
-    uri.query()?.split('&').find_map(|pair| {
-        let (key, value) = pair.split_once('=')?;
-        (key == "wordcraftToken").then_some(value)
-    })
-}
-
-fn wordcraft_web_cookie(headers: &HeaderMap) -> Option<&str> {
-    headers
-        .get(header::COOKIE)?
-        .to_str()
-        .ok()?
-        .split(';')
-        .find_map(|cookie| cookie.trim().strip_prefix("alex_wordcraft_web="))
-}
-
 fn wordcraft_web_url(origin: &str, token: &str, session_id: &str) -> String {
-    format!("{origin}/index.html?wordcraftToken={token}&sessionId={session_id}&host=parent")
-}
-
-async fn authorize_wordcraft_web(
-    AxumState(auth): AxumState<WordcraftWebAuth>,
-    request: axum::extract::Request,
-    next: Next,
-) -> Response {
-    let query_token = wordcraft_web_token(request.uri());
-    let cookie_token = wordcraft_web_cookie(request.headers());
-    let authorized =
-        query_token == Some(auth.token.as_str()) || cookie_token == Some(auth.token.as_str());
-    if !authorized {
-        return (
-            StatusCode::UNAUTHORIZED,
-            "WordCraft web session is unauthorized",
-        )
-            .into_response();
-    }
-
-    let bootstrap = query_token == Some(auth.token.as_str());
-    let mut response = next.run(request).await;
-    if bootstrap {
-        if let Ok(value) = HeaderValue::from_str(&format!(
-            "alex_wordcraft_web={}; Path=/; HttpOnly; SameSite=Strict",
-            auth.token
-        )) {
-            response.headers_mut().insert(header::SET_COOKIE, value);
-        }
-    }
-    response
+    format!(
+        "{origin}/wordcraft/{session_id}/{token}/index.html?wordcraftToken={token}&sessionId={session_id}&host=parent"
+    )
 }
 
 #[tauri::command]
-pub async fn wordcraft_web_host_command() -> Result<WordcraftWebHostResponse, String> {
+pub async fn wordcraft_web_host_command(
+    app: AppHandle,
+) -> Result<WordcraftWebHostResponse, String> {
     let capability = wordcraft_probe()?.recheck();
     if capability.web.status != WordcraftStatus::Available {
         let message = capability.web.message.clone().unwrap_or_default();
@@ -284,33 +225,13 @@ pub async fn wordcraft_web_host_command() -> Result<WordcraftWebHostResponse, St
         return Err("WordCraft web bundle entrypoint is unavailable".to_string());
     }
 
-    let listener = TokioTcpListener::bind(("127.0.0.1", 0))
-        .await
-        .map_err(|error| format!("Failed to bind WordCraft web host: {error}"))?;
-    let port = listener
-        .local_addr()
-        .map_err(|error| format!("Failed to read WordCraft web host address: {error}"))?
-        .port();
     let token = Uuid::new_v4().simple().to_string();
     let session_id = Uuid::new_v4().simple().to_string();
-    let (shutdown, shutdown_rx) = oneshot::channel();
-    let auth = WordcraftWebAuth {
-        token: token.clone(),
-    };
-    let router = Router::new()
-        .fallback_service(ServeDir::new(artifact).append_index_html_on_directories(true))
-        .layer(axum::middleware::from_fn_with_state(
-            auth,
-            authorize_wordcraft_web,
-        ));
-
-    tokio::spawn(async move {
-        let _ = axum::serve(listener, router)
-            .with_graceful_shutdown(async {
-                let _ = shutdown_rx.await;
-            })
-            .await;
-    });
+    let frontend_workbench = app
+        .state::<Arc<crate::frontend_workbench::FrontendWorkbenchManager>>()
+        .inner()
+        .clone();
+    frontend_workbench.register_wordcraft_surface(session_id.clone(), artifact, token.clone())?;
     start_wordcraft_web_session_reaper();
     wordcraft_web_sessions()
         .lock()
@@ -318,12 +239,14 @@ pub async fn wordcraft_web_host_command() -> Result<WordcraftWebHostResponse, St
         .insert(
             session_id.clone(),
             WordcraftWebSession {
-                shutdown: Some(shutdown),
                 last_activity: Instant::now(),
+                frontend_workbench,
             },
         );
 
-    let origin = format!("http://127.0.0.1:{port}");
+    let origin = crate::frontend_workbench::FRONTEND_URL
+        .trim_end_matches("/index.html")
+        .to_string();
     Ok(WordcraftWebHostResponse {
         // The session identity is part of the browser handshake, not a secret;
         // the token remains the only authorization credential in the URL.
@@ -348,14 +271,14 @@ pub async fn wordcraft_web_host_command() -> Result<WordcraftWebHostResponse, St
 pub async fn wordcraft_web_release_command(
     request: WordcraftWebReleaseRequest,
 ) -> Result<(), String> {
-    if let Some(mut session) = wordcraft_web_sessions()
+    if let Some(session) = wordcraft_web_sessions()
         .lock()
         .map_err(|_| "WordCraft web session registry is poisoned".to_string())?
         .remove(&request.session_id)
     {
-        if let Some(shutdown) = session.shutdown.take() {
-            let _ = shutdown.send(());
-        }
+        session
+            .frontend_workbench
+            .unregister_wordcraft_surface(&request.session_id);
     }
     Ok(())
 }
@@ -710,10 +633,10 @@ mod tests {
 
     #[test]
     fn hosted_web_url_enables_the_upstream_parent_bridge() {
-        let url = wordcraft_web_url("http://127.0.0.1:41000", "token", "session-1");
+        let url = wordcraft_web_url("alex-ui://localhost", "token", "session-1");
         assert_eq!(
             url,
-            "http://127.0.0.1:41000/index.html?wordcraftToken=token&sessionId=session-1&host=parent"
+            "alex-ui://localhost/wordcraft/session-1/token/index.html?wordcraftToken=token&sessionId=session-1&host=parent"
         );
     }
 }
