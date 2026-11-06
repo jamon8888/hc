@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "digest": "fnv1a64:ee5f05bcc10cd449",
+  "digest": "fnv1a64:601075fc70b7f623",
   "retiredCommandPrefixes": [
     {
       "prefix": "lsp_",
