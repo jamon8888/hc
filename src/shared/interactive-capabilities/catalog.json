@@ -1489,6 +1489,8 @@
             "tools": [
               "Wordcraft"
             ],
+            "cliAvailable": false,
+            "cliUnavailableReason": "WordCraft requires a live embedded document surface and cannot execute from the CLI.",
             "workflowZh": [
               "打开 .docx 后确认嵌入的 WordCraft 页面已就绪，并将当前文档作为本次 Composer 轮次的精确上下文",
               "使用 Wordcraft 在当前文档表面读取、检查、渲染或执行编辑操作；每次操作都绑定文档、会话、工作区和修订版本",

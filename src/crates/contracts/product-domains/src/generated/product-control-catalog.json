@@ -4,7 +4,7 @@
   "title": "Alex Playbook",
   "origin": "https://playbook.openbitfun.com",
   "source": "src/shared/interactive-capabilities/catalog.json",
-  "digest": "05de871a23dd9e4c343608ace07cc934ec6cae8f723be470fd85c304ec57d039",
+  "digest": "6a42a4f6fec906a6b9f3e09b438c0b4e11e0123e845521de921833d756f1f62c",
   "ownerDigest": "97fdf1ccd6b569a515ddc78ad654ec364337c1a897b2fbdd9ce64e0aa95024e1",
   "searchAcceptance": [
     {
@@ -2701,7 +2701,8 @@
           "available": true
         },
         "cli": {
-          "available": true
+          "available": false,
+          "reason": "WordCraft requires a live embedded document surface and cannot execute from the CLI."
         },
         "peer": {
           "available": true,
@@ -20521,6 +20522,8 @@
             "tools": [
               "Wordcraft"
             ],
+            "cliAvailable": false,
+            "cliUnavailableReason": "WordCraft requires a live embedded document surface and cannot execute from the CLI.",
             "workflowZh": [
               "打开 .docx 后确认嵌入的 WordCraft 页面已就绪，并将当前文档作为本次 Composer 轮次的精确上下文",
               "使用 Wordcraft 在当前文档表面读取、检查、渲染或执行编辑操作；每次操作都绑定文档、会话、工作区和修订版本",

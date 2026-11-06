@@ -108,6 +108,7 @@ export class WordcraftBridge {
   private disposed = false;
   private failed = false;
   private ready = false;
+  private latestObservedRevision = 0;
   private counter = 0;
 
   constructor(private readonly options: WordcraftBridgeOptions) {
@@ -139,7 +140,7 @@ export class WordcraftBridge {
       return true;
     }
 
-    if (!this.isReady || !this.isTrustedEvent(event) || !isRecord(data)) return false;
+    if (!this.isTrustedEvent(event) || !isRecord(data)) return false;
     if (data.type === 'failed') {
       if (typeof data.error !== 'string') {
         this.fail('WordCraft failed message is malformed');
@@ -151,6 +152,7 @@ export class WordcraftBridge {
       this.fail(data.error);
       return true;
     }
+    if (!this.isReady) return false;
     if (data.type === 'dirty') {
       if (!isSessionRevision(data, this.options.expectedSessionId) || typeof data.dirty !== 'boolean') {
         return false;
@@ -161,6 +163,7 @@ export class WordcraftBridge {
         revision: data.revision,
         dirty: data.dirty,
       });
+      this.latestObservedRevision = Math.max(this.latestObservedRevision, data.revision);
       return true;
     }
     if (data.type === 'save') {
@@ -177,6 +180,7 @@ export class WordcraftBridge {
         name: data.name,
         bytes: data.bytes,
       });
+      this.latestObservedRevision = Math.max(this.latestObservedRevision, data.revision);
       return true;
     }
     if (data.type === 'result') {
@@ -294,6 +298,11 @@ export class WordcraftBridge {
       this.rejectPending(data.requestId, 'WordCraft result revision is stale');
       return true;
     }
+    if (data.revision < this.latestObservedRevision) {
+      this.rejectPending(data.requestId, 'WordCraft result revision is older than the current document');
+      return true;
+    }
+    this.latestObservedRevision = Math.max(this.latestObservedRevision, data.revision);
     this.pending.delete(data.requestId);
     clearTimeout(pending.timer);
     const result: WordcraftCommandResult = {

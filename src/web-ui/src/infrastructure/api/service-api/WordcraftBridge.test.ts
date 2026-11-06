@@ -70,6 +70,23 @@ describe('WordcraftBridge', () => {
     expect(bridge.isReady).toBe(true);
   });
 
+  it('forwards trusted startup failures before the ready handshake', () => {
+    const onEvent = vi.fn();
+    const bridge = new WordcraftBridge({ ...context, postMessage: () => undefined, onEvent });
+
+    expect(bridge.handleMessage({
+      origin: context.expectedOrigin,
+      source,
+      data: { type: 'failed', sessionId: context.expectedSessionId, error: 'WebGPU unavailable' },
+    } as MessageEvent<unknown>)).toBe(true);
+    expect(onEvent).toHaveBeenCalledWith({
+      type: 'failed',
+      sessionId: context.expectedSessionId,
+      error: 'WebGPU unavailable',
+    });
+    expect(bridge.isReady).toBe(false);
+  });
+
   it('correlates an allowlisted command with its result', async () => {
     const posted: Array<WordcraftCommandRequest | Record<string, unknown>> = [];
     const bridge = new WordcraftBridge({
@@ -128,6 +145,24 @@ describe('WordcraftBridge', () => {
     expect(bridge.handleMessage(resultEvent(request, { revision: 7 }))).toBe(true);
 
     await expect(pending).rejects.toThrow('WordCraft result revision is stale');
+  });
+
+  it('rejects a read result older than the latest observed document revision', async () => {
+    const posted: WordcraftCommandRequest[] = [];
+    const bridge = new WordcraftBridge({
+      ...context,
+      postMessage: message => posted.push(message as WordcraftCommandRequest),
+    });
+    bridge.handleMessage(readyEvent());
+    bridge.handleMessage({
+      origin: context.expectedOrigin,
+      source,
+      data: { type: 'dirty', sessionId: context.expectedSessionId, revision: 9, dirty: true },
+    } as MessageEvent<unknown>);
+
+    const pending = bridge.request('get_text', {}, 0, 'Alex Agent (session-1)');
+    expect(bridge.handleMessage(resultEvent(posted[0], { revision: 8 }))).toBe(true);
+    await expect(pending).rejects.toThrow('older than the current document');
   });
 
   it('does not reuse a request ID after a timeout', async () => {

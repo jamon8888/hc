@@ -27,6 +27,7 @@ interface PendingSave {
 
 export class WordcraftDocumentHost {
   private disposed = false;
+  private disposeRequested = false;
   private latestAcceptedRevision = 0;
   private saveInFlight = false;
   private readonly saveQueue: PendingSave[] = [];
@@ -43,7 +44,7 @@ export class WordcraftDocumentHost {
   }
 
   handleEvent(event: WordcraftBridgeEvent): void {
-    if (this.disposed) return;
+    if (this.disposed || this.disposeRequested) return;
     if (event.type === 'dirty') {
       if (event.sessionId !== this.options.sessionId) return;
       if (event.revision < this.latestAcceptedRevision) return;
@@ -74,9 +75,11 @@ export class WordcraftDocumentHost {
   }
 
   dispose(): void {
-    this.disposed = true;
-    this.saveQueue.length = 0;
-    this.update({ saving: false });
+    if (this.disposed || this.disposeRequested) return;
+    this.disposeRequested = true;
+    if (!this.saveInFlight && this.saveQueue.length === 0) {
+      this.finishDispose();
+    }
   }
 
   private async drainSaves(): Promise<void> {
@@ -111,8 +114,18 @@ export class WordcraftDocumentHost {
       if (!this.disposed) this.acknowledgeSave(event, ok, errorMessage);
     } finally {
       this.saveInFlight = false;
-      if (!this.disposed) void this.drainSaves();
+      if (this.disposeRequested && this.saveQueue.length === 0) {
+        this.finishDispose();
+      } else if (!this.disposed) {
+        void this.drainSaves();
+      }
     }
+  }
+
+  private finishDispose(): void {
+    this.disposed = true;
+    this.saveQueue.length = 0;
+    this.update({ saving: false });
   }
 
   private acknowledgeSave(event: WordcraftSaveMessage, ok: boolean, error?: string): void {

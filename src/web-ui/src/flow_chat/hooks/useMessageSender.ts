@@ -194,8 +194,13 @@ export function useMessageSender(props: UseMessageSenderProps): UseMessageSender
           remoteSshHost: context.remoteSshHost,
         }));
       const documentAgentContext = getActiveDocumentAgentContext();
+      const targetSession = flowChatManager.getFlowChatState().sessions.get(sessionId!);
+      const targetWorkspaceId = targetSession?.workspaceId ?? targetSession?.config.workspaceId;
+      const documentMatchesTarget = documentAgentContext
+        && documentAgentContext.surfaceId === surfaceScope.surfaceId
+        && documentAgentContext.workspaceId === targetWorkspaceId;
       const userMessageMetadata =
-        presentation || sessionReferences.length > 0 || turnPermissionMode || documentAgentContext
+        presentation || sessionReferences.length > 0 || turnPermissionMode || documentMatchesTarget
           ? {
               ...(presentation
                 ? { composerPresentation: presentation }
@@ -204,7 +209,7 @@ export function useMessageSender(props: UseMessageSenderProps): UseMessageSender
               // Read by the coordinator as the turn layer of
               // `turn -> session -> global default`.
               ...(turnPermissionMode ? { permission_mode: turnPermissionMode } : {}),
-              ...(documentAgentContext ? { documentAgentContext } : {}),
+              ...(documentMatchesTarget ? { documentAgentContext } : {}),
             }
           : undefined;
       let imagePayload: Awaited<ReturnType<typeof buildImagePayload>>;
@@ -242,7 +247,6 @@ export function useMessageSender(props: UseMessageSenderProps): UseMessageSender
       // Always pass imageContexts to the backend; the coordinator decides
       // whether to expose a path to analyze_image or attach pixels directly.
       surfaceScope.assertCurrent('submit conversation excerpts');
-      const targetSession = flowChatManager.getFlowChatState().sessions.get(sessionId!);
       if (targetSession && isBtwSessionDraft(targetSession)) {
         const parentSessionId = targetSession.parentSessionId;
         if (!parentSessionId) throw new Error('Side question is missing its parent session');

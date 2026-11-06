@@ -38,6 +38,7 @@ export default function WordcraftDocumentPanel({
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const dirtyStateChangeRef = useRef(onDirtyStateChange);
   const isActiveRef = useRef(isActive);
+  const translateRef = useRef(t);
   const [surface, setSurface] = useState<WordcraftWebHostResponseDto | null>(null);
   const [bytes, setBytes] = useState<Uint8Array | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -45,6 +46,10 @@ export default function WordcraftDocumentPanel({
   useEffect(() => {
     dirtyStateChangeRef.current = onDirtyStateChange;
   }, [onDirtyStateChange]);
+
+  useEffect(() => {
+    translateRef.current = t;
+  }, [t]);
 
   useEffect(() => {
     isActiveRef.current = isActive;
@@ -61,11 +66,11 @@ export default function WordcraftDocumentPanel({
 
     async function loadDocument() {
       if (!isLocalSurface(surfaceId)) {
-        setError(t('flexiblePanel.wordcraft.localOnly'));
+        setError(translateRef.current('flexiblePanel.wordcraft.localOnly'));
         return;
       }
       if (!workspaceId) {
-        setError(t('flexiblePanel.wordcraft.workspaceRequired'));
+        setError(translateRef.current('flexiblePanel.wordcraft.workspaceRequired'));
         return;
       }
 
@@ -95,13 +100,13 @@ export default function WordcraftDocumentPanel({
         void wordcraftAPI.releaseWebSurface(hostedSurface.sessionId).catch(() => undefined);
       }
     };
-  }, [filePath, surfaceId, t, workspaceId]);
+  }, [filePath, surfaceId, workspaceId]);
 
   useEffect(() => {
     if (!surface || !bytes) return;
     const source = iframeRef.current?.contentWindow;
     if (!source) {
-      setError(t('flexiblePanel.wordcraft.frameUnavailable'));
+      setError(translateRef.current('flexiblePanel.wordcraft.frameUnavailable'));
       return;
     }
 
@@ -217,9 +222,9 @@ export default function WordcraftDocumentPanel({
       session.dispose();
       bridgeRef.current = null;
     };
-  }, [bytes, documentSession, fileName, filePath, surface, surfaceId, t, workspaceId]);
+  }, [bytes, documentSession, fileName, filePath, surface, surfaceId, workspaceId]);
 
-  if (error) {
+  if (error && (!surface || !bytes)) {
     return (
       <div className="alex-flexible-panel__loading" role="alert">
         {error}
@@ -235,15 +240,31 @@ export default function WordcraftDocumentPanel({
   }
 
   return (
-    <iframe
-      ref={iframeRef}
-      src={surface.url}
-      title={fileName}
-      aria-label={fileName}
-      hidden={!isActive}
-      style={{ border: 0, display: isActive ? 'block' : 'none', height: '100%', width: '100%' }}
-      referrerPolicy="no-referrer"
-    />
+    <div style={{ height: '100%', position: 'relative', width: '100%' }}>
+      <iframe
+        ref={iframeRef}
+        src={surface.url}
+        title={fileName}
+        aria-label={fileName}
+        hidden={!isActive}
+        style={{ border: 0, display: isActive ? 'block' : 'none', height: '100%', width: '100%' }}
+        referrerPolicy="no-referrer"
+      />
+      {error && (
+        <div className="alex-flexible-panel__loading" role="alert">
+          <div>{error}</div>
+          <button
+            type="button"
+            onClick={() => {
+              setError(null);
+              iframeRef.current?.contentWindow?.location.reload();
+            }}
+          >
+            {translateRef.current('error.retry')}
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
 

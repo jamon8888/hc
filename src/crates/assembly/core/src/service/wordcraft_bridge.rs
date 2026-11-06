@@ -48,7 +48,22 @@ type PendingResult = oneshot::Sender<Result<Value, String>>;
 
 #[derive(Debug, Default)]
 pub struct WordcraftBridge {
-    pending: Mutex<HashMap<String, PendingResult>>,
+    pending: Arc<Mutex<HashMap<String, PendingResult>>>,
+}
+
+struct PendingRequestCleanup {
+    pending: Arc<Mutex<HashMap<String, PendingResult>>>,
+    request_id: String,
+}
+
+impl Drop for PendingRequestCleanup {
+    fn drop(&mut self) {
+        let pending = Arc::clone(&self.pending);
+        let request_id = self.request_id.clone();
+        tokio::spawn(async move {
+            pending.lock().await.remove(&request_id);
+        });
+    }
 }
 
 impl WordcraftBridge {
@@ -59,12 +74,17 @@ impl WordcraftBridge {
 
         {
             let mut pending = self.pending.lock().await;
-            if pending.insert(request_id.clone(), sender).is_some() {
+            if pending.contains_key(&request_id) {
                 return Err(format!(
                     "WordCraft request ID is already pending: {request_id}"
                 ));
             }
+            pending.insert(request_id.clone(), sender);
         }
+        let _cleanup = PendingRequestCleanup {
+            pending: Arc::clone(&self.pending),
+            request_id: request_id.clone(),
+        };
 
         if let Err(error) = emit_global_event(BackendEvent::Custom {
             event_name: WORDCRAFT_COMMAND_REQUEST_EVENT.to_string(),

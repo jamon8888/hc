@@ -43,9 +43,13 @@ export class WordcraftEmbeddedDocumentSession {
     this.options.host.handleEvent(event);
     this.options.onState?.(this.options.host.state);
 
-    if (event.type !== 'ready' || this.opened) return;
+    if (event.type !== 'ready') return;
 
     try {
+      // A validated ready event after the iframe reloads is a recovery
+      // handshake, not a duplicate. Re-open the document so the embedded
+      // runtime cannot remain ready while showing an empty or stale surface.
+      this.opened = false;
       this.options.bridge.openDocument(
         this.options.name,
         this.options.bytes,

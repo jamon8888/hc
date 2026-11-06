@@ -235,7 +235,17 @@ class FileTabManager {
     }
 
     const t = i18nService.getT();
-    if (isLocalSurface(scope.surfaceId) && capability.web?.status === 'available') {
+    if (!isLocalSurface(scope.surfaceId)) {
+      const detail = capability.web?.message || capability.message || t('errors:file.wordcraftOpenFailed');
+      notificationService.error(detail, { title: t('errors:file.wordcraftOpenFailed') });
+      log.warn('WordCraft unavailable on a remote device surface; docx open refused loudly', {
+        filePath,
+        surfaceId: scope.surfaceId,
+      });
+      return;
+    }
+
+    if (capability.web?.status === 'available') {
       this.openEditorTab(options, scope, filePath, fileName, 'wordcraft-document');
       return;
     }

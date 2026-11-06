@@ -56,7 +56,13 @@ impl WordcraftTool {
             .custom_data
             .get(DOCUMENT_CONTEXT_KEY)
             .ok_or_else(|| tool_error("No embedded WordCraft document is attached to this turn"))?;
-        serde_json::from_value(value.clone()).map_err(|error| {
+        let value = match value {
+            Value::String(raw) => serde_json::from_str(raw).map_err(|error| {
+                tool_error(format!("Embedded WordCraft context is malformed: {error}"))
+            })?,
+            value => value.clone(),
+        };
+        serde_json::from_value(value).map_err(|error| {
             tool_error(format!("Embedded WordCraft context is malformed: {error}"))
         })
     }
@@ -281,9 +287,7 @@ impl Tool for WordcraftTool {
                 "sessionId": document.session_id,
                 "result": result,
             }),
-            Some(format!(
-                "WordCraft operation '{operation}' completed on the visible document."
-            )),
+            None,
         )])
     }
 }
