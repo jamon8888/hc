@@ -34,6 +34,16 @@ The user must be able to edit and save the document before agent control exists.
 
 ## Comments
 
+2026-11-06 continuation:
+
+- The file-explorer "new WordCraft document" action now creates a zero-byte
+  `.docx` through the workspace owner and routes it through the normal
+  capability-aware file opener, so the embedded canvas is selected when the
+  local web surface is available rather than opening only the native start
+  screen.
+- Focused command/resource tests cover the blank-document route. Packaged
+  WebView and device validation remain release gates.
+
 2026-11-03: Started the integration slice after ticket 18. Added the parent
 `WordcraftDocumentHost` lifecycle seam, save acknowledgements, dirty/failure/
 teardown handling, and workspace-owner base64 byte writes with optimistic hash
