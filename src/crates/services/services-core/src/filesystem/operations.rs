@@ -8,7 +8,6 @@ use sha2::{Digest, Sha256};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
 use tokio::fs;
-use tokio::io::AsyncWriteExt;
 
 #[cfg(unix)]
 use std::os::unix::fs::MetadataExt;
@@ -374,20 +373,9 @@ impl FileOperationService {
         ));
 
         let write_result = async {
-            let mut options = fs::OpenOptions::new();
-            options.write(true).create_new(true);
-            #[cfg(unix)]
-            options.mode(0o600);
-            let mut temp = options.open(&temp_path).await.map_err(|e| {
-                FileSystemError::service(format!("Failed to create binary temp file: {}", e))
-            })?;
-            temp.write_all(data).await.map_err(|e| {
+            fs::write(&temp_path, data).await.map_err(|e| {
                 FileSystemError::service(format!("Failed to write binary temp file: {}", e))
             })?;
-            temp.sync_all().await.map_err(|e| {
-                FileSystemError::service(format!("Failed to sync binary file: {}", e))
-            })?;
-            drop(temp);
             if let Some(permissions) = existing_permissions.clone() {
                 fs::set_permissions(&temp_path, permissions)
                     .await
