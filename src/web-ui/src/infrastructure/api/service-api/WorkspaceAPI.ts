@@ -4,7 +4,7 @@ import { workspaceScopedRequest } from './legacyWorkspaceCompatibility';
 import { api } from './ApiClient';
 import { workspaceIdRequest, workspaceSearchRequest, workspaceWatchRequest } from './legacyWorkspaceCompatibility';
 import { globalEventBus } from '@/infrastructure/event-bus';
-import { getActiveSurfaceId, getActiveSurfaceScope, isSurfaceChangedError } from '@/infrastructure/peer-device/deviceSurface';
+import { getActiveSurfaceId, getActiveSurfaceScope, isLocalSurface, isSurfaceChangedError } from '@/infrastructure/peer-device/deviceSurface';
 import type { FileResourceRenamedEvent } from '@/shared/types/contentResource';
 import { createTauriCommandError } from '../errors/TauriCommandError';
 import type {
@@ -237,6 +237,33 @@ export class WorkspaceAPI {
     surface.assertCurrent('write workspace file');
     await api.invoke('write_file_content', { request: { ...reference, filePath, content } });
     surface.assertCurrent('write workspace file');
+  }
+
+  async writeWorkspaceFileBase64(
+    workspaceId: string,
+    filePath: string,
+    content: string,
+    expectedHash?: string,
+  ): Promise<void> {
+    const surface = getActiveSurfaceScope();
+    if (!isLocalSurface(surface.surfaceId)) {
+      const { peerConnectionManager } = await import('@/infrastructure/peer-device/PeerConnectionManager');
+      if (peerConnectionManager.get(surface.surfaceId)?.getState().capabilities.workspaceBinaryFileWritesV1 !== true) {
+        throw new Error('The selected remote workspace host does not support binary document writes');
+      }
+    }
+    const reference = await workspaceIdRequest(workspaceId, 'workspacePath');
+    surface.assertCurrent('write binary workspace file');
+    await api.invoke('write_file_content', {
+      request: {
+        ...reference,
+        filePath,
+        content,
+        contentEncoding: 'base64',
+        ...(expectedHash === undefined ? {} : { expectedHash }),
+      },
+    });
+    surface.assertCurrent('write binary workspace file');
   }
 
   /**

@@ -1,5 +1,6 @@
 //! Filesystem HostInvoke handlers.
 
+use base64::{engine::general_purpose::STANDARD as BASE64, Engine as _};
 use serde_json::{json, Value};
 
 use crate::peer_host::args::{get_string, optional_string, request_value};
@@ -18,10 +19,15 @@ async fn file_connection(state: &PeerHostState, request: &Value) -> Result<Optio
             .filesystem_connection_id()
             .map(|id| id.map(str::to_owned));
     }
+    let path = request
+        .get("path")
+        .or_else(|| request.get("filePath"))
+        .and_then(Value::as_str)
+        .ok_or_else(|| "Missing required string field: path".to_string())?;
     state
         .workspace_service
         .upgrade_legacy_file_connection(
-            &get_string(request, "path")?,
+            path,
             optional_string(request, "workspacePath").as_deref(),
             optional_string(request, "remoteConnectionId").as_deref(),
         )
@@ -29,9 +35,7 @@ async fn file_connection(state: &PeerHostState, request: &Value) -> Result<Optio
         .map_err(|e| e.to_string())
 }
 
-fn directory_nodes_to_json(
-    nodes: Vec<alex_core::infrastructure::FileTreeNode>,
-) -> Vec<Value> {
+fn directory_nodes_to_json(nodes: Vec<alex_core::infrastructure::FileTreeNode>) -> Vec<Value> {
     nodes
         .into_iter()
         .map(|node| {
@@ -153,17 +157,38 @@ pub(crate) async fn write_file_content(
     let path = get_string(request, "filePath")?;
     let content = get_string(request, "content")?;
     let hint = file_connection(state, request).await?;
-    alex_core::service::filesystem::path_operations::write_text_checked(
-        &state.filesystem_service,
-        &path,
-        &content,
-        hint.as_deref(),
-        request
-            .get("expectedHash")
-            .or_else(|| request.get("expected_hash"))
-            .and_then(Value::as_str),
-    )
-    .await?;
+    let expected_hash = request
+        .get("expectedHash")
+        .or_else(|| request.get("expected_hash"))
+        .and_then(Value::as_str);
+    if request
+        .get("contentEncoding")
+        .and_then(Value::as_str)
+        .is_some_and(|value| value.eq_ignore_ascii_case("base64"))
+    {
+        let bytes = BASE64
+            .decode(content.as_bytes())
+            .map_err(|error| format!("Invalid base64 file content: {error}"))?;
+        alex_core::service::filesystem::path_operations::write_binary_checked(
+            &state.filesystem_service,
+            &path,
+            &bytes,
+            hint.as_deref(),
+            expected_hash,
+        )
+        .await?;
+    } else if request.get("contentEncoding").is_some() {
+        return Err("Unsupported file content encoding".to_string());
+    } else {
+        alex_core::service::filesystem::path_operations::write_text_checked(
+            &state.filesystem_service,
+            &path,
+            &content,
+            hint.as_deref(),
+            expected_hash,
+        )
+        .await?;
+    }
     Ok(Value::Null)
 }
 
@@ -250,10 +275,8 @@ pub(crate) async fn workspace_file_upload(
         .ok_or("Sign in to use workspace transfers")?;
     let request = serde_json::from_value(request_value(args).clone())
         .map_err(|error| format!("Invalid workspace upload request: {error}"))?;
-    let result = alex_core::service::filesystem::upload::workspace_file_upload(
-        account.user_id,
-        request,
-    )
-    .await?;
+    let result =
+        alex_core::service::filesystem::upload::workspace_file_upload(account.user_id, request)
+            .await?;
     serde_json::to_value(result).map_err(|error| error.to_string())
 }

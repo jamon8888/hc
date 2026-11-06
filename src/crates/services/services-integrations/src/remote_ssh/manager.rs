@@ -1522,9 +1522,13 @@ fn workspace_command(config: &SSHConnectionConfig, command: &str, tty: bool) -> 
 fn stale_upload_sweep(quoted_dir: &str) -> String {
     let quoted_pattern =
         crate::remote_ssh::shell::quote_arg(&format!("{}-upload-*.tmp", hidden_data_directory()));
+    let quoted_backup_pattern = crate::remote_ssh::shell::quote_arg(&format!(
+        "{}-upload-*.tmp.backup",
+        hidden_data_directory()
+    ));
     format!(
         "if command -v find >/dev/null 2>&1; then \
-           find {quoted_dir} -maxdepth 1 -name {quoted_pattern} -mmin +1440 \
+           find {quoted_dir} -maxdepth 1 \\( -name {quoted_pattern} -o -name {quoted_backup_pattern} \\) -mmin +1440 \
              -exec rm -f -- {{}} \\; 2>/dev/null || true; \
          fi; "
     )
@@ -1540,10 +1544,25 @@ fn container_workspace_write_command(path: &str, temporary: &str, expected_size:
     let sweep = stale_upload_sweep(&crate::remote_ssh::shell::quote_arg(parent));
     format!(
         "{sweep}tmp={quoted_temporary}; target={quoted_path}; expected={expected_size}; \
-         saved_umask=$(umask) || exit 1; \
-         cleanup() {{ rm -f -- \"$tmp\"; }}; trap cleanup EXIT; \
-         trap 'exit 129' HUP; trap 'exit 130' INT; trap 'exit 143' TERM; \
-         umask 077; status=0; cat > \"$tmp\" || status=$?; \
+         backup=\"$tmp.backup\"; had_target=0; touched=0; status=0; \
+         saved_umask=$(umask) || status=$?; \
+         cleanup() {{ \
+           cleanup_status=0; \
+           if [ \"$status\" -ne 0 ] && [ \"$touched\" -eq 1 ]; then \
+             if [ \"$had_target\" -eq 1 ]; then \
+               if ! cat -- \"$backup\" >| \"$target\"; then \
+                 echo \"Workspace file restore failed; backup retained at $backup\" >&2; cleanup_status=1; \
+               fi; \
+             elif ! rm -f -- \"$target\"; then cleanup_status=1; fi; \
+           fi; \
+           if [ \"$cleanup_status\" -eq 0 ]; then \
+             rm -f -- \"$backup\" || cleanup_status=$?; \
+           fi; \
+           rm -f -- \"$tmp\" || cleanup_status=$?; \
+           if [ \"$cleanup_status\" -ne 0 ] && [ \"$status\" -eq 0 ]; then status=\"$cleanup_status\"; fi; \
+         }}; trap cleanup EXIT; \
+         trap 'status=129; exit 129' HUP; trap 'status=130; exit 130' INT; trap 'status=143; exit 143' TERM; \
+         umask 077; if [ \"$status\" -eq 0 ]; then cat > \"$tmp\" || status=$?; fi; \
          if [ \"$status\" -eq 0 ]; then \
            actual=$(wc -c < \"$tmp\") || status=$?; \
            if [ \"$status\" -eq 0 ]; then \
@@ -1553,7 +1572,10 @@ fn container_workspace_write_command(path: &str, temporary: &str, expected_size:
                echo 'Workspace target is not a regular file' >&2; status=1; \
              else \
                umask \"$saved_umask\" || status=$?; \
-               if [ \"$status\" -eq 0 ]; then cat -- \"$tmp\" >| \"$target\" || status=$?; fi; \
+               if [ \"$status\" -eq 0 ] && [ -e \"$target\" ]; then \
+                 if cp -p -- \"$target\" \"$backup\"; then had_target=1; else status=$?; fi; \
+               fi; \
+               if [ \"$status\" -eq 0 ]; then touched=1; cat -- \"$tmp\" >| \"$target\" || status=$?; fi; \
              fi; \
            fi; \
          fi; cleanup; trap - EXIT; exit \"$status\""
@@ -7690,6 +7712,56 @@ mod tests {
         stderr.read_to_string(&mut diagnostics).await.unwrap();
         assert_eq!(completion.wait().await.exit_code, Some(65));
         assert!(diagnostics.contains("incomplete"));
+        assert_eq!(std::fs::read(&target).unwrap(), b"preserved");
+        assert!(!staged.exists());
+    }
+
+    #[cfg(unix)]
+    #[tokio::test]
+    async fn workspace_container_write_keeps_target_when_backup_copy_fails() {
+        use std::os::unix::fs::PermissionsExt;
+        use tokio::io::{AsyncReadExt, AsyncWriteExt};
+        let temp = tempfile::tempdir().unwrap();
+        let bin = temp.path().join("bin");
+        std::fs::create_dir(&bin).unwrap();
+        let fake_cp = bin.join("cp");
+        std::fs::write(&fake_cp, "#!/bin/sh\nexit 42\n").unwrap();
+        std::fs::set_permissions(&fake_cp, std::fs::Permissions::from_mode(0o755)).unwrap();
+
+        let target = temp.path().join("target");
+        let staged = temp.path().join(".alex-upload-test.tmp");
+        std::fs::write(&target, b"preserved").unwrap();
+        let path = format!(
+            "{}:{}",
+            bin.display(),
+            std::env::var("PATH").unwrap_or_default()
+        );
+        let command = format!(
+            "PATH={}; export PATH; {}",
+            crate::remote_ssh::shell::quote_arg(&path),
+            container_workspace_write_command(
+                target.to_str().unwrap(),
+                staged.to_str().unwrap(),
+                8,
+            )
+        );
+        let transport =
+            crate::remote_ssh::WorkspaceStdio::spawn_local_process("sh", &["-c".into(), command])
+                .unwrap();
+        let (mut stdin, mut stdout, mut stderr, _control, completion) = transport.into_parts();
+        // A backup failure can make the shell exit before it reads stdin.
+        let _ = stdin.write_all(b"modified").await;
+        let _ = stdin.shutdown().await;
+        let mut output = Vec::new();
+        let mut diagnostics = String::new();
+        stdout.read_to_end(&mut output).await.unwrap();
+        stderr.read_to_string(&mut diagnostics).await.unwrap();
+
+        assert_eq!(completion.wait().await.exit_code, Some(42));
+        assert!(
+            diagnostics.is_empty(),
+            "backup failure should stop before transfer: {diagnostics}"
+        );
         assert_eq!(std::fs::read(&target).unwrap(), b"preserved");
         assert!(!staged.exists());
     }

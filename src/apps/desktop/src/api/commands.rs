@@ -533,6 +533,8 @@ pub struct WriteFileContentRequest {
     #[serde(rename = "filePath")]
     pub file_path: String,
     pub content: String,
+    #[serde(default, rename = "contentEncoding")]
+    pub content_encoding: Option<String>,
     #[serde(default, rename = "remoteConnectionId")]
     pub remote_connection_id: Option<String>,
     #[serde(default, rename = "expectedHash")]
@@ -2964,30 +2966,61 @@ pub async fn write_file_content(
     )
     .await?;
     use alex_core::service::filesystem::path_operations::{
-        write_local_text_checked, write_text_checked,
+        write_binary_checked, write_local_binary_checked, write_local_text_checked,
+        write_text_checked,
+    };
+    let binary_content = match request.content_encoding.as_deref() {
+        Some(encoding) if encoding.eq_ignore_ascii_case("base64") => Some(
+            BASE64
+                .decode(request.content.as_bytes())
+                .map_err(|error| format!("Invalid base64 file content: {error}"))?,
+        ),
+        Some(encoding) => return Err(format!("Unsupported file content encoding: {encoding}")),
+        None => None,
     };
     match target {
         DesktopPathTarget::Local { resolved_path, .. } => {
-            write_local_text_checked(
-                &state.filesystem_service,
-                &resolved_path.to_string_lossy(),
-                &request.content,
-                request.expected_hash.as_deref(),
-            )
-            .await
+            if let Some(content) = binary_content.as_deref() {
+                write_local_binary_checked(
+                    &state.filesystem_service,
+                    &resolved_path.to_string_lossy(),
+                    content,
+                    request.expected_hash.as_deref(),
+                )
+                .await
+            } else {
+                write_local_text_checked(
+                    &state.filesystem_service,
+                    &resolved_path.to_string_lossy(),
+                    &request.content,
+                    request.expected_hash.as_deref(),
+                )
+                .await
+            }
         }
         DesktopPathTarget::Remote {
             requested_path,
             entry,
         } => {
-            write_text_checked(
-                &state.filesystem_service,
-                &requested_path,
-                &request.content,
-                Some(&entry.connection_id),
-                request.expected_hash.as_deref(),
-            )
-            .await
+            if let Some(content) = binary_content.as_deref() {
+                write_binary_checked(
+                    &state.filesystem_service,
+                    &requested_path,
+                    content,
+                    Some(&entry.connection_id),
+                    request.expected_hash.as_deref(),
+                )
+                .await
+            } else {
+                write_text_checked(
+                    &state.filesystem_service,
+                    &requested_path,
+                    &request.content,
+                    Some(&entry.connection_id),
+                    request.expected_hash.as_deref(),
+                )
+                .await
+            }
         }
     }
 }
@@ -6042,6 +6075,11 @@ mod file_workspace_id_contract_tests {
         assert!(legacy.workspace_id.is_none());
         assert_eq!(legacy.workspace_path, "/legacy/project");
         assert_eq!(legacy.remote_connection_id.as_deref(), Some("ssh-old"));
+
+        let binary: super::WriteFileContentRequest = serde_json::from_value(serde_json::json!({
+            "workspaceId":"workspace-1", "filePath":"/srv/draft.docx", "content":"UEsDBA==", "contentEncoding":"base64"
+        })).unwrap();
+        assert_eq!(binary.content_encoding.as_deref(), Some("base64"));
     }
 }
 

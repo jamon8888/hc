@@ -101,9 +101,10 @@ pub async fn write_text_checked(
     write_target_checked(
         service,
         path,
-        content,
+        content.as_bytes(),
         remote(path, hint).await?,
         expected_hash,
+        false,
     )
     .await
 }
@@ -115,15 +116,51 @@ pub async fn write_local_text_checked(
     content: &str,
     expected_hash: Option<&str>,
 ) -> Result<(), String> {
-    write_target_checked(service, path, content, None, expected_hash).await
+    write_target_checked(
+        service,
+        path,
+        content.as_bytes(),
+        None,
+        expected_hash,
+        false,
+    )
+    .await
+}
+
+pub async fn write_binary_checked(
+    service: &FileSystemService,
+    path: &str,
+    content: &[u8],
+    hint: Option<&str>,
+    expected_hash: Option<&str>,
+) -> Result<(), String> {
+    write_target_checked(
+        service,
+        path,
+        content,
+        remote(path, hint).await?,
+        expected_hash,
+        true,
+    )
+    .await
+}
+
+pub async fn write_local_binary_checked(
+    service: &FileSystemService,
+    path: &str,
+    content: &[u8],
+    expected_hash: Option<&str>,
+) -> Result<(), String> {
+    write_target_checked(service, path, content, None, expected_hash, true).await
 }
 
 async fn write_target_checked(
     service: &FileSystemService,
     path: &str,
-    content: &str,
+    content: &[u8],
     target: Option<(RemoteFileService, String)>,
     expected_hash: Option<&str>,
+    binary: bool,
 ) -> Result<(), String> {
     use sha2::{Digest, Sha256};
     let lock_path = if target.is_none() {
@@ -185,10 +222,25 @@ async fn write_target_checked(
         }
     }
     if let Some((fs, id)) = target {
-        fs.write_workspace_file(&id, path, content.as_bytes())
+        fs.write_workspace_file(&id, path, content)
             .await
             .map_err(|e| e.to_string())
+    } else if binary {
+        service
+            .write_binary_file(
+                path,
+                content,
+                alex_services_core::filesystem::FileOperationOptions {
+                    backup_on_overwrite: false,
+                    ..Default::default()
+                },
+            )
+            .await
+            .map(|_| ())
+            .map_err(|e| e.to_string())
     } else {
+        let content = std::str::from_utf8(content)
+            .map_err(|_| "Text file content must be valid UTF-8".to_string())?;
         service
             .write_file_with_options(
                 path,
@@ -398,6 +450,29 @@ mod tests {
                 .is_err()
         );
         assert_ne!(read_text(&service, path, None).await.unwrap(), "stale");
+    }
+
+    #[tokio::test]
+    async fn binary_writes_preserve_document_bytes_and_use_optimistic_hashes() {
+        use sha2::{Digest, Sha256};
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("draft.docx");
+        let path = path.to_str().unwrap();
+        let service = FileSystemService::default();
+        let first = [0, 255, 80, 75, 3, 4];
+        write_local_binary_checked(&service, path, &first, Some(""))
+            .await
+            .unwrap();
+        let hash = format!("{:x}", Sha256::digest(first));
+        let second = [80, 75, 3, 4, 0, 255];
+        write_local_binary_checked(&service, path, &second, Some(&hash))
+            .await
+            .unwrap();
+        assert_eq!(tokio::fs::read(path).await.unwrap(), second);
+        let stale = write_local_binary_checked(&service, path, &first, Some(&hash))
+            .await
+            .unwrap_err();
+        assert!(stale.contains("FILE_CONFLICT"));
     }
 
     #[tokio::test]

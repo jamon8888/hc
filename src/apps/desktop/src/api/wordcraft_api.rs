@@ -12,7 +12,9 @@ use crate::api::app_state::AppState;
 use crate::api::path_target::{resolve_desktop_path_target, DesktopPathTarget};
 use alex_core::infrastructure::get_path_manager_arc;
 use alex_core::util::process_manager;
-use alex_services_core::wordcraft::{WordcraftCapability, WordcraftProbe, WordcraftStatus};
+use alex_services_core::wordcraft::{
+    WordcraftCapability, WordcraftProbe, WordcraftStatus, WordcraftWebCapability,
+};
 use serde::{Deserialize, Serialize};
 use std::net::TcpListener;
 use std::path::{Path, PathBuf};
@@ -309,6 +311,7 @@ mod tests {
             message: message.map(str::to_string),
             remediation: remediation.map(str::to_string),
             checked_at_epoch_ms: 0,
+            web: WordcraftWebCapability::default(),
         }
     }
 
@@ -379,9 +382,8 @@ mod tests {
 
     #[test]
     fn local_document_paths_are_validated() {
-        let extension =
-            validate_local_document(Path::new("definitely-missing-alex-path.docx"))
-                .expect_err("missing file refused");
+        let extension = validate_local_document(Path::new("definitely-missing-alex-path.docx"))
+            .expect_err("missing file refused");
         assert!(
             extension.contains("does not exist"),
             "unexpected: {extension}"
