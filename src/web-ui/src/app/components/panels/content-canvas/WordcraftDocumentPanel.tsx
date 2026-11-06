@@ -90,7 +90,7 @@ export default function WordcraftDocumentPanel({
         await disposalBarrierRef.current;
         if (!active) return;
         if (!surfaceId) {
-          setError(t('flexiblePanel.wordcraft.surfaceRequired'));
+          setError(translateRef.current('flexiblePanel.wordcraft.surfaceRequired'));
           return;
         }
         if (remoteConnectionId) {
@@ -344,7 +344,7 @@ export default function WordcraftDocumentPanel({
       disposalBarrierRef.current = disposal;
       void disposal;
     };
-  }, [bytes, documentSession, fileName, filePath, surface, surfaceId, workspaceId, workspacePath]);
+  }, [bytes, documentSession, fileName, filePath, remoteConnectionId, surface, surfaceId, workspaceId, workspacePath]);
 
   if (error) {
     const nativeFallbackAvailable =

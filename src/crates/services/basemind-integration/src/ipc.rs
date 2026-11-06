@@ -21,6 +21,47 @@ pub fn urlencoding(value: &str) -> String {
     url::form_urlencoded::byte_serialize(value.as_bytes()).collect()
 }
 
+/// How many `server_busy` retries the client absorbs before surfacing the
+/// error to the agent loop. The daemon is the authoritative waiter; the
+/// client just honours its `retry_after_ms` a bounded number of times.
+#[cfg(feature = "basemind")]
+const BUSY_RETRY_MAX_ATTEMPTS: u32 = 60;
+
+/// Total wall-clock ceiling for absorbing `server_busy` (2 min). The agent
+/// loop applies its own backoff on top, but the daemon should never need
+/// longer than this to finish a warm-up pass or yield a worker.
+#[cfg(feature = "basemind")]
+const BUSY_RETRY_MAX_DURATION: std::time::Duration = std::time::Duration::from_secs(120);
+
+/// Returns `Some(retry_delay)` if the envelope is a retryable `server_busy`,
+/// `None` otherwise.
+#[cfg(feature = "basemind")]
+fn busy_retry_delay(
+    error: Option<&Value>,
+    already_waited: std::time::Duration,
+) -> Option<std::time::Duration> {
+    if already_waited >= BUSY_RETRY_MAX_DURATION {
+        return None;
+    }
+    let obj = error?.as_object()?;
+    if obj.get("code").and_then(Value::as_i64) != Some(-32003) {
+        return None;
+    }
+    if obj.get("message").and_then(Value::as_str) != Some("server_busy") {
+        return None;
+    }
+    let data = obj.get("data")?.as_object()?;
+    if data.get("retryable").and_then(Value::as_bool) != Some(true) {
+        return None;
+    }
+    let after_ms = data.get("retry_after_ms")?.as_u64()?;
+    let retry = std::time::Duration::from_millis(after_ms);
+    if already_waited + retry > BUSY_RETRY_MAX_DURATION {
+        return None;
+    }
+    Some(retry)
+}
+
 /// Pull the tool payload out of an MCP result envelope.
 ///
 /// A tool that returns structured content puts it in `structuredContent`; a
@@ -278,6 +319,13 @@ impl BasemindClient {
     /// with a JSON-RPC envelope whose `result` carries the tool result.
     /// Returns the `structuredContent` payload when the tool provides one
     /// and falls back to the first text content block.
+    ///
+    /// A `server_busy` envelope the daemon marks retryable is retried here
+    /// instead of surfacing to the agent loop: the daemon answers busy while
+    /// its background passes (for example the NER warm-up) hold the worker,
+    /// publishes `retry_after_ms`, and restarts from a fresh portfile
+    /// between calls, so the agent's coarse whole-request retries can never
+    /// line up with the daemon's own window.
     pub async fn call_tool(&self, tool: &str, params: Value, root: &str) -> Result<Value> {
         let id = self
             .next_id
@@ -293,23 +341,39 @@ impl BasemindClient {
                 "arguments": params,
             }
         });
-        let resp = self
-            .http
-            .post(&url)
-            .bearer_auth(&auth_token)
-            .header("Content-Type", "application/json")
-            .header("Accept", "application/json, text/event-stream")
-            .json(&body)
-            .send()
-            .await?
-            .error_for_status()?
-            .json::<Value>()
-            .await?;
 
-        if let Some(error) = resp.get("error") {
+        let mut waited = std::time::Duration::ZERO;
+        let mut attempt = 0u32;
+        let envelope = loop {
+            let resp = self
+                .http
+                .post(&url)
+                .bearer_auth(&auth_token)
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/json, text/event-stream")
+                .json(&body)
+                .send()
+                .await?
+                .error_for_status()?
+                .json::<Value>()
+                .await?;
+
+            if let Some(retry) = busy_retry_delay(resp.get("error"), waited) {
+                if attempt >= BUSY_RETRY_MAX_ATTEMPTS {
+                    anyhow::bail!("basemind tool {tool} stayed busy after {} retries", attempt);
+                }
+                attempt += 1;
+                tokio::time::sleep(retry).await;
+                waited += retry;
+                continue;
+            }
+            break resp;
+        };
+
+        if let Some(error) = envelope.get("error") {
             anyhow::bail!("basemind tool {tool} failed: {error}");
         }
-        let result = resp
+        let result = envelope
             .get("result")
             .ok_or_else(|| anyhow::anyhow!("basemind tool {tool} returned no result"))?;
         if result.get("isError").and_then(Value::as_bool) == Some(true) {
