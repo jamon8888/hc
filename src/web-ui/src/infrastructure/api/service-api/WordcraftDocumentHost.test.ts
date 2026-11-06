@@ -198,6 +198,7 @@ describe('WordcraftDocumentHost', () => {
       type: 'save', requestId: 'save-5', sessionId, revision: 5, name: 'draft.docx', bytes: new Uint8Array([5]),
     });
 
+    await vi.waitFor(() => expect(saveBytes).toHaveBeenCalledTimes(1));
     resolveFirst();
     await vi.waitFor(() => expect(acknowledgeSave).toHaveBeenCalledWith('save-4', 4, true));
     expect(host.state).toMatchObject({ dirty: true, revision: 5, saving: true });
