@@ -1,13 +1,13 @@
 {
   "schemaVersion": 2,
   "generatedFrom": "src/shared/interactive-capabilities/catalog.json",
-  "catalogDigest": "1972efdf8867b4103e7b0d64834f26306c569de2b24bffa37178adedf3d50c38",
-  "commandCount": 675,
+  "catalogDigest": "05de871a23dd9e4c343608ace07cc934ec6cae8f723be470fd85c304ec57d039",
+  "commandCount": 676,
   "coverage": {
-    "commandCount": 675,
+    "commandCount": 676,
     "documentedCommandCount": 622,
-    "implementationCommandCount": 53,
-    "implementationDigest": "56e9ffc1c958abb57f1c4146c1c3e25fccf0c442289985c3d5d3f3680b81c71d"
+    "implementationCommandCount": 54,
+    "implementationDigest": "3953954411accbdfbbcfd614f40fbcc2b554750292bb8d94d712fc4e6307c5ca"
   },
   "commands": [
     {
