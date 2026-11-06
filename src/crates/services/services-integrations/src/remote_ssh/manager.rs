@@ -1522,9 +1522,13 @@ fn workspace_command(config: &SSHConnectionConfig, command: &str, tty: bool) -> 
 fn stale_upload_sweep(quoted_dir: &str) -> String {
     let quoted_pattern =
         crate::remote_ssh::shell::quote_arg(&format!("{}-upload-*.tmp", hidden_data_directory()));
+    let quoted_backup_pattern = crate::remote_ssh::shell::quote_arg(&format!(
+        "{}-upload-*.tmp.backup",
+        hidden_data_directory()
+    ));
     format!(
         "if command -v find >/dev/null 2>&1; then \
-           find {quoted_dir} -maxdepth 1 -name {quoted_pattern} -mmin +1440 \
+           find {quoted_dir} -maxdepth 1 \\( -name {quoted_pattern} -o -name {quoted_backup_pattern} \\) -mmin +1440 \
              -exec rm -f -- {{}} \\; 2>/dev/null || true; \
          fi; "
     )
@@ -1542,15 +1546,12 @@ fn container_workspace_write_command(path: &str, temporary: &str, expected_size:
         "{sweep}tmp={quoted_temporary}; target={quoted_path}; expected={expected_size}; \
          backup=\"$tmp.backup\"; had_target=0; touched=0; status=0; \
          saved_umask=$(umask) || status=$?; \
-         if [ \"$status\" -eq 0 ] && [ -e \"$target\" ]; then \
-           if cp -p -- \"$target\" \"$backup\"; then had_target=1; else status=$?; fi; \
-         fi; \
          cleanup() {{ \
            cleanup_status=0; \
            if [ \"$status\" -ne 0 ] && [ \"$touched\" -eq 1 ]; then \
              if [ \"$had_target\" -eq 1 ]; then \
                if ! cat -- \"$backup\" >| \"$target\"; then \
-                 echo 'Workspace file restore failed; backup retained for recovery' >&2; cleanup_status=1; \
+                 echo \"Workspace file restore failed; backup retained at $backup\" >&2; cleanup_status=1; \
                fi; \
              elif ! rm -f -- \"$target\"; then cleanup_status=1; fi; \
            fi; \
@@ -1571,6 +1572,9 @@ fn container_workspace_write_command(path: &str, temporary: &str, expected_size:
                echo 'Workspace target is not a regular file' >&2; status=1; \
              else \
                umask \"$saved_umask\" || status=$?; \
+               if [ \"$status\" -eq 0 ] && [ -e \"$target\" ]; then \
+                 if cp -p -- \"$target\" \"$backup\"; then had_target=1; else status=$?; fi; \
+               fi; \
                if [ \"$status\" -eq 0 ]; then touched=1; cat -- \"$tmp\" >| \"$target\" || status=$?; fi; \
              fi; \
            fi; \
@@ -7745,8 +7749,9 @@ mod tests {
             crate::remote_ssh::WorkspaceStdio::spawn_local_process("sh", &["-c".into(), command])
                 .unwrap();
         let (mut stdin, mut stdout, mut stderr, _control, completion) = transport.into_parts();
-        stdin.write_all(b"modified").await.unwrap();
-        stdin.shutdown().await.unwrap();
+        // A backup failure can make the shell exit before it reads stdin.
+        let _ = stdin.write_all(b"modified").await;
+        let _ = stdin.shutdown().await;
         let mut output = Vec::new();
         let mut diagnostics = String::new();
         stdout.read_to_end(&mut output).await.unwrap();

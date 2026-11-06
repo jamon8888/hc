@@ -6,7 +6,8 @@ use super::error::{FileSystemError, FileSystemResult};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::path::{Path, PathBuf};
-use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
+use std::sync::Arc;
 use tokio::fs;
 
 #[cfg(unix)]
@@ -330,6 +331,11 @@ impl FileOperationService {
                         "Binary document saves do not replace symbolic links",
                     ));
                 }
+                if metadata.permissions().readonly() {
+                    return Err(FileSystemError::service(
+                        "Binary document saves do not replace read-only files",
+                    ));
+                }
                 #[cfg(unix)]
                 if metadata.nlink() > 1 {
                     return Err(FileSystemError::service(
@@ -372,29 +378,75 @@ impl FileOperationService {
             BINARY_WRITE_TEMP_COUNTER.fetch_add(1, Ordering::Relaxed),
         ));
 
-        let write_result = async {
-            fs::write(&temp_path, data).await.map_err(|e| {
-                FileSystemError::service(format!("Failed to write binary temp file: {}", e))
+        let temp_created = Arc::new(AtomicBool::new(false));
+        let temp_created_for_task = Arc::clone(&temp_created);
+        let temp_path_for_task = temp_path.clone();
+        let data_for_task = data.to_vec();
+        let permissions_for_task = existing_permissions.clone();
+        let write_result = tokio::task::spawn_blocking(move || {
+            use std::io::Write;
+            #[cfg(unix)]
+            use std::os::unix::fs::OpenOptionsExt;
+
+            let mut options = std::fs::OpenOptions::new();
+            options.write(true).create_new(true);
+            #[cfg(unix)]
+            options.mode(0o600);
+            let mut temp_file = options.open(&temp_path_for_task).map_err(|error| {
+                FileSystemError::service(format!("Failed to create binary temp file: {error}"))
             })?;
-            if let Some(permissions) = existing_permissions.clone() {
-                fs::set_permissions(&temp_path, permissions)
-                    .await
-                    .map_err(|e| {
-                        FileSystemError::service(format!(
-                            "Failed to preserve binary file permissions: {}",
-                            e
-                        ))
-                    })?;
+            temp_created_for_task.store(true, Ordering::Release);
+            temp_file.write_all(&data_for_task).map_err(|error| {
+                FileSystemError::service(format!("Failed to write binary temp file: {error}"))
+            })?;
+            temp_file.sync_all().map_err(|error| {
+                FileSystemError::service(format!("Failed to sync binary temp file: {error}"))
+            })?;
+            if let Some(permissions) = permissions_for_task {
+                std::fs::set_permissions(&temp_path_for_task, permissions).map_err(|error| {
+                    FileSystemError::service(format!(
+                        "Failed to preserve binary file permissions: {error}"
+                    ))
+                })?;
+                temp_file.sync_all().map_err(|error| {
+                    FileSystemError::service(format!(
+                        "Failed to sync preserved binary file permissions: {error}"
+                    ))
+                })?;
             }
-            fs::rename(&temp_path, path).await.map_err(|e| {
-                FileSystemError::service(format!("Failed to replace binary file: {}", e))
-            })
-        }
-        .await;
+            Ok::<_, FileSystemError>(())
+        })
+        .await
+        .map_err(|error| {
+            FileSystemError::service(format!("Binary temp write task failed: {error}"))
+        })?;
         if write_result.is_err() {
-            let _ = fs::remove_file(&temp_path).await;
+            if temp_created.load(Ordering::Acquire) {
+                let _ = fs::remove_file(&temp_path).await;
+            }
         }
         write_result?;
+        let rename_result = fs::rename(&temp_path, path)
+            .await
+            .map_err(|e| FileSystemError::service(format!("Failed to replace binary file: {}", e)));
+        if rename_result.is_err() {
+            let _ = fs::remove_file(&temp_path).await;
+        }
+        rename_result?;
+        #[cfg(unix)]
+        {
+            let parent_for_sync = parent.to_path_buf();
+            tokio::task::spawn_blocking(move || {
+                std::fs::File::open(parent_for_sync).and_then(|directory| directory.sync_all())
+            })
+            .await
+            .map_err(|error| {
+                FileSystemError::service(format!("Binary parent sync task failed: {error}"))
+            })?
+            .map_err(|error| {
+                FileSystemError::service(format!("Failed to sync binary parent directory: {error}"))
+            })?;
+        }
 
         let bytes_written = data.len() as u64;
 
@@ -859,7 +911,11 @@ mod editor_sync_hash_tests {
         let target = directory.path().join("target");
         let symlink_path = directory.path().join("target-link");
         let hardlink_path = directory.path().join("target-hardlink");
+        let readonly_path = directory.path().join("target-readonly");
         std::fs::write(&target, b"original").expect("write target");
+        std::fs::write(&readonly_path, b"readonly").expect("write read-only target");
+        std::fs::set_permissions(&readonly_path, std::fs::Permissions::from_mode(0o444))
+            .expect("set read-only target permissions");
         std::fs::set_permissions(&target, std::fs::Permissions::from_mode(0o751))
             .expect("set target permissions");
         symlink(&target, &symlink_path).expect("create symlink");
@@ -897,6 +953,19 @@ mod editor_sync_hash_tests {
             .await
             .expect_err("binary writes reject hard-linked targets");
         assert!(hardlink_error.to_string().contains("hard-linked files"));
+
+        let readonly_error = service
+            .write_binary_file(
+                &readonly_path.to_string_lossy(),
+                b"binary",
+                FileOperationOptions {
+                    backup_on_overwrite: false,
+                    ..Default::default()
+                },
+            )
+            .await
+            .expect_err("binary writes reject read-only targets");
+        assert!(readonly_error.to_string().contains("read-only files"));
         std::fs::remove_file(&hardlink_path).expect("remove hard-link fixture");
 
         service

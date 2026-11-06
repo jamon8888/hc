@@ -131,7 +131,11 @@ export function createWordcraftWorkspaceSaver(
 }
 
 function toUint8Array(bytes: ArrayBuffer | Uint8Array): Uint8Array {
-  return bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+  const view = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+  if (view.byteLength === 0) {
+    throw new Error('WordCraft save payload must be a non-empty binary buffer');
+  }
+  return view;
 }
 
 function bytesToBase64(bytes: Uint8Array): string {

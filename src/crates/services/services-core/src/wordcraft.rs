@@ -434,6 +434,31 @@ enum VersionProbe {
     Failed { detail: String },
 }
 
+const MAX_VERSION_PROBE_OUTPUT_BYTES: usize = 64 * 1024;
+
+fn drain_version_probe_stream<R: std::io::Read>(mut stream: R) -> Vec<u8> {
+    let mut captured = Vec::new();
+    let mut buffer = [0_u8; 8 * 1024];
+    loop {
+        match stream.read(&mut buffer) {
+            Ok(0) | Err(_) => break,
+            Ok(read) => {
+                let remaining = MAX_VERSION_PROBE_OUTPUT_BYTES.saturating_sub(captured.len());
+                if remaining > 0 {
+                    captured.extend_from_slice(&buffer[..read.min(remaining)]);
+                }
+            }
+        }
+    }
+    captured
+}
+
+fn join_version_probe_reader(reader: Option<std::thread::JoinHandle<Vec<u8>>>) -> Vec<u8> {
+    reader
+        .and_then(|thread| thread.join().ok())
+        .unwrap_or_default()
+}
+
 fn run_version_probe(command: &str) -> VersionProbe {
     let mut child = match create_command(command)
         .arg("--version")
@@ -455,6 +480,14 @@ fn run_version_probe(command: &str) -> VersionProbe {
             };
         }
     };
+    let stdout_reader = child
+        .stdout
+        .take()
+        .map(|stream| std::thread::spawn(move || drain_version_probe_stream(stream)));
+    let stderr_reader = child
+        .stderr
+        .take()
+        .map(|stream| std::thread::spawn(move || drain_version_probe_stream(stream)));
     let deadline = Instant::now() + Duration::from_secs(2);
     loop {
         match child.try_wait() {
@@ -465,6 +498,8 @@ fn run_version_probe(command: &str) -> VersionProbe {
             Ok(None) => {
                 let _ = child.kill();
                 let _ = child.wait();
+                let _ = join_version_probe_reader(stdout_reader);
+                let _ = join_version_probe_reader(stderr_reader);
                 return VersionProbe::Failed {
                     detail: "--version probe timed out after 2 seconds".to_string(),
                 };
@@ -472,60 +507,58 @@ fn run_version_probe(command: &str) -> VersionProbe {
             Err(err) => {
                 let _ = child.kill();
                 let _ = child.wait();
+                let _ = join_version_probe_reader(stdout_reader);
+                let _ = join_version_probe_reader(stderr_reader);
                 return VersionProbe::Failed {
                     detail: format!("failed to poll --version probe: {err}"),
                 };
             }
         }
     }
-    let output = child.wait_with_output();
-    match output {
-        Ok(output) if output.status.success() => {
-            let text = String::from_utf8_lossy(&output.stdout)
-                .lines()
-                .next()
-                .unwrap_or("")
-                .trim()
-                .to_string();
-            if text.is_empty() {
-                VersionProbe::Failed {
-                    detail: "empty --version output".to_string(),
-                }
-            } else {
-                VersionProbe::Ok { output: text }
-            }
-        }
-        Ok(output) => {
-            let stderr = String::from_utf8_lossy(&output.stderr);
-            let detail = {
-                let tail: String = stderr
-                    .lines()
-                    .last()
-                    .unwrap_or("exit code != 0")
-                    .trim()
-                    .chars()
-                    .take(160)
-                    .collect();
-                if tail.is_empty() {
-                    format!("exit code {:?}", output.status.code())
-                } else {
-                    tail
-                }
+    let status = match child.wait() {
+        Ok(status) => status,
+        Err(error) => {
+            let _ = join_version_probe_reader(stdout_reader);
+            let _ = join_version_probe_reader(stderr_reader);
+            return VersionProbe::Failed {
+                detail: format!("failed to reap --version probe: {error}"),
             };
-            VersionProbe::Failed { detail }
         }
-        Err(err) => {
-            if err.raw_os_error() == Some(8) {
-                // ENOEXEC: right name, wrong platform/architecture binary.
-                VersionProbe::UnsupportedBinary {
-                    detail: err.to_string(),
-                }
-            } else {
-                VersionProbe::Failed {
-                    detail: err.to_string(),
-                }
+    };
+    let stdout = join_version_probe_reader(stdout_reader);
+    let stderr = join_version_probe_reader(stderr_reader);
+    if status.success() {
+        let text = String::from_utf8_lossy(&stdout)
+            .lines()
+            .next()
+            .unwrap_or("")
+            .trim()
+            .to_string();
+        if text.is_empty() {
+            VersionProbe::Failed {
+                detail: "empty --version output".to_string(),
             }
+        } else {
+            VersionProbe::Ok { output: text }
         }
+    } else {
+        let stderr = String::from_utf8_lossy(&stderr);
+        let detail = {
+            let tail: String = stderr
+                .lines()
+                .last()
+                .unwrap_or("exit code != 0")
+                .trim()
+                .chars()
+                .take(160)
+                .collect();
+            if tail.is_empty() {
+                format!("exit code {:?}", status.code())
+            } else {
+                tail
+            }
+        };
+        VersionProbe::Failed { detail }
     }
 }
 
