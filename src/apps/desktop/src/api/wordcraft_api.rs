@@ -196,6 +196,18 @@ fn wordcraft_web_url(origin: &str, token: &str, session_id: &str) -> String {
     )
 }
 
+fn wordcraft_frontend_origin_for(is_windows: bool) -> &'static str {
+    if is_windows {
+        "http://alex-ui.localhost"
+    } else {
+        "alex-ui://localhost"
+    }
+}
+
+fn wordcraft_frontend_origin() -> &'static str {
+    wordcraft_frontend_origin_for(cfg!(target_os = "windows"))
+}
+
 #[tauri::command]
 pub async fn wordcraft_web_host_command(
     app: AppHandle,
@@ -244,17 +256,15 @@ pub async fn wordcraft_web_host_command(
             },
         );
 
-    let origin = crate::frontend_workbench::FRONTEND_URL
-        .trim_end_matches("/index.html")
-        .to_string();
+    let origin = wordcraft_frontend_origin();
     Ok(WordcraftWebHostResponse {
         // The session identity is part of the browser handshake, not a secret;
         // the token remains the only authorization credential in the URL.
         // The upstream web shell only installs the parent bridge when this
         // explicit mode flag is present. Keep it in the desktop-issued URL so
         // the iframe cannot silently render an unhosted, download-only copy.
-        url: wordcraft_web_url(&origin, &token, &session_id),
-        origin,
+        url: wordcraft_web_url(origin, &token, &session_id),
+        origin: origin.to_string(),
         session_id,
         version: capability
             .web
@@ -637,6 +647,22 @@ mod tests {
         assert_eq!(
             url,
             "alex-ui://localhost/wordcraft/session-1/token/index.html?wordcraftToken=token&sessionId=session-1&host=parent"
+        );
+    }
+
+    #[test]
+    fn hosted_web_url_matches_the_windows_workbench_origin() {
+        assert_eq!(
+            wordcraft_frontend_origin_for(true),
+            "http://alex-ui.localhost"
+        );
+        assert_eq!(
+            wordcraft_web_url(
+                wordcraft_frontend_origin_for(true),
+                "token",
+                "session-1"
+            ),
+            "http://alex-ui.localhost/wordcraft/session-1/token/index.html?wordcraftToken=token&sessionId=session-1&host=parent"
         );
     }
 }
