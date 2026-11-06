@@ -8,6 +8,10 @@ use sha2::{Digest, Sha256};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
 use tokio::fs;
+use tokio::io::AsyncWriteExt;
+
+#[cfg(unix)]
+use std::os::unix::fs::{MetadataExt, OpenOptionsExt};
 
 static BINARY_WRITE_TEMP_COUNTER: AtomicU64 = AtomicU64::new(0);
 
@@ -282,6 +286,28 @@ impl FileOperationService {
 
         self.validate_file_access(path, true).await?;
 
+        match fs::symlink_metadata(path).await {
+            Ok(metadata) => {
+                if metadata.file_type().is_symlink() {
+                    return Err(FileSystemError::service(
+                        "Binary document saves do not replace symbolic links",
+                    ));
+                }
+                #[cfg(unix)]
+                if metadata.nlink() > 1 {
+                    return Err(FileSystemError::service(
+                        "Binary document saves do not replace hard-linked files",
+                    ));
+                }
+            }
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+            Err(error) => {
+                return Err(FileSystemError::service(format!(
+                    "Failed to inspect binary document target: {error}"
+                )));
+            }
+        }
+
         let mut backup_created = false;
         let mut backup_path = None;
 
@@ -347,11 +373,15 @@ impl FileOperationService {
         ));
 
         let write_result = async {
-            fs::write(&temp_path, data).await.map_err(|e| {
-                FileSystemError::service(format!("Failed to write binary temp file: {}", e))
+            let mut options = fs::OpenOptions::new();
+            options.write(true).create_new(true);
+            #[cfg(unix)]
+            options.mode(0o600);
+            let mut temp = options.open(&temp_path).await.map_err(|e| {
+                FileSystemError::service(format!("Failed to create binary temp file: {}", e))
             })?;
-            let temp = fs::File::open(&temp_path).await.map_err(|e| {
-                FileSystemError::service(format!("Failed to open binary temp file: {}", e))
+            temp.write_all(data).await.map_err(|e| {
+                FileSystemError::service(format!("Failed to write binary temp file: {}", e))
             })?;
             temp.sync_all().await.map_err(|e| {
                 FileSystemError::service(format!("Failed to sync binary file: {}", e))

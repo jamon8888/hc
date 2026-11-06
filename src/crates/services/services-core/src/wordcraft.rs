@@ -12,8 +12,9 @@ use crate::managed_runtime::{ManagedRuntimeResolver, ResolvedCommand};
 use crate::process_manager::create_command;
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
+use std::process::Stdio;
 use std::sync::{Arc, RwLock};
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 /// The headless CLI binary (`wordcraft-cli`) — the agent's primary edit path.
 pub const WORDCRAFT_CLI_COMMAND: &str = "wordcraft-cli";
@@ -434,7 +435,49 @@ enum VersionProbe {
 }
 
 fn run_version_probe(command: &str) -> VersionProbe {
-    let output = create_command(command).arg("--version").output();
+    let mut child = match create_command(command)
+        .arg("--version")
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+    {
+        Ok(child) => child,
+        Err(err) => {
+            return if err.raw_os_error() == Some(8) {
+                VersionProbe::UnsupportedBinary {
+                    detail: err.to_string(),
+                }
+            } else {
+                VersionProbe::Failed {
+                    detail: err.to_string(),
+                }
+            };
+        }
+    };
+    let deadline = Instant::now() + Duration::from_secs(2);
+    loop {
+        match child.try_wait() {
+            Ok(Some(_)) => break,
+            Ok(None) if Instant::now() < deadline => {
+                std::thread::sleep(Duration::from_millis(10));
+            }
+            Ok(None) => {
+                let _ = child.kill();
+                let _ = child.wait();
+                return VersionProbe::Failed {
+                    detail: "--version probe timed out after 2 seconds".to_string(),
+                };
+            }
+            Err(err) => {
+                let _ = child.kill();
+                let _ = child.wait();
+                return VersionProbe::Failed {
+                    detail: format!("failed to poll --version probe: {err}"),
+                };
+            }
+        }
+    }
+    let output = child.wait_with_output();
     match output {
         Ok(output) if output.status.success() => {
             let text = String::from_utf8_lossy(&output.stdout)
