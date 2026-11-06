@@ -305,6 +305,18 @@ impl FileSystemService {
             .await
     }
 
+    /// Writes exact bytes through the filesystem operation service.
+    pub async fn write_binary_file(
+        &self,
+        file_path: &str,
+        data: &[u8],
+        options: FileOperationOptions,
+    ) -> FileSystemResult<FileWriteResult> {
+        self.file_operation_service
+            .write_binary_file(file_path, data, options)
+            .await
+    }
+
     /// Copies a file.
     pub async fn copy_file(&self, from: &str, to: &str) -> FileSystemResult<u64> {
         self.file_operation_service.copy_file(from, to).await
