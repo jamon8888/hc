@@ -220,7 +220,7 @@ export class WordcraftBridge {
     ok: boolean,
     error?: string,
   ): void {
-    if (this.disposed || !requestId || !Number.isSafeInteger(revision) || revision < 0) return;
+    if (this.disposed || !Number.isSafeInteger(revision) || revision < 0) return;
     const ack: WordcraftSaveAck = {
       type: 'save-ack',
       requestId,

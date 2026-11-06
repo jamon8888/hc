@@ -1540,10 +1540,20 @@ fn container_workspace_write_command(path: &str, temporary: &str, expected_size:
     let sweep = stale_upload_sweep(&crate::remote_ssh::shell::quote_arg(parent));
     format!(
         "{sweep}tmp={quoted_temporary}; target={quoted_path}; expected={expected_size}; \
-         saved_umask=$(umask) || exit 1; \
-         cleanup() {{ rm -f -- \"$tmp\"; }}; trap cleanup EXIT; \
-         trap 'exit 129' HUP; trap 'exit 130' INT; trap 'exit 143' TERM; \
-         umask 077; status=0; cat > \"$tmp\" || status=$?; \
+         backup=\"$tmp.backup\"; had_target=0; status=0; \
+         saved_umask=$(umask) || status=$?; \
+         if [ \"$status\" -eq 0 ] && [ -e \"$target\" ]; then \
+           cp -p -- \"$target\" \"$backup\" || status=$?; had_target=1; \
+         fi; \
+         cleanup() {{ \
+           if [ \"$status\" -ne 0 ]; then \
+             if [ \"$had_target\" -eq 1 ]; then cat -- \"$backup\" >| \"$target\" || true; \
+             else rm -f -- \"$target\"; fi; \
+           fi; \
+           rm -f -- \"$tmp\" \"$backup\"; \
+         }}; trap cleanup EXIT; \
+         trap 'status=129; exit 129' HUP; trap 'status=130; exit 130' INT; trap 'status=143; exit 143' TERM; \
+         umask 077; if [ \"$status\" -eq 0 ]; then cat > \"$tmp\" || status=$?; fi; \
          if [ \"$status\" -eq 0 ]; then \
            actual=$(wc -c < \"$tmp\") || status=$?; \
            if [ \"$status\" -eq 0 ]; then \

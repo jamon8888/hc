@@ -23,6 +23,7 @@ export class WordcraftDocumentHost {
   private nextEventToken = 0;
   private latestEventToken = 0;
   private readonly pendingSaves = new Map<number, number>();
+  private saveQueue: Promise<void> = Promise.resolve();
   private currentState: WordcraftDocumentHostState = {
     dirty: false,
     revision: 0,
@@ -54,7 +55,7 @@ export class WordcraftDocumentHost {
       this.latestEventToken = token;
       this.pendingSaves.set(token, event.revision);
       this.update({ dirty: true, revision: event.revision, saving: true, error: undefined });
-      void this.persist(event, token);
+      this.saveQueue = this.saveQueue.then(() => this.persist(event, token));
     }
   }
 

@@ -1,7 +1,7 @@
 # 18: Embedded document-control contract and artifact handshake
 
 `Type: task`
-`Status: claimed`
+`Status: resolved`
 Triage label: ready-for-agent
 
 Blocked by: None (can start immediately)
@@ -39,6 +39,6 @@ document surface.
 - Kept native CLI/app probing and headless behavior independent of web-bundle
   availability, and stabilized the `not-installed` status wire value.
 - The actual embedded iframe host/presenter, artifact checksum/attribution
-  verification, and production message-listener wiring remain with the blocked
-  human surface and command-bridge work in tickets 19 and 20; this ticket stays
-  claimed until those integration seams consume the contract.
+  verification, and production message-listener wiring are downstream consumers
+  in tickets 19 and 20. This contract is resolved independently; those tickets
+  may proceed against its versioned handshake without claiming this ticket.

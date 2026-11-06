@@ -8,14 +8,16 @@ Blocked by: 19 (Human-editable embedded `.docx` surface), 21 (Single-writer pers
 
 ## What to build
 
-Route `.docx` opening to the embedded surface only when it is safe and available,
-while retaining the native WordCraft and headless paths as explicit compatibility
-options and preserving ownership of every other document format.
+Route `.docx` opening to the embedded surface only when it is safe, available,
+and enabled by the rollout decision in ticket 25. Until that gate is recorded,
+the native WordCraft path remains the default. Preserve headless behavior and
+ownership of every other document format.
 
 ## Acceptance criteria
 
-- [ ] Default `.docx` opening selects the embedded surface only after the shared
-      capability and protocol handshake succeed.
+- [ ] Opted-in `.docx` opening selects the embedded surface only after the shared
+      capability and protocol handshake succeed; the native path remains the
+      default until ticket 25 records the rollout decision.
 - [ ] If embedding is unavailable but the local native WordCraft capability is
       available, Alex offers the existing native-window path with visible state.
 - [ ] If neither path is available, Alex shows the capability record and
