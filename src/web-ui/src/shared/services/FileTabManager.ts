@@ -101,7 +101,6 @@ class FileTabManager {
         scope,
         filePath: normalizedPath,
         fileName,
-        editorType,
       });
       return;
     }
@@ -214,23 +213,27 @@ class FileTabManager {
    * capability `available` opens the embedded WordCraft surface on the local
    * desktop; when only the native app is available, the existing editor-window
    * action remains the fallback. Failures are loud with the record's
-   * remediation;
-   * any other record state is a loud toast, never a code-editor binary dump.
-   * Where the probe is unavailable (server/web surfaces with no desktop host
-   * adapter) the previous tab behavior is kept — the loud path is also
-   * unavailable there.
+   * remediation; any other record state is a loud toast, never a code-editor
+   * binary dump. If the probe itself is unavailable, the document is refused
+   * loudly because this surface cannot prove that a safe WordCraft route exists.
    */
   private async openWordcraftOrLoudFallback(args: {
     options: FileTabOptions;
     scope: ContentResourceScope;
     filePath: string;
     fileName: string;
-    editorType: ReturnType<typeof getEditorType>;
   }): Promise<void> {
-    const { options, scope, filePath, fileName, editorType } = args;
+    const { options, scope, filePath, fileName } = args;
     const capability = await wordcraftAPI.statusQuiet();
     if (!capability) {
-      this.openEditorTab(options, scope, filePath, fileName, editorType);
+      const t = i18nService.getT();
+      const message = t('errors:file.wordcraftOpenFailed');
+      notificationService.error(message, { title: message });
+      log.warn('WordCraft status unavailable; docx open refused loudly', {
+        filePath,
+        workspaceId: scope.workspaceId,
+        surfaceId: scope.surfaceId,
+      });
       return;
     }
 
