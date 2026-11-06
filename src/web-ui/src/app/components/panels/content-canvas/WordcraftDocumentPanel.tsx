@@ -142,17 +142,25 @@ export default function WordcraftDocumentPanel({
 
     const bridgeRef: { current: WordcraftBridge | null } = { current: null };
     const sessionRef: { current: WordcraftEmbeddedDocumentSession | null } = { current: null };
+    const initialHashPromise = sha256Hex(bytes);
+    let expectedHash: string | undefined;
     const agentContextKey = `wordcraft:${documentSession?.id ?? filePath}`;
     const updateAgentContext = (patch: Parameters<typeof updateDocumentAgentContext>[1]) => {
       updateDocumentAgentContext(agentContextKey, patch);
     };
     const host = new WordcraftDocumentHost({
       sessionId: surface.sessionId,
-      saveBytes: nextBytes => workspaceAPI.writeWorkspaceFileBase64(
-        workspaceId!,
-        filePath,
-        encodeBase64(nextBytes),
-      ),
+      saveBytes: async nextBytes => {
+        const currentHash = expectedHash ?? await initialHashPromise;
+        expectedHash = currentHash;
+        await workspaceAPI.writeWorkspaceFileBase64(
+          workspaceId!,
+          filePath,
+          encodeBase64(nextBytes),
+          currentHash,
+        );
+        expectedHash = await sha256Hex(nextBytes);
+      },
       acknowledgeSave: (requestId, revision, ok, saveError) => {
         bridgeRef.current?.acknowledgeSave(requestId, revision, ok, saveError);
       },
@@ -246,6 +254,14 @@ export default function WordcraftDocumentPanel({
     if (documentSession) {
       documentSession.save = saveDocument;
     }
+    void initialHashPromise
+      .then(hash => {
+        expectedHash = hash;
+      })
+      .catch(hashError => {
+        setError(hashError instanceof Error ? hashError.message : String(hashError));
+      });
+
     const onMessage = (event: MessageEvent<unknown>) => bridge.handleMessage(event);
     window.addEventListener('message', onMessage);
 
@@ -377,4 +393,14 @@ function encodeBase64(bytes: Uint8Array): string {
     binary += String.fromCharCode(...bytes.subarray(offset, offset + 0x8000));
   }
   return globalThis.btoa(binary);
+}
+
+async function sha256Hex(bytes: Uint8Array): Promise<string> {
+  if (typeof crypto === 'undefined' || !crypto.subtle?.digest) {
+    throw new Error('WordCraft save protection requires crypto.subtle.digest');
+  }
+  const digest = await crypto.subtle.digest('SHA-256', bytes);
+  return Array.from(new Uint8Array(digest))
+    .map(byte => byte.toString(16).padStart(2, '0'))
+    .join('');
 }
