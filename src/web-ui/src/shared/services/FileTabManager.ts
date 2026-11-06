@@ -224,9 +224,20 @@ class FileTabManager {
     fileName: string;
   }): Promise<void> {
     const { options, scope, filePath, fileName } = args;
+    const t = i18nService.getT();
+    if (scope.remoteConnectionId) {
+      const message = t('errors:file.wordcraftOpenFailed');
+      notificationService.error(message, { title: message });
+      log.warn('WordCraft embedded routing refused for a remote workspace', {
+        filePath,
+        workspaceId: scope.workspaceId,
+        remoteConnectionId: scope.remoteConnectionId,
+        surfaceId: scope.surfaceId,
+      });
+      return;
+    }
     const capability = await wordcraftAPI.statusQuiet();
     if (!capability) {
-      const t = i18nService.getT();
       const message = t('errors:file.wordcraftOpenFailed');
       notificationService.error(message, { title: message });
       log.warn('WordCraft status unavailable; docx open refused loudly', {
@@ -237,7 +248,6 @@ class FileTabManager {
       return;
     }
 
-    const t = i18nService.getT();
     if (!isLocalSurface(scope.surfaceId)) {
       const detail = capability.web?.message || capability.message || t('errors:file.wordcraftOpenFailed');
       notificationService.error(detail, { title: t('errors:file.wordcraftOpenFailed') });
