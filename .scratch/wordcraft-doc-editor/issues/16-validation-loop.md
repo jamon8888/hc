@@ -3,6 +3,19 @@
 `Type: task`
 `Status: resolved`
 
+### Continuation (2026-11-04)
+
+The optional same-origin embed probe is no longer outstanding at the browser-runtime level.
+Using the exact patched `0.7.0` web bundle under software WebGL2, the parent harness observed
+the versioned `ready` handshake, opened a real `.docx`, listed commands, enabled tracked
+changes, inserted text, read the mutation back, saved, acknowledged the save, and verified
+the returned OOXML archive. The saved `word/document.xml` contained a `w:ins` authored by
+`Alex Agent (probe)`.
+
+The remaining release gates are the real hardware-backed native control/screenshot path, the
+packaged Alex WebView, managed-runtime provisioning of the patched bundle, and the separately
+owned remote/detached-dispatch implementation.
+
 Blocked by: 10, 11, 12
 
 ## Question

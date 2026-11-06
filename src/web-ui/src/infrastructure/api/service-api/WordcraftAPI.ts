@@ -87,6 +87,8 @@ export interface WordcraftEmbeddedCommandCompletionDto {
   error?: string;
 }
 
+export interface WordcraftWebHostRequestDto {}
+
 export class WordcraftAPI {
   async status(recheck = false): Promise<WordcraftCapabilityDto> {
     return api.invoke<WordcraftCapabilityDto>('wordcraft_status_command', { recheck });
@@ -104,7 +106,8 @@ export class WordcraftAPI {
   }
 
   async hostWebSurface(): Promise<WordcraftWebHostResponseDto> {
-    return api.invoke<WordcraftWebHostResponseDto>('wordcraft_web_host_command', {});
+    const request: WordcraftWebHostRequestDto = {};
+    return api.invoke<WordcraftWebHostResponseDto>('wordcraft_web_host_command', { request });
   }
 
   async releaseWebSurface(sessionId: string): Promise<void> {

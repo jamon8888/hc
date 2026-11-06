@@ -23,7 +23,7 @@ describe('WordcraftAPI', () => {
       sessionId: 'web-session-1',
       origin: 'http://127.0.0.1:41000',
     });
-    expect(api.invoke).toHaveBeenCalledWith('wordcraft_web_host_command', {});
+    expect(api.invoke).toHaveBeenCalledWith('wordcraft_web_host_command', { request: {} });
   });
 
   it('releases the web host session through the desktop adapter', async () => {

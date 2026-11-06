@@ -42,3 +42,16 @@ document surface.
   verification, and production message-listener wiring are downstream consumers
   in tickets 19 and 20. This contract is resolved independently; those tickets
   may proceed against its versioned handshake without claiming this ticket.
+
+2026-11-04 continuation:
+
+- The managed web probe now requires and verifies `SHA256SUMS.txt` before it can
+  report `available`; missing sidecars, unlisted files, mismatches, and tampering
+  return an explicit error and leave `checksumVerified` false. Legacy capability
+  records default that field safely.
+
+- A software-WebGL2 same-origin browser probe now passes against the exact patched `0.7.0`
+  bundle: version/protocol/capability handshake, command discovery, tracked-change mutation,
+  text read-back, save acknowledgement, and OOXML `w:ins` authorship were all verified.
+  Production provisioning, packaged Alex WebView validation, and hardware-backed native
+  control remain release gates, so this ticket stays claimed rather than complete.

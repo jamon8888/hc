@@ -82,7 +82,7 @@ implementation ([upstream `apps/wordcraft-web/src/host.rs`](https://raw.githubus
 
 ## Clone-based findings: the smallest useful upstream seam
 
-I cloned upstream `main` at commit `ffb155a` (package version `0.15.0`) and traced the implementation rather than relying only on the published web-host documentation. The clone remains outside the Alex repository; no WordCraft source is vendored. A local prototype was applied in `/tmp/wordcraft-upstream.PJcNnc` to validate the seam without pushing to the upstream project.
+I cloned upstream `main` at commit `ffb155a` (package version `0.15.0`) and traced the implementation rather than relying only on the published web-host documentation. The clone remains outside the Alex repository; no WordCraft source is vendored. A local prototype was applied outside the Alex checkout to validate the seam without pushing to the upstream project.
 
 The important result is that WordCraft already has a narrow command seam suitable for a web host extension:
 
@@ -226,9 +226,11 @@ metadata and exposes a context-aware `Wordcraft` tool. Core emits a correlated c
 request to the exact active document surface; the Web UI routes it to the visible
 iframe bridge and completes it through the desktop adapter. Closed, inactive,
 stale, unavailable, remote, and capability-mismatched surfaces fail explicitly;
-there is no headless fallback in this path. This seam is implemented, but it is
-not release evidence until the patched WordCraft artifact and GPU-backed mutation
-probe pass.
+there is no headless fallback in this path. A software-WebGL2 same-origin probe against
+the exact patched `0.7.0` bundle now proves the browser mutation/save contract,
+including tracked-change authorship in returned OOXML. The managed Alex bundle is not
+yet provisioned, and the packaged Alex WebView plus hardware-backed native control path
+remain release gates.
 
 ## Recommended phased design and verification plan
 

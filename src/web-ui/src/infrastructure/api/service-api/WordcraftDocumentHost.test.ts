@@ -24,10 +24,33 @@ describe('WordcraftDocumentHost', () => {
     expect(host.state).toMatchObject({ dirty: false, revision: 4, saving: false, error: undefined });
   });
 
+  it('resolves durable-save waiters only after workspace persistence completes', async () => {
+    let persist!: () => void;
+    const saveBytes = vi.fn(() => new Promise<void>(resolve => { persist = resolve; }));
+    const host = new WordcraftDocumentHost({ sessionId, saveBytes, acknowledgeSave: vi.fn() });
+    let settled = false;
+    const durable = host.waitForDurableSave(4).then(() => { settled = true; });
+
+    host.handleEvent({
+      type: 'save',
+      requestId: 'save-durable',
+      sessionId,
+      revision: 4,
+      name: 'draft.docx',
+      bytes: new Uint8Array([4]),
+    });
+    await Promise.resolve();
+    expect(settled).toBe(false);
+
+    persist();
+    await durable;
+    expect(settled).toBe(true);
+  });
+
   it('surfaces save failures and sends a negative acknowledgement', async () => {
     const saveBytes = vi.fn().mockRejectedValue(new Error('workspace is offline'));
     const acknowledgeSave = vi.fn();
-    const host = new WordcraftDocumentHost({ sessionId, saveBytes, acknowledgeSave });
+    const host = new WordcraftDocumentHost({ sessionId, saveBytes, acknowledgeSave }, new Uint8Array([9]));
 
     host.handleEvent({
       type: 'save',
@@ -40,6 +63,7 @@ describe('WordcraftDocumentHost', () => {
 
     await vi.waitFor(() => expect(acknowledgeSave).toHaveBeenCalledWith('save-2', 5, false, 'workspace is offline'));
     expect(host.state).toMatchObject({ dirty: true, revision: 5, saving: false, error: 'workspace is offline' });
+    expect(host.getLatestBytes()).toEqual(new Uint8Array([9]));
   });
 
   it('rejects empty save payloads before persistence', async () => {

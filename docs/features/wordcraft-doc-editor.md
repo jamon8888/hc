@@ -18,7 +18,9 @@ this record**; no surface re-derives status, and availability is never fabricate
 
 Distribution is the pinned upstream release archive verified against upstream `SHA256SUMS.txt`
 (never vendored crates, never unverified binaries). The `wordcraft-web` static bundle is a
-same-origin iframe surface behind a versioned `ready` handshake and parent control bridge.
+same-origin iframe surface behind a versioned `ready` handshake and parent control bridge;
+the managed bundle must also ship a `SHA256SUMS.txt` sidecar covering every static file before
+Alex reports the web capability as available.
 Alex only presents it when the managed artifact's manifest and browser handshake agree on the
 pinned version, protocol, and command capabilities; otherwise the capability record remains
 unavailable and the native/headless paths retain their existing behavior. The current upstream
@@ -122,10 +124,17 @@ Choose at the owner, never a mono-suite:
   headless loop: initialize → tracked edits via `execute`/`batch` → save → OOXML assertion
   (`w:ins` authored as the session's agent, bold run present) → independent `text` read-back →
   outside-write-root refusal. Loudly refuses to run without a resolvable binary.
-- Owed to hardware (current machine cannot): visible-app control-channel validation on a
-  real GPU surface — `wordcraft --control <port>` + key file auth, `engine.execute`,
-  `screenshot` — and the wordcraft-web same-origin embed live probe. Run the checks above on
-  macOS/Windows device hardware before claiming the visible leg validated.
+- Software-WebGL2 embed probe (2026-11-04) passed against the exact patched `0.7.0` bundle:
+  the same-origin parent/iframe handshake reported the pinned version, protocol, and command
+  capabilities; `list_commands`, `get_text`, tracked-changes enablement, `text.insert`,
+  text read-back, `save_document`, and the save acknowledgement all completed with correlated
+  revisions. The captured saved archive passed `unzip -t` and contained a `w:ins` authored by
+  `Alex Agent (probe)`.
+- Still owed to supported device hardware / release packaging: visible-app control-channel
+  validation on a real GPU surface (`wordcraft --control <port>` + key-file auth,
+  `engine.execute`, `screenshot`), packaged Alex WebView validation, and provisioning the
+  patched web bundle into the managed runtime. Do not claim the production visible leg until
+  those gates pass.
 
 ## Out of scope
 

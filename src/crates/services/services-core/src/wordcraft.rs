@@ -28,6 +28,8 @@ pub const WORDCRAFT_WEB_BUNDLE_DIR: &str = "web";
 pub const WORDCRAFT_WEB_ENTRYPOINT: &str = "index.html";
 /// The browser bundle manifest used for capability discovery.
 pub const WORDCRAFT_WEB_MANIFEST: &str = "version.json";
+/// The checksum sidecar required for a managed browser bundle.
+pub const WORDCRAFT_WEB_CHECKSUMS: &str = "SHA256SUMS.txt";
 /// Version of Alex's parent/iframe handshake contract.
 pub const WORDCRAFT_WEB_PROTOCOL_VERSION: u32 = 1;
 /// Capabilities required before Alex presents the embedded editor as available.
@@ -124,6 +126,8 @@ pub fn validate_wordcraft_web_manifest(
 pub struct WordcraftWebCapability {
     pub status: WordcraftStatus,
     pub artifact_path: Option<String>,
+    #[serde(default)]
+    pub checksum_verified: bool,
     pub version: Option<String>,
     pub protocol_version: Option<u32>,
     pub command_capabilities: Vec<String>,
@@ -137,6 +141,7 @@ impl Default for WordcraftWebCapability {
         Self {
             status: WordcraftStatus::NotInstalled,
             artifact_path: None,
+            checksum_verified: false,
             version: None,
             protocol_version: None,
             command_capabilities: Vec::new(),
@@ -164,6 +169,7 @@ fn probe_web_bundle(runtime_root: &Path, checked_at_epoch_ms: u64) -> WordcraftW
         return WordcraftWebCapability {
             status: WordcraftStatus::NotInstalled,
             artifact_path: None,
+            checksum_verified: false,
             version: None,
             protocol_version: None,
             command_capabilities: Vec::new(),
@@ -180,12 +186,48 @@ fn probe_web_bundle(runtime_root: &Path, checked_at_epoch_ms: u64) -> WordcraftW
         return WordcraftWebCapability {
             status: WordcraftStatus::Error,
             artifact_path: Some(artifact_path),
+            checksum_verified: false,
             version: None,
             protocol_version: None,
             command_capabilities: Vec::new(),
             message: Some(format!(
                 "WordCraft web bundle is missing {}",
                 WORDCRAFT_WEB_ENTRYPOINT
+            )),
+            remediation: remediation(),
+            checked_at_epoch_ms,
+        };
+    }
+
+    let checksums_path = artifact.join(WORDCRAFT_WEB_CHECKSUMS);
+    let checksums_text = match std::fs::read_to_string(&checksums_path) {
+        Ok(text) => text,
+        Err(error) => {
+            return WordcraftWebCapability {
+                status: WordcraftStatus::Error,
+                artifact_path: Some(artifact_path),
+                checksum_verified: false,
+                version: None,
+                protocol_version: None,
+                command_capabilities: Vec::new(),
+                message: Some(format!(
+                    "WordCraft web bundle checksum sidecar could not be read: {error}"
+                )),
+                remediation: remediation(),
+                checked_at_epoch_ms,
+            };
+        }
+    };
+    if let Err(error) = checksum::verify_directory_against_sha256sums(&artifact, &checksums_text) {
+        return WordcraftWebCapability {
+            status: WordcraftStatus::Error,
+            artifact_path: Some(artifact_path),
+            checksum_verified: false,
+            version: None,
+            protocol_version: None,
+            command_capabilities: Vec::new(),
+            message: Some(format!(
+                "WordCraft web bundle checksum verification failed: {error}"
             )),
             remediation: remediation(),
             checked_at_epoch_ms,
@@ -199,6 +241,7 @@ fn probe_web_bundle(runtime_root: &Path, checked_at_epoch_ms: u64) -> WordcraftW
             return WordcraftWebCapability {
                 status: WordcraftStatus::Error,
                 artifact_path: Some(artifact_path),
+                checksum_verified: true,
                 version: None,
                 protocol_version: None,
                 command_capabilities: Vec::new(),
@@ -216,6 +259,7 @@ fn probe_web_bundle(runtime_root: &Path, checked_at_epoch_ms: u64) -> WordcraftW
             return WordcraftWebCapability {
                 status: WordcraftStatus::Error,
                 artifact_path: Some(artifact_path),
+                checksum_verified: true,
                 version: None,
                 protocol_version: None,
                 command_capabilities: Vec::new(),
@@ -233,6 +277,7 @@ fn probe_web_bundle(runtime_root: &Path, checked_at_epoch_ms: u64) -> WordcraftW
         Ok(accepted) => WordcraftWebCapability {
             status: WordcraftStatus::Available,
             artifact_path: Some(artifact_path),
+            checksum_verified: true,
             version,
             protocol_version,
             command_capabilities: accepted.command_capabilities,
@@ -243,6 +288,7 @@ fn probe_web_bundle(runtime_root: &Path, checked_at_epoch_ms: u64) -> WordcraftW
         Err(error) => WordcraftWebCapability {
             status: WordcraftStatus::Unsupported,
             artifact_path: Some(artifact_path),
+            checksum_verified: true,
             version,
             protocol_version,
             command_capabilities,
@@ -600,7 +646,7 @@ pub mod checksum {
     //! Release-archive verification against upstream `SHA256SUMS.txt`.
 
     use sha2::{Digest, Sha256};
-    use std::path::Path;
+    use std::path::{Component, Path, PathBuf};
 
     #[derive(Debug)]
     pub enum ChecksumError {
@@ -647,7 +693,7 @@ pub mod checksum {
         dir: &Path,
         sums_text: &str,
     ) -> Result<(), ChecksumError> {
-        let mut listed: Vec<(String, String)> = Vec::new();
+        let mut listed: Vec<(String, String, PathBuf)> = Vec::new();
         for line in sums_text.lines() {
             let line = line.trim();
             if line.is_empty() || line.starts_with('#') {
@@ -656,11 +702,13 @@ pub mod checksum {
             let Some((hash, rest)) = line.split_once(' ') else {
                 continue;
             };
-            let name = rest.trim_start().trim_start_matches('*').to_string();
+            let name = rest.trim_start().trim_start_matches('*');
             if name.is_empty() || hash.len() != 64 || !hash.chars().all(|c| c.is_ascii_hexdigit()) {
                 continue;
             }
-            listed.push((hash.to_ascii_lowercase(), name));
+            let relative_path = normalize_relative_path(name)?;
+            let normalized_name = relative_path.to_string_lossy().replace('\\', "/");
+            listed.push((hash.to_ascii_lowercase(), normalized_name, relative_path));
         }
         if listed.is_empty() {
             return Err(ChecksumError::Missing {
@@ -669,8 +717,8 @@ pub mod checksum {
         }
 
         let mut seen: Vec<String> = Vec::new();
-        for (hash, name) in &listed {
-            let path = dir.join(name);
+        for (hash, name, relative_path) in &listed {
+            let path = dir.join(relative_path);
             let bytes = std::fs::read(&path).map_err(ChecksumError::Io)?;
             let actual = hex(Sha256::digest(&bytes).as_slice());
             if &actual != hash {
@@ -683,17 +731,65 @@ pub mod checksum {
             seen.push(name.clone());
         }
 
-        for entry in dir.read_dir().map_err(ChecksumError::Io)? {
-            let entry = entry.map_err(ChecksumError::Io)?;
-            let name = entry.file_name().to_string_lossy().to_string();
-            if name == "SHA256SUMS.txt" || name == "SHA256SUMS" {
-                continue;
-            }
-            if !entry.path().is_file() {
-                continue;
-            }
+        let mut actual_files = Vec::new();
+        collect_files(dir, dir, &mut actual_files)?;
+        for name in actual_files {
             if !seen.contains(&name) {
                 return Err(ChecksumError::Unlisted { file: name });
+            }
+        }
+        Ok(())
+    }
+
+    fn normalize_relative_path(name: &str) -> Result<PathBuf, ChecksumError> {
+        let mut path = PathBuf::new();
+        for component in Path::new(name).components() {
+            match component {
+                Component::Normal(part) => path.push(part),
+                Component::CurDir => {}
+                Component::Prefix(_) | Component::RootDir | Component::ParentDir => {
+                    return Err(ChecksumError::Unlisted {
+                        file: name.to_string(),
+                    });
+                }
+            }
+        }
+        if path.as_os_str().is_empty() {
+            return Err(ChecksumError::Unlisted {
+                file: name.to_string(),
+            });
+        }
+        Ok(path)
+    }
+
+    fn collect_files(
+        root: &Path,
+        directory: &Path,
+        files: &mut Vec<String>,
+    ) -> Result<(), ChecksumError> {
+        for entry in directory.read_dir().map_err(ChecksumError::Io)? {
+            let entry = entry.map_err(ChecksumError::Io)?;
+            let file_type = entry.file_type().map_err(ChecksumError::Io)?;
+            let path = entry.path();
+            if file_type.is_dir() {
+                collect_files(root, &path, files)?;
+            } else if file_type.is_file() {
+                let relative = path
+                    .strip_prefix(root)
+                    .expect("walked path must be under checksum root")
+                    .to_string_lossy()
+                    .replace('\\', "/");
+                if relative != "SHA256SUMS.txt" && relative != "SHA256SUMS" {
+                    files.push(relative);
+                }
+            } else {
+                return Err(ChecksumError::Unlisted {
+                    file: path
+                        .strip_prefix(root)
+                        .unwrap_or(&path)
+                        .to_string_lossy()
+                        .replace('\\', "/"),
+                });
             }
         }
         Ok(())
@@ -758,6 +854,28 @@ pub mod checksum {
             );
             let err = verify_directory_against_sha256sums(&dir, &sums).unwrap_err();
             assert!(matches!(err, ChecksumError::Unlisted { file } if file == "extra.txt"));
+            let _ = fs::remove_dir_all(dir);
+        }
+
+        #[test]
+        fn verify_directory_against_sha256sums_covers_nested_files() {
+            let dir = temp_dir("nested");
+            let nested = dir.join("assets").join("chunks");
+            fs::create_dir_all(&nested).unwrap();
+            fs::write(dir.join("index.html"), b"index").unwrap();
+            fs::write(nested.join("main.js"), b"nested").unwrap();
+            let sums = format!(
+                "{}  index.html\n{}  assets/chunks/main.js\n",
+                sha256_file(&dir.join("index.html")),
+                sha256_file(&nested.join("main.js")),
+            );
+            assert!(verify_directory_against_sha256sums(&dir, &sums).is_ok());
+
+            fs::write(nested.join("tampered.js"), b"unlisted").unwrap();
+            let err = verify_directory_against_sha256sums(&dir, &sums).unwrap_err();
+            assert!(
+                matches!(err, ChecksumError::Unlisted { file } if file == "assets/chunks/tampered.js")
+            );
             let _ = fs::remove_dir_all(dir);
         }
 
@@ -889,6 +1007,21 @@ mod tests {
         fs::create_dir_all(&web).unwrap();
         fs::write(web.join(WORDCRAFT_WEB_ENTRYPOINT), "<!doctype html>").unwrap();
         fs::write(web.join(WORDCRAFT_WEB_MANIFEST), manifest).unwrap();
+        let sums = [WORDCRAFT_WEB_ENTRYPOINT, WORDCRAFT_WEB_MANIFEST]
+            .iter()
+            .map(|name| format!("{}  {name}", sha256_file(&web.join(name))))
+            .collect::<Vec<_>>()
+            .join("\n");
+        fs::write(web.join(WORDCRAFT_WEB_CHECKSUMS), format!("{sums}\n")).unwrap();
+    }
+
+    fn sha256_file(path: &std::path::Path) -> String {
+        use sha2::{Digest, Sha256};
+
+        Sha256::digest(fs::read(path).unwrap())
+            .iter()
+            .map(|byte| format!("{byte:02x}"))
+            .collect()
     }
 
     #[test]
@@ -928,6 +1061,7 @@ mod tests {
         let capability = WordcraftProbe::new(root.clone()).probe();
 
         assert_eq!(capability.web.status, WordcraftStatus::Available);
+        assert!(capability.web.checksum_verified);
         assert_eq!(
             capability.web.version.as_deref(),
             Some(PINNED_WORDCRAFT_VERSION)
@@ -945,6 +1079,40 @@ mod tests {
         );
         assert!(capability.web.artifact_path.is_some());
         assert!(capability.web.message.is_none());
+
+        let _ = fs::remove_dir_all(root);
+    }
+
+    #[test]
+    fn tampered_web_bundle_fails_checksum_gate() {
+        let root = temp_runtime_root("web-checksum");
+        let manifest = format!(
+            "{{\"version\":\"{}\",\"protocolVersion\":{},\"commandCapabilities\":[{}]}}",
+            PINNED_WORDCRAFT_VERSION,
+            WORDCRAFT_WEB_PROTOCOL_VERSION,
+            WORDCRAFT_WEB_REQUIRED_COMMANDS
+                .iter()
+                .map(|command| format!("\"{command}\""))
+                .collect::<Vec<_>>()
+                .join(",")
+        );
+        create_web_bundle(&root, &manifest);
+        let web = root
+            .join(MANAGED_WORDCRAFT_COMPONENT)
+            .join("current")
+            .join(WORDCRAFT_WEB_BUNDLE_DIR);
+        fs::write(web.join(WORDCRAFT_WEB_ENTRYPOINT), "tampered").unwrap();
+
+        let capability = WordcraftProbe::new(root.clone()).probe();
+
+        assert_eq!(capability.web.status, WordcraftStatus::Error);
+        assert!(!capability.web.checksum_verified);
+        assert!(capability
+            .web
+            .message
+            .as_deref()
+            .unwrap_or_default()
+            .contains("checksum verification failed"));
 
         let _ = fs::remove_dir_all(root);
     }
@@ -1045,6 +1213,7 @@ mod tests {
 
         assert_eq!(capability.web.status, WordcraftStatus::NotInstalled);
         assert!(capability.web.command_capabilities.is_empty());
+        assert!(!capability.web.checksum_verified);
     }
 
     #[test]

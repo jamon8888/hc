@@ -13,6 +13,7 @@ use serde_json::{json, Value};
 use uuid::Uuid;
 
 const DOCUMENT_CONTEXT_KEY: &str = "wordcraft_document_context";
+const TRACK_CHANGES_COMMAND: &str = "review.trackChanges";
 const OPERATIONS: &[&str] = &[
     "list_commands",
     "execute",
@@ -91,6 +92,76 @@ fn read_operation(input: &Value) -> Option<&str> {
         .get("operation")
         .and_then(Value::as_str)
         .map(str::trim)
+}
+
+fn track_changes_command() -> Value {
+    json!({
+        "command": TRACK_CHANGES_COMMAND,
+        "params": { "value": true },
+    })
+}
+
+fn command_name(command: &Value) -> Option<&str> {
+    command.get("command").and_then(Value::as_str)
+}
+
+/// Ensure every agent batch enables tracked changes explicitly before any edit.
+/// A false or malformed tracking command is rejected rather than silently
+/// changing the user's review policy.
+fn prepare_batch_params(params: &Value) -> AlexResult<Value> {
+    let mut object = params
+        .as_object()
+        .cloned()
+        .ok_or_else(|| tool_error("WordCraft batch params must be an object"))?;
+    let commands = object
+        .get("commands")
+        .and_then(Value::as_array)
+        .ok_or_else(|| tool_error("WordCraft batch params must include a commands array"))?;
+
+    let mut prepared = Vec::with_capacity(commands.len() + 1);
+    for command in commands {
+        if command_name(command) != Some(TRACK_CHANGES_COMMAND) {
+            prepared.push(command.clone());
+            continue;
+        }
+        let enabled = command
+            .get("params")
+            .and_then(|params| params.get("value"))
+            .and_then(Value::as_bool)
+            .ok_or_else(|| {
+                tool_error("WordCraft review.trackChanges must set params.value to true")
+            })?;
+        if !enabled {
+            return Err(tool_error(
+                "WordCraft agent edits cannot disable tracked changes",
+            ));
+        }
+    }
+    prepared.insert(0, track_changes_command());
+    object.insert("commands".to_string(), Value::Array(prepared));
+    Ok(Value::Object(object))
+}
+
+fn execute_command_name(params: &Value) -> AlexResult<&str> {
+    params
+        .get("command")
+        .and_then(Value::as_str)
+        .filter(|command| !command.trim().is_empty())
+        .ok_or_else(|| tool_error("WordCraft execute params must include a command"))
+}
+
+fn validate_tracking_execute(params: &Value) -> AlexResult<()> {
+    let enabled = params
+        .get("params")
+        .and_then(|params| params.get("value"))
+        .and_then(Value::as_bool)
+        .ok_or_else(|| tool_error("WordCraft review.trackChanges must set params.value to true"))?;
+    if !enabled {
+        return Err(tool_error(
+            "WordCraft agent edits cannot disable tracked changes",
+        ));
+    }
+    Ok(())
 }
 
 #[async_trait]
@@ -255,7 +326,18 @@ impl Tool for WordcraftTool {
             )));
         }
         let params = input.get("params").cloned().unwrap_or_else(|| json!({}));
-        let expected_revision = input
+        let params = match operation {
+            "batch" => prepare_batch_params(&params)?,
+            "execute" => {
+                let command = execute_command_name(&params)?;
+                if command == TRACK_CHANGES_COMMAND {
+                    validate_tracking_execute(&params)?;
+                }
+                params
+            }
+            _ => params,
+        };
+        let mut expected_revision = input
             .get("expectedRevision")
             .and_then(Value::as_u64)
             .unwrap_or(document.revision);
@@ -264,7 +346,29 @@ impl Tool for WordcraftTool {
             .as_deref()
             .filter(|session| !session.trim().is_empty())
             .unwrap_or(document.session_id.as_str());
-        let result = get_global_wordcraft_bridge()
+        let bridge = get_global_wordcraft_bridge();
+        if operation == "execute" && execute_command_name(&params)? != TRACK_CHANGES_COMMAND {
+            let tracking_result = bridge
+                .request(WordcraftEmbeddedCommandRequest {
+                    request_id: Uuid::new_v4().to_string(),
+                    document_id: document.document_id.clone(),
+                    session_id: document.session_id.clone(),
+                    surface_id: document.surface_id.clone(),
+                    workspace_id: document.workspace_id.clone(),
+                    file_path: document.file_path.clone(),
+                    expected_revision,
+                    operation: operation.to_string(),
+                    params: track_changes_command(),
+                    author: format!("Alex Agent ({agent_session})"),
+                })
+                .await
+                .map_err(tool_error)?;
+            expected_revision = tracking_result
+                .get("revision")
+                .and_then(Value::as_u64)
+                .unwrap_or(expected_revision);
+        }
+        let result = bridge
             .request(WordcraftEmbeddedCommandRequest {
                 request_id: Uuid::new_v4().to_string(),
                 document_id: document.document_id.clone(),
@@ -280,14 +384,94 @@ impl Tool for WordcraftTool {
             .await
             .map_err(tool_error)?;
 
+        let save_result = if matches!(operation, "execute" | "batch") {
+            let save_revision = result
+                .get("revision")
+                .and_then(Value::as_u64)
+                .unwrap_or(expected_revision);
+            Some(
+                match bridge
+                    .request(WordcraftEmbeddedCommandRequest {
+                        request_id: Uuid::new_v4().to_string(),
+                        document_id: document.document_id.clone(),
+                        session_id: document.session_id.clone(),
+                        surface_id: document.surface_id.clone(),
+                        workspace_id: document.workspace_id.clone(),
+                        file_path: document.file_path.clone(),
+                        expected_revision: save_revision,
+                        operation: "save_document".to_string(),
+                        params: json!({}),
+                        author: format!("Alex Agent ({agent_session})"),
+                    })
+                    .await
+                {
+                    Ok(value) => json!({ "ok": true, "result": value }),
+                    Err(error) => json!({ "ok": false, "error": error.to_string() }),
+                },
+            )
+        } else {
+            None
+        };
+
         Ok(vec![ToolResult::ok(
             json!({
                 "operation": operation,
                 "documentId": document.document_id,
                 "sessionId": document.session_id,
                 "result": result,
+                "durableSave": save_result,
             }),
             None,
         )])
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{prepare_batch_params, validate_tracking_execute};
+    use serde_json::json;
+
+    #[test]
+    fn batch_starts_with_explicit_tracking_and_removes_duplicate_tracking_commands() {
+        let params = prepare_batch_params(&json!({
+            "keepGoing": true,
+            "commands": [
+                { "command": "type_text", "params": { "text": "Hello" } },
+                { "command": "review.trackChanges", "params": { "value": true } },
+            ],
+        }))
+        .expect("valid batch should be prepared");
+
+        assert_eq!(
+            params,
+            json!({
+                "keepGoing": true,
+                "commands": [
+                    { "command": "review.trackChanges", "params": { "value": true } },
+                    { "command": "type_text", "params": { "text": "Hello" } },
+                ],
+            })
+        );
+    }
+
+    #[test]
+    fn batch_rejects_an_explicit_tracking_disable() {
+        let error = prepare_batch_params(&json!({
+            "commands": [
+                { "command": "review.trackChanges", "params": { "value": false } },
+            ],
+        }))
+        .expect_err("agent batches must not disable tracking");
+        assert!(error.to_string().contains("cannot disable tracked changes"));
+    }
+
+    #[test]
+    fn execute_tracking_requires_true_value() {
+        let error = validate_tracking_execute(&json!({
+            "command": "review.trackChanges",
+            "params": { "value": false },
+        }))
+        .expect_err("tracking must be explicitly enabled");
+        assert!(error.to_string().contains("cannot disable tracked changes"));
     }
 }

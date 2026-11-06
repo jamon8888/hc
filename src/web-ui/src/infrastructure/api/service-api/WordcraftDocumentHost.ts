@@ -19,10 +19,18 @@ export interface WordcraftDocumentHostOptions {
   saveBytes: (bytes: Uint8Array, revision: number) => Promise<void>;
   acknowledgeSave: (requestId: string, revision: number, ok: boolean, error?: string) => void;
   onState?: (state: WordcraftDocumentHostState) => void;
+  durableSaveTimeoutMs?: number;
 }
 
 interface PendingSave {
   event: WordcraftSaveMessage;
+}
+
+interface DurableSaveWaiter {
+  revision: number;
+  resolve: () => void;
+  reject: (error: Error) => void;
+  timer: ReturnType<typeof setTimeout>;
 }
 
 export class WordcraftDocumentHost {
@@ -31,16 +39,48 @@ export class WordcraftDocumentHost {
   private latestAcceptedRevision = 0;
   private saveInFlight = false;
   private readonly saveQueue: PendingSave[] = [];
+  private readonly durableSaveWaiters = new Set<DurableSaveWaiter>();
+  private durableRevision = -1;
+  private latestBytes: Uint8Array;
   private currentState: WordcraftDocumentHostState = {
     dirty: false,
     revision: 0,
     saving: false,
   };
 
-  constructor(private readonly options: WordcraftDocumentHostOptions) {}
+  constructor(private readonly options: WordcraftDocumentHostOptions, initialBytes?: Uint8Array) {
+    this.latestBytes = initialBytes ? new Uint8Array(initialBytes) : new Uint8Array();
+  }
 
   get state(): WordcraftDocumentHostState {
     return { ...this.currentState };
+  }
+
+  getLatestBytes(fallback?: Uint8Array): Uint8Array {
+    const bytes = this.latestBytes.length > 0 ? this.latestBytes : fallback ?? this.latestBytes;
+    return new Uint8Array(bytes);
+  }
+
+  waitForDurableSave(revision: number): Promise<void> {
+    if (!Number.isSafeInteger(revision) || revision < 0) {
+      return Promise.reject(new Error('WordCraft save revision is invalid'));
+    }
+    if (this.durableRevision >= revision) return Promise.resolve();
+    if (this.disposed) return Promise.reject(new Error('WordCraft document host is closed'));
+
+    return new Promise((resolve, reject) => {
+      const timeoutMs = this.options.durableSaveTimeoutMs ?? 10_000;
+      const waiter: DurableSaveWaiter = {
+        revision,
+        resolve,
+        reject,
+        timer: setTimeout(() => {
+          this.durableSaveWaiters.delete(waiter);
+          reject(new Error(`WordCraft durable save timed out at revision ${revision}`));
+        }, timeoutMs),
+      };
+      this.durableSaveWaiters.add(waiter);
+    });
   }
 
   handleEvent(event: WordcraftBridgeEvent): void {
@@ -91,8 +131,12 @@ export class WordcraftDocumentHost {
     let errorMessage: string | undefined;
     try {
       try {
-        await this.options.saveBytes(toUint8Array(event.bytes), event.revision);
+        const bytes = toUint8Array(event.bytes);
+        await this.options.saveBytes(bytes, event.revision);
         if (this.disposed) return;
+        this.latestBytes = bytes.slice();
+        this.durableRevision = Math.max(this.durableRevision, event.revision);
+        this.resolveDurableSaveWaiters(event.revision);
         this.update({
           ...(event.revision === this.latestAcceptedRevision && this.saveQueue.length === 0
             ? { dirty: false, revision: event.revision, error: undefined }
@@ -110,6 +154,7 @@ export class WordcraftDocumentHost {
             : { dirty: true, revision: this.latestAcceptedRevision }),
           saving: this.saveQueue.length > 0,
         });
+        this.rejectDurableSaveWaiters(event.revision, message);
       }
       if (!this.disposed) this.acknowledgeSave(event, ok, errorMessage);
     } finally {
@@ -126,6 +171,11 @@ export class WordcraftDocumentHost {
     this.disposed = true;
     this.saveQueue.length = 0;
     this.update({ saving: false });
+    for (const waiter of this.durableSaveWaiters) {
+      clearTimeout(waiter.timer);
+      waiter.reject(new Error('WordCraft document host is closed'));
+    }
+    this.durableSaveWaiters.clear();
   }
 
   private acknowledgeSave(event: WordcraftSaveMessage, ok: boolean, error?: string): void {
@@ -147,6 +197,24 @@ export class WordcraftDocumentHost {
   private update(patch: Partial<WordcraftDocumentHostState>): void {
     this.currentState = { ...this.currentState, ...patch };
     this.options.onState?.(this.state);
+  }
+
+  private resolveDurableSaveWaiters(revision: number): void {
+    for (const waiter of this.durableSaveWaiters) {
+      if (waiter.revision > revision) continue;
+      clearTimeout(waiter.timer);
+      this.durableSaveWaiters.delete(waiter);
+      waiter.resolve();
+    }
+  }
+
+  private rejectDurableSaveWaiters(revision: number, message: string): void {
+    for (const waiter of this.durableSaveWaiters) {
+      if (waiter.revision !== revision) continue;
+      clearTimeout(waiter.timer);
+      this.durableSaveWaiters.delete(waiter);
+      waiter.reject(new Error(message));
+    }
   }
 }
 
