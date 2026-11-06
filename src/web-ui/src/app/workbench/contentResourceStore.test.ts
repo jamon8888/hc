@@ -4,6 +4,7 @@ import type { PanelContent } from '@/shared/types/panelContent';
 
 const scope = { surfaceId: 'local', workspacePath: '/project' };
 const file = (path = '/project/readme.md'): PanelContent => ({ type: 'markdown-editor', title: 'readme.md', data: { filePath: path } });
+const wordcraftFile = (path = '/project/report.docx'): PanelContent => ({ type: 'wordcraft-document', title: 'report.docx', data: { filePath: path } });
 
 describe('content resource ownership', () => {
   beforeEach(() => useContentResourceStore.setState({ resources: {} }));
@@ -27,6 +28,17 @@ describe('content resource ownership', () => {
     expect(Object.keys(useContentResourceStore.getState().resources)).toHaveLength(1);
     expect(useContentResourceStore.getState().resources[id]).toMatchObject({ isDirty: true,
       content: { data: { content: 'unsaved draft', jumpToLine: 12 } } });
+  });
+  it('deduplicates WordCraft documents as file resources', () => {
+    const store = useContentResourceStore.getState();
+    const id = store.open(wordcraftFile(), scope);
+
+    expect(useContentResourceStore.getState().resources[id].target).toEqual({
+      kind: 'file',
+      path: '/project/report.docx',
+    });
+    expect(store.open(wordcraftFile(), scope)).toBe(id);
+    expect(Object.keys(useContentResourceStore.getState().resources)).toHaveLength(1);
   });
   it('separates identical paths by device and remote connection, preserving remote path case and escapes', () => {
     const a = contentResourceIdentity(file('/project/A%20B.md'), { ...scope, remoteConnectionId: 'ssh-a' });
