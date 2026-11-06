@@ -14,6 +14,7 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 
 pub(crate) fn publish_basemind_model_egress_policy(workspace_root: Option<&std::path::Path>) {
+    clear_basemind_model_egress_policy();
     let Some(ner_model_dir) = std::env::var_os("BASEMIND_NER_MODEL_DIR") else {
         log::warn!(
             "Basemind server policy remains unavailable: BASEMIND_NER_MODEL_DIR is not configured"
@@ -56,6 +57,13 @@ pub(crate) fn publish_basemind_model_egress_policy(workspace_root: Option<&std::
     log::info!(
         "Basemind model egress, prompt pseudonymization, document redaction and search published for server host"
     );
+}
+
+pub(crate) fn clear_basemind_model_egress_policy() {
+    alex_core::service::model_egress::set_global_model_egress_policy(None);
+    alex_core::service::rag_search::set_global_prompt_pseudonymization_port(None);
+    alex_core::service::rag_search::set_global_rag_search_port(None);
+    alex_core::service::rag_search::set_global_document_redaction_port(None);
 }
 
 /// Shared application state for the server (mirrors Desktop's AppState).

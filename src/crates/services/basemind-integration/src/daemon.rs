@@ -19,6 +19,8 @@
 use anyhow::Result;
 #[cfg(feature = "basemind")]
 use std::path::{Path, PathBuf};
+#[cfg(feature = "basemind")]
+use std::sync::OnceLock;
 
 /// The basemind fork version this integration is written against.
 ///
@@ -236,6 +238,31 @@ fn ensure(daemon_binary: &Path) -> Result<()> {
         .map_err(|error| anyhow::anyhow!("basemind daemon ensure failed to spawn: {error}"))
 }
 
+#[cfg(feature = "basemind")]
+fn stop(daemon_binary: &Path) -> Result<()> {
+    use alex_services_core::process_manager::create_command;
+
+    let status = create_command(daemon_binary)
+        .arg("comms")
+        .arg("stop")
+        .env("BASEMIND_ALLOW_HTTP", "1")
+        .stdin(std::process::Stdio::null())
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null())
+        .status()
+        .map_err(|error| anyhow::anyhow!("basemind daemon stop failed to spawn: {error}"))?;
+    if !status.success() {
+        anyhow::bail!("basemind daemon stop exited with status {status}");
+    }
+    Ok(())
+}
+
+#[cfg(feature = "basemind")]
+fn replacement_lock() -> &'static tokio::sync::Mutex<()> {
+    static LOCK: OnceLock<tokio::sync::Mutex<()>> = OnceLock::new();
+    LOCK.get_or_init(|| tokio::sync::Mutex::new(()))
+}
+
 /// A daemon endpoint that is true right now.
 ///
 /// The daemon may have self-terminated after its bootstrap window (the
@@ -251,16 +278,33 @@ pub async fn discover_or_ensure(
     wait_seconds: u64,
 ) -> Result<DaemonEndpoint> {
     if let Ok(endpoint) = discover() {
-        return Ok(endpoint);
+        if verify_version().is_ok() {
+            return Ok(endpoint);
+        }
     }
     let Some(binary) = daemon_binary else {
-        return discover();
+        let endpoint = discover()?;
+        verify_version()?;
+        return Ok(endpoint);
     };
+
+    // The portfile is process-global. Serialize replacement and re-check after
+    // taking the lock so a second request cannot stop the daemon the first
+    // request just started.
+    let _replacement_guard = replacement_lock().lock().await;
+    if let Ok(endpoint) = discover() {
+        if verify_version().is_ok() {
+            return Ok(endpoint);
+        }
+        stop(&binary)?;
+    }
     ensure(&binary)?;
     let deadline = std::time::Instant::now() + std::time::Duration::from_secs(wait_seconds);
     loop {
         if let Ok(endpoint) = discover() {
-            return Ok(endpoint);
+            if verify_version().is_ok() {
+                return Ok(endpoint);
+            }
         }
         if std::time::Instant::now() >= deadline {
             return Err(discover().err().unwrap_or_else(|| {

@@ -60,6 +60,17 @@ struct CachedAIClient {
     credential_revision: Option<u64>,
 }
 
+#[derive(Debug)]
+struct ModelEgressChangedWhileBuilding;
+
+impl std::fmt::Display for ModelEgressChangedWhileBuilding {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter.write_str("model egress policy changed while building the client")
+    }
+}
+
+impl std::error::Error for ModelEgressChangedWhileBuilding {}
+
 /// Once a cached subscription credential is within this window of expiry, the
 /// client is rebuilt so subscription authentication refreshes the token. Kept
 /// equal to the providers' refresh leeway so the rebuilt client always gets a
@@ -244,6 +255,30 @@ impl AIClientFactory {
         model_id: &str,
         expected_configuration_fingerprint: Option<&str>,
     ) -> Result<Arc<AIClient>> {
+        for attempt in 0..2 {
+            match self
+                .get_or_create_client_once(model_id, expected_configuration_fingerprint)
+                .await
+            {
+                Err(error)
+                    if attempt == 0
+                        && error
+                            .downcast_ref::<ModelEgressChangedWhileBuilding>()
+                            .is_some() =>
+                {
+                    continue;
+                }
+                result => return result,
+            }
+        }
+        unreachable!("the bounded client-build retry always returns")
+    }
+
+    async fn get_or_create_client_once(
+        &self,
+        model_id: &str,
+        expected_configuration_fingerprint: Option<&str>,
+    ) -> Result<Arc<AIClient>> {
         let global_config: crate::service::config::GlobalConfig =
             self.config_service.get_config(None).await?;
         let normalized_model_id = model_id.trim().to_string();
@@ -385,10 +420,7 @@ impl AIClientFactory {
                 crate::service::model_egress::global_model_egress_snapshot();
             if current_model_egress_generation != model_egress_generation {
                 drop(cache);
-                return Box::pin(
-                    self.get_or_create_client(model_id, expected_configuration_fingerprint),
-                )
-                .await;
+                return Err(ModelEgressChangedWhileBuilding.into());
             }
             cache.insert(
                 model_config.id.clone(),

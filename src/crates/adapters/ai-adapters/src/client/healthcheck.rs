@@ -180,6 +180,18 @@ pub(crate) async fn test_image_input_connection(
     max_attempts: usize,
 ) -> Result<ConnectionTestResult> {
     let start_time = std::time::Instant::now();
+    if client.model_privacy_route() != alex_runtime_ports::ModelPrivacyRoute::Local {
+        return Ok(ConnectionTestResult {
+            success: false,
+            response_time_ms: elapsed_ms_u64(start_time),
+            model_response: None,
+            message_code: Some(ConnectionTestMessageCode::ImageInputCheckFailed),
+            error_details: Some(
+                "Image understanding verification is unavailable for API routes because the privacy egress policy replaces images before provider dispatch"
+                    .to_string(),
+            ),
+        });
+    }
     let provider = client.config.format.to_ascii_lowercase();
     let prompt = "Inspect the attached image and reply with exactly one 4-letter code for quadrant colors in TL,TR,BL,BR order using letters R,G,B,Y (R=red, G=green, B=blue, Y=yellow).";
 

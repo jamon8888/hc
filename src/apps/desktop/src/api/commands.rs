@@ -1157,6 +1157,7 @@ pub async fn test_ai_config_connection(
     );
 
     let request_context = alex_core_types::ModelRequestContext {
+        #[cfg(feature = "basemind")]
         session_id: Some(alex_basemind_integration::connection_test_session_id(
             &request.config.id,
         )),
@@ -1849,17 +1850,19 @@ pub async fn close_workspace(
                 apply_active_workspace_context(&state, &app, &workspace_info, None).await;
             } else {
                 #[cfg(feature = "basemind")]
-                alex_core::service::model_egress::install_refusing_model_egress_policy(
-                    "model egress refused: no active workspace privacy scope",
-                );
-                alex_core::service::rag_search::set_global_prompt_pseudonymization_port(None);
-                alex_core::service::rag_search::set_global_rag_search_port(None);
-                alex_core::service::rag_search::set_global_document_redaction_port(None);
-                alex_acp::set_prompt_interceptor(Some(std::sync::Arc::new(
-                    alex_acp::RefusingAcpPromptInterceptor::new(
-                        "ACP prompt refused: no active workspace privacy scope",
-                    ),
-                )));
+                {
+                    alex_core::service::model_egress::install_refusing_model_egress_policy(
+                        "model egress refused: no active workspace privacy scope",
+                    );
+                    alex_core::service::rag_search::set_global_prompt_pseudonymization_port(None);
+                    alex_core::service::rag_search::set_global_rag_search_port(None);
+                    alex_core::service::rag_search::set_global_document_redaction_port(None);
+                    alex_acp::set_prompt_interceptor(Some(std::sync::Arc::new(
+                        alex_acp::RefusingAcpPromptInterceptor::new(
+                            "ACP prompt refused: no active workspace privacy scope",
+                        ),
+                    )));
+                }
                 clear_active_workspace_context(&state, &app, None).await;
             }
 

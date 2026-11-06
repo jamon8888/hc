@@ -264,8 +264,8 @@ impl BasemindClient {
         match &self.living {
             EndpointSource::Snapshot => Ok((self.base_url.clone(), self.auth_token.clone())),
             EndpointSource::Living { daemon_binary } => {
-                crate::daemon::verify_version()?;
                 let endpoint = crate::daemon::discover_or_ensure(daemon_binary.clone(), 15).await?;
+                crate::daemon::verify_version()?;
                 Ok((endpoint.base_url(), endpoint.token))
             }
         }
