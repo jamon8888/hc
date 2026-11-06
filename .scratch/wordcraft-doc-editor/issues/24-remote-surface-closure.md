@@ -30,6 +30,18 @@ runtime dependency.
 
 ## Comments
 
+2026-11-06 continuation:
+
+- Default `.docx` routing now refuses any scope with a remote connection before
+  probing or opening the local managed iframe. This prevents remote document
+  bytes from being transferred into a controller-local WordCraft surface and
+  returns the explicit unsupported WordCraft state instead.
+- Focused `FileTabManager` coverage proves that the remote path makes no local
+  capability or native-open call. Persisted remote `wordcraft-document` tabs
+  now carry the remote connection identity into the panel and refuse before
+  reading bytes as well. Remote owner provisioning, headless daemon attach,
+  and detached/peer capability negotiation remain open.
+
 2026-11-05: Implemented the first owner-side transport slice. MCP now accepts the
 existing workspace-owner full-duplex stdio transport, drains owner stderr, and
 tears down the owner process through its control handle. `WordcraftSessionSpec`

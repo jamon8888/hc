@@ -954,6 +954,7 @@ const FlexiblePanel: React.FC<ExtendedFlexiblePanelProps> = memo(({
               fileName={content.data?.fileName || content.title}
               workspaceId={content.data?.workspaceId ?? content.metadata?.resourceScope?.workspaceId}
               surfaceId={content.data?.surfaceId ?? content.metadata?.resourceScope?.surfaceId}
+              remoteConnectionId={content.data?.remoteConnectionId ?? content.metadata?.resourceScope?.remoteConnectionId}
               isActive={isActive}
               onDirtyStateChange={onDirtyStateChange}
             />

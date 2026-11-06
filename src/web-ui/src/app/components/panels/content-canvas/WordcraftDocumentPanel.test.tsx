@@ -71,7 +71,7 @@ describe('WordcraftDocumentPanel fallback routing', () => {
     container.remove();
   });
 
-  function render(surfaceId?: string) {
+  function render(surfaceId?: string, remoteConnectionId?: string) {
     act(() => {
       root.render(
         <WordcraftDocumentPanel
@@ -79,6 +79,7 @@ describe('WordcraftDocumentPanel fallback routing', () => {
           fileName="report.docx"
           workspaceId="workspace-1"
           surfaceId={surfaceId}
+          remoteConnectionId={remoteConnectionId}
         />,
       );
     });
@@ -112,6 +113,17 @@ describe('WordcraftDocumentPanel fallback routing', () => {
     });
     expect(mocks.hostWebSurface).not.toHaveBeenCalled();
     expect(mocks.readWorkspaceFile).not.toHaveBeenCalled();
+  });
+
+  it('refuses a persisted remote workspace before reading bytes into the local frame', async () => {
+    render('local', 'ssh-1');
+
+    await vi.waitFor(() => {
+      expect(container.textContent).toContain('flexiblePanel.wordcraft.localOnly');
+    });
+    expect(mocks.hostWebSurface).not.toHaveBeenCalled();
+    expect(mocks.readWorkspaceFile).not.toHaveBeenCalled();
+    expect(mocks.openDocument).not.toHaveBeenCalled();
   });
 
   it('shows remediation without opening a binary or code fallback', async () => {
