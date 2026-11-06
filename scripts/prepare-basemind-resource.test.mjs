@@ -43,7 +43,7 @@ test('the host target triple follows the build host', () => {
 test('the pinned version matches the integration crate', () => {
   // The sidecar and the product must agree on the fork version: the
   // desktop refuses a daemon that reports a different one.
-  assert.equal(basemindPinnedVersion(), '0.34.0');
+  assert.equal(basemindPinnedVersion(), '0.36.0');
 });
 
 test('a verified download is unpacked, and a corrupt download never replaces it', () => {
@@ -53,7 +53,7 @@ test('a verified download is unpacked, and a corrupt download never replaces it'
   const binaryName = basemindBinaryName(target);
   const manifest = {
     repo: 'jamon8888/basemind',
-    tag: 'v0.34.0',
+    tag: 'v0.36.0',
     assets: {},
   };
 
@@ -82,7 +82,7 @@ test('a verified download is unpacked, and a corrupt download never replaces it'
     manifest,
     download(url, destination) {
       downloads++;
-      assert.equal(url, `https://github.com/jamon8888/basemind/releases/download/v0.34.0/${archiveName}`);
+      assert.equal(url, `https://github.com/jamon8888/basemind/releases/download/v0.36.0/${archiveName}`);
       writeFileSync(destination, archiveBytes);
     },
   };

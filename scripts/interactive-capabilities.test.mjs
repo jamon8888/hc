@@ -200,7 +200,7 @@ test('every product Agent tool is mapped to a user capability or explicitly clas
   const toolProviderGroups = await read('src/crates/execution/tool-provider-groups/src/lib.rs');
   const productPlan = toolProviderGroups.match(
     /const PRODUCT_TOOL_PROVIDER_GROUP_PLAN:[\s\S]*?\n\];/u,
-  )?.[0];
+  )?.[0].replace(/#\[cfg\([^\]]*\)\]\s*/gu, '');
   assert.ok(productPlan, 'product Agent-tool provider plan must remain discoverable');
   const productTools = new Set(
     [...productPlan.matchAll(/"([A-Za-z_][A-Za-z0-9_]*)"/gu)]

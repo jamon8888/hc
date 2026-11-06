@@ -258,6 +258,7 @@
     ],
     "basemindRedaction": [
       "basemind_read_redacted_document",
+      "basemind_rehydrate_model_text",
       "basemind_reveal_entity"
     ],
     "wordcraftEditorSurfaces": [
@@ -1595,11 +1596,13 @@
             ],
             "workflowZh": [
               "对本地图片先用 view_image 查看原图或高质量预览；需要结构化视觉分析时再用 analyze_image",
-              "远程或不可直接读取的图片需先通过当前工作区数据面取得，不得把远程路径静默当成本机路径"
+              "远程或不可直接读取的图片需先通过当前工作区数据面取得，不得把远程路径静默当成本机路径",
+              "启用 Basemind 的构建暂不提供 view_image 或 analyze_image，直到图片脱敏链路完成验证；请改用已脱敏的文档或搜索流程"
             ],
             "workflowEn": [
               "Use view_image for a local image preview or original view, then analyze_image when structured visual analysis is needed",
-              "Retrieve remote or otherwise inaccessible images through the active workspace data plane first; never reinterpret a remote path as local"
+              "Retrieve remote or otherwise inaccessible images through the active workspace data plane first; never reinterpret a remote path as local",
+              "Basemind builds do not expose view_image or analyze_image until their image-redaction path is validated; use the available redacted document/search workflows instead"
             ]
           },
           "evidence": [

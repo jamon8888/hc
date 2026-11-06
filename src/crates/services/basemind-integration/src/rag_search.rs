@@ -14,13 +14,17 @@
 use anyhow::Result;
 #[cfg(feature = "basemind")]
 use serde::{Deserialize, Serialize};
+#[cfg(feature = "basemind")]
+use std::path::Path;
+#[cfg(feature = "basemind")]
+use std::sync::{Arc, Mutex, RwLock};
 
 #[cfg(feature = "basemind")]
 use crate::identity_registry::IdentityRegistry;
 #[cfg(feature = "basemind")]
 use crate::ipc::BasemindClient;
 #[cfg(feature = "basemind")]
-use crate::query_resolution::QueryResolver;
+use crate::query_resolution::{DocumentTokenResolver, QueryResolver};
 #[cfg(feature = "basemind")]
 use crate::session_vault::SessionVault;
 
@@ -51,7 +55,11 @@ pub struct RagSearchTool {
 
 #[cfg(feature = "basemind")]
 impl RagSearchTool {
-    pub fn new(client: BasemindClient, registry: IdentityRegistry, vault: SessionVault) -> Self {
+    pub fn new(
+        client: BasemindClient,
+        registry: Arc<Mutex<IdentityRegistry>>,
+        vault: Arc<RwLock<SessionVault>>,
+    ) -> Self {
         let resolver = QueryResolver::new(client.clone(), registry, vault);
         Self { client, resolver }
     }
@@ -98,18 +106,38 @@ impl RagSearchTool {
 /// The host constructs this at the composition root and injects it through
 /// `ToolRuntimeHandles::with_rag_search_port`; `alex-core` only ever sees
 /// the port trait. The mutex serializes access because the pipeline mutates
-/// the identity registry and session vault per search.
+/// the identity registry and session vault per search. DOC-token resolution
+/// uses a shared vault-only handle so Read can proceed while search awaits the
+/// sidecar.
 #[cfg(feature = "basemind")]
 pub struct RagSearchPortAdapter {
     tool: tokio::sync::Mutex<RagSearchTool>,
+    document_tokens: DocumentTokenResolver,
+    workspace_root: String,
 }
 
 #[cfg(feature = "basemind")]
 impl RagSearchPortAdapter {
-    pub fn new(tool: RagSearchTool) -> Self {
+    pub fn new(tool: RagSearchTool, workspace_root: &Path) -> Self {
+        let document_tokens = tool.resolver.document_token_resolver();
         Self {
             tool: tokio::sync::Mutex::new(tool),
+            document_tokens,
+            workspace_root: workspace_root.to_string_lossy().into_owned(),
         }
+    }
+
+    fn ensure_workspace_scope(
+        &self,
+        workspace_root: &str,
+    ) -> Result<(), alex_runtime_ports::RagSearchError> {
+        if self.workspace_root != workspace_root {
+            return Err(alex_runtime_ports::RagSearchError::new(
+                alex_runtime_ports::RagSearchErrorKind::InvalidRequest,
+                "RAG search refused: request workspace does not match the host privacy scope",
+            ));
+        }
+        Ok(())
     }
 }
 
@@ -119,14 +147,14 @@ impl alex_runtime_ports::RagSearchPort for RagSearchPortAdapter {
     async fn search(
         &self,
         request: alex_runtime_ports::RagSearchRequest,
-    ) -> Result<alex_runtime_ports::RagSearchResponse, alex_runtime_ports::RagSearchError>
-    {
+    ) -> Result<alex_runtime_ports::RagSearchResponse, alex_runtime_ports::RagSearchError> {
         if request.query.trim().is_empty() {
             return Err(alex_runtime_ports::RagSearchError::new(
                 alex_runtime_ports::RagSearchErrorKind::InvalidRequest,
                 "query must not be empty",
             ));
         }
+        self.ensure_workspace_scope(&request.workspace_root)?;
         let mut tool = self.tool.lock().await;
         let output = tool
             .search(
@@ -164,5 +192,22 @@ impl alex_runtime_ports::RagSearchPort for RagSearchPortAdapter {
                 })
                 .collect(),
         })
+    }
+
+    fn resolve_document_token(
+        &self,
+        token: &str,
+        session_id: &str,
+        workspace_root: &str,
+    ) -> Result<Option<String>, alex_runtime_ports::RagSearchError> {
+        self.ensure_workspace_scope(workspace_root)?;
+        self.document_tokens
+            .resolve_document_token(token, session_id)
+            .map_err(|error| {
+                alex_runtime_ports::RagSearchError::new(
+                    alex_runtime_ports::RagSearchErrorKind::SessionUnavailable,
+                    error.to_string(),
+                )
+            })
     }
 }

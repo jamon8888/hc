@@ -37,6 +37,7 @@ async fn build_transient_client(
     );
 
     let mut ai_config: alex_core::util::types::AIConfig = model_config
+        .clone()
         .try_into()
         .map_err(|e| format!("Failed to convert configuration: {}", e))?;
     let skip_ssl_verify = ai_config.skip_ssl_verify;
@@ -63,10 +64,16 @@ async fn build_transient_client(
     Ok(
         alex_core::infrastructure::ai::client_factory::apply_subscription_request_profile(
             &auth,
-            alex_core::infrastructure::ai::AIClient::new_with_runtime_options(
-                ai_config,
-                proxy_config,
-                stream_options,
+            alex_core::infrastructure::ai::client_factory::apply_model_privacy_route(
+                alex_core::infrastructure::ai::AIClient::new_with_runtime_options(
+                    ai_config,
+                    proxy_config,
+                    stream_options,
+                )
+                .with_model_egress_policy(
+                    alex_core::service::model_egress::global_model_egress_policy(),
+                ),
+                &model_config,
             ),
         ),
     )
@@ -118,14 +125,28 @@ pub(crate) async fn test_ai_config_connection(args: &Value) -> Result<Value, Str
         .iter()
         .any(|cap| matches!(cap, ModelCapability::ImageUnderstanding))
         || matches!(config.category, ModelCategory::Multimodal);
+    let workspace_root = match alex_core::service::workspace::get_global_workspace_service() {
+        Some(service) => service
+            .get_current_workspace()
+            .await
+            .map(|workspace| workspace.root_path.to_string_lossy().to_string()),
+        None => None,
+    };
+    let request_context = alex_core_types::ModelRequestContext {
+        session_id: Some(alex_basemind_integration::connection_test_session_id(
+            &config.id,
+        )),
+        workspace_root,
+        ..Default::default()
+    };
     let client = create_transient_ai_client_for_config(config).await?;
     let mut result = client
-        .test_connection()
+        .test_connection_with_request_context(request_context.clone())
         .await
         .map_err(|error| error.to_string())?;
     if result.success && image_input {
         let image = client
-            .test_image_input_connection()
+            .test_image_input_connection_with_request_context(request_context)
             .await
             .map_err(|error| error.to_string())?;
         result.response_time_ms += image.response_time_ms;

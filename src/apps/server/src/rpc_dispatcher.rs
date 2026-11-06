@@ -61,12 +61,15 @@ pub async fn dispatch(
                     .cloned()
                     .ok_or_else(|| anyhow!("Missing path"))?,
             )?;
-            let info = state
-                .workspace_service
-                .open_workspace(path.into())
-                .await
-                .map_err(|e| anyhow!("{}", e))?;
+            let info = match state.workspace_service.open_workspace(path.into()).await {
+                Ok(info) => info,
+                Err(error) => {
+                    crate::bootstrap::clear_basemind_model_egress_policy();
+                    return Err(anyhow!("{}", error));
+                }
+            };
             *state.workspace_path.write().await = Some(info.root_path.clone());
+            crate::bootstrap::publish_basemind_model_egress_policy(Some(&info.root_path));
             Ok(serde_json::to_value(&info).unwrap_or_default())
         }
         "get_current_workspace" => {

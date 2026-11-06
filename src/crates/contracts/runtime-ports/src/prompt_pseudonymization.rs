@@ -75,4 +75,16 @@ pub trait PromptPseudonymizationPort: Send + Sync {
         session_id: &str,
         workspace_root: &str,
     ) -> Result<PseudonymizedPrompt, PromptPseudonymizationError>;
+
+    /// Restore tokens in model output before it is shown to the user or
+    /// executed as a tool result. Hosts without reversible storage retain the
+    /// text unchanged; Basemind-backed hosts replace only tokens belonging to
+    /// the supplied session.
+    async fn rehydrate(
+        &self,
+        text: &str,
+        _session_id: &str,
+    ) -> Result<String, PromptPseudonymizationError> {
+        Ok(text.to_string())
+    }
 }

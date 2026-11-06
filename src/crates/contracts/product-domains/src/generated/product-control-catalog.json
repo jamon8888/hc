@@ -4,7 +4,7 @@
   "title": "Alex Playbook",
   "origin": "https://playbook.openbitfun.com",
   "source": "src/shared/interactive-capabilities/catalog.json",
-  "digest": "6a7d299be0e64441d1fe6cdc6a4cf02c2af8bef3975f4c086c13d1bdc57d50e2",
+  "digest": "4b613f29dcf8427a5fd9c414f0601804afaa47e9787cfb2254bf1b59a750b537",
   "ownerDigest": "97fdf1ccd6b569a515ddc78ad654ec364337c1a897b2fbdd9ce64e0aa95024e1",
   "searchAcceptance": [
     {
@@ -20541,11 +20541,13 @@
             ],
             "workflowZh": [
               "对本地图片先用 view_image 查看原图或高质量预览；需要结构化视觉分析时再用 analyze_image",
-              "远程或不可直接读取的图片需先通过当前工作区数据面取得，不得把远程路径静默当成本机路径"
+              "远程或不可直接读取的图片需先通过当前工作区数据面取得，不得把远程路径静默当成本机路径",
+              "启用 Basemind 的构建暂不提供 view_image 或 analyze_image，直到图片脱敏链路完成验证；请改用已脱敏的文档或搜索流程"
             ],
             "workflowEn": [
               "Use view_image for a local image preview or original view, then analyze_image when structured visual analysis is needed",
-              "Retrieve remote or otherwise inaccessible images through the active workspace data plane first; never reinterpret a remote path as local"
+              "Retrieve remote or otherwise inaccessible images through the active workspace data plane first; never reinterpret a remote path as local",
+              "Basemind builds do not expose view_image or analyze_image until their image-redaction path is validated; use the available redacted document/search workflows instead"
             ]
           }
         }
@@ -20662,8 +20664,10 @@
         "analyze_image",
         "对本地图片先用 view_image 查看原图或高质量预览；需要结构化视觉分析时再用 analyze_image",
         "远程或不可直接读取的图片需先通过当前工作区数据面取得，不得把远程路径静默当成本机路径",
+        "启用 Basemind 的构建暂不提供 view_image 或 analyze_image，直到图片脱敏链路完成验证；请改用已脱敏的文档或搜索流程",
         "Use view_image for a local image preview or original view, then analyze_image when structured visual analysis is needed",
-        "Retrieve remote or otherwise inaccessible images through the active workspace data plane first; never reinterpret a remote path as local"
+        "Retrieve remote or otherwise inaccessible images through the active workspace data plane first; never reinterpret a remote path as local",
+        "Basemind builds do not expose view_image or analyze_image until their image-redaction path is validated; use the available redacted document/search workflows instead"
       ],
       "docsUrl": "https://playbook.openbitfun.com/capabilities/feature.files-editor/"
     },

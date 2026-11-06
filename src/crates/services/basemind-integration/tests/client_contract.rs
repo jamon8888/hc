@@ -242,12 +242,12 @@ fn a_pseudonymised_value_stays_revealable_without_a_token_in_the_text() {
     );
 }
 
-/// The fork's coverage contract (v0.34.1): `ner_truncated` refuses the payload
-/// as a full redaction (D7), an omitted field is a legacy v0.34.0 sidecar that
+/// The fork's coverage contract (v0.36.0): `ner_truncated` refuses the payload
+/// as a full redaction (D7), while an omitted field is an older sidecar that
 /// passes, and a present field that is not a readable boolean — null
 /// included — is a broken contract and refuses.
 #[test]
-fn a_truncated_ner_pass_refuses_the_payload_but_a_v0_34_0_payload_passes() {
+fn a_truncated_ner_pass_refuses_the_payload_but_an_older_sidecar_passes() {
     use alex_basemind_integration::redaction::ner_coverage_refusal;
 
     let truncated = serde_json::json!({ "ner_truncated": true, "ner_ran": true });

@@ -1,9 +1,9 @@
+use crate::client::AIClient;
 use crate::client::utils::{
     build_request_body_subset, is_trim_custom_request_body_mode, merge_json_value,
 };
-use crate::client::AIClient;
 use crate::types::{ReasoningPresetAction, ReasoningPresetDescriptor};
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow};
 use reqwest::RequestBuilder;
 
 /// Internal execution identity for best-effort reasoning controls offered when
@@ -96,8 +96,8 @@ pub(crate) fn prepare_request_context(
     use std::collections::hash_map::RandomState;
     use std::hash::BuildHasher;
     use std::sync::{
-        atomic::{AtomicU64, Ordering},
         OnceLock,
+        atomic::{AtomicU64, Ordering},
     };
     // Process-random hashing plus a monotonic nonce gives concurrent calls
     // distinct opaque routing labels without exposing prompts or machine IDs.
@@ -631,6 +631,8 @@ mod tests {
                     Some(ModelRequestContext {
                         prompt_cache_route_key: Some("runtime-lineage".into()),
                         output_schema: Some(serde_json::json!({"type": "object"})),
+                        session_id: None,
+                        workspace_root: None,
                     }),
                 ] {
                     assert_eq!(
@@ -687,6 +689,8 @@ mod tests {
                         Some(ModelRequestContext {
                             prompt_cache_route_key: Some(" ".into()),
                             output_schema: Some(serde_json::json!({"type":"object"})),
+                            session_id: None,
+                            workspace_root: None,
                         }),
                         Some(ModelRequestContext {
                             prompt_cache_route_key: Some("conversation-a".into()),
@@ -851,6 +855,8 @@ mod tests {
                         Some(ModelRequestContext {
                             prompt_cache_route_key: Some("  ".into()),
                             output_schema: Some(serde_json::json!({"type": "object"})),
+                            session_id: None,
+                            workspace_root: None,
                         }),
                     ] {
                         let schema = initial
@@ -953,16 +959,18 @@ mod tests {
                     prompt_cache_route_key: Some("scope".into()),
                     ..Default::default()
                 };
-                assert!(apply_affinity_headers(
-                    &mismatch,
-                    mismatch.client.post(url),
-                    url,
-                    Some(&context)
-                )
-                .build()
-                .unwrap()
-                .headers()
-                .is_empty());
+                assert!(
+                    apply_affinity_headers(
+                        &mismatch,
+                        mismatch.client.post(url),
+                        url,
+                        Some(&context)
+                    )
+                    .build()
+                    .unwrap()
+                    .headers()
+                    .is_empty()
+                );
             }
         }
 

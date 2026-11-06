@@ -655,6 +655,12 @@ pub struct ModelRequestContext {
     pub prompt_cache_route_key: Option<String>,
     /// JSON Schema requested for this turn's final model output.
     pub output_schema: Option<Value>,
+    /// Session identity used by the host's model egress policy. This remains
+    /// optional for legacy/background callers; an API route with an installed
+    /// privacy policy must refuse when it is absent.
+    pub session_id: Option<String>,
+    /// Workspace root used to scope reversible PII pseudonymization.
+    pub workspace_root: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

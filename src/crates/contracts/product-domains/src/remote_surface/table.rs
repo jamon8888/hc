@@ -126,6 +126,7 @@ pub(super) const OPERATIONS: &[OperationDefinition] = &[
     op("archive_all_sessions",                                       Unaudited,   Proxied,          CLI_NOT_IMPLEMENTED),
     op("archive_session",                                            Unaudited,   Proxied,          HANDLED),
     op("basemind_read_redacted_document",                            LocalOnly, ControllerLocal,  REFUSED),
+    op("basemind_rehydrate_model_text",                              LocalOnly, ControllerLocal,  REFUSED),
     op("basemind_reveal_entity",                                     LocalOnly, ControllerLocal,  REFUSED),
     op("browser_control_disconnect",                                LocalOnly,   Proxied,          CLI_NO_BROWSER_OR_OS_AUTOMATION),
     op("browser_control_enable_default_cdp",                         LocalOnly,   Proxied,          CLI_NO_BROWSER_OR_OS_AUTOMATION),

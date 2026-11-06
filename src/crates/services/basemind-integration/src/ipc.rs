@@ -131,6 +131,11 @@ pub struct RedactionPolicy {
     /// The directory holding the pinned GLiNER2 model (`tokenizer.json`,
     /// `model.safetensors`, `encoder_config/config.json`) the daemon uses.
     pub ner_model_dir: Option<String>,
+    /// Optional pinned BaseMind NER profile (for example `legal-fr@1`).
+    /// Leaving this unset preserves the sidecar's full profile. A narrower
+    /// profile must be selected explicitly because it changes the covered PII
+    /// taxonomy and therefore cannot be a silent performance optimization.
+    pub ner_profile: Option<String>,
 }
 
 #[cfg(feature = "basemind")]
@@ -141,7 +146,50 @@ impl RedactionPolicy {
         Self {
             require_ner: true,
             ner_model_dir: Some(model_dir.to_string_lossy().to_string()),
+            ner_profile: None,
         }
+    }
+
+    /// Install a bundled model and an explicit profile selected by product
+    /// policy after measuring its precision/recall coverage.
+    pub fn bundled_with_profile(
+        model_dir: std::path::PathBuf,
+        ner_profile: impl Into<String>,
+    ) -> Self {
+        Self {
+            require_ner: true,
+            ner_model_dir: Some(model_dir.to_string_lossy().to_string()),
+            ner_profile: Some(ner_profile.into()),
+        }
+    }
+
+    /// Validate the local NER prerequisite before an API redaction request.
+    ///
+    /// The sidecar can legally fall back to pattern detectors when NER is not
+    /// available. That fallback is not sufficient for the product privacy
+    /// contract, so a required policy refuses before any request crosses the
+    /// sidecar boundary.
+    pub fn validate(&self) -> Result<()> {
+        if !self.require_ner {
+            return Ok(());
+        }
+        let Some(model_dir) = self.ner_model_dir.as_deref() else {
+            anyhow::bail!("required Basemind NER model is unavailable; API redaction is refused");
+        };
+        let model_dir = std::path::Path::new(model_dir);
+        if !model_dir.is_dir() {
+            anyhow::bail!(
+                "required Basemind NER model directory {} is missing; API redaction is refused",
+                model_dir.display()
+            );
+        }
+        if !model_dir.join("model.safetensors").is_file() {
+            anyhow::bail!(
+                "required Basemind NER model file {} is missing; API redaction is refused",
+                model_dir.join("model.safetensors").display()
+            );
+        }
+        Ok(())
     }
 }
 
@@ -197,13 +245,18 @@ impl BasemindClient {
     ///
     /// Only sidecar redaction tools accept these arguments; other tools are
     /// not called with them.
-    fn apply_redaction_policy(&self, arguments: &mut Value) {
+    fn apply_redaction_policy(&self, arguments: &mut Value) -> Result<()> {
+        self.redaction.validate()?;
         if self.redaction.require_ner {
             arguments["require_ner"] = Value::Bool(true);
         }
         if let Some(ner_model_dir) = &self.redaction.ner_model_dir {
             arguments["ner_model_dir"] = Value::String(ner_model_dir.clone());
         }
+        if let Some(ner_profile) = &self.redaction.ner_profile {
+            arguments["ner_profile"] = Value::String(ner_profile.clone());
+        }
+        Ok(())
     }
 
     /// The endpoint to use for this call, ensured to be alive.
@@ -212,6 +265,7 @@ impl BasemindClient {
             EndpointSource::Snapshot => Ok((self.base_url.clone(), self.auth_token.clone())),
             EndpointSource::Living { daemon_binary } => {
                 let endpoint = crate::daemon::discover_or_ensure(daemon_binary.clone(), 15).await?;
+                crate::daemon::verify_version()?;
                 Ok((endpoint.base_url(), endpoint.token))
             }
         }
@@ -270,8 +324,9 @@ impl BasemindClient {
             "text": text,
             "strategy": "token-replace"
         });
-        self.apply_redaction_policy(&mut arguments);
-        self.call_tool("redact_text", arguments, root).await
+        self.apply_redaction_policy(&mut arguments)?;
+        let result = self.call_tool("redact_text", arguments, root).await?;
+        Ok(result)
     }
 
     /// Extract a document and return the fork's redaction payload.
@@ -290,7 +345,7 @@ impl BasemindClient {
             "file_path": path,
             "strategy": "token-replace",
         });
-        self.apply_redaction_policy(&mut arguments);
+        self.apply_redaction_policy(&mut arguments)?;
         self.call_tool("redact_text", arguments, root).await
     }
 
@@ -359,4 +414,9 @@ impl BasemindClient {
         )
         .await
     }
+}
+
+#[cfg(all(test, feature = "basemind"))]
+mod tests {
+    use super::*;
 }

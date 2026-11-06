@@ -19,11 +19,14 @@ use crate::trace::{
 };
 use crate::types::ProxyConfig;
 use crate::types::*;
+use alex_core_types::errors::AiProviderError;
+use alex_runtime_ports::{ModelEgressContext, ModelEgressPolicy, ModelPrivacyRoute};
 use anyhow::Result;
 use format::ApiFormat;
 use log::warn;
-use alex_core_types::errors::AiProviderError;
 use reqwest::Client;
+use std::fmt;
+use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::mpsc;
 
@@ -50,21 +53,36 @@ pub struct StreamOptions {
     pub ttft_timeout: Option<Duration>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct AIClient {
     pub(crate) client: Client,
     pub config: AIConfig,
     pub(crate) stream_options: StreamOptions,
     pub(crate) model_reasoning_preset: Option<ReasoningPresetDescriptor>,
     pub(crate) selected_reasoning_preset: Option<ReasoningPresetDescriptor>,
+    pub(crate) model_egress_policy: Option<Arc<dyn ModelEgressPolicy>>,
+    pub(crate) declared_model_privacy_route: Option<ModelPrivacyRoute>,
     #[cfg(feature = "subscription-auth")]
     subscription_provider: Option<crate::subscription_auth::SubscriptionProvider>,
 }
 
+impl fmt::Debug for AIClient {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        formatter
+            .debug_struct("AIClient")
+            .field("config", &self.config)
+            .field("stream_options", &self.stream_options)
+            .field(
+                "model_egress_policy_enabled",
+                &self.model_egress_policy.is_some(),
+            )
+            .finish()
+    }
+}
+
 impl AIClient {
     pub(crate) const TEST_IMAGE_EXPECTED_CODE: &'static str = "BYGR";
-    pub(crate) const TEST_IMAGE_PNG_BASE64: &'static str =
-        "iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAACBklEQVR42u3ZsREAIAwDMYf9dw4txwJupI7Wua+YZEPBfO91h4ZjAgQAAgABgABAACAAEAAIAAQAAgABgABAACAAEAAIAAQAAgABgABAACAAEAAIAAQAAgABgABAACAAEAAIAAQAAgABgABAACAAEAAIAAQAAgABgABAACAAEAAIAAQAAgABIAAQAAgABAACAAGAAEAAIAAQAAgABAACAAGAAEAAIAAQAAgABAACAAGAAEAAIAAQAAgABAACAAGAAEAAIAAQAAgABAACAAGAAEAAIAAQAAgABAACAAGAAEAAIAAQAAgABIAAQAAgABAACAAEAAIAAYAAQAAgABAACAAEAAIAAYAAQAAgABAAAAAAAEDRZI3QGf7jDvEPAAIAAYAAQAAgABAACAAEAAIAAYAAQAAgABAACAAEAAIAAYAAQAAgABAACAABgABAACAAEAAIAAQAAgABgABAACAAEAAIAAQAAgABgABAACAAEAAIAAQAAgABgABAACAAEAAIAAQAAgABgABAACAAEAAIAAQAAgABgABAACAAEAAIAAQAAgABgABAAAjABAgABAACAAGAAEAAIAAQAAgABAACAAGAAEAAIAAQAAgABAACAAGAAEAAIAAQAAgABAACAAGAAEAAIAAQAAgABAACAAGAAEAAIAAQAAgABAACAAGAAEAAIAAQALwuLkoG8OSfau4AAAAASUVORK5CYII=";
+    pub(crate) const TEST_IMAGE_PNG_BASE64: &'static str = "iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAACBklEQVR42u3ZsREAIAwDMYf9dw4txwJupI7Wua+YZEPBfO91h4ZjAgQAAgABgABAACAAEAAIAAQAAgABgABAACAAEAAIAAQAAgABgABAACAAEAAIAAQAAgABgABAACAAEAAIAAQAAgABgABAACAAEAAIAAQAAgABgABAACAAEAAIAAQAAgABIAAQAAgABAACAAGAAEAAIAAQAAgABAACAAGAAEAAIAAQAAgABAACAAGAAEAAIAAQAAgABAACAAGAAEAAIAAQAAgABAACAAGAAEAAIAAQAAgABAACAAGAAEAAIAAQAAgABIAAQAAgABAACAAEAAIAAYAAQAAgABAACAAEAAIAAYAAQAAgABAAAAAAAEDRZI3QGf7jDvEPAAIAAYAAQAAgABAACAAEAAIAAYAAQAAgABAACAAEAAIAAYAAQAAgABAACAABgABAACAAEAAIAAQAAgABgABAACAAEAAIAAQAAgABgABAACAAEAAIAAQAAgABgABAACAAEAAIAAQAAgABgABAACAAEAAIAAQAAgABgABAACAAEAAIAAQAAgABgABAAAjABAgABAACAAGAAEAAIAAQAAgABAACAAGAAEAAIAAQAAgABAACAAGAAEAAIAAQAAgABAACAAGAAEAAIAAQAAgABAACAAGAAEAAIAAQAAgABAACAAGAAEAAIAAQALwuLkoG8OSfau4AAAAASUVORK5CYII=";
     pub(crate) const STREAM_CONNECT_TIMEOUT_SECS: u64 = 10;
     pub(crate) const HTTP_POOL_IDLE_TIMEOUT_SECS: u64 = 30;
     pub(crate) const HTTP_TCP_KEEPALIVE_SECS: u64 = 60;
@@ -92,9 +110,103 @@ impl AIClient {
             stream_options,
             model_reasoning_preset: None,
             selected_reasoning_preset: None,
+            model_egress_policy: None,
+            declared_model_privacy_route: None,
             #[cfg(feature = "subscription-auth")]
             subscription_provider: None,
         }
+    }
+
+    /// Attach the host-owned privacy policy used immediately before provider
+    /// request serialization.
+    pub fn with_model_egress_policy(mut self, policy: Option<Arc<dyn ModelEgressPolicy>>) -> Self {
+        self.model_egress_policy = policy;
+        self
+    }
+
+    pub fn model_egress_policy_enabled(&self) -> bool {
+        self.model_egress_policy.is_some()
+    }
+
+    /// Set the route declared by the persisted model capability.
+    ///
+    /// A missing declaration is deliberately `Unknown`; URL shape is not an
+    /// authorization boundary because a public API can be loopback-proxied and
+    /// a private model can be exposed behind a non-loopback endpoint.
+    pub fn with_declared_model_privacy_route(mut self, route: Option<ModelPrivacyRoute>) -> Self {
+        self.declared_model_privacy_route = route;
+        self
+    }
+
+    pub fn model_privacy_route(&self) -> ModelPrivacyRoute {
+        self.declared_model_privacy_route
+            .unwrap_or(ModelPrivacyRoute::Unknown)
+    }
+
+    /// Rehydrate provider output for an explicitly authorized human-rendering
+    /// adapter. Runtime transcript, trace, and tool paths must keep provider
+    /// tokens and must not call this helper.
+    pub async fn rehydrate_model_text(
+        &self,
+        text: String,
+        request_context: Option<ModelRequestContext>,
+    ) -> Result<String> {
+        if self.model_privacy_route() == ModelPrivacyRoute::Local {
+            return Ok(text);
+        }
+        let policy = self.model_egress_policy.as_ref().ok_or_else(|| {
+            anyhow::anyhow!(
+                "model response rehydration refused: no privacy policy is installed for a non-local model route"
+            )
+        })?;
+        let context = request_context.ok_or_else(|| {
+            anyhow::anyhow!(
+                "model response rehydration refused: request context is required"
+            )
+        })?;
+        policy
+            .rehydrate_text(
+                text,
+                ModelEgressContext {
+                    route: self.model_privacy_route(),
+                    session_id: context.session_id,
+                    workspace_root: context.workspace_root,
+                },
+            )
+            .await
+            .map_err(anyhow::Error::msg)
+    }
+
+    async fn protect_messages(
+        &self,
+        messages: Vec<Message>,
+        request_context: Option<ModelRequestContext>,
+    ) -> Result<Vec<Message>> {
+        let route = self.model_privacy_route();
+        if route == ModelPrivacyRoute::Local {
+            return Ok(messages);
+        }
+        let policy = self.model_egress_policy.as_ref().ok_or_else(|| {
+            anyhow::anyhow!(
+                "model egress refused: no privacy policy is installed for a non-local model route"
+            )
+        })?;
+        let context = request_context.ok_or_else(|| {
+            anyhow::anyhow!(
+                "model egress refused: request context is required when privacy policy is enabled"
+            )
+        })?;
+        policy
+            .protect_messages(
+                messages,
+                ModelEgressContext {
+                    route,
+                    session_id: context.session_id,
+                    workspace_root: context.workspace_root,
+                },
+            )
+            .await
+            .map_err(anyhow::Error::msg)
     }
 
     /// Enable provider policy only after resolving an explicit subscription login.
@@ -281,6 +393,9 @@ impl AIClient {
             ApiFormat::parse(&self.config.format)?,
             ApiFormat::OpenAIResponses
         ) {
+            let messages = self
+                .protect_messages(messages, request_context.clone())
+                .await?;
             return openai::responses::send_stream(
                 self,
                 messages,
@@ -487,6 +602,9 @@ impl AIClient {
         trace: Option<ModelExchangeTraceConfig>,
         request_context: Option<ModelRequestContext>,
     ) -> Result<StreamResponse> {
+        let messages = self
+            .protect_messages(messages, request_context.clone())
+            .await?;
         match ApiFormat::parse(&self.config.format)? {
             ApiFormat::OpenAIChat => {
                 openai::chat::send_stream(
@@ -541,23 +659,47 @@ impl AIClient {
                     self, messages, tools, extra_body, max_tries, trace,
                 )
                 .await
-            }
-            // Ollama uses OpenAI-compatible format, handled by OpenAIChat variant
+            } // Ollama uses OpenAI-compatible format, handled by OpenAIChat variant
         }
     }
 
     pub async fn test_connection(&self) -> Result<ConnectionTestResult> {
-        healthcheck::test_connection(self, TEST_CONNECTION_STREAM_ATTEMPTS).await
+        healthcheck::test_connection(self, None, TEST_CONNECTION_STREAM_ATTEMPTS).await
+    }
+
+    pub async fn test_connection_with_request_context(
+        &self,
+        request_context: ModelRequestContext,
+    ) -> Result<ConnectionTestResult> {
+        healthcheck::test_connection(
+            self,
+            Some(request_context),
+            TEST_CONNECTION_STREAM_ATTEMPTS,
+        )
+        .await
     }
 
     pub async fn test_image_input_connection(&self) -> Result<ConnectionTestResult> {
-        healthcheck::test_image_input_connection(self, TEST_CONNECTION_STREAM_ATTEMPTS).await
+        healthcheck::test_image_input_connection(self, None, TEST_CONNECTION_STREAM_ATTEMPTS).await
+    }
+
+    pub async fn test_image_input_connection_with_request_context(
+        &self,
+        request_context: ModelRequestContext,
+    ) -> Result<ConnectionTestResult> {
+        healthcheck::test_image_input_connection(
+            self,
+            Some(request_context),
+            TEST_CONNECTION_STREAM_ATTEMPTS,
+        )
+        .await
     }
 
     pub(crate) async fn send_test_message(
         &self,
         messages: Vec<Message>,
         tools: Option<Vec<ToolDefinition>>,
+        request_context: Option<ModelRequestContext>,
         max_attempts: usize,
     ) -> Result<GeminiResponse> {
         let custom_body = self.config.custom_request_body.clone();
@@ -565,7 +707,7 @@ impl AIClient {
             messages,
             tools,
             custom_body,
-            None,
+            request_context,
             None,
             max_attempts,
         )
@@ -661,21 +803,37 @@ fn gemini_response_to_trace(response: &GeminiResponse) -> ModelExchangeResponseT
 
 #[cfg(test)]
 mod tests {
-    use super::{send_message_retry_delay_ms, AIClient};
+    use super::{AIClient, send_message_retry_delay_ms};
     use crate::providers::shared::GENERIC_REASONING_PROVIDER_ID;
     use crate::providers::{anthropic, gemini, gemini::GeminiMessageConverter, openai};
     use crate::types::{AIConfig, ModelRequestContext, ToolDefinition};
     use crate::types::{ReasoningPresetAction, ReasoningPresetDescriptor};
+    use alex_runtime_ports::{
+        ModelEgressContext, ModelEgressError, ModelEgressPolicy, ModelPrivacyRoute,
+    };
+    use axum::Router;
     use axum::extract::State;
     use axum::http::header::CONTENT_TYPE;
     use axum::response::IntoResponse;
     use axum::routing::post;
-    use axum::Router;
-    use serde_json::{json, Value};
+    use serde_json::{Value, json};
     use std::sync::{
-        atomic::{AtomicUsize, Ordering},
         Arc,
+        atomic::{AtomicUsize, Ordering},
     };
+
+    struct TestModelEgressPolicy;
+
+    #[async_trait::async_trait]
+    impl ModelEgressPolicy for TestModelEgressPolicy {
+        async fn protect_messages(
+            &self,
+            messages: Vec<alex_core_types::Message>,
+            _context: ModelEgressContext,
+        ) -> Result<Vec<alex_core_types::Message>, ModelEgressError> {
+            Ok(messages)
+        }
+    }
 
     #[derive(Clone)]
     struct StreamRetryFixtureState {
@@ -719,12 +877,46 @@ mod tests {
             custom_request_body,
             custom_request_body_mode: None,
         })
+        .with_model_egress_policy(Some(Arc::new(TestModelEgressPolicy)))
     }
 
     fn make_trim_test_client(format: &str) -> AIClient {
         let mut client = make_test_client(format, None);
         client.config.custom_request_body_mode = Some("trim".to_string());
         client
+    }
+
+    #[test]
+    fn model_privacy_route_requires_an_explicit_capability() {
+        let mut client = make_test_client("openai", None);
+        client.config.request_url = "http://127.0.0.1:11434/v1/chat/completions".into();
+        assert_eq!(client.model_privacy_route(), ModelPrivacyRoute::Unknown);
+    }
+
+    #[test]
+    fn declared_model_privacy_route_is_used_by_the_egress_boundary() {
+        let client = make_test_client("openai", None)
+            .with_declared_model_privacy_route(Some(ModelPrivacyRoute::Local));
+
+        assert_eq!(client.model_privacy_route(), ModelPrivacyRoute::Local);
+    }
+
+    #[tokio::test]
+    async fn api_models_without_a_privacy_policy_are_refused() {
+        let client = make_test_client("openai", None).with_model_egress_policy(None);
+        let error = client
+            .protect_messages(
+                vec![alex_core_types::Message::user("PII".into())],
+                Some(ModelRequestContext {
+                    session_id: Some("session-1".into()),
+                    workspace_root: Some("/workspace".into()),
+                    ..Default::default()
+                }),
+            )
+            .await
+            .unwrap_err();
+
+        assert!(error.to_string().contains("no privacy policy"));
     }
 
     fn structured_output_context() -> ModelRequestContext {
@@ -734,6 +926,8 @@ mod tests {
                 "type": "object",
                 "properties": { "summary": { "type": "string" } }
             })),
+            session_id: None,
+            workspace_root: None,
         }
     }
 
@@ -1255,9 +1449,11 @@ mod tests {
             request_body["generationConfig"]["responseJsonSchema"]["required"],
             json!(["answer"])
         );
-        assert!(request_body["generationConfig"]["responseJsonSchema"]
-            .get("additionalProperties")
-            .is_none());
+        assert!(
+            request_body["generationConfig"]["responseJsonSchema"]
+                .get("additionalProperties")
+                .is_none()
+        );
         assert!(request_body.get("response_format").is_none());
         assert!(request_body.get("stop").is_none());
     }
@@ -2555,7 +2751,7 @@ mod tests {
         let mut client = make_test_client("openai", None);
         client.config.request_url = format!("http://{address}/chat/completions");
 
-        let result = client.send_test_message(Vec::new(), None, 2).await;
+        let result = client.send_test_message(Vec::new(), None, None, 2).await;
 
         server_task.abort();
         let response = result.expect("the second stream attempt should succeed");

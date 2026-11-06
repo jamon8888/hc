@@ -36,11 +36,34 @@ const MAX_CONCURRENT_FACET_EXTRACTIONS: usize = 5;
 struct TrackedAIClient {
     client: Arc<AIClient>,
     usage: GenerationUsageTracker,
+    request_context: Option<alex_core_types::ModelRequestContext>,
 }
 
 impl TrackedAIClient {
-    fn new(client: Arc<AIClient>, usage: GenerationUsageTracker) -> Self {
-        Self { client, usage }
+    fn new(
+        client: Arc<AIClient>,
+        usage: GenerationUsageTracker,
+        request_context: Option<alex_core_types::ModelRequestContext>,
+    ) -> Self {
+        Self {
+            client,
+            usage,
+            request_context,
+        }
+    }
+
+    fn for_transcript(&self, transcript: &SessionTranscript) -> Self {
+        Self::new(
+            self.client.clone(),
+            self.usage.clone(),
+            transcript.workspace_path.clone().map(|workspace_root| {
+                alex_core_types::ModelRequestContext {
+                    session_id: Some(format!("insights-{}", transcript.session_id)),
+                    workspace_root: Some(workspace_root),
+                    ..Default::default()
+                }
+            }),
+        )
     }
 
     async fn send_message(
@@ -49,7 +72,15 @@ impl TrackedAIClient {
         tools: Option<Vec<ToolDefinition>>,
     ) -> anyhow::Result<GeminiResponse> {
         self.usage.record_model_call();
-        let response = self.client.send_message(messages, tools).await?;
+        let response = self
+            .client
+            .send_message_with_trace_and_request_context(
+                messages,
+                tools,
+                self.request_context.clone(),
+                None,
+            )
+            .await?;
         self.usage.record_reported_usage(response.usage.as_ref());
         Ok(response)
     }
@@ -206,6 +237,22 @@ impl InsightsService {
             ));
         }
 
+        let workspace_roots = transcripts
+            .iter()
+            .map(|transcript| transcript.workspace_path.as_deref())
+            .collect::<std::collections::BTreeSet<_>>();
+        if workspace_roots.len() != 1 || workspace_roots.contains(&None) {
+            return Err(AlexError::service(
+                "Insights generation across multiple or unbound workspaces is unavailable while privacy scoping is enabled",
+            ));
+        }
+        let workspace_root = workspace_roots
+            .into_iter()
+            .next()
+            .flatten()
+            .expect("single workspace root was validated above")
+            .to_string();
+
         info!(
             "Collected {} sessions, {} messages",
             transcripts.len(),
@@ -232,7 +279,12 @@ impl InsightsService {
         let generation_models = vec![ai_client.config.model.clone()];
 
         let usage_tracker = GenerationUsageTracker::default();
-        let ai_client = TrackedAIClient::new(ai_client, usage_tracker.clone());
+        let request_context = Some(alex_core_types::ModelRequestContext {
+            session_id: Some(format!("insights-aggregate-{}", days)),
+            workspace_root: Some(workspace_root),
+            ..Default::default()
+        });
+        let ai_client = TrackedAIClient::new(ai_client, usage_tracker.clone(), request_context);
 
         let facets =
             Self::extract_facets_adaptive(&ai_client, &transcripts, &lang_instruction, token)
@@ -322,7 +374,7 @@ impl InsightsService {
             .iter()
             .enumerate()
             .map(|(idx, t)| {
-                let client = ai_client.clone();
+                let client = ai_client.for_transcript(t);
                 let sem = semaphore.clone();
                 let transcript = t.clone();
                 let cnt = counter.clone();
@@ -370,6 +422,7 @@ impl InsightsService {
         let mut facets = Vec::new();
         let mut failed_indices: Vec<usize> = Vec::new();
         let mut hit_rate_limit = false;
+        let mut fatal_error = None;
 
         for (idx, handle) in handles.into_iter().enumerate() {
             if token.is_cancelled() {
@@ -386,11 +439,15 @@ impl InsightsService {
                         hit_rate_limit = true;
                         failed_indices.push(idx);
                     } else {
-                        warn!("Facet extraction failed for session {}: {}", idx, e);
+                        fatal_error.get_or_insert(e);
                     }
                 }
                 Err(e) => warn!("Facet task panicked: {}", e),
             }
+        }
+
+        if let Some(error) = fatal_error {
+            return Err(error);
         }
 
         if hit_rate_limit && !failed_indices.is_empty() {
@@ -427,7 +484,10 @@ impl InsightsService {
                     .await
                 {
                     Ok(facet) => facets.push(facet),
-                    Err(e) => warn!("Sequential retry also failed for session {}: {}", idx, e),
+                    Err(e) if is_rate_limit_error(&e) => {
+                        warn!("Sequential retry also hit the rate limit for session {}: {}", idx, e)
+                    }
+                    Err(e) => return Err(e),
                 }
 
                 if i + 1 < retry_count {
@@ -466,7 +526,10 @@ impl InsightsService {
         let messages = vec![Message::user(prompt)];
 
         let response = ai_client
-            .send_message(messages, None)
+            .send_message(
+                messages,
+                None,
+            )
             .await
             .map_err(|e| AlexError::service(format!("AI call failed: {}", e)))?;
 

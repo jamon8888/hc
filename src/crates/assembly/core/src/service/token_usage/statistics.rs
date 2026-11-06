@@ -246,6 +246,7 @@ mod tests {
             provider: provider.to_string(),
             model_name: model_name.to_string(),
             base_url: base_url.to_string(),
+            privacy_route: None,
             request_url: request_url.map(|value| value.to_string()),
             api_key: String::new(),
             context_window: None,

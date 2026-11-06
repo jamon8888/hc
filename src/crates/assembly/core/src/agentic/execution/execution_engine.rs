@@ -3,21 +3,22 @@
 //! Executes complete dialog turns, managing loops of multiple model rounds
 
 use super::model_exchange_trace::{
-    prepare_model_exchange_trace_for_workspace, ModelExchangeTraceOperation,
+    ModelExchangeTraceOperation, prepare_model_exchange_trace_for_workspace,
 };
 use super::round_executor::{ModelRoundLifecycle, RoundExecutor};
 use super::types::{ExecutionContext, ExecutionResult, RoundContext, RoundResult};
+use crate::agentic::WorkspaceBinding;
 use crate::agentic::agents::{
-    build_prompt_context_for_workspace, get_agent_registry, get_embedded_prompt,
-    is_swarm_planner_agent_type, render_direct_tool_listing_body, PrependedPromptReminders,
-    PromptBuilder, PromptBuilderContext, RuntimeContextNeeds, ToolListingSections,
-    UserContextPolicy, UserContextSection,
+    PrependedPromptReminders, PromptBuilder, PromptBuilderContext, RuntimeContextNeeds,
+    ToolListingSections, UserContextPolicy, UserContextSection, build_prompt_context_for_workspace,
+    get_agent_registry, get_embedded_prompt, is_swarm_planner_agent_type,
+    render_direct_tool_listing_body,
 };
 use crate::agentic::context_profile::{ContextProfilePolicy, ModelCapabilityProfile};
 use crate::agentic::coordination::scheduler::agent_dialog_turn_image_contexts;
 use crate::agentic::core::{
-    render_system_reminder, InternalReminderKind, Message, MessageContent, MessageHelper,
-    MessageRole, MessageSemanticKind, RequestReasoningTokenPolicy, Session,
+    InternalReminderKind, Message, MessageContent, MessageHelper, MessageRole, MessageSemanticKind,
+    RequestReasoningTokenPolicy, Session, render_system_reminder,
 };
 use crate::agentic::events::{AgenticEvent, EventPriority, EventQueue};
 #[cfg(feature = "agent-runtime")]
@@ -27,57 +28,56 @@ use crate::agentic::execution::conditional_instructions::{
 use crate::agentic::execution::types::FinishReason;
 use crate::agentic::image_analysis::image_processing::process_image_contexts_in_workspace;
 use crate::agentic::image_analysis::{
-    build_multimodal_message_with_images, ImageContextData, ImageLimits,
+    ImageContextData, ImageLimits, build_multimodal_message_with_images,
 };
 use crate::agentic::round_preempt::RoundInjectionKind;
 use crate::agentic::session::{
-    ContextCompressor, SessionManager, SystemPromptCacheIdentity, TokenAnchor, TokenAnchorInput,
-    UserContextCacheIdentity, INTERRUPTED_TURN_MODEL_BINDING_FINGERPRINT_METADATA_KEY,
+    ContextCompressor, INTERRUPTED_TURN_MODEL_BINDING_FINGERPRINT_METADATA_KEY,
     INTERRUPTED_TURN_PERMISSION_MODE_METADATA_KEY,
     INTERRUPTED_TURN_REASONING_FINGERPRINT_METADATA_KEY,
     INTERRUPTED_TURN_REASONING_PRESET_METADATA_KEY,
     INTERRUPTED_TURN_REASONING_SELECTION_METADATA_KEY,
-    INTERRUPTED_TURN_RESOLVED_MODEL_ID_METADATA_KEY,
+    INTERRUPTED_TURN_RESOLVED_MODEL_ID_METADATA_KEY, SessionManager, SystemPromptCacheIdentity,
+    TokenAnchor, TokenAnchorInput, UserContextCacheIdentity,
 };
 use crate::agentic::skill_agent_snapshot::build_skill_agent_tool_listing_sections_from_snapshot;
 use crate::agentic::tools::framework::ToolUseContext;
 use crate::agentic::tools::implementations::{SkillTool, TaskTool};
 use crate::agentic::tools::product_runtime::{
-    collect_product_loaded_deferred_tool_specs, GetToolSpecTool,
+    GetToolSpecTool, collect_product_loaded_deferred_tool_specs,
 };
 use crate::agentic::tools::{
-    resolve_tool_manifest, tool_context_runtime, ResolvedToolManifest, ToolRuntimeRestrictions,
+    ResolvedToolManifest, ToolRuntimeRestrictions, resolve_tool_manifest, tool_context_runtime,
 };
-use crate::agentic::WorkspaceBinding;
 use crate::infrastructure::ai::get_global_ai_client_factory;
 use crate::infrastructure::ai::reasoning_catalog::reasoning_preset_runtime_fingerprint;
 use crate::native_hooks::{self, NativeHookSessionFacts};
 use crate::service::config::get_global_config_service;
 use crate::service::config::types::{
-    automatic_max_output_tokens, model_runtime_binding_fingerprint, ModelCapability, ModelCategory,
+    ModelCapability, ModelCategory, automatic_max_output_tokens, model_runtime_binding_fingerprint,
 };
 use crate::service::instruction_context::{
-    build_local_workspace_instruction_files_context_with_fs_detailed,
+    InstructionContextBuild, build_local_workspace_instruction_files_context_with_fs_detailed,
     build_workspace_instruction_files_context_detailed,
-    build_workspace_instruction_files_context_with_fs, InstructionContextBuild,
+    build_workspace_instruction_files_context_with_fs,
 };
 use crate::util::errors::{AlexError, AlexResult};
 use crate::util::token_counter::TokenCounter;
 use crate::util::types::Message as AIMessage;
 use crate::util::types::ToolDefinition;
 use crate::util::{elapsed_ms_u64, truncate_at_char_boundary};
-use dashmap::DashMap;
-use log::{debug, error, info, trace, warn};
 use alex_agent_runtime::output_surface::TOOL_CONTEXT_INLINE_MARKDOWN_IMAGE_DISPLAY_KEY;
 use alex_agent_runtime::permission::PERMISSION_MODE_CONTEXT_KEY;
 use alex_agent_runtime::remote_file_delivery::TOOL_CONTEXT_REMOTE_FILE_DELIVERY_KEY;
 use alex_ai_adapters::ModelExchangeTraceConfig;
 use alex_core_types::{ModelRequestContext, SessionModelBindingPolicy};
-use alex_runtime_ports::{resolve_permission_mode, PermissionMode, PermissionModeLayers};
+use alex_runtime_ports::{PermissionMode, PermissionModeLayers, resolve_permission_mode};
+use dashmap::DashMap;
+use log::{debug, error, info, trace, warn};
 use sha2::{Digest, Sha256};
 use std::collections::{HashMap, HashSet};
-use std::sync::atomic::{AtomicU8, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicU8, Ordering};
 use tokio_util::sync::CancellationToken;
 
 fn execution_engine_owns_cancel_lifecycle(context: &HashMap<String, String>) -> bool {
@@ -271,8 +271,7 @@ pub(crate) async fn prepare_compression_cancellable<T>(
 
 fn compression_plan_error(error: AlexError, plan: usize) -> AlexError {
     match error {
-        AlexError::AIProvider(mut error)
-        | AlexError::RecoverableContextOverflow(mut error) => {
+        AlexError::AIProvider(mut error) | AlexError::RecoverableContextOverflow(mut error) => {
             error.message = format!(
                 "Context compression failed on plan {plan}: {}",
                 error.message
@@ -630,6 +629,8 @@ impl ExecutionEngine {
             output_schema: context
                 .get(alex_runtime_ports::OUTPUT_SCHEMA_CONTEXT_KEY)
                 .and_then(|schema| serde_json::from_str(schema).ok()),
+            session_id: None,
+            workspace_root: None,
         }
     }
 
@@ -1504,46 +1505,45 @@ impl ExecutionEngine {
     ) -> (Option<String>, bool) {
         let mut cacheable = true;
         if policy.includes(UserContextSection::WorkspaceInstructions) {
-            let instruction_context: AlexResult<InstructionContextBuild> =
-                if let Some(workspace) = workspace {
-                    if workspace.is_remote() {
-                        if let Some(services) = workspace_services {
-                            build_workspace_instruction_files_context_with_fs(
-                                services.fs.as_ref(),
-                                &workspace.root_path_string(),
-                            )
-                            .await
-                            .map(|content| InstructionContextBuild {
-                                content,
-                                cacheable: true,
-                            })
-                        } else {
-                            Ok(InstructionContextBuild {
-                                content: None,
-                                cacheable: false,
-                            })
-                        }
+            let instruction_context: AlexResult<InstructionContextBuild> = if let Some(workspace) =
+                workspace
+            {
+                if workspace.is_remote() {
+                    if let Some(services) = workspace_services {
+                        build_workspace_instruction_files_context_with_fs(
+                            services.fs.as_ref(),
+                            &workspace.root_path_string(),
+                        )
+                        .await
+                        .map(|content| InstructionContextBuild {
+                            content,
+                            cacheable: true,
+                        })
                     } else {
-                        if let Some(services) = workspace_services {
-                            build_local_workspace_instruction_files_context_with_fs_detailed(
-                                workspace.root_path(),
-                                services.fs.as_ref(),
-                                &workspace.root_path_string(),
-                            )
-                            .await
-                        } else {
-                            build_workspace_instruction_files_context_detailed(
-                                workspace.root_path(),
-                            )
-                            .await
-                        }
+                        Ok(InstructionContextBuild {
+                            content: None,
+                            cacheable: false,
+                        })
                     }
                 } else {
-                    Ok(InstructionContextBuild {
-                        content: None,
-                        cacheable: true,
-                    })
-                };
+                    if let Some(services) = workspace_services {
+                        build_local_workspace_instruction_files_context_with_fs_detailed(
+                            workspace.root_path(),
+                            services.fs.as_ref(),
+                            &workspace.root_path_string(),
+                        )
+                        .await
+                    } else {
+                        build_workspace_instruction_files_context_detailed(workspace.root_path())
+                            .await
+                    }
+                }
+            } else {
+                Ok(InstructionContextBuild {
+                    content: None,
+                    cacheable: true,
+                })
+            };
             let instruction_context = match instruction_context {
                 Ok(instruction_context) => {
                     cacheable &= instruction_context.cacheable;
@@ -1723,9 +1723,8 @@ impl ExecutionEngine {
             session_id, identity.scope_key
         );
         let system_prompt = if let Some(policy_id) = prompt_policy_id {
-            let context = prompt_context.ok_or_else(|| {
-                AlexError::Agent("Prompt build context is required".to_string())
-            })?;
+            let context = prompt_context
+                .ok_or_else(|| AlexError::Agent("Prompt build context is required".to_string()))?;
             let template = get_embedded_prompt(policy_id).ok_or_else(|| {
                 AlexError::Agent(format!("{policy_id} not found in embedded files"))
             })?;
@@ -1857,9 +1856,7 @@ impl ExecutionEngine {
         let ai_config = SessionManager::load_ai_config_for_model_resolution()
             .await
             .ok_or_else(|| {
-                AlexError::AIClient(
-                    "Failed to get config service for model resolution".to_string(),
-                )
+                AlexError::AIClient("Failed to get config service for model resolution".to_string())
             })?;
         if matches!(
             session.config.model_binding_policy,
@@ -2009,10 +2006,7 @@ impl ExecutionEngine {
             .collect()
     }
 
-    async fn run_finalize_round(
-        &self,
-        input: FinalizeRoundInput<'_>,
-    ) -> AlexResult<RoundResult> {
+    async fn run_finalize_round(&self, input: FinalizeRoundInput<'_>) -> AlexResult<RoundResult> {
         // Keep the original tool definitions attached to the finalize request
         // even though finalize forbids tool execution at runtime. Dropping the
         // tools here would change the provider request shape, which breaks
@@ -2230,7 +2224,10 @@ impl ExecutionEngine {
                             .take()
                             .is_some_and(|images| !images.is_empty())
                         {
-                            ai.content = Some(format!("{}\n\n[Tool image pixels were not sent: the resolved model does not support image inputs.]", ai.content.as_deref().unwrap_or("")));
+                            ai.content = Some(format!(
+                                "{}\n\n[Tool image pixels were not sent: the resolved model does not support image inputs.]",
+                                ai.content.as_deref().unwrap_or("")
+                            ));
                         }
                         result.push(ai);
                         continue;
@@ -2363,9 +2360,9 @@ impl ExecutionEngine {
             )
             .await?;
 
-        let ai_client_factory = get_global_ai_client_factory().await.map_err(|e| {
-            AlexError::AIClient(format!("Failed to get AI client factory: {}", e))
-        })?;
+        let ai_client_factory = get_global_ai_client_factory()
+            .await
+            .map_err(|e| AlexError::AIClient(format!("Failed to get AI client factory: {}", e)))?;
         let reasoning_preset = match self
             .resolve_reasoning_selection_for_turn(&session.session_id, context)
             .await
@@ -2421,10 +2418,15 @@ impl ExecutionEngine {
         let ai_client = apply_agent_temperature_override(current_agent.as_ref(), ai_client);
         Self::validate_frozen_model_contract(context).await?;
         Self::validate_frozen_reasoning_contract(context, ai_client.as_ref())?;
-        let model_request_context = Self::model_request_context(
+        let mut model_request_context = Self::model_request_context(
             session.effective_prompt_cache_lineage_id(),
             &context.context,
         );
+        model_request_context.session_id = Some(context.session_id.clone());
+        model_request_context.workspace_root = context
+            .workspace
+            .as_ref()
+            .map(crate::agentic::WorkspaceBinding::root_path_string);
 
         let primary_model_facts = Self::resolve_primary_model_context(
             &model_id,
@@ -2576,9 +2578,7 @@ impl ExecutionEngine {
         let mut session = self
             .session_manager
             .get_session(&session_id)
-            .ok_or_else(|| {
-                AlexError::NotFound(format!("Session not found: {}", session_id))
-            })?;
+            .ok_or_else(|| AlexError::NotFound(format!("Session not found: {}", session_id)))?;
         let start_time = std::time::Instant::now();
         let preparation = prepare_compression_cancellable(&cancellation_token, async {
             let scaffold = self
@@ -3062,9 +3062,9 @@ impl ExecutionEngine {
             model_id
         );
 
-        let ai_client_factory = get_global_ai_client_factory().await.map_err(|e| {
-            AlexError::AIClient(format!("Failed to get AI client factory: {}", e))
-        })?;
+        let ai_client_factory = get_global_ai_client_factory()
+            .await
+            .map_err(|e| AlexError::AIClient(format!("Failed to get AI client factory: {}", e)))?;
 
         // Get AI client by model ID
         let reasoning_preset = match self
@@ -3118,10 +3118,15 @@ impl ExecutionEngine {
         let ai_client = apply_agent_temperature_override(current_agent.as_ref(), ai_client);
         Self::validate_frozen_model_contract(&context).await?;
         Self::validate_frozen_reasoning_contract(&context, ai_client.as_ref())?;
-        let model_request_context = Self::model_request_context(
+        let mut model_request_context = Self::model_request_context(
             session.effective_prompt_cache_lineage_id(),
             &context.context,
         );
+        model_request_context.session_id = Some(context.session_id.clone());
+        model_request_context.workspace_root = context
+            .workspace
+            .as_ref()
+            .map(crate::agentic::WorkspaceBinding::root_path_string);
 
         // Primary model vision capability (tools + system prompt appendix; also used below for API message stripping).
         let primary_model_facts = Self::resolve_primary_model_context(
@@ -3531,10 +3536,15 @@ impl ExecutionEngine {
                     let prefetch_id = format!("prefetch_{}", uuid::Uuid::new_v4());
                     info!(
                         "Compression prefetch admitted: session_id={}, turn_id={}, round_index={}, total_tokens={}, prefetch_limit={}, input_limit={}, context_window={}",
-                        context.session_id, context.dialog_turn_id, round_index,
+                        context.session_id,
+                        context.dialog_turn_id,
+                        round_index,
                         token_pressure.total_tokens,
-                        token_pressure.input_limit.saturating_sub(alex_agent_runtime::compression_prefetch::PREFETCH_LEAD_TOKENS),
-                        token_pressure.input_limit, context_window
+                        token_pressure.input_limit.saturating_sub(
+                            alex_agent_runtime::compression_prefetch::PREFETCH_LEAD_TOKENS
+                        ),
+                        token_pressure.input_limit,
+                        context_window
                     );
                     let trace_dir = self
                         .session_manager
@@ -3884,9 +3894,7 @@ impl ExecutionEngine {
                                 .round_executor
                                 .is_dialog_turn_cancelled(&dialog_turn_id)
                             {
-                                return Err(AlexError::Cancelled(
-                                    "Dialog cancelled".to_string(),
-                                ));
+                                return Err(AlexError::Cancelled("Dialog cancelled".to_string()));
                             }
                             messages = compressed_messages;
                             turn_prompt_scaffold = self
@@ -4193,8 +4201,8 @@ impl ExecutionEngine {
                     recent_failed_tool_signatures.clear();
                 } else {
                     warn!(
-                            "Repeated tool failure detected: last {} failed rounds form a periodic tool-call pattern, max recovery attempts ({}) exhausted, finalizing without tools",
-                            window_size, MAX_FAILED_TOOL_RECOVERY_ATTEMPTS
+                        "Repeated tool failure detected: last {} failed rounds form a periodic tool-call pattern, max recovery attempts ({}) exhausted, finalizing without tools",
+                        window_size, MAX_FAILED_TOOL_RECOVERY_ATTEMPTS
                     );
                     finalization_reason = Some("repeated_tool_failures");
                     break;
@@ -4845,10 +4853,11 @@ mod compression_tests;
 #[cfg(test)]
 mod tests {
     use super::{
-        activate_conditional_instructions_after_round, manual_compaction_terminal_error,
-        reached_fixed_model_round_limit, resolve_round_permission_mode,
-        runtime_context_needs_for_manifest, skill_agent_listing_reminders, ContextHealthSnapshot,
-        ExecutionEngine, ExecutionEngineConfig, RoundResult, TurnPromptScaffold,
+        ContextHealthSnapshot, ExecutionEngine, ExecutionEngineConfig, RoundResult,
+        TurnPromptScaffold, activate_conditional_instructions_after_round,
+        manual_compaction_terminal_error, reached_fixed_model_round_limit,
+        resolve_round_permission_mode, runtime_context_needs_for_manifest,
+        skill_agent_listing_reminders,
     };
     use crate::agentic::agents::{
         PrependedPromptReminders, PromptBuilderContext, ToolListingSections, UserContextPolicy,
@@ -4861,10 +4870,10 @@ mod tests {
     };
     use crate::agentic::tools::ResolvedToolManifest;
     use crate::agentic::tools::ToolRuntimeRestrictions;
-    use crate::agentic::workspace::{local_workspace_services, WorkspaceBinding};
+    use crate::agentic::workspace::{WorkspaceBinding, local_workspace_services};
     use crate::infrastructure::PathManager;
     #[cfg(feature = "external-sources")]
-    use crate::instruction_sources::test_support::{lock_environment, EnvironmentGuard};
+    use crate::instruction_sources::test_support::{EnvironmentGuard, lock_environment};
     use crate::service::config::types::AIConfig;
     use crate::service::config::types::AIModelConfig;
     use crate::service::remote_ssh::workspace_state::workspace_session_identity;
@@ -4876,17 +4885,17 @@ mod tests {
     use sha2::{Digest, Sha256};
     use std::collections::HashMap;
     use std::path::PathBuf;
-    use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
     use std::sync::Arc;
+    use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
     use std::time::Duration;
 
     #[tokio::test]
     async fn computer_use_pixels_and_geometry_reach_real_provider_wire() {
-        use base64::Engine;
         use alex_ai_adapters::providers::{
             anthropic::AnthropicMessageConverter, gemini::GeminiMessageConverter,
             openai::OpenAIMessageConverter,
         };
+        use base64::Engine;
         let mut png = std::io::Cursor::new(Vec::new());
         image::DynamicImage::new_rgb8(6, 4)
             .write_to(&mut png, image::ImageFormat::Png)
@@ -4990,7 +4999,11 @@ mod tests {
             )
             .unwrap();
             assert_eq!((decoded.width(), decoded.height()), (6, 4));
-            assert_eq!(find_geometry(&wire), Some(observation.clone()), "{provider}: screenshot ref and projection geometry must remain attached to these pixels");
+            assert_eq!(
+                find_geometry(&wire),
+                Some(observation.clone()),
+                "{provider}: screenshot ref and projection geometry must remain attached to these pixels"
+            );
         }
         let text_only = ExecutionEngine::build_ai_messages_for_send(
             &[source.clone()],
@@ -5148,9 +5161,7 @@ mod tests {
             42
         );
         let result = super::prepare_compression_cancellable::<()>(&token, async {
-            Err(crate::AlexError::Session(
-                "preparation failed".to_string(),
-            ))
+            Err(crate::AlexError::Session("preparation failed".to_string()))
         })
         .await;
         assert!(
@@ -5192,12 +5203,16 @@ mod tests {
 
         let (skill_listing, agent_listing) = skill_agent_listing_reminders(Some(&sections));
 
-        assert!(skill_listing
-            .as_deref()
-            .is_some_and(|listing| listing.contains("# Skill Listing")));
-        assert!(agent_listing
-            .as_deref()
-            .is_some_and(|listing| listing.contains("# Agent Listing")));
+        assert!(
+            skill_listing
+                .as_deref()
+                .is_some_and(|listing| listing.contains("# Skill Listing"))
+        );
+        assert!(
+            agent_listing
+                .as_deref()
+                .is_some_and(|listing| listing.contains("# Agent Listing"))
+        );
     }
 
     #[test]
@@ -5514,10 +5529,12 @@ mod tests {
             )
             .await;
         assert!(!degraded_cacheable);
-        assert!(!degraded_context
-            .as_deref()
-            .unwrap_or_default()
-            .contains("Recovered workspace instructions."));
+        assert!(
+            !degraded_context
+                .as_deref()
+                .unwrap_or_default()
+                .contains("Recovered workspace instructions.")
+        );
 
         let (recovered_context, recovered_cacheable) =
             ExecutionEngine::build_user_context_for_cache_miss(
@@ -5528,10 +5545,12 @@ mod tests {
             )
             .await;
         assert!(recovered_cacheable);
-        assert!(recovered_context
-            .as_deref()
-            .unwrap_or_default()
-            .contains("Recovered workspace instructions."));
+        assert!(
+            recovered_context
+                .as_deref()
+                .unwrap_or_default()
+                .contains("Recovered workspace instructions.")
+        );
     }
 
     #[cfg(feature = "external-sources")]
@@ -5726,10 +5745,12 @@ mod tests {
             .await
             .expect("persisted context");
         assert_eq!(conditional_reminders(&persisted).len(), 1);
-        assert!(conditional_reminders(&persisted)[0]
-            .content
-            .to_string()
-            .contains("Old rule"));
+        assert!(
+            conditional_reminders(&persisted)[0]
+                .content
+                .to_string()
+                .contains("Old rule")
+        );
 
         let compressor = ContextCompressor::new();
         let plan = compressor
@@ -5744,13 +5765,15 @@ mod tests {
             .replace_context_messages(&context.session_id, compressed.clone())
             .await;
         assert!(conditional_reminders(&compressed).is_empty());
-        assert!(conditional_reminders(
-            &session_manager
-                .get_context_messages(&context.session_id)
-                .await
-                .expect("compacted context")
-        )
-        .is_empty());
+        assert!(
+            conditional_reminders(
+                &session_manager
+                    .get_context_messages(&context.session_id)
+                    .await
+                    .expect("compacted context")
+            )
+            .is_empty()
+        );
 
         std::fs::write(&rule_path, "---\npaths:\n  - src/**/*.rs\n---\nNew rule\n")
             .expect("new rule");

@@ -91,6 +91,19 @@ impl std::error::Error for RagSearchError {}
 #[async_trait]
 pub trait RagSearchPort: Send + Sync {
     async fn search(&self, request: RagSearchRequest) -> Result<RagSearchResponse, RagSearchError>;
+
+    /// Resolve a session-scoped opaque document reference for an internal file
+    /// operation. The raw path stays inside the runtime boundary and is never
+    /// returned to the model. Backends without document-token support retain
+    /// the safe default of returning `None`.
+    fn resolve_document_token(
+        &self,
+        _token: &str,
+        _session_id: &str,
+        _workspace_root: &str,
+    ) -> Result<Option<String>, RagSearchError> {
+        Ok(None)
+    }
 }
 
 #[cfg(test)]

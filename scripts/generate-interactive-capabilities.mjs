@@ -226,7 +226,11 @@ function extractTypeUnionIds(source, typeName) {
 
 function extractProductToolNames(source) {
   const names = new Set();
-  for (const match of source.matchAll(/tool_names:\s*&\[([\s\S]*?)\]/gu)) {
+  // Keep the inventory parser independent from compile-time ownership gates
+  // inside a provider's tool list. A cfg attribute contains `]` itself and
+  // would otherwise make the non-greedy array match stop before later tools.
+  const sourceWithoutCfgAttributes = source.replace(/#\[cfg\([^\]]*\)\]\s*/gu, '');
+  for (const match of sourceWithoutCfgAttributes.matchAll(/tool_names:\s*&\[([\s\S]*?)\]/gu)) {
     for (const value of match[1].matchAll(/"([^"]+)"/gu)) names.add(value[1]);
   }
   return names;

@@ -485,6 +485,7 @@ impl AppState {
             require_ner: true,
             ner_model_dir: crate::basemind_ner_model_dir()
                 .map(|dir| dir.to_string_lossy().into_owned()),
+            ner_profile: None,
         };
         Ok(Arc::new(
             BasemindClient::lazy(sidecar_binary).with_redaction_policy(policy),

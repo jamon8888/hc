@@ -827,6 +827,19 @@ pub enum ModelCategory {
     SpeechRecognition,
 }
 
+/// Explicit privacy route for model egress. `None` on legacy configurations
+/// Missing legacy values deserialize as `None` and are treated as an unknown
+/// route at the adapter seam. A URL is never sufficient evidence of local
+/// privacy because a loopback proxy may still forward data to a remote API.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum ModelPrivacyRouteConfig {
+    Api,
+    Local,
+    #[serde(other)]
+    Unknown,
+}
+
 /// Default model configuration.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(default)]
@@ -1643,6 +1656,10 @@ pub struct AIModelConfig {
     pub model_name: String,
     pub base_url: String,
 
+    /// Route capability used by the model egress privacy policy.
+    #[serde(default)]
+    pub privacy_route: Option<ModelPrivacyRouteConfig>,
+
     /// Computed actual request URL (auto-derived from base_url + provider format).
     /// Stored by the frontend when config is saved; falls back to base_url if absent.
     #[serde(default)]
@@ -2089,6 +2106,7 @@ impl Default for AIModelConfig {
             provider: String::new(),
             model_name: String::new(),
             base_url: String::new(),
+            privacy_route: None,
             request_url: None,
             api_key: String::new(),
             context_window: None,
@@ -2282,6 +2300,7 @@ mod tests {
         AIConfig, AIExperienceConfig, AIModelConfig, AgentModelDefaultsConfig, AgentProfileConfig,
         AgentProfileView, AppConfig, AppLoggingConfig, AuthConfig, ChatInputDefaultModeStrategy,
         EditorConfig, GlobalConfig, MemoryExternalContextPolicy, ModelExchangeTracingMode,
+        ModelPrivacyRouteConfig,
         NotificationConfig, OpenCodePlan, SubagentBatchExecutionPolicy, SubagentModelSelection,
         SubscriptionProvider, UserSkillGroupsConfig, UserToolGroupsConfig, WebSearchConfig,
     };
@@ -3056,6 +3075,41 @@ mod tests {
         .expect("config without inline_think_in_text should deserialize");
 
         assert!(config.inline_think_in_text);
+    }
+
+    #[test]
+    fn legacy_model_config_without_privacy_route_is_unknown() {
+        let config: AIModelConfig = serde_json::from_value(serde_json::json!({
+            "id": "legacy",
+            "name": "Legacy",
+            "provider": "custom",
+            "model_name": "model",
+            "base_url": "http://127.0.0.1:11434/v1",
+            "api_key": "",
+            "enabled": true
+        }))
+        .expect("legacy model config should deserialize");
+
+        assert_eq!(config.privacy_route, None);
+    }
+
+    #[test]
+    fn model_privacy_route_round_trips_explicit_capability() {
+        let config: AIModelConfig = serde_json::from_value(serde_json::json!({
+            "id": "local",
+            "name": "Local",
+            "provider": "ollama",
+            "model_name": "model",
+            "base_url": "http://127.0.0.1:11434/v1",
+            "api_key": "",
+            "enabled": true,
+            "privacy_route": "local"
+        }))
+        .expect("explicit model privacy route should deserialize");
+
+        assert_eq!(config.privacy_route, Some(ModelPrivacyRouteConfig::Local));
+        let value = serde_json::to_value(config).expect("model config should serialize");
+        assert_eq!(value["privacy_route"], "local");
     }
 
     #[test]

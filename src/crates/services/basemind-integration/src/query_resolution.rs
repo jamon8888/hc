@@ -11,26 +11,68 @@ use serde::{Deserialize, Serialize};
 use std::cmp::Reverse;
 #[cfg(feature = "basemind")]
 use std::collections::BTreeMap;
+#[cfg(feature = "basemind")]
+use std::sync::{Arc, Mutex, RwLock};
 
 #[cfg(feature = "basemind")]
 pub struct QueryResolver {
     client: crate::ipc::BasemindClient,
-    registry: crate::identity_registry::IdentityRegistry,
-    vault: crate::session_vault::SessionVault,
+    registry: Arc<Mutex<crate::identity_registry::IdentityRegistry>>,
+    vault: Arc<RwLock<crate::session_vault::SessionVault>>,
+}
+
+/// Synchronous, session-vault-only access for DOC references.
+///
+/// RAG searches hold their tool mutex across awaited sidecar calls, but Read
+/// can resolve a DOC token concurrently with that work. This handle shares the
+/// resolver's vault lock without acquiring the search mutex or cloning an
+/// independently synchronized vault.
+#[cfg(feature = "basemind")]
+#[derive(Clone)]
+pub struct DocumentTokenResolver {
+    vault: Arc<RwLock<crate::session_vault::SessionVault>>,
 }
 
 #[cfg(feature = "basemind")]
 impl QueryResolver {
     pub fn new(
         client: crate::ipc::BasemindClient,
-        registry: crate::identity_registry::IdentityRegistry,
-        vault: crate::session_vault::SessionVault,
+        registry: Arc<Mutex<crate::identity_registry::IdentityRegistry>>,
+        vault: Arc<RwLock<crate::session_vault::SessionVault>>,
     ) -> Self {
         Self {
             client,
             registry,
             vault,
         }
+    }
+
+    /// Return a synchronized handle that resolves only document references.
+    pub(crate) fn document_token_resolver(&self) -> DocumentTokenResolver {
+        DocumentTokenResolver {
+            vault: Arc::clone(&self.vault),
+        }
+    }
+
+    fn load_session(&self, session_id: &str) -> Result<crate::session_vault::SessionPayload> {
+        let vault = self.vault.read().unwrap_or_else(|error| error.into_inner());
+        vault
+            .load_session(session_id)
+            .map_err(|error| anyhow::anyhow!("session payload unavailable: {error}"))
+    }
+
+    fn store_session(
+        &self,
+        session_id: &str,
+        payload: crate::session_vault::SessionPayload,
+    ) -> Result<()> {
+        let vault = self
+            .vault
+            .write()
+            .unwrap_or_else(|error| error.into_inner());
+        vault
+            .store_session(session_id, payload)
+            .map_err(|error| anyhow::anyhow!("session payload unavailable: {error}"))
     }
 
     /// Rewrite a user's query for the **raw** index (D6 amended).
@@ -46,10 +88,7 @@ impl QueryResolver {
     /// trust boundary as the index itself. A missing or unreadable session
     /// payload hard-fails the call (D7).
     pub fn rewrite_query(&self, raw_query: &str, session_id: &str) -> Result<String> {
-        let session = self
-            .vault
-            .load_session(session_id)
-            .map_err(|e| anyhow::anyhow!("session payload unavailable: {e}"))?;
+        let session = self.load_session(session_id)?;
 
         // Tokens are fixed-shape so none can contain another; longest-first
         // keeps replacement order irrelevant anyway.
@@ -65,6 +104,31 @@ impl QueryResolver {
         Ok(rewritten)
     }
 
+    /// Resolve a document token for an internal file operation. Only the DOC
+    /// namespace is accepted here so this seam cannot be used to expose the
+    /// session's ordinary PII rehydration map.
+    pub fn resolve_document_token(&self, token: &str, session_id: &str) -> Result<Option<String>> {
+        self.document_token_resolver()
+            .resolve_document_token(token, session_id)
+    }
+}
+
+#[cfg(feature = "basemind")]
+impl DocumentTokenResolver {
+    pub fn resolve_document_token(&self, token: &str, session_id: &str) -> Result<Option<String>> {
+        if !(token.starts_with("[DOC_") && token.ends_with(']')) {
+            return Ok(None);
+        }
+        let vault = self.vault.read().unwrap_or_else(|error| error.into_inner());
+        let session = vault
+            .load_session(session_id)
+            .map_err(|error| anyhow::anyhow!("session payload unavailable: {error}"))?;
+        Ok(session.map.get(token).cloned())
+    }
+}
+
+#[cfg(feature = "basemind")]
+impl QueryResolver {
     /// Re-tokenize raw RAG hits into session tokens before they can reach the LLM.
     ///
     /// Candidate values per hit are `hit.entities[].text` (scan-time detection)
@@ -91,10 +155,7 @@ impl QueryResolver {
         session_id: &str,
         workspace_root: &str,
     ) -> Result<Vec<RetokenizedHit>> {
-        let mut session = self
-            .vault
-            .load_session(session_id)
-            .map_err(|e| anyhow::anyhow!("session payload unavailable: {e}"))?;
+        let mut session = self.load_session(session_id)?;
         let salt = session.salt.clone();
 
         let mut registry_changed = false;
@@ -138,11 +199,16 @@ impl QueryResolver {
             let mut hit_entities = Vec::new();
 
             for (value, category) in candidates {
-                let before = self.registry.entry_count();
-                let alias = self
-                    .registry
-                    .get_or_create_alias_for_value(&value, &category);
-                registry_changed |= self.registry.entry_count() > before;
+                let (alias, changed) = {
+                    let mut registry = self
+                        .registry
+                        .lock()
+                        .unwrap_or_else(|error| error.into_inner());
+                    let before = registry.entry_count();
+                    let alias = registry.get_or_create_alias_for_value(&value, &category);
+                    (alias, registry.entry_count() > before)
+                };
+                registry_changed |= changed;
                 let token = crate::token::mint_session_token(&category, &alias, &salt);
 
                 // Replace the raw value inside the chunk (I1 chokepoint)
@@ -156,19 +222,57 @@ impl QueryResolver {
                 hit_entities.push(RetokenizedEntity { category, token });
             }
 
+            // File paths are also model-visible content. Keep the source
+            // reference useful for correlation within this session, but do
+            // not expose a user's directory or filename to the model. The
+            // original path remains available only through the encrypted
+            // session vault, alongside ordinary PII rehydration values.
+            let source_doc = if hit.path.is_empty() {
+                "[DOC_UNKNOWN]".to_string()
+            } else {
+                let (alias, changed) = {
+                    let mut registry = self
+                        .registry
+                        .lock()
+                        .unwrap_or_else(|error| error.into_inner());
+                    let before = registry.entry_count();
+                    let alias = registry.get_or_create_alias_for_value(&hit.path, "DOC");
+                    (alias, registry.entry_count() > before)
+                };
+                registry_changed |= changed;
+                let token = crate::token::mint_session_token("DOC", &alias, &salt);
+                if session.map.get(&token) != Some(&hit.path) {
+                    session.map.insert(token.clone(), hit.path.clone());
+                    vault_changed = true;
+                }
+                token
+            };
+
             retokenized.push(RetokenizedHit {
                 text: hit_text,
-                source_doc: hit.path,
+                source_doc,
                 score: 1.0 - hit.distance,
                 entities: hit_entities,
             });
         }
 
         if registry_changed {
-            self.registry.flush()?;
+            self.registry
+                .lock()
+                .unwrap_or_else(|error| error.into_inner())
+                .flush()?;
         }
         if vault_changed {
-            self.vault.store_session(session_id, session)?;
+            // redact_text above is asynchronous. Another turn may have added
+            // entries to this session while it was in flight; merge the
+            // latest vault snapshot before writing so this turn cannot erase
+            // those mappings.
+            let latest = self.load_session(session_id)?;
+            if latest.salt != session.salt {
+                anyhow::bail!("session salt changed while RAG hits were being redacted");
+            }
+            session.map.extend(latest.map);
+            self.store_session(session_id, session)?;
         }
 
         Ok(retokenized)
@@ -179,6 +283,8 @@ impl QueryResolver {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RetokenizedHit {
     pub text: String, // chunk text with every raw value replaced by a session token
+    /// Session-scoped opaque document token; the raw path stays in the
+    /// encrypted session vault and never reaches the model.
     pub source_doc: String,
     pub score: f32,
     pub entities: Vec<RetokenizedEntity>,

@@ -1,6 +1,8 @@
 use crate::client::utils::elapsed_ms_u64;
 use crate::client::AIClient;
-use crate::types::{ConnectionTestMessageCode, ConnectionTestResult, Message, ToolDefinition};
+use crate::types::{
+    ConnectionTestMessageCode, ConnectionTestResult, Message, ModelRequestContext, ToolDefinition,
+};
 use anyhow::Result;
 use log::debug;
 
@@ -112,6 +114,7 @@ fn connection_error_message_code(error_msg: &str) -> Option<ConnectionTestMessag
 
 pub(crate) async fn test_connection(
     client: &AIClient,
+    request_context: Option<ModelRequestContext>,
     max_attempts: usize,
 ) -> Result<ConnectionTestResult> {
     let start_time = std::time::Instant::now();
@@ -133,7 +136,7 @@ pub(crate) async fn test_connection(
     }]);
 
     match client
-        .send_test_message(test_messages, tools, max_attempts)
+        .send_test_message(test_messages, tools, request_context, max_attempts)
         .await
     {
         Ok(response) => {
@@ -173,9 +176,22 @@ pub(crate) async fn test_connection(
 
 pub(crate) async fn test_image_input_connection(
     client: &AIClient,
+    request_context: Option<ModelRequestContext>,
     max_attempts: usize,
 ) -> Result<ConnectionTestResult> {
     let start_time = std::time::Instant::now();
+    if client.model_privacy_route() != alex_runtime_ports::ModelPrivacyRoute::Local {
+        return Ok(ConnectionTestResult {
+            success: false,
+            response_time_ms: elapsed_ms_u64(start_time),
+            model_response: None,
+            message_code: Some(ConnectionTestMessageCode::ImageInputCheckFailed),
+            error_details: Some(
+                "Image understanding verification is unavailable for API routes because the privacy egress policy replaces images before provider dispatch"
+                    .to_string(),
+            ),
+        });
+    }
     let provider = client.config.format.to_ascii_lowercase();
     let prompt = "Inspect the attached image and reply with exactly one 4-letter code for quadrant colors in TL,TR,BL,BR order using letters R,G,B,Y (R=red, G=green, B=blue, Y=yellow).";
 
@@ -223,7 +239,7 @@ pub(crate) async fn test_image_input_connection(
     }];
 
     match client
-        .send_test_message(test_messages, None, max_attempts)
+        .send_test_message(test_messages, None, request_context, max_attempts)
         .await
     {
         Ok(response) => {

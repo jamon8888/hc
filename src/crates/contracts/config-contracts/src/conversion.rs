@@ -240,6 +240,7 @@ mod tests {
             provider: "openai".to_string(),
             model_name: "test-model".to_string(),
             base_url: "https://example.com/v1".to_string(),
+            privacy_route: None,
             request_url: Some("https://example.com/v1/chat/completions".to_string()),
             api_key: "key".to_string(),
             context_window: Some(128000),

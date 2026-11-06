@@ -59,6 +59,7 @@ remote-exec-port = ["dep:tokio"]
 rag-search = []
 document-redaction = []
 prompt-pseudonymization = []
+model-egress = ["dep:alex-core-types"]
 tool-runtime-handles = [
     "workspace-ports",
     "terminal-port",

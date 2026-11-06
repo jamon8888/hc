@@ -114,7 +114,7 @@ jobs:
 
           PATH="$test_root/stubs:/usr/bin:/bin" \
             RUNNER_TEMP="$test_root" \
-            OPENBITFUN_SIGNING_KEY="YQ==" \
+            ALEX_SIGNING_KEY="YQ==" \
             bash scripts/sign-release-assets.sh "$test_root/missing-asset"
 
           "$test_root/alex-minisign-0.12/bin/minisign" -v
@@ -344,9 +344,10 @@ jobs:
 
           $testLog = $testOutput | Out-String
           $knownTauriLoaderFailure = (
-            $testLog -match 'process .*exit successfully:.*openbitfun_desktop_lib-' -and
+            $testLog -match 'process .*exit successfully:.*(?:alex|openbitfun)_desktop_lib-' -and
             $testLog -match 'exit code: 0xc0000139' -and
             $testLog -match 'STATUS_ENTRYPOINT_NOT_FOUND' -and
+            $testLog -notmatch '(?m)^running \d+ tests?\b' -and
             $testLog -notmatch 'test result: FAILED'
           )
           if ($knownTauriLoaderFailure) {

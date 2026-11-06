@@ -1454,6 +1454,7 @@ export function findProductEntrypointCoreFeatureViolations(
     ['alex-cli', [
       'tools-pages',
       ...coreCompatibilityReviewedFeatures,
+      'tools-rag',
       'product-search',
       'remote-connect',
       'plugin-runtime',
@@ -1520,6 +1521,7 @@ export function findProductEntrypointCoreFeatureViolations(
     ['alex-cli', [
       'tools-pages',
       ...acpActiveCoreFeatures,
+      'tools-rag',
       'i18n-runtime',
       'plugin-runtime',
       'product-search',

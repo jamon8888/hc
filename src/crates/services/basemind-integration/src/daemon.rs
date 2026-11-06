@@ -19,6 +19,8 @@
 use anyhow::Result;
 #[cfg(feature = "basemind")]
 use std::path::{Path, PathBuf};
+#[cfg(feature = "basemind")]
+use std::sync::OnceLock;
 
 /// The basemind fork version this integration is written against.
 ///
@@ -27,12 +29,11 @@ use std::path::{Path, PathBuf};
 /// product code was written against: the MCP tool names, the parameter
 /// names, and the response shape all belong to this version.
 ///
-/// v0.34.0 is the upstream sync of `Goldziher/basemind` v0.29.3 into the
-/// `jamon8888/basemind` fork. The sync keeps the fork's PII, redaction and
-/// vault features end to end, and adds the MCP resources and the
-/// `redact_text` `file_path` extraction this integration uses.
+/// v0.36.0 is the current `jamon8888/basemind` release. It keeps the fork's
+/// PII, redaction, vault, and document-RAG contracts used by this integration,
+/// and adds versioned NER profiles to `redact_text`.
 #[cfg(feature = "basemind")]
-pub const BASEMIND_VERSION: &str = "0.34.0";
+pub const BASEMIND_VERSION: &str = "0.36.0";
 
 /// Environment variable the fork uses to override the comms directory.
 #[cfg(feature = "basemind")]
@@ -181,12 +182,16 @@ pub fn verify_version() -> Result<()> {
         // mismatch, so it must not fail the call.
         return Ok(());
     };
-    if version == BASEMIND_VERSION {
+    let running = semver::Version::parse(&version)
+        .map_err(|error| anyhow::anyhow!("invalid basemind daemon version {version}: {error}"))?;
+    let minimum = semver::Version::parse(BASEMIND_VERSION)
+        .expect("BASEMIND_VERSION must be valid semver");
+    if running >= minimum {
         return Ok(());
     }
     anyhow::bail!(
-        "basemind daemon runs {version}, but this build targets {BASEMIND_VERSION}. \
-         Restart the daemon with the pinned version: `basemind comms stop && basemind comms start`."
+        "basemind daemon runs {version}, but this build requires at least {BASEMIND_VERSION}. \
+         Restart the daemon with a compatible version: `basemind comms stop && basemind comms start`."
     )
 }
 
@@ -233,6 +238,31 @@ fn ensure(daemon_binary: &Path) -> Result<()> {
         .map_err(|error| anyhow::anyhow!("basemind daemon ensure failed to spawn: {error}"))
 }
 
+#[cfg(feature = "basemind")]
+fn stop(daemon_binary: &Path) -> Result<()> {
+    use alex_services_core::process_manager::create_command;
+
+    let status = create_command(daemon_binary)
+        .arg("comms")
+        .arg("stop")
+        .env("BASEMIND_ALLOW_HTTP", "1")
+        .stdin(std::process::Stdio::null())
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null())
+        .status()
+        .map_err(|error| anyhow::anyhow!("basemind daemon stop failed to spawn: {error}"))?;
+    if !status.success() {
+        anyhow::bail!("basemind daemon stop exited with status {status}");
+    }
+    Ok(())
+}
+
+#[cfg(feature = "basemind")]
+fn replacement_lock() -> &'static tokio::sync::Mutex<()> {
+    static LOCK: OnceLock<tokio::sync::Mutex<()>> = OnceLock::new();
+    LOCK.get_or_init(|| tokio::sync::Mutex::new(()))
+}
+
 /// A daemon endpoint that is true right now.
 ///
 /// The daemon may have self-terminated after its bootstrap window (the
@@ -248,16 +278,33 @@ pub async fn discover_or_ensure(
     wait_seconds: u64,
 ) -> Result<DaemonEndpoint> {
     if let Ok(endpoint) = discover() {
-        return Ok(endpoint);
+        if verify_version().is_ok() {
+            return Ok(endpoint);
+        }
     }
     let Some(binary) = daemon_binary else {
-        return discover();
+        let endpoint = discover()?;
+        verify_version()?;
+        return Ok(endpoint);
     };
+
+    // The portfile is process-global. Serialize replacement and re-check after
+    // taking the lock so a second request cannot stop the daemon the first
+    // request just started.
+    let _replacement_guard = replacement_lock().lock().await;
+    if let Ok(endpoint) = discover() {
+        if verify_version().is_ok() {
+            return Ok(endpoint);
+        }
+        stop(&binary)?;
+    }
     ensure(&binary)?;
     let deadline = std::time::Instant::now() + std::time::Duration::from_secs(wait_seconds);
     loop {
         if let Ok(endpoint) = discover() {
-            return Ok(endpoint);
+            if verify_version().is_ok() {
+                return Ok(endpoint);
+            }
         }
         if std::time::Instant::now() >= deadline {
             return Err(discover().err().unwrap_or_else(|| {
