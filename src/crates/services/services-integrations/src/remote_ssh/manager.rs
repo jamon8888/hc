@@ -1540,17 +1540,25 @@ fn container_workspace_write_command(path: &str, temporary: &str, expected_size:
     let sweep = stale_upload_sweep(&crate::remote_ssh::shell::quote_arg(parent));
     format!(
         "{sweep}tmp={quoted_temporary}; target={quoted_path}; expected={expected_size}; \
-         backup=\"$tmp.backup\"; had_target=0; status=0; \
+         backup=\"$tmp.backup\"; had_target=0; touched=0; status=0; \
          saved_umask=$(umask) || status=$?; \
          if [ \"$status\" -eq 0 ] && [ -e \"$target\" ]; then \
-           cp -p -- \"$target\" \"$backup\" || status=$?; had_target=1; \
+           if cp -p -- \"$target\" \"$backup\"; then had_target=1; else status=$?; fi; \
          fi; \
          cleanup() {{ \
-           if [ \"$status\" -ne 0 ]; then \
-             if [ \"$had_target\" -eq 1 ]; then cat -- \"$backup\" >| \"$target\" || true; \
-             else rm -f -- \"$target\"; fi; \
+           cleanup_status=0; \
+           if [ \"$status\" -ne 0 ] && [ \"$touched\" -eq 1 ]; then \
+             if [ \"$had_target\" -eq 1 ]; then \
+               if ! cat -- \"$backup\" >| \"$target\"; then \
+                 echo 'Workspace file restore failed; backup retained for recovery' >&2; cleanup_status=1; \
+               fi; \
+             elif ! rm -f -- \"$target\"; then cleanup_status=1; fi; \
            fi; \
-           rm -f -- \"$tmp\" \"$backup\"; \
+           if [ \"$cleanup_status\" -eq 0 ]; then \
+             rm -f -- \"$backup\" || cleanup_status=$?; \
+           fi; \
+           rm -f -- \"$tmp\" || cleanup_status=$?; \
+           if [ \"$cleanup_status\" -ne 0 ] && [ \"$status\" -eq 0 ]; then status=\"$cleanup_status\"; fi; \
          }}; trap cleanup EXIT; \
          trap 'status=129; exit 129' HUP; trap 'status=130; exit 130' INT; trap 'status=143; exit 143' TERM; \
          umask 077; if [ \"$status\" -eq 0 ]; then cat > \"$tmp\" || status=$?; fi; \
@@ -1563,7 +1571,7 @@ fn container_workspace_write_command(path: &str, temporary: &str, expected_size:
                echo 'Workspace target is not a regular file' >&2; status=1; \
              else \
                umask \"$saved_umask\" || status=$?; \
-               if [ \"$status\" -eq 0 ]; then cat -- \"$tmp\" >| \"$target\" || status=$?; fi; \
+               if [ \"$status\" -eq 0 ]; then touched=1; cat -- \"$tmp\" >| \"$target\" || status=$?; fi; \
              fi; \
            fi; \
          fi; cleanup; trap - EXIT; exit \"$status\""
@@ -7700,6 +7708,55 @@ mod tests {
         stderr.read_to_string(&mut diagnostics).await.unwrap();
         assert_eq!(completion.wait().await.exit_code, Some(65));
         assert!(diagnostics.contains("incomplete"));
+        assert_eq!(std::fs::read(&target).unwrap(), b"preserved");
+        assert!(!staged.exists());
+    }
+
+    #[cfg(unix)]
+    #[tokio::test]
+    async fn workspace_container_write_keeps_target_when_backup_copy_fails() {
+        use std::os::unix::fs::PermissionsExt;
+        use tokio::io::{AsyncReadExt, AsyncWriteExt};
+        let temp = tempfile::tempdir().unwrap();
+        let bin = temp.path().join("bin");
+        std::fs::create_dir(&bin).unwrap();
+        let fake_cp = bin.join("cp");
+        std::fs::write(&fake_cp, "#!/bin/sh\nexit 42\n").unwrap();
+        std::fs::set_permissions(&fake_cp, std::fs::Permissions::from_mode(0o755)).unwrap();
+
+        let target = temp.path().join("target");
+        let staged = temp.path().join(".alex-upload-test.tmp");
+        std::fs::write(&target, b"preserved").unwrap();
+        let path = format!(
+            "{}:{}",
+            bin.display(),
+            std::env::var("PATH").unwrap_or_default()
+        );
+        let command = format!(
+            "PATH={}; export PATH; {}",
+            crate::remote_ssh::shell::quote_arg(&path),
+            container_workspace_write_command(
+                target.to_str().unwrap(),
+                staged.to_str().unwrap(),
+                8,
+            )
+        );
+        let transport =
+            crate::remote_ssh::WorkspaceStdio::spawn_local_process("sh", &["-c".into(), command])
+                .unwrap();
+        let (mut stdin, mut stdout, mut stderr, _control, completion) = transport.into_parts();
+        stdin.write_all(b"modified").await.unwrap();
+        stdin.shutdown().await.unwrap();
+        let mut output = Vec::new();
+        let mut diagnostics = String::new();
+        stdout.read_to_end(&mut output).await.unwrap();
+        stderr.read_to_string(&mut diagnostics).await.unwrap();
+
+        assert_eq!(completion.wait().await.exit_code, Some(42));
+        assert!(
+            diagnostics.is_empty(),
+            "backup failure should stop before transfer: {diagnostics}"
+        );
         assert_eq!(std::fs::read(&target).unwrap(), b"preserved");
         assert!(!staged.exists());
     }

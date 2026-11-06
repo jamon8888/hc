@@ -3,6 +3,9 @@ import type {
   WordcraftBridgeEvent,
   WordcraftSaveMessage,
 } from './WordcraftBridge';
+import { createLogger } from '@/shared/utils/logger';
+
+const log = createLogger('WordcraftDocumentHost');
 
 export interface WordcraftDocumentHostState {
   dirty: boolean;
@@ -55,7 +58,11 @@ export class WordcraftDocumentHost {
       this.latestEventToken = token;
       this.pendingSaves.set(token, event.revision);
       this.update({ dirty: true, revision: event.revision, saving: true, error: undefined });
-      this.saveQueue = this.saveQueue.then(() => this.persist(event, token));
+      this.saveQueue = this.saveQueue
+        .then(() => this.persist(event, token))
+        .catch((error) => {
+          log.warn('WordCraft save queue recovered after an unexpected persistence failure', { error });
+        });
     }
   }
 
@@ -65,6 +72,8 @@ export class WordcraftDocumentHost {
   }
 
   private async persist(event: WordcraftSaveMessage, token: number): Promise<void> {
+    let ok = false;
+    let errorMessage: string | undefined;
     try {
       await this.options.saveBytes(toUint8Array(event.bytes), event.revision);
       if (this.disposed) return;
@@ -74,16 +83,30 @@ export class WordcraftDocumentHost {
         ...(isLatest ? { dirty: false, revision: event.revision, error: undefined } : {}),
         saving: this.pendingSaves.size > 0,
       });
-      this.options.acknowledgeSave(event.requestId, event.revision, true);
+      ok = true;
     } catch (error) {
       if (this.disposed) return;
       this.pendingSaves.delete(token);
       const message = error instanceof Error ? error.message : String(error);
+      errorMessage = message;
       this.update({
         ...(this.latestEventToken === token ? { dirty: true, revision: event.revision, error: message } : {}),
         saving: this.pendingSaves.size > 0,
       });
-      this.options.acknowledgeSave(event.requestId, event.revision, false, message);
+    }
+
+    try {
+      if (errorMessage === undefined) {
+        this.options.acknowledgeSave(event.requestId, event.revision, ok);
+      } else {
+        this.options.acknowledgeSave(event.requestId, event.revision, ok, errorMessage);
+      }
+    } catch (error) {
+      log.warn('Failed to acknowledge WordCraft save', {
+        requestId: event.requestId,
+        revision: event.revision,
+        error,
+      });
     }
   }
 
