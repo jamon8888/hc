@@ -19,6 +19,14 @@ export interface WordcraftCommandRequest {
   params: Record<string, unknown>;
 }
 
+export interface WordcraftOpenMessage {
+  type: 'open';
+  sessionId: string;
+  baseRevision: number;
+  name: string;
+  bytes: Uint8Array;
+}
+
 export interface WordcraftCommandResult {
   type: 'result';
   requestId: string;
@@ -48,6 +56,11 @@ export interface WordcraftSaveAck {
   error?: string;
 }
 
+export type WordcraftBridgeOutboundMessage =
+  | WordcraftCommandRequest
+  | WordcraftOpenMessage
+  | WordcraftSaveAck;
+
 export interface WordcraftBridgeReadyEvent {
   type: 'ready';
   ready: WordcraftReadyMessage;
@@ -74,13 +87,14 @@ export type WordcraftBridgeEvent =
 
 export interface WordcraftBridgeOptions extends WordcraftReadyValidationContext {
   timeoutMs?: number;
-  postMessage: (message: WordcraftCommandRequest | WordcraftSaveAck) => void;
+  postMessage: (message: WordcraftBridgeOutboundMessage) => void;
   onEvent?: (event: WordcraftBridgeEvent) => void;
   requestIdFactory?: () => string;
 }
 
 interface PendingCommand {
   method: WordcraftBridgeCommand;
+  expectedRevision: number;
   timer: ReturnType<typeof setTimeout>;
   resolve: (result: WordcraftCommandResult) => void;
   reject: (error: Error) => void;
@@ -94,6 +108,7 @@ export class WordcraftBridge {
   private disposed = false;
   private failed = false;
   private ready = false;
+  private latestObservedRevision = 0;
   private counter = 0;
 
   constructor(private readonly options: WordcraftBridgeOptions) {
@@ -125,7 +140,7 @@ export class WordcraftBridge {
       return true;
     }
 
-    if (!this.isReady || !this.isTrustedEvent(event) || !isRecord(data)) return false;
+    if (!this.isTrustedEvent(event) || !isRecord(data)) return false;
     if (data.type === 'failed') {
       if (typeof data.error !== 'string') {
         this.fail('WordCraft failed message is malformed');
@@ -137,6 +152,7 @@ export class WordcraftBridge {
       this.fail(data.error);
       return true;
     }
+    if (!this.isReady) return false;
     if (data.type === 'dirty') {
       if (!isSessionRevision(data, this.options.expectedSessionId) || typeof data.dirty !== 'boolean') {
         return false;
@@ -147,6 +163,7 @@ export class WordcraftBridge {
         revision: data.revision,
         dirty: data.dirty,
       });
+      this.latestObservedRevision = Math.max(this.latestObservedRevision, data.revision);
       return true;
     }
     if (data.type === 'save') {
@@ -163,6 +180,7 @@ export class WordcraftBridge {
         name: data.name,
         bytes: data.bytes,
       });
+      this.latestObservedRevision = Math.max(this.latestObservedRevision, data.revision);
       return true;
     }
     if (data.type === 'result') {
@@ -203,7 +221,7 @@ export class WordcraftBridge {
         this.pending.delete(requestId);
         reject(new Error(`WordCraft command '${method}' timed out`));
       }, this.timeoutMs);
-      this.pending.set(requestId, { method, timer, resolve, reject });
+      this.pending.set(requestId, { method, expectedRevision, timer, resolve, reject });
       try {
         this.options.postMessage(request);
       } catch (error) {
@@ -211,6 +229,25 @@ export class WordcraftBridge {
         this.pending.delete(requestId);
         reject(error instanceof Error ? error : new Error(String(error)));
       }
+    });
+  }
+
+  openDocument(name: string, bytes: Uint8Array, baseRevision = 0): void {
+    if (!this.isReady) {
+      throw new Error('WordCraft bridge is unavailable');
+    }
+    if (!name.trim()) {
+      throw new Error('WordCraft document name is empty');
+    }
+    if (!Number.isSafeInteger(baseRevision) || baseRevision < 0) {
+      throw new Error('WordCraft document revision is invalid');
+    }
+    this.options.postMessage({
+      type: 'open',
+      sessionId: this.options.expectedSessionId,
+      baseRevision,
+      name,
+      bytes,
     });
   }
 
@@ -257,6 +294,15 @@ export class WordcraftBridge {
       this.rejectPending(data.requestId, 'WordCraft result is malformed');
       return true;
     }
+    if (data.revision < pending.expectedRevision) {
+      this.rejectPending(data.requestId, 'WordCraft result revision is stale');
+      return true;
+    }
+    if (data.revision < this.latestObservedRevision) {
+      this.rejectPending(data.requestId, 'WordCraft result revision is older than the current document');
+      return true;
+    }
+    this.latestObservedRevision = Math.max(this.latestObservedRevision, data.revision);
     this.pending.delete(data.requestId);
     clearTimeout(pending.timer);
     const result: WordcraftCommandResult = {

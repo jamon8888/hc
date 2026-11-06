@@ -144,6 +144,8 @@ const MAX_SESSION_REFERENCES_PER_TURN: usize = 5;
 const SESSION_REFERENCE_ARTIFACT_STEM_LENGTH: usize = 8;
 const SESSION_REFERENCE_ARTIFACT_STEM_EXTENSION_LENGTH: usize = 4;
 const SESSION_REFERENCE_NAME_CHAR_LIMIT: usize = 96;
+const WORDCRAFT_DOCUMENT_METADATA_KEY: &str = "documentAgentContext";
+const WORDCRAFT_DOCUMENT_CONTEXT_KEY: &str = "wordcraft_document_context";
 const USER_SHELL_COMMAND_MAX_BYTES: usize = 64 * 1024;
 const USER_SHELL_TOOL_NAME: &str = "ExecCommand";
 
@@ -6815,6 +6817,20 @@ Update the persona files and delete BOOTSTRAP.md as soon as bootstrap is complet
             );
         }
         Self::copy_output_schema_context(&mut context_vars, user_message_metadata.as_ref());
+        // Keep the active embedded-document target structured all the way to
+        // tool execution. The composer owns only this generic metadata; the
+        // surface-specific bridge is resolved by the host adapter.
+        if let Some(document_context) = user_message_metadata
+            .as_ref()
+            .and_then(serde_json::Value::as_object)
+            .and_then(|metadata| metadata.get(WORDCRAFT_DOCUMENT_METADATA_KEY))
+            .filter(|value| value.is_object())
+        {
+            context_vars.insert(
+                WORDCRAFT_DOCUMENT_CONTEXT_KEY.to_string(),
+                document_context.to_string(),
+            );
+        }
         if needs_computer_links_for_source(submission_policy.trigger_source) {
             context_vars.insert(
                 TOOL_CONTEXT_REMOTE_FILE_DELIVERY_KEY.to_string(),
@@ -7343,6 +7359,18 @@ Update the persona files and delete BOOTSTRAP.md as soon as bootstrap is complet
             );
         }
         Self::copy_output_schema_context(&mut context_vars, plan.user_message_metadata.as_ref());
+        if let Some(document_context) = plan
+            .user_message_metadata
+            .as_ref()
+            .and_then(serde_json::Value::as_object)
+            .and_then(|metadata| metadata.get(WORDCRAFT_DOCUMENT_METADATA_KEY))
+            .filter(|value| value.is_object())
+        {
+            context_vars.insert(
+                WORDCRAFT_DOCUMENT_CONTEXT_KEY.to_string(),
+                document_context.to_string(),
+            );
+        }
 
         let execution_context = ExecutionContext {
             session_id: plan.session_id.clone(),

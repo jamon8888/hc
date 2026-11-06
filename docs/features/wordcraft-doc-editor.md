@@ -17,9 +17,13 @@ Every surface — Tauri command, Web UI adapter, agent tool guidance — answers
 this record**; no surface re-derives status, and availability is never fabricated.
 
 Distribution is the pinned upstream release archive verified against upstream `SHA256SUMS.txt`
-(never vendored crates, never unverified binaries). The `wordcraft-web` static bundle
-(COOP/COEP headers, no control channel) is reserved for a later same-origin embed upgrade; live
-probe owed before that path commits.
+(never vendored crates, never unverified binaries). The `wordcraft-web` static bundle is a
+same-origin iframe surface behind a versioned `ready` handshake and parent control bridge.
+Alex only presents it when the managed artifact's manifest and browser handshake agree on the
+pinned version, protocol, and command capabilities; otherwise the capability record remains
+unavailable and the native/headless paths retain their existing behavior. The current upstream
+release artifact does not yet contain Alex's bridge, so a patched, checksum-verified release is
+still required before this surface can be enabled in production.
 
 ## Editor surface (desktop)
 
@@ -38,7 +42,9 @@ probe owed before that path commits.
     Alex; app teardown must not kill the user's editor.
   - CLI-only installations refuse the window with "agent editing still works" — the visible
     editor needs the `wordcraft` app binary, not just `wordcraft-cli`.
-- Registry stances (`remote_surface/table.rs`): both commands `LocalOnly`, `ControllerLocal`;
+- Registry stances (`remote_surface/table.rs`): WordCraft desktop/web commands are
+  `LocalOnly`, `ControllerLocal`; the embedded-command completion adapter follows the
+  same controller-local refusal policy and never proxies iframe control to a peer.
   the open command is `REFUSED` on the CLI peer, status is `CLI_NOT_IMPLEMENTED`.
 - Web UI: `Open in WordCraft` on `.docx` context menus, `New WordCraft document` (delegates
   creation to WordCraft's own start screen/templates), and **`.docx` default-open routes to
@@ -61,6 +67,12 @@ rule:
   (loopback only; key read from the session profile). If the doc is open but the bridge is
   gone, the router **refuses loudly** rather than racing another writer.
 - `document_open_in_visible_app` is the desktop adapter's opinion driving the route.
+- **Embedded live surface**: the active `.docx` iframe publishes a generic document-session
+  context with revision/capabilities into the existing composer turn. The context-aware `Wordcraft`
+  tool sends correlated UI-aware requests to that exact visible surface; the desktop adapter
+  returns the iframe result to Core, and `save_document` completes only after the durable host
+  has acknowledged the persisted bytes. Inactive/closed/remote/unavailable surfaces fail
+  explicitly and do not switch to a headless writer.
 
 ### Tool guidance for the agent (upstream MCP contract facts)
 
@@ -112,8 +124,8 @@ Choose at the owner, never a mono-suite:
   outside-write-root refusal. Loudly refuses to run without a resolvable binary.
 - Owed to hardware (current machine cannot): visible-app control-channel validation on a
   real GPU surface — `wordcraft --control <port>` + key file auth, `engine.execute`,
-  `screenshot` — and the optional wordcraft-web same-origin embed live probe. Run the checks
-  above on macOS/Windows device hardware before claiming the visible leg validated.
+  `screenshot` — and the wordcraft-web same-origin embed live probe. Run the checks above on
+  macOS/Windows device hardware before claiming the visible leg validated.
 
 ## Out of scope
 

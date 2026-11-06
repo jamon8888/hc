@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "src/shared/interactive-capabilities/catalog.json",
-  "catalogDigest": "4b613f29dcf8427a5fd9c414f0601804afaa47e9787cfb2254bf1b59a750b537",
+  "catalogDigest": "6a42a4f6fec906a6b9f3e09b438c0b4e11e0123e845521de921833d756f1f62c",
   "count": 212,
   "reasonCounts": {
     "externalAuth": 4,

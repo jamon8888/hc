@@ -2,6 +2,7 @@
 
 mod overrides;
 
+use std::collections::HashMap;
 use std::fs;
 use std::path::{Component, Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -110,6 +111,12 @@ struct BundledFrontendSource {
     root: PathBuf,
 }
 
+#[derive(Debug, Clone)]
+struct WordcraftEmbeddedAsset {
+    root: PathBuf,
+    token: String,
+}
+
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct BundledFrontendManifest {
@@ -129,6 +136,7 @@ pub struct FrontendWorkbenchManager {
     app: OnceLock<tauri::AppHandle>,
     transaction_changed: Notify,
     main_navigation: Mutex<MainNavigationState>,
+    wordcraft_assets: Mutex<HashMap<String, WordcraftEmbeddedAsset>>,
 }
 
 impl FrontendWorkbenchManager {
@@ -141,6 +149,26 @@ impl FrontendWorkbenchManager {
             app: OnceLock::new(),
             transaction_changed: Notify::new(),
             main_navigation: Mutex::new(MainNavigationState::default()),
+            wordcraft_assets: Mutex::new(HashMap::new()),
+        }
+    }
+
+    pub fn register_wordcraft_surface(
+        &self,
+        session_id: String,
+        root: PathBuf,
+        token: String,
+    ) -> Result<(), String> {
+        self.wordcraft_assets
+            .lock()
+            .map_err(lock_error)?
+            .insert(session_id, WordcraftEmbeddedAsset { root, token });
+        Ok(())
+    }
+
+    pub fn unregister_wordcraft_surface(&self, session_id: &str) {
+        if let Ok(mut assets) = self.wordcraft_assets.lock() {
+            assets.remove(session_id);
         }
     }
 
@@ -997,6 +1025,24 @@ impl FrontendWorkbenchManager {
                 .body(CONFIRMATION_HTML.to_vec())
                 .unwrap_or_else(|_| tauri::http::Response::new(Vec::new()));
         }
+        if request_path.starts_with("/wordcraft/") {
+            return match self.read_wordcraft_asset(&request) {
+                Ok((bytes, content_type)) => tauri::http::Response::builder()
+                    .status(tauri::http::StatusCode::OK)
+                    .header(tauri::http::header::CONTENT_TYPE, content_type)
+                    .header(tauri::http::header::CACHE_CONTROL, "no-store, max-age=0")
+                    .body(bytes)
+                    .unwrap_or_else(|_| tauri::http::Response::new(Vec::new())),
+                Err((status, error)) => tauri::http::Response::builder()
+                    .status(status)
+                    .header(
+                        tauri::http::header::CONTENT_TYPE,
+                        "text/plain; charset=utf-8",
+                    )
+                    .body(error.into_bytes())
+                    .unwrap_or_else(|_| tauri::http::Response::new(Vec::new())),
+            };
+        }
         match self.read_protocol_asset(request_path) {
             Ok((bytes, content_type)) => tauri::http::Response::builder()
                 .status(tauri::http::StatusCode::OK)
@@ -1027,6 +1073,113 @@ impl FrontendWorkbenchManager {
                 .body(error.into_bytes())
                 .unwrap_or_else(|_| tauri::http::Response::new(Vec::new())),
         }
+    }
+
+    fn read_wordcraft_asset(
+        &self,
+        request: &tauri::http::Request<Vec<u8>>,
+    ) -> Result<(Vec<u8>, &'static str), (tauri::http::StatusCode, String)> {
+        let mut segments = request.uri().path().trim_start_matches('/').splitn(4, '/');
+        if segments.next() != Some("wordcraft") {
+            return Err((
+                tauri::http::StatusCode::NOT_FOUND,
+                "WordCraft asset path not found".to_string(),
+            ));
+        }
+        let session_id = segments
+            .next()
+            .filter(|value| !value.is_empty())
+            .ok_or_else(|| {
+                (
+                    tauri::http::StatusCode::NOT_FOUND,
+                    "WordCraft session is missing".to_string(),
+                )
+            })?;
+        let path_token = segments
+            .next()
+            .filter(|value| !value.is_empty())
+            .ok_or_else(|| {
+                (
+                    tauri::http::StatusCode::UNAUTHORIZED,
+                    "WordCraft web session is unauthorized".to_string(),
+                )
+            })?;
+        let relative = segments
+            .next()
+            .filter(|value| !value.is_empty())
+            .unwrap_or("index.html");
+        let query_token = request.uri().query().and_then(|query| {
+            query.split('&').find_map(|pair| {
+                let (key, value) = pair.split_once('=')?;
+                (key == "wordcraftToken").then_some(value)
+            })
+        });
+        let asset = self
+            .wordcraft_assets
+            .lock()
+            .map_err(|_| {
+                (
+                    tauri::http::StatusCode::INTERNAL_SERVER_ERROR,
+                    "WordCraft asset registry is poisoned".to_string(),
+                )
+            })?
+            .get(session_id)
+            .cloned()
+            .ok_or_else(|| {
+                (
+                    tauri::http::StatusCode::NOT_FOUND,
+                    "WordCraft web session is unavailable".to_string(),
+                )
+            })?;
+        if asset.token != path_token || query_token.is_some_and(|token| token != path_token) {
+            return Err((
+                tauri::http::StatusCode::UNAUTHORIZED,
+                "WordCraft web session is unauthorized".to_string(),
+            ));
+        }
+
+        let decoded = urlencoding::decode(relative).map_err(|_| {
+            (
+                tauri::http::StatusCode::BAD_REQUEST,
+                "Invalid WordCraft asset path encoding".to_string(),
+            )
+        })?;
+        let relative_path = Path::new(decoded.as_ref());
+        if relative_path
+            .components()
+            .any(|component| !matches!(component, Component::Normal(_)))
+        {
+            return Err((
+                tauri::http::StatusCode::BAD_REQUEST,
+                "Invalid WordCraft asset path".to_string(),
+            ));
+        }
+        let canonical_root = asset.root.canonicalize().map_err(|error| {
+            (
+                tauri::http::StatusCode::NOT_FOUND,
+                format!("WordCraft web root is unavailable: {error}"),
+            )
+        })?;
+        let candidate = asset.root.join(relative_path).canonicalize().map_err(|_| {
+            (
+                tauri::http::StatusCode::NOT_FOUND,
+                "WordCraft asset is unavailable".to_string(),
+            )
+        })?;
+        if !candidate.starts_with(&canonical_root) || !candidate.is_file() {
+            return Err((
+                tauri::http::StatusCode::NOT_FOUND,
+                "WordCraft asset is unavailable".to_string(),
+            ));
+        }
+        fs::read(&candidate)
+            .map(|bytes| (bytes, content_type_for(&candidate)))
+            .map_err(|error| {
+                (
+                    tauri::http::StatusCode::INTERNAL_SERVER_ERROR,
+                    format!("Failed to read WordCraft asset: {error}"),
+                )
+            })
     }
 
     fn read_protocol_asset(&self, request_path: &str) -> Result<(Vec<u8>, &'static str), String> {
@@ -1442,8 +1595,8 @@ fn same_main_navigation_target(left: &Url, right: &Url) -> bool {
 
 fn main_navigation_key(url: &Url) -> String {
     let is_native_custom_protocol = url.scheme() == FRONTEND_PROTOCOL_SCHEME;
-    let is_windows_custom_protocol = matches!(url.scheme(), "http" | "https")
-        && url.host_str() == Some("alex-ui.localhost");
+    let is_windows_custom_protocol =
+        matches!(url.scheme(), "http" | "https") && url.host_str() == Some("alex-ui.localhost");
     if is_native_custom_protocol || is_windows_custom_protocol {
         let mut key = format!("{FRONTEND_PROTOCOL_SCHEME}://localhost{}", url.path());
         if let Some(query) = url.query() {
@@ -2470,5 +2623,46 @@ mod tests {
         assert!(body.contains("--alex-color-surface-canvas"));
         assert!(body.contains("--alex-color-status-danger-content"));
         assert!(!body.contains("--alex-appearance-token-"));
+    }
+
+    #[test]
+    fn protocol_serves_wordcraft_assets_only_for_the_registered_session() {
+        let temp = tempfile::tempdir().expect("tempdir");
+        let bundle = temp.path().join("wordcraft");
+        fs::create_dir_all(bundle.join("assets")).expect("bundle directory");
+        fs::write(bundle.join("index.html"), b"<html>wordcraft</html>").expect("index");
+        fs::write(bundle.join("assets/app.js"), b"console.log('wordcraft')").expect("script");
+        let manager = FrontendWorkbenchManager::new(temp.path());
+        manager
+            .register_wordcraft_surface("session-1".to_string(), bundle, "token-1".to_string())
+            .expect("register surface");
+
+        let request = tauri::http::Request::builder()
+            .uri(
+                "alex-ui://localhost/wordcraft/session-1/token-1/index.html?wordcraftToken=token-1",
+            )
+            .body(Vec::new())
+            .expect("request");
+        let response = manager.protocol_response(request);
+        assert_eq!(response.status(), tauri::http::StatusCode::OK);
+        assert!(String::from_utf8_lossy(response.body()).contains("wordcraft"));
+
+        let request = tauri::http::Request::builder()
+            .uri("alex-ui://localhost/wordcraft/session-1/wrong/assets/app.js")
+            .body(Vec::new())
+            .expect("request");
+        assert_eq!(
+            manager.protocol_response(request).status(),
+            tauri::http::StatusCode::UNAUTHORIZED
+        );
+
+        let request = tauri::http::Request::builder()
+            .uri("alex-ui://localhost/wordcraft/session-1/token-1/%2E%2E/index.html?wordcraftToken=token-1")
+            .body(Vec::new())
+            .expect("request");
+        assert_eq!(
+            manager.protocol_response(request).status(),
+            tauri::http::StatusCode::BAD_REQUEST
+        );
     }
 }

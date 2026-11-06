@@ -56,6 +56,7 @@ pub enum ProductFeatureGroup {
     Basic,
     Git,
     Mcp,
+    Wordcraft,
     BrowserWeb,
     ComputerUse,
     ImageAnalysis,
@@ -74,6 +75,7 @@ impl ProductFeatureGroup {
             Self::Basic => "basic",
             Self::Git => "git",
             Self::Mcp => "mcp",
+            Self::Wordcraft => "wordcraft",
             Self::BrowserWeb => "browser-web",
             Self::ComputerUse => "computer-use",
             Self::ImageAnalysis => "image-analysis",
@@ -99,6 +101,7 @@ impl From<ToolPackFeatureGroup> for ProductFeatureGroup {
             ToolPackFeatureGroup::Basic => Self::Basic,
             ToolPackFeatureGroup::Git => Self::Git,
             ToolPackFeatureGroup::Mcp => Self::Mcp,
+            ToolPackFeatureGroup::Wordcraft => Self::Wordcraft,
             ToolPackFeatureGroup::BrowserWeb => Self::BrowserWeb,
             ToolPackFeatureGroup::ComputerUse => Self::ComputerUse,
             ToolPackFeatureGroup::ImageAnalysis => Self::ImageAnalysis,
@@ -118,6 +121,7 @@ impl From<ProductFeatureGroup> for ToolPackFeatureGroup {
             ProductFeatureGroup::Basic => Self::Basic,
             ProductFeatureGroup::Git => Self::Git,
             ProductFeatureGroup::Mcp => Self::Mcp,
+            ProductFeatureGroup::Wordcraft => Self::Wordcraft,
             ProductFeatureGroup::BrowserWeb => Self::BrowserWeb,
             ProductFeatureGroup::ComputerUse => Self::ComputerUse,
             ProductFeatureGroup::ImageAnalysis => Self::ImageAnalysis,
@@ -1035,9 +1039,23 @@ const CODE_AGENT_TOOL_GROUPS: &[&str] = &[
     "core.git",
     "core.web",
     "core.mcp",
+    "core.wordcraft",
     "core.computer-use",
     // PII-safe workspace search; the pack only requests the owner when the
     // binary carries the basemind capability.
+    #[cfg(feature = "basemind")]
+    "core.basemind",
+];
+// Headless delivery profiles share the code-agent capability, but do not
+// expose WordCraft because it requires a live embedded document surface.
+const HEADLESS_CODE_AGENT_TOOL_GROUPS: &[&str] = &[
+    "core.basic",
+    "core.agent",
+    "core.session",
+    "core.git",
+    "core.web",
+    "core.mcp",
+    "core.computer-use",
     #[cfg(feature = "basemind")]
     "core.basemind",
 ];
@@ -1078,6 +1096,12 @@ const CODE_AGENT_CAPABILITY_PACK: ProductCapabilityPack = ProductCapabilityPack:
     ProductCapabilityId::CodeAgent,
     CODE_AGENT_SERVICES,
     CODE_AGENT_TOOL_GROUPS,
+    CODE_AGENT_IDS,
+);
+const HEADLESS_CODE_AGENT_CAPABILITY_PACK: ProductCapabilityPack = ProductCapabilityPack::new(
+    ProductCapabilityId::CodeAgent,
+    CODE_AGENT_SERVICES,
+    HEADLESS_CODE_AGENT_TOOL_GROUPS,
     CODE_AGENT_IDS,
 );
 const DEEP_REVIEW_CAPABILITY_PACK: ProductCapabilityPack = ProductCapabilityPack::new(
@@ -1165,11 +1189,12 @@ fn product_capability_registry_for_profile(profile: DeliveryProfile) -> ProductC
         DeliveryProfile::ProductFull | DeliveryProfile::Desktop => {
             default_product_capability_registry()
         }
-        DeliveryProfile::Cli => {
-            ProductCapabilityRegistry::new(&[CODE_AGENT_CAPABILITY_PACK, PAGES_CAPABILITY_PACK])
-        }
+        DeliveryProfile::Cli => ProductCapabilityRegistry::new(&[
+            HEADLESS_CODE_AGENT_CAPABILITY_PACK,
+            PAGES_CAPABILITY_PACK,
+        ]),
         DeliveryProfile::Acp | DeliveryProfile::Sdk => {
-            ProductCapabilityRegistry::new(&[CODE_AGENT_CAPABILITY_PACK])
+            ProductCapabilityRegistry::new(&[HEADLESS_CODE_AGENT_CAPABILITY_PACK])
         }
         DeliveryProfile::Server
         | DeliveryProfile::Remote

@@ -548,6 +548,12 @@ function validateSource(source) {
         const tools = control.tools ?? (capability.agentControl ? [capability.agentControl.tool] : []);
         const workflowZh = control.workflowZh ?? capability.agentControl?.workflowZh;
         const workflowEn = control.workflowEn ?? capability.agentControl?.workflowEn;
+        if (control.cliAvailable !== undefined && typeof control.cliAvailable !== 'boolean') {
+          throw new Error(`${capability.id}.${item.id}.control.cliAvailable must be boolean`);
+        }
+        if (control.cliAvailable === false && typeof control.cliUnavailableReason !== 'string') {
+          throw new Error(`${capability.id}.${item.id}.control.cliUnavailableReason must be provided`);
+        }
         if (!Array.isArray(tools) || tools.length === 0) {
           throw new Error(`${capability.id}.${item.id} delegates without an Agent tool binding`);
         }
@@ -917,6 +923,7 @@ function runtimeItem(item, capability) {
     return {
       ...value,
       control: {
+        ...value.control,
         kind: 'delegate',
         tools: value.control.tools ?? [capability.agentControl.tool],
         workflowZh: value.control.workflowZh ?? capability.agentControl.workflowZh,
@@ -1283,7 +1290,7 @@ function availability(available, reason, requiredCapabilities = []) {
   return result;
 }
 
-function definitionAvailability(kind, handler) {
+function definitionAvailability(kind, handler, overrides = {}) {
   const desktop = availability(true);
   const peer = (...requiredCapabilities) => availability(
     true,
@@ -1294,7 +1301,9 @@ function definitionAvailability(kind, handler) {
   if (kind === 'query' || kind === 'delegate') {
     return {
       desktop,
-      cli: availability(true),
+      cli: overrides.cliAvailable === false
+        ? availability(false, overrides.cliUnavailableReason)
+        : availability(true),
       peer: peer(),
       remoteControl: remote,
       detachedDispatch: availability(true),
@@ -1411,7 +1420,7 @@ function buildResolvedDefinitions(capabilities) {
           kind: 'delegate',
           risk: 'execute',
           executionHost: 'workspaceHost',
-          availability: definitionAvailability('delegate'),
+          availability: definitionAvailability('delegate', undefined, item.control),
           inputSchema: { type: 'object', additionalProperties: true },
           outputSchema: outputSchema(),
           delegateTools: item.control.tools,

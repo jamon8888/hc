@@ -97,6 +97,8 @@ import {
 import { isAcpFlowSession } from '../../utils/acpSession';
 import { workspaceManager } from '@/infrastructure/services/business/workspaceManager';
 import { resolveLegacySessionWorkspace } from '@/infrastructure/api/service-api/legacyWorkspaceCompatibility';
+import { wordcraftAPI } from '@/infrastructure/api/service-api/WordcraftAPI';
+import { executeDocumentAgentCommand } from '@/tools/editor/services/DocumentAgentContext';
 
 const pendingImageAnalysisTurns = new Map<string, string>();
 
@@ -839,6 +841,12 @@ export async function initializeEventListeners(
   const unlistenAcpPermissionRequest = api.listen('backend-event-acppermissionrequest', (payload: any) => {
     void handleAcpPermissionRequest((payload as any)?.value || payload);
   });
+  const unlistenWordcraftCommandRequest = api.listen(
+    'backend-event-wordcraftcommandrequest',
+    (payload: any) => {
+      void handleWordcraftCommandRequest((payload as any)?.value || payload);
+    },
+  );
 
   const callbacks: AgenticEventCallbacks = {
     onSessionCreated: (event) => {
@@ -943,9 +951,62 @@ export async function initializeEventListeners(
     unlistenBackgroundCommandLifecycle();
     unlistenMcpInteractionRequest();
     unlistenAcpPermissionRequest();
+    unlistenWordcraftCommandRequest();
     cleanupAcpPlanState();
     agenticEventListener.stopListening();
   };
+}
+
+async function handleWordcraftCommandRequest(rawEvent: unknown): Promise<void> {
+  const event = rawEvent as {
+    requestId?: unknown;
+    documentId?: unknown;
+    sessionId?: unknown;
+    operation?: unknown;
+    params?: unknown;
+    expectedRevision?: unknown;
+    author?: unknown;
+  } | undefined;
+  if (
+    typeof event?.requestId !== 'string' ||
+    typeof event.documentId !== 'string' ||
+    typeof event.sessionId !== 'string' ||
+    typeof event.operation !== 'string' ||
+    typeof event.expectedRevision !== 'number' ||
+    !event.params ||
+    typeof event.params !== 'object' ||
+    typeof event.author !== 'string'
+  ) {
+    log.warn('Received invalid embedded WordCraft command request event', { rawEvent });
+    return;
+  }
+
+  try {
+    const result = await executeDocumentAgentCommand(event.documentId, event.sessionId, {
+      operation: event.operation,
+      params: event.params as Record<string, unknown>,
+      expectedRevision: event.expectedRevision,
+      author: event.author,
+    });
+    await wordcraftAPI.completeEmbeddedCommand({
+      requestId: event.requestId,
+      sessionId: event.sessionId,
+      ok: true,
+      result,
+    });
+  } catch (error) {
+    await wordcraftAPI.completeEmbeddedCommand({
+      requestId: event.requestId,
+      sessionId: event.sessionId,
+      ok: false,
+      error: error instanceof Error ? error.message : String(error),
+    }).catch(completionError => {
+      log.warn('Failed to complete embedded WordCraft command request', {
+        completionError,
+        requestId: event.requestId,
+      });
+    });
+  }
 }
 
 async function handleMcpInteractionRequest(rawEvent: unknown): Promise<void> {

@@ -21,12 +21,16 @@ export interface WordcraftDocumentHostOptions {
   onState?: (state: WordcraftDocumentHostState) => void;
 }
 
+interface PendingSave {
+  event: WordcraftSaveMessage;
+}
+
 export class WordcraftDocumentHost {
   private disposed = false;
-  private nextEventToken = 0;
-  private latestEventToken = 0;
-  private readonly pendingSaves = new Map<number, number>();
-  private saveQueue: Promise<void> = Promise.resolve();
+  private disposeRequested = false;
+  private latestAcceptedRevision = 0;
+  private saveInFlight = false;
+  private readonly saveQueue: PendingSave[] = [];
   private currentState: WordcraftDocumentHostState = {
     dirty: false,
     revision: 0,
@@ -40,10 +44,15 @@ export class WordcraftDocumentHost {
   }
 
   handleEvent(event: WordcraftBridgeEvent): void {
-    if (this.disposed) return;
+    if (this.disposed || this.disposeRequested) return;
     if (event.type === 'dirty') {
       if (event.sessionId !== this.options.sessionId) return;
-      this.latestEventToken = ++this.nextEventToken;
+      if (event.revision < this.latestAcceptedRevision) return;
+      this.latestAcceptedRevision = event.revision;
+      if (!event.dirty && (this.saveInFlight || this.saveQueue.length > 0)) {
+        this.update({ revision: event.revision, error: undefined });
+        return;
+      }
       this.update({ dirty: event.dirty, revision: event.revision, error: undefined });
       return;
     }
@@ -54,58 +63,83 @@ export class WordcraftDocumentHost {
     }
     if (event.type === 'save') {
       if (event.sessionId !== this.options.sessionId) return;
-      const token = ++this.nextEventToken;
-      this.latestEventToken = token;
-      this.pendingSaves.set(token, event.revision);
+      if (event.revision < this.latestAcceptedRevision) {
+        this.acknowledgeSave(event, false, 'WordCraft save revision is stale');
+        return;
+      }
+      this.latestAcceptedRevision = event.revision;
+      this.saveQueue.push({ event });
       this.update({ dirty: true, revision: event.revision, saving: true, error: undefined });
-      this.saveQueue = this.saveQueue
-        .then(() => this.persist(event, token))
-        .catch((error) => {
-          log.warn('WordCraft save queue recovered after an unexpected persistence failure', { error });
-        });
+      void this.drainSaves();
     }
   }
 
   dispose(): void {
-    this.disposed = true;
-    this.update({ saving: false });
+    if (this.disposed || this.disposeRequested) return;
+    this.disposeRequested = true;
+    if (!this.saveInFlight && this.saveQueue.length === 0) {
+      this.finishDispose();
+    }
   }
 
-  private async persist(event: WordcraftSaveMessage, token: number): Promise<void> {
+  private async drainSaves(): Promise<void> {
+    if (this.disposed || this.saveInFlight || this.saveQueue.length === 0) return;
+
+    const { event } = this.saveQueue.shift()!;
+    this.saveInFlight = true;
     let ok = false;
     let errorMessage: string | undefined;
     try {
-      await this.options.saveBytes(toUint8Array(event.bytes), event.revision);
-      if (this.disposed) return;
-      this.pendingSaves.delete(token);
-      const isLatest = this.latestEventToken === token;
-      this.update({
-        ...(isLatest ? { dirty: false, revision: event.revision, error: undefined } : {}),
-        saving: this.pendingSaves.size > 0,
-      });
-      ok = true;
-    } catch (error) {
-      if (this.disposed) return;
-      this.pendingSaves.delete(token);
-      const message = error instanceof Error ? error.message : String(error);
-      errorMessage = message;
-      this.update({
-        ...(this.latestEventToken === token ? { dirty: true, revision: event.revision, error: message } : {}),
-        saving: this.pendingSaves.size > 0,
-      });
+      try {
+        await this.options.saveBytes(toUint8Array(event.bytes), event.revision);
+        if (this.disposed) return;
+        this.update({
+          ...(event.revision === this.latestAcceptedRevision && this.saveQueue.length === 0
+            ? { dirty: false, revision: event.revision, error: undefined }
+            : { dirty: true, revision: this.latestAcceptedRevision }),
+          saving: this.saveQueue.length > 0,
+        });
+        ok = true;
+      } catch (error) {
+        if (this.disposed) return;
+        const message = error instanceof Error ? error.message : String(error);
+        errorMessage = message;
+        this.update({
+          ...(event.revision === this.latestAcceptedRevision
+            ? { dirty: true, revision: event.revision, error: message }
+            : { dirty: true, revision: this.latestAcceptedRevision }),
+          saving: this.saveQueue.length > 0,
+        });
+      }
+      if (!this.disposed) this.acknowledgeSave(event, ok, errorMessage);
+    } finally {
+      this.saveInFlight = false;
+      if (this.disposeRequested && this.saveQueue.length === 0) {
+        this.finishDispose();
+      } else if (!this.disposed) {
+        void this.drainSaves();
+      }
     }
+  }
 
+  private finishDispose(): void {
+    this.disposed = true;
+    this.saveQueue.length = 0;
+    this.update({ saving: false });
+  }
+
+  private acknowledgeSave(event: WordcraftSaveMessage, ok: boolean, error?: string): void {
     try {
-      if (errorMessage === undefined) {
+      if (error === undefined) {
         this.options.acknowledgeSave(event.requestId, event.revision, ok);
       } else {
-        this.options.acknowledgeSave(event.requestId, event.revision, ok, errorMessage);
+        this.options.acknowledgeSave(event.requestId, event.revision, ok, error);
       }
-    } catch (error) {
+    } catch (acknowledgementError) {
       log.warn('Failed to acknowledge WordCraft save', {
         requestId: event.requestId,
         revision: event.revision,
-        error,
+        error: acknowledgementError,
       });
     }
   }

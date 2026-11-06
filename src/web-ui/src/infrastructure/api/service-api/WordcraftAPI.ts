@@ -62,11 +62,29 @@ export interface WordcraftOpenDocumentResponseDto {
   profileDir: string;
 }
 
+/** Matches desktop `WordcraftWebHostResponse` (camelCase serde). */
+export interface WordcraftWebHostResponseDto {
+  url: string;
+  origin: string;
+  sessionId: string;
+  version: string;
+  protocolVersion: number;
+  commandCapabilities: string[];
+}
+
 export interface WordcraftOpenDocumentRequestDto {
   /** Workspace-relative or absolute local path; omit for the start screen. */
   path?: string | null;
   /** Workspace used for relative-path resolution; defaults to the active one. */
   workspaceId?: string | null;
+}
+
+export interface WordcraftEmbeddedCommandCompletionDto {
+  requestId: string;
+  sessionId?: string;
+  ok: boolean;
+  result?: unknown;
+  error?: string;
 }
 
 export class WordcraftAPI {
@@ -83,6 +101,22 @@ export class WordcraftAPI {
         workspaceId: request.workspaceId ?? undefined,
       },
     });
+  }
+
+  async hostWebSurface(): Promise<WordcraftWebHostResponseDto> {
+    return api.invoke<WordcraftWebHostResponseDto>('wordcraft_web_host_command', {});
+  }
+
+  async releaseWebSurface(sessionId: string): Promise<void> {
+    return api.invoke<void>('wordcraft_web_release_command', {
+      request: { sessionId },
+    });
+  }
+
+  async completeEmbeddedCommand(
+    request: WordcraftEmbeddedCommandCompletionDto,
+  ): Promise<void> {
+    return api.invoke<void>('wordcraft_complete_embedded_command', { request });
   }
 
   /** Best-effort status read for entry-point availability; failures stay quiet here. */

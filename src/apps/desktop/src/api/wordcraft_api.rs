@@ -11,16 +11,22 @@
 use crate::api::app_state::AppState;
 use crate::api::path_target::{resolve_desktop_path_target, DesktopPathTarget};
 use alex_core::infrastructure::get_path_manager_arc;
+use alex_core::service::wordcraft_bridge::{
+    get_global_wordcraft_bridge, WordcraftEmbeddedCommandResponse,
+};
 use alex_core::util::process_manager;
 use alex_services_core::wordcraft::{
     WordcraftCapability, WordcraftProbe, WordcraftStatus, WordcraftWebCapability,
 };
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::net::TcpListener;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
-use std::sync::OnceLock;
-use tauri::State;
+use std::sync::{Arc, Mutex, OnceLock};
+use std::time::{Duration, Instant};
+use tauri::{AppHandle, Manager, State};
+use uuid::Uuid;
 
 const WORDCRAFT_DOC_EXTENSIONS: &[&str] = &["docx"];
 
@@ -74,6 +80,217 @@ pub struct WordcraftOpenDocumentResponse {
     /// `control-key.local-<port>` (read only by Alex's desktop adapter,
     /// never logged, never exposed to the agent).
     pub profile_dir: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WordcraftWebHostResponse {
+    pub url: String,
+    pub origin: String,
+    pub session_id: String,
+    pub version: String,
+    pub protocol_version: u32,
+    pub command_capabilities: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WordcraftEmbeddedCommandResponseRequest {
+    pub request_id: String,
+    #[serde(default)]
+    pub session_id: Option<String>,
+    pub ok: bool,
+    #[serde(default)]
+    pub result: Option<serde_json::Value>,
+    #[serde(default)]
+    pub error: Option<String>,
+}
+
+/// Completes an Agent request that was delivered to the visible embedded
+/// WordCraft iframe. The desktop adapter never executes the operation itself;
+/// it only returns the iframe's correlated result to Core.
+#[tauri::command]
+pub async fn wordcraft_complete_embedded_command(
+    request: WordcraftEmbeddedCommandResponseRequest,
+) -> Result<(), String> {
+    if let Some(session_id) = request.session_id.as_deref() {
+        touch_wordcraft_web_session(session_id);
+    }
+    get_global_wordcraft_bridge()
+        .complete(WordcraftEmbeddedCommandResponse {
+            request_id: request.request_id,
+            ok: request.ok,
+            result: request.result,
+            error: request.error,
+        })
+        .await
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct WordcraftWebReleaseRequest {
+    pub session_id: String,
+}
+
+struct WordcraftWebSession {
+    last_activity: Instant,
+    frontend_workbench: Arc<crate::frontend_workbench::FrontendWorkbenchManager>,
+}
+
+static WORDCRAFT_WEB_SESSIONS: OnceLock<Mutex<HashMap<String, WordcraftWebSession>>> =
+    OnceLock::new();
+static WORDCRAFT_WEB_REAPER_STARTED: OnceLock<()> = OnceLock::new();
+
+const WORDCRAFT_WEB_SESSION_REAP_INTERVAL: Duration = Duration::from_secs(15 * 60);
+const WORDCRAFT_WEB_SESSION_IDLE_TIMEOUT: Duration = Duration::from_secs(24 * 60 * 60);
+
+fn wordcraft_web_sessions() -> &'static Mutex<HashMap<String, WordcraftWebSession>> {
+    WORDCRAFT_WEB_SESSIONS.get_or_init(|| Mutex::new(HashMap::new()))
+}
+
+fn touch_wordcraft_web_session(session_id: &str) {
+    if let Ok(mut sessions) = wordcraft_web_sessions().lock() {
+        if let Some(session) = sessions.get_mut(session_id) {
+            session.last_activity = Instant::now();
+        }
+    }
+}
+
+fn start_wordcraft_web_session_reaper() {
+    if WORDCRAFT_WEB_REAPER_STARTED.set(()).is_err() {
+        return;
+    }
+
+    tokio::spawn(async {
+        let mut interval = tokio::time::interval(WORDCRAFT_WEB_SESSION_REAP_INTERVAL);
+        loop {
+            interval.tick().await;
+            match wordcraft_web_sessions().lock() {
+                Ok(mut sessions) => {
+                    let expired = sessions
+                        .iter()
+                        .filter(|(_, session)| {
+                            session.last_activity.elapsed() >= WORDCRAFT_WEB_SESSION_IDLE_TIMEOUT
+                        })
+                        .map(|(session_id, _)| session_id.clone())
+                        .collect::<Vec<_>>();
+                    for session_id in expired {
+                        if let Some(session) = sessions.remove(&session_id) {
+                            session
+                                .frontend_workbench
+                                .unregister_wordcraft_surface(&session_id);
+                        }
+                    }
+                }
+                Err(_) => {
+                    log::warn!("WordCraft web session registry is poisoned; skipping session reap");
+                }
+            }
+        }
+    });
+}
+
+fn wordcraft_web_url(origin: &str, token: &str, session_id: &str) -> String {
+    format!(
+        "{origin}/wordcraft/{session_id}/{token}/index.html?wordcraftToken={token}&sessionId={session_id}&host=parent"
+    )
+}
+
+fn wordcraft_frontend_origin_for(is_windows: bool) -> &'static str {
+    if is_windows {
+        "http://alex-ui.localhost"
+    } else {
+        "alex-ui://localhost"
+    }
+}
+
+fn wordcraft_frontend_origin() -> &'static str {
+    wordcraft_frontend_origin_for(cfg!(target_os = "windows"))
+}
+
+#[tauri::command]
+pub async fn wordcraft_web_host_command(
+    app: AppHandle,
+) -> Result<WordcraftWebHostResponse, String> {
+    let capability = wordcraft_probe()?.recheck();
+    if capability.web.status != WordcraftStatus::Available {
+        let message = capability.web.message.clone().unwrap_or_default();
+        let remediation = capability.web.remediation.clone().unwrap_or_default();
+        return Err(format!(
+            "WordCraft embedded editor is not available ({}). {} {}",
+            capability.web.status, message, remediation
+        )
+        .trim()
+        .to_string());
+    }
+
+    let artifact_path = capability
+        .web
+        .artifact_path
+        .clone()
+        .ok_or_else(|| "WordCraft web capability has no artifact path".to_string())?;
+    let artifact = PathBuf::from(&artifact_path);
+    if !artifact
+        .join(alex_services_core::wordcraft::WORDCRAFT_WEB_ENTRYPOINT)
+        .is_file()
+    {
+        return Err("WordCraft web bundle entrypoint is unavailable".to_string());
+    }
+
+    let token = Uuid::new_v4().simple().to_string();
+    let session_id = Uuid::new_v4().simple().to_string();
+    let frontend_workbench = app
+        .state::<Arc<crate::frontend_workbench::FrontendWorkbenchManager>>()
+        .inner()
+        .clone();
+    frontend_workbench.register_wordcraft_surface(session_id.clone(), artifact, token.clone())?;
+    start_wordcraft_web_session_reaper();
+    wordcraft_web_sessions()
+        .lock()
+        .map_err(|_| "WordCraft web session registry is poisoned".to_string())?
+        .insert(
+            session_id.clone(),
+            WordcraftWebSession {
+                last_activity: Instant::now(),
+                frontend_workbench,
+            },
+        );
+
+    let origin = wordcraft_frontend_origin();
+    Ok(WordcraftWebHostResponse {
+        // The session identity is part of the browser handshake, not a secret;
+        // the token remains the only authorization credential in the URL.
+        // The upstream web shell only installs the parent bridge when this
+        // explicit mode flag is present. Keep it in the desktop-issued URL so
+        // the iframe cannot silently render an unhosted, download-only copy.
+        url: wordcraft_web_url(origin, &token, &session_id),
+        origin: origin.to_string(),
+        session_id,
+        version: capability
+            .web
+            .version
+            .ok_or_else(|| "WordCraft web capability has no validated version".to_string())?,
+        protocol_version: capability.web.protocol_version.ok_or_else(|| {
+            "WordCraft web capability has no validated protocol version".to_string()
+        })?,
+        command_capabilities: capability.web.command_capabilities,
+    })
+}
+
+#[tauri::command]
+pub async fn wordcraft_web_release_command(
+    request: WordcraftWebReleaseRequest,
+) -> Result<(), String> {
+    if let Some(session) = wordcraft_web_sessions()
+        .lock()
+        .map_err(|_| "WordCraft web session registry is poisoned".to_string())?
+        .remove(&request.session_id)
+    {
+        session
+            .frontend_workbench
+            .unregister_wordcraft_surface(&request.session_id);
+    }
+    Ok(())
 }
 
 fn reject_raw_document_input(raw: &str) -> Result<(), String> {
@@ -422,5 +639,30 @@ mod tests {
         assert_ne!(a, b, "start-screen sessions must not collide");
         let base_exists = a.parent().unwrap().exists();
         assert!(base_exists);
+    }
+
+    #[test]
+    fn hosted_web_url_enables_the_upstream_parent_bridge() {
+        let url = wordcraft_web_url("alex-ui://localhost", "token", "session-1");
+        assert_eq!(
+            url,
+            "alex-ui://localhost/wordcraft/session-1/token/index.html?wordcraftToken=token&sessionId=session-1&host=parent"
+        );
+    }
+
+    #[test]
+    fn hosted_web_url_matches_the_windows_workbench_origin() {
+        assert_eq!(
+            wordcraft_frontend_origin_for(true),
+            "http://alex-ui.localhost"
+        );
+        assert_eq!(
+            wordcraft_web_url(
+                wordcraft_frontend_origin_for(true),
+                "token",
+                "session-1"
+            ),
+            "http://alex-ui.localhost/wordcraft/session-1/token/index.html?wordcraftToken=token&sessionId=session-1&host=parent"
+        );
     }
 }

@@ -82,7 +82,7 @@ implementation ([upstream `apps/wordcraft-web/src/host.rs`](https://raw.githubus
 
 ## Clone-based findings: the smallest useful upstream seam
 
-I cloned upstream `main` at commit `ffb155a` (package version `0.15.0`) and traced the implementation rather than relying only on the published web-host documentation. The clone is outside the Alex repository; no WordCraft source was vendored or modified.
+I cloned upstream `main` at commit `ffb155a` (package version `0.15.0`) and traced the implementation rather than relying only on the published web-host documentation. The clone remains outside the Alex repository; no WordCraft source is vendored. A local prototype was applied in `/tmp/wordcraft-upstream.PJcNnc` to validate the seam without pushing to the upstream project.
 
 The important result is that WordCraft already has a narrow command seam suitable for a web host extension:
 
@@ -91,11 +91,18 @@ The important result is that WordCraft already has a narrow command seam suitabl
 - `WordApp::with_control` accepts a `ControlRequest` receiver. Each browser frame calls `WordApp::logic`, which drains that queue and dispatches through the same `control::handle` path as the native control server. The native handler calls `WordApp::execute` for `engine.execute`/`command`, and supports document inspection, command listing, batches, renders, and UI inspection around that path.
 - `wordcraft-mcp` is transport-independent at its core: its `Backend` trait is `call(method, params)`, with `Headless` and TCP `Remote` implementations. The MCP tool catalog already defines `execute`, `batch`, `get_text`, `inspect_document`, `render_page`, `save_document`, and related operations. The browser cannot use the stdio/TCP transport directly, but Alex can map the same method vocabulary to a parent/iframe request-response adapter.
 
-This means a full fork of the editing engine is not necessary. The clean upstream change would be limited to the web shell/host layer: create a `ControlRequest` channel, attach it with `WordApp::with_control`, accept validated `wordcraft:command` messages from the parent, and return correlated `wordcraft:result` messages from the frame loop. The prebuilt upstream web archive cannot provide this behavior by configuration alone; Alex would need either an upstream release containing the bridge, a maintained Alex web build from an upstream commit, or a fork. The preferred order is upstream contribution, then a narrowly pinned fork; vendoring the whole workspace into Alex would violate Alex's adapter boundary and create an expensive upgrade surface.
+This means a full fork of the editing engine is not necessary. The local prototype is limited to the web shell/host layer plus the existing control request type: it creates a `ControlRequest` channel, attaches it with `WordApp::with_control`, accepts validated `command` messages from the parent, maps the shared tool vocabulary onto the UI-aware handler, and returns correlated `result` messages from the frame loop. It also carries the request author and parent save acknowledgements. Native and `wasm32-unknown-unknown` `cargo check -p wordcraft-web` both pass for the prototype; a real browser mutation/save probe is still outstanding. The prebuilt upstream web archive cannot provide this behavior by configuration alone; Alex would need either an upstream release containing the bridge, a maintained Alex web build from an upstream commit, or a fork. The preferred order is upstream contribution, then a narrowly pinned fork; vendoring the whole workspace into Alex would violate Alex's adapter boundary and create an expensive upgrade surface.
 
 The web bridge should not call `Session::run` directly from JavaScript. That would bypass UI-side effects and document routing. It should dispatch through the control handler/`WordApp::execute`, use request IDs, include the active document/revision, and return explicit errors. `file.save` must complete only after the parent has persisted the `wordcraft:save` bytes and acknowledged that persistence. A dirty notification alone is not enough for agent control.
 
 The clone also makes the concurrency rule concrete: the embedded bridge and Alex's agent must share one `WordApp` owner. The existing native control channel queues requests onto the UI thread and serializes them per frame; an embedded bridge should reuse that shape rather than starting a second headless session. The current host bridge has no command authentication beyond same-origin/source checks, so Alex should add a per-embed capability/session nonce and expected document revision before exposing mutating commands.
+
+Follow-up verification on 2026-11-04: the local upstream prototype's focused
+`wordcraft-ui-egui` control tests passed 22/22, and both native and
+`wasm32-unknown-unknown` `cargo check -p wordcraft-web` passed. This validates
+the UI-aware dispatch seam and its target builds, but it is still not a real
+browser mutation/save probe and the patched web artifact is not yet packaged
+into Alex's managed runtime. Those two facts remain explicit release gates.
 
 Relevant upstream implementation points are [`Services`](https://github.com/storytold/wordcraft/blob/ffb155a/crates/ui-egui/src/services.rs), [`WordApp::execute`](https://github.com/storytold/wordcraft/blob/ffb155a/crates/ui-egui/src/app/commands.rs), [`WordApp::with_control`](https://github.com/storytold/wordcraft/blob/ffb155a/crates/ui-egui/src/app.rs), the [`control` request handler](https://github.com/storytold/wordcraft/blob/ffb155a/crates/ui-egui/src/control/handler.rs), and the [`wordcraft-mcp` backend](https://github.com/storytold/wordcraft/blob/ffb155a/crates/mcp/src/lib.rs).
 
@@ -201,6 +208,27 @@ as equivalent.
 - **Web runtime:** the web host needs a real browser canvas and WebGPU/WebGL2. Test
   WebGPU, WebGL2 fallback, resize, keyboard focus, paste, save cancellation, frame
   reload, and large `.docx` byte transfers on each supported desktop OS.
+
+### Latest probe result (2026-11-04)
+
+The local patched WordCraft web shell compiled successfully for native and
+`wasm32-unknown-unknown`, and a same-origin harness was prepared with a real minimal
+`.docx` and the intended `ready → open → list_commands → execute → save → save-ack`
+sequence. The Codex in-app browser could not create either a WebGPU or WebGL2 canvas
+(`canvas.getContext()` returned `null`), so the mutation/save leg remains unproven on
+this machine; the failure was surfaced through the bridge's explicit `failed` event.
+The desktop URL issuer also needed the upstream `host=parent` query flag; that is now
+covered by a focused regression test. A GPU-backed browser probe and a managed,
+checksum-verified artifact are still release gates.
+
+The Alex side now carries the active embedded document as structured composer
+metadata and exposes a context-aware `Wordcraft` tool. Core emits a correlated command
+request to the exact active document surface; the Web UI routes it to the visible
+iframe bridge and completes it through the desktop adapter. Closed, inactive,
+stale, unavailable, remote, and capability-mismatched surfaces fail explicitly;
+there is no headless fallback in this path. This seam is implemented, but it is
+not release evidence until the patched WordCraft artifact and GPU-backed mutation
+probe pass.
 
 ## Recommended phased design and verification plan
 
