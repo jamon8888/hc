@@ -11,7 +11,7 @@ use tokio::fs;
 use tokio::io::AsyncWriteExt;
 
 #[cfg(unix)]
-use std::os::unix::fs::{MetadataExt, OpenOptionsExt};
+use std::os::unix::fs::MetadataExt;
 
 static BINARY_WRITE_TEMP_COUNTER: AtomicU64 = AtomicU64::new(0);
 
@@ -859,5 +859,73 @@ mod editor_sync_hash_tests {
             1,
             "temporary file must be renamed away after a successful save"
         );
+    }
+
+    #[cfg(unix)]
+    #[tokio::test]
+    async fn binary_writes_reject_links_preserve_modes_and_text_writes_follow_symlinks() {
+        use std::os::unix::fs::{symlink, PermissionsExt};
+
+        let directory = tempfile::tempdir().expect("create link fixture");
+        let service = FileOperationService::default();
+        let target = directory.path().join("target");
+        let symlink_path = directory.path().join("target-link");
+        let hardlink_path = directory.path().join("target-hardlink");
+        std::fs::write(&target, b"original").expect("write target");
+        std::fs::set_permissions(&target, std::fs::Permissions::from_mode(0o751))
+            .expect("set target permissions");
+        symlink(&target, &symlink_path).expect("create symlink");
+        std::fs::hard_link(&target, &hardlink_path).expect("create hard link");
+
+        service
+            .write_file(
+                &symlink_path.to_string_lossy(),
+                "text replacement",
+                FileOperationOptions {
+                    backup_on_overwrite: false,
+                    ..Default::default()
+                },
+            )
+            .await
+            .expect("text writes retain symlink compatibility");
+        assert_eq!(std::fs::read(&target).unwrap(), b"text replacement");
+
+        let binary_options = FileOperationOptions {
+            backup_on_overwrite: false,
+            ..Default::default()
+        };
+        let symlink_error = service
+            .write_binary_file(
+                &symlink_path.to_string_lossy(),
+                b"binary",
+                binary_options.clone(),
+            )
+            .await
+            .expect_err("binary writes reject symlink targets");
+        assert!(symlink_error.to_string().contains("symbolic links"));
+
+        let hardlink_error = service
+            .write_binary_file(&hardlink_path.to_string_lossy(), b"binary", binary_options)
+            .await
+            .expect_err("binary writes reject hard-linked targets");
+        assert!(hardlink_error.to_string().contains("hard-linked files"));
+        std::fs::remove_file(&hardlink_path).expect("remove hard-link fixture");
+
+        service
+            .write_binary_file(
+                &target.to_string_lossy(),
+                b"binary replacement",
+                FileOperationOptions {
+                    backup_on_overwrite: false,
+                    ..Default::default()
+                },
+            )
+            .await
+            .expect("binary write preserves existing permissions");
+        let mode = std::fs::metadata(&target)
+            .expect("read target metadata")
+            .permissions()
+            .mode();
+        assert_eq!(mode & 0o7777, 0o751);
     }
 }

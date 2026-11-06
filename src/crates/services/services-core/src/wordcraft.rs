@@ -437,6 +437,7 @@ enum VersionProbe {
 fn run_version_probe(command: &str) -> VersionProbe {
     let mut child = match create_command(command)
         .arg("--version")
+        .stdin(Stdio::null())
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn()

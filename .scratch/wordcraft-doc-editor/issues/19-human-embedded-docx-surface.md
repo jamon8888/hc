@@ -20,6 +20,10 @@ The user must be able to edit and save the document before agent control exists.
       the content canvas.
 - [ ] The parent sends document bytes through the WordCraft host bridge and saves
       returned bytes through the local workspace owner.
+- [ ] Before the iframe loads or reports the editor ready, the host verifies the
+      managed WordCraft artifact checksum and attribution metadata; a mismatch
+      fails closed with visible remediation and never presents the editor as
+      available.
 - [ ] Dirty state, save failure, startup failure, keyboard focus, scrolling, paste,
       and frame teardown are visible and recoverable.
 - [ ] A new blank WordCraft document can be opened in the same surface.
