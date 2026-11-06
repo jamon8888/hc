@@ -173,6 +173,26 @@ describe('FileTabManager docx routing (tickets 13/17)', () => {
     expect(mocks.openContentInBestTarget).not.toHaveBeenCalled();
   });
 
+  it('refuses remote workspaces before probing or opening a local WordCraft surface', async () => {
+    manager.openFile({
+      filePath: '/workspace/report.docx',
+      scope: {
+        surfaceId: 'local',
+        workspaceId: 'remote-workspace',
+        workspacePath: '/workspace',
+        remoteConnectionId: 'ssh-1',
+      },
+    });
+
+    await vi.waitFor(() => {
+      expect(mocks.notifyError).toHaveBeenCalledWith('errors:file.wordcraftOpenFailed', {
+        title: 'errors:file.wordcraftOpenFailed',
+      });
+    });
+    expect(mocks.invoke).not.toHaveBeenCalled();
+    expect(mocks.openContentInBestTarget).not.toHaveBeenCalled();
+  });
+
   it('launch failures surface the backend message verbatim, keeping the dump forbidden', async () => {
     const backendError = new Error('WordCraft document editing runs on the local workspace only.');
     mocks.invoke
