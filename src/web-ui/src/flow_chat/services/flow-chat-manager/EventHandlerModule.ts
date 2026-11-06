@@ -990,12 +990,14 @@ async function handleWordcraftCommandRequest(rawEvent: unknown): Promise<void> {
     });
     await wordcraftAPI.completeEmbeddedCommand({
       requestId: event.requestId,
+      sessionId: event.sessionId,
       ok: true,
       result,
     });
   } catch (error) {
     await wordcraftAPI.completeEmbeddedCommand({
       requestId: event.requestId,
+      sessionId: event.sessionId,
       ok: false,
       error: error instanceof Error ? error.message : String(error),
     }).catch(completionError => {

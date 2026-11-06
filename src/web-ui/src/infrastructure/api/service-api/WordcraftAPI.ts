@@ -81,6 +81,7 @@ export interface WordcraftOpenDocumentRequestDto {
 
 export interface WordcraftEmbeddedCommandCompletionDto {
   requestId: string;
+  sessionId?: string;
   ok: boolean;
   result?: unknown;
   error?: string;

@@ -9,27 +9,28 @@
 //! with remediation the user can act on — never a silent local fallback.
 
 use crate::api::app_state::AppState;
-use crate::api::path_target::{DesktopPathTarget, resolve_desktop_path_target};
+use crate::api::path_target::{resolve_desktop_path_target, DesktopPathTarget};
 use alex_core::infrastructure::get_path_manager_arc;
 use alex_core::service::wordcraft_bridge::{
-    WordcraftEmbeddedCommandResponse, get_global_wordcraft_bridge,
+    get_global_wordcraft_bridge, WordcraftEmbeddedCommandResponse,
 };
 use alex_core::util::process_manager;
 use alex_services_core::wordcraft::{
     WordcraftCapability, WordcraftProbe, WordcraftStatus, WordcraftWebCapability,
 };
-use axum::Router;
 use axum::extract::State as AxumState;
-use axum::http::{HeaderMap, HeaderValue, StatusCode, Uri, header};
+use axum::http::{header, HeaderMap, HeaderValue, StatusCode, Uri};
 use axum::middleware::Next;
 use axum::response::{IntoResponse, Response};
+use axum::Router;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::net::TcpListener;
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Mutex;
 use std::sync::OnceLock;
-use std::sync::atomic::{AtomicU64, Ordering};
+use std::time::{Duration, Instant};
 use tauri::State;
 use tokio::net::TcpListener as TokioTcpListener;
 use tokio::sync::oneshot;
@@ -105,6 +106,8 @@ pub struct WordcraftWebHostResponse {
 #[serde(rename_all = "camelCase")]
 pub struct WordcraftEmbeddedCommandResponseRequest {
     pub request_id: String,
+    #[serde(default)]
+    pub session_id: Option<String>,
     pub ok: bool,
     #[serde(default)]
     pub result: Option<serde_json::Value>,
@@ -119,6 +122,9 @@ pub struct WordcraftEmbeddedCommandResponseRequest {
 pub async fn wordcraft_complete_embedded_command(
     request: WordcraftEmbeddedCommandResponseRequest,
 ) -> Result<(), String> {
+    if let Some(session_id) = request.session_id.as_deref() {
+        touch_wordcraft_web_session(session_id);
+    }
     get_global_wordcraft_bridge()
         .complete(WordcraftEmbeddedCommandResponse {
             request_id: request.request_id,
@@ -137,6 +143,7 @@ pub struct WordcraftWebReleaseRequest {
 
 struct WordcraftWebSession {
     shutdown: Option<oneshot::Sender<()>>,
+    last_activity: Instant,
 }
 
 #[derive(Clone)]
@@ -146,9 +153,58 @@ struct WordcraftWebAuth {
 
 static WORDCRAFT_WEB_SESSIONS: OnceLock<Mutex<HashMap<String, WordcraftWebSession>>> =
     OnceLock::new();
+static WORDCRAFT_WEB_REAPER_STARTED: OnceLock<()> = OnceLock::new();
+
+const WORDCRAFT_WEB_SESSION_REAP_INTERVAL: Duration = Duration::from_secs(15 * 60);
+const WORDCRAFT_WEB_SESSION_IDLE_TIMEOUT: Duration = Duration::from_secs(24 * 60 * 60);
 
 fn wordcraft_web_sessions() -> &'static Mutex<HashMap<String, WordcraftWebSession>> {
     WORDCRAFT_WEB_SESSIONS.get_or_init(|| Mutex::new(HashMap::new()))
+}
+
+fn touch_wordcraft_web_session(session_id: &str) {
+    if let Ok(mut sessions) = wordcraft_web_sessions().lock() {
+        if let Some(session) = sessions.get_mut(session_id) {
+            session.last_activity = Instant::now();
+        }
+    }
+}
+
+fn start_wordcraft_web_session_reaper() {
+    if WORDCRAFT_WEB_REAPER_STARTED.set(()).is_err() {
+        return;
+    }
+
+    tokio::spawn(async {
+        let mut interval = tokio::time::interval(WORDCRAFT_WEB_SESSION_REAP_INTERVAL);
+        loop {
+            interval.tick().await;
+            let expired = match wordcraft_web_sessions().lock() {
+                Ok(mut sessions) => sessions
+                    .iter()
+                    .filter(|(_, session)| {
+                        session.last_activity.elapsed() >= WORDCRAFT_WEB_SESSION_IDLE_TIMEOUT
+                    })
+                    .map(|(session_id, _)| session_id.clone())
+                    .collect::<Vec<_>>()
+                    .into_iter()
+                    .filter_map(|session_id| {
+                        sessions
+                            .remove(&session_id)
+                            .and_then(|mut session| session.shutdown.take())
+                    })
+                    .collect::<Vec<_>>(),
+                Err(_) => {
+                    log::warn!("WordCraft web session registry is poisoned; skipping session reap");
+                    Vec::new()
+                }
+            };
+
+            for shutdown in expired {
+                let _ = shutdown.send(());
+            }
+        }
+    });
 }
 
 fn wordcraft_web_token(uri: &Uri) -> Option<&str> {
@@ -255,6 +311,7 @@ pub async fn wordcraft_web_host_command() -> Result<WordcraftWebHostResponse, St
             })
             .await;
     });
+    start_wordcraft_web_session_reaper();
     wordcraft_web_sessions()
         .lock()
         .map_err(|_| "WordCraft web session registry is poisoned".to_string())?
@@ -262,6 +319,7 @@ pub async fn wordcraft_web_host_command() -> Result<WordcraftWebHostResponse, St
             session_id.clone(),
             WordcraftWebSession {
                 shutdown: Some(shutdown),
+                last_activity: Instant::now(),
             },
         );
 
