@@ -182,6 +182,30 @@ describe('WordcraftDocumentHost', () => {
     expect(host.state).toMatchObject({ dirty: false, revision: 5, saving: false });
   });
 
+  it('rejects empty save payloads before persistence', async () => {
+    const saveBytes = vi.fn().mockResolvedValue(undefined);
+    const acknowledgeSave = vi.fn();
+    const host = new WordcraftDocumentHost({ sessionId, saveBytes, acknowledgeSave });
+
+    host.handleEvent({
+      type: 'save',
+      requestId: 'save-empty',
+      sessionId,
+      revision: 6,
+      name: 'draft.docx',
+      bytes: new Uint8Array(),
+    });
+
+    await vi.waitFor(() => expect(acknowledgeSave).toHaveBeenCalledWith(
+      'save-empty',
+      6,
+      false,
+      'WordCraft save payload must be a non-empty binary buffer',
+    ));
+    expect(saveBytes).not.toHaveBeenCalled();
+    expect(host.state).toMatchObject({ dirty: true, revision: 6, saving: false });
+  });
+
   it('continues processing saves when an acknowledgement callback throws', async () => {
     const saveBytes = vi.fn().mockResolvedValue(undefined);
     const acknowledgeSave = vi.fn()
