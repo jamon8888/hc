@@ -257,7 +257,9 @@ export default function WordcraftDocumentPanel({
             type="button"
             onClick={() => {
               setError(null);
-              iframeRef.current?.contentWindow?.location.reload();
+              if (iframeRef.current) {
+                iframeRef.current.src = surface.url;
+              }
             }}
           >
             {translateRef.current('error.retry')}
