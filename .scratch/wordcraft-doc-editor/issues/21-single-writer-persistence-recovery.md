@@ -40,6 +40,15 @@ save completion durable, revision-aware, and recoverable.
 
 ## Comments
 
+2026-11-06 continuation:
+
+- `wordcraft-document` is now classified as a file resource, so repeated opens
+  of the same workspace/surface/path reuse one resource identity instead of
+  creating a second live document resource.
+- The native open command refuses a matching embedded owner, covering the
+  same-process second-writer path. Cross-process ownership and packaged/device
+  crash evidence remain open.
+
 2026-11-05 implementation continuation:
 
 - Native recovery now explicitly disposes the embedded bridge/session and
