@@ -120,7 +120,8 @@ export default function WordcraftDocumentPanel({
   }, [filePath, surfaceId, workspaceId]);
 
   useEffect(() => {
-    if (!error || !workspaceId || !isLocalSurface(surfaceId)) return;
+    const embeddedSurfaceId = surfaceId;
+    if (!error || !workspaceId || !embeddedSurfaceId || !isLocalSurface(embeddedSurfaceId)) return;
     let active = true;
     void wordcraftAPI.statusQuiet().then(capability => {
       if (active) setFallbackCapability(capability);
@@ -131,7 +132,8 @@ export default function WordcraftDocumentPanel({
   }, [error, surfaceId, workspaceId]);
 
   useEffect(() => {
-    if (!surface || !bytes) return;
+    const embeddedSurfaceId = surfaceId;
+    if (!surface || !bytes || !embeddedSurfaceId) return;
     const source = iframeRef.current?.contentWindow;
     if (!source) {
       setError(translateRef.current('flexiblePanel.wordcraft.frameUnavailable'));
@@ -198,7 +200,7 @@ export default function WordcraftDocumentPanel({
           surface: 'wordcraft-embedded',
           documentId: documentSession.id,
           sessionId: surface.sessionId,
-          surfaceId,
+          surfaceId: embeddedSurfaceId,
           workspaceId: workspaceId!,
           filePath,
           revision: session.state.revision,
