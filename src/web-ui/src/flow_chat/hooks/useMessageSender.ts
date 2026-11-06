@@ -195,7 +195,7 @@ export function useMessageSender(props: UseMessageSenderProps): UseMessageSender
         }));
       const documentAgentContext = getActiveDocumentAgentContext();
       const targetSession = flowChatManager.getFlowChatState().sessions.get(sessionId!);
-      const targetWorkspaceId = targetSession?.workspaceId ?? targetSession?.config.workspaceId;
+      const targetWorkspaceId = targetSession?.workspaceId ?? targetSession?.config?.workspaceId;
       const documentMatchesTarget = documentAgentContext
         && documentAgentContext.surfaceId === surfaceScope.surfaceId
         && documentAgentContext.workspaceId === targetWorkspaceId;
