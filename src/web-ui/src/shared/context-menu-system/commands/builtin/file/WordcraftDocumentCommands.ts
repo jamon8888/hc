@@ -7,9 +7,13 @@ import {
   TabContext,
 } from '../../../types/context.types';
 import { wordcraftAPI } from '@/infrastructure/api/service-api/WordcraftAPI';
+import { workspaceAPI } from '@/infrastructure/api/service-api/WorkspaceAPI';
 import { i18nService } from '@/infrastructure/i18n';
 import { notificationService } from '@/shared/notification-system/services/NotificationService';
 import { createLogger } from '@/shared/utils/logger';
+import { openFileInBestTarget } from '@/shared/utils/tabUtils';
+import { joinWorkspaceTargetPath } from '@/tools/file-system/services/workspaceFileTransfer';
+import { getDocumentAgentContextForFile } from '@/tools/editor/services/DocumentAgentContext';
 import { canRevealInExplorer } from './RevealInExplorerCommand';
 
 const log = createLogger('OpenInWordcraftCommands');
@@ -96,6 +100,12 @@ export class OpenInWordcraftCommand extends BaseCommand {
     if (!filePath || !this.canExecute(context)) {
       return this.failure(i18nService.t('errors:file.wordcraftOpenFailed'));
     }
+    const scope = context.resourceScope;
+    if (scope?.workspaceId && getDocumentAgentContextForFile(filePath, scope.workspaceId, scope.surfaceId)) {
+      const message = i18nService.t('errors:file.wordcraftOpenFailed');
+      notificationService.error(message, { title: message });
+      return this.failure(message);
+    }
     return launchWordcraft(
       () => wordcraftAPI.openDocument({ path: filePath }),
       { documentPath: filePath }
@@ -120,15 +130,45 @@ export class NewWordcraftDocumentCommand extends BaseCommand {
   }
 
   canExecute(context: MenuContext): boolean {
-    // Creating via the start screen only needs a local, active surface; there
-    // is no file path involved yet.
-    return canRevealInExplorer(context);
+    // The blank document must be created through the workspace adapter so the
+    // embedded surface receives a real file identity and can save it through
+    // the normal optimistic-write path.
+    return Boolean(context.resourceScope?.workspaceId && canRevealInExplorer(context));
   }
 
   async execute(context: MenuContext): Promise<CommandResult> {
-    if (!this.canExecute(context)) {
+    const parentPath = getContextFilePath(context);
+    const scope = context.resourceScope;
+    const workspaceId = scope?.workspaceId;
+    if (!parentPath || !workspaceId || !this.canExecute(context)) {
       return this.failure(i18nService.t('errors:file.wordcraftOpenFailed'));
     }
-    return launchWordcraft(() => wordcraftAPI.openDocument({}), {});
+
+    const fileName = 'New WordCraft Document.docx';
+    const filePath = joinWorkspaceTargetPath(parentPath, fileName, false);
+    const message = i18nService.t('errors:file.wordcraftOpenFailed');
+    try {
+      // WordCraft intentionally accepts a zero-byte .docx as its blank
+      // document representation. Creating it here gives the embedded panel a
+      // stable path, workspace scope, and persistence target immediately.
+      await workspaceAPI.createWorkspaceFile(workspaceId, filePath);
+      openFileInBestTarget({
+        filePath,
+        fileName,
+        scope,
+        workspaceId,
+        workspacePath: scope.workspacePath,
+      });
+      return {
+        success: true,
+        message: i18nService.t('common:file.newWordcraftDocumentOpening'),
+        data: { path: filePath },
+      };
+    } catch (error) {
+      const cause = error instanceof Error ? error : new Error(String(error));
+      log.error('Failed to create a new WordCraft document', { filePath, error: cause });
+      notificationService.error(cause.message || message, { title: message });
+      return { success: false, message, data: cause };
+    }
   }
 }

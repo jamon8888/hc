@@ -82,6 +82,25 @@ export function unregisterDocumentAgentContext(key: string): void {
   registeredContexts.delete(key);
 }
 
+/**
+ * Return the embedded owner of a file, regardless of which tab is active.
+ * Opening the same file in the native WordCraft window would create a second
+ * writer and bypass the embedded session's revision guard.
+ */
+export function getDocumentAgentContextForFile(
+  filePath: string,
+  workspaceId: string,
+  surfaceId?: string,
+): DocumentAgentContext | undefined {
+  return [...registeredContexts.values()].find(
+    registered =>
+      registered.context.filePath === filePath &&
+      registered.context.workspaceId === workspaceId &&
+      (!surfaceId || registered.context.surfaceId === surfaceId) &&
+      registered.context.status !== 'closed',
+  )?.context;
+}
+
 /** Execute a request only on the exact visible document surface named by Core. */
 export async function executeDocumentAgentCommand(
   documentId: string,

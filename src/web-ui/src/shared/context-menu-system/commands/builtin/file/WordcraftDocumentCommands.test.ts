@@ -11,6 +11,9 @@ import {
 
 const mocks = vi.hoisted(() => ({
   invoke: vi.fn(),
+  createWorkspaceFile: vi.fn(),
+  openFileInBestTarget: vi.fn(),
+  getDocumentAgentContextForFile: vi.fn(),
   notifyError: vi.fn(),
   currentWorkspace: null,
 }));
@@ -21,6 +24,18 @@ vi.mock('@/infrastructure/api/service-api/ApiClient', () => ({
 
 vi.mock('@/infrastructure/services/business/workspaceManager', () => ({
   workspaceManager: { getState: () => ({ currentWorkspace: mocks.currentWorkspace }) },
+}));
+
+vi.mock('@/infrastructure/api/service-api/WorkspaceAPI', () => ({
+  workspaceAPI: { createWorkspaceFile: mocks.createWorkspaceFile },
+}));
+
+vi.mock('@/shared/utils/tabUtils', () => ({
+  openFileInBestTarget: mocks.openFileInBestTarget,
+}));
+
+vi.mock('@/tools/editor/services/DocumentAgentContext', () => ({
+  getDocumentAgentContextForFile: mocks.getDocumentAgentContextForFile,
 }));
 
 vi.mock('@/infrastructure/i18n', () => ({
@@ -91,6 +106,18 @@ describe('OpenInWordcraftCommand', () => {
     expect(mocks.notifyError).not.toHaveBeenCalled();
   });
 
+  it('refuses a second native writer while the embedded surface owns the file', async () => {
+    const context = fileContext(ContextType.FILE_NODE, '/repo/report.docx');
+    context.resourceScope = { surfaceId: 'local', workspaceId: 'workspace-1' };
+    mocks.getDocumentAgentContextForFile.mockReturnValue({ status: 'ready' });
+    const result = await command.execute(context);
+    expect(result.success).toBe(false);
+    expect(mocks.invoke).not.toHaveBeenCalled();
+    expect(mocks.notifyError).toHaveBeenCalledWith('errors:file.wordcraftOpenFailed', {
+      title: 'errors:file.wordcraftOpenFailed',
+    });
+  });
+
   it('surfaces launch failures loudly with the backend remediation message', async () => {
     mocks.invoke.mockRejectedValue(
       new Error(
@@ -119,27 +146,56 @@ describe('NewWordcraftDocumentCommand', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.currentWorkspace = null;
+    mocks.createWorkspaceFile.mockResolvedValue(undefined);
     command = new NewWordcraftDocumentCommand();
     const registry = new CommandRegistry();
     registry.register(command);
     executor = new CommandExecutor(registry, { enableHistory: false });
   });
 
-  it('opens the start screen without a document path', async () => {
-    mocks.invoke.mockResolvedValue({ appPath: '/app', controlHost: '127.0.0.1', controlPort: 2, profileDir: '/p' });
-    const result = await command.execute(fileContext(ContextType.FOLDER_NODE, '/repo'));
+  it('creates a blank document and routes it through the normal file opener', async () => {
+    const context = fileContext(ContextType.FOLDER_NODE, '/repo');
+    context.resourceScope = {
+      surfaceId: 'local',
+      workspaceId: 'workspace-1',
+      workspacePath: '/repo',
+    };
+    const result = await command.execute(context);
     expect(result.success).toBe(true);
-    expect(mocks.invoke).toHaveBeenCalledWith('wordcraft_open_document_command', {
-      request: { path: undefined, workspaceId: undefined },
+    expect(mocks.createWorkspaceFile).toHaveBeenCalledWith(
+      'workspace-1',
+      '/repo/New WordCraft Document.docx',
+    );
+    expect(mocks.openFileInBestTarget).toHaveBeenCalledWith({
+      filePath: '/repo/New WordCraft Document.docx',
+      fileName: 'New WordCraft Document.docx',
+      scope: context.resourceScope,
+      workspaceId: 'workspace-1',
+      workspacePath: '/repo',
     });
+    expect(mocks.invoke).not.toHaveBeenCalled();
   });
 
-  it('launches through the registered command id', async () => {
+  it('surfaces blank-document creation failures loudly', async () => {
+    const context = fileContext(ContextType.FOLDER_NODE, '/repo');
+    context.resourceScope = { surfaceId: 'local', workspaceId: 'workspace-1' };
+    mocks.createWorkspaceFile.mockRejectedValue(new Error('workspace is unavailable'));
+    const result = await command.execute(context);
+    expect(result.success).toBe(false);
+    expect(mocks.notifyError).toHaveBeenCalledWith('workspace is unavailable', {
+      title: 'errors:file.wordcraftOpenFailed',
+    });
+    expect(mocks.openFileInBestTarget).not.toHaveBeenCalled();
+  });
+
+  it('executes through the registered command id', async () => {
     const registry = new CommandRegistry();
     registry.register(command);
     const localExecutor = new CommandExecutor(registry, { enableHistory: false });
-    mocks.invoke.mockResolvedValue({ appPath: '/app', controlHost: '127.0.0.1', controlPort: 3, profileDir: '/p' });
-    const result = await localExecutor.execute('file.new-wordcraft-document', fileContext(ContextType.FOLDER_NODE, '/repo'));
+    const context = fileContext(ContextType.FOLDER_NODE, '/repo');
+    context.resourceScope = { surfaceId: 'local', workspaceId: 'workspace-1' };
+    const result = await localExecutor.execute('file.new-wordcraft-document', context);
     expect(result.success).toBe(true);
+    expect(mocks.createWorkspaceFile).toHaveBeenCalled();
   });
 });
