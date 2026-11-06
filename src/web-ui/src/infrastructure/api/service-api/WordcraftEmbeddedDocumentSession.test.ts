@@ -202,7 +202,7 @@ describe('WordcraftEmbeddedDocumentSession', () => {
     });
   });
 
-  it('disposes both bridge and host and ignores later events', () => {
+  it('disposes both bridge and host and ignores later events', async () => {
     const bridge = new WordcraftBridge({ ...context, postMessage: vi.fn() });
     const host = new WordcraftDocumentHost({
       sessionId: context.expectedSessionId,
@@ -218,7 +218,7 @@ describe('WordcraftEmbeddedDocumentSession', () => {
       onState,
     });
 
-    session.dispose();
+    await session.dispose();
     session.handleBridgeEvent({
       type: 'dirty',
       sessionId: context.expectedSessionId,

@@ -40,6 +40,9 @@ pub struct FileOperationOptions {
     pub allowed_extensions: Option<Vec<String>>,
     pub restricted_paths: Vec<PathBuf>,
     pub backup_on_overwrite: bool,
+    /// Optional optimistic-concurrency guard for binary replacement. An empty
+    /// value means create-only.
+    pub expected_hash: Option<String>,
 }
 
 impl Default for FileOperationOptions {
@@ -60,6 +63,7 @@ impl Default for FileOperationOptions {
                 PathBuf::from("/boot"),
             ],
             backup_on_overwrite: true,
+            expected_hash: None,
         }
     }
 }
@@ -181,6 +185,42 @@ impl FileOperationService {
                     })
                 }
             }
+        }
+    }
+
+    /// Create an empty file, optionally refusing an existing target.
+    pub async fn create_empty_file(
+        &self,
+        file_path: &str,
+        exclusive: bool,
+    ) -> FileSystemResult<()> {
+        let path = Path::new(file_path);
+        self.validate_file_access(path, true).await?;
+        if let Some(parent) = path.parent() {
+            fs::create_dir_all(parent).await.map_err(|error| {
+                FileSystemError::service(format!("Failed to create parent directory: {error}"))
+            })?;
+        }
+        if exclusive {
+            fs::OpenOptions::new()
+                .write(true)
+                .create_new(true)
+                .open(path)
+                .await
+                .map(|_| ())
+                .map_err(|error| {
+                    if error.kind() == std::io::ErrorKind::AlreadyExists {
+                        FileSystemError::service(
+                            "FILE_CONFLICT: File already exists; choose another name",
+                        )
+                    } else {
+                        FileSystemError::service(format!("Failed to create file: {error}"))
+                    }
+                })
+        } else {
+            fs::write(path, &[]).await.map_err(|error| {
+                FileSystemError::service(format!("Failed to create file: {error}"))
+            })
         }
     }
 
@@ -323,6 +363,8 @@ impl FileOperationService {
         let path = Path::new(file_path);
 
         self.validate_file_access(path, true).await?;
+        let write_guard = crate::file_write_lock::write_guard(path.to_string_lossy().into_owned());
+        let _write_guard = write_guard.lock().await;
 
         let existing_permissions = match fs::symlink_metadata(path).await {
             Ok(metadata) => {
@@ -426,6 +468,21 @@ impl FileOperationService {
             }
         }
         write_result?;
+        if let Some(expected) = options.expected_hash.as_deref() {
+            let current = fs::read(path).await;
+            let conflict = match (expected.is_empty(), current) {
+                (true, Ok(_)) => true,
+                (true, Err(error)) => error.kind() != std::io::ErrorKind::NotFound,
+                (false, Ok(bytes)) => sha256_hex(&bytes) != expected,
+                (false, Err(_)) => true,
+            };
+            if conflict {
+                let _ = fs::remove_file(&temp_path).await;
+                return Err(FileSystemError::service(
+                    "FILE_CONFLICT: File changed after it was read; refresh before saving",
+                ));
+            }
+        }
         let rename_result = fs::rename(&temp_path, path)
             .await
             .map_err(|e| FileSystemError::service(format!("Failed to replace binary file: {}", e)));

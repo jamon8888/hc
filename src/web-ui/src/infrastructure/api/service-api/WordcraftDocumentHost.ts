@@ -41,7 +41,10 @@ export class WordcraftDocumentHost {
   private readonly saveQueue: PendingSave[] = [];
   private readonly durableSaveWaiters = new Set<DurableSaveWaiter>();
   private durableRevision = -1;
+  private disposePromise: Promise<void> | null = null;
+  private disposeResolver: (() => void) | null = null;
   private latestBytes: Uint8Array;
+  private latestAcceptedBytes: Uint8Array;
   private currentState: WordcraftDocumentHostState = {
     dirty: false,
     revision: 0,
@@ -50,6 +53,7 @@ export class WordcraftDocumentHost {
 
   constructor(private readonly options: WordcraftDocumentHostOptions, initialBytes?: Uint8Array) {
     this.latestBytes = initialBytes ? new Uint8Array(initialBytes) : new Uint8Array();
+    this.latestAcceptedBytes = new Uint8Array(this.latestBytes);
   }
 
   get state(): WordcraftDocumentHostState {
@@ -57,7 +61,11 @@ export class WordcraftDocumentHost {
   }
 
   getLatestBytes(fallback?: Uint8Array): Uint8Array {
-    const bytes = this.latestBytes.length > 0 ? this.latestBytes : fallback ?? this.latestBytes;
+    const bytes = this.saveInFlight || this.saveQueue.length > 0
+      ? this.latestAcceptedBytes
+      : this.latestBytes.length > 0
+        ? this.latestBytes
+        : fallback ?? this.latestBytes;
     return new Uint8Array(bytes);
   }
 
@@ -108,6 +116,11 @@ export class WordcraftDocumentHost {
         return;
       }
       this.latestAcceptedRevision = event.revision;
+      try {
+        this.latestAcceptedBytes = new Uint8Array(toUint8Array(event.bytes));
+      } catch {
+        // drainSaves performs the validation and sends the protocol error.
+      }
       this.saveQueue.push({ event });
       this.update({ dirty: true, revision: event.revision, saving: true, error: undefined });
       void this.drainSaves();
@@ -117,9 +130,25 @@ export class WordcraftDocumentHost {
   dispose(): void {
     if (this.disposed || this.disposeRequested) return;
     this.disposeRequested = true;
+    this.disposePromise = new Promise(resolve => {
+      this.disposeResolver = resolve;
+    });
     if (!this.saveInFlight && this.saveQueue.length === 0) {
       this.finishDispose();
     }
+  }
+
+  waitForDispose(timeoutMs?: number): Promise<void> {
+    if (this.disposed) return Promise.resolve();
+    if (!this.disposeRequested) this.dispose();
+    const disposal = this.disposePromise ?? Promise.resolve();
+    if (!timeoutMs) return disposal;
+    return Promise.race([
+      disposal,
+      new Promise<void>((_, reject) => {
+        setTimeout(() => reject(new Error('WordCraft document save did not finish before teardown')), timeoutMs);
+      }),
+    ]);
   }
 
   private async drainSaves(): Promise<void> {
@@ -176,6 +205,9 @@ export class WordcraftDocumentHost {
       waiter.reject(new Error('WordCraft document host is closed'));
     }
     this.durableSaveWaiters.clear();
+    this.disposeResolver?.();
+    this.disposeResolver = null;
+    this.disposePromise = null;
   }
 
   private acknowledgeSave(event: WordcraftSaveMessage, ok: boolean, error?: string): void {

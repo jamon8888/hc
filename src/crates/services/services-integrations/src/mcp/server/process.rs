@@ -17,7 +17,7 @@ use log::{debug, error, info, warn};
 use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
-use tokio::sync::{RwLock, mpsc};
+use tokio::sync::{mpsc, RwLock};
 
 /// MCP server process.
 pub struct MCPServerProcess {
@@ -411,16 +411,39 @@ impl MCPServerProcess {
         }
 
         #[cfg(feature = "remote-ssh-concrete")]
-        if let Some(control) = self.workspace_control.take() {
+        if let Some(control) = self.workspace_control.as_ref() {
             if let Err(error) = control.kill().await {
-                warn!(
-                    "Failed to stop workspace-owner MCP server: name={} id={} error={}",
-                    self.name, self.id, error
-                );
+                if !error.to_string().contains("already exited") {
+                    let message = format!(
+                        "Failed to stop workspace-owner MCP server: name={} id={} error={}",
+                        self.name, self.id, error
+                    );
+                    warn!("{}", message);
+                    self.set_status_with_error(MCPServerStatus::Failed, Some(message.clone()))
+                        .await;
+                    return Err(MCPRuntimeError::process(message));
+                }
             }
-            // Dropping the completion handle after the control signal lets
-            // the transport-owned task observe the final exit without making
-            // shutdown depend on a remote host response.
+
+            // A successful signal only means that the owner accepted the
+            // request. Keep both handles until the transport reports exit so
+            // a failed/slow shutdown remains retryable in the registry.
+            if let Some(completion) = self.workspace_completion.as_ref().cloned() {
+                if tokio::time::timeout(Duration::from_millis(500), completion.wait())
+                    .await
+                    .is_err()
+                {
+                    let message = format!(
+                        "Workspace-owner MCP server did not terminate: name={} id={}",
+                        self.name, self.id
+                    );
+                    warn!("{}", message);
+                    self.set_status_with_error(MCPServerStatus::Failed, Some(message.clone()))
+                        .await;
+                    return Err(MCPRuntimeError::process(message));
+                }
+            }
+            self.workspace_control.take();
             self.workspace_completion.take();
         }
 
@@ -652,8 +675,8 @@ impl Drop for MCPServerProcess {
 #[cfg(test)]
 mod tests {
     use super::{redact_sensitive_value, safe_process_environment_keys};
-    use crate::mcp::MCPRuntimeErrorKind;
     use crate::mcp::server::{MCPServerProcess, MCPServerTimeouts, MCPServerType};
+    use crate::mcp::MCPRuntimeErrorKind;
     use std::collections::HashMap;
     use std::time::Duration;
 

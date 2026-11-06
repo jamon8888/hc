@@ -148,6 +148,11 @@ export class WordcraftBridge {
         this.fail(validation.reason);
         return false;
       }
+      if (this.readyGeneration > 0) {
+        // A reload creates a new frame state. Never let a request from the
+        // previous generation block or mutate the recovered document.
+        this.rejectOutstanding('WordCraft frame restarted before the command completed');
+      }
       this.failed = false;
       this.ready = true;
       this.readyGeneration += 1;
@@ -281,15 +286,7 @@ export class WordcraftBridge {
   dispose(reason = 'WordCraft bridge closed'): void {
     if (this.disposed) return;
     this.disposed = true;
-    for (const pending of this.pending.values()) {
-      clearTimeout(pending.timer);
-      pending.reject(new Error(reason));
-    }
-    this.pending.clear();
-    for (const queued of this.queue.splice(0)) {
-      queued.reject(new Error(reason));
-    }
-    this.activeRequestId = null;
+    this.rejectOutstanding(reason);
   }
 
   private handleResult(data: Record<string, unknown>): boolean {
@@ -387,6 +384,11 @@ export class WordcraftBridge {
   private fail(reason: string): void {
     this.ready = false;
     this.failed = true;
+    this.rejectOutstanding(reason);
+    this.options.onEvent?.({ type: 'failed', sessionId: this.options.expectedSessionId, error: reason });
+  }
+
+  private rejectOutstanding(reason: string): void {
     for (const pending of this.pending.values()) {
       clearTimeout(pending.timer);
       pending.reject(new Error(reason));
@@ -396,7 +398,6 @@ export class WordcraftBridge {
       queued.reject(new Error(reason));
     }
     this.activeRequestId = null;
-    this.options.onEvent?.({ type: 'failed', sessionId: this.options.expectedSessionId, error: reason });
   }
 }
 

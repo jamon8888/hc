@@ -9,16 +9,16 @@
 //! (`CREATE_NO_WINDOW` policy lives there, never re-implemented here).
 
 #[cfg(feature = "remote-ssh-concrete")]
-use super::{MCPConnection, MCPServerProcess, MCPServerTimeouts, MCPServerType};
+use super::{MCPConnection, MCPServerProcess, MCPServerStatus, MCPServerTimeouts, MCPServerType};
 use crate::mcp::{MCPRuntimeError, MCPRuntimeResult};
 #[cfg(feature = "remote-ssh-concrete")]
-use crate::remote_ssh::{SSHConnectionManager, WorkspaceStdio, shell_quote_posix};
+use crate::remote_ssh::{shell_quote_posix, SSHConnectionManager, WorkspaceStdio};
 #[cfg(feature = "remote-ssh-concrete")]
 use serde_json::Value;
 #[cfg(feature = "remote-ssh-concrete")]
 use std::collections::HashMap;
 #[cfg(feature = "remote-ssh-concrete")]
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 use std::time::Duration;
 #[cfg(feature = "remote-ssh-concrete")]
 use tokio::sync::{Mutex, RwLock};
@@ -129,7 +129,7 @@ impl WordcraftRemoteSessionIdentity {
         Self {
             connection_id: connection_id.to_string(),
             session_id: spec.session_id.clone(),
-            workspace_root: spec.workspace_root.clone(),
+            workspace_root: normalize_remote_workspace_path(&spec.workspace_root),
             profile_dir: spec.profile_dir.clone(),
             runtime_command: runtime.command.clone(),
             runtime_version: runtime.version.clone(),
@@ -173,7 +173,7 @@ impl WordcraftRemoteSessionKey {
     pub fn new(connection_id: &str, spec: &WordcraftSessionSpec) -> Self {
         Self {
             connection_id: connection_id.to_string(),
-            workspace_root: spec.workspace_root.clone(),
+            workspace_root: normalize_remote_workspace_path(&spec.workspace_root),
             session_id: spec.session_id.clone(),
         }
     }
@@ -263,6 +263,17 @@ impl WordcraftRemoteMcpSession {
     pub async fn stop(&mut self) -> MCPRuntimeResult<()> {
         self.process.stop().await
     }
+
+    async fn is_disconnected(&self) -> bool {
+        self.connection.is_closed()
+            || matches!(
+                self.process.status().await,
+                MCPServerStatus::Failed
+                    | MCPServerStatus::NeedsAuth
+                    | MCPServerStatus::Reconnecting
+                    | MCPServerStatus::Stopped
+            )
+    }
 }
 
 /// Retains remote WordCraft owners for the lifetime of the owning Alex host.
@@ -274,12 +285,24 @@ impl WordcraftRemoteMcpSession {
 pub struct WordcraftRemoteSessionRegistry {
     sessions:
         Arc<RwLock<HashMap<WordcraftRemoteSessionKey, Arc<Mutex<WordcraftRemoteMcpSession>>>>>,
+    session_locks: Arc<Mutex<HashMap<WordcraftRemoteSessionKey, Weak<Mutex<()>>>>>,
 }
 
 #[cfg(feature = "remote-ssh-concrete")]
 impl WordcraftRemoteSessionRegistry {
     pub fn new() -> Self {
         Self::default()
+    }
+
+    async fn lock_for(&self, key: &WordcraftRemoteSessionKey) -> Arc<Mutex<()>> {
+        let mut locks = self.session_locks.lock().await;
+        if let Some(lock) = locks.get(key).and_then(Weak::upgrade) {
+            return lock;
+        }
+        locks.retain(|_, lock| lock.strong_count() > 0);
+        let lock = Arc::new(Mutex::new(()));
+        locks.insert(key.clone(), Arc::downgrade(&lock));
+        lock
     }
 
     /// Attach to an existing owner only when its full identity still matches;
@@ -293,19 +316,47 @@ impl WordcraftRemoteSessionRegistry {
         timeouts: MCPServerTimeouts,
     ) -> MCPRuntimeResult<Arc<Mutex<WordcraftRemoteMcpSession>>> {
         let key = WordcraftRemoteSessionKey::new(connection_id, spec);
+        let key_lock = self.lock_for(&key).await;
+        let _key_guard = key_lock.lock().await;
         let identity = WordcraftRemoteSessionIdentity::from_spec(connection_id, spec, runtime);
-        if let Some(existing) = self.sessions.read().await.get(&key).cloned() {
-            if existing.lock().await.identity() == &identity {
+        if let Some(existing) = {
+            let sessions = self.sessions.read().await;
+            sessions.get(&key).cloned()
+        } {
+            let reusable = {
+                let session = existing.lock().await;
+                session.identity() == &identity && !session.is_disconnected().await
+            };
+            if reusable {
                 return Ok(existing);
             }
-            self.sessions.write().await.remove(&key);
-            existing.lock().await.stop().await?;
+            let removed = {
+                let mut sessions = self.sessions.write().await;
+                if sessions
+                    .get(&key)
+                    .is_some_and(|current| Arc::ptr_eq(current, &existing))
+                {
+                    sessions.remove(&key)
+                } else {
+                    None
+                }
+            };
+            if let Some(old) = removed {
+                let stop_result = {
+                    let mut session = old.lock().await;
+                    session.stop().await
+                };
+                if let Err(error) = stop_result {
+                    self.sessions.write().await.insert(key.clone(), old);
+                    return Err(error);
+                }
+            }
         }
 
         let session =
             WordcraftRemoteMcpSession::connect(ssh_manager, connection_id, spec, runtime, timeouts)
                 .await?;
-        self.register(key, session).await
+        self.register_inner(key, session).await
     }
 
     /// Register an already-connected owner, such as one restored by a future
@@ -315,24 +366,85 @@ impl WordcraftRemoteSessionRegistry {
         key: WordcraftRemoteSessionKey,
         session: WordcraftRemoteMcpSession,
     ) -> MCPRuntimeResult<Arc<Mutex<WordcraftRemoteMcpSession>>> {
+        let key_lock = self.lock_for(&key).await;
+        let _key_guard = key_lock.lock().await;
+        self.register_inner(key, session).await
+    }
+
+    async fn register_inner(
+        &self,
+        key: WordcraftRemoteSessionKey,
+        session: WordcraftRemoteMcpSession,
+    ) -> MCPRuntimeResult<Arc<Mutex<WordcraftRemoteMcpSession>>> {
         let identity = session.identity().clone();
         if identity.key() != key {
+            let mut session = session;
+            let cleanup = session.stop().await;
+            if let Err(cleanup_error) = cleanup {
+                return Err(MCPRuntimeError::process(format!(
+                    "Remote WordCraft session identity changed while attaching; cleanup failed: {cleanup_error}"
+                )));
+            }
             return Err(MCPRuntimeError::configuration(
                 "Remote WordCraft session key does not match its owner identity",
             ));
         }
         let session = Arc::new(Mutex::new(session));
-        let mut sessions = self.sessions.write().await;
-        if let Some(existing) = sessions.get(&key).cloned() {
-            if existing.lock().await.identity() == &identity {
-                drop(sessions);
-                session.lock().await.stop().await?;
+        if let Some(existing) = {
+            let sessions = self.sessions.read().await;
+            sessions.get(&key).cloned()
+        } {
+            let same_identity = existing.lock().await.identity() == &identity;
+            if !same_identity {
+                let cleanup = session.lock().await.stop().await;
+                if let Err(cleanup_error) = cleanup {
+                    return Err(MCPRuntimeError::process(format!(
+                        "Remote WordCraft session identity changed while attaching; cleanup failed: {cleanup_error}"
+                    )));
+                }
+                return Err(MCPRuntimeError::configuration(
+                    "Remote WordCraft session identity changed while attaching",
+                ));
+            }
+            if !existing.lock().await.is_disconnected().await {
+                if let Err(first_error) = session.lock().await.stop().await {
+                    if let Err(second_error) = session.lock().await.stop().await {
+                        return Err(MCPRuntimeError::process(format!(
+                            "Failed to clean up duplicate remote WordCraft session: {first_error}; retry failed: {second_error}"
+                        )));
+                    }
+                }
                 return Ok(existing);
             }
-            return Err(MCPRuntimeError::configuration(
-                "Remote WordCraft session identity changed while attaching",
-            ));
+            let removed = {
+                let mut sessions = self.sessions.write().await;
+                if sessions
+                    .get(&key)
+                    .is_some_and(|current| Arc::ptr_eq(current, &existing))
+                {
+                    sessions.remove(&key)
+                } else {
+                    None
+                }
+            };
+            if let Some(old) = removed {
+                let stop_result = {
+                    let mut session = old.lock().await;
+                    session.stop().await
+                };
+                if let Err(error) = stop_result {
+                    self.sessions.write().await.insert(key.clone(), old);
+                    let cleanup = session.lock().await.stop().await;
+                    return match cleanup {
+                        Ok(()) => Err(error),
+                        Err(cleanup_error) => Err(MCPRuntimeError::process(format!(
+                            "Failed to stop replaced remote WordCraft session: {error}; new session cleanup failed: {cleanup_error}"
+                        ))),
+                    };
+                }
+            }
         }
+        let mut sessions = self.sessions.write().await;
         sessions.insert(key, session.clone());
         Ok(session)
     }
@@ -345,11 +457,55 @@ impl WordcraftRemoteSessionRegistry {
     }
 
     pub async fn stop(&self, key: &WordcraftRemoteSessionKey) -> MCPRuntimeResult<()> {
-        let session = self.sessions.write().await.remove(key);
+        let key_lock = self.lock_for(key).await;
+        let _key_guard = key_lock.lock().await;
+        let session = {
+            let sessions = self.sessions.read().await;
+            sessions.get(key).cloned()
+        };
         if let Some(session) = session {
             session.lock().await.stop().await?;
+            let mut sessions = self.sessions.write().await;
+            if sessions
+                .get(key)
+                .is_some_and(|current| Arc::ptr_eq(current, &session))
+            {
+                sessions.remove(key);
+            }
         }
         Ok(())
+    }
+}
+
+/// Canonical lexical form used only for remote workspace identity. Remote
+/// paths are POSIX strings even when the controller runs on another OS.
+fn normalize_remote_workspace_path(value: &str) -> String {
+    let absolute = value.starts_with('/');
+    let mut components = Vec::new();
+    for component in value.split('/') {
+        match component {
+            "" | "." => {}
+            ".." => {
+                if components.last().is_some_and(|last| *last != "..") {
+                    components.pop();
+                } else if !absolute {
+                    components.push("..");
+                }
+            }
+            component => components.push(component),
+        }
+    }
+    let joined = components.join("/");
+    if absolute {
+        if joined.is_empty() {
+            "/".to_string()
+        } else {
+            format!("/{joined}")
+        }
+    } else if joined.is_empty() {
+        ".".to_string()
+    } else {
+        joined
     }
 }
 
@@ -673,6 +829,47 @@ mod tests {
         let s = spec();
         assert_eq!(s.server_id(), "wordcraft-ws-a1b2");
         assert_eq!(s.author(), "Alex Agent (ws-a1b2)");
+    }
+
+    #[cfg(feature = "remote-ssh-concrete")]
+    #[test]
+    fn remote_session_keys_ignore_trailing_slashes() {
+        // `/srv/project` and `/srv/project/` address the same remote directory,
+        // so both must collapse to one registry key (one owner process).
+        let plain = WordcraftSessionSpec::new("ws-a1b2", "/work/projects/demo", "/state/p")
+            .expect("plain root valid");
+        let slashed = WordcraftSessionSpec::new("ws-a1b2", "/work/projects/demo/", "/state/p")
+            .expect("trailing root valid");
+        assert_eq!(
+            WordcraftRemoteSessionKey::new("conn-1", &plain),
+            WordcraftRemoteSessionKey::new("conn-1", &slashed)
+        );
+        assert!(plain.workspace_root.ends_with("/demo"));
+        // The spec keeps the raw root: only registry keys are canonicalized,
+        // so argv/application behavior is unchanged.
+        assert_eq!(plain.workspace_root, "/work/projects/demo");
+    }
+
+    #[cfg(feature = "remote-ssh-concrete")]
+    #[test]
+    fn normalize_remote_workspace_path_is_lexical_posix() {
+        assert_eq!(
+            normalize_remote_workspace_path("/srv//project/"),
+            "/srv/project"
+        );
+        assert_eq!(
+            normalize_remote_workspace_path("/srv/project/./"),
+            "/srv/project"
+        );
+        assert_eq!(
+            normalize_remote_workspace_path("/srv/project/sub/../"),
+            "/srv/project"
+        );
+        // Absolute roots stay absolute even when `..` resolves upward.
+        assert_eq!(
+            normalize_remote_workspace_path("/srv/other/../project"),
+            "/srv/project"
+        );
     }
 
     #[test]

@@ -65,6 +65,7 @@ describe('OpenInWordcraftCommand', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.getDocumentAgentContextForFile.mockReset();
     mocks.currentWorkspace = null;
     command = new OpenInWordcraftCommand();
     const registry = new CommandRegistry();
@@ -147,6 +148,13 @@ describe('NewWordcraftDocumentCommand', () => {
     vi.clearAllMocks();
     mocks.currentWorkspace = null;
     mocks.createWorkspaceFile.mockResolvedValue(undefined);
+    // Default routing: normal opener path reports a successful route once
+    // the (mocked) async WordCraft decision resolves.
+    mocks.openFileInBestTarget.mockImplementation(
+      (options: { onWordcraftRouted?: (routed: boolean) => void }) => {
+        options.onWordcraftRouted?.(true);
+      },
+    );
     command = new NewWordcraftDocumentCommand();
     const registry = new CommandRegistry();
     registry.register(command);
@@ -165,15 +173,38 @@ describe('NewWordcraftDocumentCommand', () => {
     expect(mocks.createWorkspaceFile).toHaveBeenCalledWith(
       'workspace-1',
       '/repo/New WordCraft Document.docx',
+      true,
     );
-    expect(mocks.openFileInBestTarget).toHaveBeenCalledWith({
-      filePath: '/repo/New WordCraft Document.docx',
-      fileName: 'New WordCraft Document.docx',
-      scope: context.resourceScope,
+    expect(mocks.openFileInBestTarget).toHaveBeenCalledWith(
+      expect.objectContaining({
+        filePath: '/repo/New WordCraft Document.docx',
+        fileName: 'New WordCraft Document.docx',
+        scope: context.resourceScope,
+        workspaceId: 'workspace-1',
+        workspacePath: '/repo',
+      }),
+    );
+    expect(mocks.invoke).not.toHaveBeenCalled();
+  });
+
+  it('reports a refused WordCraft route as a failed command (F9)', async () => {
+    const context = fileContext(ContextType.FOLDER_NODE, '/repo');
+    context.resourceScope = {
+      surfaceId: 'local',
       workspaceId: 'workspace-1',
       workspacePath: '/repo',
-    });
-    expect(mocks.invoke).not.toHaveBeenCalled();
+    };
+    // The status probe fails inside the opener; routing resolves `false`
+    // while the loud notification path still runs.
+    mocks.openFileInBestTarget.mockImplementation(
+      (options: { onWordcraftRouted?: (routed: boolean) => void }) => {
+        options.onWordcraftRouted?.(false);
+      },
+    );
+    const result = await command.execute(context);
+    expect(result.success).toBe(false);
+    expect(result.message).toBe('errors:file.wordcraftOpenFailed');
+    expect(result.data).toEqual({ path: '/repo/New WordCraft Document.docx' });
   });
 
   it('surfaces blank-document creation failures loudly', async () => {

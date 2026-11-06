@@ -781,6 +781,8 @@ pub struct CreateFileRequest {
     pub path: String,
     #[serde(default, rename = "remoteConnectionId")]
     pub remote_connection_id: Option<String>,
+    #[serde(default)]
+    pub exclusive: bool,
 }
 
 #[derive(Debug, Deserialize)]
@@ -1130,9 +1132,7 @@ async fn create_transient_ai_client_for_config(
             proxy_config,
             stream_options,
         )
-        .with_model_egress_policy(
-            alex_core::service::model_egress::global_model_egress_policy(),
-        ),
+        .with_model_egress_policy(alex_core::service::model_egress::global_model_egress_policy()),
     );
     Ok(
         alex_core::infrastructure::ai::client_factory::apply_model_privacy_route(
@@ -3310,6 +3310,7 @@ pub async fn create_file(
         &request.path,
         request.remote_connection_id.as_deref(),
         request.workspace_id.as_deref(),
+        request.exclusive,
     )
     .await
 }
@@ -5995,8 +5996,8 @@ pub mod basemind_commands {
                 manager.user_data_dir().join("basemind"),
                 &root,
             );
-            let ner_model_dir = crate::basemind_ner_model_dir()
-                .unwrap_or_else(|| PathBuf::from("ner-model"));
+            let ner_model_dir =
+                crate::basemind_ner_model_dir().unwrap_or_else(|| PathBuf::from("ner-model"));
             let bundle = alex_basemind_integration::build_privacy_bundle(
                 data_dir,
                 crate::basemind_sidecar_binary().map(Path::to_path_buf),

@@ -13,6 +13,7 @@ import { notificationService } from '@/shared/notification-system/services/Notif
 import { createLogger } from '@/shared/utils/logger';
 import { isWordcraftDocumentPath } from '@/shared/context-menu-system/commands/builtin/file/WordcraftDocumentCommands';
 import { isLocalSurface } from '@/infrastructure/peer-device/deviceSurface';
+import { getDocumentAgentContextForFile } from '@/tools/editor/services/DocumentAgentContext';
 import type { PanelContentType } from '@/shared/types/panelContent';
 import { type LineRange } from '@/shared/editor/LineRange';
 import { captureContentScope, openContentInBestTarget } from './workbenchContentService';
@@ -52,6 +53,15 @@ export interface FileTabOptions {
   /** Explicitly choose a panel type, e.g. opening HTML as source text. */
   editorType?: ReturnType<typeof getEditorType>;
   remoteConnectionId?: string;
+
+  /**
+   * Routing outcome for WordCraft document opens, reported when the async
+   * capability decision finishes: `true` only when a tab was opened or the
+   * native launch succeeded. Callers that must reflect the routing verdict
+   * in command history depend on this hook because `openFile` itself is
+   * fire-and-forget.
+   */
+  onWordcraftRouted?: (routed: boolean) => void;
 }
 
  
@@ -96,12 +106,15 @@ class FileTabManager {
     // dump. The decision is async behind the capability probe; surfaces
     // without the probe keep the current tab behavior.
     if (!explicitEditorType && isWordcraftDocumentPath(fileName)) {
-      void this.openWordcraftOrLoudFallback({
-        options,
-        scope,
-        filePath: normalizedPath,
-        fileName,
-      });
+      const { onWordcraftRouted } = options;
+      void this
+        .openWordcraftOrLoudFallback({
+          options,
+          scope,
+          filePath: normalizedPath,
+          fileName,
+        })
+        .then((routed) => onWordcraftRouted?.(routed));
       return;
     }
 
@@ -222,7 +235,7 @@ class FileTabManager {
     scope: ContentResourceScope;
     filePath: string;
     fileName: string;
-  }): Promise<void> {
+  }): Promise<boolean> {
     const { options, scope, filePath, fileName } = args;
     const t = i18nService.getT();
     if (scope.remoteConnectionId) {
@@ -234,7 +247,17 @@ class FileTabManager {
         remoteConnectionId: scope.remoteConnectionId,
         surfaceId: scope.surfaceId,
       });
-      return;
+      return false;
+    }
+    if (getDocumentAgentContextForFile(filePath, scope)) {
+      const message = t('errors:file.wordcraftOpenFailed');
+      notificationService.error(message, { title: message });
+      log.warn('WordCraft native fallback refused because the embedded surface owns the file', {
+        filePath,
+        workspaceId: scope.workspaceId,
+        surfaceId: scope.surfaceId,
+      });
+      return false;
     }
     const capability = await wordcraftAPI.statusQuiet();
     if (!capability) {
@@ -245,7 +268,7 @@ class FileTabManager {
         workspaceId: scope.workspaceId,
         surfaceId: scope.surfaceId,
       });
-      return;
+      return false;
     }
 
     if (!isLocalSurface(scope.surfaceId)) {
@@ -255,12 +278,12 @@ class FileTabManager {
         filePath,
         surfaceId: scope.surfaceId,
       });
-      return;
+      return false;
     }
 
     if (capability.web?.status === 'available') {
       this.openEditorTab(options, scope, filePath, fileName, 'wordcraft-document');
-      return;
+      return true;
     }
 
     if (capability.status !== 'available' || !capability.app) {
@@ -270,11 +293,12 @@ class FileTabManager {
         filePath,
         status: capability.status,
       });
-      return;
+      return false;
     }
 
     try {
       await wordcraftAPI.openDocument({ path: filePath, workspaceId: scope.workspaceId });
+      return true;
     } catch (error) {
       const cause = error instanceof Error ? error : new Error(String(error));
       // Loud degradation: remote targets and unrunnable editors surface the
@@ -283,6 +307,7 @@ class FileTabManager {
         title: t('errors:file.wordcraftOpenFailed'),
       });
       log.error('Failed to route docx open to WordCraft', { filePath, error: cause });
+      return false;
     }
   }
 

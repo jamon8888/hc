@@ -1818,7 +1818,6 @@ export const ownerCrateFeatureAssemblyRules = [
       'image-analysis',
       'miniapp',
       'pages',
-      'wordcraft',
       'creation',
       'canvas',
       'agent-control',

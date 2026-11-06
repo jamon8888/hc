@@ -34,7 +34,9 @@ struct DocumentAgentContext {
     surface_id: String,
     workspace_id: String,
     file_path: String,
-    revision: u64,
+    /// `None` means the producer omitted the field. It must not be confused
+    /// with the valid initial revision `0`.
+    revision: Option<u64>,
     status: String,
     capabilities: Vec<String>,
 }
@@ -63,9 +65,15 @@ impl WordcraftTool {
             })?,
             value => value.clone(),
         };
-        serde_json::from_value(value).map_err(|error| {
+        let document: DocumentAgentContext = serde_json::from_value(value).map_err(|error| {
             tool_error(format!("Embedded WordCraft context is malformed: {error}"))
-        })
+        })?;
+        if document.revision.is_none() {
+            return Err(tool_error(
+                "Embedded WordCraft context is missing its document revision",
+            ));
+        }
+        Ok(document)
     }
 
     fn operation(input: &Value) -> AlexResult<&str> {
@@ -340,7 +348,11 @@ impl Tool for WordcraftTool {
         let mut expected_revision = input
             .get("expectedRevision")
             .and_then(Value::as_u64)
-            .unwrap_or(document.revision);
+            .unwrap_or_else(|| {
+                document
+                    .revision
+                    .expect("validated WordCraft context revision")
+            });
         let agent_session = context
             .session_id
             .as_deref()
@@ -475,17 +487,19 @@ mod tests {
         assert!(error.to_string().contains("cannot disable tracked changes"));
     }
     #[test]
-    fn legacy_partial_context_defaults_to_an_explicitly_unavailable_context() {
-        let context: DocumentAgentContext = serde_json::from_value(json!({
+    fn missing_revision_is_rejected_but_zero_remains_valid() {
+        let missing: DocumentAgentContext = serde_json::from_value(json!({
             "kind": "document",
             "surface": "wordcraft-embedded",
             "status": "ready",
         }))
-        .expect("partial legacy context should remain readable");
+        .expect("defaulted context should deserialize for validation");
+        assert_eq!(missing.revision, None);
 
-        assert!(context.document_id.is_empty());
-        assert!(context.session_id.is_empty());
-        assert_eq!(context.revision, 0);
-        assert!(context.capabilities.is_empty());
+        let valid: DocumentAgentContext = serde_json::from_value(json!({
+            "revision": 0,
+        }))
+        .expect("revision zero should deserialize");
+        assert_eq!(valid.revision, Some(0));
     }
 }

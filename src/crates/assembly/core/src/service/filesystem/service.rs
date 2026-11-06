@@ -4,8 +4,8 @@ use crate::infrastructure::{
 };
 use crate::util::elapsed_ms_u64;
 use crate::util::errors::*;
-use log::debug;
 use alex_services_core::filesystem::FileSystemService as BaseFileSystemService;
+use log::debug;
 use std::sync::atomic::AtomicBool;
 use std::sync::Arc;
 
@@ -362,11 +362,7 @@ impl FileSystemService {
     }
 
     /// Writes a file.
-    pub async fn write_file(
-        &self,
-        file_path: &str,
-        content: &str,
-    ) -> AlexResult<FileWriteResult> {
+    pub async fn write_file(&self, file_path: &str, content: &str) -> AlexResult<FileWriteResult> {
         self.inner
             .write_file(file_path, content)
             .await
@@ -395,6 +391,15 @@ impl FileSystemService {
     ) -> AlexResult<FileWriteResult> {
         self.inner
             .write_binary_file(file_path, content, options)
+            .await
+            .map_err(map_filesystem_error)
+    }
+
+    /// Creates an empty file, optionally refusing an existing target with a
+    /// loud `FILE_CONFLICT` error so callers can allocate a unique name.
+    pub async fn create_empty_file(&self, file_path: &str, exclusive: bool) -> AlexResult<()> {
+        self.inner
+            .create_empty_file(file_path, exclusive)
             .await
             .map_err(map_filesystem_error)
     }
@@ -555,10 +560,7 @@ impl FileSystemService {
     }
 
     /// SHA-256 hex of on-disk content after editor-sync normalization (see `FileOperationService`).
-    pub async fn editor_sync_content_sha256_hex(
-        &self,
-        file_path: &str,
-    ) -> AlexResult<String> {
+    pub async fn editor_sync_content_sha256_hex(&self, file_path: &str) -> AlexResult<String> {
         self.inner
             .editor_sync_content_sha256_hex(file_path)
             .await
@@ -603,10 +605,7 @@ mod remote_marker_tests {
         ] {
             let error = result.expect_err("remote-marked requests must fail closed");
             assert!(
-                matches!(
-                    error,
-                    crate::util::errors::AlexError::NotImplemented(_)
-                ),
+                matches!(error, crate::util::errors::AlexError::NotImplemented(_)),
                 "unexpected error: {error}"
             );
             let message = error.to_string();

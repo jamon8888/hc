@@ -2167,7 +2167,7 @@ mod tests {
 
         assert_eq!(
             managed_worktree_directory_name(&project, "48e8b457e87649aebf801b408698f46c"),
-            "OpenBitFun-48e8b457"
+            "Alex-48e8b457"
         );
     }
 
@@ -2197,7 +2197,7 @@ mod tests {
             .expect("managed target path");
         assert_eq!(
             target.file_name().and_then(|name| name.to_str()),
-            Some("OpenBitFun-48e8b457")
+            Some("Alex-48e8b457")
         );
         assert_eq!(
             target

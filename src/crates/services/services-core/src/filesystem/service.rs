@@ -317,6 +317,19 @@ impl FileSystemService {
             .await
     }
 
+    /// Creates an empty file through the filesystem operation service,
+    /// optionally refusing an existing target with a loud `FILE_CONFLICT`
+    /// error so callers can allocate a unique name.
+    pub async fn create_empty_file(
+        &self,
+        file_path: &str,
+        exclusive: bool,
+    ) -> FileSystemResult<()> {
+        self.file_operation_service
+            .create_empty_file(file_path, exclusive)
+            .await
+    }
+
     /// Copies a file.
     pub async fn copy_file(&self, from: &str, to: &str) -> FileSystemResult<u64> {
         self.file_operation_service.copy_file(from, to).await

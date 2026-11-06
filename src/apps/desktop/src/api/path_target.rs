@@ -1,15 +1,13 @@
 //! Shared desktop resolution and access helpers for local, runtime, and remote paths.
 
 use crate::api::app_state::AppState;
-use base64::{engine::general_purpose::STANDARD as BASE64, Engine as _};
-use alex_core::agentic::tools::workspace_paths::{
-    is_alex_runtime_uri, parse_alex_runtime_uri,
-};
+use alex_core::agentic::tools::workspace_paths::{is_alex_runtime_uri, parse_alex_runtime_uri};
 use alex_core::infrastructure::get_path_manager_arc;
 use alex_core::infrastructure::FileOperationOptions;
 use alex_core::service::remote_ssh::workspace_state::remote_workspace_runtime_root;
 use alex_core::service::remote_ssh::{normalize_remote_workspace_path, RemoteWorkspaceEntry};
 use alex_core::service::workspace::{WorkspaceInfo, WorkspaceKind};
+use base64::{engine::general_purpose::STANDARD as BASE64, Engine as _};
 use serde::Serialize;
 use std::path::{Path, PathBuf};
 use std::time::SystemTime;
@@ -155,7 +153,11 @@ pub async fn resolve_desktop_path_target(
             .map_err(|error| error.to_string())?,
     };
     if let Some(id) = connection {
-        let connection_id = alex_core::service::filesystem::path_operations::resolve_explicit_path_connection(raw_path, &id).await?;
+        let connection_id =
+            alex_core::service::filesystem::path_operations::resolve_explicit_path_connection(
+                raw_path, &id,
+            )
+            .await?;
         return Ok(DesktopPathTarget::Remote {
             requested_path: raw_path.to_string(),
             entry: RemotePathConnection { connection_id },
@@ -633,6 +635,7 @@ pub async fn create_empty_file(
     raw_path: &str,
     preferred_remote_connection_id: Option<&str>,
     workspace_id: Option<&str>,
+    exclusive: bool,
 ) -> Result<(), String> {
     match resolve_desktop_path_target(
         app_state,
@@ -643,13 +646,23 @@ pub async fn create_empty_file(
     .await?
     {
         DesktopPathTarget::Local { resolved_path, .. } => {
-            let options = FileOperationOptions::default();
-            app_state
-                .filesystem_service
-                .write_file_with_options(&resolved_path.to_string_lossy(), "", options)
-                .await
-                .map(|_| ())
-                .map_err(|e| format!("Failed to create file: {}", e))
+            let result = if exclusive {
+                app_state
+                    .filesystem_service
+                    .create_empty_file(&resolved_path.to_string_lossy(), true)
+                    .await
+            } else {
+                app_state
+                    .filesystem_service
+                    .write_file_with_options(
+                        &resolved_path.to_string_lossy(),
+                        "",
+                        FileOperationOptions::default(),
+                    )
+                    .await
+                    .map(|_| ())
+            };
+            result.map_err(|e| format!("Failed to create file: {}", e))
         }
         DesktopPathTarget::Remote {
             requested_path,
@@ -659,10 +672,22 @@ pub async fn create_empty_file(
                 .get_remote_file_service_async()
                 .await
                 .map_err(|e| format!("Remote file service not available: {}", e))?;
-            remote_fs
-                .write_file(&entry.connection_id, &requested_path, b"")
-                .await
-                .map_err(|e| format!("Failed to create remote file: {}", e))
+            if exclusive {
+                use tokio::io::AsyncWriteExt;
+                let mut writer = remote_fs
+                    .open_write_new(&entry.connection_id, &requested_path)
+                    .await
+                    .map_err(|e| format!("Failed to create remote file: {}", e))?;
+                writer
+                    .shutdown()
+                    .await
+                    .map_err(|e| format!("Failed to create remote file: {}", e))
+            } else {
+                remote_fs
+                    .write_file(&entry.connection_id, &requested_path, b"")
+                    .await
+                    .map_err(|e| format!("Failed to create remote file: {}", e))
+            }
         }
     }
 }

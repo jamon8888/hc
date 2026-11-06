@@ -5,12 +5,12 @@
 use super::MCPServerTimeouts;
 use crate::mcp::adapter::MCPToolCatalogClient;
 use crate::mcp::protocol::{
-    InitializeResult, MCPError, MCPMessage, MCPResponse, MCPToolResult, MCPTransport,
-    PromptsGetResult, PromptsListResult, RemoteMCPTransport, ResourcesListResult,
-    ResourcesReadResult, ToolsListResult, create_initialize_request, create_ping_request,
-    create_prompts_get_request, create_prompts_list_request, create_resources_list_request,
-    create_resources_read_request, create_tools_call_request, create_tools_list_request,
-    parse_response_result,
+    create_initialize_request, create_ping_request, create_prompts_get_request,
+    create_prompts_list_request, create_resources_list_request, create_resources_read_request,
+    create_tools_call_request, create_tools_list_request, parse_response_result, InitializeResult,
+    MCPError, MCPMessage, MCPResponse, MCPToolResult, MCPTransport, PromptsGetResult,
+    PromptsListResult, RemoteMCPTransport, ResourcesListResult, ResourcesReadResult,
+    ToolsListResult,
 };
 use crate::mcp::{MCPRuntimeError, MCPRuntimeResult};
 #[cfg(feature = "remote-ssh-concrete")]
@@ -20,10 +20,11 @@ use serde_json::Value;
 use std::collections::HashMap;
 use std::future::Future;
 use std::path::PathBuf;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 use tokio::process::ChildStdin;
-use tokio::sync::{RwLock, broadcast, mpsc, oneshot};
+use tokio::sync::{broadcast, mpsc, oneshot, RwLock};
 
 /// Request/response waiter.
 type ResponseWaiter = oneshot::Sender<MCPResponse>;
@@ -57,6 +58,7 @@ pub struct MCPConnection {
     catalog_timeout: Option<Duration>,
     execution_timeout: Option<Duration>,
     event_tx: broadcast::Sender<MCPConnectionEvent>,
+    closed: Arc<AtomicBool>,
 }
 
 const LOCAL_INITIALIZE_TIMEOUT: Duration = Duration::from_secs(30);
@@ -79,11 +81,13 @@ impl MCPConnection {
         let transport = Arc::new(MCPTransport::new(stdin));
         let pending_requests = Arc::new(RwLock::new(HashMap::new()));
         let (event_tx, _) = broadcast::channel(64);
+        let closed = Arc::new(AtomicBool::new(false));
 
         let pending = pending_requests.clone();
         let event_tx_clone = event_tx.clone();
+        let closed_clone = closed.clone();
         tokio::spawn(async move {
-            Self::handle_messages(message_rx, pending, event_tx_clone).await;
+            Self::handle_messages(message_rx, pending, event_tx_clone, closed_clone).await;
         });
 
         Self {
@@ -94,6 +98,7 @@ impl MCPConnection {
             catalog_timeout: timeout_duration(timeouts.catalog_ms),
             execution_timeout: timeout_duration(timeouts.execution_ms),
             event_tx,
+            closed,
         }
     }
 
@@ -119,11 +124,13 @@ impl MCPConnection {
         let transport = Arc::new(MCPTransport::from_writer(stdin));
         let pending_requests = Arc::new(RwLock::new(HashMap::new()));
         let (event_tx, _) = broadcast::channel(64);
+        let closed = Arc::new(AtomicBool::new(false));
 
         let pending = pending_requests.clone();
         let event_tx_clone = event_tx.clone();
+        let closed_clone = closed.clone();
         tokio::spawn(async move {
-            Self::handle_messages(rx, pending, event_tx_clone).await;
+            Self::handle_messages(rx, pending, event_tx_clone, closed_clone).await;
         });
         MCPTransport::start_receive_loop_boxed(stdout, tx);
 
@@ -136,6 +143,7 @@ impl MCPConnection {
                 catalog_timeout: timeout_duration(timeouts.catalog_ms),
                 execution_timeout: timeout_duration(timeouts.execution_ms),
                 event_tx,
+                closed,
             },
             control,
             completion,
@@ -191,6 +199,7 @@ impl MCPConnection {
         );
         let pending_requests = Arc::new(RwLock::new(HashMap::new()));
         let (event_tx, _) = broadcast::channel(64);
+        let closed = Arc::new(AtomicBool::new(false));
 
         Ok(Self {
             transport: TransportType::Remote(transport),
@@ -199,6 +208,7 @@ impl MCPConnection {
             catalog_timeout: timeout_duration(timeouts.catalog_ms),
             execution_timeout: timeout_duration(timeouts.execution_ms),
             event_tx,
+            closed,
         })
     }
 
@@ -213,6 +223,12 @@ impl MCPConnection {
     /// Whether this MCP server runs as a local stdio child process.
     pub fn is_local_stdio(&self) -> bool {
         matches!(self.transport, TransportType::Local(_))
+    }
+
+    /// Returns true once the local stdio stream has closed. Remote sessions
+    /// use this to avoid reusing a dead owner after an SSH channel failure.
+    pub fn is_closed(&self) -> bool {
+        self.closed.load(Ordering::Acquire)
     }
 
     /// Backward-compatible constructor (local connection).
@@ -230,6 +246,7 @@ impl MCPConnection {
         mut rx: mpsc::UnboundedReceiver<MCPMessage>,
         pending_requests: Arc<RwLock<HashMap<u64, ResponseWaiter>>>,
         event_tx: broadcast::Sender<MCPConnectionEvent>,
+        closed: Arc<AtomicBool>,
     ) {
         while let Some(message) = rx.recv().await {
             match message {
@@ -276,6 +293,7 @@ impl MCPConnection {
             pending.clear();
         }
 
+        closed.store(true, Ordering::Release);
         let _ = event_tx.send(MCPConnectionEvent::Closed);
     }
 
@@ -304,17 +322,45 @@ impl MCPConnection {
                     pending.insert(request_id, tx);
                 }
 
-                if let Err(error) = transport
-                    .send_request_with_id(request_id, method.clone(), params)
+                let send_started = Instant::now();
+                let send_result = match request_timeout {
+                    Some(timeout) => match tokio::time::timeout(
+                        timeout,
+                        transport.send_request_with_id(request_id, method.clone(), params),
+                    )
                     .await
-                {
+                    {
+                        Ok(result) => result,
+                        Err(_) => {
+                            // A timed-out write may have emitted only a
+                            // prefix of the JSON message. Poison the stream
+                            // before another request can reuse it.
+                            transport.abort().await;
+                            self.closed.store(true, Ordering::Release);
+                            let mut pending = self.pending_requests.write().await;
+                            pending.remove(&request_id);
+                            return Err(MCPRuntimeError::timeout(format!(
+                                "Request send timed out for method: {}",
+                                method
+                            )));
+                        }
+                    },
+                    None => {
+                        transport
+                            .send_request_with_id(request_id, method.clone(), params)
+                            .await
+                    }
+                };
+                if let Err(error) = send_result {
+                    self.closed.store(true, Ordering::Release);
                     let mut pending = self.pending_requests.write().await;
                     pending.remove(&request_id);
                     return Err(error);
                 }
 
                 let response = if let Some(request_timeout) = request_timeout {
-                    match tokio::time::timeout(request_timeout, rx).await {
+                    let remaining = request_timeout.saturating_sub(send_started.elapsed());
+                    match tokio::time::timeout(remaining, rx).await {
                         Ok(response) => response,
                         Err(_) => {
                             let mut pending = self.pending_requests.write().await;
@@ -567,7 +613,13 @@ impl MCPConnection {
             TransportType::Local(_) => {
                 let request = create_ping_request(0);
                 let _response = self
-                    .send_request_and_wait(request.method.clone(), request.params)
+                    // A stalled remote stdin must not wedge the heartbeat:
+                    // bound the send+wait with the execution timeout.
+                    .send_request_and_wait_with_timeout(
+                        request.method.clone(),
+                        request.params,
+                        self.execution_timeout,
+                    )
                     .await?;
                 Ok(())
             }

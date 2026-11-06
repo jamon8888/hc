@@ -15,9 +15,7 @@ use alex_core::service::wordcraft_bridge::{
     get_global_wordcraft_bridge, WordcraftEmbeddedCommandResponse,
 };
 use alex_core::util::process_manager;
-use alex_services_core::wordcraft::{
-    WordcraftCapability, WordcraftProbe, WordcraftStatus, WordcraftWebCapability,
-};
+use alex_services_core::wordcraft::{WordcraftCapability, WordcraftProbe, WordcraftStatus};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::net::TcpListener;
@@ -517,6 +515,7 @@ mod tests {
     use super::*;
     use alex_core::service::runtime::RuntimeSource;
     use alex_services_core::managed_runtime::ResolvedCommand;
+    use alex_services_core::wordcraft::WordcraftWebCapability;
 
     fn capability(
         status: WordcraftStatus,

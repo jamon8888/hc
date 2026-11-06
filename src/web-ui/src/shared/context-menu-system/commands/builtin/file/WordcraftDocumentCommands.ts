@@ -48,6 +48,16 @@ export function canOpenInWordcraft(context: MenuContext): boolean {
   return Boolean(filePath && isWordcraftDocumentPath(filePath) && canRevealInExplorer(context));
 }
 
+function isCreateConflict(error: unknown): boolean {
+  return error instanceof Error && /FILE_CONFLICT|already exists|choose another name/i.test(error.message);
+}
+
+function newWordcraftFileName(index: number): string {
+  return index === 1
+    ? 'New WordCraft Document.docx'
+    : `New WordCraft Document (${index}).docx`;
+}
+
 /** Shared launcher so both entries report failures loudly and identically. */
 async function launchWordcraft(
   openDocument: () => Promise<unknown>,
@@ -101,7 +111,7 @@ export class OpenInWordcraftCommand extends BaseCommand {
       return this.failure(i18nService.t('errors:file.wordcraftOpenFailed'));
     }
     const scope = context.resourceScope;
-    if (scope?.workspaceId && getDocumentAgentContextForFile(filePath, scope.workspaceId, scope.surfaceId)) {
+    if (getDocumentAgentContextForFile(filePath, scope)) {
       const message = i18nService.t('errors:file.wordcraftOpenFailed');
       notificationService.error(message, { title: message });
       return this.failure(message);
@@ -144,21 +154,40 @@ export class NewWordcraftDocumentCommand extends BaseCommand {
       return this.failure(i18nService.t('errors:file.wordcraftOpenFailed'));
     }
 
-    const fileName = 'New WordCraft Document.docx';
-    const filePath = joinWorkspaceTargetPath(parentPath, fileName, false);
     const message = i18nService.t('errors:file.wordcraftOpenFailed');
+    let fileName = '';
+    let filePath = '';
     try {
       // WordCraft intentionally accepts a zero-byte .docx as its blank
       // document representation. Creating it here gives the embedded panel a
       // stable path, workspace scope, and persistence target immediately.
-      await workspaceAPI.createWorkspaceFile(workspaceId, filePath);
-      openFileInBestTarget({
-        filePath,
-        fileName,
-        scope,
-        workspaceId,
-        workspacePath: scope.workspacePath,
+      for (let index = 1; index <= 100; index += 1) {
+        fileName = newWordcraftFileName(index);
+        filePath = joinWorkspaceTargetPath(parentPath, fileName, false);
+        try {
+          await workspaceAPI.createWorkspaceFile(workspaceId, filePath, true);
+          break;
+        } catch (error) {
+          if (!isCreateConflict(error) || index === 100) throw error;
+        }
+      }
+      // The routing verdict is observable (CodeRabbit F9): a refused open
+      // must not record a successful history entry even though the file was
+      // created. The fabricated .docx name always routes through the
+      // WordCraft decision, which reports exactly once.
+      const routed = await new Promise<boolean>((resolve) => {
+        openFileInBestTarget({
+          filePath,
+          fileName,
+          scope,
+          workspaceId,
+          workspacePath: scope.workspacePath,
+          onWordcraftRouted: resolve,
+        });
       });
+      if (!routed) {
+        return { success: false, message, data: { path: filePath } };
+      }
       return {
         success: true,
         message: i18nService.t('common:file.newWordcraftDocumentOpening'),
