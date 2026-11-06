@@ -23,18 +23,9 @@ use std::collections::HashMap;
 use std::net::TcpListener;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
-<<<<<<< HEAD
 use std::sync::{Arc, Mutex, OnceLock};
 use std::time::{Duration, Instant};
 use tauri::{AppHandle, Manager, State};
-=======
-use std::sync::Mutex;
-use std::sync::OnceLock;
-use tauri::State;
-use tokio::net::TcpListener as TokioTcpListener;
-use tokio::sync::oneshot;
-use tower_http::services::ServeDir;
->>>>>>> 0f4ad9c9e (fix(wordcraft): use structured web-host request)
 use uuid::Uuid;
 
 const WORDCRAFT_DOC_EXTENSIONS: &[&str] = &["docx"];
