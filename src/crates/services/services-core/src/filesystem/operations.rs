@@ -181,7 +181,7 @@ impl FileOperationService {
                     })
                 }
             }
-        };
+        }
     }
 
     /// Reads the exact file bytes without text or binary-content inference.
@@ -286,29 +286,6 @@ impl FileOperationService {
 
         self.validate_file_access(path, true).await?;
 
-        let existing_permissions = match fs::symlink_metadata(path).await {
-            Ok(metadata) => {
-                if metadata.file_type().is_symlink() {
-                    return Err(FileSystemError::service(
-                        "Binary document saves do not replace symbolic links",
-                    ));
-                }
-                #[cfg(unix)]
-                if metadata.nlink() > 1 {
-                    return Err(FileSystemError::service(
-                        "Binary document saves do not replace hard-linked files",
-                    ));
-                }
-                Some(metadata.permissions())
-            }
-            Err(error) if error.kind() == std::io::ErrorKind::NotFound => None,
-            Err(error) => {
-                return Err(FileSystemError::service(format!(
-                    "Failed to inspect binary document target: {error}"
-                )));
-            }
-        };
-
         let mut backup_created = false;
         let mut backup_path = None;
 
@@ -346,6 +323,29 @@ impl FileOperationService {
         let path = Path::new(file_path);
 
         self.validate_file_access(path, true).await?;
+
+        let existing_permissions = match fs::symlink_metadata(path).await {
+            Ok(metadata) => {
+                if metadata.file_type().is_symlink() {
+                    return Err(FileSystemError::service(
+                        "Binary document saves do not replace symbolic links",
+                    ));
+                }
+                #[cfg(unix)]
+                if metadata.nlink() > 1 {
+                    return Err(FileSystemError::service(
+                        "Binary document saves do not replace hard-linked files",
+                    ));
+                }
+                Some(metadata.permissions())
+            }
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => None,
+            Err(error) => {
+                return Err(FileSystemError::service(format!(
+                    "Failed to inspect binary document target: {error}"
+                )));
+            }
+        };
 
         let mut backup_created = false;
         let mut backup_path = None;
