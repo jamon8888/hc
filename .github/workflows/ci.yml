@@ -110,7 +110,7 @@ jobs:
           trap 'rm -rf "$test_root"' EXIT
           mkdir -p "$test_root/stubs"
           mkdir -p "$test_root/bin"
-          for utility in basename bash cat chmod curl date dirname env head mkdir mktemp rm sed sha256sum shasum tar uname; do
+          for utility in basename bash cat chmod curl date dirname env gzip head mkdir mktemp rm sed sha256sum shasum tar uname; do
             utility_path="$(command -v "$utility")"
             [ -n "$utility_path" ] && ln -s "$utility_path" "$test_root/bin/$utility"
           done
