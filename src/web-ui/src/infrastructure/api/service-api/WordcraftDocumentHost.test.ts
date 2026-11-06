@@ -50,7 +50,7 @@ describe('WordcraftDocumentHost', () => {
   it('surfaces save failures and sends a negative acknowledgement', async () => {
     const saveBytes = vi.fn().mockRejectedValue(new Error('workspace is offline'));
     const acknowledgeSave = vi.fn();
-    const host = new WordcraftDocumentHost({ sessionId, saveBytes, acknowledgeSave });
+    const host = new WordcraftDocumentHost({ sessionId, saveBytes, acknowledgeSave }, new Uint8Array([9]));
 
     host.handleEvent({
       type: 'save',
@@ -63,6 +63,7 @@ describe('WordcraftDocumentHost', () => {
 
     await vi.waitFor(() => expect(acknowledgeSave).toHaveBeenCalledWith('save-2', 5, false, 'workspace is offline'));
     expect(host.state).toMatchObject({ dirty: true, revision: 5, saving: false, error: 'workspace is offline' });
+    expect(host.getLatestBytes()).toEqual(new Uint8Array([9]));
   });
 
   it('rejects empty save payloads before persistence', async () => {

@@ -132,9 +132,9 @@ export class WordcraftDocumentHost {
     try {
       try {
         const bytes = toUint8Array(event.bytes);
-        this.latestBytes = bytes.slice();
         await this.options.saveBytes(bytes, event.revision);
         if (this.disposed) return;
+        this.latestBytes = bytes.slice();
         this.durableRevision = Math.max(this.durableRevision, event.revision);
         this.resolveDurableSaveWaiters(event.revision);
         this.update({

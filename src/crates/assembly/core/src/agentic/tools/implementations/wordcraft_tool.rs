@@ -390,7 +390,7 @@ impl Tool for WordcraftTool {
                 .and_then(Value::as_u64)
                 .unwrap_or(expected_revision);
             Some(
-                bridge
+                match bridge
                     .request(WordcraftEmbeddedCommandRequest {
                         request_id: Uuid::new_v4().to_string(),
                         document_id: document.document_id.clone(),
@@ -404,18 +404,13 @@ impl Tool for WordcraftTool {
                         author: format!("Alex Agent ({agent_session})"),
                     })
                     .await
-                    .map_err(tool_error)?,
+                {
+                    Ok(value) => json!({ "ok": true, "result": value }),
+                    Err(error) => json!({ "ok": false, "error": error.to_string() }),
+                },
             )
         } else {
             None
-        };
-
-        let message = if save_result.is_some() {
-            format!(
-                "WordCraft operation '{operation}' completed and was durably saved on the visible document."
-            )
-        } else {
-            format!("WordCraft operation '{operation}' completed on the visible document.")
         };
 
         Ok(vec![ToolResult::ok(
@@ -426,7 +421,7 @@ impl Tool for WordcraftTool {
                 "result": result,
                 "durableSave": save_result,
             }),
-            Some(message),
+            None,
         )])
     }
 }
@@ -448,10 +443,15 @@ mod tests {
         .expect("valid batch should be prepared");
 
         assert_eq!(
-            params["commands"][0],
-            json!({ "command": "review.trackChanges", "params": { "value": true } })
+            params,
+            json!({
+                "keepGoing": true,
+                "commands": [
+                    { "command": "review.trackChanges", "params": { "value": true } },
+                    { "command": "type_text", "params": { "text": "Hello" } },
+                ],
+            })
         );
-        assert_eq!(params["commands"].as_array().expect("commands").len(), 2);
     }
 
     #[test]

@@ -214,7 +214,7 @@ fn wordcraft_frontend_origin() -> &'static str {
 #[tauri::command]
 pub async fn wordcraft_web_host_command(
     app: AppHandle,
-    _request: WordcraftWebHostRequest,
+    _request: Option<WordcraftWebHostRequest>,
 ) -> Result<WordcraftWebHostResponse, String> {
     let capability = wordcraft_probe()?.recheck();
     if capability.web.status != WordcraftStatus::Available {
