@@ -1039,6 +1039,7 @@ const CODE_AGENT_TOOL_GROUPS: &[&str] = &[
     "core.git",
     "core.web",
     "core.mcp",
+    "core.wordcraft",
     "core.computer-use",
     // PII-safe workspace search; the pack only requests the owner when the
     // binary carries the basemind capability.
