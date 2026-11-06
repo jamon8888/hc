@@ -234,6 +234,7 @@ export const optionalDependencyFeatureOwnerRules = [
           'tools-miniapp',
           'tools-pages',
           'tools-rag',
+          'tools-wordcraft',
         ],
       },
       { depName: 'chrono-tz', ownerFeatures: ['scheduled-jobs'] },
@@ -771,6 +772,7 @@ export const coreProductFullFeatureAssemblyRule = {
     'tools-mcp',
     'tools-miniapp',
     'tools-pages',
+    'tools-wordcraft',
     'web-tools',
     'workspace-search',
     'announcement',
@@ -1360,6 +1362,13 @@ export const coreClosedFeatureProfileRules = [
   },
   {
     manifestPath: 'src/crates/assembly/core/Cargo.toml',
+    featureName: 'tools-wordcraft',
+    requiredFeatureRefs: ['alex-tool-packs/wordcraft'],
+    exact: true,
+    reason: 'tools-wordcraft must own only embedded WordCraft document tools',
+  },
+  {
+    manifestPath: 'src/crates/assembly/core/Cargo.toml',
     featureName: 'tools-computer-use',
     requiredFeatureRefs: [
       'alex-tool-packs/computer-use',
@@ -1802,6 +1811,7 @@ export const ownerCrateFeatureAssemblyRules = [
       'basic',
       'git',
       'mcp',
+      'wordcraft',
       'browser-web',
       'computer-use',
       'image-analysis',
