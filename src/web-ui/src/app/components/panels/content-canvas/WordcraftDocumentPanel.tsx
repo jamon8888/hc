@@ -94,7 +94,7 @@ export default function WordcraftDocumentPanel({
           return;
         }
         if (remoteConnectionId) {
-          setError(t('flexiblePanel.wordcraft.localOnly'));
+          setError(translateRef.current('flexiblePanel.wordcraft.localOnly'));
           return;
         }
         if (!isLocalSurface(surfaceId)) {
