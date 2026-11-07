@@ -77,12 +77,17 @@ describe('OpenInWordcraftCommand', () => {
     vi.useRealTimers();
   });
 
-  it('accepts only local .docx files', () => {
+  it('accepts only local .docx and legacy .doc files', () => {
     expect(isWordcraftDocumentPath('report.docx')).toBe(true);
     expect(isWordcraftDocumentPath('Report.DOCX')).toBe(true);
+    expect(isWordcraftDocumentPath('report.doc')).toBe(true);
+    expect(isWordcraftDocumentPath('Report.DOC')).toBe(true);
     expect(isWordcraftDocumentPath('notes.rtf')).toBe(false);
+    // ".doc" and ".docx" with no document stem are hidden-style file names.
     expect(canOpenInWordcraft(fileContext(ContextType.FILE_NODE, '/repo/report.docx'))).toBe(true);
+    expect(canOpenInWordcraft(fileContext(ContextType.FILE_NODE, '/repo/report.doc'))).toBe(true);
     expect(canOpenInWordcraft(fileContext(ContextType.FILE_NODE, '/repo/.docx'))).toBe(false);
+    expect(canOpenInWordcraft(fileContext(ContextType.FILE_NODE, '/repo/.doc'))).toBe(false);
     expect(canOpenInWordcraft(fileContext(ContextType.FOLDER_NODE, '/repo'))).toBe(false);
   });
 

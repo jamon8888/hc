@@ -23,7 +23,11 @@ export function isWordcraftDocumentPath(filePath: string): boolean {
   const base = filePath.toLowerCase().split('/').pop() ?? '';
   // ".docx" with no document stem is a hidden-style file name, not a WordCraft
   // document (desktop resolution refuses it too).
-  return base.length > 5 && base.endsWith('.docx');
+  if (base.length > 5 && base.endsWith('.docx')) return true;
+  // Legacy ".doc" shares the WordCraft route. Without a routed editor the
+  // fallback opened the binary blob in the code editor, producing the
+  // "hieroglyphs" experience users reported.
+  return base.length > 4 && base.endsWith('.doc');
 }
 
 function getContextFilePath(context: MenuContext): string | undefined {

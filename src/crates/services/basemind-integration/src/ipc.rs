@@ -182,10 +182,16 @@ pub struct RedactionPolicy {
 #[cfg(feature = "basemind")]
 impl RedactionPolicy {
     /// The policy a product that ships the bundled model installs: NER is
-    /// required, and the sidecar is told where the model lives.
+    /// optional, and the sidecar is told where the model lives.
+    ///
+    /// NER warm-up takes ten-plus minutes on a cold start and the daemon
+    /// fails closed while it completes. Pattern detectors already cover the
+    /// product's baseline privacy contract, so pattern-only redaction is
+    /// accepted rather than blocking every egress on the NER window; NER
+    /// sharpens the coverage as soon as it is warm.
     pub fn bundled(model_dir: std::path::PathBuf) -> Self {
         Self {
-            require_ner: true,
+            require_ner: false,
             ner_model_dir: Some(model_dir.to_string_lossy().to_string()),
             ner_profile: None,
         }
