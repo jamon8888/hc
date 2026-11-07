@@ -9,9 +9,11 @@ use super::{
 use crate::mcp::protocol::{InitializeResult, MCPMessage, MCPServerInfo, MCPTransport};
 use crate::mcp::server::is_mcp_auth_error_message;
 use crate::mcp::{MCPRuntimeError, MCPRuntimeResult};
-use log::{debug, error, info, warn};
+#[cfg(feature = "remote-ssh-concrete")]
+use crate::remote_ssh::{WorkspaceProcessCompletion, WorkspaceProcessControl, WorkspaceStdio};
 use alex_services_core::process_manager;
 use alex_services_core::process_tree::ProcessTreeChild;
+use log::{debug, error, info, warn};
 use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
@@ -34,6 +36,10 @@ pub struct MCPServerProcess {
     last_error_message: Arc<RwLock<Option<String>>>,
     message_rx: Option<mpsc::UnboundedReceiver<MCPMessage>>,
     remote_url: Option<String>,
+    #[cfg(feature = "remote-ssh-concrete")]
+    workspace_control: Option<WorkspaceProcessControl>,
+    #[cfg(feature = "remote-ssh-concrete")]
+    workspace_completion: Option<WorkspaceProcessCompletion>,
     #[cfg(test)]
     fail_next_stop: bool,
 }
@@ -57,6 +63,10 @@ impl MCPServerProcess {
             last_error_message: Arc::new(RwLock::new(None)),
             message_rx: None,
             remote_url: None,
+            #[cfg(feature = "remote-ssh-concrete")]
+            workspace_control: None,
+            #[cfg(feature = "remote-ssh-concrete")]
+            workspace_completion: None,
             #[cfg(test)]
             fail_next_stop: false,
         }
@@ -305,6 +315,47 @@ impl MCPServerProcess {
         Ok(())
     }
 
+    /// Starts an MCP server whose stdio process is owned by a workspace
+    /// transport (for example an SSH workspace host). The process and all
+    /// document bytes stay on that owner; the controller only sees MCP
+    /// messages.
+    #[cfg(feature = "remote-ssh-concrete")]
+    pub async fn start_workspace_stdio(
+        &mut self,
+        transport: WorkspaceStdio,
+        timeouts: MCPServerTimeouts,
+    ) -> MCPRuntimeResult<()> {
+        info!(
+            "Starting workspace-owner MCP server: name={} id={}",
+            self.name, self.id
+        );
+        self.set_status(MCPServerStatus::Starting).await;
+
+        let (connection, control, completion) =
+            MCPConnection::new_workspace_stdio(transport, timeouts);
+        self.connection = Some(Arc::new(connection));
+        self.workspace_control = Some(control);
+        self.workspace_completion = Some(completion);
+        self.start_time = Some(Instant::now());
+
+        if let Err(error) = self.handshake().await {
+            error!(
+                "Workspace-owner MCP server handshake failed: name={} id={} error={}",
+                self.name, self.id, error
+            );
+            let _ = self.stop().await;
+            self.set_status_with_error(MCPServerStatus::Failed, Some(error.to_string()))
+                .await;
+            return Err(error);
+        }
+
+        self.set_status_with_error(MCPServerStatus::Connected, None)
+            .await;
+        self.restart_count = 0;
+        self.start_health_check();
+        Ok(())
+    }
+
     /// Performs the handshake (`initialize`).
     async fn handshake(&mut self) -> MCPRuntimeResult<()> {
         let connection = self
@@ -357,6 +408,43 @@ impl MCPServerProcess {
                 return Err(MCPRuntimeError::process(message));
             }
             self.child = None;
+        }
+
+        #[cfg(feature = "remote-ssh-concrete")]
+        if let Some(control) = self.workspace_control.as_ref() {
+            if let Err(error) = control.kill().await {
+                if !error.to_string().contains("already exited") {
+                    let message = format!(
+                        "Failed to stop workspace-owner MCP server: name={} id={} error={}",
+                        self.name, self.id, error
+                    );
+                    warn!("{}", message);
+                    self.set_status_with_error(MCPServerStatus::Failed, Some(message.clone()))
+                        .await;
+                    return Err(MCPRuntimeError::process(message));
+                }
+            }
+
+            // A successful signal only means that the owner accepted the
+            // request. Keep both handles until the transport reports exit so
+            // a failed/slow shutdown remains retryable in the registry.
+            if let Some(completion) = self.workspace_completion.as_ref().cloned() {
+                if tokio::time::timeout(Duration::from_millis(500), completion.wait())
+                    .await
+                    .is_err()
+                {
+                    let message = format!(
+                        "Workspace-owner MCP server did not terminate: name={} id={}",
+                        self.name, self.id
+                    );
+                    warn!("{}", message);
+                    self.set_status_with_error(MCPServerStatus::Failed, Some(message.clone()))
+                        .await;
+                    return Err(MCPRuntimeError::process(message));
+                }
+            }
+            self.workspace_control.take();
+            self.workspace_completion.take();
         }
 
         self.connection = None;
@@ -576,6 +664,11 @@ fn safe_process_environment_keys() -> &'static [&'static str] {
 impl Drop for MCPServerProcess {
     fn drop(&mut self) {
         self.child.take();
+        #[cfg(feature = "remote-ssh-concrete")]
+        {
+            self.workspace_control.take();
+            self.workspace_completion.take();
+        }
     }
 }
 
@@ -649,5 +742,43 @@ mod tests {
         assert!(process.child.is_none());
         assert!(process.connection.is_none());
         assert_eq!(process.status().await, super::MCPServerStatus::Failed);
+    }
+
+    #[cfg(all(unix, feature = "remote-ssh-concrete"))]
+    #[tokio::test]
+    async fn workspace_owner_start_performs_mcp_handshake_and_stops_owner() {
+        let script = r#"
+            while IFS= read -r line; do
+                id=$(printf '%s' "$line" | sed -n 's/.*"id":\([0-9][0-9]*\).*/\1/p')
+                printf '{"jsonrpc":"2.0","id":%s,"result":{"protocolVersion":"2025-06-18","capabilities":{"tools":{}},"serverInfo":{"name":"workspace-fixture","version":"1"}}}\n' "$id"
+            done
+        "#;
+        let transport = crate::remote_ssh::WorkspaceStdio::spawn_local_process(
+            "sh",
+            &["-c".to_string(), script.to_string()],
+        )
+        .expect("spawn workspace-owner fixture");
+        let mut process = MCPServerProcess::new(
+            "wordcraft-remote-test".to_string(),
+            "WordCraft remote test".to_string(),
+            MCPServerType::Remote,
+        );
+
+        process
+            .start_workspace_stdio(transport, MCPServerTimeouts::default())
+            .await
+            .expect("workspace-owner handshake should succeed");
+        assert_eq!(process.status().await, super::MCPServerStatus::Connected);
+        assert_eq!(
+            process.server_info().map(|info| info.name.as_str()),
+            Some("workspace-fixture")
+        );
+
+        process
+            .stop()
+            .await
+            .expect("workspace-owner stop should succeed");
+        assert_eq!(process.status().await, super::MCPServerStatus::Stopped);
+        assert!(process.connection().is_none());
     }
 }

@@ -232,6 +232,7 @@ async fn write_target_checked(
                 content,
                 alex_services_core::filesystem::FileOperationOptions {
                     backup_on_overwrite: false,
+                    expected_hash: expected_hash.map(str::to_owned),
                     ..Default::default()
                 },
             )

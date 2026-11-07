@@ -8,6 +8,11 @@
 use crate::infrastructure::get_path_manager_arc;
 use crate::service::remote_ssh::{RemoteFileService, RemoteTerminalManager, SSHConnectionManager};
 use crate::service::workspace_runtime::WorkspaceRuntimeService;
+#[cfg(all(feature = "mcp-runtime", feature = "ssh-remote"))]
+use alex_services_integrations::mcp::server::{
+    MCPRuntimeError, MCPRuntimeResult, MCPServerTimeouts, WordcraftRemoteMcpSession,
+    WordcraftRemoteRuntime, WordcraftRemoteSessionRegistry, WordcraftSessionSpec,
+};
 pub use alex_services_integrations::remote_ssh::{
     local_workspace_stable_storage_id, normalize_remote_workspace_path,
     remote_root_to_mirror_subpath, remote_workspace_stable_id,
@@ -135,6 +140,12 @@ pub struct RemoteWorkspaceStateManager {
     file_service: Arc<RwLock<Option<RemoteFileService>>>,
     /// Remote terminal manager (shared).
     terminal_manager: Arc<RwLock<Option<RemoteTerminalManager>>>,
+    /// Retained WordCraft owners for remote workspace sessions. The registry
+    /// lives with the workspace owner, alongside the SSH manager, so callers
+    /// cannot accidentally start a remote document session through a local
+    /// process path.
+    #[cfg(all(feature = "mcp-runtime", feature = "ssh-remote"))]
+    wordcraft_sessions: WordcraftRemoteSessionRegistry,
 }
 
 impl Default for RemoteWorkspaceStateManager {
@@ -150,6 +161,8 @@ impl RemoteWorkspaceStateManager {
             ssh_manager: Arc::new(RwLock::new(None)),
             file_service: Arc::new(RwLock::new(None)),
             terminal_manager: Arc::new(RwLock::new(None)),
+            #[cfg(all(feature = "mcp-runtime", feature = "ssh-remote"))]
+            wordcraft_sessions: WordcraftRemoteSessionRegistry::new(),
         }
     }
 
@@ -292,6 +305,36 @@ impl RemoteWorkspaceStateManager {
 
     pub async fn get_terminal_manager(&self) -> Option<RemoteTerminalManager> {
         self.terminal_manager.read().await.clone()
+    }
+
+    /// Connect to or attach to the retained WordCraft owner for this remote
+    /// workspace. The SSH manager is resolved from the same workspace state
+    /// that owns the remote file and terminal providers, so a remote request
+    /// cannot silently fall back to a controller-local process.
+    #[cfg(all(feature = "mcp-runtime", feature = "ssh-remote"))]
+    pub async fn connect_wordcraft_session(
+        &self,
+        connection_id: &str,
+        spec: &WordcraftSessionSpec,
+        runtime: &WordcraftRemoteRuntime,
+        timeouts: MCPServerTimeouts,
+    ) -> MCPRuntimeResult<Arc<tokio::sync::Mutex<WordcraftRemoteMcpSession>>> {
+        let ssh_manager = self.get_ssh_manager().await.ok_or_else(|| {
+            MCPRuntimeError::not_found(
+                "Remote SSH workspace services are not initialized; refusing local WordCraft fallback",
+            )
+        })?;
+
+        self.wordcraft_sessions
+            .connect_or_attach(&ssh_manager, connection_id, spec, runtime, timeouts)
+            .await
+    }
+
+    /// Returns the retained remote WordCraft owner registry for lifecycle
+    /// operations such as explicit session stop and reconnect inspection.
+    #[cfg(all(feature = "mcp-runtime", feature = "ssh-remote"))]
+    pub fn wordcraft_session_registry(&self) -> WordcraftRemoteSessionRegistry {
+        self.wordcraft_sessions.clone()
     }
 
     // ── Session storage ────────────────────────────────────────────
@@ -637,6 +680,45 @@ mod tests {
         assert_eq!(actual, expected);
 
         let _ = std::fs::remove_dir_all(workspace_root);
+    }
+
+    #[cfg(all(feature = "mcp-runtime", feature = "ssh-remote"))]
+    #[tokio::test]
+    async fn wordcraft_remote_session_refuses_when_owner_services_are_missing() {
+        let manager = super::RemoteWorkspaceStateManager::new();
+        let spec = alex_services_integrations::mcp::server::WordcraftSessionSpec::new(
+            "remote-session",
+            "/workspace/project",
+            "/state/wordcraft/profile",
+        )
+        .expect("valid remote session spec");
+        let runtime = alex_services_integrations::mcp::server::WordcraftRemoteRuntime::new(
+            "/opt/wordcraft/current/bin/wordcraft-cli",
+            "0.7.0",
+            true,
+        )
+        .expect("valid remote runtime");
+
+        let result = manager
+            .connect_wordcraft_session(
+                "connection-1",
+                &spec,
+                &runtime,
+                alex_services_integrations::mcp::server::MCPServerTimeouts::default(),
+            )
+            .await;
+        let error = match result {
+            Ok(_) => panic!("uninitialized remote services must fail closed"),
+            Err(error) => error,
+        };
+
+        assert_eq!(
+            error.kind(),
+            alex_services_integrations::mcp::MCPRuntimeErrorKind::NotFound
+        );
+        assert!(error
+            .message()
+            .contains("refusing local WordCraft fallback"));
     }
 }
 

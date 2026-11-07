@@ -1,7 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { workspaceAPI } from '@/infrastructure/api/service-api/WorkspaceAPI';
-import { wordcraftAPI, type WordcraftWebHostResponseDto } from '@/infrastructure/api/service-api/WordcraftAPI';
+import {
+  wordcraftAPI,
+  type WordcraftCapabilityDto,
+  type WordcraftWebHostResponseDto,
+} from '@/infrastructure/api/service-api/WordcraftAPI';
 import { WordcraftBridge, type WordcraftBridgeCommand } from '@/infrastructure/api/service-api/WordcraftBridge';
 import { WordcraftDocumentHost } from '@/infrastructure/api/service-api/WordcraftDocumentHost';
 import { WordcraftEmbeddedDocumentSession } from '@/infrastructure/api/service-api/WordcraftEmbeddedDocumentSession';
@@ -20,7 +24,9 @@ interface WordcraftDocumentPanelProps {
   filePath: string;
   fileName: string;
   workspaceId?: string;
+  workspacePath?: string;
   surfaceId?: string;
+  remoteConnectionId?: string;
   isActive?: boolean;
   onDirtyStateChange?: (isDirty: boolean) => void;
 }
@@ -29,19 +35,30 @@ export default function WordcraftDocumentPanel({
   filePath,
   fileName,
   workspaceId,
-  surfaceId = 'local',
+  workspacePath,
+  surfaceId,
+  remoteConnectionId,
   isActive = true,
   onDirtyStateChange,
 }: WordcraftDocumentPanelProps) {
   const { t } = useI18n('components');
   const documentSession = useEditorDocument();
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const disposeEmbeddedRef = useRef<((timeoutMs?: number) => Promise<void>) | null>(null);
+  const disposalBarrierRef = useRef<Promise<void>>(Promise.resolve());
+  const releasedSurfaceRef = useRef<string | null>(null);
   const dirtyStateChangeRef = useRef(onDirtyStateChange);
   const isActiveRef = useRef(isActive);
   const translateRef = useRef(t);
+  const currentFilePathRef = useRef(filePath);
+  const preservedRenameRef = useRef<{ sourcePath: string; bytes: Uint8Array; expectedHash?: string } | null>(null);
+  currentFilePathRef.current = filePath;
   const [surface, setSurface] = useState<WordcraftWebHostResponseDto | null>(null);
   const [bytes, setBytes] = useState<Uint8Array | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [fallbackCapability, setFallbackCapability] = useState<WordcraftCapabilityDto | null>(null);
+  const [fallbackState, setFallbackState] = useState<'idle' | 'opening' | 'opened' | 'failed'>('idle');
+  const [fallbackError, setFallbackError] = useState<string | null>(null);
 
   useEffect(() => {
     dirtyStateChangeRef.current = onDirtyStateChange;
@@ -60,22 +77,48 @@ export default function WordcraftDocumentPanel({
   useEffect(() => {
     let active = true;
     let hostedSurface: WordcraftWebHostResponseDto | null = null;
+    releasedSurfaceRef.current = null;
     setSurface(null);
     setBytes(null);
     setError(null);
+    setFallbackCapability(null);
+    setFallbackState('idle');
+    setFallbackError(null);
 
     async function loadDocument() {
-      if (!isLocalSurface(surfaceId)) {
-        setError(translateRef.current('flexiblePanel.wordcraft.localOnly'));
-        return;
-      }
-      if (!workspaceId) {
-        setError(translateRef.current('flexiblePanel.wordcraft.workspaceRequired'));
-        return;
-      }
-
       try {
+        await disposalBarrierRef.current;
+        if (!active) return;
+        if (!surfaceId) {
+          setError(translateRef.current('flexiblePanel.wordcraft.surfaceRequired'));
+          return;
+        }
+        if (remoteConnectionId) {
+          setError(translateRef.current('flexiblePanel.wordcraft.localOnly'));
+          return;
+        }
+        if (!isLocalSurface(surfaceId)) {
+          setError(translateRef.current('flexiblePanel.wordcraft.localOnly'));
+          return;
+        }
+        if (!workspaceId) {
+          setError(translateRef.current('flexiblePanel.wordcraft.workspaceRequired'));
+          return;
+        }
         hostedSurface = await wordcraftAPI.hostWebSurface();
+        const preserved = preservedRenameRef.current;
+        if (preserved && preserved.sourcePath !== filePath) {
+          if (!active) {
+            // This panel will not consume the preserved rename bytes; clear
+            // them so a later load cannot splice foreign content.
+            preservedRenameRef.current = null;
+            await wordcraftAPI.releaseWebSurface(hostedSurface.sessionId);
+            return;
+          }
+          setBytes(new Uint8Array(preserved.bytes));
+          setSurface(hostedSurface);
+          return;
+        }
         const encoded = await workspaceAPI.readWorkspaceFile(workspaceId, filePath, 'base64');
         if (!active) {
           await wordcraftAPI.releaseWebSurface(hostedSurface.sessionId);
@@ -96,14 +139,27 @@ export default function WordcraftDocumentPanel({
     void loadDocument();
     return () => {
       active = false;
-      if (hostedSurface) {
+      if (hostedSurface && releasedSurfaceRef.current !== hostedSurface.sessionId) {
         void wordcraftAPI.releaseWebSurface(hostedSurface.sessionId).catch(() => undefined);
       }
     };
-  }, [filePath, surfaceId, workspaceId]);
+  }, [filePath, remoteConnectionId, surfaceId, workspaceId]);
 
   useEffect(() => {
-    if (!surface || !bytes) return;
+    const embeddedSurfaceId = surfaceId;
+    if (remoteConnectionId || !error || !workspaceId || !embeddedSurfaceId || !isLocalSurface(embeddedSurfaceId)) return;
+    let active = true;
+    void wordcraftAPI.statusQuiet().then(capability => {
+      if (active) setFallbackCapability(capability);
+    });
+    return () => {
+      active = false;
+    };
+  }, [error, remoteConnectionId, surfaceId, workspaceId]);
+
+  useEffect(() => {
+    const embeddedSurfaceId = surfaceId;
+    if (!surface || !bytes || !embeddedSurfaceId) return;
     const source = iframeRef.current?.contentWindow;
     if (!source) {
       setError(translateRef.current('flexiblePanel.wordcraft.frameUnavailable'));
@@ -112,17 +168,32 @@ export default function WordcraftDocumentPanel({
 
     const bridgeRef: { current: WordcraftBridge | null } = { current: null };
     const sessionRef: { current: WordcraftEmbeddedDocumentSession | null } = { current: null };
+    const preserved = preservedRenameRef.current;
+    const preservedHash = preserved && preserved.sourcePath !== filePath
+      ? preserved.expectedHash
+      : undefined;
+    const initialHashPromise = preservedHash
+      ? Promise.resolve(preservedHash)
+      : sha256Hex(bytes);
+    if (preserved?.sourcePath !== filePath) preservedRenameRef.current = null;
+    let expectedHash: string | undefined;
     const agentContextKey = `wordcraft:${documentSession?.id ?? filePath}`;
     const updateAgentContext = (patch: Parameters<typeof updateDocumentAgentContext>[1]) => {
       updateDocumentAgentContext(agentContextKey, patch);
     };
     const host = new WordcraftDocumentHost({
       sessionId: surface.sessionId,
-      saveBytes: nextBytes => workspaceAPI.writeWorkspaceFileBase64(
-        workspaceId!,
-        filePath,
-        encodeBase64(nextBytes),
-      ),
+      saveBytes: async nextBytes => {
+        const currentHash = expectedHash ?? await initialHashPromise;
+        expectedHash = currentHash;
+        await workspaceAPI.writeWorkspaceFileBase64(
+          workspaceId!,
+          filePath,
+          encodeBase64(nextBytes),
+          currentHash,
+        );
+        expectedHash = await sha256Hex(nextBytes);
+      },
       acknowledgeSave: (requestId, revision, ok, saveError) => {
         bridgeRef.current?.acknowledgeSave(requestId, revision, ok, saveError);
       },
@@ -170,8 +241,10 @@ export default function WordcraftDocumentPanel({
           surface: 'wordcraft-embedded',
           documentId: documentSession.id,
           sessionId: surface.sessionId,
-          surfaceId,
+          surfaceId: embeddedSurfaceId,
           workspaceId: workspaceId!,
+          workspacePath,
+          remoteConnectionId,
           filePath,
           revision: session.state.revision,
           status: 'loading',
@@ -216,26 +289,124 @@ export default function WordcraftDocumentPanel({
     if (documentSession) {
       documentSession.save = saveDocument;
     }
+    void initialHashPromise
+      .then(hash => {
+        expectedHash = hash;
+      })
+      .catch(hashError => {
+        setError(hashError instanceof Error ? hashError.message : String(hashError));
+      });
+
     const onMessage = (event: MessageEvent<unknown>) => bridge.handleMessage(event);
     window.addEventListener('message', onMessage);
 
-    return () => {
-      window.removeEventListener('message', onMessage);
-      if (documentSession?.save === saveDocument) {
-        documentSession.save = undefined;
-      }
-      updateAgentContext({ status: 'closed' });
-      unregisterDocumentAgentContext(agentContextKey);
-      sessionRef.current = null;
-      session.dispose();
-      bridgeRef.current = null;
+    let embeddedDisposed = false;
+    let disposalPromise: Promise<void> | null = null;
+    const disposeEmbedded = () => {
+      if (disposalPromise) return disposalPromise;
+      disposalPromise = (async () => {
+        if (embeddedDisposed) return;
+        embeddedDisposed = true;
+        window.removeEventListener('message', onMessage);
+        if (documentSession?.save === saveDocument) {
+          documentSession.save = undefined;
+        }
+        updateAgentContext({ status: 'closed' });
+        if (host.state.dirty && currentFilePathRef.current !== filePath) {
+          let sourceHash = expectedHash;
+          if (!sourceHash) {
+            try {
+              sourceHash = await initialHashPromise;
+            } catch {
+              sourceHash = undefined;
+            }
+          }
+          preservedRenameRef.current = {
+            sourcePath: filePath,
+            bytes: host.getLatestBytes(bytes),
+            expectedHash: sourceHash,
+          };
+        }
+        unregisterDocumentAgentContext(agentContextKey);
+        sessionRef.current = null;
+        await session.dispose();
+        bridgeRef.current = null;
+      })();
+      return disposalPromise;
     };
-  }, [bytes, documentSession, fileName, filePath, surface, surfaceId, workspaceId]);
+    disposeEmbeddedRef.current = disposeEmbedded;
 
-  if (error && (!surface || !bytes)) {
+    return () => {
+      if (disposeEmbeddedRef.current === disposeEmbedded) {
+        disposeEmbeddedRef.current = null;
+      }
+      const disposal = disposeEmbedded();
+      disposalBarrierRef.current = disposal;
+      void disposal;
+    };
+  }, [bytes, documentSession, fileName, filePath, remoteConnectionId, surface, surfaceId, workspaceId, workspacePath]);
+
+  if (error) {
+    const nativeFallbackAvailable =
+      fallbackCapability?.status === 'available' && Boolean(fallbackCapability.app);
+    const fallbackDetail =
+      fallbackError ||
+      fallbackCapability?.remediation ||
+      fallbackCapability?.message ||
+      (!nativeFallbackAvailable ? translateRef.current('flexiblePanel.wordcraft.nativeUnavailable') : null);
+    const openNativeFallback = async () => {
+      setFallbackState('opening');
+      setFallbackError(null);
+      try {
+        const disposal = disposeEmbeddedRef.current?.() ?? disposalBarrierRef.current;
+        await withTimeout(disposal, 10_000);
+        setSurface(null);
+        if (surface) {
+          releasedSurfaceRef.current = surface.sessionId;
+          await wordcraftAPI.releaseWebSurface(surface.sessionId);
+        }
+        await wordcraftAPI.openDocument({ path: filePath, workspaceId });
+        setFallbackState('opened');
+      } catch (fallbackOpenError) {
+        setFallbackState('failed');
+        setFallbackError(
+          fallbackOpenError instanceof Error ? fallbackOpenError.message : String(fallbackOpenError),
+        );
+      }
+    };
     return (
       <div className="alex-flexible-panel__loading" role="alert">
-        {error}
+        <div>{error}</div>
+        {fallbackDetail && <div role="status">{fallbackDetail}</div>}
+        {surface && fallbackState !== 'opened' && (
+          <button
+            type="button"
+            onClick={() => {
+              setError(null);
+              setFallbackError(null);
+              if (iframeRef.current) iframeRef.current.src = surface.url;
+            }}
+            data-testid="wordcraft-retry"
+          >
+            {translateRef.current('error.retry')}
+          </button>
+        )}
+        {!remoteConnectionId && nativeFallbackAvailable && fallbackState !== 'opened' && (
+          <button
+            type="button"
+            onClick={() => void openNativeFallback()}
+            disabled={fallbackState === 'opening'}
+            data-testid="wordcraft-fallback"
+            data-alex-state={fallbackState}
+          >
+            {fallbackState === 'opening'
+              ? translateRef.current('flexiblePanel.wordcraft.openingNative')
+              : translateRef.current('flexiblePanel.wordcraft.openNative')}
+          </button>
+        )}
+        {fallbackState === 'opened' && (
+          <div role="status">{translateRef.current('flexiblePanel.wordcraft.nativeOpened')}</div>
+        )}
       </div>
     );
   }
@@ -293,4 +464,26 @@ function encodeBase64(bytes: Uint8Array): string {
     binary += String.fromCharCode(...bytes.subarray(offset, offset + 0x8000));
   }
   return globalThis.btoa(binary);
+}
+
+function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) => {
+      timer = setTimeout(() => reject(new Error('WordCraft document teardown timed out')), timeoutMs);
+    }),
+  ]).finally(() => {
+    if (timer !== undefined) clearTimeout(timer);
+  });
+}
+
+async function sha256Hex(bytes: Uint8Array): Promise<string> {
+  if (typeof crypto === 'undefined' || !crypto.subtle?.digest) {
+    throw new Error('WordCraft save protection requires crypto.subtle.digest');
+  }
+  const digest = await crypto.subtle.digest('SHA-256', bytes);
+  return Array.from(new Uint8Array(digest))
+    .map(byte => byte.toString(16).padStart(2, '0'))
+    .join('');
 }

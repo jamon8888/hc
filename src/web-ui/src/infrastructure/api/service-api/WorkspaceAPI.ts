@@ -290,8 +290,8 @@ export class WorkspaceAPI {
     }
   }
 
-  async createWorkspaceFile(workspaceId: string, path: string): Promise<void> {
-    await this.invokeWorkspaceFileCommand<void>('create_file', 'create workspace file', workspaceId, { path });
+  async createWorkspaceFile(workspaceId: string, path: string, exclusive = false): Promise<void> {
+    await this.invokeWorkspaceFileCommand<void>('create_file', 'create workspace file', workspaceId, { path, exclusive });
   }
 
   async deleteWorkspaceFile(workspaceId: string, path: string): Promise<void> {

@@ -39,6 +39,13 @@ Ship the verification story per ticket 02/06/07 contracts, choosing verification
 
 ## Progress (validation run on the spike macOS machine)
 
+2026-11-06 recheck: the managed runtime resolution path was exercised without
+an explicit CLI override. `wordcraft-doc-roundtrip.mjs` found the installed
+`wordcraft-cli 0.7.0` and passed the real MCP round trip, tracked OOXML author
+assertion, independent text read-back, formatting assertion, and outside-root
+refusal. This refreshes the local headless/native evidence; it does not close
+the separately owed packaged WebView, hardware GPU, or remote/detached legs.
+
 Validated here (all green):
 
 - `cargo test -p alex-services-core --no-default-features --features wordcraft --lib wordcraft`

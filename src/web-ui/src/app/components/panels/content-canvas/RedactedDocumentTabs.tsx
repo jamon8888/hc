@@ -97,6 +97,17 @@ export const RedactedDocumentTabs: React.FC<RedactedDocumentTabsProps> = ({
 
   const totalEntities = entityCounts.reduce((sum, entry) => sum + entry.count, 0);
 
+  /**
+   * A cold sidecar answers `server_busy` while the NER model warms, which
+   * previously stranded the redacted tab on an error wall. Absorb a bounded
+   * number of retryable busy envelopes with a short delay instead of
+   * failing; non-retryable errors still surface immediately.
+   */
+  const REDACTED_BUSY_RETRY_DELAY_MS = 5_000;
+  const REDACTED_BUSY_RETRY_MAX_ATTEMPTS = 12;
+  const busyRetryAttempts = useRef(0);
+  const loadRedactedRef = useRef<() => void>(() => {});
+
   const loadRedactedContent = useCallback(async () => {
     if (redactedLoadStarted.current) return;
     redactedLoadStarted.current = true;
@@ -114,11 +125,29 @@ export const RedactedDocumentTabs: React.FC<RedactedDocumentTabsProps> = ({
       setRedactedState('ready');
     } catch (error) {
       const cause = error instanceof Error ? error : new Error(String(error));
+      if (/server_busy/i.test(cause.message) && busyRetryAttempts.current < REDACTED_BUSY_RETRY_MAX_ATTEMPTS) {
+        busyRetryAttempts.current += 1;
+        redactedLoadStarted.current = false;
+        log.warn('Redacted document load hit a busy Basemind sidecar; retrying', {
+          sourcePath,
+          workspaceId,
+          attempt: busyRetryAttempts.current,
+        });
+        setRedactedState('loading');
+        window.setTimeout(() => loadRedactedRef.current(), REDACTED_BUSY_RETRY_DELAY_MS);
+        return;
+      }
       log.error('Failed to load redacted document', { sourcePath, workspaceId, error: cause });
       setRedactedError(cause.message);
       setRedactedState('error');
     }
   }, [sourcePath, surfaceId, workspaceId]);
+
+  useEffect(() => {
+    loadRedactedRef.current = () => {
+      void loadRedactedContent();
+    };
+  }, [loadRedactedContent]);
 
   /**
    * Read the source through the workspace file owner.
@@ -180,6 +209,7 @@ export const RedactedDocumentTabs: React.FC<RedactedDocumentTabsProps> = ({
 
   const retryRedactedContent = useCallback(() => {
     redactedLoadStarted.current = false;
+    busyRetryAttempts.current = 0;
     void loadRedactedContent();
   }, [loadRedactedContent]);
 

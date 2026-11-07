@@ -2477,6 +2477,10 @@ fn start_bundled_basemind_daemon(path: &std::path::Path) {
     // product always wants the front-end; the loopback bind plus the
     // portfile's bearer token remain the access boundary.
     command.env("BASEMIND_ALLOW_HTTP", "1");
+    // Extend the daemon's bootstrap window: the fork self-terminates when no
+    // client connects within the window, and the first attach can lag past
+    // the default while the NER model warms or the UI finishes loading.
+    command.env("BASEMIND_COMMS_BOOTSTRAP_SECS", "600");
     command
         .arg("comms")
         .arg("start")

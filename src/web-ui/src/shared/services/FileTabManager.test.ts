@@ -121,6 +121,38 @@ describe('FileTabManager docx routing (tickets 13/17)', () => {
     expect(mocks.invoke).not.toHaveBeenCalledWith('wordcraft_open_document_command', expect.anything());
   });
 
+  it('falls back to the native WordCraft window when the embedded surface is unavailable', async () => {
+    mocks.invoke.mockResolvedValue({
+      status: 'available',
+      cli: { command: 'wordcraft-cli', resolvedPath: '/c', source: 'managed' },
+      app: { command: 'wordcraft', resolvedPath: '/app', source: 'managed' },
+      version: '0.7.0',
+      message: null,
+      remediation: null,
+      checkedAtEpochMs: 1,
+      web: {
+        status: 'unsupported',
+        artifactPath: null,
+        version: null,
+        protocolVersion: null,
+        commandCapabilities: [],
+        message: 'Embedded WordCraft is unavailable on this host.',
+        remediation: 'Use the native WordCraft window.',
+        checkedAtEpochMs: 1,
+      },
+    });
+
+    manager.openFile({ filePath: '/tmp/workspace/report.docx' });
+
+    await vi.waitFor(() => {
+      expect(mocks.invoke).toHaveBeenCalledWith('wordcraft_open_document_command', {
+        request: { path: '/tmp/workspace/report.docx', workspaceId: 'ws-1' },
+      });
+    });
+    expect(mocks.openContentInBestTarget).not.toHaveBeenCalled();
+    expect(mocks.notifyError).not.toHaveBeenCalled();
+  });
+
   it('refuses a not-installed capability loudly without a code-editor dump', async () => {
     mocks.invoke.mockResolvedValue({
       status: 'not-installed',
@@ -138,6 +170,26 @@ describe('FileTabManager docx routing (tickets 13/17)', () => {
         title: 'errors:file.wordcraftOpenFailed',
       });
     });
+    expect(mocks.openContentInBestTarget).not.toHaveBeenCalled();
+  });
+
+  it('refuses remote workspaces before probing or opening a local WordCraft surface', async () => {
+    manager.openFile({
+      filePath: '/workspace/report.docx',
+      scope: {
+        surfaceId: 'local',
+        workspaceId: 'remote-workspace',
+        workspacePath: '/workspace',
+        remoteConnectionId: 'ssh-1',
+      },
+    });
+
+    await vi.waitFor(() => {
+      expect(mocks.notifyError).toHaveBeenCalledWith('errors:file.wordcraftOpenFailed', {
+        title: 'errors:file.wordcraftOpenFailed',
+      });
+    });
+    expect(mocks.invoke).not.toHaveBeenCalled();
     expect(mocks.openContentInBestTarget).not.toHaveBeenCalled();
   });
 
@@ -177,17 +229,16 @@ describe('FileTabManager docx routing (tickets 13/17)', () => {
     expect(mocks.openContentInBestTarget).not.toHaveBeenCalled();
   });
 
-  it('keeps the regular tab behavior where no capability probe exists', async () => {
+  it('refuses loudly when no capability probe exists', async () => {
     mocks.invoke.mockRejectedValue(new Error('wordcraft_status_command is unavailable here'));
     manager.openFile({ filePath: '/tmp/workspace/report.docx' });
 
     await vi.waitFor(() => {
-      expect(mocks.openContentInBestTarget).toHaveBeenCalled();
+      expect(mocks.notifyError).toHaveBeenCalledWith('errors:file.wordcraftOpenFailed', {
+        title: 'errors:file.wordcraftOpenFailed',
+      });
     });
-    const content = mocks.openContentInBestTarget.mock.calls[0][0];
-    expect(content.type).toBe('code-editor');
-    expect(content.data.filePath).toBe('/tmp/workspace/report.docx');
-    expect(mocks.notifyError).not.toHaveBeenCalled();
+    expect(mocks.openContentInBestTarget).not.toHaveBeenCalled();
   });
 
   it('an explicit editor surface choice bypasses the WordCraft route entirely', async () => {

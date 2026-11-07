@@ -977,7 +977,14 @@ async function handleWordcraftCommandRequest(rawEvent: unknown): Promise<void> {
     typeof event.params !== 'object' ||
     typeof event.author !== 'string'
   ) {
-    log.warn('Received invalid embedded WordCraft command request event', { rawEvent });
+    const eventKeys =
+      typeof rawEvent === 'object' && rawEvent !== null
+        ? Object.keys(rawEvent as Record<string, unknown>)
+        : [];
+    log.warn('Received invalid embedded WordCraft command request event', {
+      rawEventType: typeof rawEvent,
+      eventKeys,
+    });
     return;
   }
 

@@ -51,6 +51,13 @@ fn collect_builtin_skill_dir_names() -> HashSet<String> {
                 return None;
             }
 
+            // A directory beside the bundled skills is only a skill when it
+            // carries a SKILL.md; artifact-only siblings such as generated
+            // SDK contract payloads must not register themselves as skills.
+            if BUILTIN_SKILLS_DIR.get_file(rel.join("SKILL.md")).is_none() {
+                return None;
+            }
+
             rel.file_name()
                 .and_then(|name| name.to_str())
                 .map(|name| name.to_string())

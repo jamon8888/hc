@@ -29,6 +29,15 @@ vi.mock('@tauri-apps/api/core', () => ({
   invoke: invokeMock,
 }));
 
+// Keep the component test on the mocked command boundary. Without this, the
+// shared ApiClient selects its WebSocket adapter in Vitest and background
+// resize/show requests can still be retrying when the worker tears down.
+vi.mock('@/infrastructure/api/service-api/ApiClient', () => ({
+  api: {
+    invoke: invokeMock,
+  },
+}));
+
 vi.mock('@tauri-apps/api/window', () => ({
   cursorPosition: cursorPositionMock,
   getCurrentWindow: () => ({

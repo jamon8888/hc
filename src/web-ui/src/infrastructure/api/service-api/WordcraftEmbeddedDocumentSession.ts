@@ -63,10 +63,13 @@ export class WordcraftEmbeddedDocumentSession {
     }
   }
 
-  dispose(): void {
-    if (this.disposed) return;
+  async dispose(timeoutMs?: number): Promise<void> {
+    if (this.disposed) {
+      await this.options.host.waitForDispose(timeoutMs);
+      return;
+    }
     this.disposed = true;
-    this.options.host.dispose();
     this.options.bridge.dispose();
+    await this.options.host.waitForDispose(timeoutMs);
   }
 }

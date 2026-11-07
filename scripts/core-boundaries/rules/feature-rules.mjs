@@ -233,6 +233,7 @@ export const optionalDependencyFeatureOwnerRules = [
           'tools-mcp',
           'tools-miniapp',
           'tools-pages',
+          'tools-wordcraft',
           'tools-rag',
           'tools-wordcraft',
         ],

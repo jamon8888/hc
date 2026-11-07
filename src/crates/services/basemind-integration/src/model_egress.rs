@@ -1,8 +1,11 @@
 //! Basemind-backed model egress protection.
 //!
-//! The policy runs on the complete provider-bound message list. It deliberately
-//! keeps local model traffic untouched and refuses an unknown route rather than
-//! guessing whether a custom endpoint is private.
+//! The policy runs on the provider-bound message list, with one carve-out:
+//! messages the provider already holds in static, product-authored form
+//! (the `system` scaffold) are left untouched because they carry no user
+//! content, and redaction budget is reserved for messages that can. It
+//! deliberately keeps local model traffic untouched and refuses an unknown
+//! route rather than guessing whether a custom endpoint is private.
 
 use alex_core_types::{Message, ToolCall};
 use alex_runtime_ports::{
@@ -428,7 +431,15 @@ impl ModelEgressPolicy for BasemindModelEgressPolicy {
         }
         self.ensure_workspace_scope(&context)?;
 
+        // The `system` scaffold is static, Alex-authored content that never
+        // changes between rounds; it carries no user PII, so pseudonymizing
+        // it on every round would spend the NER window budget on bytes that
+        // are already safe. Every other role (user prompts, assistant and
+        // tool content) still pays the full redaction pass.
         for message in &mut messages {
+            if message.role == "system" {
+                continue;
+            }
             if let Some(attachments) = message
                 .tool_image_attachments
                 .take()
@@ -605,6 +616,28 @@ mod tests {
             .unwrap();
 
         assert_eq!(result[0].content.as_deref(), Some("[PERSON_test]"));
+    }
+
+    #[tokio::test]
+    async fn static_system_scaffold_is_never_re_pseudonymized() {
+        let policy = BasemindModelEgressPolicy::new(Arc::new(StubPseudonymizer));
+        let result = policy
+            .protect_messages(
+                vec![
+                    Message::system("Alex scaffold mentions Jean".into()),
+                    Message::assistant("About Jean".into()),
+                    Message::user("Jean".into()),
+                ],
+                context(ModelPrivacyRoute::Api),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(
+            result[0].content.as_deref(),
+            Some("Alex scaffold mentions Jean")
+        );
+        assert_eq!(result[2].content.as_deref(), Some("[PERSON_test]"));
     }
 
     #[tokio::test]

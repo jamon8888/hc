@@ -1,3 +1,6 @@
+import { resourcePathKey } from '@/shared/utils/resourcePath';
+import type { ContentResourceScope } from '@/shared/types/contentResource';
+
 /**
  * Generic context for a document surface that an agent may be asked to edit.
  *
@@ -11,6 +14,8 @@ export interface DocumentAgentContext {
   sessionId: string;
   surfaceId: string;
   workspaceId: string;
+  workspacePath?: string;
+  remoteConnectionId?: string;
   filePath: string;
   revision: number;
   status: 'loading' | 'ready' | 'failed' | 'closed';
@@ -56,7 +61,7 @@ export function registerDocumentAgentContext(
 /** Update a registered context without allowing callers to replace its identity. */
 export function updateDocumentAgentContext(
   key: string,
-  patch: Partial<Omit<DocumentAgentContext, 'kind' | 'surface' | 'documentId' | 'sessionId' | 'surfaceId' | 'workspaceId' | 'filePath'>>,
+  patch: Partial<Omit<DocumentAgentContext, 'kind' | 'surface' | 'documentId' | 'sessionId' | 'surfaceId' | 'workspaceId' | 'workspacePath' | 'remoteConnectionId' | 'filePath'>>,
 ): void {
   const registered = registeredContexts.get(key);
   if (!registered) return;
@@ -80,6 +85,48 @@ export function setDocumentAgentContextActive(key: string, active: boolean): voi
 
 export function unregisterDocumentAgentContext(key: string): void {
   registeredContexts.delete(key);
+}
+
+/**
+ * Return the embedded owner of a file, regardless of which tab is active.
+ * Opening the same file in the native WordCraft window would create a second
+ * writer and bypass the embedded session's revision guard.
+ */
+export function getDocumentAgentContextForFile(
+  filePath: string,
+  scopeOrWorkspaceId?: ContentResourceScope | string,
+  surfaceId?: string,
+): DocumentAgentContext | undefined {
+  const requestedScope: ContentResourceScope | undefined =
+    typeof scopeOrWorkspaceId === 'string'
+      ? { workspaceId: scopeOrWorkspaceId, surfaceId: surfaceId ?? '' }
+      : scopeOrWorkspaceId;
+  return [...registeredContexts.values()].find(
+    registered =>
+      registered.context.status !== 'closed' &&
+      (!requestedScope?.workspaceId ||
+        registered.context.workspaceId === requestedScope.workspaceId) &&
+      (!requestedScope?.surfaceId ||
+        registered.context.surfaceId === requestedScope.surfaceId) &&
+      (!requestedScope?.remoteConnectionId ||
+        registered.context.remoteConnectionId === requestedScope.remoteConnectionId) &&
+      resourcePathKey(
+        registered.context.filePath,
+        contextScope(registered.context),
+      ) === resourcePathKey(
+        filePath,
+        requestedScope ?? contextScope(registered.context),
+      ),
+  )?.context;
+}
+
+function contextScope(context: DocumentAgentContext): ContentResourceScope {
+  return {
+    surfaceId: context.surfaceId,
+    workspaceId: context.workspaceId,
+    workspacePath: context.workspacePath,
+    remoteConnectionId: context.remoteConnectionId,
+  };
 }
 
 /** Execute a request only on the exact visible document surface named by Core. */

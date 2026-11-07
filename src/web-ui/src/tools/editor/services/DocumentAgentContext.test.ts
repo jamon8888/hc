@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   clearDocumentAgentContextsForTests,
   executeDocumentAgentCommand,
+  getDocumentAgentContextForFile,
   getActiveDocumentAgentContext,
   registerDocumentAgentContext,
   setDocumentAgentContextActive,
@@ -52,6 +53,15 @@ describe('DocumentAgentContext', () => {
     updateDocumentAgentContext('first', { revision: 4 });
 
     expect(getActiveDocumentAgentContext()?.documentId).toBe('second');
+  });
+
+  it('finds an embedded owner by workspace and file identity', () => {
+    registerDocumentAgentContext('doc', context('doc'), true);
+
+    expect(getDocumentAgentContextForFile('/workspace/doc.docx', 'workspace-1', 'local')).toMatchObject({
+      documentId: 'doc',
+    });
+    expect(getDocumentAgentContextForFile('/workspace/doc.docx', 'other-workspace')).toBeUndefined();
   });
 
   it('routes a command only to the matching ready surface', async () => {

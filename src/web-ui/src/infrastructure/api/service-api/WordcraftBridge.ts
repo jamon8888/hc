@@ -102,8 +102,18 @@ interface PendingCommand {
   reject: (error: Error) => void;
 }
 
+interface QueuedCommand {
+  request: WordcraftCommandRequest;
+  resolve: (result: WordcraftCommandResult) => void;
+  reject: (error: Error) => void;
+}
+
 export class WordcraftBridge {
+  // WordCraft's browser control queue runs on the UI thread. Keep one
+  // correlated request in flight so mutations and the reads that verify them
+  // observe the same document order instead of racing across the frame.
   private readonly pending = new Map<string, PendingCommand>();
+  private readonly queue: QueuedCommand[] = [];
   private readonly issuedRequestIds = new Set<string>();
   private readonly timeoutMs: number;
   private readonly requestIdFactory: () => string;
@@ -111,6 +121,7 @@ export class WordcraftBridge {
   private failed = false;
   private ready = false;
   private latestObservedRevision = 0;
+  private activeRequestId: string | null = null;
   private readyGeneration = 0;
   private counter = 0;
 
@@ -136,6 +147,11 @@ export class WordcraftBridge {
       if (!validation.ok) {
         this.fail(validation.reason);
         return false;
+      }
+      if (this.readyGeneration > 0) {
+        // A reload creates a new frame state. Never let a request from the
+        // previous generation block or mutate the recovered document.
+        this.rejectOutstanding('WordCraft frame restarted before the command completed');
       }
       this.failed = false;
       this.ready = true;
@@ -225,18 +241,8 @@ export class WordcraftBridge {
       params,
     };
     return new Promise((resolve, reject) => {
-      const timer = setTimeout(() => {
-        this.pending.delete(requestId);
-        reject(new Error(`WordCraft command '${method}' timed out`));
-      }, this.timeoutMs);
-      this.pending.set(requestId, { method, expectedRevision, timer, resolve, reject });
-      try {
-        this.options.postMessage(request);
-      } catch (error) {
-        clearTimeout(timer);
-        this.pending.delete(requestId);
-        reject(error instanceof Error ? error : new Error(String(error)));
-      }
+      this.queue.push({ request, resolve, reject });
+      this.pumpQueue();
     });
   }
 
@@ -280,11 +286,7 @@ export class WordcraftBridge {
   dispose(reason = 'WordCraft bridge closed'): void {
     if (this.disposed) return;
     this.disposed = true;
-    for (const pending of this.pending.values()) {
-      clearTimeout(pending.timer);
-      pending.reject(new Error(reason));
-    }
-    this.pending.clear();
+    this.rejectOutstanding(reason);
   }
 
   private handleResult(data: Record<string, unknown>): boolean {
@@ -328,6 +330,8 @@ export class WordcraftBridge {
     } else {
       pending.resolve(result);
     }
+    this.activeRequestId = null;
+    this.pumpQueue();
     return true;
   }
 
@@ -337,6 +341,40 @@ export class WordcraftBridge {
     this.pending.delete(requestId);
     clearTimeout(pending.timer);
     pending.reject(new Error(reason));
+    this.activeRequestId = null;
+    this.pumpQueue();
+  }
+
+  private pumpQueue(): void {
+    if (!this.isReady || this.activeRequestId || this.queue.length === 0) return;
+
+    const queued = this.queue.shift()!;
+    const { request } = queued;
+    this.activeRequestId = request.requestId;
+    const timer = setTimeout(() => {
+      if (this.activeRequestId !== request.requestId) return;
+      this.pending.delete(request.requestId);
+      this.activeRequestId = null;
+      queued.reject(new Error(`WordCraft command '${request.method}' timed out`));
+      this.pumpQueue();
+    }, this.timeoutMs);
+    this.pending.set(request.requestId, {
+      method: request.method,
+      expectedRevision: request.expectedRevision,
+      timer,
+      resolve: queued.resolve,
+      reject: queued.reject,
+    });
+
+    try {
+      this.options.postMessage(request);
+    } catch (error) {
+      clearTimeout(timer);
+      this.pending.delete(request.requestId);
+      this.activeRequestId = null;
+      queued.reject(error instanceof Error ? error : new Error(String(error)));
+      this.pumpQueue();
+    }
   }
 
   private isTrustedEvent(event: MessageEvent<unknown>): boolean {
@@ -346,12 +384,20 @@ export class WordcraftBridge {
   private fail(reason: string): void {
     this.ready = false;
     this.failed = true;
+    this.rejectOutstanding(reason);
+    this.options.onEvent?.({ type: 'failed', sessionId: this.options.expectedSessionId, error: reason });
+  }
+
+  private rejectOutstanding(reason: string): void {
     for (const pending of this.pending.values()) {
       clearTimeout(pending.timer);
       pending.reject(new Error(reason));
     }
     this.pending.clear();
-    this.options.onEvent?.({ type: 'failed', sessionId: this.options.expectedSessionId, error: reason });
+    for (const queued of this.queue.splice(0)) {
+      queued.reject(new Error(reason));
+    }
+    this.activeRequestId = null;
   }
 }
 

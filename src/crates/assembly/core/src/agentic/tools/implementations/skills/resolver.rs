@@ -24,7 +24,7 @@ mod tests {
             path: format!("/tmp/{}", dir_name),
             level: SkillLocation::User,
             source_slot: "openbitfun-system".to_string(),
-            source_id: "alex".to_string(),
+            source_id: "openbitfun".to_string(),
             source_label: "Alex".to_string(),
             installation_source: None,
             import_origin: None,

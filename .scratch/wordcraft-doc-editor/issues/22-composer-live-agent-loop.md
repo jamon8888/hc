@@ -1,7 +1,7 @@
 # 22: Composer-driven live agent editing
 
 `Type: task`
-`Status: open`
+`Status: claimed`
 Triage label: ready-for-agent
 
 Blocked by: 21 (Single-writer persistence and recovery)
@@ -27,3 +27,24 @@ embedded WordCraft document, with reviewable tracked changes and verification.
       capabilities return explicit errors and do not silently switch writers.
 - [ ] Composer, session-routing, tracked-author, batch, save, and verification
       tests cover the complete prompt-to-document loop.
+
+## Implementation continuation (2026-11-04)
+
+- `execute` and `batch` now automatically issue `save_document` through the same
+  embedded bridge and return success only after the durable host acknowledges the
+  save. Read-only operations remain read-only.
+- The focused core WordCraft tool tests pass, and the browser probe verified the
+  tracked-change mutation, text read-back, save acknowledgement, and returned
+  OOXML authorship. Full prompt-to-document integration coverage and packaged
+  WebView validation remain open.
+
+## Comments
+
+2026-11-05 implementation continuation:
+
+- The Core document context DTO now uses tolerant defaults, so partial legacy
+  turn metadata remains readable and degrades to an unavailable document rather
+  than aborting context construction.
+- The focused `tools-wordcraft` Core suite passes 4/4, including tracked-change
+  enforcement and the legacy-context regression. Full prompt-to-document and
+  packaged WebView validation remain release gates.
